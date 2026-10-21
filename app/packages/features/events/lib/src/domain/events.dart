@@ -158,6 +158,46 @@ class EventReview {
   final DateTime? updatedAt;
 }
 
+/// A badge: earned (name and what it took) or, in the catalog, how to earn it (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).
+class ContributionBadge {
+  const ContributionBadge({required this.slug, required this.name, required this.description});
+
+  final String slug;
+  final String name;
+  final String description;
+}
+
+/// What a person did in groups, counted on the server from real records; no ranking.
+class Contributions {
+  const Contributions({
+    this.attended = 0,
+    this.organized = 0,
+    this.memories = 0,
+    this.reviews = 0,
+    this.groups = 0,
+    this.badges = const [],
+  });
+
+  final int attended;
+  final int organized;
+  final int memories;
+  final int reviews;
+
+  /// Different groups whose events the person attended.
+  final int groups;
+  final List<ContributionBadge> badges;
+
+  bool get isEmpty => attended == 0 && organized == 0 && memories == 0 && reviews == 0;
+}
+
+/// A going attendee in the roll call, and whether they were marked as not there.
+class RollEntry {
+  const RollEntry({required this.person, this.noShow = false});
+
+  final EventPerson person;
+  final bool noShow;
+}
+
 /// Another event of the user at the same time.
 class EventConflict {
   const EventConflict({required this.id, required this.title, required this.startsAt});
@@ -179,6 +219,7 @@ class EventDetail {
     this.canReview = false,
     this.myReview,
     this.reviews,
+    this.roll,
   });
 
   final GroupEvent event;
@@ -203,6 +244,9 @@ class EventDetail {
 
   /// Every review with its note; managers only.
   final List<EventReview>? reviews;
+
+  /// Going attendees while the roll call is open (7 days after the end); managers only.
+  final List<RollEntry>? roll;
 }
 
 class GroupEvents {
@@ -362,6 +406,18 @@ abstract interface class EventsRepository {
   Future<Result<void>> saveReview(String eventId, {required int rating, String comment = ''});
 
   Future<Result<void>> deleteReview(String eventId);
+
+  /// Marks a going attendee as not there, or clears it (a manager, within 7 days after the end).
+  Future<Result<void>> setNoShow(String eventId, String userId, {required bool noShow});
+
+  /// Null when the person's content is private to the viewer.
+  Future<Result<Contributions?>> contributions(String userId);
+
+  /// Every badge and how to earn it.
+  Future<Result<List<ContributionBadge>>> badgeCatalog();
+
+  /// Attended and organized events in the group, per member who has any.
+  Future<Result<Map<String, ({int attended, int organized})>>> groupContributions(String groupId);
 
   /// The group's past events, newest first; [before] pages back by start time.
   Future<Result<List<GroupEvent>>> history(String groupId, {DateTime? before});

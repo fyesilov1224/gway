@@ -257,6 +257,29 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
             ("u", crew.Member), ("e", ev)));
     }
 
+    [Fact]
+    public async Task Managers_take_the_roll_within_a_week_after_the_end()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        await AttendAsync(crew.Member, ev);
+        var mark = Path($"/events/{ev}/no-shows/{crew.Member}");
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await factory.ClientFor(crew.Admin).PutAsync(mark, null, Ct)).StatusCode);
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '1 day' where id = @e", ("e", ev));
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(crew.Other).PutAsync(mark, null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Admin).PutAsync(mark, null, Ct)).StatusCode);
+        Assert.Equal(0, await _db.ScalarAsync<int>("select (private.contribution_counts(@u, null)->>'attended')::int", ("u", crew.Member)));
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Admin).DeleteAsync(mark, Ct)).StatusCode);
+        Assert.Equal(1, await _db.ScalarAsync<int>("select (private.contribution_counts(@u, null)->>'attended')::int", ("u", crew.Member)));
+        Assert.Equal(2L, await CountAsync(
+            "select count(*) from public.audit_log where action in ('event.no_show_marked', 'event.no_show_cleared') and target_id = @e",
+            ("e", ev.ToString())));
+
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '10 days' where id = @e", ("e", ev));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await factory.ClientFor(crew.Admin).PutAsync(mark, null, Ct)).StatusCode);
+    }
+
     // Polls -----------------------------------------------------------------------------------
 
     [Fact]

@@ -441,6 +441,32 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Değerlendirme isteği:** Organizasyon bittikten sonra katılanlara bir kez `event_review` bildirimi gider (`EventReminderService`, `events.review_asked_at`). Bildirim tercihlerinden kapatılabilir (`event_review_requests`).
 - **Özet ve geçmiş:** Biten organizasyonun sayfası katılan sayısını, puan ortalamasını ve anı sayısını gösterir. Grubun sıradaki organizasyonlarını da önerir. Grubun geçmişi (`public.group_event_history`) biten organizasyonları özetleriyle, yeniden eskiye ve sayfalı listeler.
 
+### Katkı ve rozetler (Faz 11)
+Ürün kararları (2026-10-21): organizasyon bitince "katılıyor" görünen herkes katılmış sayılır, düzenleyen gelmeyenleri işaretler. Rozetler görünür, sıralama yoktur.
+
+- **Yoklama:** Organizasyon bittikten sonra 7 gün içinde `events.manage` yetkilisi bir katılanı "gelmedi" olarak işaretler ya da işareti kaldırır (`event_attendees.no_show_at`, C# API, audit log). "Gelmedi" işaretli kişi katılmış sayılmaz; değerlendirme yapamaz, anı ekleyemez.
+- **Katkı ayrı bir puan tablosunda tutulmaz.** Her seferinde kaynak kayıtlardan hesaplanır. İstemci puan yazamaz, aynı işlem iki kez sayılamaz:
+  - **Katılım:** iptal edilmemiş, bitmiş ve kişinin `going` olup "gelmedi" işaretlenmediği organizasyon.
+  - **Düzenleme:** kişinin oluşturduğu, iptal edilmemiş, bitmiş ve düzenleyen dışında en az 2 kişinin katıldığı organizasyon (boş organizasyonla rozet kazanılamaz).
+  - **Anı:** kaldırılmamış, organizasyona bağlı gönderi.
+  - **Değerlendirme:** kişinin değerlendirmeleri.
+- **Rozetler** (`public.badge_catalog()` tek kaynaktır; ekran koşulları buradan gösterir):
+
+  | Rozet | Koşul |
+  |---|---|
+  | İlk adım | 1 katılım |
+  | Müdavim | 10 katılım |
+  | Yol arkadaşı | 25 katılım |
+  | Kâşif | 3 farklı grubun organizasyonuna katılım |
+  | Düzenleyici | 1 düzenleme |
+  | Usta düzenleyici | 10 düzenleme |
+  | Anı biriktiren | 5 anı |
+  | Geri bildirimci | 5 değerlendirme |
+  | `<Kategori>` tutkunu | Bir kategoride 5 katılım |
+
+- Beğeni, takipçi ve gönderi sayısı katkıya girmez. Gönüllülük ve yeni üyelere yardım gibi doğrulanamayan katkılar Faz 12'deki görevlerle gelir.
+- **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Sıralama ve "ayın en iyileri" listesi yoktur.
+
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
@@ -452,7 +478,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | Storage `event-images` | Herkes | `events.manage` (kendi grubunun klasörü) |
 
 ### Audit log
-`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
+`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `event.no_show_marked`, `event.no_show_cleared`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -465,6 +491,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `POST /events/{id}/requests/{userId}/approval` | Katılım isteğini onaylama (`events.manage`) |
 | `DELETE /events/{id}/requests/{userId}` | Katılım isteğini reddetme (`events.manage`) |
 | `GET /events/{id}/calendar.ics` | Takvime ekle (oturum gerekmez) |
+| `PUT /events/{id}/no-shows/{userId}`, `DELETE /events/{id}/no-shows/{userId}` | Yoklama: "gelmedi" işareti ve kaldırılması (`events.manage`, bitişten sonra 7 gün) |
 | `POST /groups/{id}/polls` | Anket açma (`question`, `options[]`, `allowsMultiple`, `isAnonymous`, `closesAt?`, `eventId?`) |
 | `POST /polls/{id}/close`, `DELETE /polls/{id}` | Anketi kapatma / silme (`events.manage`) |
 | `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`). Rol: `admin`, `moderator`, `support` |

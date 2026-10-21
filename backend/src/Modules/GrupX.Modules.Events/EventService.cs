@@ -83,6 +83,14 @@ public static class EventsModule
                 Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.DecideRequestAsync(user.GetUserId(), id, userId, approve: false, ct)).ToHttpResult());
 
+        app.MapPut("/events/{id:guid}/no-shows/{userId:guid}", async (
+                Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
+            (await events.SetNoShowAsync(user.GetUserId(), id, userId, noShow: true, ct)).ToHttpResult());
+
+        app.MapDelete("/events/{id:guid}/no-shows/{userId:guid}", async (
+                Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
+            (await events.SetNoShowAsync(user.GetUserId(), id, userId, noShow: false, ct)).ToHttpResult());
+
         // "Takvime ekle": public like the event page itself.
         app.MapGet("/events/{id:guid}/calendar.ics", async (Guid id, EventService events, CancellationToken ct) =>
                 await events.CalendarAsync(id, ct) is { } ics
@@ -130,6 +138,7 @@ internal sealed partial class EventService(
         "attendance_forbidden" => Error.Forbidden("event.attendance_forbidden", "Katılmak için grubun üyesi olmalısın."),
         "poll_time_invalid" => Invalid("Anket en az 5 dakika, en fazla 90 gün sonra kapanmalı."),
         "equipment_invalid" => Invalid("Ekipman en fazla 10 madde olabilir; her madde 1–60 karakter olmalı."),
+        "roll_closed" => Error.RuleViolation("event.roll_closed", "Yoklama, organizasyon bittikten sonraki 7 gün içinde yapılabilir."),
         "event_forbidden" or "poll_forbidden" => Forbidden,
         _ => Error.RuleViolation($"event.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
@@ -375,6 +384,26 @@ internal sealed partial class EventService(
             if (changed == 0) return Error.NotFound("event.request_not_found", "Bekleyen bir katılım isteği bulunamadı.");
             await AuditAsync(conn, tx, actor, approve ? "event.attendee_approved" : "event.attendee_declined", "event", id, e.GroupId,
                 new { userId }, ct);
+            return Result.Success();
+        }, RuleError, ct);
+
+    /// <summary>
+    /// The roll call (docs/ARCHITECTURE.md §3d, Katkı ve rozetler): an events.manage holder marks a going attendee as a
+    /// no-show, or clears it, within 7 days after the end. The trigger checks the same window.
+    /// </summary>
+    public Task<Result> SetNoShowAsync(Guid actor, Guid id, Guid userId, bool noShow, CancellationToken ct) =>
+        ActingTransaction.RunAsync(db, actor, async (conn, tx) =>
+        {
+            var e = await LoadAsync(conn, tx, id, ct);
+            if (e is null) return NotFound;
+            if (!await CanManageAsync(conn, tx, actor, e.GroupId, ct)) return Forbidden;
+            var changed = await ActingTransaction.ExecuteAsync(conn, tx,
+                noShow
+                    ? "update public.event_attendees set no_show_at = now() where event_id = @e and user_id = @u and status = 'going' and no_show_at is null"
+                    : "update public.event_attendees set no_show_at = null where event_id = @e and user_id = @u and status = 'going' and no_show_at is not null",
+                ct, ("e", id), ("u", userId));
+            if (changed == 0) return Error.NotFound("event.attendee_not_found", "Bu kişi organizasyonun katılanları arasında bulunamadı.");
+            await AuditAsync(conn, tx, actor, noShow ? "event.no_show_marked" : "event.no_show_cleared", "event", id, e.GroupId, new { userId }, ct);
             return Result.Success();
         }, RuleError, ct);
 

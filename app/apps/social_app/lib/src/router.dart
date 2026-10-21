@@ -117,7 +117,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ProfileRoutes.mine,
             builder: (context, _) => ProfileScreen(
               onOpenSettings: () => context.push(AppRoutes.settings),
-              sections: const [profilePostsSection, _groupsSection],
+              sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_calendarButton])),
@@ -159,7 +159,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/highlights/:id', builder: (_, state) => HighlightViewerScreen(highlightId: state.pathParameters['id']!)),
       GoRoute(
         path: '/u/:username',
-        builder: (_, state) => ProfileScreen(username: state.pathParameters['username'], sections: const [profilePostsSection, _groupsSection]),
+        builder: (_, state) => ProfileScreen(
+          username: state.pathParameters['username'],
+          sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
+        ),
         routes: [
           GoRoute(path: 'followers', builder: (_, state) => FollowListsScreen(username: state.pathParameters['username']!)),
           GoRoute(
@@ -186,6 +189,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               handle: state.pathParameters['handle']!,
               onOpenProfile: _openProfile,
               onOpenCase: openCase,
+              memberNote: memberContributions,
             ),
           ),
           GoRoute(path: 'edit', builder: (_, state) => EditGroupScreen(handle: state.pathParameters['handle']!)),

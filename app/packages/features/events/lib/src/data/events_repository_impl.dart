@@ -120,6 +120,7 @@ class EventsRepositoryImpl implements EventsRepository {
         final requests = r['requests'] as List?;
         final reviews = r['reviews'] as List?;
         final mine = r['my_review'] as Map?;
+        final roll = r['roll'] as List?;
         return EventDetail(
           event: _event(r),
           canManage: r['can_manage'] == true,
@@ -144,6 +145,9 @@ class EventsRepositoryImpl implements EventsRepository {
                       updatedAt: DateTime.parse(v['updated_at'] as String),
                     ),
                 ],
+          roll: roll == null
+              ? null
+              : [for (final p in roll.cast<Map<String, dynamic>>()) RollEntry(person: _person(p), noShow: p['no_show'] == true)],
         );
       });
 
@@ -202,6 +206,44 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> deleteReview(String eventId) => _run(() async {
         await _client.from('event_reviews').delete().eq('event_id', eventId).eq('user_id', _client.auth.currentUser!.id);
+      });
+
+  @override
+  Future<Result<void>> setNoShow(String eventId, String userId, {required bool noShow}) => noShow
+      ? _api.put('/events/$eventId/no-shows/$userId', decode: (_) {})
+      : _api.delete('/events/$eventId/no-shows/$userId', decode: (_) {});
+
+  ContributionBadge _badge(Map<String, dynamic> b) =>
+      ContributionBadge(slug: b['slug'] as String, name: b['name'] as String, description: b['description'] as String);
+
+  @override
+  Future<Result<Contributions?>> contributions(String userId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('user_contributions', params: {'target': userId});
+        if (r == null) return null;
+        int n(String key) => (r[key] as num?)?.toInt() ?? 0;
+        return Contributions(
+          attended: n('attended'),
+          organized: n('organized'),
+          memories: n('memories'),
+          reviews: n('reviews'),
+          groups: n('groups'),
+          badges: [for (final b in (r['badges'] as List? ?? const []).cast<Map<String, dynamic>>()) _badge(b)],
+        );
+      });
+
+  @override
+  Future<Result<List<ContributionBadge>>> badgeCatalog() => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('badge_catalog');
+        return [for (final b in r.cast<Map<String, dynamic>>()) _badge(b)];
+      });
+
+  @override
+  Future<Result<Map<String, ({int attended, int organized})>>> groupContributions(String groupId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>>('group_contributions', params: {'target_group': groupId});
+        return {
+          for (final MapEntry(:key, :value) in r.entries)
+            key: (attended: ((value as Map)['attended'] as num).toInt(), organized: (value['organized'] as num).toInt()),
+        };
       });
 
   @override

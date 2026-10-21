@@ -11,15 +11,19 @@ import 'widgets.dart';
 /// Opens a discipline case about a member (the moderation feature, through the app).
 typedef OpenCase = void Function(BuildContext context, Group group, GroupPerson person, {required bool canMute});
 
+/// A line under a member's name from another feature, e.g. their contributions in the group.
+typedef MemberNote = String? Function(WidgetRef ref, Group group, GroupPerson person);
+
 /// Members with their roles. People who manage members also get the
 /// pending requests and invitations; the owner manages roles and ownership.
 /// Members report each other; reviewers open discipline cases (docs/ARCHITECTURE.md §3e).
 class GroupMembersScreen extends ConsumerWidget {
-  const GroupMembersScreen({super.key, required this.handle, required this.onOpenProfile, this.onOpenCase});
+  const GroupMembersScreen({super.key, required this.handle, required this.onOpenProfile, this.onOpenCase, this.memberNote});
 
   final String handle;
   final OpenProfile onOpenProfile;
   final OpenCase? onOpenCase;
+  final MemberNote? memberNote;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +45,7 @@ class GroupMembersScreen extends ConsumerWidget {
     }
 
     final tabs = [
-      (const Tab(text: 'Üyeler'), _MembersTab(group: g, me: me, onOpenProfile: onOpenProfile, onOpenCase: onOpenCase)),
+      (const Tab(text: 'Üyeler'), _MembersTab(group: g, me: me, onOpenProfile: onOpenProfile, onOpenCase: onOpenCase, memberNote: memberNote)),
       if (me.can(GroupPermission.approveMembers)) (const Tab(text: 'İstekler'), _RequestsTab(group: g)),
       if (me.can(GroupPermission.inviteMembers)) (const Tab(text: 'Davetler'), _InvitationsTab(group: g)),
     ];
@@ -64,12 +68,19 @@ class GroupMembersScreen extends ConsumerWidget {
 }
 
 class _MembersTab extends ConsumerWidget {
-  const _MembersTab({required this.group, required this.me, required this.onOpenProfile, required this.onOpenCase});
+  const _MembersTab({
+    required this.group,
+    required this.me,
+    required this.onOpenProfile,
+    required this.onOpenCase,
+    required this.memberNote,
+  });
 
   final Group group;
   final MyMembership me;
   final OpenProfile onOpenProfile;
   final OpenCase? onOpenCase;
+  final MemberNote? memberNote;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,6 +119,10 @@ class _MembersTab extends ConsumerWidget {
             for (final p in value)
               PersonTile(
                 person: p,
+                subtitle: switch (memberNote?.call(ref, group, p)) {
+                  final note? when note.isNotEmpty => '@${p.username} · $note',
+                  _ => null,
+                },
                 onTap: () => onOpenProfile(context, p.username),
                 trailing: p.userId != userId && menu(p).isNotEmpty
                     ? PopupMenuButton<void>(

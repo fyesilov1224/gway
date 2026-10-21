@@ -20,6 +20,19 @@ final calendarProvider = FutureProvider.autoDispose.family<List<GroupEvent>, Cal
       (await ref.watch(eventsRepositoryProvider).calendar(q.from, q.to, groupId: q.groupId, includeGroups: q.includeGroups)).getOrThrow(),
 );
 
+/// Null when the person's content is private to the viewer.
+final contributionsProvider = FutureProvider.autoDispose.family<Contributions?, String>(
+  (ref, userId) async => (await ref.watch(eventsRepositoryProvider).contributions(userId)).getOrThrow(),
+);
+
+final badgeCatalogProvider = FutureProvider<List<ContributionBadge>>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).badgeCatalog()).getOrThrow(),
+);
+
+final groupContributionsProvider = FutureProvider.autoDispose.family<Map<String, ({int attended, int organized})>, String>(
+  (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupContributions(groupId)).getOrThrow(),
+);
+
 final eventDetailProvider = FutureProvider.autoDispose.family<EventDetail, String>(
   (ref, id) async => (await ref.watch(eventsRepositoryProvider).event(id)).getOrThrow(),
 );

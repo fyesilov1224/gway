@@ -165,9 +165,13 @@ class AdminUserDetail {
     required this.history,
     this.bio,
     this.suspensionReason,
+    this.contributions = const AdminContributions(),
   });
 
   factory AdminUserDetail.fromJson(Map<String, Object?> j) => AdminUserDetail(
+        contributions: j['contributions'] == null
+            ? const AdminContributions()
+            : AdminContributions.fromJson((j['contributions']! as Map).cast()),
         user: AdminUserSummary.fromJson((j['user']! as Map).cast()),
         bio: j['bio'] as String?,
         suspensionReason: j['suspensionReason'] as String?,
@@ -189,6 +193,26 @@ class AdminUserDetail {
   final String? suspensionReason;
   final List<AdminConsent> consents;
   final List<AdminAuditItem> history;
+  final AdminContributions contributions;
+}
+
+/// What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).
+class AdminContributions {
+  const AdminContributions({this.attended = 0, this.organized = 0, this.memories = 0, this.reviews = 0, this.noShows = 0});
+
+  factory AdminContributions.fromJson(Map<String, Object?> j) => AdminContributions(
+        attended: j['attended']! as int,
+        organized: j['organized']! as int,
+        memories: j['memories']! as int,
+        reviews: j['reviews']! as int,
+        noShows: j['noShows']! as int,
+      );
+
+  final int attended;
+  final int organized;
+  final int memories;
+  final int reviews;
+  final int noShows;
 }
 
 /// One page of a paged admin list.

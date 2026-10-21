@@ -650,6 +650,32 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     ],
                   ),
                 ),
+              if (d.roll case final roll? when roll.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Yoklama', style: textTheme.titleMedium),
+                      Text('Gelmeyenleri işaretle; katkıya ve rozetlere yalnızca gelenler sayılır. Bitişten sonra 7 gün açık.',
+                          style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                      for (final entry in roll)
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: !entry.noShow,
+                          onChanged: _busy
+                              ? null
+                              : (came) => _run(
+                                    (r) => r.setNoShow(e.id, entry.person.id, noShow: !came),
+                                    done: came ? '${entry.person.displayName} geldi olarak işaretlendi.' : '${entry.person.displayName} gelmedi olarak işaretlendi.',
+                                  ),
+                          secondary: GxAvatar(name: entry.person.displayName, imageUrl: entry.person.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+                          title: Text(entry.person.displayName),
+                          subtitle: Text(entry.noShow ? 'Gelmedi' : 'Geldi'),
+                        ),
+                    ],
+                  ),
+                ),
               if (e.hasStarted(now) && !e.isCanceled && widget.links.memories != null) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.sm, 0),

@@ -1,6 +1,7 @@
 import 'package:events/events.dart';
 import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:profile/profile.dart';
@@ -15,6 +16,14 @@ final eventLinks = EventLinks(
     emptyMessage: 'Henüz anı paylaşılmadı. Katılanlar fotoğraflarını buraya ekleyebilir.',
   ),
 );
+
+/// "12 katılım · 2 düzenleme" under a member's name (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).
+String? memberContributions(WidgetRef ref, Group group, GroupPerson person) =>
+    groupContributionLine(ref.watch(groupContributionsProvider(group.id)).value?[person.userId]);
+
+/// Contributions and badges on a profile.
+Widget profileContributionsSection(BuildContext context, Profile profile, bool isOwn) =>
+    ContributionsSection(userId: profile.id, isOwn: isOwn);
 
 /// Upcoming events on the group page; events.manage holders (owner, Yönetici) create them.
 Widget groupEventsSection(BuildContext context, Group group, MyMembership me) =>

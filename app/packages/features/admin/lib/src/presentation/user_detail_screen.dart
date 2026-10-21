@@ -129,6 +129,14 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
 
     final left = [
       _AccountPanel(detail: d),
+      const SizedBox(height: GxSpacing.lg),
+      InfoPanel(title: 'Topluluk katkısı', rows: [
+        ('Katıldığı organizasyon', formatCount(d.contributions.attended)),
+        ('Düzenlediği organizasyon', formatCount(d.contributions.organized)),
+        ('Anı', formatCount(d.contributions.memories)),
+        ('Değerlendirme', formatCount(d.contributions.reviews)),
+        ('Gelmedi işareti', formatCount(d.contributions.noShows)),
+      ]),
       if (d.bio case final bio? when bio.isNotEmpty) ...[
         const SizedBox(height: GxSpacing.lg),
         GxPanel(title: 'Hakkında', child: Text(bio, style: Theme.of(context).textTheme.bodyLarge)),
