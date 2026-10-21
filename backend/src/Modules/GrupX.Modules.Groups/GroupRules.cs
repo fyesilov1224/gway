@@ -69,6 +69,10 @@ internal static partial class GroupRules
             ? Error.Validation("group.invalid_join_policy", "Geçerli bir katılım tipi seç.")
             : null;
 
+    /// <summary>Plate number of one of Turkey's 81 provinces (docs/ARCHITECTURE.md §3d, Harita ile keşif).</summary>
+    public static Error? ValidateProvince(int province) =>
+        province is < 1 or > 81 ? Error.Validation("group.invalid_province", "Geçerli bir il seç.") : null;
+
     public static Error? ValidateAbout(string? about) =>
         about is not null && about.Trim().Length > MaxAbout
             ? Error.Validation("group.invalid_about", $"Tanıtım en fazla {MaxAbout} karakter olabilir.")

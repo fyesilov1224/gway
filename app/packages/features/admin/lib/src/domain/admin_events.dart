@@ -32,6 +32,8 @@ class AdminEvent {
     this.ratingAvg,
     this.ratingCount = 0,
     this.postsCount = 0,
+    this.meetingLat,
+    this.meetingLng,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -52,6 +54,8 @@ class AdminEvent {
         ratingAvg: (j['ratingAvg'] as num?)?.toDouble(),
         ratingCount: j['ratingCount'] as int? ?? 0,
         postsCount: j['postsCount'] as int? ?? 0,
+        meetingLat: (j['meetingLat'] as num?)?.toDouble(),
+        meetingLng: (j['meetingLng'] as num?)?.toDouble(),
       );
 
   final String id;
@@ -76,7 +80,14 @@ class AdminEvent {
   final int ratingCount;
   final int postsCount;
 
+  /// The meeting point picked on the map (Faz 14); staff may remove an inappropriate one.
+  final double? meetingLat;
+  final double? meetingLng;
+
   bool get isCanceled => canceledAt != null;
+
+  String? get meetingLabel =>
+      meetingLat == null ? null : '${meetingLat!.toStringAsFixed(5)}, ${meetingLng!.toStringAsFixed(5)}';
 }
 
 typedef AdminEventPage = PagedList<AdminEvent>;
@@ -156,6 +167,8 @@ abstract interface class AdminEventsRepository {
 
   /// Cancels for everyone; attendees are notified.
   Future<Result<void>> cancel(String id, {required String reason});
+
+  Future<Result<void>> removeMeetingPoint(String id);
 
   Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1});
 

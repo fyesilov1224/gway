@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:core/core.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/events.dart';
@@ -83,6 +84,10 @@ class EventsRepositoryImpl implements EventsRepository {
       ratingAvg: (r['rating_avg'] as num?)?.toDouble(),
       ratingCount: (r['rating_count'] as num?)?.toInt() ?? 0,
       postsCount: (r['posts_count'] as num?)?.toInt() ?? 0,
+      meeting: switch (r['meeting']) {
+        {'lat': final num lat, 'lng': final num lng} => LatLng(lat.toDouble(), lng.toDouble()),
+        _ => null,
+      },
     );
   }
 

@@ -16,7 +16,10 @@ enum _Tab { discover, mine }
 /// Discover groups (search, category filter) and the user's own groups.
 /// Pending invitations are shown above both.
 class GroupsScreen extends ConsumerStatefulWidget {
-  const GroupsScreen({super.key});
+  const GroupsScreen({super.key, this.actions = const []});
+
+  /// Extra app bar actions the app supplies (e.g. the map), before "Grup oluştur".
+  final List<Widget> actions;
 
   static const pageSize = 30;
 
@@ -66,6 +69,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       appBar: AppBar(
         title: const Text('Gruplar'),
         actions: [
+          ...widget.actions,
           Padding(
             padding: const EdgeInsets.only(right: GxSpacing.sm),
             child: GxButton(label: 'Grup oluştur', icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),

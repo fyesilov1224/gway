@@ -105,6 +105,7 @@ class AdminGroupDetail {
     required this.history,
     this.suspensionReason,
     this.suspendedAt,
+    this.province,
   });
 
   factory AdminGroupDetail.fromJson(Map<String, Object?> j) => AdminGroupDetail(
@@ -120,6 +121,7 @@ class AdminGroupDetail {
         history: [for (final h in (j['history']! as List).cast<Map<String, Object?>>()) AdminAuditItem.fromJson(h)],
         suspensionReason: j['suspensionReason'] as String?,
         suspendedAt: j['suspendedAt'] is String ? DateTime.parse(j['suspendedAt']! as String) : null,
+        province: j['province'] as int?,
       );
 
   final AdminGroupSummary group;
@@ -136,6 +138,9 @@ class AdminGroupDetail {
   final List<AdminAuditItem> history;
   final String? suspensionReason;
   final DateTime? suspendedAt;
+
+  /// Plate number; the group's place on the map (Faz 14).
+  final int? province;
 }
 
 class AdminGroupStats {

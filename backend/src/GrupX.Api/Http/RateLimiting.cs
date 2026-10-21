@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using GrupX.Api.Endpoints;
 using GrupX.SharedKernel.Http;
 
 namespace GrupX.Api.Http;
@@ -9,21 +10,24 @@ public static class RateLimiting
     {
         var permitsPerMinute = configuration.GetValue("RateLimiting:PermitsPerMinute", 120);
         var sensitivePermits = configuration.GetValue("RateLimiting:SensitivePermitsPer10Minutes", 10);
+        var tilePermits = configuration.GetValue("RateLimiting:MapTilesPerMinute", 600);
 
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            // Signed-in users are limited by user id, anonymous callers by IP.
+            // Signed-in users are limited by user id, anonymous callers by IP. A map view loads dozens of
+            // tiles at once, so tiles have their own, larger allowance.
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
             {
                 var key = context.User.Identity?.IsAuthenticated == true
                     ? $"user:{context.User.Identity.Name}"
                     : $"ip:{context.Connection.RemoteIpAddress}";
+                var tiles = context.Request.Path.StartsWithSegments(MapTileEndpoints.PathPrefix.TrimEnd('/'), StringComparison.Ordinal);
 
-                return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                return RateLimitPartition.GetFixedWindowLimiter(tiles ? $"tiles:{key}" : key, _ => new FixedWindowRateLimiterOptions
                 {
-                    PermitLimit = permitsPerMinute,
+                    PermitLimit = tiles ? tilePermits : permitsPerMinute,
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0,
                 });

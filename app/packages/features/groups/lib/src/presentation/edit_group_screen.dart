@@ -84,6 +84,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
   late final _rules = TextEditingController(text: widget.group.rules);
   late final List<_LinkControllers> _links = [for (final l in widget.group.links) _LinkControllers(l)];
   late String _category = widget.group.categorySlug;
+  late int? _province = widget.group.province;
   late JoinPolicy _policy = widget.group.joinPolicy;
   GroupImage? _uploading;
   bool _saving = false;
@@ -137,6 +138,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
             about: _about.text.trim(),
             rules: _rules.text.trim(),
             links: [for (final l in _links) GroupLink(label: l.label.text.trim(), url: l.url.text.trim())],
+            province: _province == widget.group.province ? null : _province ?? 0,
           ),
         );
     if (!mounted) return;
@@ -257,6 +259,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                         ),
                         const SizedBox(height: GxSpacing.md),
                         CategoryField(value: _category, onChanged: (v) => setState(() => _category = v ?? _category)),
+                        const SizedBox(height: GxSpacing.md),
+                        ProvinceField(value: _province, onChanged: (v) => setState(() => _province = v)),
                         const SizedBox(height: GxSpacing.md),
                         TextFormField(
                           controller: _about,

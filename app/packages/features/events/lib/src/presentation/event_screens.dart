@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/events.dart';
+import 'map_screens.dart';
 import 'polls.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -475,6 +477,10 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         Text(e.location, style: textTheme.bodyLarge),
                         if (e.linkUrl != null)
                           SelectableText(e.linkUrl!, style: textTheme.bodyMedium?.copyWith(color: GxColors.secondary)),
+                        if (e.meeting case final point?) ...[
+                          const SizedBox(height: GxSpacing.xs),
+                          EventMeetingMap(point: point),
+                        ],
                       ]),
                     ),
                     row(Icons.groups_outlined, Text(eventSeats(e), style: textTheme.bodyLarge)),
@@ -740,6 +746,7 @@ class _EditorState extends ConsumerState<_Editor> {
   late final _requirements = TextEditingController(text: widget.event?.requirements);
   late final _equipment = TextEditingController(text: widget.event?.equipment.join(', '));
   late bool _approval = widget.event?.approvalRequired ?? false;
+  late LatLng? _meeting = widget.event?.meeting;
   late String _currency = widget.event?.fee?.currency ?? 'TRY';
   late DateTime _startsAt = widget.event?.startsAt.toLocal() ?? _nextMorning();
   late DateTime? _endsAt = widget.event?.endsAt?.toLocal();
@@ -813,6 +820,7 @@ class _EditorState extends ConsumerState<_Editor> {
       requirements: _requirements.text,
       equipment: equipmentItems(_equipment.text),
       approvalRequired: _approval,
+      meeting: _meeting,
     );
     setState(() {
       _busy = true;
@@ -922,6 +930,7 @@ class _EditorState extends ConsumerState<_Editor> {
                   return t.isEmpty || t.startsWith('http://') || t.startsWith('https://') ? null : 'Bağlantı https:// ile başlamalı.';
                 },
               ),
+              MeetingPointField(value: _meeting, onChanged: (p) => setState(() => _meeting = p)),
               const SizedBox(height: GxSpacing.sm),
               TextFormField(
                 controller: _description,

@@ -1,0 +1,633 @@
+import 'dart:async';
+
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../data/map_repository_impl.dart';
+import '../domain/map.dart';
+import 'routes.dart';
+
+/// The middle of Turkey, and the box the map first fits (west of Edirne to east of Iğdır).
+const turkeyCenter = LatLng(39.0, 35.2);
+final turkeyBounds = LatLngBounds(const LatLng(35.8, 25.6), const LatLng(42.2, 44.9));
+
+final mapRepositoryProvider = Provider<MapRepository>((ref) => MapRepositoryImpl(ref.watch(supabaseClientProvider)));
+
+typedef MapQuery = ({MapArea area, String? category});
+
+final mapItemsProvider = FutureProvider.autoDispose.family<MapItems, MapQuery>(
+  (ref, q) async => (await ref.watch(mapRepositoryProvider).items(q.area, category: q.category)).getOrThrow(),
+);
+
+typedef MapTiles = ({String url, String? token});
+
+/// Where tiles come from: the API's tile endpoint with the user's session (docs/ARCHITECTURE.md §3d,
+/// Harita ile keşif). Null draws no tiles (tests).
+final mapTilesProvider = Provider<MapTiles?>((ref) {
+  ref.watch(authStateProvider);
+  return (
+    url: '${ref.watch(appConfigProvider).apiUrl}/map/tiles/{z}/{x}/{y}.png',
+    token: ref.watch(supabaseClientProvider).auth.currentSession?.accessToken,
+  );
+});
+
+/// The map with GrupX tiles and the required attribution; [children] go on top (markers).
+class AppMap extends ConsumerStatefulWidget {
+  const AppMap({
+    super.key,
+    this.controller,
+    this.center,
+    this.zoom = 14,
+    this.interactive = true,
+    this.onTap,
+    this.onMoved,
+    this.children = const [],
+  });
+
+  final MapController? controller;
+
+  /// Without a center the map shows all of Turkey.
+  final LatLng? center;
+  final double zoom;
+  final bool interactive;
+  final void Function(LatLng point)? onTap;
+
+  /// After the map settles, with the visible area.
+  final void Function(MapArea area)? onMoved;
+  final List<Widget> children;
+
+  @override
+  ConsumerState<AppMap> createState() => _AppMapState();
+}
+
+class _AppMapState extends ConsumerState<AppMap> {
+  // The tile provider keeps this map; the token is refreshed in place.
+  final _headers = <String, String>{};
+  late final _tiles = NetworkTileProvider(headers: _headers, silenceExceptions: true);
+  Timer? _settle;
+
+  @override
+  void dispose() {
+    _settle?.cancel();
+    super.dispose();
+  }
+
+  void _moved(MapCamera camera) {
+    final onMoved = widget.onMoved;
+    if (onMoved == null) return;
+    _settle?.cancel();
+    _settle = Timer(const Duration(milliseconds: 350), () {
+      final b = camera.visibleBounds;
+      onMoved(MapArea(south: b.south, west: b.west, north: b.north, east: b.east));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tiles = ref.watch(mapTilesProvider);
+    if (tiles?.token case final token?) _headers['Authorization'] = 'Bearer $token';
+
+    return FlutterMap(
+      mapController: widget.controller,
+      options: MapOptions(
+        initialCenter: widget.center ?? turkeyCenter,
+        initialZoom: widget.zoom,
+        initialCameraFit: widget.center == null ? CameraFit.bounds(bounds: turkeyBounds) : null,
+        minZoom: 4,
+        maxZoom: 18,
+        backgroundColor: GxColors.surfaceMuted,
+        interactionOptions: InteractionOptions(
+          flags: widget.interactive ? InteractiveFlag.all & ~InteractiveFlag.rotate : InteractiveFlag.none,
+        ),
+        onTap: widget.onTap == null ? null : (_, point) => widget.onTap!(point),
+        onMapReady: () => widget.controller == null ? null : _moved(widget.controller!.camera),
+        onPositionChanged: (camera, _) => _moved(camera),
+      ),
+      children: [
+        if (tiles != null) TileLayer(urlTemplate: tiles.url, tileProvider: _tiles, userAgentPackageName: 'app.grupx'),
+        ...widget.children,
+        // Required by the tile licence; wraps instead of overflowing on narrow screens.
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs, vertical: 2),
+            color: GxColors.surface,
+            child: Text('© Stadia Maps © OpenMapTiles © OpenStreetMap katkıcıları',
+                textAlign: TextAlign.right, style: Theme.of(context).textTheme.labelSmall),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EventPin extends StatelessWidget {
+  const _EventPin({required this.selected});
+
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Container(
+          width: GxSpacing.xl,
+          height: GxSpacing.xl,
+          decoration: BoxDecoration(
+            color: selected ? GxColors.secondary : GxColors.primary,
+            shape: BoxShape.circle,
+            border: Border.all(color: GxColors.background, width: 2),
+          ),
+          child: const Icon(Icons.event, size: GxSpacing.md, color: GxColors.onPrimary),
+        ),
+      );
+}
+
+class _GroupPin extends StatelessWidget {
+  const _GroupPin({required this.groups, required this.selected});
+
+  final List<MappedGroup> groups;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (groups.length == 1) {
+      final g = groups.single.group;
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: selected ? GxColors.secondary : GxColors.background,
+            borderRadius: GxRadius.mdAll,
+          ),
+          child: GxAvatar(name: g.name, imageUrl: g.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.sm),
+        ),
+      );
+    }
+    return Center(
+      child: Container(
+        width: GxSpacing.xxl - GxSpacing.xxs,
+        height: GxSpacing.xxl - GxSpacing.xxs,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? GxColors.secondary : GxColors.secondarySoft,
+          borderRadius: GxRadius.mdAll,
+          border: Border.all(color: GxColors.background, width: 2),
+        ),
+        child: Text('${groups.length}',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: selected ? GxColors.onPrimary : GxColors.secondary)),
+      ),
+    );
+  }
+}
+
+/// "Harita": groups at their province and upcoming events at their meeting point.
+class DiscoverMapScreen extends ConsumerStatefulWidget {
+  const DiscoverMapScreen({super.key, required this.onOpenGroup});
+
+  final void Function(BuildContext context, String handle) onOpenGroup;
+
+  @override
+  ConsumerState<DiscoverMapScreen> createState() => _DiscoverMapScreenState();
+}
+
+class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
+  final _map = MapController();
+  MapArea? _area;
+  String? _category;
+  bool _list = false;
+
+  /// A [MappedEvent], or a province (plate number) whose groups are shown.
+  Object? _selected;
+
+  /// The selected event, or the selected province's groups, among the loaded items.
+  Object? _selectedItem(MapItems? items) => switch (_selected) {
+        final String id => items?.events.where((e) => e.id == id).firstOrNull,
+        final int province => items?.groupsByProvince[province],
+        _ => null,
+      };
+
+  void _zoomOut() {
+    final camera = _map.camera;
+    _map.move(camera.center, (camera.zoom - 2).clamp(4, 18));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final area = _area;
+    final items = area == null ? null : ref.watch(mapItemsProvider((area: area, category: _category)));
+    final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final loaded = items?.value;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Harita'),
+        actions: [
+          IconButton(
+            tooltip: _list ? 'Harita görünümü' : 'Liste görünümü',
+            icon: Icon(_list ? Icons.map_outlined : Icons.view_list_outlined),
+            onPressed: () => setState(() => _list = !_list),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(GxSpacing.xxl + GxSpacing.xs),
+          child: SizedBox(
+            height: GxSpacing.xxl + GxSpacing.xs,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+              children: [
+                for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)])
+                  Padding(
+                    padding: const EdgeInsets.only(right: GxSpacing.xs),
+                    child: ChoiceChip(
+                      label: Text(name),
+                      selected: _category == slug,
+                      onSelected: (_) => setState(() {
+                        _category = slug;
+                        _selected = null;
+                      }),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // The map stays laid out under the list, so the area is kept.
+          Positioned.fill(
+            child: AppMap(
+              controller: _map,
+              onMoved: (a) => setState(() => _area = a),
+              onTap: (_) => setState(() => _selected = null),
+              children: [
+                if (loaded != null)
+                  MarkerLayer(markers: [
+                    for (final MapEntry(key: province, value: groups) in loaded.groupsByProvince.entries)
+                      Marker(
+                        point: groups.first.point,
+                        width: GxSpacing.xxl,
+                        height: GxSpacing.xxl,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selected = province),
+                          child: Semantics(
+                            button: true,
+                            label: groups.length == 1
+                                ? groups.single.group.name
+                                : '${groups.first.provinceName}: ${groups.length} grup',
+                            child: _GroupPin(groups: groups, selected: _selected == province),
+                          ),
+                        ),
+                      ),
+                    for (final e in loaded.events)
+                      Marker(
+                        point: e.point,
+                        width: GxSpacing.xxl,
+                        height: GxSpacing.xxl,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selected = e.id),
+                          child: Semantics(button: true, label: e.title, child: _EventPin(selected: _selected == e.id)),
+                        ),
+                      ),
+                  ]),
+              ],
+            ),
+          ),
+          if (_list)
+            Positioned.fill(
+              child: ColoredBox(
+                color: GxColors.background,
+                child: GxReadingColumn(
+                  child: _MapList(
+                    items: loaded,
+                    failed: items?.hasError ?? false,
+                    onRetry: () => ref.invalidate(mapItemsProvider),
+                    onOpenGroup: widget.onOpenGroup,
+                    onShowMap: () => setState(() => _list = false),
+                  ),
+                ),
+              ),
+            )
+          else ...[
+            if (items?.isLoading ?? true) const Positioned(top: 0, left: 0, right: 0, child: LinearProgressIndicator()),
+            if (items?.hasError ?? false)
+              _MapNotice(
+                icon: Icons.cloud_off_outlined,
+                text: 'Harita bilgileri yüklenemedi.',
+                actionLabel: 'Tekrar dene',
+                onAction: () => ref.invalidate(mapItemsProvider),
+              )
+            else if (loaded != null && loaded.isEmpty)
+              _MapNotice(
+                icon: Icons.travel_explore,
+                text: 'Bu bölgede yaklaşan organizasyon ya da grup yok.',
+                actionLabel: 'Uzaklaştır',
+                onAction: _zoomOut,
+              ),
+            if (_selectedItem(loaded) case final selected?)
+              Positioned(
+                left: GxSpacing.md,
+                right: GxSpacing.md,
+                bottom: GxSpacing.xl,
+                child: _SelectedCard(selected: selected, onOpenGroup: widget.onOpenGroup),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A floating line over the map: what is (not) there and what to do.
+class _MapNotice extends StatelessWidget {
+  const _MapNotice({required this.icon, required this.text, required this.actionLabel, required this.onAction});
+
+  final IconData icon;
+  final String text;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+        top: GxSpacing.md,
+        left: GxSpacing.md,
+        right: GxSpacing.md,
+        child: Container(
+          padding: const EdgeInsets.only(left: GxSpacing.md),
+          decoration: const BoxDecoration(
+            color: GxColors.background,
+            borderRadius: GxRadius.lgAll,
+            border: Border.fromBorderSide(BorderSide(color: GxColors.border)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: GxColors.textSecondary),
+              const SizedBox(width: GxSpacing.sm),
+              Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+              TextButton(onPressed: onAction, child: Text(actionLabel)),
+            ],
+          ),
+        ),
+      );
+}
+
+String _seats(MappedEvent e) =>
+    e.capacity == null ? '${formatCount(e.goingCount)} katılımcı' : '${formatCount(e.goingCount)} / ${formatCount(e.capacity!)} katılımcı';
+
+class _SelectedCard extends StatelessWidget {
+  const _SelectedCard({required this.selected, required this.onOpenGroup});
+
+  final Object selected;
+  final void Function(BuildContext context, String handle) onOpenGroup;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final child = switch (selected) {
+      final MappedEvent e => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(e.title, style: textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: GxSpacing.xxs),
+            Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}', style: textTheme.bodyMedium, maxLines: 2),
+            Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+            const SizedBox(height: GxSpacing.sm),
+            GxButton(label: 'Organizasyonu aç', expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
+          ],
+        ),
+      final List<MappedGroup> groups => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(groups.length == 1 ? groups.first.provinceName : '${groups.first.provinceName} · ${groups.length} grup',
+                style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: GxSpacing.xxl * 5),
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                children: [for (final g in groups) _GroupTile(group: g, onOpenGroup: onOpenGroup)],
+              ),
+            ),
+          ],
+        ),
+      _ => const SizedBox.shrink(),
+    };
+    return Container(
+      padding: const EdgeInsets.all(GxSpacing.md),
+      decoration: const BoxDecoration(
+        color: GxColors.background,
+        borderRadius: GxRadius.lgAll,
+        border: Border.fromBorderSide(BorderSide(color: GxColors.border)),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _GroupTile extends StatelessWidget {
+  const _GroupTile({required this.group, required this.onOpenGroup});
+
+  final MappedGroup group;
+  final void Function(BuildContext context, String handle) onOpenGroup;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: GxAvatar(name: group.group.name, imageUrl: group.group.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.md),
+        title: Text(group.group.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text([group.categoryName, '${formatCount(group.memberCount)} üye', group.provinceName].nonNulls.join(' · ')),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => onOpenGroup(context, group.group.handle),
+      );
+}
+
+class _MapList extends StatelessWidget {
+  const _MapList({
+    required this.items,
+    required this.failed,
+    required this.onRetry,
+    required this.onOpenGroup,
+    required this.onShowMap,
+  });
+
+  final MapItems? items;
+  final bool failed;
+  final VoidCallback onRetry;
+  final void Function(BuildContext context, String handle) onOpenGroup;
+  final VoidCallback onShowMap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final loaded = items;
+    if (failed) return GxErrorState(message: 'Harita bilgileri yüklenemedi.', onRetry: onRetry);
+    if (loaded == null) {
+      return const Padding(
+        padding: EdgeInsets.all(GxSpacing.md),
+        child: Column(children: [GxSkeleton(height: GxSpacing.xxl), SizedBox(height: GxSpacing.sm), GxSkeleton(height: GxSpacing.xxl)]),
+      );
+    }
+    if (loaded.isEmpty) {
+      return GxEmptyState(
+        icon: Icons.travel_explore,
+        message: 'Görünen bölgede yaklaşan organizasyon ya da grup yok.',
+        actionLabel: 'Haritaya dön',
+        onAction: onShowMap,
+      );
+    }
+    Widget heading(String text) => Padding(
+          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+          child: Text(text, style: textTheme.titleSmall),
+        );
+    return ListView(
+      children: [
+        if (loaded.events.isNotEmpty) heading('Yaklaşan organizasyonlar (${loaded.events.length})'),
+        for (final e in loaded.events)
+          ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: GxColors.primarySoft,
+              child: Icon(Icons.event, color: GxColors.primary),
+            ),
+            title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}\n${e.group.name} · ${_seats(e)}'),
+            isThreeLine: true,
+            onTap: () => context.push(EventRoutes.event(e.id)),
+          ),
+        if (loaded.groups.isNotEmpty) heading('Gruplar (${loaded.groups.length})'),
+        for (final g in loaded.groups)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+            child: _GroupTile(group: g, onOpenGroup: onOpenGroup),
+          ),
+      ],
+    );
+  }
+}
+
+/// The meeting point on the event page, with directions in the device's map app.
+class EventMeetingMap extends StatelessWidget {
+  const EventMeetingMap({super.key, required this.point});
+
+  final LatLng point;
+
+  static Uri directionsUri(LatLng p) =>
+      Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}');
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: GxRadius.mdAll,
+            child: SizedBox(
+              height: GxSpacing.xxl * 4,
+              child: AppMap(
+                center: point,
+                zoom: 14,
+                interactive: false,
+                children: [
+                  MarkerLayer(markers: [
+                    Marker(point: point, width: GxSpacing.xxl, height: GxSpacing.xxl, child: const _EventPin(selected: false)),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => launchUrl(directionsUri(point), mode: LaunchMode.externalApplication),
+            icon: const Icon(Icons.directions_outlined),
+            label: const Text('Yol tarifi'),
+          ),
+        ],
+      );
+}
+
+/// "Buluşma noktası" in the event form: picked on the map, optional.
+class MeetingPointField extends StatelessWidget {
+  const MeetingPointField({super.key, required this.value, required this.onChanged});
+
+  final LatLng? value;
+  final ValueChanged<LatLng?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final point = value;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.pin_drop_outlined),
+      title: const Text('Buluşma noktası (isteğe bağlı)'),
+      subtitle: Text(point == null
+          ? 'Haritada seç; organizasyon haritada görünür.'
+          : 'Seçildi · ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}'),
+      trailing: point == null
+          ? const Icon(Icons.chevron_right)
+          : IconButton(tooltip: 'Buluşma noktasını kaldır', icon: const Icon(Icons.close), onPressed: () => onChanged(null)),
+      onTap: () async {
+        final picked = await Navigator.of(context).push<LatLng>(
+          MaterialPageRoute(fullscreenDialog: true, builder: (_) => MeetingPointPicker(initial: point)),
+        );
+        if (picked != null) onChanged(picked);
+      },
+    );
+  }
+}
+
+/// Tap the map to drop the pin.
+class MeetingPointPicker extends StatefulWidget {
+  const MeetingPointPicker({super.key, this.initial});
+
+  final LatLng? initial;
+
+  @override
+  State<MeetingPointPicker> createState() => _MeetingPointPickerState();
+}
+
+class _MeetingPointPickerState extends State<MeetingPointPicker> {
+  late LatLng? _point = widget.initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final point = _point;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Buluşma noktası')),
+      body: AppMap(
+        center: widget.initial,
+        zoom: 15,
+        onTap: (p) => setState(() => _point = p),
+        children: [
+          if (point != null)
+            MarkerLayer(markers: [
+              Marker(point: point, width: GxSpacing.xxl, height: GxSpacing.xxl, child: const _EventPin(selected: false)),
+            ]),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(GxSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                point == null ? 'Haritayı yakınlaştır ve buluşma noktasına dokun.' : 'Noktayı değiştirmek için başka bir yere dokun.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: GxSpacing.sm),
+              GxButton(
+                label: 'Bu noktayı seç',
+                expand: true,
+                onPressed: point == null ? null : () => Navigator.of(context).pop(point),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

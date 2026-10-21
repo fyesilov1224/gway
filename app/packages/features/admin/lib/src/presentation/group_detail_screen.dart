@@ -140,6 +140,7 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
           ('Grup kimliği', g.id),
           ('Adres', '@${g.handle}'),
           ('Kategori', categories[g.categorySlug] ?? g.categorySlug),
+          ('İl', d.province == null ? 'Belirtilmedi' : turkishProvinces[d.province! - 1]),
           ('Katılım tipi', joinPolicyLabels[g.joinPolicy] ?? g.joinPolicy),
           ('Üye sayısı', '${g.memberCount}'),
           ('Bekleyen istek', '${d.pendingRequests}'),

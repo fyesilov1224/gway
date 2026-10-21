@@ -46,6 +46,7 @@ builder.Services.AddSingleton(sp => NpgsqlDataSource.Create(
     sp.GetRequiredService<IConfiguration>().GetConnectionString("Database")
     ?? throw new InvalidOperationException("ConnectionStrings:Database is not configured.")));
 builder.Services.AddHttpClient<ISupabaseStorage, SupabaseStorage>();
+builder.Services.AddMapTiles();
 
 builder.Services.AddIdentityModule();
 builder.Services.AddGroupsModule();
@@ -81,6 +82,7 @@ app.MapEventsEndpoints();
 app.MapLiveEndpoints();
 app.MapModerationEndpoints();
 app.MapAdminEndpoints();
+app.MapMapTileEndpoints();
 
 app.Run();
 

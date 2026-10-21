@@ -31,7 +31,8 @@ public sealed record AdminGroupDetail(
     int PendingRequests,
     int PendingInvitations,
     IReadOnlyList<AdminGroupTeamMember> Team,
-    IReadOnlyList<AdminAuditItem> History);
+    IReadOnlyList<AdminAuditItem> History,
+    int? Province = null);
 
 public sealed record AdminGroupStats(int Total, int Active, int Suspended);
 
@@ -116,13 +117,14 @@ internal sealed class AdminGroups(NpgsqlDataSource db)
         DateTimeOffset? suspendedAt;
         int requests, invitations;
         AdminGroupPlan plan;
+        int? province;
         await using (var cmd = new NpgsqlCommand(
             $"""
             {SummarySelect.Replace("g.created_at", "g.created_at, g.about, g.suspension_reason, g.suspended_at, "
                 + "(select count(*)::int from public.group_join_requests r where r.group_id = g.id), "
                 + "(select count(*)::int from public.group_invitations i where i.group_id = g.id), "
                 + "(private.group_plan_limits(g.id)).slug, (private.group_plan_limits(g.id)).name, "
-                + "(private.group_plan_limits(g.id)).max_members", StringComparison.Ordinal)}
+                + "(private.group_plan_limits(g.id)).max_members, g.province", StringComparison.Ordinal)}
             where g.id = @id
             """, conn))
         {
@@ -136,6 +138,7 @@ internal sealed class AdminGroups(NpgsqlDataSource db)
             requests = reader.GetInt32(15);
             invitations = reader.GetInt32(16);
             plan = new AdminGroupPlan(reader.GetString(17), reader.GetString(18), reader.GetInt32(19));
+            province = reader.IsDBNull(20) ? null : reader.GetInt16(20);
         }
 
         // Owner first, then members holding assigned roles, highest rank first.
@@ -196,7 +199,7 @@ internal sealed class AdminGroups(NpgsqlDataSource db)
         }
 
         var subscriptions = await AdminBilling.GroupSubscriptionsAsync(conn, groupId, ct);
-        return new AdminGroupDetail(summary, plan, subscriptions, about, reason, suspendedAt, requests, invitations, team, history);
+        return new AdminGroupDetail(summary, plan, subscriptions, about, reason, suspendedAt, requests, invitations, team, history, province);
     }
 
     private static AdminGroupSummary ReadSummary(NpgsqlDataReader r) => new(

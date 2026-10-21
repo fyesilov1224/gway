@@ -86,6 +86,7 @@ class Group {
     this.logoUrl,
     this.coverUrl,
     this.isSuspended = false,
+    this.province,
   });
 
   final String id;
@@ -106,6 +107,11 @@ class Group {
 
   /// Suspended by the platform team: only members see it, nothing but leaving works.
   final bool isSuspended;
+
+  /// Plate number (1–81); the group is shown there on the map (docs/ARCHITECTURE.md §3d, Harita ile keşif).
+  final int? province;
+
+  String? get provinceName => province == null ? null : turkishProvinces[province! - 1];
 }
 
 enum GroupImage { logo, cover }
@@ -204,6 +210,7 @@ class GroupDraft {
     required this.categorySlug,
     required this.joinPolicy,
     this.about = '',
+    this.province,
   });
 
   final String handle;
@@ -211,11 +218,12 @@ class GroupDraft {
   final String categorySlug;
   final JoinPolicy joinPolicy;
   final String about;
+  final int? province;
 }
 
 /// Profile edit; null fields stay as they are.
 class GroupUpdate {
-  const GroupUpdate({this.name, this.categorySlug, this.joinPolicy, this.about, this.rules, this.links});
+  const GroupUpdate({this.name, this.categorySlug, this.joinPolicy, this.about, this.rules, this.links, this.province});
 
   final String? name;
   final String? categorySlug;
@@ -224,6 +232,9 @@ class GroupUpdate {
   final String? rules;
   final List<GroupLink>? links;
 
+  /// 0 removes the province.
+  final int? province;
+
   Map<String, Object?> toJson() => {
         'name': ?name,
         'categorySlug': ?categorySlug,
@@ -231,6 +242,7 @@ class GroupUpdate {
         'about': ?about,
         'rules': ?rules,
         if (links != null) 'links': [for (final l in links!) l.toJson()],
+        'province': ?province,
       };
 }
 

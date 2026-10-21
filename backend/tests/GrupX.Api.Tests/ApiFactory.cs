@@ -27,6 +27,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     internal FakeLiveKit LiveKit { get; } = new();
 
+    public FakeTiles Tiles { get; } = new();
+
     public const string LiveKitSecret = "livekit-test-secret-that-is-long-enough";
 
     /// <summary>Request header that sets the buyer's country in tests (a trusted proxy header in production).</summary>
@@ -63,6 +65,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Live:MonitorInterval", "00:00:00");
         builder.UseSetting("Events:ReminderInterval", "00:00:00");
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
+        builder.UseSetting("Map:TileUrl", FakeTiles.Url);
+        builder.UseSetting("Map:ApiKey", FakeTiles.ApiKey);
 
         builder.ConfigureTestServices(services =>
         {
@@ -72,6 +76,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<ILiveKit>(LiveKit);
             services.AddHttpClient<PaytrClient>().ConfigurePrimaryHttpMessageHandler(() => new FakePaymentHandler(Payments));
             services.AddHttpClient<IyzicoClient>().ConfigurePrimaryHttpMessageHandler(() => new FakePaymentHandler(Payments));
+            services.AddHttpClient(nameof(Endpoints.MapTileEndpoints)).ConfigurePrimaryHttpMessageHandler(Tiles.Handler);
         });
     }
 

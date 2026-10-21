@@ -33,7 +33,11 @@ public sealed record EventRequest(
     string? CoverPath,
     string? Requirements = null,
     IReadOnlyList<string>? Equipment = null,
-    bool ApprovalRequired = false);
+    bool ApprovalRequired = false,
+    MeetingPoint? Meeting = null);
+
+/// <summary>Where people meet, picked on the map (docs/ARCHITECTURE.md §3d, Harita ile keşif).</summary>
+public sealed record MeetingPoint(double Lat, double Lng);
 
 public sealed record CreatedEvent(Guid Id);
 
@@ -173,7 +177,7 @@ internal sealed partial class EventService(
     private sealed record EventFields(
         string Title, string Description, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string Location, string? LinkUrl,
         int? Capacity, int? FeeAmount, string? FeeCurrency, string? FeeNote, string? CoverPath,
-        string Requirements, string[] Equipment, bool ApprovalRequired);
+        string Requirements, string[] Equipment, bool ApprovalRequired, MeetingPoint? Meeting);
 
     /// <summary>Shape checks; the start window is checked when the start changes (an edit may keep a near start).</summary>
     private Result<EventFields> Validate(EventRequest r, Guid groupId, bool checkStart)
@@ -201,12 +205,14 @@ internal sealed partial class EventService(
         if (note is { Length: > 200 }) return Invalid("Ücret notu en fazla 200 karakter olabilir.");
         if (requirements.Length > 500) return Invalid("Katılım koşulları en fazla 500 karakter olabilir.");
         if (equipment.Length > 10 || equipment.Any(e => e.Length is < 1 or > 60)) return RuleError("equipment_invalid");
+        if (r.Meeting is { } m && (!double.IsFinite(m.Lat) || !double.IsFinite(m.Lng) || m.Lat is < -90 or > 90 || m.Lng is < -180 or > 180))
+            return Invalid("Buluşma noktası geçersiz. Haritadan yeniden seç.");
         if (r.CoverPath is { } cover && (!cover.StartsWith($"{groupId}/", StringComparison.Ordinal) || cover.Contains("..", StringComparison.Ordinal)
                 || !ImageExtensions.Contains(Path.GetExtension(cover).ToLowerInvariant())))
             return Invalid("Kapak görseli bulunamadı. Yeniden yüklemeyi dene.");
 
         return new EventFields(title, description, r.StartsAt, r.EndsAt, location, link, r.Capacity, r.FeeAmount,
-            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath, requirements, equipment, r.ApprovalRequired);
+            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath, requirements, equipment, r.ApprovalRequired, r.Meeting);
     }
 
     private static async Task<bool> CoverStoredAsync(NpgsqlConnection conn, NpgsqlTransaction tx, string path, CancellationToken ct) =>
@@ -219,6 +225,7 @@ internal sealed partial class EventService(
         ("title", f.Title), ("description", f.Description), ("starts", f.StartsAt), ("ends", f.EndsAt), ("location", f.Location),
         ("link", f.LinkUrl), ("capacity", f.Capacity), ("fee", f.FeeAmount), ("currency", f.FeeCurrency), ("note", f.FeeNote),
         ("cover", f.CoverPath), ("requirements", f.Requirements), ("equipment", f.Equipment), ("approval", f.ApprovalRequired),
+        ("lat", f.Meeting?.Lat), ("lng", f.Meeting?.Lng),
     ];
 
     // Events -----------------------------------------------------------------------------------
@@ -247,9 +254,10 @@ internal sealed partial class EventService(
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
                 insert into public.events (group_id, created_by, title, description, starts_at, ends_at, location, link_url, capacity,
-                                           fee_amount, fee_currency, fee_note, cover_path, requirements, equipment, approval_required)
+                                           fee_amount, fee_currency, fee_note, cover_path, requirements, equipment, approval_required,
+                                           meeting_lat, meeting_lng)
                 values (@g, @actor, @title, @description, @starts, @ends, @location, @link, @capacity, @fee, @currency, @note, @cover,
-                        @requirements, @equipment, @approval)
+                        @requirements, @equipment, @approval, @lat, @lng)
                 returning id
                 """, ct, [("g", groupId), ("actor", actor), .. Parameters(fields.Value)]))!;
             await AuditAsync(conn, tx, actor, "event.created", "event", id, groupId, new { fields.Value.Title, fields.Value.StartsAt }, ct);
@@ -277,7 +285,7 @@ internal sealed partial class EventService(
                 update public.events set title = @title, description = @description, starts_at = @starts, ends_at = @ends,
                        location = @location, link_url = @link, capacity = @capacity, fee_amount = @fee, fee_currency = @currency,
                        fee_note = @note, cover_path = @cover, requirements = @requirements, equipment = @equipment,
-                       approval_required = @approval
+                       approval_required = @approval, meeting_lat = @lat, meeting_lng = @lng
                 where id = @id
                 """, ct, [("id", id), .. Parameters(fields.Value)]);
             await AuditAsync(conn, tx, actor, "event.updated", "event", id, e.GroupId, null, ct);
@@ -307,6 +315,19 @@ internal sealed partial class EventService(
 
     public Task<Result> CancelAsync(Guid actorId, Guid eventId, string reason, CancellationToken ct) =>
         CancelCoreAsync(actorId, eventId, reason, staff: true, ct);
+
+    public Task<Result> RemoveMeetingPointAsync(Guid actorId, Guid eventId, CancellationToken ct) =>
+        ActingTransaction.RunAsync(db, actorId, async (conn, tx) =>
+        {
+            var e = await LoadAsync(conn, tx, eventId, ct);
+            if (e is null) return NotFound;
+            if (await ActingTransaction.ExecuteAsync(conn, tx,
+                    "update public.events set meeting_lat = null, meeting_lng = null where id = @id and meeting_lat is not null", ct,
+                    ("id", eventId)) == 0)
+                return Error.NotFound("event.no_meeting_point", "Bu organizasyonun buluşma noktası yok.");
+            await AuditAsync(conn, tx, actorId, "event.meeting_point_removed_by_admin", "event", eventId, e.GroupId, null, ct, AuditActor.Staff);
+            return Result.Success();
+        }, RuleError, ct);
 
     private Task<Result> CancelCoreAsync(Guid actor, Guid id, string reason, bool staff, CancellationToken ct)
     {

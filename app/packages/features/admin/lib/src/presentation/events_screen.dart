@@ -73,6 +73,30 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
     ref.invalidate(adminEventSearchProvider);
   }
 
+  Future<void> _removePoint(AdminEvent e) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Buluşma noktasını kaldır'),
+        content: Text('"${e.title}" haritadan kalkar; yer metni kalır. İşlem kayda geçer.'),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GxButton(label: 'Kaldır', onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final result = await ref.read(adminEventsRepositoryProvider).removeMeetingPoint(e.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(switch (result) {
+        Ok() => 'Buluşma noktası kaldırıldı.',
+        Err(:final failure) => failure.userMessage,
+      }),
+    ));
+    ref.invalidate(adminEventSearchProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final key = (query: _query, status: _status, page: _page);
@@ -132,7 +156,11 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       for (final e in value.items) ...[
-                        _EventRow(event: e, onCancel: canCancel && !e.isCanceled && e.startsAt.isAfter(DateTime.now()) ? () => _cancel(e) : null),
+                        _EventRow(
+                          event: e,
+                          onCancel: canCancel && !e.isCanceled && e.startsAt.isAfter(DateTime.now()) ? () => _cancel(e) : null,
+                          onRemovePoint: canCancel && e.meetingLat != null ? () => _removePoint(e) : null,
+                        ),
                         const Divider(),
                       ],
                       PageFooter(
@@ -168,10 +196,11 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
 }
 
 class _EventRow extends StatelessWidget {
-  const _EventRow({required this.event, required this.onCancel});
+  const _EventRow({required this.event, required this.onCancel, required this.onRemovePoint});
 
   final AdminEvent event;
   final VoidCallback? onCancel;
+  final VoidCallback? onRemovePoint;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +216,7 @@ class _EventRow extends StatelessWidget {
       if (e.approvalRequired) 'Onaylı katılım${e.requestedCount > 0 ? ' · ${formatCount(e.requestedCount)} istek' : ''}',
       if (e.ratingAvg case final avg?) '${avg.toStringAsFixed(1).replaceAll('.', ',')} ★ (${formatCount(e.ratingCount)})',
       if (e.postsCount > 0) '${formatCount(e.postsCount)} anı',
+      if (e.meetingLabel case final point?) 'Buluşma noktası: $point',
       if (e.cancelReason != null) 'İptal: ${e.cancelReason}',
     ].join(' · ');
     return InkWell(
@@ -206,6 +236,8 @@ class _EventRow extends StatelessWidget {
               ),
             ),
             if (e.isCanceled) ...[const SizedBox(width: GxSpacing.sm), const GxBadge('İptal edildi', dot: true, tone: GxBadgeTone.danger)],
+            if (onRemovePoint != null)
+              IconButton(tooltip: 'Buluşma noktasını kaldır', icon: const Icon(Icons.wrong_location_outlined), onPressed: onRemovePoint),
             if (onCancel != null) ...[
               const SizedBox(width: GxSpacing.sm),
               GxButton(label: 'İptal et', icon: Icons.event_busy_outlined, variant: GxButtonVariant.secondary, onPressed: onCancel),

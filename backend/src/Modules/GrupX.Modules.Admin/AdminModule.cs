@@ -203,6 +203,10 @@ public static class AdminModule
                 (await events.CancelAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        content.MapDelete("/events/{id:guid}/meeting-point", async (Guid id, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
+                (await events.RemoveMeetingPointAsync(user.GetUserId(), id, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
         content.MapGet("/goals", async (string? status, int? page, AdminGoals admin, CancellationToken ct) =>
                 TypedResults.Ok(await admin.SearchAsync(status, page ?? 1, ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));

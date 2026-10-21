@@ -221,8 +221,16 @@ Kararlar (2026-10-21): önerilerde yalnızca "Ekip arıyorum"u açanlar görün�
 
 ## Faz 14 — Harita ile Keşif
 
-- Grup şehri ve organizasyon buluşma noktası haritada; liste ve harita görünümü, filtreler
-- Sağlayıcı karşılaştırması ve kullanıcı onayı gerekir
+Kararlar (2026-10-21): sağlayıcı karşılaştırması sonrası flutter_map + Stadia Maps (geliştirme ücretsiz planda; ücretli plan yayına çıkarken onayla); grubun konumu il, buluşma noktası haritada iğne, adres arama yok; haritada yalnızca gelecekteki açık organizasyonlar ve aktif gruplar.
+
+- [x] İller tablosu (81 il, merkez koordinatı); grubun ili (oluşturma ve düzenleme, `group.edit`, trigger)
+- [x] Organizasyonun buluşma noktası (iğne, isteğe bağlı; düzenleme kuralları diğer alanlarla aynı)
+- [x] Harita verisi (`map_items`): görünen alandaki aktif gruplar ve gelecekteki açık organizasyonlar, kategori filtresi
+- [x] Döşemeler C# API üzerinden: anahtar sunucuda, kullanıcının IP'si sağlayıcıya gitmez; bellek önbelleği, kişi başı dakikada 600 istek
+- [x] Arayüz: "Harita" (Gruplar sayfasından; harita ve liste görünümü, aynı ildeki grupları birleştiren işaretçi), organizasyon sayfasında küçük harita ve "Yol tarifi", formda iğne seçici, grup formunda il, grup sayfasında il; atıf her haritada
+- [x] Admin: organizasyon listesinde buluşma noktası ve "Buluşma noktasını kaldır" (admin, moderatör; audit log), grup ayrıntısında il
+- [x] Düzeltmeler: harita ilk açılışta Türkiye'nin batısını kesiyordu (artık sınırlara sığdırılıyor); grup işaretçisinin seçimi her çizimde kayboluyordu; atıf dar ekranda taşıyordu
+- [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 31), `dotnet build` 0 hata 0 uyarı, C# 151/151, pgTAP 632/632; gerçek API ile uçtan uca deneme (iller, buluşma noktası, döşeme proxy'si, harita, liste, organizasyon sayfası)
 
 ## Faz 15 — Mesajlaşma
 

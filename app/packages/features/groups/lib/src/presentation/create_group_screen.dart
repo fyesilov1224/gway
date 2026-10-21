@@ -25,6 +25,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   final _handle = TextEditingController();
   final _about = TextEditingController();
   String? _category;
+  int? _province;
   JoinPolicy _policy = JoinPolicy.open;
   bool? _handleAvailable;
   bool _handleEdited = false;
@@ -57,6 +58,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
           categorySlug: _category!,
           joinPolicy: _policy,
           about: _about.text.trim(),
+          province: _province,
         ));
     if (!mounted) return;
     switch (result) {
@@ -111,6 +113,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         ),
                         const SizedBox(height: GxSpacing.md),
                         CategoryField(value: _category, onChanged: (v) => setState(() => _category = v)),
+                        const SizedBox(height: GxSpacing.md),
+                        ProvinceField(value: _province, onChanged: (v) => setState(() => _province = v)),
                         const SizedBox(height: GxSpacing.md),
                         TextFormField(
                           controller: _about,

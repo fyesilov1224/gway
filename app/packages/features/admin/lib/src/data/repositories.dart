@@ -206,6 +206,9 @@ class ApiAdminEventsRepository implements AdminEventsRepository {
       _api.post('/admin/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
 
   @override
+  Future<Result<void>> removeMeetingPoint(String id) => _api.delete('/admin/events/$id/meeting-point', decode: (_) {});
+
+  @override
   Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1}) => _api.get(
         '/admin/goals',
         query: {'status': ?status?.code, 'page': '$page'},

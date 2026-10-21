@@ -174,6 +174,7 @@ class _GroupBody extends ConsumerWidget {
                   runSpacing: GxSpacing.xs,
                   children: [
                     if (category != null) GroupMeta(icon: categoryIcon(group.categorySlug), text: category),
+                    if (group.provinceName case final province?) GroupMeta(icon: Icons.place_outlined, text: province),
                     GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
                     InkWell(
                       onTap: () => context.push(GroupRoutes.members(group.handle)),

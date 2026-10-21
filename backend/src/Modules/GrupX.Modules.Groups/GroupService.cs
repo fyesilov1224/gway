@@ -9,11 +9,11 @@ using NpgsqlTypes;
 
 namespace GrupX.Modules.Groups;
 
-public sealed record CreateGroupRequest(string Handle, string Name, string CategorySlug, string JoinPolicy, string? About);
+public sealed record CreateGroupRequest(string Handle, string Name, string CategorySlug, string JoinPolicy, string? About, int? Province = null);
 
 public sealed record CreatedGroup(Guid Id, string Handle);
 
-/// <summary>Only the fields that are sent change. An empty image path removes the image.</summary>
+/// <summary>Only the fields that are sent change. An empty image path removes the image; province 0 removes the province.</summary>
 public sealed record UpdateGroupRequest(
     string? Name = null,
     string? CategorySlug = null,
@@ -22,7 +22,8 @@ public sealed record UpdateGroupRequest(
     string? Rules = null,
     IReadOnlyList<GroupLink>? Links = null,
     string? LogoPath = null,
-    string? CoverPath = null);
+    string? CoverPath = null,
+    int? Province = null);
 
 public sealed record TransferOwnershipRequest(Guid UserId);
 
@@ -37,7 +38,8 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
     {
         var handle = request.Handle?.Trim().ToLowerInvariant();
         var invalid = GroupRules.ValidateHandle(handle) ?? GroupRules.ValidateName(request.Name)
-            ?? GroupRules.ValidateJoinPolicy(request.JoinPolicy) ?? GroupRules.ValidateAbout(request.About);
+            ?? GroupRules.ValidateJoinPolicy(request.JoinPolicy) ?? GroupRules.ValidateAbout(request.About)
+            ?? (request.Province is null ? null : GroupRules.ValidateProvince(request.Province.Value));
         if (invalid is not null) return Task.FromResult<Result<CreatedGroup>>(invalid);
 
         return access.RunAsync<CreatedGroup>(actorId, async (conn, tx) =>
@@ -53,8 +55,8 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
             Guid id;
             await using (var cmd = new NpgsqlCommand(
                 """
-                insert into public.groups (handle, name, category_slug, join_policy, about, owner_id)
-                values (@handle, @name, @category, @policy, @about, @owner)
+                insert into public.groups (handle, name, category_slug, join_policy, about, owner_id, province)
+                values (@handle, @name, @category, @policy, @about, @owner, @province)
                 returning id
                 """, conn, tx))
             {
@@ -64,6 +66,7 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
                 cmd.Parameters.AddWithValue("policy", request.JoinPolicy);
                 cmd.Parameters.AddWithValue("about", request.About?.Trim() ?? "");
                 cmd.Parameters.AddWithValue("owner", actorId);
+                cmd.Parameters.Add(new NpgsqlParameter<short?>("province", (short?)request.Province));
                 id = (Guid)(await cmd.ExecuteScalarAsync(ct))!;
             }
             await GroupAccess.ExecuteAsync(conn, tx,
@@ -82,7 +85,8 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
             ?? (request.JoinPolicy is null ? null : GroupRules.ValidateJoinPolicy(request.JoinPolicy))
             ?? GroupRules.ValidateAbout(request.About) ?? GroupRules.ValidateRules(request.Rules)
             ?? GroupRules.ValidateLinks(request.Links)
-            ?? GroupRules.ValidateImagePath(groupId, request.LogoPath) ?? GroupRules.ValidateImagePath(groupId, request.CoverPath);
+            ?? GroupRules.ValidateImagePath(groupId, request.LogoPath) ?? GroupRules.ValidateImagePath(groupId, request.CoverPath)
+            ?? (request.Province is null or 0 ? null : GroupRules.ValidateProvince(request.Province.Value));
         if (invalid is not null) return Task.FromResult<Result>(invalid);
 
         return access.RunActionAsync(actorId, async (conn, tx) =>
@@ -102,7 +106,8 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
                   rules = coalesce(@rules, rules),
                   links = coalesce(@links, links),
                   logo_path = case when @logo is null then logo_path else nullif(@logo, '') end,
-                  cover_path = case when @cover is null then cover_path else nullif(@cover, '') end
+                  cover_path = case when @cover is null then cover_path else nullif(@cover, '') end,
+                  province = case when @province is null then province else nullif(@province, 0) end
                 where id = @id
                 """, conn, tx))
             {
@@ -120,6 +125,7 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
                 });
                 cmd.Parameters.Add(new NpgsqlParameter<string?>("logo", request.LogoPath));
                 cmd.Parameters.Add(new NpgsqlParameter<string?>("cover", request.CoverPath));
+                cmd.Parameters.Add(new NpgsqlParameter<short?>("province", (short?)request.Province));
                 await cmd.ExecuteNonQueryAsync(ct);
             }
 
@@ -127,7 +133,7 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
             {
                 ("name", request.Name), ("category", request.CategorySlug), ("joinPolicy", request.JoinPolicy),
                 ("about", request.About), ("rules", request.Rules), ("links", request.Links),
-                ("logo", request.LogoPath), ("cover", request.CoverPath),
+                ("logo", request.LogoPath), ("cover", request.CoverPath), ("province", request.Province),
             }.Where(f => f.Value is not null).Select(f => f.Name).ToArray();
             await AuditLog.AppendAsync(conn, tx,
                 new AuditEntry(actorId, AuditActor.User, "group.updated", "group", groupId.ToString(), new { fields }, groupId), ct);

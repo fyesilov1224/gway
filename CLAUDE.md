@@ -161,7 +161,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 11 | Katkı ve rozetler (sunucuda doğrulanan olaylar) | ✅ Bitti (2026-10-21) |
 | 12 | Görevler ve ortak hedefler | ✅ Bitti (2026-10-21) |
 | 13 | Ekip arkadaşı bulma | ✅ Bitti (2026-10-21) |
-| 14 | Harita ile keşif (sağlayıcı onayı gerekir) | |
+| 14 | Harita ile keşif (Stadia; ücretli plan yayında onayla) | ✅ Bitti (2026-10-22) |
 | 15 | Mesajlaşma: birebir ve grup içi, engelleme | |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
@@ -172,7 +172,7 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 ## 6. Şu anki görev
 
-**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–13 bitti; sıradaki Faz 14 (Harita ile keşif: önce sağlayıcı maliyet karşılaştırması ve kullanıcı onayı). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
+**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–14 bitti; sıradaki Faz 15 (Mesajlaşma; önce ekip arkadaşları arasında). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.
@@ -184,4 +184,5 @@ Yerel çalıştırma:
 - Demo verisi: `supabase/seed.sql` (`supabase db reset` ile yüklenir; yalnızca yerel). Demo kullanıcı, platform yöneticisi, örnek hesaplar, gruplar (sahiplik, roller, bekleyen istek ve davet, askıdaki grup), paket ödemeleri ve destek mesajları içerir; giriş bilgileri dosyanın başında. pgTAP testleri seed verisinden bağımsızdır.
 - Web'de rotalar hash ile açılır: `http://localhost:3000/#/g/doga.yuruyus`.
 - `db reset` veritabanı konteynerini yeniden başlatır; çalışan API'nin ilk isteği eski bağlantı yüzünden 500 dönebilir, sonrakiler normaldir.
+- Harita: döşemeler API'den geçer (`/map/tiles`). Yerelde OpenStreetMap kullanılır (`appsettings.Development.json`, düşük hacim); yayında `Map__ApiKey` (Stadia) gerekir, yoksa harita 503 ile kapalıdır.
 - Ödeme: sağlayıcı anahtarları yoksa satın alma 503 ile kapalıdır. Sandbox için `Billing__Paytr__MerchantId/MerchantKey/MerchantSalt` ve `Billing__Iyzico__ApiKey/SecretKey` (BaseUrl varsayılanı iyzico sandbox) ortam değişkenleriyle verilir. Yerelde istek 127.0.0.1'den geldiği için pazar `Billing__Geo__FallbackCountry` ile seçilir (varsayılan `TR` → PayTR; `DE` → iyzico). PayTR bildirimi ve iyzico webhook'u dışarıdan erişilebilen bir adres ister (`Billing__PublicApiUrl`, sağlayıcı panelindeki bildirim adresi).

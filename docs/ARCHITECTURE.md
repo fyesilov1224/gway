@@ -78,7 +78,8 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.support_messages` | support | 3.5 |
 | Storage `support-attachments` | support | 3.5 |
 | `public.follows`, `public.follow_requests`, `public.blocks` | profile | 4 |
-| `public.teammate_preferences`, `public.teammate_requests`, `public.teammates` | profile | 13 |
+| `public.teammate_preferences`, `public.teammate_requests`, `public.teammates`, `public.teammate_request_log` | profile | 13 |
+| `public.provinces` | core | 14 |
 | `public.group_follows` | groups | 4 |
 | `public.posts`, `public.post_media`, `public.post_hashtags` | feed | 4 |
 | `public.post_likes`, `public.comments`, `public.comment_likes`, `public.saved_posts` | feed | 4 |
@@ -211,8 +212,8 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 ### C# uç noktaları (Faz 2)
 | Uç nokta | Açıklama |
 |---|---|
-| `POST /groups` | Grup oluşturma (`handle`, `name`, `categorySlug`, `joinPolicy`, `about`). Oluşturan sahip ve üye olur. |
-| `PATCH /groups/{id}` | Profil düzenleme (`group.edit`): ad, kategori, katılım tipi, tanıtım, kurallar, bağlantılar, logo ve kapak yolu. Yalnızca gönderilen alanlar değişir. |
+| `POST /groups` | Grup oluşturma (`handle`, `name`, `categorySlug`, `joinPolicy`, `about`, `province?`). Oluşturan sahip ve üye olur. |
+| `PATCH /groups/{id}` | Profil düzenleme (`group.edit`): ad, kategori, katılım tipi, tanıtım, kurallar, bağlantılar, logo ve kapak yolu, il (`province`; 0 kaldırır). Yalnızca gönderilen alanlar değişir. |
 | `DELETE /groups/{id}` | Grubu silme (`group.delete`) |
 | `POST /groups/{id}/ownership` | Sahiplik devri (`userId`) |
 | `POST /groups/{id}/join` | Katılma: serbest gruba ya da bekleyen davetle üye olur, istekli grupta istek açar. Yanıt: `member` / `requested` |
@@ -520,6 +521,24 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Rozet:** Profildeki rozetlere tamamlanan hedeflerin adları eklenir ("Hedef: Ekim yürüyüşleri"). Görünürlük Faz 11 kurallarıyla aynıdır.
 - **Arayüz:** Grup sayfasında "Hedefler" bölümü (aktif hedefler, ilerleme çubukları, yetkiliye "Hedef oluştur"). Hedef sayfası (`/goals/<id>`) açıklamayı, dönemi ve ilerlemeyi gösterir; takım hedefinde takımları, görevde "Yaptım" düğmesini ve yöneticiye bekleyen bildirimleri gösterir; tamamlayanları listeler.
 
+### Harita ile keşif (Faz 14)
+Ürün kararları (2026-10-21): döşeme sağlayıcısı **Stadia Maps** (flutter_map ile). Grubun konumu 81 ilden biridir; organizasyonun buluşma noktası haritada iğneyle seçilir. Adres arama (geocoding) yoktur. Haritada yalnızca gelecekteki, iptal edilmemiş organizasyonlar ve aktif, görünür gruplar yer alır. Kişilerin konumu hiçbir zaman tutulmaz ve gösterilmez; uygulama cihaz konumu izni istemez.
+
+- **İller** (`provinces`, core): plaka kodu (1–81), ad ve il merkezinin koordinatı. Herkes okur; yalnızca migration yazar.
+- **Grubun ili** (`groups.province`, isteğe bağlı): grup oluşturulurken ya da düzenlenirken `group.edit` yetkilisi seçer (C# API + trigger, audit log'daki `group.updated` alan listesinde). Haritada grup ilin merkezinde gösterilir.
+- **Buluşma noktası** (`events.meeting_lat`, `events.meeting_lng`, isteğe bağlı, ikisi birlikte): organizasyon formunda haritaya dokunularak seçilir. Kurallar diğer organizasyon alanlarıyla aynıdır (`events.manage`, başlamamış ve iptal edilmemiş organizasyon). Yer metni (`location`) zorunlu olarak kalır; iğne yalnızca onu tamamlar. Platform ekibi (admin, moderatör) uygunsuz bir noktayı (ör. birinin ev adresi) kaldırabilir; bu işlem audit log'a yazılır.
+- **Harita verisi** (`public.map_items(south, west, north, east, category?)`): görünen alandaki gruplar (en fazla 200) ve organizasyonlar (en fazla 200). Grup görünürlük kuralı (`is_group_visible`) uygulanır. Oturum gerekir.
+- **Döşemeler** C# API üzerinden gelir (`GET /map/tiles/{z}/{x}/{y}.png`). Bunun iki sebebi var: sağlayıcı anahtarı yalnızca sunucuda kalır ve kullanıcının IP adresi sağlayıcıya gitmez. Ayrıntılar:
+  - Döşemeler bellekte önbelleklenir.
+  - Kişi başına dakikada 600 istek sınırı vardır.
+  - Kaynak `Map:TileUrl` ve `Map:ApiKey` ayarlarıdır. Adres tanımlı değilse harita 503 ile kapalıdır.
+  - Yerel geliştirmede OpenStreetMap döşemeleri düşük hacimde kullanılır (`appsettings.Development.json`). Yayında Stadia'nın ücretli planı gerekir ve kullanıcı onayıyla açılır.
+- **Arayüz:**
+  - "Harita" ekranı (`/map`): gruplar ve organizasyonlar, kategori filtresi, harita ya da liste görünümü.
+  - Organizasyon sayfasında küçük harita ve "Yol tarifi" bağlantısı (cihazın harita uygulaması açılır; ücret yoktur).
+  - Organizasyon formunda iğne seçici; grup formunda il seçimi; grup sayfasında il.
+  - Atıf her haritada görünür: © Stadia Maps, © OpenMapTiles, © OpenStreetMap katkıcıları.
+
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
@@ -533,13 +552,13 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | Storage `event-images` | Herkes | `events.manage` (kendi grubunun klasörü) |
 
 ### Audit log
-`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `event.no_show_marked`, `event.no_show_cleared`, `goal.created`, `goal.canceled`, `goal.team_created`, `goal.team_deleted`, `goal.claim_approved`, `goal.claim_rejected`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
+`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.meeting_point_removed_by_admin`, `event.attendee_approved`, `event.attendee_declined`, `event.no_show_marked`, `event.no_show_cleared`, `goal.created`, `goal.canceled`, `goal.team_created`, `goal.team_deleted`, `goal.claim_approved`, `goal.claim_rejected`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
 |---|---|
 | `POST /groups/{id}/events` | Organizasyon oluşturma (`events.manage`, aylık limit) |
-| `PUT /events/{id}` | Düzenleme (`events.manage`); formun tamamı gönderilir |
+| `PUT /events/{id}` | Düzenleme (`events.manage`); formun tamamı gönderilir (buluşma noktası `meeting: {lat, lng}` ya da boş) |
 | `POST /events/{id}/cancellation` | İptal (`reason`, `events.manage`) |
 | `POST /events/{id}/attendance` | Katılma; yanıt `going`, `waitlisted` (ve sıra) ya da onaylı katılımda `requested` |
 | `DELETE /events/{id}/attendance` | Vazgeçme ya da isteği geri alma; sıradaki yükselir |
@@ -556,6 +575,8 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `POST /polls/{id}/close`, `DELETE /polls/{id}` | Anketi kapatma / silme (`events.manage`) |
 | `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`). Rol: `admin`, `moderator`, `support` |
 | `POST /admin/events/{id}/cancellation` | Platform ekibinin iptali (`reason`). Rol: `admin`, `moderator` |
+| `DELETE /admin/events/{id}/meeting-point` | Buluşma noktasını kaldırma (Faz 14). Rol: `admin`, `moderator` |
+| `GET /map/tiles/{z}/{x}/{y}.png` | Harita döşemesi (oturum gerekir; Faz 14) |
 
 ## 3e. Moderasyon ve Disiplin Kurulu (Faz 6)
 

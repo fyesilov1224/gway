@@ -15,7 +15,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
   static const bucket = 'group-images';
 
   static const _columns =
-      'id, handle, name, category_slug, join_policy, about, rules, links, logo_path, cover_path, owner_id, member_count, status, created_at';
+      'id, handle, name, category_slug, join_policy, about, rules, links, logo_path, cover_path, owner_id, member_count, status, created_at, province';
   static const _person = 'username, display_name, avatar_path';
 
   String? get _userId => _client.auth.currentUser?.id;
@@ -165,6 +165,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
           'categorySlug': draft.categorySlug,
           'joinPolicy': draft.joinPolicy.code,
           'about': draft.about,
+          'province': draft.province,
         },
         decode: (json) => (json! as Map)['handle']! as String,
       );
@@ -303,6 +304,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
         logoUrl: _url(row['logo_path']),
         coverUrl: _url(row['cover_path']),
         isSuspended: row['status'] == 'suspended',
+        province: (row['province'] as num?)?.toInt(),
       );
 
   GroupPerson _toPerson(Map<String, dynamic> row, {required List<GroupRole> roles, Object? since}) {

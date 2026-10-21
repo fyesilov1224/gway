@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:latlong2/latlong.dart';
 
 class EventGroup {
   const EventGroup({required this.id, required this.handle, required this.name, this.logoUrl});
@@ -71,6 +72,7 @@ class GroupEvent {
     this.ratingAvg,
     this.ratingCount = 0,
     this.postsCount = 0,
+    this.meeting,
   });
 
   final String id;
@@ -113,6 +115,9 @@ class GroupEvent {
 
   /// Memories shared as posts.
   final int postsCount;
+
+  /// Picked on the map; [location] describes it (docs/ARCHITECTURE.md §3d, Harita ile keşif).
+  final LatLng? meeting;
 
   bool get isCanceled => canceledAt != null;
   bool hasStarted(DateTime now) => !startsAt.isAfter(now);
@@ -274,6 +279,7 @@ class EventForm {
     this.requirements = '',
     this.equipment = const [],
     this.approvalRequired = false,
+    this.meeting,
   });
 
   final String title;
@@ -289,6 +295,7 @@ class EventForm {
   final String requirements;
   final List<String> equipment;
   final bool approvalRequired;
+  final LatLng? meeting;
 
   Map<String, Object?> toJson() => {
         'title': title.trim(),
@@ -305,6 +312,7 @@ class EventForm {
         'requirements': requirements.trim(),
         'equipment': [for (final e in equipment) e.trim()],
         'approvalRequired': approvalRequired,
+        'meeting': meeting == null ? null : {'lat': meeting!.latitude, 'lng': meeting!.longitude},
       };
 }
 

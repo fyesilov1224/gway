@@ -12,6 +12,9 @@ abstract final class EventRoutes {
 
   static String goal(String id) => '/goals/$id';
 
+  /// Groups and upcoming events on the map.
+  static const map = '/map';
+
   /// The group's past events.
   static String history(String groupId) => '/events/history?group=$groupId';
 }

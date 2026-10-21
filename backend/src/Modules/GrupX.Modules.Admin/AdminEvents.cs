@@ -20,7 +20,9 @@ public sealed record AdminEvent(
     int RequestedCount,
     double? RatingAvg,
     int RatingCount,
-    int PostsCount);
+    int PostsCount,
+    double? MeetingLat = null,
+    double? MeetingLng = null);
 
 /// <summary>Read side of the admin events page (docs/ARCHITECTURE.md §3d).</summary>
 internal sealed class AdminEvents(NpgsqlDataSource db)
@@ -58,7 +60,8 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                    (select count(*)::int from public.event_attendees a where a.event_id = e.id and a.status = 'requested'),
                    (select round(avg(r.rating), 1)::float8 from public.event_reviews r where r.event_id = e.id),
                    (select count(*)::int from public.event_reviews r where r.event_id = e.id),
-                   (select count(*)::int from public.posts p where p.event_id = e.id and p.removed_at is null)
+                   (select count(*)::int from public.posts p where p.event_id = e.id and p.removed_at is null),
+                   e.meeting_lat, e.meeting_lng
             from public.events e join public.groups g on g.id = e.group_id
             {where}
             order by e.starts_at {(status == "upcoming" ? "asc" : "desc")}, e.id
@@ -75,7 +78,8 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                     r.GetString(6), r.IsDBNull(7) ? null : r.GetInt32(7), r.GetInt32(8), r.GetInt32(9),
                     r.IsDBNull(10) ? null : r.GetFieldValue<DateTimeOffset>(10), r.IsDBNull(11) ? null : r.GetString(11),
                     r.GetFieldValue<DateTimeOffset>(12), r.GetBoolean(13), r.GetInt32(14),
-                    r.IsDBNull(15) ? null : r.GetDouble(15), r.GetInt32(16), r.GetInt32(17)));
+                    r.IsDBNull(15) ? null : r.GetDouble(15), r.GetInt32(16), r.GetInt32(17),
+                    r.IsDBNull(18) ? null : r.GetDouble(18), r.IsDBNull(19) ? null : r.GetDouble(19)));
             }
         }
         return new PagedResult<AdminEvent>(items, total, page, PageSize);

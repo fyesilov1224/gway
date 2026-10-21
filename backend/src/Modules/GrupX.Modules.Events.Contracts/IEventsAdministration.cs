@@ -10,4 +10,7 @@ public interface IEventsAdministration
 
     /// <summary>Cancels an inappropriate goal of a group (docs/ARCHITECTURE.md §3d, Hedefler).</summary>
     Task<Result> CancelGoalAsync(Guid actorId, Guid goalId, CancellationToken ct);
+
+    /// <summary>Removes an inappropriate meeting point (docs/ARCHITECTURE.md §3d, Harita ile keşif).</summary>
+    Task<Result> RemoveMeetingPointAsync(Guid actorId, Guid eventId, CancellationToken ct);
 }

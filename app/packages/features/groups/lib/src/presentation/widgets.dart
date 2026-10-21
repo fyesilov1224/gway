@@ -282,6 +282,29 @@ class HandleFieldState extends ConsumerState<HandleField> {
 }
 
 /// Category dropdown fed by the shared categories.
+/// Optional province; only its center is used, on the map.
+class ProvinceField extends StatelessWidget {
+  const ProvinceField({super.key, required this.value, required this.onChanged});
+
+  final int? value;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context) => DropdownButtonFormField<int?>(
+        initialValue: value,
+        isExpanded: true,
+        items: [
+          const DropdownMenuItem<int?>(child: Text('Belirtilmedi')),
+          for (var i = 0; i < turkishProvinces.length; i++) DropdownMenuItem<int?>(value: i + 1, child: Text(turkishProvinces[i])),
+        ],
+        onChanged: onChanged,
+        decoration: const InputDecoration(
+          labelText: 'İl (isteğe bağlı)',
+          helperText: 'Grup haritada bu ilde görünür.',
+        ),
+      );
+}
+
 class CategoryField extends ConsumerWidget {
   const CategoryField({super.key, required this.value, required this.onChanged});
 
