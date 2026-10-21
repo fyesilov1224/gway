@@ -298,4 +298,19 @@ void main() {
       expect(opened, ['u3:true']);
     });
   });
+  testWidgets('another feature can add a line under each member', (tester) async {
+    await tester.pumpWidget(_app(
+      GroupMembersScreen(
+        handle: 'istanbul.kosu',
+        onOpenProfile: _onOpenProfile,
+        memberNote: (ref, group, person) => person.userId == 'u3' ? '12 katılım' : null,
+      ),
+      userId: 'u3',
+      group: _group(),
+      me: const MyMembership(isMember: true, roles: [GroupRole.member]),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('@demo · 12 katılım'), findsOneWidget);
+    expect(find.text('@zeynep'), findsOneWidget);
+  });
 }

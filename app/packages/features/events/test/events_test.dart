@@ -38,6 +38,13 @@ class _FakeEvents implements EventsRepository {
   final votes = <(String, Set<int>)>[];
   final decisions = <String>[];
   final reviews = <String>[];
+  final noShows = <String>[];
+
+  @override
+  Future<Result<void>> setNoShow(String eventId, String userId, {required bool noShow}) async {
+    noShows.add('$userId:$noShow');
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> saveReview(String eventId, {required int rating, String comment = ''}) async {
@@ -348,5 +355,58 @@ void main() {
     await tester.tap(find.widgetWithText(GxButton, 'Kaydet'));
     await tester.pumpAndSettle();
     expect(fake.reviews, ['e1:4:Rota güzeldi']);
+  });
+  testWidgets('managers take the roll after the event', (tester) async {
+    tester.view.physicalSize = const Size(1170, 3600);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final e = GroupEvent(id: 'e1', group: _group, title: 'Yürüyüş', startsAt: DateTime.now().subtract(const Duration(days: 1)), location: 'Park');
+    final fake = await _pump(
+      tester,
+      EventScreen(eventId: 'e1', links: _links),
+      detail: EventDetail(
+        event: e,
+        isMember: true,
+        canManage: true,
+        roll: const [
+          RollEntry(person: EventPerson(id: 'u2', username: 'elif', displayName: 'Elif Koşar')),
+          RollEntry(person: EventPerson(id: 'u3', username: 'can', displayName: 'Can Dağ'), noShow: true),
+        ],
+      ),
+    );
+    expect(find.text('Yoklama'), findsOneWidget);
+    expect(find.text('Gelmedi'), findsOneWidget);
+    await tester.tap(find.widgetWithText(SwitchListTile, 'Elif Koşar'));
+    await tester.pumpAndSettle();
+    expect(fake.noShows, ['u2:true']);
+  });
+
+  testWidgets('a profile shows contributions and badges, and explains them', (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        contributionsProvider.overrideWith((ref, id) async => const Contributions(
+              attended: 12, organized: 2, memories: 5,
+              badges: [ContributionBadge(slug: 'regular', name: 'Müdavim', description: '10 organizasyona katıl.')],
+            )),
+        badgeCatalogProvider.overrideWith((ref) async => const [
+              ContributionBadge(slug: 'first_step', name: 'İlk adım', description: 'İlk organizasyonuna katıl.'),
+              ContributionBadge(slug: 'category', name: 'tutkunu', description: 'Bir kategoride 5 organizasyona katıl.'),
+            ]),
+      ],
+      child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: ContributionsSection(userId: 'u1', isOwn: false))),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('12 katılım · 2 düzenleme · 5 anı'), findsOneWidget);
+    expect(find.text('Müdavim'), findsOneWidget);
+    await tester.tap(find.text('Rozetler nasıl kazanılır?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kategori tutkunu'), findsOneWidget);
+    expect(find.textContaining('Beğeni ve takipçi sayısı sayılmaz'), findsOneWidget);
+  });
+
+  test('member lines leave out what is zero', () {
+    expect(groupContributionLine((attended: 3, organized: 0)), '3 katılım');
+    expect(groupContributionLine(null), isNull);
   });
 }

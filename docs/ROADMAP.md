@@ -182,8 +182,14 @@ Kararlar:
 
 ## Faz 11 — Katkı ve Rozetler
 
-- Yalnızca sunucunun doğruladığı olaylardan hesaplanan katkı (katılım, düzenleme, görev)
-- Rozetler profilde ve grupta görünür; puanlamanın mantığı açıklanır; beğeni ya da takipçi sayısına dayanmaz
+Kararlar (2026-10-21): organizasyon bitince "katılıyor" görünen herkes katılmış sayılır, düzenleyen gelmeyenleri işaretler; rozetler görünür, sıralama yoktur.
+
+- [x] Yoklama: yönetici bitişten sonra 7 gün içinde "gelmedi" işaretler ya da kaldırır (C# + trigger, audit log); gelmeyen değerlendirme ve anı ekleyemez
+- [x] Katkı puan tablosunda tutulmaz, kayıtlardan hesaplanır: katılım, düzenleme (en az 2 katılımcı), anı, değerlendirme; beğeni ve takipçi sayılmaz
+- [x] Rozetler tek katalogdan (`badge_catalog`): İlk adım, Müdavim, Yol arkadaşı, Kâşif, Düzenleyici, Usta düzenleyici, Anı biriktiren, Geri bildirimci, `<Kategori>` tutkunu
+- [x] Profilde "Topluluk katkısı" ve "Rozetler nasıl kazanılır?"; grup üye listesinde gruptaki katılım ve düzenleme; organizasyon sayfasında yoklama; gizli hesabın katkısı gizli
+- [x] Admin: kullanıcı detayında katkı sayıları ve "gelmedi" işaretleri
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 22, groups 18), `dotnet build` 0 hata 0 uyarı, C# 145/145, pgTAP 561/561; gerçek API ile uçtan uca deneme (yoklama ve geri alma, üyenin yoklama alamaması, profil rozetleri, yoklama ekranı, üye listesi)
 
 ## Faz 12 — Görevler ve Ortak Hedefler
 
