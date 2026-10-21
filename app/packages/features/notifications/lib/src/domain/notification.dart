@@ -19,7 +19,8 @@ enum NotificationType {
   appealSubmitted('appeal_submitted'),
   appealDecided('appeal_decided'),
   eventApproved('event_approved'),
-  eventDeclined('event_declined');
+  eventDeclined('event_declined'),
+  eventReview('event_review');
 
   const NotificationType(this.code);
 
@@ -136,6 +137,7 @@ class AppNotification {
         NotificationType.appealDecided => 'grubu itirazını karara bağladı.',
         NotificationType.eventApproved => '"${eventTitle ?? ''}" için katılım isteğini onayladı.',
         NotificationType.eventDeclined => '"${eventTitle ?? ''}" için katılım isteğini kabul edemedi.',
+        NotificationType.eventReview => '"${eventTitle ?? ''}" nasıldı? Değerlendir, anılarını paylaş.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.
@@ -173,7 +175,7 @@ List<(NotificationPeriod, List<AppNotification>)> groupByPeriod(List<AppNotifica
 
 /// Which event notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
 class NotificationPreferences {
-  const NotificationPreferences({this.reminderDay = true, this.reminderHour = true, this.eventUpdates = true});
+  const NotificationPreferences({this.reminderDay = true, this.reminderHour = true, this.eventUpdates = true, this.reviewRequests = true});
 
   /// "Yarın başlıyor" reminder.
   final bool reminderDay;
@@ -184,10 +186,15 @@ class NotificationPreferences {
   /// Time, place and cancellation notices.
   final bool eventUpdates;
 
-  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates}) => NotificationPreferences(
+  /// "Nasıldı?" after an event.
+  final bool reviewRequests;
+
+  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates, bool? reviewRequests}) =>
+      NotificationPreferences(
         reminderDay: reminderDay ?? this.reminderDay,
         reminderHour: reminderHour ?? this.reminderHour,
         eventUpdates: eventUpdates ?? this.eventUpdates,
+        reviewRequests: reviewRequests ?? this.reviewRequests,
       );
 }
 

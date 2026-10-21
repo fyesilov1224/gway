@@ -452,10 +452,10 @@ internal sealed partial class EventService(
     public Task<Result> DeletePollAsync(Guid actor, Guid id, CancellationToken ct) =>
         OnPollAsync(actor, id, "poll.deleted", "delete from public.polls where id = @id", ct);
 
-    /// <summary>Writes due reminders (system job); returns how many went out.</summary>
+    /// <summary>Writes due reminders and review requests (system job); returns how many went out.</summary>
     public async Task<int> SendRemindersAsync(CancellationToken ct)
     {
-        await using var cmd = db.CreateCommand("select private.send_event_reminders()");
+        await using var cmd = db.CreateCommand("select private.send_event_reminders() + private.send_review_requests()");
         return (int)(await cmd.ExecuteScalarAsync(ct))!;
     }
 

@@ -68,6 +68,9 @@ class GroupEvent {
     this.requirements = '',
     this.equipment = const [],
     this.approvalRequired = false,
+    this.ratingAvg,
+    this.ratingCount = 0,
+    this.postsCount = 0,
   });
 
   final String id;
@@ -104,6 +107,13 @@ class GroupEvent {
   /// Joining sends a request a manager approves.
   final bool approvalRequired;
 
+  /// Attendees' stars after the end (docs/ARCHITECTURE.md §3d, Organizasyon sonrası).
+  final double? ratingAvg;
+  final int ratingCount;
+
+  /// Memories shared as posts.
+  final int postsCount;
+
   bool get isCanceled => canceledAt != null;
   bool hasStarted(DateTime now) => !startsAt.isAfter(now);
   bool get isFull => capacity != null && goingCount >= capacity!;
@@ -113,6 +123,8 @@ class GroupEvent {
 
   /// Without an end an event takes two hours (as in the calendar file).
   DateTime get endsOrDefault => endsAt ?? startsAt.add(const Duration(hours: 2));
+
+  bool hasEnded(DateTime now) => !endsOrDefault.isAfter(now);
 
   /// On the user's own calendar: attending, waiting or requested, and not canceled.
   bool get isMine => myStatus != null && !isCanceled;
@@ -128,6 +140,22 @@ Set<String> conflictingIds(Iterable<GroupEvent> events) {
     }
   }
   return ids;
+}
+
+/// "4,6" — Turkish decimal comma.
+String ratingLabel(double avg) => avg.toStringAsFixed(1).replaceAll('.', ',');
+
+/// A review: the user's own, or one a manager reads.
+class EventReview {
+  const EventReview({required this.rating, this.comment = '', this.person, this.updatedAt});
+
+  /// 1–5 stars.
+  final int rating;
+  final String comment;
+
+  /// Who wrote it; set in the managers' list.
+  final EventPerson? person;
+  final DateTime? updatedAt;
 }
 
 /// Another event of the user at the same time.
@@ -147,6 +175,10 @@ class EventDetail {
     this.attendees,
     this.requests,
     this.conflicts = const [],
+    this.canPost = false,
+    this.canReview = false,
+    this.myReview,
+    this.reviews,
   });
 
   final GroupEvent event;
@@ -161,6 +193,16 @@ class EventDetail {
 
   /// The user's other events at the same time.
   final List<EventConflict> conflicts;
+
+  /// May share a memory (went, or manages; the event started).
+  final bool canPost;
+
+  /// Went, and the event ended less than 30 days ago.
+  final bool canReview;
+  final EventReview? myReview;
+
+  /// Every review with its note; managers only.
+  final List<EventReview>? reviews;
 }
 
 class GroupEvents {
@@ -315,6 +357,14 @@ abstract interface class EventsRepository {
 
   /// The event as an iCalendar file for "Takvime ekle".
   Uri calendarUrl(String id);
+
+  /// The user's own review (Supabase, RLS); [comment] is for the managers only.
+  Future<Result<void>> saveReview(String eventId, {required int rating, String comment = ''});
+
+  Future<Result<void>> deleteReview(String eventId);
+
+  /// The group's past events, newest first; [before] pages back by start time.
+  Future<Result<List<GroupEvent>>> history(String groupId, {DateTime? before});
 
   /// Events starting in [from, to) (at most 62 days): a group's, or the user's own and, with
   /// [includeGroups], every event of their groups.

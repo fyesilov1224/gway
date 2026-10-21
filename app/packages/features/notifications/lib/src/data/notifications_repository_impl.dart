@@ -37,6 +37,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           reminderDay: r['event_reminder_day'] as bool,
           reminderHour: r['event_reminder_hour'] as bool,
           eventUpdates: r['event_updates'] as bool,
+          reviewRequests: r['event_review_requests'] as bool,
         );
       });
 
@@ -47,6 +48,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'event_reminder_day': p.reminderDay,
           'event_reminder_hour': p.reminderHour,
           'event_updates': p.eventUpdates,
+          'event_review_requests': p.reviewRequests,
         });
       });
 

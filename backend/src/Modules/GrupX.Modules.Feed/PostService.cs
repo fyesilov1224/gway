@@ -18,7 +18,7 @@ namespace GrupX.Modules.Feed;
 public sealed record PostMediaInput(string? Kind, string? Path, int Width, int Height, int? DurationMs, string? PosterPath, string? ThumbPath);
 
 public sealed record CreatePostRequest(
-    string? Caption, IReadOnlyList<PostMediaInput>? Media, Guid? GroupId, bool CommentsDisabled, bool HideLikeCount);
+    string? Caption, IReadOnlyList<PostMediaInput>? Media, Guid? GroupId, bool CommentsDisabled, bool HideLikeCount, Guid? EventId = null);
 
 public sealed record UpdatePostRequest(string? Caption, bool? CommentsDisabled, bool? HideLikeCount);
 
@@ -74,10 +74,14 @@ internal sealed partial class PostService(NpgsqlDataSource db, ISupabaseStorage 
 
     private static Error Invalid(string message) => Error.Validation("feed.invalid_post", message);
 
+    private static readonly Error EventForbidden = Error.Forbidden(
+        "feed.event_forbidden", "Bir organizasyona anı ekleyebilmek için ona katılmış olmalısın; organizasyon başlamış olmalı.");
+
     private static Error RuleError(string code) => code switch
     {
         "post_rate_limited" => Error.RuleViolation("feed.post_rate_limited", "Bugün çok fazla gönderi paylaştın. Yarın tekrar dene."),
         "post_forbidden" => Forbidden,
+        "event_post_forbidden" => EventForbidden,
         _ => Error.RuleViolation($"feed.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
 
@@ -148,6 +152,17 @@ internal sealed partial class PostService(NpgsqlDataSource db, ISupabaseStorage 
                 if (allowed is not true) return Error.Forbidden("feed.group_forbidden", "Bu grup adına paylaşım yapma yetkin yok.");
             }
 
+            // A memory (docs/ARCHITECTURE.md §3d, Organizasyon sonrası): the event took place and the author went or manages it.
+            if (request.EventId is { } eventId && await ActingTransaction.ScalarAsync(conn, tx,
+                    """
+                    select exists (
+                      select 1 from public.events e
+                      where e.id = @e and e.canceled_at is null and e.starts_at <= now()
+                        and (exists (select 1 from public.event_attendees a where a.event_id = e.id and a.user_id = @actor and a.status = 'going')
+                             or private.user_has_group_permission(@actor, e.group_id, 'events.manage')))
+                    """, ct, ("e", eventId), ("actor", actor)) is not true)
+                return EventForbidden;
+
             var today = (long)(await ActingTransaction.ScalarAsync(conn, tx,
                 "select count(*) from public.posts where author_id = @id and created_at > now() - interval '24 hours'", ct, ("id", actor)))!;
             if (today >= DailyPosts) return RuleError("post_rate_limited");
@@ -184,9 +199,9 @@ internal sealed partial class PostService(NpgsqlDataSource db, ISupabaseStorage 
 
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
-                insert into public.posts (author_id, group_id, caption, comments_disabled, hide_like_count)
-                values (@author, @group, @caption, @comments, @likes) returning id
-                """, ct, ("author", actor), ("group", request.GroupId), ("caption", caption.Value),
+                insert into public.posts (author_id, group_id, caption, comments_disabled, hide_like_count, event_id)
+                values (@author, @group, @caption, @comments, @likes, @event) returning id
+                """, ct, ("author", actor), ("group", request.GroupId), ("caption", caption.Value), ("event", request.EventId),
                 ("comments", request.CommentsDisabled), ("likes", request.HideLikeCount)))!;
 
             foreach (var (m, i) in media.Value.Select((m, i) => (m, i)))

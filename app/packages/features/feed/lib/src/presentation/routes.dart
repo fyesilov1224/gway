@@ -12,6 +12,9 @@ abstract final class FeedRoutes {
 
   static String createFor(String groupId) => '$create?group=$groupId';
 
+  /// A memory of an event.
+  static String createMemory(String eventId) => '$create?event=$eventId';
+
   static String post(String id) => '/p/$id';
 
   static String comments(String id) => '/p/$id/comments';
@@ -30,10 +33,13 @@ abstract final class FeedRoutes {
 
 /// Opens other features' pages; features do not import each other, so the app supplies it.
 class FeedLinks {
-  const FeedLinks({required this.openProfile, required this.openGroup});
+  const FeedLinks({required this.openProfile, required this.openGroup, this.openEvent});
 
   final void Function(BuildContext context, String username) openProfile;
   final void Function(BuildContext context, String handle) openGroup;
+
+  /// The event of a memory.
+  final void Function(BuildContext context, String eventId)? openEvent;
 }
 
 final feedLinksProvider = Provider<FeedLinks>((ref) => throw UnimplementedError('feedLinksProvider must be overridden'));

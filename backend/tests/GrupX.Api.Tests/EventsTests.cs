@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using GrupX.Modules.Admin;
 using GrupX.Modules.Events;
+using GrupX.Modules.Feed;
 using GrupX.Modules.Groups;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -225,6 +226,35 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
         Assert.All(ics.Split("\r\n"), line => Assert.True(System.Text.Encoding.UTF8.GetByteCount(line) <= 75, line));
 
         Assert.Equal(HttpStatusCode.NotFound, (await visitor.GetAsync(Path($"/events/{Guid.NewGuid()}/calendar.ics"), Ct)).StatusCode);
+    }
+
+    // After the event (Faz 10) --------------------------------------------------------------
+
+    [Fact]
+    public async Task Attendees_share_memories_and_are_asked_for_a_review()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        await AttendAsync(crew.Member, ev);
+
+        async Task<HttpStatusCode> MemoryAsync(Guid author)
+        {
+            var path = $"{author}/{Guid.NewGuid():N}.jpg";
+            await _db.StoreMediaAsync(author, path, "image/jpeg");
+            var post = new CreatePostRequest("Harika bir gündü", [new PostMediaInput("image", path, 1080, 1350, null, null, null)],
+                null, false, false, ev);
+            return (await factory.ClientFor(author).PostAsJsonAsync(Path("/posts"), post, Ct)).StatusCode;
+        }
+
+        Assert.Equal(HttpStatusCode.Forbidden, await MemoryAsync(crew.Member));
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '3 hours' where id = @e", ("e", ev));
+        Assert.Equal(HttpStatusCode.Forbidden, await MemoryAsync(crew.Other));
+        Assert.Equal(HttpStatusCode.OK, await MemoryAsync(crew.Member));
+        Assert.Equal(1L, await CountAsync("select count(*) from public.posts where event_id = @e", ("e", ev)));
+
+        await factory.Services.GetRequiredService<EventService>().SendRemindersAsync(Ct);
+        Assert.Equal(1L, await CountAsync("select count(*) from public.notifications where type = 'event_review' and recipient_id = @u and event_id = @e",
+            ("u", crew.Member), ("e", ev)));
     }
 
     // Polls -----------------------------------------------------------------------------------

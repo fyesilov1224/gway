@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(17);
 
 -- k1 owner (attends both events), k2 member (attends the first), k3 outsider.
 insert into auth.users (id, email, aud, role)
@@ -48,6 +48,13 @@ select throws_ok(
 select lives_ok(
   $$ update public.notification_preferences set event_reminder_hour = false where user_id = pg_temp.u(2) $$,
   'a user changes their preferences'
+);
+select lives_ok(
+  $$ insert into public.notification_preferences (user_id, event_reminder_day, event_reminder_hour, event_updates)
+     values (pg_temp.u(2), false, false, false)
+     on conflict (user_id) do update set user_id = excluded.user_id, event_reminder_day = excluded.event_reminder_day,
+       event_reminder_hour = excluded.event_reminder_hour, event_updates = excluded.event_updates $$,
+  'the app''s upsert saves preferences'
 );
 select pg_temp.act('00000000-0000-0000-0000-0000000ca003');
 select is((select count(*)::int from public.notification_preferences), 0, 'others'' preferences are private');

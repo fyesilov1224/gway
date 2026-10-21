@@ -37,6 +37,13 @@ class _FakeEvents implements EventsRepository {
   final attended = <String>[];
   final votes = <(String, Set<int>)>[];
   final decisions = <String>[];
+  final reviews = <String>[];
+
+  @override
+  Future<Result<void>> saveReview(String eventId, {required int rating, String comment = ''}) async {
+    reviews.add('$eventId:$rating:$comment');
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve}) async {
@@ -299,5 +306,47 @@ void main() {
     );
     expect(find.text('Bu saatte başka bir organizasyonun var'), findsOneWidget);
     expect(find.textContaining('Gece koşusu'), findsOneWidget);
+  });
+  test('a past event sums up attendance, stars and memories', () {
+    final e = GroupEvent(
+      id: 'e1', group: _group, title: 'Yürüyüş', startsAt: DateTime(2026, 10, 1, 9), location: 'Park',
+      goingCount: 18, ratingAvg: 4.6, ratingCount: 8, postsCount: 12,
+    );
+    expect(eventSummary(e), '18 kişi katıldı · 4,6 ★ (8 değerlendirme) · 12 anı');
+    expect(e.hasEnded(DateTime(2026, 10, 1, 11)), isTrue, reason: 'no end: two hours');
+    expect(e.hasEnded(DateTime(2026, 10, 1, 10, 59)), isFalse);
+  });
+
+  testWidgets('attendees review a past event; memories come from the app', (tester) async {
+    tester.view.physicalSize = const Size(1170, 3600);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final shared = <String>[];
+    final links = EventLinks(
+      openGroup: (_, _) {},
+      openProfile: (_, _) {},
+      shareMemory: (_, id) => shared.add(id),
+      memories: (_, id) => Text('anılar:$id'),
+    );
+    final e = GroupEvent(
+      id: 'e1', group: _group, title: 'Yürüyüş', startsAt: DateTime.now().subtract(const Duration(days: 1)), location: 'Park',
+      goingCount: 3, myStatus: AttendanceStatus.going,
+    );
+    final fake = await _pump(
+      tester,
+      EventScreen(eventId: 'e1', links: links),
+      detail: EventDetail(event: e, isMember: true, canPost: true, canReview: true),
+    );
+
+    expect(find.text('Nasıl geçti?'), findsOneWidget);
+    expect(find.text('anılar:e1'), findsOneWidget);
+    await tester.tap(find.text('Anı paylaş'));
+    expect(shared, ['e1']);
+
+    await tester.tap(find.byTooltip('4 yıldız'));
+    await tester.enterText(find.widgetWithText(TextField, 'Düzenleyenlere notun (isteğe bağlı)'), 'Rota güzeldi');
+    await tester.tap(find.widgetWithText(GxButton, 'Kaydet'));
+    await tester.pumpAndSettle();
+    expect(fake.reviews, ['e1:4:Rota güzeldi']);
   });
 }

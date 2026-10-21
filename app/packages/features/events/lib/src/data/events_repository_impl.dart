@@ -11,6 +11,7 @@ const coverBucket = 'event-images';
 const _rules = {
   'poll_single_choice': 'Bu ankette tek seçenek işaretlenebilir.',
   'poll_option_invalid': 'Bu seçenek artık yok. Sayfayı yenile.',
+  'review_not_allowed': 'Değerlendirme, organizasyona katılanlar için bitişinden sonraki 30 gün açıktır.',
 };
 
 Failure _failure(Object error) => switch (error) {
@@ -79,6 +80,9 @@ class EventsRepositoryImpl implements EventsRepository {
       requirements: r['requirements'] as String? ?? '',
       equipment: [for (final e in (r['equipment'] as List? ?? const [])) e as String],
       approvalRequired: r['approval_required'] == true,
+      ratingAvg: (r['rating_avg'] as num?)?.toDouble(),
+      ratingCount: (r['rating_count'] as num?)?.toInt() ?? 0,
+      postsCount: (r['posts_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -114,6 +118,8 @@ class EventsRepositoryImpl implements EventsRepository {
         if (r == null) throw const NotFoundFailure();
         final attendees = r['attendees'] as List?;
         final requests = r['requests'] as List?;
+        final reviews = r['reviews'] as List?;
+        final mine = r['my_review'] as Map?;
         return EventDetail(
           event: _event(r),
           canManage: r['can_manage'] == true,
@@ -124,6 +130,20 @@ class EventsRepositoryImpl implements EventsRepository {
             for (final c in (r['conflicts'] as List? ?? const []).cast<Map<String, dynamic>>())
               EventConflict(id: c['id'] as String, title: c['title'] as String, startsAt: DateTime.parse(c['starts_at'] as String)),
           ],
+          canPost: r['can_post'] == true,
+          canReview: r['can_review'] == true,
+          myReview: mine == null ? null : EventReview(rating: (mine['rating'] as num).toInt(), comment: mine['comment'] as String? ?? ''),
+          reviews: reviews == null
+              ? null
+              : [
+                  for (final v in reviews.cast<Map<String, dynamic>>())
+                    EventReview(
+                      rating: (v['rating'] as num).toInt(),
+                      comment: v['comment'] as String? ?? '',
+                      person: _person(v),
+                      updatedAt: DateTime.parse(v['updated_at'] as String),
+                    ),
+                ],
         );
       });
 
@@ -168,6 +188,30 @@ class EventsRepositoryImpl implements EventsRepository {
 
   @override
   Uri calendarUrl(String id) => _api.baseUrl.resolve('/events/$id/calendar.ics');
+
+  @override
+  Future<Result<void>> saveReview(String eventId, {required int rating, String comment = ''}) => _run(() async {
+        await _client.from('event_reviews').upsert({
+          'event_id': eventId,
+          'user_id': _client.auth.currentUser!.id,
+          'rating': rating,
+          'comment': comment.trim(),
+        });
+      });
+
+  @override
+  Future<Result<void>> deleteReview(String eventId) => _run(() async {
+        await _client.from('event_reviews').delete().eq('event_id', eventId).eq('user_id', _client.auth.currentUser!.id);
+      });
+
+  @override
+  Future<Result<List<GroupEvent>>> history(String groupId, {DateTime? before}) => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('group_event_history', params: {
+          'target_group': groupId,
+          'before_at': before?.toUtc().toIso8601String(),
+        });
+        return [for (final e in r.cast<Map<String, dynamic>>()) _event(e)];
+      });
 
   @override
   Future<Result<List<GroupEvent>>> calendar(DateTime from, DateTime to, {String? groupId, bool includeGroups = false}) =>

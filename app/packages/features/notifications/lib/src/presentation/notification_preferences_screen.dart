@@ -57,6 +57,8 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                       (v) => p.copyWith(reminderHour: v)),
                   toggle('Değişiklik ve iptaller', 'Zaman ya da yer değişince ya da organizasyon iptal edilince', p.eventUpdates,
                       (v) => p.copyWith(eventUpdates: v)),
+                  toggle('Değerlendirme istekleri', 'Katıldığın organizasyon bitince "Nasıldı?" diye sor', p.reviewRequests,
+                      (v) => p.copyWith(reviewRequests: v)),
                   Padding(
                     padding: const EdgeInsets.all(GxSpacing.page),
                     child: Text(

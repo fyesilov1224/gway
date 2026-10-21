@@ -25,10 +25,13 @@ class _Item {
 /// Shares a post as the user or, with `posts.publish`, as one of their groups.
 /// Photos are framed here and prepared on the device before upload (docs/ARCHITECTURE.md §3c).
 class CreatePostScreen extends ConsumerStatefulWidget {
-  const CreatePostScreen({super.key, this.groupId});
+  const CreatePostScreen({super.key, this.groupId, this.eventId});
 
   /// Preselected group (from a group page).
   final String? groupId;
+
+  /// Shares a memory of this event (from the event page).
+  final String? eventId;
 
   @override
   ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -107,6 +110,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       media: media,
       caption: _caption.text,
       groupId: _groupId,
+      eventId: widget.eventId,
       commentsDisabled: _commentsDisabled,
       hideLikeCount: _hideLikeCount,
     );
@@ -155,6 +159,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: GxSpacing.md),
           children: [
+            if (widget.eventId != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.sm),
+                child: Text(
+                  'Bu gönderi organizasyonun anıları arasında da görünecek. Yalnızca kendi fotoğraflarını ve izin aldığın kişileri paylaş.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                ),
+              ),
             if (selected == null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),

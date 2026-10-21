@@ -1,4 +1,5 @@
 import 'package:events/events.dart';
+import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
@@ -8,6 +9,11 @@ import 'package:profile/profile.dart';
 final eventLinks = EventLinks(
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
   openProfile: (context, username) => context.push(ProfileRoutes.user(username)),
+  shareMemory: (context, eventId) => context.push(FeedRoutes.createMemory(eventId)),
+  memories: (context, eventId) => PostsSection(
+    source: EventPosts(eventId),
+    emptyMessage: 'Henüz anı paylaşılmadı. Katılanlar fotoğraflarını buraya ekleyebilir.',
+  ),
 );
 
 /// Upcoming events on the group page; events.manage holders (owner, Yönetici) create them.

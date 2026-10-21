@@ -173,9 +173,12 @@ Kararlar:
 
 ## Faz 10 — Organizasyon Sonrası
 
-- Organizasyona bağlı gönderiler (mevcut gönderi altyapısı)
-- Katılanların değerlendirmesi
-- Grubun organizasyon geçmişi ve özeti
+- [x] Anılar: organizasyona bağlı gönderiler (mevcut gönderi altyapısı; yalnızca katılanlar ve yöneticiler, organizasyon başladıktan sonra; C# + trigger), organizasyon sayfasında "Anılar" ve "Anı paylaş", gönderi kartında "Anı · organizasyon"
+- [x] Değerlendirme: katılanlar bitişten sonra 30 gün içinde 1–5 yıldız ve yöneticilere not; herkes yalnızca ortalamayı görür; "Nasıldı?" bildirimi (tercihlerden kapatılabilir)
+- [x] Özet ("Nasıl geçti?"), grubun sıradaki organizasyonları önerisi ve "Geçmiş organizasyonlar" sayfası
+- [x] Admin: organizasyon listesinde puan ortalaması ve anı sayısı
+- [x] Düzeltme: uygulamanın "upsert" ile kaydettiği bildirim tercihleri ve değerlendirmeler için eksik sütun yetkisi (migration 0018; Faz 9'dan kalan hata uçtan uca denemede bulundu)
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 19), `dotnet build` 0 hata 0 uyarı, C# 144/144, pgTAP 544/544; gerçek API ile uçtan uca deneme (anı yükleme ve paylaşma, değerlendirme, değerlendirme isteği, katılan ve yönetici ekranları, geçmiş)
 
 ## Faz 11 — Katkı ve Rozetler
 

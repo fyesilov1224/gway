@@ -86,6 +86,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.notifications` | notifications | 4 |
 | `public.notification_preferences` | notifications | 9 |
 | `public.events`, `public.event_attendees`, `public.polls`, `public.poll_options`, `public.poll_votes` | events | 5 |
+| `public.event_reviews` | events | 10 |
 | Storage `event-images` | events | 5 |
 | `public.live_broadcasts`, `public.live_kicks`, `public.live_comments`, `public.live_reminders` | live | 7 |
 | `public.reports`, `public.moderation_cases`, `public.case_votes`, `public.sanctions`, `public.sanction_appeals` | moderation | 6 |
@@ -340,7 +341,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
 - **Arayüz:** Ekranda bildirimler Bugün / Bu hafta / Daha önce diye gruplanır. Bekleyen takip istekleri en üstte toplanır. Okunmamış sayısı gezinmede görünür.
 - **Push:** Push bildirimi (FCM/APNs) Firebase proje bilgileri gelince bu kayıtlardan gönderilir.
-- **Tercihler** (Faz 9, `notification_preferences`): kişi organizasyon hatırlatmalarını (1 gün önce, 1 saat önce) ve organizasyon değişikliği/iptali bildirimlerini kapatabilir. Kayıt yoksa hepsi açıktır. Kişinin kendi basit yazmasıdır (RLS). Bildirimi yazan fonksiyonlar tercihi okur (`private.wants_notification`); kapalı türde kayıt hiç oluşmaz. Diğer türler (katılım onayı, sıra yükselmesi, yaptırım vb.) kişiyi doğrudan ilgilendirdiği için kapatılamaz.
+- **Tercihler** (Faz 9, `notification_preferences`): kişi organizasyon hatırlatmalarını (1 gün önce, 1 saat önce), organizasyon değişikliği/iptali bildirimlerini ve değerlendirme isteklerini (Faz 10) kapatabilir. Kayıt yoksa hepsi açıktır. Kişinin kendi basit yazmasıdır (RLS). Bildirimi yazan fonksiyonlar tercihi okur (`private.wants_notification`); kapalı türde kayıt hiç oluşmaz. Diğer türler (katılım onayı, sıra yükselmesi, yaptırım vb.) kişiyi doğrudan ilgilendirdiği için kapatılamaz.
 
 ### Depolama (`media`)
 - Herkese açık okunur. Yollar tahmin edilemez uuid'lerdir; hangi medyanın kime ait olduğu ancak RLS'in izin verdiği gönderi ve hikaye kayıtlarından öğrenilir. Bu, Instagram'ın CDN modeline benzer.
@@ -364,7 +365,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `DELETE /me/follow-requests/{userId}` | İsteği reddet |
 | `DELETE /me/followers/{userId}` | Takipçiyi çıkar |
 | `POST /users/{id}/block` / `DELETE /users/{id}/block` | Engelle / engeli kaldır |
-| `POST /posts` | Gönderi (`caption`, `media[]`, `groupId?`, `commentsDisabled`, `hideLikeCount`) |
+| `POST /posts` | Gönderi (`caption`, `media[]`, `groupId?`, `eventId?` (Faz 10, anı), `commentsDisabled`, `hideLikeCount`) |
 | `PATCH /posts/{id}` | Açıklama ve seçenekler |
 | `DELETE /posts/{id}` | Gönderiyi ve medyasını sil (yazar ya da grup gönderisinde `posts.publish`) |
 | `GET /admin/posts?q=&removed=&page=`, `GET /admin/posts/{id}` | İçerik listesi ve detayı |
@@ -418,7 +419,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Anket kapanınca oy verilemez, sonuçlar kalır.
 
 ### Bildirimler
-`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined` (bildirim kaydında `event_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
+`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".
@@ -434,6 +435,12 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Çakışma:** Kişinin iptal edilmemiş iki organizasyonunun (katılan, bekleyen ya da istek) zamanı kesişiyorsa çakışma sayılır. Bitişi olmayan organizasyon 2 saat sürer sayılır (`.ics` ile aynı). Takvim çakışanları işaretler. Organizasyon sayfası, kişinin o saatteki diğer organizasyonlarını gösterir (`event_detail.conflicts`).
 - `public.calendar_events(range_start, range_end, target_group, include_groups)` en fazla 62 günlük aralık ve 500 organizasyon döner.
 
+### Organizasyon sonrası (Faz 10)
+- **Anılar:** Gönderi bir organizasyona bağlanabilir (`posts.event_id`; feed modülü). Bağlayan, organizasyonun bir yöneticisi (`events.manage`) ya da organizasyona **katılmış** (`going`) kişidir. Organizasyon başlamış ve iptal edilmemiş olmalıdır. Kuralı C# ve `posts` trigger'ı birlikte uygular. Bağlantı sonradan değişmez. Anı, sıradan bir gönderidir: görünürlüğü, şikayeti ve kaldırılması gönderi kurallarına uyar. Kimsenin fotoğrafı otomatik paylaşılmaz; herkes yalnızca kendi gönderisini bağlar. Organizasyon sayfası, görüntüleyenin görebildiği anıları gösterir (`public.event_posts`).
+- **Değerlendirme** (`event_reviews`): organizasyona katılmış kişi, organizasyon bittikten sonra (bitişi yoksa başlangıçtan 2 saat sonra) 30 gün içinde 1–5 yıldız ve isteğe bağlı not (en fazla 500 karakter) verir. Kişi değerlendirmesini değiştirir ya da siler. Kendi basit yazmasıdır (RLS); uygunluğu trigger denetler. Herkes yalnızca ortalamayı ve sayıyı görür. Notları kişinin kendisi ve grubun `events.manage` yetkilileri görür (herkese açık yorum alanı yoktur).
+- **Değerlendirme isteği:** Organizasyon bittikten sonra katılanlara bir kez `event_review` bildirimi gider (`EventReminderService`, `events.review_asked_at`). Bildirim tercihlerinden kapatılabilir (`event_review_requests`).
+- **Özet ve geçmiş:** Biten organizasyonun sayfası katılan sayısını, puan ortalamasını ve anı sayısını gösterir. Grubun sıradaki organizasyonlarını da önerir. Grubun geçmişi (`public.group_event_history`) biten organizasyonları özetleriyle, yeniden eskiye ve sayfalı listeler.
+
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
@@ -441,6 +448,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `event_attendees` | Grubun üyeleri ve kişinin kendisi | Backend |
 | `polls`, `poll_options` | Grubun üyeleri | Backend |
 | `poll_votes` | Kendi oyları; açık anketlerde grubun üyeleri | Kendi oyu (RLS) |
+| `event_reviews` | Kişinin kendisi ve grubun `events.manage` yetkilileri; ortalama herkese | Kendi değerlendirmesi (RLS) |
 | Storage `event-images` | Herkes | `events.manage` (kendi grubunun klasörü) |
 
 ### Audit log

@@ -119,6 +119,21 @@ class PostCard extends ConsumerWidget {
                 const SizedBox(height: GxSpacing.xxs),
                 _Caption(post: current, onOpenOwner: openOwner),
               ],
+              if (current.event case final event?)
+                InkWell(
+                  onTap: links.openEvent == null ? null : () => links.openEvent!(context, event.id),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+                    child: Row(children: [
+                      const Icon(Icons.event_outlined, size: GxSpacing.md, color: GxColors.primary),
+                      const SizedBox(width: GxSpacing.xxs),
+                      Expanded(
+                        child: Text('Anı · ${event.title}', maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: textTheme.labelMedium?.copyWith(color: GxColors.primary)),
+                      ),
+                    ]),
+                  ),
+                ),
               if (showAllComments && !current.commentsDisabled && current.commentCount > 0) ...[
                 const SizedBox(height: GxSpacing.xxs),
                 InkWell(

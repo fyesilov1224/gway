@@ -9,4 +9,7 @@ abstract final class EventRoutes {
   static const calendar = '/calendar';
 
   static String groupCalendar(String groupId) => '/calendar?group=$groupId';
+
+  /// The group's past events.
+  static String history(String groupId) => '/events/history?group=$groupId';
 }

@@ -29,6 +29,9 @@ class AdminEvent {
     this.cancelReason,
     this.approvalRequired = false,
     this.requestedCount = 0,
+    this.ratingAvg,
+    this.ratingCount = 0,
+    this.postsCount = 0,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -46,6 +49,9 @@ class AdminEvent {
         cancelReason: j['cancelReason'] as String?,
         approvalRequired: j['approvalRequired'] as bool? ?? false,
         requestedCount: j['requestedCount'] as int? ?? 0,
+        ratingAvg: (j['ratingAvg'] as num?)?.toDouble(),
+        ratingCount: j['ratingCount'] as int? ?? 0,
+        postsCount: j['postsCount'] as int? ?? 0,
       );
 
   final String id;
@@ -64,6 +70,11 @@ class AdminEvent {
   /// Joining needs a manager's approval; [requestedCount] people are waiting.
   final bool approvalRequired;
   final int requestedCount;
+
+  /// Attendees' average stars and memories (Faz 10).
+  final double? ratingAvg;
+  final int ratingCount;
+  final int postsCount;
 
   bool get isCanceled => canceledAt != null;
 }

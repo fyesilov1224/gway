@@ -71,6 +71,7 @@ class FeedMapper {
   Post post(Map<String, dynamic> r) {
     final group = r['group'] as Map?;
     final author = r['author'] as Map?;
+    final event = r['event'] as Map?;
     return Post(
       id: r['id'] as String,
       caption: r['caption'] as String,
@@ -85,6 +86,7 @@ class FeedMapper {
               name: group['name'] as String,
               logoUrl: url('group-images', group['logo_path']),
             ),
+      event: event == null ? null : PostEvent(id: event['id'] as String, title: event['title'] as String),
       media: [for (final m in r['media'] as List) media((m as Map).cast())],
       commentsDisabled: r['comments_disabled'] as bool,
       hideLikeCount: r['hide_like_count'] as bool,
@@ -139,6 +141,7 @@ class FeedRepositoryImpl implements FeedRepository {
           HomeFeed() => ('home_feed', cursor),
           UserPosts(:final userId) => ('user_posts', {'target': userId, ...cursor}),
           GroupPosts(:final groupId) => ('group_posts', {'target': groupId, ...cursor}),
+          EventPosts(:final eventId) => ('event_posts', {'target_event': eventId, ...cursor}),
           HashtagPosts(:final tag) => ('hashtag_posts', {'tag': tag, ...cursor}),
           ExplorePosts() => ('explore_posts', {'page_offset': offset, 'page_size': pageSize}),
           SavedPosts() => ('saved_feed', {'page_size': 60}),
@@ -199,6 +202,7 @@ class FeedRepositoryImpl implements FeedRepository {
       body: {
         'caption': post.caption.trim(),
         'groupId': post.groupId,
+        'eventId': post.eventId,
         'commentsDisabled': post.commentsDisabled,
         'hideLikeCount': post.hideLikeCount,
         'media': [

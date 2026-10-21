@@ -61,6 +61,14 @@ class PostGroup {
   final String? logoUrl;
 }
 
+/// The event a memory belongs to (docs/ARCHITECTURE.md §3d, Organizasyon sonrası).
+class PostEvent {
+  const PostEvent({required this.id, required this.title});
+
+  final String id;
+  final String title;
+}
+
 class Post {
   const Post({
     required this.id,
@@ -70,6 +78,7 @@ class Post {
     this.editedAt,
     this.author,
     this.group,
+    this.event,
     this.commentsDisabled = false,
     this.hideLikeCount = false,
     this.likeCount,
@@ -89,6 +98,9 @@ class Post {
 
   /// Set for group posts, which are shown under the group's name.
   final PostGroup? group;
+
+  /// Set for memories of an event.
+  final PostEvent? event;
   final List<PostMedia> media;
   final bool commentsDisabled;
   final bool hideLikeCount;
@@ -118,6 +130,7 @@ class Post {
         editedAt: editedAt,
         author: author,
         group: group,
+        event: event,
         media: media,
         commentsDisabled: commentsDisabled ?? this.commentsDisabled,
         hideLikeCount: hideLikeCount ?? this.hideLikeCount,
@@ -291,6 +304,7 @@ class NewPost {
     required this.media,
     this.caption = '',
     this.groupId,
+    this.eventId,
     this.commentsDisabled = false,
     this.hideLikeCount = false,
   });
@@ -298,6 +312,9 @@ class NewPost {
   final List<NewMedia> media;
   final String caption;
   final String? groupId;
+
+  /// Shares the post as a memory of this event.
+  final String? eventId;
   final bool commentsDisabled;
   final bool hideLikeCount;
 
@@ -383,6 +400,19 @@ final class ExplorePosts extends PostSource {
 
   @override
   int get hashCode => (ExplorePosts).hashCode;
+}
+
+/// Memories of an event.
+final class EventPosts extends PostSource {
+  const EventPosts(this.eventId);
+
+  final String eventId;
+
+  @override
+  bool operator ==(Object other) => other is EventPosts && other.eventId == eventId;
+
+  @override
+  int get hashCode => Object.hash(EventPosts, eventId);
 }
 
 final class SavedPosts extends PostSource {

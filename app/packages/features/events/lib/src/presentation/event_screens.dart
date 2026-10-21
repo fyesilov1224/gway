@@ -38,13 +38,26 @@ String eventSeats(GroupEvent e) => e.capacity == null
     ? '${formatCount(e.goingCount)} kişi katılıyor'
     : '${formatCount(e.goingCount)} / ${formatCount(e.capacity!)} kişi${e.waitlistCount > 0 ? ' · ${formatCount(e.waitlistCount)} bekliyor' : ''}';
 
-/// Profiles and groups are other features; the app opens them.
+/// Profiles, groups and posts are other features; the app opens and shows them.
 class EventLinks {
-  const EventLinks({required this.openGroup, required this.openProfile});
+  const EventLinks({required this.openGroup, required this.openProfile, this.shareMemory, this.memories});
 
   final void Function(BuildContext context, String handle) openGroup;
   final void Function(BuildContext context, String username) openProfile;
+
+  /// Opens the post composer for a memory of the event.
+  final void Function(BuildContext context, String eventId)? shareMemory;
+
+  /// The event's memories (posts), shown on the event page.
+  final Widget Function(BuildContext context, String eventId)? memories;
 }
+
+/// "18 kişi katıldı · 4,6 ★ (8 değerlendirme) · 12 anı".
+String eventSummary(GroupEvent e) => [
+      '${formatCount(e.goingCount)} kişi katıldı',
+      if (e.ratingAvg case final avg?) '${ratingLabel(avg)} ★ (${formatCount(e.ratingCount)} değerlendirme)',
+      if (e.postsCount > 0) '${formatCount(e.postsCount)} anı',
+    ].join(' · ');
 
 /// Day and month block, like a calendar sheet.
 class _DateBlock extends StatelessWidget {
@@ -85,7 +98,7 @@ class _StatusBadge extends StatelessWidget {
       AttendanceStatus.requested => const GxBadge('Onay bekliyor', tone: GxBadgeTone.warning),
       AttendanceStatus.going => const GxBadge('Katılıyorsun', dot: true, tone: GxBadgeTone.primary),
       AttendanceStatus.waitlisted => GxBadge('Bekleme listesi · ${e.myPlace ?? '-'}. sıra', tone: GxBadgeTone.info),
-      null when e.isFull => const GxBadge('Dolu', tone: GxBadgeTone.neutral),
+      null when e.isFull && !e.hasStarted(DateTime.now()) => const GxBadge('Dolu', tone: GxBadgeTone.neutral),
       null => const SizedBox.shrink(),
     };
   }
@@ -186,6 +199,7 @@ class GroupEventsSection extends ConsumerWidget {
           Row(
             children: [
               Expanded(child: Text('Organizasyonlar', style: textTheme.titleMedium)),
+              TextButton(onPressed: () => context.push(EventRoutes.history(groupId)), child: const Text('Geçmiş')),
               TextButton(onPressed: () => context.push(EventRoutes.groupCalendar(groupId)), child: const Text('Takvim')),
               if (canManage)
                 TextButton.icon(
@@ -596,6 +610,64 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                   ],
                 ),
               ),
+              if (e.hasEnded(now) && !e.isCanceled)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Nasıl geçti?', style: textTheme.titleMedium),
+                      const SizedBox(height: GxSpacing.xxs),
+                      Text(eventSummary(e), style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      if (d.canReview) ...[
+                        const SizedBox(height: GxSpacing.sm),
+                        _ReviewBox(event: e, mine: d.myReview),
+                      ],
+                      if (d.reviews case final reviews? when reviews.isNotEmpty) ...[
+                        const SizedBox(height: GxSpacing.md),
+                        Text('Değerlendirmeler (${reviews.length})', style: textTheme.titleSmall),
+                        Text('Notları yalnızca organizasyonu düzenleyenler görür.',
+                            style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                        for (final r in reviews)
+                          Padding(
+                            padding: const EdgeInsets.only(top: GxSpacing.xs),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GxAvatar(name: r.person!.displayName, imageUrl: r.person!.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+                                const SizedBox(width: GxSpacing.sm),
+                                Expanded(
+                                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                    Text('${r.person!.displayName} · ${'★' * r.rating}', style: textTheme.labelLarge),
+                                    if (r.comment.isNotEmpty) Text(r.comment, style: textTheme.bodyMedium),
+                                  ]),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                      const SizedBox(height: GxSpacing.lg),
+                    ],
+                  ),
+                ),
+              if (e.hasStarted(now) && !e.isCanceled && widget.links.memories != null) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.sm, 0),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Anılar', style: textTheme.titleMedium)),
+                      if (d.canPost && widget.links.shareMemory != null)
+                        TextButton.icon(
+                          onPressed: () => widget.links.shareMemory!(context, e.id),
+                          icon: const Icon(Icons.add_a_photo_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                          label: const Text('Anı paylaş'),
+                        ),
+                    ],
+                  ),
+                ),
+                widget.links.memories!(context, e.id),
+              ],
+              if (e.hasEnded(now)) _NextEvents(groupId: e.group.id, except: e.id),
               if (d.isMember)
                 PollsSection(
                   scope: (groupId: e.group.id, eventId: e.id),
@@ -934,6 +1006,125 @@ class _EditorState extends ConsumerState<_Editor> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The attendee's stars and a note for the organizers; saved straight to Supabase (own row).
+class _ReviewBox extends ConsumerStatefulWidget {
+  const _ReviewBox({required this.event, required this.mine});
+
+  final GroupEvent event;
+  final EventReview? mine;
+
+  @override
+  ConsumerState<_ReviewBox> createState() => _ReviewBoxState();
+}
+
+class _ReviewBoxState extends ConsumerState<_ReviewBox> {
+  late int _rating = widget.mine?.rating ?? 0;
+  late final _comment = TextEditingController(text: widget.mine?.comment);
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _comment.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run(Future<Result<void>> Function(EventsRepository r) action, String done) async {
+    setState(() => _busy = true);
+    final result = await action(ref.read(eventsRepositoryProvider));
+    if (!mounted) return;
+    setState(() => _busy = false);
+    _snack(context, switch (result) {
+      Ok() => done,
+      Err(:final failure) => failure.userMessage,
+    });
+    ref
+      ..invalidate(eventDetailProvider(widget.event.id))
+      ..invalidate(groupEventsProvider(widget.event.group.id));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(GxSpacing.sm),
+      decoration: const BoxDecoration(color: GxColors.surface, borderRadius: GxRadius.lgAll, border: Border.fromBorderSide(GxBorders.hairline)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.mine == null ? 'Organizasyonu değerlendir' : 'Değerlendirmen', style: textTheme.labelLarge),
+          Row(
+            children: [
+              for (var star = 1; star <= 5; star++)
+                IconButton(
+                  tooltip: '$star yıldız',
+                  onPressed: _busy ? null : () => setState(() => _rating = star),
+                  icon: Icon(star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded, color: GxColors.primary),
+                ),
+            ],
+          ),
+          TextField(
+            controller: _comment,
+            maxLength: 500,
+            minLines: 1,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Düzenleyenlere notun (isteğe bağlı)',
+              helperText: 'Notunu yalnızca organizasyonu düzenleyenler görür; herkes yalnızca ortalamayı görür.',
+              helperMaxLines: 2,
+            ),
+          ),
+          const SizedBox(height: GxSpacing.xs),
+          Row(
+            children: [
+              if (widget.mine != null)
+                TextButton(
+                  onPressed: _busy ? null : () => _run((r) => r.deleteReview(widget.event.id), 'Değerlendirmen silindi.'),
+                  child: const Text('Sil'),
+                ),
+              const Spacer(),
+              GxButton(
+                label: 'Kaydet',
+                isLoading: _busy,
+                onPressed: _rating == 0
+                    ? null
+                    : () => _run((r) => r.saveReview(widget.event.id, rating: _rating, comment: _comment.text), 'Teşekkürler, değerlendirmen kaydedildi.'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// After an event: what the group does next.
+class _NextEvents extends ConsumerWidget {
+  const _NextEvents({required this.groupId, required this.except});
+
+  final String groupId;
+  final String except;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final next = [
+      for (final e in ref.watch(groupEventsProvider(groupId)).value?.events ?? const <GroupEvent>[])
+        if (e.id != except && !e.isCanceled) e,
+    ].take(3).toList();
+    if (next.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Grubun sıradaki organizasyonları', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: GxSpacing.xs),
+          for (final e in next) ...[EventCard(event: e), const SizedBox(height: GxSpacing.xs)],
+        ],
       ),
     );
   }

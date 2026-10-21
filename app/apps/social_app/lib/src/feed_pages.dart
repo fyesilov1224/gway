@@ -14,6 +14,7 @@ import 'package:profile/profile.dart';
 final feedLinks = FeedLinks(
   openProfile: (context, username) => context.push(ProfileRoutes.user(username)),
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
+  openEvent: (context, eventId) => context.push(EventRoutes.event(eventId)),
 );
 
 final notificationLinks = NotificationLinks(

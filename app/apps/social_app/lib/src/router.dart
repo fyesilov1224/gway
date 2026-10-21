@@ -134,7 +134,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: 'edit', builder: (_, state) => EditPostScreen(postId: state.pathParameters['id']!)),
         ],
       ),
-      GoRoute(path: FeedRoutes.create, builder: (_, state) => CreatePostScreen(groupId: state.uri.queryParameters['group'])),
+      GoRoute(
+        path: FeedRoutes.create,
+        builder: (_, state) => CreatePostScreen(
+          groupId: state.uri.queryParameters['group'],
+          eventId: state.uri.queryParameters['event'],
+        ),
+      ),
       GoRoute(
         path: '/e/:id',
         builder: (_, state) => EventScreen(eventId: state.pathParameters['id']!, links: eventLinks),
@@ -142,6 +148,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
       GoRoute(path: NotificationRoutes.preferences, builder: (_, _) => const NotificationPreferencesScreen()),
+      GoRoute(path: '/events/history', builder: (_, state) => EventHistoryScreen(groupId: state.uri.queryParameters['group'] ?? '')),
       GoRoute(path: '/events/new', builder: (_, state) => EventEditorScreen(groupId: state.uri.queryParameters['group'])),
       GoRoute(path: '/live/:id', builder: (_, state) => LiveRoomScreen(broadcastId: state.pathParameters['id']!)),
       GoRoute(path: FeedRoutes.saved, builder: (_, _) => const SavedPostsScreen()),
