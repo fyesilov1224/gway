@@ -155,11 +155,12 @@ Kararlar:
 
 ## Faz 8 — Organizasyon Eksikleri
 
-- Katılım koşulları ve gerekli ekipman
-- İsteğe bağlı onaylı katılım (yönetici onaylar ya da reddeder)
-- "Takvime ekle" (`.ics`, paket gerektirmez)
-- Yeni kategoriler: Motosiklet, Kamp, Satranç
-- Admin karşılığı
+- [x] Katılım koşulları ve gerekli ekipman (trigger ile kırpma ve sınırlar)
+- [x] İsteğe bağlı onaylı katılım: `requested` durumu, yönetici onayı (kapasiteye göre katılımcı ya da bekleme listesi) ve reddi, `event_approved` / `event_declined` bildirimleri, audit log
+- [x] "Takvime ekle": `GET /events/{id}/calendar.ics` (RFC 5545, oturumsuz, paket gerektirmez)
+- [x] Yeni kategoriler: Motosiklet, Kamp, Satranç; organizasyon sayfasında grubun kategorisi
+- [x] Admin: organizasyon listesinde onaylı katılım ve bekleyen istek sayısı
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 13), `dotnet build` 0 hata 0 uyarı, C# 143/143, pgTAP 507/507; gerçek API ile uçtan uca deneme (onaylı organizasyon, istek, onay, takvim dosyası, iki rolün ekranı)
 
 ## Faz 9 — Takvim
 

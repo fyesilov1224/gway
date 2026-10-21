@@ -19,6 +19,8 @@ class EventPerson {
 }
 
 enum AttendanceStatus {
+  /// Waiting for a manager's approval (approval events, Faz 8).
+  requested('requested'),
   going('going'),
   waitlisted('waitlisted');
 
@@ -62,10 +64,17 @@ class GroupEvent {
     this.cancelReason,
     this.myStatus,
     this.myPlace,
+    this.categoryName,
+    this.requirements = '',
+    this.equipment = const [],
+    this.approvalRequired = false,
   });
 
   final String id;
   final EventGroup group;
+
+  /// The group's category (docs/ARCHITECTURE.md §3d, Faz 8).
+  final String? categoryName;
   final String title;
   final String description;
   final DateTime startsAt;
@@ -88,6 +97,13 @@ class GroupEvent {
   /// Place on the waitlist, 1 being next.
   final int? myPlace;
 
+  /// Who may come and what to bring.
+  final String requirements;
+  final List<String> equipment;
+
+  /// Joining sends a request a manager approves.
+  final bool approvalRequired;
+
   bool get isCanceled => canceledAt != null;
   bool hasStarted(DateTime now) => !startsAt.isAfter(now);
   bool get isFull => capacity != null && goingCount >= capacity!;
@@ -97,7 +113,7 @@ class GroupEvent {
 }
 
 class EventDetail {
-  const EventDetail({required this.event, this.canManage = false, this.isMember = false, this.attendees});
+  const EventDetail({required this.event, this.canManage = false, this.isMember = false, this.attendees, this.requests});
 
   final GroupEvent event;
   final bool canManage;
@@ -105,6 +121,9 @@ class EventDetail {
 
   /// The first people going; members only.
   final List<EventPerson>? attendees;
+
+  /// Join requests waiting for approval, oldest first; managers only.
+  final List<EventPerson>? requests;
 }
 
 class GroupEvents {
@@ -129,6 +148,9 @@ class EventForm {
     this.fee,
     this.feeNote,
     this.coverPath,
+    this.requirements = '',
+    this.equipment = const [],
+    this.approvalRequired = false,
   });
 
   final String title;
@@ -141,6 +163,9 @@ class EventForm {
   final EventFee? fee;
   final String? feeNote;
   final String? coverPath;
+  final String requirements;
+  final List<String> equipment;
+  final bool approvalRequired;
 
   Map<String, Object?> toJson() => {
         'title': title.trim(),
@@ -154,6 +179,9 @@ class EventForm {
         'feeCurrency': fee?.currency,
         'feeNote': feeNote,
         'coverPath': coverPath,
+        'requirements': requirements.trim(),
+        'equipment': [for (final e in equipment) e.trim()],
+        'approvalRequired': approvalRequired,
       };
 }
 
@@ -244,6 +272,12 @@ abstract interface class EventsRepository {
   Future<Result<AttendanceResult>> attend(String id);
 
   Future<Result<void>> leave(String id);
+
+  /// A manager's answer to a join request.
+  Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve});
+
+  /// The event as an iCalendar file for "Takvime ekle".
+  Uri calendarUrl(String id);
 
   /// A group's polls, or only those of [eventId].
   Future<Result<List<Poll>>> polls(String groupId, {String? eventId});

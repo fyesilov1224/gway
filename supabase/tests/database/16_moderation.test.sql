@@ -114,15 +114,15 @@ reset role;
 -- Pre-review (backend writes, actor in the claims) ---------------------------------------------
 select pg_temp.act('00000000-0000-0000-0000-0000000af007');
 select throws_ok(
-  $$ update public.reports set status = 'dismissed' where target_type = 'user' and group_id is not null $$,
+  $$ update public.reports set status = 'dismissed' where target_type = 'user' and group_id = pg_temp.g() $$,
   'P0001', 'report_review_forbidden', 'members cannot review reports'
 );
 select pg_temp.act('00000000-0000-0000-0000-0000000af005');
 select lives_ok(
-  $$ update public.reports set status = 'dismissed' where target_type = 'user' and group_id is not null $$,
+  $$ update public.reports set status = 'dismissed' where target_type = 'user' and group_id = pg_temp.g() $$,
   'a moderator dismisses a group report'
 );
-select is((select reviewed_by from public.reports where target_type = 'user' and group_id is not null), pg_temp.u(5), 'the reviewer is recorded');
+select is((select reviewed_by from public.reports where target_type = 'user' and group_id = pg_temp.g()), pg_temp.u(5), 'the reviewer is recorded');
 select lives_ok(
   $$ update public.comments set removed_at = now(), removed_reason = 'Hakaret' where id = '00000000-0000-0000-0000-0000000ac001' $$,
   'an outranking reviewer removes a reported comment on a group post'

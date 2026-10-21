@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/events.dart';
 import 'polls.dart';
@@ -28,6 +29,9 @@ String eventWhen(GroupEvent e) {
   final until = end == null ? '' : sameDay ? '–${_two(end.hour)}:${_two(end.minute)}' : ' – ${formatDateTimeTr(end)}';
   return '${_weekdays[s.weekday - 1]}, ${formatDateTr(s)} · ${_two(s.hour)}:${_two(s.minute)}$until';
 }
+
+/// "Kask, Su ,, Mont" → ["Kask", "Su", "Mont"].
+List<String> equipmentItems(String text) => [for (final i in text.split(',')) if (i.trim().isNotEmpty) i.trim()];
 
 /// "12 / 20 kişi", "12 kişi katılıyor".
 String eventSeats(GroupEvent e) => e.capacity == null
@@ -78,6 +82,7 @@ class _StatusBadge extends StatelessWidget {
     final e = event;
     if (e.isCanceled) return const GxBadge('İptal edildi', tone: GxBadgeTone.danger);
     return switch (e.myStatus) {
+      AttendanceStatus.requested => const GxBadge('Onay bekliyor', tone: GxBadgeTone.warning),
       AttendanceStatus.going => const GxBadge('Katılıyorsun', dot: true, tone: GxBadgeTone.primary),
       AttendanceStatus.waitlisted => GxBadge('Bekleme listesi · ${e.myPlace ?? '-'}. sıra', tone: GxBadgeTone.info),
       null when e.isFull => const GxBadge('Dolu', tone: GxBadgeTone.neutral),
@@ -239,9 +244,11 @@ class _EventScreenState extends ConsumerState<EventScreen> {
       case Ok(:final value):
         _snack(
           context,
-          value.status == AttendanceStatus.going
-              ? 'Katılımın kaydedildi. Başlamadan önce hatırlatacağız.'
-              : 'Bekleme listesine girdin (${value.place}. sıra). Yer açılınca haber vereceğiz.',
+          switch (value.status) {
+            AttendanceStatus.requested => 'Katılım isteğin gönderildi. Yönetici karar verince haber vereceğiz.',
+            AttendanceStatus.going => 'Katılımın kaydedildi. Başlamadan önce hatırlatacağız.',
+            AttendanceStatus.waitlisted => 'Bekleme listesine girdin (${value.place}. sıra). Yer açılınca haber vereceğiz.',
+          },
         );
       case Err(:final failure):
         _snack(context, failure.userMessage);
@@ -249,6 +256,19 @@ class _EventScreenState extends ConsumerState<EventScreen> {
     ref
       ..invalidate(eventDetailProvider(widget.eventId))
       ..invalidate(groupEventsProvider(e.group.id));
+  }
+
+  Future<void> _decide(GroupEvent e, EventPerson person, {required bool approve}) async {
+    await _run(
+      (r) => r.decideRequest(e.id, person.id, approve: approve),
+      done: approve ? '${person.displayName} katılımcı oldu.' : 'İstek reddedildi; ${person.displayName} bilgilendirildi.',
+    );
+    ref.invalidate(groupEventsProvider(e.group.id));
+  }
+
+  Future<void> _addToCalendar(GroupEvent e) async {
+    final opened = await launchUrl(ref.read(eventsRepositoryProvider).calendarUrl(e.id), mode: LaunchMode.externalApplication);
+    if (!opened && mounted) _snack(context, 'Takvim dosyası açılamadı. Tekrar dene.');
   }
 
   Future<void> _cancel(GroupEvent e) async {
@@ -335,6 +355,13 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           expand: true,
           onPressed: () => widget.links.openGroup(context, e.group.handle),
         ),
+      (true, true, null) when e.approvalRequired && !d.canManage => GxButton(
+          label: 'Katılım isteği gönder',
+          icon: Icons.how_to_reg_outlined,
+          expand: true,
+          isLoading: _busy,
+          onPressed: () => _attend(e),
+        ),
       (true, true, null) => GxButton(
           label: e.isFull ? 'Bekleme listesine gir' : 'Katıl',
           icon: e.isFull ? Icons.hourglass_empty_rounded : Icons.event_available_outlined,
@@ -343,11 +370,18 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           onPressed: () => _attend(e),
         ),
       (true, true, _) => GxButton(
-          label: e.myStatus == AttendanceStatus.going ? 'Katılmaktan vazgeç' : 'Bekleme listesinden çık',
+          label: switch (e.myStatus) {
+            AttendanceStatus.requested => 'İsteği geri çek',
+            AttendanceStatus.going => 'Katılmaktan vazgeç',
+            _ => 'Bekleme listesinden çık',
+          },
           variant: GxButtonVariant.secondary,
           expand: true,
           isLoading: _busy,
-          onPressed: () => _run((r) => r.leave(e.id), done: 'Katılımın kaldırıldı.'),
+          onPressed: () => _run(
+            (r) => r.leave(e.id),
+            done: e.myStatus == AttendanceStatus.requested ? 'Katılım isteğin geri çekildi.' : 'Katılımın kaldırıldı.',
+          ),
         ),
     };
 
@@ -421,10 +455,23 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     const SizedBox(height: GxSpacing.xs),
                     InkWell(
                       onTap: () => widget.links.openGroup(context, e.group.handle),
-                      child: Text(e.group.name, style: textTheme.labelLarge?.copyWith(color: GxColors.primary)),
+                      child: Text(e.categoryName == null ? e.group.name : '${e.group.name} · ${e.categoryName}',
+                          style: textTheme.labelLarge?.copyWith(color: GxColors.primary)),
                     ),
                     const SizedBox(height: GxSpacing.md),
-                    row(Icons.schedule, Text(eventWhen(e), style: textTheme.bodyLarge)),
+                    row(
+                      Icons.schedule,
+                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(eventWhen(e), style: textTheme.bodyLarge),
+                        if (!e.isCanceled && open)
+                          TextButton.icon(
+                            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                            onPressed: () => _addToCalendar(e),
+                            icon: const Icon(Icons.event_note_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                            label: const Text('Takvime ekle'),
+                          ),
+                      ]),
+                    ),
                     row(
                       Icons.place_outlined,
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -456,10 +503,51 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
                         ]),
                       ),
+                    if (e.approvalRequired)
+                      row(Icons.how_to_reg_outlined, Text('Katılım yönetici onayıyla', style: textTheme.bodyLarge)),
+                    if (e.requirements.isNotEmpty)
+                      row(
+                        Icons.rule_outlined,
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('Katılım koşulları', style: textTheme.labelLarge),
+                          Text(e.requirements, style: textTheme.bodyLarge),
+                        ]),
+                      ),
+                    if (e.equipment.isNotEmpty)
+                      row(
+                        Icons.backpack_outlined,
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('Gerekli ekipman', style: textTheme.labelLarge),
+                          const SizedBox(height: GxSpacing.xxs),
+                          Wrap(spacing: GxSpacing.xs, runSpacing: GxSpacing.xs, children: [for (final item in e.equipment) GxBadge(item)]),
+                        ]),
+                      ),
                     if (e.myStatus != null) ...[_StatusBadge(event: e), const SizedBox(height: GxSpacing.sm)],
                     if (e.description.isNotEmpty) ...[
                       const SizedBox(height: GxSpacing.xs),
                       SelectableText(e.description, style: textTheme.bodyLarge),
+                    ],
+                    if (d.requests case final requests? when requests.isNotEmpty) ...[
+                      const SizedBox(height: GxSpacing.lg),
+                      Text('Katılım istekleri (${requests.length})', style: textTheme.titleMedium),
+                      const SizedBox(height: GxSpacing.xs),
+                      for (final p in requests)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () => widget.links.openProfile(context, p.username),
+                                child: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+                              ),
+                              const SizedBox(width: GxSpacing.sm),
+                              Expanded(child: Text(p.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis)),
+                              TextButton(onPressed: _busy || !open ? null : () => _decide(e, p, approve: false), child: const Text('Reddet')),
+                              GxButton(label: 'Onayla', onPressed: _busy || !open ? null : () => _decide(e, p, approve: true)),
+                            ],
+                          ),
+                        ),
                     ],
                     if (d.attendees case final people? when people.isNotEmpty) ...[
                       const SizedBox(height: GxSpacing.lg),
@@ -549,6 +637,9 @@ class _EditorState extends ConsumerState<_Editor> {
   late final _fee = TextEditingController(
       text: widget.event?.fee == null ? '' : (widget.event!.fee!.amountMinor / 100).toStringAsFixed(2).replaceAll('.', ','));
   late final _feeNote = TextEditingController(text: widget.event?.feeNote);
+  late final _requirements = TextEditingController(text: widget.event?.requirements);
+  late final _equipment = TextEditingController(text: widget.event?.equipment.join(', '));
+  late bool _approval = widget.event?.approvalRequired ?? false;
   late String _currency = widget.event?.fee?.currency ?? 'TRY';
   late DateTime _startsAt = widget.event?.startsAt.toLocal() ?? _nextMorning();
   late DateTime? _endsAt = widget.event?.endsAt?.toLocal();
@@ -564,7 +655,7 @@ class _EditorState extends ConsumerState<_Editor> {
 
   @override
   void dispose() {
-    for (final c in [_title, _description, _location, _link, _capacity, _fee, _feeNote]) {
+    for (final c in [_title, _description, _location, _link, _capacity, _fee, _feeNote, _requirements, _equipment]) {
       c.dispose();
     }
     super.dispose();
@@ -619,6 +710,9 @@ class _EditorState extends ConsumerState<_Editor> {
       fee: fee == null || fee <= 0 ? null : EventFee(amountMinor: fee, currency: _currency),
       feeNote: _feeNote.text.trim().isEmpty ? null : _feeNote.text.trim(),
       coverPath: _coverPath,
+      requirements: _requirements.text,
+      equipment: equipmentItems(_equipment.text),
+      approvalRequired: _approval,
     );
     setState(() {
       _busy = true;
@@ -745,6 +839,32 @@ class _EditorState extends ConsumerState<_Editor> {
                   final n = int.tryParse((v ?? '').trim());
                   return (v ?? '').trim().isEmpty || (n != null && n >= 1 && n <= 10000) ? null : 'Kapasite 1–10.000 olmalı.';
                 },
+              ),
+              TextFormField(
+                controller: _requirements,
+                maxLength: 500,
+                minLines: 1,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Katılım koşulları (isteğe bağlı)', hintText: 'Ör. En az 10 km yürüyüş deneyimi'),
+              ),
+              TextFormField(
+                controller: _equipment,
+                decoration: const InputDecoration(
+                  labelText: 'Gerekli ekipman (isteğe bağlı)',
+                  hintText: 'Ör. Kask, Su, Yağmurluk',
+                  helperText: 'Virgülle ayır; en fazla 10 madde.',
+                ),
+                validator: (v) {
+                  final items = equipmentItems(v ?? '');
+                  return items.length <= 10 && items.every((i) => i.length <= 60) ? null : 'En fazla 10 madde, her biri en fazla 60 karakter.';
+                },
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _approval,
+                onChanged: (v) => setState(() => _approval = v),
+                title: const Text('Katılım onayla olsun'),
+                subtitle: const Text('Katılmak isteyenler istek gönderir; sen onaylarsın.'),
               ),
               const SizedBox(height: GxSpacing.md),
               Text('Katılım ücreti (isteğe bağlı)', style: textTheme.titleSmall),

@@ -15,7 +15,9 @@ public sealed record AdminEvent(
     int WaitlistCount,
     DateTimeOffset? CanceledAt,
     string? CancelReason,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    bool ApprovalRequired,
+    int RequestedCount);
 
 /// <summary>Read side of the admin events page (docs/ARCHITECTURE.md §3d).</summary>
 internal sealed class AdminEvents(NpgsqlDataSource db)
@@ -49,7 +51,8 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
         await using (var cmd = new NpgsqlCommand(
             $"""
             select e.id, e.title, g.id, g.name, g.handle, e.starts_at, e.location, e.capacity, e.going_count, e.waitlist_count,
-                   e.canceled_at, e.cancel_reason, e.created_at
+                   e.canceled_at, e.cancel_reason, e.created_at, e.approval_required,
+                   (select count(*)::int from public.event_attendees a where a.event_id = e.id and a.status = 'requested')
             from public.events e join public.groups g on g.id = e.group_id
             {where}
             order by e.starts_at {(status == "upcoming" ? "asc" : "desc")}, e.id
@@ -65,7 +68,7 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                     r.GetGuid(0), r.GetString(1), r.GetGuid(2), r.GetString(3), r.GetString(4), r.GetFieldValue<DateTimeOffset>(5),
                     r.GetString(6), r.IsDBNull(7) ? null : r.GetInt32(7), r.GetInt32(8), r.GetInt32(9),
                     r.IsDBNull(10) ? null : r.GetFieldValue<DateTimeOffset>(10), r.IsDBNull(11) ? null : r.GetString(11),
-                    r.GetFieldValue<DateTimeOffset>(12)));
+                    r.GetFieldValue<DateTimeOffset>(12), r.GetBoolean(13), r.GetInt32(14)));
             }
         }
         return new PagedResult<AdminEvent>(items, total, page, PageSize);

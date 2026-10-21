@@ -17,7 +17,9 @@ enum NotificationType {
   caseVote('case_vote'),
   sanctionApplied('sanction_applied'),
   appealSubmitted('appeal_submitted'),
-  appealDecided('appeal_decided');
+  appealDecided('appeal_decided'),
+  eventApproved('event_approved'),
+  eventDeclined('event_declined');
 
   const NotificationType(this.code);
 
@@ -132,6 +134,8 @@ class AppNotification {
           },
         NotificationType.appealSubmitted => '${group?.name ?? ''} grubundaki yaptırıma itiraz etti.',
         NotificationType.appealDecided => 'grubu itirazını karara bağladı.',
+        NotificationType.eventApproved => '"${eventTitle ?? ''}" için katılım isteğini onayladı.',
+        NotificationType.eventDeclined => '"${eventTitle ?? ''}" için katılım isteğini kabul edemedi.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.

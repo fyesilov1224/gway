@@ -379,20 +379,23 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `events.manage` | Organizasyon oluşturma, düzenleme ve iptal; anket açma, kapatma ve silme | admin |
 
 ### Organizasyon
-`events`: grup, oluşturan, başlık (3–100), açıklama (en fazla 2000), başlangıç ve isteğe bağlı bitiş, yer (en fazla 200) ve isteğe bağlı harita ya da çevrim içi bağlantısı (`http(s)`, en fazla 300), kapasite (boş = sınırsız, 1–10.000), katılım ücreti, kapak görseli, katılan ve bekleyen sayıları, iptal bilgisi.
+`events`: grup, oluşturan, başlık (3–100), açıklama (en fazla 2000), başlangıç ve isteğe bağlı bitiş, yer (en fazla 200) ve isteğe bağlı harita ya da çevrim içi bağlantısı (`http(s)`, en fazla 300), kapasite (boş = sınırsız, 1–10.000), katılım ücreti, kapak görseli, katılım koşulları (en fazla 500), gerekli ekipman (en fazla 10 madde, her biri 1–60), onaylı katılım (`approval_required`), katılan ve bekleyen sayıları, iptal bilgisi.
 
 - **Zaman:** Başlangıç en az 15 dakika, en fazla 1 yıl ileride olur; bitiş başlangıçtan sonradır. Geçmiş organizasyon düzenlenemez ve katılıma kapanır (başlangıç anı geçince).
 - **Katılım ücreti** (`fee_amount` küçük birim, `fee_currency` `TRY` / `USD` / `EUR`, `fee_note` en fazla 200; ör. "Yerinde nakit ödenir"): yalnızca gösterilir. Platform para toplamaz; ekranda bu açıkça yazar.
 - **Kapak görseli:** `event-images` bucket'ında `<group_id>/<uuid>.<uzantı>`. Herkese açık okunur, yalnızca grupta `events.manage` yetkisi olan yazar. En fazla 5 MB; JPEG, PNG veya WebP. İstemci yükler, yolu API'ye bildirir; API yolun grubun klasöründe ve depoda olduğunu doğrular.
 - **İptal:** Yetkili gerekçeyle iptal eder (`event.canceled`). İptal edilen organizasyon görünür kalır ama katılıma kapanır; katılanlara ve bekleyenlere `event_canceled` bildirimi gider.
 - **Düzenleme:** Başlık, açıklama, zaman, yer, kapasite, ücret ve kapak değişebilir. Zaman ya da yer değişirse katılanlara `event_updated` bildirimi gider. Kapasite artarsa bekleyenler sırayla katılana geçer. Kapasite mevcut katılan sayısının altına inemez.
+- **Kategori:** Organizasyonun kategorisi grubunun kategorisidir; ayrı seçilmez (Faz 8).
+- **Takvime ekle:** `GET /events/{id}/calendar.ics` organizasyonu iCalendar dosyası olarak verir (başlık, zaman, yer, açıklama, sayfa bağlantısı). Oturum gerekmez; organizasyon kimin göreceğine açıksa dosyası da açıktır. Bitişi olmayan organizasyon 2 saat sürer sayılır. İptal edilen organizasyonun dosyası `STATUS:CANCELLED` taşır. Ek paket gerekmez: telefon dosyayı takvim uygulamasına verir.
 - **Görünürlük:** Grup görünürse organizasyon sayfası herkese (oturum açmamış ziyaretçi dahil) açıktır. Katılanların listesini grubun üyeleri görür; diğerleri yalnızca sayıyı görür.
 
 ### Katılım ve bekleme listesi
-`event_attendees`: organizasyon, kullanıcı, durum (`going` / `waitlisted`), zaman.
+`event_attendees`: organizasyon, kullanıcı, durum (`requested` / `going` / `waitlisted`), zaman.
 
 - Katılmak ve vazgeçmek **C# API'den** geçer (kapasite ve sıra başkasını etkiler): `POST /events/{id}/attendance`, `DELETE /events/{id}/attendance`.
 - Katılma: grup üyesi, hesabı aktif, organizasyon iptal edilmemiş ve başlamamış olmalı. Yer varsa `going`, yoksa `waitlisted`. Yanıt kişinin durumunu ve sıradaki yerini döner.
+- **Onaylı katılım** (Faz 8): `approval_required` açıksa katılmak isteyen `requested` olur ve sayaçlara girmez. `events.manage` yetkilisi isteği onaylar; onaylanan, kapasiteye göre `going` ya da `waitlisted` olur ve `event_approved` bildirimi alır. Reddedilen istek silinir ve kişi `event_declined` bildirimi alır. Kişi isteğini kendisi geri alabilir. Yetkilinin kendi katılımı onay beklemez. Ayar sonradan kapatılırsa bekleyen istekler yine onaylanır ya da reddedilir.
 - Bir `going` vazgeçince ya da kapasite artınca bekleyenlerin en eskisi `going` olur ve `event_promoted` bildirimi alır.
 - Gruptan ayrılan kişinin gelecek organizasyonlardaki katılımı silinir (ve sıradaki yükselir).
 - Trigger ikinci katmandır: kapasiteyi aşan `going` reddedilir, sayaçlar (`going_count`, `waitlist_count`) trigger ile tutulur, katılım yalnızca üyeler için ve yalnızca başlamamış, iptal edilmemiş organizasyona yapılır.
@@ -413,12 +416,13 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Anket kapanınca oy verilemez, sonuçlar kalır.
 
 ### Bildirimler
-`event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (bildirim kaydında `event_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
+`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined` (bildirim kaydında `event_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".
 - **Organizasyon sayfası** (`/e/<id>`): kapak, başlık, grup, tarih ve saat, yer ve harita bağlantısı, ücret bilgisi ("Ücret organizasyon sahibine ödenir, GrupX ödeme almaz"), kapasite çubuğu, katılanlar, bağlı anketler, Katıl / Bekleme listesine gir / Vazgeç. Yetkiliye Düzenle ve İptal et.
-- **Organizasyon formu:** kapak, başlık, açıklama, tarih ve saat, bitiş, yer, bağlantı, kapasite, ücret; bu ay kalan organizasyon hakkı.
+- **Organizasyon sayfası** (Faz 8): katılım koşulları ve ekipman listesi, "Takvime ekle", onaylı katılımda "Katılım isteği gönder" ve "Onay bekliyor"; yetkiliye bekleyen istekler (Onayla / Reddet).
+- **Organizasyon formu:** kapak, başlık, açıklama, tarih ve saat, bitiş, yer, bağlantı, kapasite, ücret, katılım koşulları, ekipman, "Katılım onayla olsun"; bu ay kalan organizasyon hakkı.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
@@ -430,7 +434,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | Storage `event-images` | Herkes | `events.manage` (kendi grubunun klasörü) |
 
 ### Audit log
-`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
+`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -438,8 +442,11 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `POST /groups/{id}/events` | Organizasyon oluşturma (`events.manage`, aylık limit) |
 | `PUT /events/{id}` | Düzenleme (`events.manage`); formun tamamı gönderilir |
 | `POST /events/{id}/cancellation` | İptal (`reason`, `events.manage`) |
-| `POST /events/{id}/attendance` | Katılma; yanıt `going` ya da `waitlisted` ve sıra |
-| `DELETE /events/{id}/attendance` | Vazgeçme; sıradaki yükselir |
+| `POST /events/{id}/attendance` | Katılma; yanıt `going`, `waitlisted` (ve sıra) ya da onaylı katılımda `requested` |
+| `DELETE /events/{id}/attendance` | Vazgeçme ya da isteği geri alma; sıradaki yükselir |
+| `POST /events/{id}/requests/{userId}/approval` | Katılım isteğini onaylama (`events.manage`) |
+| `DELETE /events/{id}/requests/{userId}` | Katılım isteğini reddetme (`events.manage`) |
+| `GET /events/{id}/calendar.ics` | Takvime ekle (oturum gerekmez) |
 | `POST /groups/{id}/polls` | Anket açma (`question`, `options[]`, `allowsMultiple`, `isAnonymous`, `closesAt?`, `eventId?`) |
 | `POST /polls/{id}/close`, `DELETE /polls/{id}` | Anketi kapatma / silme (`events.manage`) |
 | `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`). Rol: `admin`, `moderator`, `support` |

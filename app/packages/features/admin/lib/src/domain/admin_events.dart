@@ -27,6 +27,8 @@ class AdminEvent {
     this.capacity,
     this.canceledAt,
     this.cancelReason,
+    this.approvalRequired = false,
+    this.requestedCount = 0,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -42,6 +44,8 @@ class AdminEvent {
         waitlistCount: j['waitlistCount']! as int,
         canceledAt: j['canceledAt'] == null ? null : DateTime.parse(j['canceledAt']! as String),
         cancelReason: j['cancelReason'] as String?,
+        approvalRequired: j['approvalRequired'] as bool? ?? false,
+        requestedCount: j['requestedCount'] as int? ?? 0,
       );
 
   final String id;
@@ -56,6 +60,10 @@ class AdminEvent {
   final int waitlistCount;
   final DateTime? canceledAt;
   final String? cancelReason;
+
+  /// Joining needs a manager's approval; [requestedCount] people are waiting.
+  final bool approvalRequired;
+  final int requestedCount;
 
   bool get isCanceled => canceledAt != null;
 }

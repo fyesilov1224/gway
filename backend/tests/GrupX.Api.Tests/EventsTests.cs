@@ -172,6 +172,61 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
             "select count(*) from public.notifications where event_id = @e and recipient_id = @u and type = 'event_reminder'", ("e", ev), ("u", crew.Member)));
     }
 
+    // Approval and the calendar file (Faz 8) -------------------------------------------------
+
+    [Fact]
+    public async Task Approval_events_take_requests_that_managers_decide()
+    {
+        var crew = await CrewAsync();
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await CreateAsync(crew.Admin, crew.Group, Form() with { Equipment = ["Kask", ""] })).StatusCode);
+        var ev = await EventAsync(crew, Form(capacity: 1) with
+        {
+            Requirements = " En az 1 yıllık ehliyet ", Equipment = [" Kask ", "Mont"], ApprovalRequired = true,
+        });
+        Assert.Equal("En az 1 yıllık ehliyet", await _db.ScalarAsync<string>("select requirements from public.events where id = @e", ("e", ev)));
+
+        Assert.Equal("requested", (await AttendAsync(crew.Member, ev))!.Status);
+        Assert.Equal("requested", (await AttendAsync(crew.Other, ev))!.Status);
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(crew.Member).PostAsync(
+            Path($"/events/{ev}/requests/{crew.Other}/approval"), null, Ct)).StatusCode);
+
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Admin).PostAsync(
+            Path($"/events/{ev}/requests/{crew.Member}/approval"), null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Admin).DeleteAsync(
+            Path($"/events/{ev}/requests/{crew.Other}"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await factory.ClientFor(crew.Admin).DeleteAsync(
+            Path($"/events/{ev}/requests/{crew.Other}"), Ct)).StatusCode);
+
+        Assert.Equal("going", await _db.ScalarAsync<string>(
+            "select status from public.event_attendees where event_id = @e and user_id = @u", ("e", ev), ("u", crew.Member)));
+        Assert.Equal(1L, await CountAsync("select count(*) from public.notifications where type = 'event_declined' and recipient_id = @u",
+            ("u", crew.Other)));
+        Assert.Equal(2L, await CountAsync(
+            "select count(*) from public.audit_log where action in ('event.attendee_approved', 'event.attendee_declined') and target_id = @e",
+            ("e", ev.ToString())));
+    }
+
+    [Fact]
+    public async Task Anyone_can_add_a_public_event_to_their_calendar()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form(title: "Pazar sabahı; uzun, keyifli bir yürüyüş"));
+
+        using var visitor = factory.CreateClient();
+        var response = await visitor.GetAsync(Path($"/events/{ev}/calendar.ics"), Ct);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("text/calendar", response.Content.Headers.ContentType!.MediaType);
+        var ics = await response.Content.ReadAsStringAsync(Ct);
+        Assert.StartsWith("BEGIN:VCALENDAR\r\n", ics, StringComparison.Ordinal);
+        Assert.Contains($"UID:{ev}@grupx.app", ics, StringComparison.Ordinal);
+        Assert.Contains(@"SUMMARY:Pazar sabahı\; uzun\, keyifli bir yürüyüş", ics, StringComparison.Ordinal);
+        Assert.Contains("STATUS:CONFIRMED", ics, StringComparison.Ordinal);
+        Assert.All(ics.Split("\r\n"), line => Assert.True(System.Text.Encoding.UTF8.GetByteCount(line) <= 75, line));
+
+        Assert.Equal(HttpStatusCode.NotFound, (await visitor.GetAsync(Path($"/events/{Guid.NewGuid()}/calendar.ics"), Ct)).StatusCode);
+    }
+
     // Polls -----------------------------------------------------------------------------------
 
     [Fact]

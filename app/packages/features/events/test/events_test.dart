@@ -36,6 +36,13 @@ const _poll = Poll(
 class _FakeEvents implements EventsRepository {
   final attended = <String>[];
   final votes = <(String, Set<int>)>[];
+  final decisions = <String>[];
+
+  @override
+  Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve}) async {
+    decisions.add('$userId:$approve');
+    return const Ok(null);
+  }
 
   @override
   Future<Result<AttendanceResult>> attend(String id) async {
@@ -193,5 +200,46 @@ void main() {
     await _pump(tester, const Scaffold(body: GroupEventsSection(groupId: 'g1', canManage: true)), events: const GroupEvents(eventsLeft: 0));
     expect(find.textContaining('organizasyon hakkı doldu'), findsOneWidget);
     expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Oluştur')).onPressed, isNull);
+  });
+  test('equipment is typed comma separated', () {
+    expect(equipmentItems(' Kask, Su ,, Mont '), ['Kask', 'Su', 'Mont']);
+    expect(equipmentItems(''), isEmpty);
+  });
+
+  testWidgets('an approval event asks for a request and shows what to bring', (tester) async {
+    final e = GroupEvent(
+      id: 'e1', group: _group, title: 'Şile turu', startsAt: DateTime.now().add(const Duration(days: 3)), location: 'Kadıköy',
+      categoryName: 'Motosiklet', requirements: 'En az 1 yıllık ehliyet', equipment: const ['Kask', 'Mont'], approvalRequired: true,
+    );
+    await _pump(tester, EventScreen(eventId: 'e1', links: _links), detail: EventDetail(event: e, isMember: true));
+
+    expect(find.text('Katılım isteği gönder'), findsOneWidget);
+    expect(find.text('En az 1 yıllık ehliyet'), findsOneWidget);
+    expect(find.text('Kask'), findsOneWidget);
+    expect(find.text('Doğa Yürüyüşçüleri · Motosiklet'), findsOneWidget);
+    expect(find.text('Takvime ekle'), findsOneWidget);
+  });
+
+  testWidgets('managers approve or decline requests', (tester) async {
+    final e = GroupEvent(
+      id: 'e1', group: _group, title: 'Şile turu', startsAt: DateTime.now().add(const Duration(days: 3)), location: 'Kadıköy',
+      approvalRequired: true,
+    );
+    final fake = await _pump(
+      tester,
+      EventScreen(eventId: 'e1', links: _links),
+      detail: EventDetail(
+        event: e,
+        isMember: true,
+        canManage: true,
+        requests: const [EventPerson(id: 'u7', username: 'ayse', displayName: 'Ayşe Yıldız')],
+      ),
+    );
+
+    expect(find.text('Katılım istekleri (1)'), findsOneWidget);
+    expect(find.text('Katıl'), findsOneWidget, reason: 'managers join without a request');
+    await tester.tap(find.widgetWithText(GxButton, 'Onayla'));
+    await tester.pumpAndSettle();
+    expect(fake.decisions, ['u7:true']);
   });
 }

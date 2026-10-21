@@ -75,6 +75,10 @@ class EventsRepositoryImpl implements EventsRepository {
       cancelReason: r['cancel_reason'] as String?,
       myStatus: AttendanceStatus.tryParse(r['my_status']),
       myPlace: (r['my_place'] as num?)?.toInt(),
+      categoryName: (r['category'] as Map?)?['name'] as String?,
+      requirements: r['requirements'] as String? ?? '',
+      equipment: [for (final e in (r['equipment'] as List? ?? const [])) e as String],
+      approvalRequired: r['approval_required'] == true,
     );
   }
 
@@ -109,11 +113,13 @@ class EventsRepositoryImpl implements EventsRepository {
         final r = await _client.rpc<Map<String, dynamic>?>('event_detail', params: {'target_event': id});
         if (r == null) throw const NotFoundFailure();
         final attendees = r['attendees'] as List?;
+        final requests = r['requests'] as List?;
         return EventDetail(
           event: _event(r),
           canManage: r['can_manage'] == true,
           isMember: r['is_member'] == true,
           attendees: attendees == null ? null : [for (final p in attendees.cast<Map<String, dynamic>>()) _person(p)],
+          requests: requests == null ? null : [for (final p in requests.cast<Map<String, dynamic>>()) _person(p)],
         );
       });
 
@@ -150,6 +156,14 @@ class EventsRepositoryImpl implements EventsRepository {
 
   @override
   Future<Result<void>> leave(String id) => _api.delete('/events/$id/attendance', decode: (_) {});
+
+  @override
+  Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve}) => approve
+      ? _api.post('/events/$eventId/requests/$userId/approval', decode: (_) {})
+      : _api.delete('/events/$eventId/requests/$userId', decode: (_) {});
+
+  @override
+  Uri calendarUrl(String id) => _api.baseUrl.resolve('/events/$id/calendar.ics');
 
   // Polls ---------------------------------------------------------------------------------
 

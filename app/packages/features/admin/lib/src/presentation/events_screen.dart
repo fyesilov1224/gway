@@ -184,6 +184,7 @@ class _EventRow extends StatelessWidget {
       e.location,
       seats,
       if (e.waitlistCount > 0) '${formatCount(e.waitlistCount)} bekleyen',
+      if (e.approvalRequired) 'Onaylı katılım${e.requestedCount > 0 ? ' · ${formatCount(e.requestedCount)} istek' : ''}',
       if (e.cancelReason != null) 'İptal: ${e.cancelReason}',
     ].join(' · ');
     return InkWell(

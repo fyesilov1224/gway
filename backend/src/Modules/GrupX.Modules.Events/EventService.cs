@@ -30,7 +30,10 @@ public sealed record EventRequest(
     int? FeeAmount,
     string? FeeCurrency,
     string? FeeNote,
-    string? CoverPath);
+    string? CoverPath,
+    string? Requirements = null,
+    IReadOnlyList<string>? Equipment = null,
+    bool ApprovalRequired = false);
 
 public sealed record CreatedEvent(Guid Id);
 
@@ -72,6 +75,21 @@ public static class EventsModule
         app.MapDelete("/events/{id:guid}/attendance", async (Guid id, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.LeaveAsync(user.GetUserId(), id, ct)).ToHttpResult());
 
+        app.MapPost("/events/{id:guid}/requests/{userId:guid}/approval", async (
+                Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
+            (await events.DecideRequestAsync(user.GetUserId(), id, userId, approve: true, ct)).ToHttpResult());
+
+        app.MapDelete("/events/{id:guid}/requests/{userId:guid}", async (
+                Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
+            (await events.DecideRequestAsync(user.GetUserId(), id, userId, approve: false, ct)).ToHttpResult());
+
+        // "Takvime ekle": public like the event page itself.
+        app.MapGet("/events/{id:guid}/calendar.ics", async (Guid id, EventService events, CancellationToken ct) =>
+                await events.CalendarAsync(id, ct) is { } ics
+                    ? Results.Text(ics, "text/calendar; charset=utf-8")
+                    : Results.NotFound())
+            .AllowAnonymous();
+
         app.MapPost("/groups/{id:guid}/polls", async (Guid id, CreatePollRequest body, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.CreatePollAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
 
@@ -87,7 +105,8 @@ public static class EventsModule
 
 /// <summary>Event and poll writes; attendance order and the waitlist are decided by the database triggers.</summary>
 internal sealed partial class EventService(
-    NpgsqlDataSource db, IGroupPlanLimits planLimits, ISupabaseStorage storage, TimeProvider time, ILogger<EventService> log)
+    NpgsqlDataSource db, IGroupPlanLimits planLimits, ISupabaseStorage storage, TimeProvider time, IConfiguration configuration,
+    ILogger<EventService> log)
     : IEventsAdministration
 {
     public const string Bucket = "event-images";
@@ -110,6 +129,7 @@ internal sealed partial class EventService(
         "event_already_canceled" => Error.Conflict("event.already_canceled", "Organizasyon zaten iptal edilmiş."),
         "attendance_forbidden" => Error.Forbidden("event.attendance_forbidden", "Katılmak için grubun üyesi olmalısın."),
         "poll_time_invalid" => Invalid("Anket en az 5 dakika, en fazla 90 gün sonra kapanmalı."),
+        "equipment_invalid" => Invalid("Ekipman en fazla 10 madde olabilir; her madde 1–60 karakter olmalı."),
         "event_forbidden" or "poll_forbidden" => Forbidden,
         _ => Error.RuleViolation($"event.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
@@ -137,7 +157,8 @@ internal sealed partial class EventService(
 
     private sealed record EventFields(
         string Title, string Description, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string Location, string? LinkUrl,
-        int? Capacity, int? FeeAmount, string? FeeCurrency, string? FeeNote, string? CoverPath);
+        int? Capacity, int? FeeAmount, string? FeeCurrency, string? FeeNote, string? CoverPath,
+        string Requirements, string[] Equipment, bool ApprovalRequired);
 
     /// <summary>Shape checks; the start window is checked when the start changes (an edit may keep a near start).</summary>
     private Result<EventFields> Validate(EventRequest r, Guid groupId, bool checkStart)
@@ -147,6 +168,8 @@ internal sealed partial class EventService(
         var location = r.Location?.Trim() ?? "";
         var link = string.IsNullOrWhiteSpace(r.LinkUrl) ? null : r.LinkUrl.Trim();
         var note = string.IsNullOrWhiteSpace(r.FeeNote) ? null : r.FeeNote.Trim();
+        var requirements = r.Requirements?.Trim() ?? "";
+        var equipment = (r.Equipment ?? []).Select(e => e?.Trim() ?? "").ToArray();
         var now = time.GetUtcNow();
 
         if (title.Length is < 3 or > 100) return Invalid("Başlık 3–100 karakter olmalı.");
@@ -161,12 +184,14 @@ internal sealed partial class EventService(
             return Invalid("Ücret için tutar ve para birimi (TRY, USD, EUR) gerekli.");
         if (r.FeeAmount is null && r.FeeCurrency is not null) return Invalid("Para birimi seçildiyse tutar da girilmeli.");
         if (note is { Length: > 200 }) return Invalid("Ücret notu en fazla 200 karakter olabilir.");
+        if (requirements.Length > 500) return Invalid("Katılım koşulları en fazla 500 karakter olabilir.");
+        if (equipment.Length > 10 || equipment.Any(e => e.Length is < 1 or > 60)) return RuleError("equipment_invalid");
         if (r.CoverPath is { } cover && (!cover.StartsWith($"{groupId}/", StringComparison.Ordinal) || cover.Contains("..", StringComparison.Ordinal)
                 || !ImageExtensions.Contains(Path.GetExtension(cover).ToLowerInvariant())))
             return Invalid("Kapak görseli bulunamadı. Yeniden yüklemeyi dene.");
 
         return new EventFields(title, description, r.StartsAt, r.EndsAt, location, link, r.Capacity, r.FeeAmount,
-            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath);
+            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath, requirements, equipment, r.ApprovalRequired);
     }
 
     private static async Task<bool> CoverStoredAsync(NpgsqlConnection conn, NpgsqlTransaction tx, string path, CancellationToken ct) =>
@@ -178,7 +203,7 @@ internal sealed partial class EventService(
     [
         ("title", f.Title), ("description", f.Description), ("starts", f.StartsAt), ("ends", f.EndsAt), ("location", f.Location),
         ("link", f.LinkUrl), ("capacity", f.Capacity), ("fee", f.FeeAmount), ("currency", f.FeeCurrency), ("note", f.FeeNote),
-        ("cover", f.CoverPath),
+        ("cover", f.CoverPath), ("requirements", f.Requirements), ("equipment", f.Equipment), ("approval", f.ApprovalRequired),
     ];
 
     // Events -----------------------------------------------------------------------------------
@@ -207,8 +232,9 @@ internal sealed partial class EventService(
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
                 insert into public.events (group_id, created_by, title, description, starts_at, ends_at, location, link_url, capacity,
-                                           fee_amount, fee_currency, fee_note, cover_path)
-                values (@g, @actor, @title, @description, @starts, @ends, @location, @link, @capacity, @fee, @currency, @note, @cover)
+                                           fee_amount, fee_currency, fee_note, cover_path, requirements, equipment, approval_required)
+                values (@g, @actor, @title, @description, @starts, @ends, @location, @link, @capacity, @fee, @currency, @note, @cover,
+                        @requirements, @equipment, @approval)
                 returning id
                 """, ct, [("g", groupId), ("actor", actor), .. Parameters(fields.Value)]))!;
             await AuditAsync(conn, tx, actor, "event.created", "event", id, groupId, new { fields.Value.Title, fields.Value.StartsAt }, ct);
@@ -235,7 +261,8 @@ internal sealed partial class EventService(
                 """
                 update public.events set title = @title, description = @description, starts_at = @starts, ends_at = @ends,
                        location = @location, link_url = @link, capacity = @capacity, fee_amount = @fee, fee_currency = @currency,
-                       fee_note = @note, cover_path = @cover
+                       fee_note = @note, cover_path = @cover, requirements = @requirements, equipment = @equipment,
+                       approval_required = @approval
                 where id = @id
                 """, ct, [("id", id), .. Parameters(fields.Value)]);
             await AuditAsync(conn, tx, actor, "event.updated", "event", id, e.GroupId, null, ct);
@@ -331,6 +358,44 @@ internal sealed partial class EventService(
                 "delete from public.event_attendees where event_id = @e and user_id = @u", ct, ("e", id), ("u", actor));
             return Result.Success();
         }, RuleError, ct);
+
+    /// <summary>Approves (going or waitlisted by the free seats) or declines a join request (docs/ARCHITECTURE.md §3d, Faz 8).</summary>
+    public Task<Result> DecideRequestAsync(Guid actor, Guid id, Guid userId, bool approve, CancellationToken ct) =>
+        ActingTransaction.RunAsync(db, actor, async (conn, tx) =>
+        {
+            var e = await LoadAsync(conn, tx, id, ct);
+            if (e is null) return NotFound;
+            if (!await CanManageAsync(conn, tx, actor, e.GroupId, ct)) return Forbidden;
+            if (e.Canceled || e.StartsAt <= time.GetUtcNow()) return RuleError("event_closed");
+            var changed = await ActingTransaction.ExecuteAsync(conn, tx,
+                approve
+                    ? "update public.event_attendees set status = 'going' where event_id = @e and user_id = @u and status = 'requested'"
+                    : "delete from public.event_attendees where event_id = @e and user_id = @u and status = 'requested'",
+                ct, ("e", id), ("u", userId));
+            if (changed == 0) return Error.NotFound("event.request_not_found", "Bekleyen bir katılım isteği bulunamadı.");
+            await AuditAsync(conn, tx, actor, approve ? "event.attendee_approved" : "event.attendee_declined", "event", id, e.GroupId,
+                new { userId }, ct);
+            return Result.Success();
+        }, RuleError, ct);
+
+    /// <summary>The event as an iCalendar file, or null when it is not public (docs/ARCHITECTURE.md §3d, Takvime ekle).</summary>
+    public async Task<string?> CalendarAsync(Guid id, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand(
+            """
+            select e.title, e.description, e.location, e.starts_at, e.ends_at, e.canceled_at is not null
+            from public.events e join public.groups g on g.id = e.group_id
+            where e.id = @id and g.status = 'active'
+            """);
+        cmd.Parameters.AddWithValue("id", id);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        if (!await r.ReadAsync(ct)) return null;
+        var appUrl = configuration["Events:AppUrl"]?.TrimEnd('/');
+        return EventCalendar.Build(
+            id, r.GetString(0), r.GetString(1), r.GetString(2), r.GetFieldValue<DateTimeOffset>(3),
+            r.IsDBNull(4) ? null : r.GetFieldValue<DateTimeOffset>(4), r.GetBoolean(5),
+            string.IsNullOrEmpty(appUrl) ? null : $"{appUrl}/#/e/{id}", time.GetUtcNow());
+    }
 
     // Polls ------------------------------------------------------------------------------------
 
