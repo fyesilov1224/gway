@@ -142,13 +142,69 @@ Kullanıcı isteğiyle Faz 4–6 bitmeden yapıldı (2026-10-20). Kararlar: yay�
 - [x] Admin: şu an canlı yayınlar (katılımcı sayısıyla), geçmiş, acil kapatma (audit log)
 - [x] Doğrulama (2026-10-20): `flutter analyze` temiz, tüm Flutter testleri geçiyor (live 10, admin 34), `dotnet build` 0 hata 0 uyarı, C# 129/129, pgTAP 392/392; gerçek LiveKit ile iki kullanıcılı uçtan uca deneme (bağlanma, mikrofon yayını, el kaldırma, sahneye alma, Realtime yorum)
 
-## Faz 8 — Mesajlaşma
+## Topluluk hareketi planı (2026-10-21)
+
+Ürün vaadi: "Yalnızca paylaşım yapma; topluluğunu bul, ekibini kur ve birlikte harekete geç." Mevcut kod incelendi. Organizasyon, takvim verisi, moderasyon ve yönetim araçlarının büyük kısmı zaten vardı. Bu yüzden yeni modüller mevcut tabloların üzerine kurulur; ikinci bir etkinlik, gönderi, profil ya da bildirim sistemi yazılmaz.
+
+Kararlar:
+- Sıra aşağıdaki gibidir; mesajlaşma ekip arkadaşı bulmanın arkasına alındı.
+- Gizli topluluk şimdilik yoktur.
+- Motosiklet, kamp ve satranç kategorileri eklenir.
+- Ücretli servis (harita sağlayıcısı, yapay zekâ) kullanıcı onayı olmadan açılmaz.
+- Kişilerin konumu tutulmaz.
+
+## Faz 8 — Organizasyon Eksikleri
+
+- Katılım koşulları ve gerekli ekipman
+- İsteğe bağlı onaylı katılım (yönetici onaylar ya da reddeder)
+- "Takvime ekle" (`.ics`, paket gerektirmez)
+- Yeni kategoriler: Motosiklet, Kamp, Satranç
+- Admin karşılığı
+
+## Faz 9 — Takvim
+
+- Kişisel takvim ("Takvimim": katıldığım, beklediğim) ve grup takvimi; gün, hafta ve ay görünümü
+- Çakışma uyarısı
+- Bildirim tercihleri (hatırlatma, değişiklik, iptal)
+- Takvim, organizasyon tablolarını okur; ayrı bir veri kaynağı yoktur
+
+## Faz 10 — Organizasyon Sonrası
+
+- Organizasyona bağlı gönderiler (mevcut gönderi altyapısı)
+- Katılanların değerlendirmesi
+- Grubun organizasyon geçmişi ve özeti
+
+## Faz 11 — Katkı ve Rozetler
+
+- Yalnızca sunucunun doğruladığı olaylardan hesaplanan katkı (katılım, düzenleme, görev)
+- Rozetler profilde ve grupta görünür; puanlamanın mantığı açıklanır; beğeni ya da takipçi sayısına dayanmaz
+
+## Faz 12 — Görevler ve Ortak Hedefler
+
+- Kişisel, takım ve grup hedefleri: başlangıç, bitiş, hedef, ilerleme
+- İlerleme sunucuda doğrulanmış katılımlardan sayılır; istemciden puan kabul edilmez
+
+## Faz 13 — Ekip Arkadaşı
+
+- Profilde aktivite tercihleri: seviye, uygun zamanlar, "ekip arıyorum"
+- Basit, açıklanabilir eşleştirme; bağlantı isteği; engelleme ve şikayetle birlikte
+
+## Faz 14 — Harita ile Keşif
+
+- Grup şehri ve organizasyon buluşma noktası haritada; liste ve harita görünümü, filtreler
+- Sağlayıcı karşılaştırması ve kullanıcı onayı gerekir
+
+## Faz 15 — Mesajlaşma
 
 - Birebir ve grup içi mesajlaşma
 - Engelleme
 - Admin: şikayet edilen mesajların incelenmesi
 
-## Faz 9 — Yayına Hazırlık
+## Faz 16 — Yapay Zekâ Değerlendirmesi
+
+- Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra
+
+## Faz 17 — Yayına Hazırlık
 
 - Karanlık tema
 - Performans

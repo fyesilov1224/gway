@@ -155,8 +155,16 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 5 | Organizasyonlar ve Anketler: organizasyon, katılım, ücret bilgisi, anket, hatırlatma | ✅ Bitti (2026-10-20) |
 | 6 | Moderasyon ve Disiplin Kurulu: şikayet, dosya, oylama, yaptırımlar, itiraz | ✅ Bitti (2026-10-21) |
 | 7 | Canlı Sesli Yayın: LiveKit, konuşmacı/dinleyici, el kaldırma, sunucu tarafı moderasyon | ✅ Bitti (2026-10-20), kullanıcı isteğiyle Faz 4–6'dan önce |
-| 8 | Mesajlaşma: birebir ve grup içi, engelleme | |
-| 9 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
+| 8 | Organizasyon eksikleri: katılım koşulları, ekipman, onaylı katılım, takvime ekle, yeni kategoriler | |
+| 9 | Takvim: kişisel ve grup takvimi, çakışma, bildirim tercihleri | |
+| 10 | Organizasyon sonrası: bağlı gönderiler, değerlendirme, geçmiş | |
+| 11 | Katkı ve rozetler (sunucuda doğrulanan olaylar) | |
+| 12 | Görevler ve ortak hedefler | |
+| 13 | Ekip arkadaşı bulma | |
+| 14 | Harita ile keşif (sağlayıcı onayı gerekir) | |
+| 15 | Mesajlaşma: birebir ve grup içi, engelleme | |
+| 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
+| 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
 
 Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
@@ -164,7 +172,7 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 ## 6. Şu anki görev
 
-**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Sıradaki: Faz 8 (Mesajlaşma). **Faz 8'e kullanıcı onay vermeden başlama.**
+**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; şu an Faz 8 (Organizasyon eksikleri). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.
