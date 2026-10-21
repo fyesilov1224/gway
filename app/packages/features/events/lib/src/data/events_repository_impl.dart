@@ -1,0 +1,192 @@
+import 'dart:math';
+
+import 'package:core/core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../domain/events.dart';
+
+const coverBucket = 'event-images';
+
+/// Trigger codes users can run into on their own writes (docs/ARCHITECTURE.md §3d).
+const _rules = {
+  'poll_single_choice': 'Bu ankette tek seçenek işaretlenebilir.',
+  'poll_option_invalid': 'Bu seçenek artık yok. Sayfayı yenile.',
+};
+
+Failure _failure(Object error) => switch (error) {
+      Failure() => error,
+      PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) => RuleFailure('poll.$message', _rules[message]!),
+      PostgrestException(code: '42501') => const RuleFailure('poll.closed', 'Bu anket kapandı ya da oy veremezsin.'),
+      StorageException(statusCode: '413') => const RuleFailure('event.cover_too_large', 'Kapak görseli en fazla 5 MB olabilir.'),
+      _ => failureFromSupabase(error),
+    };
+
+Future<Result<T>> _run<T>(Future<T> Function() action) async {
+  try {
+    return Ok(await action());
+  } on Object catch (e) {
+    return Err(_failure(e));
+  }
+}
+
+class EventsRepositoryImpl implements EventsRepository {
+  EventsRepositoryImpl(this._client, this._api);
+
+  final SupabaseClient _client;
+  final ApiClient _api;
+
+  String? _url(String bucket, Object? path) => path is String ? _client.storage.from(bucket).getPublicUrl(path) : null;
+
+  DateTime? _time(Object? v) => v is String ? DateTime.parse(v) : null;
+
+  EventPerson _person(Map<String, dynamic> r) => EventPerson(
+        id: r['id'] as String,
+        username: r['username'] as String,
+        displayName: r['display_name'] as String,
+        avatarUrl: _url('avatars', r['avatar_path']),
+      );
+
+  /// A `private.event_card` object.
+  GroupEvent _event(Map<String, dynamic> r) {
+    final g = (r['group'] as Map).cast<String, dynamic>();
+    final amount = r['fee_amount'] as num?;
+    return GroupEvent(
+      id: r['id'] as String,
+      group: EventGroup(
+        id: g['id'] as String,
+        handle: g['handle'] as String,
+        name: g['name'] as String,
+        logoUrl: _url('group-images', g['logo_path']),
+      ),
+      title: r['title'] as String,
+      description: r['description'] as String? ?? '',
+      startsAt: DateTime.parse(r['starts_at'] as String),
+      endsAt: _time(r['ends_at']),
+      location: r['location'] as String,
+      linkUrl: r['link_url'] as String?,
+      capacity: (r['capacity'] as num?)?.toInt(),
+      fee: amount == null ? null : EventFee(amountMinor: amount.toInt(), currency: r['fee_currency'] as String),
+      feeNote: r['fee_note'] as String?,
+      coverPath: r['cover_path'] as String?,
+      coverUrl: _url(coverBucket, r['cover_path']),
+      goingCount: (r['going_count'] as num).toInt(),
+      waitlistCount: (r['waitlist_count'] as num).toInt(),
+      canceledAt: _time(r['canceled_at']),
+      cancelReason: r['cancel_reason'] as String?,
+      myStatus: AttendanceStatus.tryParse(r['my_status']),
+      myPlace: (r['my_place'] as num?)?.toInt(),
+    );
+  }
+
+  Poll _poll(Map<String, dynamic> r) => Poll(
+        id: r['id'] as String,
+        eventId: r['event_id'] as String?,
+        question: r['question'] as String,
+        allowsMultiple: r['allows_multiple'] as bool,
+        isAnonymous: r['is_anonymous'] as bool,
+        closesAt: _time(r['closes_at']),
+        isOpen: r['is_open'] as bool,
+        voters: (r['voters'] as num).toInt(),
+        options: [
+          for (final o in (r['options'] as List? ?? const []).cast<Map<String, dynamic>>())
+            PollOption(id: (o['id'] as num).toInt(), label: o['label'] as String, votes: (o['votes'] as num).toInt(), mine: o['mine'] as bool),
+        ],
+      );
+
+  // Events --------------------------------------------------------------------------------
+
+  @override
+  Future<Result<GroupEvents>> groupEvents(String groupId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>>('group_events', params: {'target_group': groupId});
+        return GroupEvents(
+          events: [for (final e in (r['events'] as List).cast<Map<String, dynamic>>()) _event(e)],
+          eventsLeft: (r['events_left'] as num?)?.toInt(),
+        );
+      });
+
+  @override
+  Future<Result<EventDetail>> event(String id) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('event_detail', params: {'target_event': id});
+        if (r == null) throw const NotFoundFailure();
+        final attendees = r['attendees'] as List?;
+        return EventDetail(
+          event: _event(r),
+          canManage: r['can_manage'] == true,
+          isMember: r['is_member'] == true,
+          attendees: attendees == null ? null : [for (final p in attendees.cast<Map<String, dynamic>>()) _person(p)],
+        );
+      });
+
+  @override
+  Future<Result<String>> uploadCover(String groupId, ImageUpload image) => _run(() async {
+        final type = image.contentType;
+        if (type == null) throw const RuleFailure('event.cover_type', 'Yalnızca JPEG, PNG ya da WebP görsel yüklenebilir.');
+        final random = Random.secure();
+        final name = List.generate(16, (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+        final path = '$groupId/$name.${image.extension}';
+        await _client.storage.from(coverBucket).uploadBinary(path, image.bytes, fileOptions: FileOptions(contentType: type));
+        return path;
+      });
+
+  @override
+  Future<Result<String>> create(String groupId, EventForm form) =>
+      _api.post('/groups/$groupId/events', body: form.toJson(), decode: (json) => (json! as Map)['id'] as String);
+
+  @override
+  Future<Result<void>> update(String id, EventForm form) => _api.put('/events/$id', body: form.toJson(), decode: (_) {});
+
+  @override
+  Future<Result<void>> cancel(String id, {required String reason}) =>
+      _api.post('/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<AttendanceResult>> attend(String id) => _api.post(
+        '/events/$id/attendance',
+        decode: (json) {
+          final j = (json! as Map).cast<String, Object?>();
+          return (status: AttendanceStatus.tryParse(j['status'])!, place: (j['place'] as num?)?.toInt());
+        },
+      );
+
+  @override
+  Future<Result<void>> leave(String id) => _api.delete('/events/$id/attendance', decode: (_) {});
+
+  // Polls ---------------------------------------------------------------------------------
+
+  @override
+  Future<Result<List<Poll>>> polls(String groupId, {String? eventId}) => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('group_polls', params: {'target_group': groupId, 'target_event': eventId});
+        return [for (final p in r.cast<Map<String, dynamic>>()) _poll(p)];
+      });
+
+  @override
+  Future<Result<void>> createPoll(String groupId, PollForm form) =>
+      _api.post('/groups/$groupId/polls', body: form.toJson(), decode: (_) {});
+
+  @override
+  Future<Result<void>> closePoll(String id) => _api.post('/polls/$id/close', decode: (_) {});
+
+  @override
+  Future<Result<void>> deletePoll(String id) => _api.delete('/polls/$id', decode: (_) {});
+
+  @override
+  Future<Result<void>> vote(Poll poll, Set<int> optionIds) => _run(() async {
+        final me = _client.auth.currentUser!.id;
+        await _client.from('poll_votes').delete().eq('poll_id', poll.id).eq('user_id', me);
+        if (optionIds.isEmpty) return;
+        await _client.from('poll_votes').insert([
+          for (final o in optionIds) {'poll_id': poll.id, 'option_id': o, 'user_id': me},
+        ]);
+      });
+
+  @override
+  Future<Result<List<EventPerson>>> voters(int optionId) => _run(() async {
+        final rows = await _client
+            .from('poll_votes')
+            .select('person:profiles!poll_votes_user_id_fkey(id, username, display_name, avatar_path)')
+            .eq('option_id', optionId)
+            .order('created_at', ascending: true)
+            .limit(100);
+        return [for (final r in rows) _person((r['person'] as Map).cast())];
+      });
+}

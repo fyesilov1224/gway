@@ -1,0 +1,459 @@
+import 'dart:async';
+
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../domain/admin_billing.dart';
+import '../domain/admin_user.dart';
+import 'admin_shell.dart';
+import 'providers.dart';
+import 'routes.dart';
+import 'widgets.dart';
+
+/// Order status badge; a pending order older than an hour shows as abandoned.
+class OrderStatusBadge extends StatelessWidget {
+  const OrderStatusBadge({super.key, required this.status, this.abandoned = false});
+
+  final AdminOrderStatus status;
+  final bool abandoned;
+
+  @override
+  Widget build(BuildContext context) => abandoned
+      ? const GxBadge('Yarım kaldı', dot: true)
+      : GxBadge(
+          status.label,
+          dot: true,
+          tone: switch (status) {
+            AdminOrderStatus.paid => GxBadgeTone.primary,
+            AdminOrderStatus.pending => GxBadgeTone.info,
+            AdminOrderStatus.failed => GxBadgeTone.danger,
+            AdminOrderStatus.refunded => GxBadgeTone.neutral,
+          },
+        );
+}
+
+/// "Pro · Aylık".
+String planAndPeriod(String plan, String period) => '$plan · ${planPeriodLabels[period] ?? period}';
+
+enum _Tab { orders, subscriptions }
+
+/// Revenue (admins), orders and running subscriptions (docs/ARCHITECTURE.md §7).
+class AdminBillingScreen extends ConsumerStatefulWidget {
+  const AdminBillingScreen({super.key});
+
+  @override
+  ConsumerState<AdminBillingScreen> createState() => _AdminBillingScreenState();
+}
+
+class _AdminBillingScreenState extends ConsumerState<AdminBillingScreen> {
+  _Tab _tab = _Tab.orders;
+
+  @override
+  Widget build(BuildContext context) {
+    final canManage = ref.watch(myStaffRoleProvider).value?.canManageBilling ?? false;
+
+    return AdminPage(
+      title: 'Abonelikler',
+      subtitle: 'Grupların paket ödemeleri ve süren abonelikleri.',
+      actions: [
+        GxButton(
+          label: 'Yenile',
+          icon: Icons.refresh,
+          variant: GxButtonVariant.secondary,
+          onPressed: () => ref
+            ..invalidate(billingStatsProvider)
+            ..invalidate(orderSearchProvider)
+            ..invalidate(subscriptionSearchProvider),
+        ),
+      ],
+      children: [
+        if (canManage) ...[
+          const _Revenue(),
+          const SizedBox(height: GxSpacing.lg),
+        ],
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SegmentedButton<_Tab>(
+            segments: const [
+              ButtonSegment(value: _Tab.orders, label: Text('Ödemeler'), icon: Icon(Icons.receipt_long_outlined)),
+              ButtonSegment(value: _Tab.subscriptions, label: Text('Abonelikler'), icon: Icon(Icons.event_repeat_outlined)),
+            ],
+            selected: {_tab},
+            showSelectedIcon: false,
+            onSelectionChanged: (s) => setState(() => _tab = s.first),
+          ),
+        ),
+        const SizedBox(height: GxSpacing.md),
+        switch (_tab) {
+          _Tab.orders => const _Orders(),
+          _Tab.subscriptions => const _Subscriptions(),
+        },
+      ],
+    );
+  }
+}
+
+class _Revenue extends ConsumerWidget {
+  const _Revenue();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(billingStatsProvider);
+    final s = stats.value;
+    String? revenue(String currency) => s == null
+        ? null
+        : formatMoney(s.revenueThisMonth.where((m) => m.currency == currency).fold(0, (sum, m) => sum + m.amountMinor), currency);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        StatCardRow(
+          cards: [
+            StatCard(label: 'Bu ay gelir (TL)', value: null, valueText: revenue('TRY'), icon: Icons.payments_outlined, tone: GxBadgeTone.primary),
+            StatCard(label: 'Bu ay gelir (USD)', value: null, valueText: revenue('USD'), icon: Icons.attach_money, tone: GxBadgeTone.info),
+            StatCard(label: 'Aktif abonelik', value: s?.activeSubscriptions, icon: Icons.workspace_premium_outlined, tone: GxBadgeTone.primary),
+            StatCard(label: 'Bekleyen ödeme', value: s?.pendingOrders, icon: Icons.hourglass_top, tone: GxBadgeTone.neutral),
+          ],
+        ),
+        const SizedBox(height: GxSpacing.lg),
+        GxPanel(
+          title: 'Aylık gelir',
+          subtitle: 'Son 12 ay, ödenen siparişler (iadeler hariç). Ay, Türkiye saatine göredir.',
+          padding: EdgeInsets.zero,
+          child: switch (stats) {
+            AsyncData(:final value) => _RevenueTable(months: value.months),
+            AsyncError(:final error) => Padding(
+                padding: const EdgeInsets.all(GxSpacing.lg),
+                child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(billingStatsProvider)),
+              ),
+            _ => const Padding(padding: EdgeInsets.all(GxSpacing.lg), child: GxSkeleton(height: GxSpacing.xxl * 3)),
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _RevenueTable extends StatelessWidget {
+  const _RevenueTable({required this.months});
+
+  final List<AdminRevenueMonth> months;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final header = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.6);
+    Widget row(List<Widget> cells, {Color? color}) => Container(
+          color: color,
+          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+          child: Row(children: [for (final c in cells) Expanded(child: c)]),
+        );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row([Text('AY', style: header), Text('TL', style: header), Text('USD', style: header), Text('ÖDEME', style: header)],
+            color: GxColors.surface),
+        for (final m in months) ...[
+          const Divider(),
+          row([
+            Text(formatMonthYearTr(m.month), style: textTheme.bodyMedium),
+            Text(formatMoney(m.amountIn('TRY'), 'TRY'), style: textTheme.bodyMedium),
+            Text(formatMoney(m.amountIn('USD'), 'USD'), style: textTheme.bodyMedium),
+            Text('${m.paidOrders}', style: textTheme.bodyMedium),
+          ]),
+        ],
+      ],
+    );
+  }
+}
+
+/// Search box with a debounce, shared by both lists.
+mixin _Search<T extends StatefulWidget> on State<T> {
+  final search = TextEditingController();
+  Timer? _debounce;
+  String query = '';
+  int page = 1;
+
+  void onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () => setState(() {
+          query = value.trim();
+          page = 1;
+        }));
+  }
+
+  void clearSearch() {
+    search.clear();
+    _debounce?.cancel();
+    setState(() {
+      query = '';
+      page = 1;
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    search.dispose();
+    super.dispose();
+  }
+}
+
+class _Orders extends ConsumerStatefulWidget {
+  const _Orders();
+
+  @override
+  ConsumerState<_Orders> createState() => _OrdersState();
+}
+
+class _OrdersState extends ConsumerState<_Orders> with _Search {
+  AdminOrderStatus? _status;
+
+  void _clear() {
+    _status = null;
+    clearSearch();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final key = (query: query, status: _status, page: page);
+    final result = ref.watch(orderSearchProvider(key));
+    final filtered = query.isNotEmpty || _status != null;
+
+    return GxPanel(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListToolbar<AdminOrderStatus>(
+            controller: search,
+            hint: 'Grup adı veya adresi ile ara',
+            query: query,
+            filters: [for (final s in AdminOrderStatus.values) (s, s.label)],
+            selected: _status,
+            onSearchChanged: onSearchChanged,
+            onFilterChanged: (s) => setState(() {
+              _status = s;
+              page = 1;
+            }),
+            onClear: _clear,
+          ),
+          const Divider(),
+          _paged(
+            result,
+            empty: filtered
+                ? GxEmptyState(
+                    icon: Icons.search_off,
+                    message: 'Aramana ve filtrene uygun ödeme bulunamadı.',
+                    actionLabel: 'Filtreleri temizle',
+                    onAction: _clear,
+                  )
+                : GxEmptyState(
+                    icon: Icons.receipt_long_outlined,
+                    message: 'Henüz paket ödemesi yapılmadı.',
+                    actionLabel: 'Yenile',
+                    onAction: () => ref.invalidate(orderSearchProvider(key)),
+                  ),
+            onRetry: () => ref.invalidate(orderSearchProvider(key)),
+            noun: 'ödeme',
+            onPage: (p) => setState(() => page = p),
+            row: (order) => _OrderRow(order: order),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Subscriptions extends ConsumerStatefulWidget {
+  const _Subscriptions();
+
+  @override
+  ConsumerState<_Subscriptions> createState() => _SubscriptionsState();
+}
+
+class _SubscriptionsState extends ConsumerState<_Subscriptions> with _Search {
+  @override
+  Widget build(BuildContext context) {
+    final key = (query: query, page: page);
+    final result = ref.watch(subscriptionSearchProvider(key));
+
+    return GxPanel(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListToolbar<void>(
+            controller: search,
+            hint: 'Grup adı veya adresi ile ara',
+            query: query,
+            filters: const [],
+            selected: null,
+            onSearchChanged: onSearchChanged,
+            onFilterChanged: (_) {},
+            onClear: clearSearch,
+          ),
+          const Divider(),
+          _paged(
+            result,
+            empty: query.isNotEmpty
+                ? GxEmptyState(
+                    icon: Icons.search_off,
+                    message: 'Aramana uygun abonelik bulunamadı.',
+                    actionLabel: 'Aramayı temizle',
+                    onAction: clearSearch,
+                  )
+                : GxEmptyState(
+                    icon: Icons.event_repeat_outlined,
+                    message: 'Şu anda süren ya da sırada bekleyen abonelik yok.',
+                    actionLabel: 'Yenile',
+                    onAction: () => ref.invalidate(subscriptionSearchProvider(key)),
+                  ),
+            onRetry: () => ref.invalidate(subscriptionSearchProvider(key)),
+            noun: 'abonelik',
+            onPage: (p) => setState(() => page = p),
+            row: (s) => _SubscriptionRow(subscription: s),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _paged<T>(
+  AsyncValue<PagedList<T>> result, {
+  required Widget empty,
+  required VoidCallback onRetry,
+  required String noun,
+  required ValueChanged<int> onPage,
+  required Widget Function(T item) row,
+}) =>
+    switch (result) {
+      AsyncData(:final value) when value.items.isEmpty =>
+        Padding(padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl), child: empty),
+      AsyncData(:final value) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final item in value.items) ...[row(item), const Divider()],
+            PageFooter(
+              from: value.range.$1,
+              to: value.range.$2,
+              total: value.total,
+              noun: noun,
+              page: value.page,
+              pageCount: value.pageCount,
+              onPage: onPage,
+            ),
+          ],
+        ),
+      AsyncError(:final error) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+          child: GxErrorState(message: userMessageOf(error), onRetry: onRetry),
+        ),
+      _ => const Padding(
+          padding: EdgeInsets.all(GxSpacing.lg),
+          child: Column(
+            children: [
+              GxSkeleton(height: GxSpacing.xl),
+              SizedBox(height: GxSpacing.md),
+              GxSkeleton(height: GxSpacing.xl),
+              SizedBox(height: GxSpacing.md),
+              GxSkeleton(height: GxSpacing.xl),
+            ],
+          ),
+        ),
+    };
+
+/// Group, a detail line, an amount and a badge; wraps on narrow widths.
+class _ListRow extends StatelessWidget {
+  const _ListRow({required this.title, required this.subtitle, required this.amount, required this.badge, this.onTap});
+
+  final String title;
+  final String subtitle;
+  final String amount;
+  final Widget badge;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: onTap,
+      hoverColor: GxColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
+                  Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                ],
+              ),
+            ),
+            const SizedBox(width: GxSpacing.sm),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(amount, style: textTheme.labelLarge),
+                const SizedBox(height: GxSpacing.xxs),
+                badge,
+              ],
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: GxSpacing.xs),
+              const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderRow extends StatelessWidget {
+  const _OrderRow({required this.order});
+
+  final AdminOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    final buyer = order.buyerUsername == null ? 'silinmiş hesap' : '@${order.buyerUsername}';
+    final reason = order.status == AdminOrderStatus.failed && order.failureReason != null ? ' · ${order.failureReason}' : '';
+    return _ListRow(
+      title: '${order.groupName} (@${order.groupHandle})',
+      subtitle: '${planAndPeriod(order.planName, order.period)} · ${providerLabels[order.provider] ?? order.provider}'
+          '${order.country == null ? '' : ' (${order.country})'} · $buyer · ${formatDateTimeTr(order.paidAt ?? order.createdAt)}$reason',
+      amount: formatMoney(order.amountMinor, order.currency),
+      badge: OrderStatusBadge(status: order.status, abandoned: order.isAbandoned(DateTime.now())),
+      onTap: order.groupId == null ? null : () => context.go(AdminRoutes.group(order.groupId!)),
+    );
+  }
+}
+
+class _SubscriptionRow extends StatelessWidget {
+  const _SubscriptionRow({required this.subscription});
+
+  final AdminSubscription subscription;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = subscription;
+    return _ListRow(
+      title: '${s.groupName} (@${s.groupHandle})',
+      subtitle: '${planAndPeriod(s.planName, s.period)} · ${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
+      amount: formatMoney(s.amountMinor, s.currency),
+      badge: s.isCurrent(DateTime.now())
+          ? const GxBadge('Aktif', tone: GxBadgeTone.primary, dot: true)
+          : const GxBadge('Sırada', tone: GxBadgeTone.info, dot: true),
+      onTap: () => context.go(AdminRoutes.group(s.groupId)),
+    );
+  }
+}

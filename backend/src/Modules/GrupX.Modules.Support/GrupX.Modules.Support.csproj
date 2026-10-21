@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\GrupX.Modules.Support.Contracts\GrupX.Modules.Support.Contracts.csproj" />
+  </ItemGroup>
+</Project>

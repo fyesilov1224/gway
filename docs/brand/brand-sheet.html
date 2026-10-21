@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrupX Logo</title>
+<style>
+  @font-face { font-family: "Plus Jakarta Sans"; font-weight: 700; src: url("../../app/packages/design_system/fonts/PlusJakartaSans-Bold.ttf"); }
+  @font-face { font-family: "Plus Jakarta Sans"; font-weight: 400; src: url("../../app/packages/design_system/fonts/PlusJakartaSans-Regular.ttf"); }
+  :root { --bg: #FAFAFD; --card: #FFFFFF; --line: #ECECF2; --text: #1F2033; --muted: #5C5F77; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 48px 16px; }
+  h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.5px; }
+  p.lead { color: var(--muted); margin: 0 0 32px; font-weight: 400; max-width: 640px; line-height: 1.5; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; min-height: 260px; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .wide { grid-column: 1 / -1; min-height: 220px; }
+  .dark { background: #1F2033; border-color: #1F2033; }
+  .purple { background: #6E56CF; border-color: #6E56CF; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 10px; text-align: center; font-weight: 400; }
+  .word { font-weight: 700; letter-spacing: -1.5px; }
+  .icons { display: flex; gap: 28px; align-items: end; flex-wrap: wrap; justify-content: center; }
+  .icons img { display: block; border-radius: 22%; }
+  .sw { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .sw div { width: 120px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); font-size: 12px; }
+  .sw span { display: block; height: 72px; }
+  .sw b { display: block; padding: 8px; background: #fff; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>GrupX logosu</h1>
+  <p class="lead">Dört üye ortada buluşur; başları ve gövdeleri birlikte bir X oluşturur. Hem "GrupX"in X'i, hem bir araya gelen topluluk.</p>
+
+  <div class="grid">
+    <figure style="margin:0" class="wide"><div class="card wide">
+      <div style="display:flex;align-items:center;gap:28px">
+        <img src="grupx-mark.svg" width="120" height="120" alt="">
+        <span class="word" style="font-size:96px">Grup<span style="color:#6E56CF">X</span></span>
+      </div></div><figcaption>Yatay logo</figcaption></figure>
+
+    <figure style="margin:0"><div class="card"><img src="grupx-mark.svg" width="180" height="180" alt=""></div><figcaption>Sembol</figcaption></figure>
+    <figure style="margin:0"><div class="card purple">
+      <div style="display:flex;align-items:center;gap:16px">
+        <svg viewBox="0 0 120 120" width="72" height="72"><g fill="#fff" stroke="#fff"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#C9DAFF" stroke="#C9DAFF" transform="rotate(90 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#fff" stroke="#fff" transform="rotate(180 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#C9DAFF" stroke="#C9DAFF" transform="rotate(270 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g></svg>
+        <span class="word" style="font-size:56px;color:#fff">Grup<span style="color:#C9DAFF">X</span></span>
+      </div></div><figcaption>Mor zemin</figcaption></figure>
+    <figure style="margin:0"><div class="card dark">
+      <div style="display:flex;align-items:center;gap:16px">
+        <svg viewBox="0 0 120 120" width="72" height="72"><g fill="#B5A6F5" stroke="#B5A6F5"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#8FB4FF" stroke="#8FB4FF" transform="rotate(90 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#B5A6F5" stroke="#B5A6F5" transform="rotate(180 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#8FB4FF" stroke="#8FB4FF" transform="rotate(270 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g></svg>
+        <span class="word" style="font-size:56px;color:#fff">Grup<span style="color:#B5A6F5">X</span></span>
+      </div></div><figcaption>Koyu zemin</figcaption></figure>
+
+    <figure style="margin:0" class="wide"><div class="card wide"><div class="icons">
+      <img src="grupx-app-icon.svg" width="160" height="160" alt="GrupX uygulama ikonu">
+      <img src="grupx-app-icon.svg" width="96" height="96" alt="">
+      <img src="grupx-app-icon.svg" width="48" height="48" alt="">
+      <img src="grupx-admin-icon.svg" width="160" height="160" alt="GrupX Yönetim ikonu">
+      <img src="grupx-admin-icon.svg" width="96" height="96" alt="">
+      <img src="grupx-admin-icon.svg" width="48" height="48" alt="">
+    </div></div><figcaption>Uygulama ikonları — sosyal uygulama (mor) ve admin paneli (koyu)</figcaption></figure>
+
+    <figure style="margin:0" class="wide"><div class="card wide"><div class="sw">
+      <div><span style="background:#6E56CF"></span><b>Mor #6E56CF</b></div>
+      <div><span style="background:#2F6FE0"></span><b>Mavi #2F6FE0</b></div>
+      <div><span style="background:#1F2033"></span><b>Gece #1F2033</b></div>
+      <div><span style="background:#C9DAFF"></span><b>Açık mavi #C9DAFF</b></div>
+      <div><span style="background:#B5A6F5"></span><b>Yumuşak mor #B5A6F5</b></div>
+      <div><span style="background:#8FB4FF"></span><b>Yumuşak mavi #8FB4FF</b></div>
+    </div></div><figcaption>Logo renkleri</figcaption></figure>
+  </div>
+</main>
+</body>
+</html>

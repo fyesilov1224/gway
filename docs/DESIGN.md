@@ -1,0 +1,147 @@
+# GrupX — Tasarım Sistemi
+
+Hedef: ferah, sakin, profesyonel bir arayüz (AAA). Ekranın büyük kısmı beyazdır, içerik öne çıkar, kullanıcı yorulmaz.
+
+Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygulama kodunda doğrudan renk, boşluk, yarıçap veya yazı boyutu yazılmaz.**
+
+---
+
+## 1. Renkler — `GxColors`
+
+| Token | Değer | Kullanım |
+|---|---|---|
+| `primary` | `#6E56CF` | Ana aksiyon (mor) |
+| `primarySoft` | `#F3F0FF` | Mor soft zemin, seçili durum |
+| `secondary` | `#2F6FE0` | İkincil aksiyon, bilgi, bağlantı (mavi) |
+| `secondarySoft` | `#EAF2FF` | Mavi soft zemin |
+| `textPrimary` | `#1F2033` | Ana metin (yumuşak siyah) |
+| `textSecondary` | `#5C5F77` | İkincil metin |
+| `background` | `#FFFFFF` | Zemin |
+| `surface` | `#FAFAFD` | Kart, sayfa yüzeyi |
+| `surfaceMuted` | `#F4F4F8` | İkincil yüzey, iskelet |
+| `border` | `#ECECF2` | Kenar çizgisi, ayraç |
+| `onPrimary` | `#FFFFFF` | Mor / mavi üzerindeki metin |
+| `error` | `#C4314B` | Hata metni ve ikonu |
+| `errorSoft` | `#FDECEF` | Hata zemini |
+| `warning` | `#8A5A00` | Uyarı metni ve ikonu (sarı) |
+| `warningSoft` | `#FFF4D6` | Uyarı zemini |
+| `success` | `#1D7A45` | Başarı metni ve ikonu (yeşil) |
+| `successSoft` | `#E6F6EC` | Başarı zemini |
+| `like` | `#E0245E` | Yalnızca dolu beğeni kalbi (gönderi, yorum, çift dokunma animasyonu) |
+| `media` | `#111118` | Hikaye görüntüleyici ve video zemini (medya tam ekranken) |
+| `onMedia` | `#FFFFFF` | `media` zemini ya da fotoğraf üzerindeki metin ve ikon |
+| `mediaScrim` | `#111118` %45 | Fotoğraf üzerindeki metnin okunması için üst/alt geçiş |
+
+- **Kırmızı, sarı, yeşil** yalnızca durum ve tür anlatır (ör. destek mesajı türleri: Sorun kırmızı, Talep sarı, İstek yeşil). Ana arayüz rengi değildir; büyük alanlarda yalnızca soft tonları kullanılır, metin ve ikon koyu tondadır. `GxBadgeTone.warning` ve `GxBadgeTone.success` bu çiftleri kullanır.
+- **Medya zemini** (`media`) yalnızca medya tam ekran gösterilirken (hikaye, tam ekran video) kullanılır; uygulamanın geri kalanı beyazdır. Fotoğraf üzerindeki metin her zaman `mediaScrim` geçişinin üzerinde durur.
+- **Hikaye halkası:** görülmemiş hikaye `primary` renkli 2 px halka, görülmüş hikaye `border` halka. Gradyan kullanılmaz.
+- **Konuşma halkası:** yayın odasında konuşan kişinin avatarında `primary` renkli 2 px halka. Gradyan kullanılmaz.
+- **Mor→mavi gradyan** (`GxColors.liveGradient`) **yalnızca** canlı yayın rozeti ve "yayın başlat" butonunda kullanılır.
+- Kontrast: Metin / zemin çiftleri WCAG AA'yı (normal metin ≥ 4.5:1) sağlar. Bu, `design_system` testleriyle doğrulanır.
+- Mavi metin soft mavi zemin üzerinde kullanılmaz (≈4.2:1, AA altı). Soft zeminlerin üzerindeki metin `textPrimary` olur. İstisna: mor metin `primarySoft` üzerinde kullanılabilir (≈4.8:1).
+
+## 2. Tipografi — `GxTypography`
+
+Yazı tipi **Plus Jakarta Sans**'tır (OFL). 400, 500, 600 ve 700 ağırlıkları pakete gömülüdür, çalışma anında indirilmez.
+
+| Stil | Boyut / satır | Ağırlık |
+|---|---|---|
+| `displayLarge` | 32 / 40 | 700 |
+| `headlineMedium` | 24 / 32 | 700 |
+| `titleLarge` | 20 / 28 | 600 |
+| `titleMedium` | 16 / 24 | 600 |
+| `bodyLarge` | 16 / 24 | 400 |
+| `bodyMedium` | 14 / 20 | 400 |
+| `labelLarge` | 14 / 20 | 600 |
+| `labelMedium` | 12 / 16 | 500 |
+
+## 3. Boşluk — `GxSpacing`
+
+Boşluklar 4'ün katlarıdır: `xxs 4`, `xs 8`, `sm 12`, `md 16`, `lg 24`, `xl 32`, `xxl 48`. Sayfa yatay iç boşluğu `md` (16) olur.
+
+## 4. Yarıçap — `GxRadius`
+
+`sm 8` (çip, küçük öğe), `md 12` (buton, girdi), `lg 16` (kart, grup avatarı), `xl 24` (alt sayfa, büyük kart).
+
+## 5. Yükselti
+
+Gölge kullanılmaz. Ayrım `border` renginde 1 px kenar çizgisiyle (`GxBorders.hairline`) yapılır. Hikaye halkası ve seçili medya çerçevesi `GxBorders.ringWidth` (2 px) kalınlığındadır.
+
+## 6. Bileşenler
+
+| Bileşen | Kural |
+|---|---|
+| `GxButton` | `primary` (dolu mor, beyaz metin), `secondary` (beyaz zemin, `border` çizgisi, mavi metin), `text` (zeminsiz, mor metin). Yüksekliği 48, en az 44×44 dokunma alanı. Yüklenme durumu vardır. |
+| `GxAvatar` | Kullanıcı: **daire**. Grup: **yuvarlatılmış kare** (`GxRadius.lg` orantılı). Görsel yoksa baş harf gösterilir. |
+| `GxSkeleton` | Yüklenirken içerik yerine gösterilir. Spinner yerine iskelet tercih edilir. |
+| `GxEmptyState` | Her boş listede **ikon + tek cümle açıklama + bir aksiyon** bulunur. |
+| `GxErrorState` | Yükleme hatasında ikon + güvenli mesaj + "Tekrar dene". |
+| `GxFormMessage` | Formun altında satır içi hata veya bilgi mesajı. |
+| `GxPanel` | Beyaz, ince çerçeveli içerik kartı; isteğe bağlı başlık / alt başlık / sağ aksiyon. Her zaman tam genişlik kaplar. |
+| `GxBadge` | Durum ve rol etiketi (`neutral`, `primary`, `info`, `danger`), durumlar için noktalı. Sığmayan metin üç noktayla kısalır. |
+| `GxLiveBadge` | Mor→mavi gradyanlı "CANLI" rozeti (canlı yayın kartı, yayın odası, ana sayfa şeridi, admin listesi). |
+| `GxLiveButton` | Gradyanlı "Yayın başlat" düğmesi; dakika bitmişse gri ve pasif. |
+| `GxReadingColumn` | Profil ve grup sayfalarının orta sütunu (720; akışta `feedMaxWidth`); geniş ekranda iki yanda ince çizgi. |
+| `GxCoverHeader` | 3:1 kapak (yoksa `primarySoft`) ve üzerine binen, beyaz halkalı avatar: kullanıcıda daire, grupta yuvarlatılmış kare. Yüklenirken `GxCoverHeaderSkeleton`. |
+| `categoryIcon` | Ortak kategorilerin ikonları (profil ilgi alanları ve grup kategorileri aynı ikonu kullanır). |
+| `GxLogo` | Marka sembolü, isteğe bağlı "GrupX" yazısıyla. Tonlar: `color`, `onPrimary`, `onDark`. Ayrıntılar: `docs/brand/README.md`. |
+| `GxSplash` | Uygulama açılırken logo ve yükleme göstergesi. Web'de Flutter yüklenene kadar `index.html` içindeki aynı tasarımlı ön yükleyici görünür. |
+
+## 7. Sayfa düzenleri
+
+| Token (`GxLayout`) | Değer | Kullanım |
+|---|---|---|
+| `formMaxWidth` | 440 | Giriş, kayıt gibi formlar |
+| `contentMaxWidth` | 720 | Profil, okuma içerikleri, düzenleme sayfaları |
+| `dashboardMaxWidth` | 1200 | Admin panelinin içerik alanı |
+| `sidebarWidth` | 256 | Admin yan menüsü |
+| `wideBreakpoint` | 960 | Bu genişlikten itibaren yan menü ve çok sütunlu içerik |
+| `feedMaxWidth` | 480 | Akış, gönderi ve yorum sayfaları (gönderi kartı ortalı) |
+
+- **Profil:** Orta sütun (720) geniş ekranda iki yandan ince çizgiyle ayrılır. Tam genişlik kapak (3:1, yoksa `primarySoft`), üzerine binen beyaz halkalı avatar (mobil 96, geniş 128), aksiyonlar avatarın sağında. Ad `headlineMedium`, kullanıcı adı ikincil renkte. İlgi alanları `primarySoft` zeminli hap etiketlerdir.
+- **Grup sayfası:** Profil düzeninin aynısı; avatarın yerinde grup logosu (yuvarlatılmış kare). Ana aksiyon logonun sağında, dar ekranda alta kayar: Katıl / Katılma isteği gönder / İstek gönderildi / Daveti kabul et + Reddet / Üyesin (dokununca ayrılma onayı) / Grubu düzenle. Üyelik bilgisi yüklenmeden aksiyon gösterilmez. Altında ad, @adres, tanıtım, meta satırı (kategori, katılım tipi, üye sayısı, kuruluş), ardından Kurallar, Bağlantılar ve Yönetim ekibi bölümleri. Askıdaki grupta hata tonunda bir uyarı bandı görünür.
+- **Gruplar ekranı:** Üstte bekleyen davetler paneli, altında "Keşfet / Gruplarım" seçimi. Keşfet: arama, yatay kaydırılan kategori çipleri, grup satırları (logo, ad, kategori · üye sayısı, serbest değilse katılım tipi).
+- **Sosyal uygulama gezinmesi:** Telefonda alt gezinme çubuğu (üstünde ince çizgi), geniş ekranda (`wideBreakpoint`) yan ray. Seçili hedef `primarySoft` göstergeyle belirtilir.
+- **Paket kartı (grup sayfası):** Tanıtımın altında, `surface` zeminli ince çizgili kart: paket ikonu, "Başlangıç paketi · 9 Kasım 2026 tarihine kadar", üye kullanımı ve "Paket" bağlantısı. Limit dolunca hata tonunda, bitişe 7 gün kala `primarySoft` tonunda tek satırlık uyarı. Yalnızca sahip görür; onay yetkisi olanlar yalnızca "limit doldu" uyarısını görür.
+- **Paket ekranı:** Üstte "Mevcut paket" paneli (paket rozeti, dönem sonu, üye kullanım çubuğu, limitler, sıradaki dönemler). Web'de sahip için altında "Paketler" başlığı, Aylık / Yıllık · 2 ay bedava seçimi, sağlayıcı ve para birimi notu ve paket kartları: geniş ekranda eşit yükseklikte dört sütun, telefonda alt alta. Mevcut paket mor kenarlıkla ve rozetle işaretlenir. Kartın altında satın alma türüne göre ne zaman başlayacağı ve aktarılan süre yazar. Ana aksiyon (Seç / Yükselt) dolu, yenileme ve alt pakete geçiş çerçeveli butondur. Ödemeden dönüşte üstte durum bandı görünür (onaylanıyor / alındı / tamamlanamadı).
+- **Ödeme ekranı:** Geniş ekranda solda "Fatura bilgileri" formu, sağda "Sipariş özeti"; telefonda özet üstte. Özette paket, limitler, başlangıç, tahmini bitiş, aktarılan süre ve toplam; altında sağlayıcı güvencesi notu. Sözleşme onay kutusundaki başlık bağlantıdır, metni alttan açılan sayfada gösterir. Buton "Ödemeye geç · 699 ₺", kilit ikonlu.
+- **Destek (sosyal uygulama):** Ayarlar'da "Destek ve geri bildirim" satırı, okunmamış yanıt varsa mor rozetle sayısı. Liste satırında türün ikonu kendi soft renginde yuvarlatılmış karede, konu, "Tür · grup · tarih", sağda durum rozeti (nötr) ve gerekirse "Yeni yanıt". Yeni mesaj: üç seçilebilir tür kartı (seçilince kendi soft zemini ve renkli kenarlığı), ardından tek panelde grup seçimi (yalnızca yönetilen grup varsa), konu, açıklama, ekran görüntüleri (küçük önizleme + kaldır). Yazışma: kullanıcının mesajları sağda `primarySoft`, ekibin mesajları solda beyaz ve ince çizgili, "GrupX Ekibi" etiketiyle; altta yanıt kutusu. Grup yöneticileri grup sayfasında "Bu grupla ilgili platform ekibine yaz" bağlantısını görür.
+- **Admin paneli:** Solda marka ve menü, altta oturum açan ekip üyesi ve çıkış. İçerik `surface` zemin üzerinde `GxPanel` kartlarından oluşur. Sayfa başlığı `headlineMedium` ve alt başlık; detay sayfalarında breadcrumb. Liste sayfaları: özet sayaç kartları (tıklayınca filtreler), arama + durum filtresi, geniş ekranda sütunlu tablo, dar ekranda kompakt satır. Menüde "Gelir" başlığı altında Abonelikler ve Paketler (yönetici ve destek) bulunur. Abonelikler: para tutarlı sayaç kartları ve aylık gelir tablosu (yalnızca yönetici), Ödemeler / Abonelikler seçimi ile listeler; bir saatten eski ödenmemiş sipariş "Yarım kaldı" rozetiyle görünür. Paketler: her paket bir panel, limitler ve fiyatlar etiket–değer çiftleri, "Düzenle" diyaloğu. Destek: türe göre renkli sayaç kartları (Açık sorunlar kırmızı, Açık talepler sarı, Açık istekler yeşil; tıklayınca o türe süzer) ve "Yanıt bekleyen"; listede tür ikonu, konu, gönderen, grup, mesaj sayısı, durum ve "Yanıt bekliyor" rozeti. Detayda solda yazışma ve yanıt kutusu, sağda tür, durum seçimi, gönderen ve grup bağlantıları.
+
+### Medya ölçüleri — `GxMedia`
+
+Tüm medya sayıları bu sınıftadır; feed kodunda oran, piksel veya kalite değeri yazılmaz.
+
+| Token | Değer | Kullanım |
+|---|---|---|
+| `square` | 1 | 1:1 kırpma |
+| `portrait` | 4/5 | 4:5 kırpma; akışta en dar oran |
+| `landscape` | 1.91 | 1.91:1 kırpma; akışta en geniş oran |
+| `story` | 9/16 | Hikaye kadrajı ve arşiv karosu |
+| `gridTile` | 4/5 | Profil, grup, keşfet, etiket ve kaydedilenler ızgarası (dikey karo, ortadan kırpılır) |
+| `gridColumns` | 3 | Izgara sütunu |
+| `gridGap` | 2 | Izgara boşluğu (4'ün katı olmayan tek istisna; karolar bitişik görünür) |
+| `uploadMaxSide` | 1440 | Gönderi fotoğrafının yüklenen en uzun kenarı |
+| `storyMaxSide` | 1920 | Hikaye fotoğrafının yüklenen en uzun kenarı (1080×1920) |
+| `thumbMaxSide` | 480 | Küçük kopyanın en uzun kenarı |
+| `jpegQuality` | 85 | Cihazda üretilen JPEG kalitesi |
+| `pickMaxSide` | 2880 | Seçiciden alınan görselin üst sınırı (işlem süresi için) |
+| `storyFitTolerance` | 0.1 | Hikaye 9:16'ya bu kadar yakınsa ekranı doldurur |
+| `backdropBlur` | 24 | Ekranı doldurmayan hikayenin arkasındaki bulanık kopya |
+| `maxZoom` | 5 | Kırpmada en fazla yakınlaştırma |
+
+- **Kırpma:** Oluşturma ekranında seçilen medya kadraj içinde gösterilir. Oran seçimi: Orijinal (4:5–1.91:1 aralığına sıkıştırılır), 1:1, 4:5, 1.91:1. Parmakla yakınlaştırılır, sürükleyerek kadrajlanır. Karuseldeki tüm öğeler aynı oranı kullanır. Hikaye kadrajı her zaman 9:16'dır.
+- **Gösterim:** Akış kartının oranı ilk medyanın oranıdır; karuseldeki her öğe bu kutuyu doldurur (ortadan kırpılır). Görseller kutunun ekrandaki genişliği × piksel yoğunluğu kadar çözülür (`cacheWidth`). Önce küçük kopya, üstüne büyük kopya yumuşak geçişle gelir; yüklenirken iskelet aynı oranda kalır, sayfa kaymaz.
+- **Hikaye görüntüleyici:** Medya 9:16'ya `storyFitTolerance` kadar yakınsa ekranı doldurur; değilse sığdırılır ve arkasında aynı görselin bulanık hali görünür (siyah bant yok).
+- **Video:** Cihazda dönüştürülmez; kadraj kutusunu doldurur. Kapak görseli üretilmez (video oynatıcının ilk karesi gösterilir; ızgarada video ikonu).
+
+## 8. Erişilebilirlik
+
+- WCAG AA kontrast.
+- En az 44×44 dokunma alanı.
+- Yazı ölçeği %130'a çıktığında düzen bozulmaz, taşma olmaz. Bu, kritik ekranlar için widget testleriyle doğrulanır.
+- İkon butonlarda `tooltip` / `semanticLabel` zorunludur.
+
+## 9. Karanlık tema
+
+Faz 9'da eklenir. O zamana kadar yalnızca açık tema vardır.

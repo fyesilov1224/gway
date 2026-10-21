@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\GrupX.Modules.Billing.Contracts\GrupX.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Events.Contracts\GrupX.Modules.Events.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Feed.Contracts\GrupX.Modules.Feed.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Groups.Contracts\GrupX.Modules.Groups.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Identity.Contracts\GrupX.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Live.Contracts\GrupX.Modules.Live.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Moderation.Contracts\GrupX.Modules.Moderation.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Support.Contracts\GrupX.Modules.Support.Contracts.csproj" />
+  </ItemGroup>
+</Project>

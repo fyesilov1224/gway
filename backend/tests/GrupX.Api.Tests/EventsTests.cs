@@ -1,0 +1,202 @@
+using System.Net;
+using System.Net.Http.Json;
+using GrupX.Modules.Admin;
+using GrupX.Modules.Events;
+using GrupX.Modules.Groups;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace GrupX.Api.Tests;
+
+public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
+{
+    private readonly TestDatabase _db = new();
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    public ValueTask InitializeAsync() => _db.InitializeAsync();
+
+    public ValueTask DisposeAsync() => _db.DisposeAsync();
+
+    private static string Unique(string prefix) => $"{prefix}{Guid.NewGuid():N}"[..20];
+
+    private static Uri Path(string path) => new(path, UriKind.Relative);
+
+    /// <summary>Owner, Yönetici and two members of a fresh open group (free plan: two events a month).</summary>
+    private sealed record Crew(Guid Group, Guid Owner, Guid Admin, Guid Member, Guid Other);
+
+    private async Task<Crew> CrewAsync()
+    {
+        var (owner, admin, member, other) = (await User(), await User(), await User(), await User());
+        var created = await factory.ClientFor(owner).PostAsJsonAsync(
+            Path("/groups"), new CreateGroupRequest(Unique("g_"), "Doğa Yürüyüşü", "hiking", "open", null), Ct);
+        var group = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
+        foreach (var user in new[] { admin, member, other })
+            (await factory.ClientFor(user).PostAsync(Path($"/groups/{group}/join"), null, Ct)).EnsureSuccessStatusCode();
+        (await factory.ClientFor(owner).PutAsync(Path($"/groups/{group}/members/{admin}/roles/admin"), null, Ct)).EnsureSuccessStatusCode();
+        return new Crew(group, owner, admin, member, other);
+
+        Task<Guid> User() => _db.CreateUserAsync(Unique("e_"));
+    }
+
+    private static EventRequest Form(string title = "Belgrad Ormanı yürüyüşü", int? capacity = null, DateTimeOffset? startsAt = null,
+        string? cover = null) =>
+        new(title, "Sabah 9'da buluşuyoruz.", startsAt ?? DateTimeOffset.UtcNow.AddDays(2), null, "Bahçeköy girişi",
+            "https://maps.example.com/bahcekoy", capacity, 15000, "TRY", "Yerinde nakit", cover);
+
+    private async Task<HttpResponseMessage> CreateAsync(Guid actor, Guid group, EventRequest form) =>
+        await factory.ClientFor(actor).PostAsJsonAsync(Path($"/groups/{group}/events"), form, Ct);
+
+    private async Task<Guid> EventAsync(Crew crew, EventRequest form)
+    {
+        var response = await CreateAsync(crew.Admin, crew.Group, form);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<CreatedEvent>(Ct))!.Id;
+    }
+
+    private async Task<Attendance?> AttendAsync(Guid user, Guid ev)
+    {
+        var response = await factory.ClientFor(user).PostAsync(Path($"/events/{ev}/attendance"), null, Ct);
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<Attendance>(Ct) : null;
+    }
+
+    private Task<long> CountAsync(string sql, params (string, object)[] p) => _db.ScalarAsync<long>(sql, p);
+
+    // Events ----------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Managers_create_events_within_the_monthly_limit()
+    {
+        var crew = await CrewAsync();
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await CreateAsync(crew.Member, crew.Group, Form())).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await CreateAsync(crew.Admin, crew.Group, Form(title: "A"))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await CreateAsync(crew.Admin, crew.Group, Form(startsAt: DateTimeOffset.UtcNow.AddMinutes(5)))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await CreateAsync(crew.Admin, crew.Group, Form(cover: $"{crew.Group}/missing.jpg"))).StatusCode);
+
+        var cover = $"{crew.Group}/{Guid.NewGuid()}.jpg";
+        await _db.ExecuteAsync(
+            "insert into storage.objects (bucket_id, name, metadata) values ('event-images', @p, '{\"mimetype\": \"image/jpeg\"}'::jsonb)", ("p", cover));
+        await EventAsync(crew, Form(cover: cover));
+        await EventAsync(crew, Form(title: "İkinci yürüyüş"));
+
+        var third = await CreateAsync(crew.Owner, crew.Group, Form(title: "Üçüncü"));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, third.StatusCode);
+        Assert.Contains("event.monthly_limit_reached", await third.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        Assert.Equal(2L, await CountAsync("select count(*) from public.audit_log where action = 'event.created' and group_id = @g", ("g", crew.Group)));
+    }
+
+    [Fact]
+    public async Task A_full_event_has_a_waitlist_that_moves_up()
+    {
+        var crew = await CrewAsync();
+        var outsider = await _db.CreateUserAsync(Unique("o_"));
+        var ev = await EventAsync(crew, Form(capacity: 1));
+
+        Assert.Equal(new Attendance("going", null), await AttendAsync(crew.Member, ev));
+        Assert.Equal(new Attendance("waitlisted", 1), await AttendAsync(crew.Other, ev));
+        Assert.Null(await AttendAsync(outsider, ev));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Member).DeleteAsync(Path($"/events/{ev}/attendance"), Ct)).StatusCode);
+        Assert.Equal("going", await _db.ScalarAsync<string>(
+            "select status from public.event_attendees where event_id = @e and user_id = @u", ("e", ev), ("u", crew.Other)));
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.notifications where recipient_id = @u and type = 'event_promoted'", ("u", crew.Other)));
+    }
+
+    [Fact]
+    public async Task Edits_keep_the_people_going_and_announce_a_new_time()
+    {
+        var crew = await CrewAsync();
+        var oldCover = $"{crew.Group}/{Guid.NewGuid()}.jpg";
+        var newCover = $"{crew.Group}/{Guid.NewGuid()}.png";
+        foreach (var c in new[] { oldCover, newCover })
+            await _db.ExecuteAsync("insert into storage.objects (bucket_id, name, metadata) values ('event-images', @p, '{\"mimetype\": \"image/png\"}'::jsonb)", ("p", c));
+        var start = DateTimeOffset.UtcNow.AddDays(2);
+        var ev = await EventAsync(crew, Form(capacity: 2, startsAt: start, cover: oldCover));
+        await AttendAsync(crew.Member, ev);
+        await AttendAsync(crew.Other, ev);
+
+        var admin = factory.ClientFor(crew.Admin);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity,
+            (await admin.PutAsJsonAsync(Path($"/events/{ev}"), Form(capacity: 1, startsAt: start, cover: oldCover), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(crew.Member).PutAsJsonAsync(Path($"/events/{ev}"), Form(startsAt: start), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await admin.PutAsJsonAsync(Path($"/events/{ev}"), Form(capacity: 5, startsAt: start.AddDays(1), cover: newCover), Ct)).StatusCode);
+
+        Assert.Equal(2L, await CountAsync("select count(*) from public.notifications where event_id = @e and type = 'event_updated'", ("e", ev)));
+        Assert.Contains(("event-images", oldCover), factory.Storage.DeletedObjects);
+    }
+
+    [Fact]
+    public async Task Cancellations_close_the_event_and_staff_can_cancel_too()
+    {
+        var crew = await CrewAsync();
+        var (moderator, support) = (await _db.CreateUserAsync(Unique("s_")), await _db.CreateUserAsync(Unique("s_")));
+        await _db.MakeStaffAsync(moderator, "moderator");
+        await _db.MakeStaffAsync(support, "support");
+        var first = await EventAsync(crew, Form());
+        var second = await EventAsync(crew, Form(title: "Gece yürüyüşü"));
+        await AttendAsync(crew.Member, first);
+
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(crew.Member).PostAsJsonAsync(Path($"/events/{first}/cancellation"), new CancelEventRequest("Hava kötü"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/events/{first}/cancellation"), new CancelEventRequest("Hava kötü"), Ct)).StatusCode);
+        Assert.Equal(1L, await CountAsync("select count(*) from public.notifications where event_id = @e and type = 'event_canceled'", ("e", first)));
+        Assert.Null(await AttendAsync(crew.Other, first));
+
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(support).PostAsJsonAsync(Path($"/admin/events/{second}/cancellation"), new CancelAdminEventRequest("Spam"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await factory.ClientFor(moderator).PostAsJsonAsync(Path($"/admin/events/{second}/cancellation"), new CancelAdminEventRequest("Dolandırıcılık şüphesi"), Ct)).StatusCode);
+        Assert.Equal(1L, await CountAsync("select count(*) from public.audit_log where action = 'event.canceled_by_admin' and group_id = @g", ("g", crew.Group)));
+
+        var page = await factory.ClientFor(support).GetFromJsonAsync<PagedResult<AdminEvent>>(Path($"/admin/events?status=canceled&q={Uri.EscapeDataString("Gece")}"), Ct);
+        Assert.Contains(page!.Items, e => e.Id == second && e.CancelReason == "Dolandırıcılık şüphesi");
+    }
+
+    [Fact]
+    public async Task Reminders_go_once_to_the_people_going()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form(startsAt: DateTimeOffset.UtcNow.AddMinutes(30)));
+        await AttendAsync(crew.Member, ev);
+        var events = factory.Services.GetRequiredService<EventService>();
+
+        await events.SendRemindersAsync(Ct);
+        await events.SendRemindersAsync(Ct);
+
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.notifications where event_id = @e and recipient_id = @u and type = 'event_reminder'", ("e", ev), ("u", crew.Member)));
+    }
+
+    // Polls -----------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Managers_open_close_and_delete_polls()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        var poll = new CreatePollRequest("Hangi gün?", ["Cumartesi", "Pazar"], AllowsMultiple: false, IsAnonymous: true,
+            DateTimeOffset.UtcNow.AddDays(1), ev);
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(crew.Member).PostAsJsonAsync(Path($"/groups/{crew.Group}/polls"), poll, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/groups/{crew.Group}/polls"), poll with { Options = ["Tek"] }, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/groups/{crew.Group}/polls"), poll with { Options = ["Pazar", "pazar"] }, Ct)).StatusCode);
+
+        var created = await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/groups/{crew.Group}/polls"), poll, Ct);
+        var id = (await created.Content.ReadFromJsonAsync<CreatedPoll>(Ct))!.Id;
+        Assert.Equal(2L, await CountAsync("select count(*) from public.poll_options where poll_id = @p", ("p", id)));
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(crew.Member).PostAsync(Path($"/polls/{id}/close"), null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Admin).PostAsync(Path($"/polls/{id}/close"), null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(crew.Owner).DeleteAsync(Path($"/polls/{id}"), Ct)).StatusCode);
+        Assert.Equal(0L, await CountAsync("select count(*) from public.polls where id = @p", ("p", id)));
+        Assert.Equal(3L, await CountAsync(
+            "select count(*) from public.audit_log where action in ('poll.created', 'poll.closed', 'poll.deleted') and target_id = @p", ("p", id.ToString())));
+    }
+}

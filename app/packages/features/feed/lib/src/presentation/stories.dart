@@ -1,0 +1,878 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../data/image_processing.dart';
+import '../data/media_picker.dart';
+import '../domain/media_crop.dart';
+import '../domain/post.dart';
+import '../domain/story.dart';
+import 'crop_editor.dart';
+import 'media.dart';
+import 'providers.dart';
+import 'routes.dart';
+
+void _snack(BuildContext context, String message) =>
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+
+/// An avatar inside a story ring: primary while unseen, a hairline once seen (docs/DESIGN.md §1).
+class StoryRingAvatar extends StatelessWidget {
+  const StoryRingAvatar({super.key, required this.name, this.imageUrl, required this.unseen, this.size = GxAvatarSize.lg, this.shape = GxAvatarShape.user});
+
+  final String name;
+  final String? imageUrl;
+  final bool unseen;
+  final GxAvatarSize size;
+  final GxAvatarShape shape;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(GxBorders.ringWidth),
+        decoration: BoxDecoration(
+          shape: shape == GxAvatarShape.user ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: shape == GxAvatarShape.user ? null : GxRadius.lgAll,
+          border: Border.all(color: unseen ? GxColors.primary : GxColors.border, width: GxBorders.ringWidth),
+        ),
+        child: GxAvatar(name: name, shape: shape, imageUrl: imageUrl, size: size),
+      );
+}
+
+/// The horizontal bar on the home feed: your story first, then followed people.
+class StoryTray extends ConsumerWidget {
+  const StoryTray({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rings = ref.watch(storyTrayProvider).value;
+    if (rings == null) return const SizedBox(height: GxSpacing.xxl * 2 + GxSpacing.md);
+    final mine = rings.where((r) => r.isMine).firstOrNull;
+    final others = rings.where((r) => !r.isMine);
+    return Container(
+      height: GxSpacing.xxl * 2 + GxSpacing.md,
+      decoration: const BoxDecoration(border: Border(bottom: GxBorders.hairline)),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xs),
+        children: [
+          _TrayItem(
+            label: 'Hikayen',
+            ring: mine,
+            onTap: () => context.push(mine == null ? FeedRoutes.newStory : FeedRoutes.stories(mine.userId)),
+          ),
+          for (final r in others) _TrayItem(label: r.username, ring: r, onTap: () => context.push(FeedRoutes.stories(r.userId))),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrayItem extends ConsumerWidget {
+  const _TrayItem({required this.label, required this.ring, required this.onTap});
+
+  final String label;
+  final StoryRing? ring;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: GxRadius.mdAll,
+      child: SizedBox(
+        width: GxSpacing.xxl + GxSpacing.lg + GxSpacing.xs,
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                if (ring case final r?)
+                  StoryRingAvatar(name: r.username, imageUrl: r.avatarUrl, unseen: r.hasUnseen)
+                else
+                  Container(
+                    width: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
+                    height: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: GxColors.surface, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
+                    child: const Icon(Icons.add_a_photo_outlined, color: GxColors.textSecondary),
+                  ),
+              ],
+            ),
+            const SizedBox(height: GxSpacing.xxs),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A user's active stories, full screen.
+class StoryViewerScreen extends ConsumerWidget {
+  const StoryViewerScreen({super.key, required this.userId});
+
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _StoriesLoader(
+        stories: ref.watch(activeStoriesProvider(userId)),
+        onRetry: () => ref.invalidate(activeStoriesProvider(userId)),
+      );
+}
+
+/// A highlight's stories, full screen.
+class HighlightViewerScreen extends ConsumerWidget {
+  const HighlightViewerScreen({super.key, required this.highlightId});
+
+  final String highlightId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _StoriesLoader(
+        stories: ref.watch(highlightStoriesProvider(highlightId)),
+        onRetry: () => ref.invalidate(highlightStoriesProvider(highlightId)),
+        highlightId: highlightId,
+      );
+}
+
+class _StoriesLoader extends StatelessWidget {
+  const _StoriesLoader({required this.stories, required this.onRetry, this.highlightId});
+
+  final AsyncValue<List<Story>> stories;
+  final VoidCallback onRetry;
+  final String? highlightId;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: GxColors.media,
+        body: SafeArea(
+          child: switch (stories) {
+            AsyncData(:final value) when value.isEmpty => Theme(
+                data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: GxColors.onMedia)),
+                child: GxEmptyState(
+                  icon: Icons.history_toggle_off,
+                  message: 'Burada görebileceğin bir hikaye kalmadı.',
+                  actionLabel: 'Kapat',
+                  onAction: () => context.canPop() ? context.pop() : context.go(FeedRoutes.home),
+                ),
+              ),
+            // A 9:16 stage, centered on wide screens.
+            AsyncData(:final value) => Center(
+                child: AspectRatio(aspectRatio: GxMedia.story, child: StoryPlayer(stories: value, highlightId: highlightId)),
+              ),
+            AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: onRetry),
+            _ => const Center(child: CircularProgressIndicator(color: GxColors.onMedia)),
+          },
+        ),
+      );
+}
+
+/// Plays stories in order: tap right for next, left for previous, hold to pause.
+class StoryPlayer extends ConsumerStatefulWidget {
+  const StoryPlayer({super.key, required this.stories, this.highlightId});
+
+  final List<Story> stories;
+  final String? highlightId;
+
+  @override
+  ConsumerState<StoryPlayer> createState() => _StoryPlayerState();
+}
+
+class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProviderStateMixin {
+  late final AnimationController _timer = AnimationController(vsync: this)..addStatusListener(_onStatus);
+  late int _index = widget.stories.indexWhere((s) => !s.seen).clamp(0, widget.stories.length - 1);
+  final _seen = <String>{};
+
+  Story get _story => widget.stories[_index];
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  @override
+  void dispose() {
+    _timer.dispose();
+    super.dispose();
+  }
+
+  void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _advanceFrom(_story.id);
+  }
+
+  /// The timer and a video's end both finish a story; only the first one advances.
+  void _advanceFrom(String storyId) {
+    if (mounted && _story.id == storyId) _next();
+  }
+
+  void _start() {
+    final story = _story;
+    _timer
+      ..duration = story.displayDuration
+      ..forward(from: 0);
+    final me = ref.read(currentUserIdProvider);
+    if (story.author.id != me && !story.seen && _seen.add(story.id)) {
+      ref.read(storyRepositoryProvider).markSeen(story.id).then((_) => ref.invalidate(storyTrayProvider));
+    }
+  }
+
+  void _close() => context.canPop() ? context.pop() : context.go(FeedRoutes.home);
+
+  void _next() {
+    if (_index >= widget.stories.length - 1) return _close();
+    setState(() => _index++);
+    _start();
+  }
+
+  void _previous() {
+    if (_index == 0) return _start();
+    setState(() => _index--);
+    _start();
+  }
+
+  Future<T?> _paused<T>(Future<T?> Function() action) async {
+    _timer.stop();
+    final result = await action();
+    if (mounted && _timer.status != AnimationStatus.completed) unawaited(_timer.forward());
+    return result;
+  }
+
+  Future<void> _showViewers() => _paused(() => showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (_) => _ViewersSheet(storyId: _story.id),
+      ));
+
+  Future<void> _menu() => _paused(() => showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheet) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.highlightId case final highlight?)
+                ListTile(
+                  leading: const Icon(Icons.remove_circle_outline),
+                  title: const Text('Öne çıkandan çıkar'),
+                  onTap: () async {
+                    Navigator.of(sheet).pop();
+                    final result = await ref.read(storyRepositoryProvider).removeFromHighlight(highlight, _story.id);
+                    if (!mounted) return;
+                    _snack(context, result is Ok ? 'Öne çıkandan çıkarıldı.' : userMessageOf((result as Err).failure));
+                    refreshStories(ref);
+                  },
+                )
+              else
+                ListTile(
+                  leading: const Icon(Icons.bookmark_add_outlined),
+                  title: const Text('Öne çıkanlara ekle'),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    unawaited(_paused(() => showModalBottomSheet<void>(
+                          context: context,
+                          showDragHandle: true,
+                          builder: (_) => AddToHighlightSheet(storyIds: [_story.id]),
+                        )));
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: GxColors.error),
+                title: const Text('Hikayeyi sil', style: TextStyle(color: GxColors.error)),
+                onTap: () async {
+                  Navigator.of(sheet).pop();
+                  final result = await ref.read(storyRepositoryProvider).delete(_story);
+                  if (!mounted) return;
+                  _snack(context, result is Ok ? 'Hikaye silindi.' : userMessageOf((result as Err).failure));
+                  refreshStories(ref);
+                  if (result is Ok) _close();
+                },
+              ),
+            ],
+          ),
+        ),
+      ));
+
+  @override
+  Widget build(BuildContext context) {
+    final story = _story;
+    final isOwner = story.author.id == ref.watch(currentUserIdProvider);
+    final textTheme = Theme.of(context).textTheme;
+    final onMedia = textTheme.labelLarge?.copyWith(color: GxColors.onMedia);
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _StoryMedia(story: story, onVideoFinished: () => _advanceFrom(story.id)),
+        // Left third goes back, the rest forward; holding pauses.
+        Row(
+          children: [
+            Expanded(child: GestureDetector(behavior: HitTestBehavior.translucent, onTap: _previous, onLongPressStart: (_) => _timer.stop(), onLongPressEnd: (_) => _timer.forward())),
+            Expanded(flex: 2, child: GestureDetector(behavior: HitTestBehavior.translucent, onTap: _next, onLongPressStart: (_) => _timer.stop(), onLongPressEnd: (_) => _timer.forward())),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [GxColors.mediaScrim, Color(0x00000000)]),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.xs, GxSpacing.xxs, GxSpacing.md),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < widget.stories.length; i++)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 1),
+                            child: AnimatedBuilder(
+                              animation: _timer,
+                              builder: (_, _) => LinearProgressIndicator(
+                                value: i < _index ? 1 : (i == _index ? _timer.value : 0),
+                                minHeight: 2,
+                                color: GxColors.onMedia,
+                                backgroundColor: GxColors.onMedia.withValues(alpha: 0.35),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: GxSpacing.xs),
+                  Row(
+                    children: [
+                      GxAvatar(name: story.author.displayName, shape: GxAvatarShape.user, imageUrl: story.author.avatarUrl, size: GxAvatarSize.sm),
+                      const SizedBox(width: GxSpacing.xs),
+                      Flexible(child: Text(story.author.username, style: onMedia, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                      const SizedBox(width: GxSpacing.xs),
+                      Text(formatAgoTr(story.createdAt), style: textTheme.labelMedium?.copyWith(color: GxColors.onMedia)),
+                      const Spacer(),
+                      if (isOwner)
+                        IconButton(tooltip: 'Seçenekler', color: GxColors.onMedia, icon: const Icon(Icons.more_horiz), onPressed: _menu),
+                      IconButton(tooltip: 'Kapat', color: GxColors.onMedia, icon: const Icon(Icons.close), onPressed: _close),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (isOwner)
+          Positioned(
+            left: GxSpacing.md,
+            bottom: GxSpacing.md,
+            child: TextButton.icon(
+              onPressed: _showViewers,
+              style: TextButton.styleFrom(foregroundColor: GxColors.onMedia, backgroundColor: GxColors.mediaScrim),
+              icon: const Icon(Icons.visibility_outlined, size: GxSpacing.md + GxSpacing.xxs),
+              label: const Text('Görenler'),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Fills the screen when the story is close to 9:16; otherwise fits it over a blurred copy.
+class _StoryMedia extends StatelessWidget {
+  const _StoryMedia({required this.story, required this.onVideoFinished});
+
+  final Story story;
+  final VoidCallback onVideoFinished;
+
+  @override
+  Widget build(BuildContext context) {
+    final media = story.media;
+    final fills = (media.aspectRatio / GxMedia.story - 1).abs() <= GxMedia.storyFitTolerance;
+    final fit = fills ? BoxFit.cover : BoxFit.contain;
+    final backdrop = media.previewUrl;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (!fills && backdrop != null)
+          ImageFiltered(
+            imageFilter: ui.ImageFilter.blur(sigmaX: GxMedia.backdropBlur, sigmaY: GxMedia.backdropBlur),
+            child: MediaImage(url: backdrop),
+          ),
+        if (!fills) const ColoredBox(color: GxColors.mediaScrim),
+        if (media.kind == MediaKind.image)
+          MediaImage(url: media.url, placeholderUrl: media.thumbUrl, fit: fit)
+        else
+          VideoView(key: ValueKey(story.id), url: media.url, posterUrl: media.posterUrl, autoplay: true, fit: fit, onFinished: onVideoFinished),
+      ],
+    );
+  }
+}
+
+class _ViewersSheet extends ConsumerWidget {
+  const _ViewersSheet({required this.storyId});
+
+  final String storyId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final viewers = ref.watch(storyViewersProvider(storyId));
+    final links = ref.read(feedLinksProvider);
+    // The sheet's default height limit applies; short lists stay short.
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: GxSpacing.xxl * 4),
+        child: switch (viewers) {
+          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+              icon: Icons.visibility_outlined,
+              message: 'Henüz kimse görmedi. Görenler burada yalnızca sana görünür.',
+              actionLabel: 'Yenile',
+              onAction: () => ref.invalidate(storyViewersProvider(storyId)),
+            ),
+          AsyncData(:final value) => ListView(
+              shrinkWrap: true,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+                  child: Text('${value.length} kişi gördü', style: Theme.of(context).textTheme.titleMedium),
+                ),
+                for (final v in value)
+                  ListTile(
+                    leading: GxAvatar(name: v.person.displayName, shape: GxAvatarShape.user, imageUrl: v.person.avatarUrl, size: GxAvatarSize.md),
+                    title: Text(v.person.username),
+                    subtitle: Text(v.person.displayName),
+                    trailing: Text(formatAgoTr(v.viewedAt)),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      links.openProfile(context, v.person.username);
+                    },
+                  ),
+              ],
+            ),
+          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyViewersProvider(storyId))),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
+    );
+  }
+}
+
+/// Picks one photo or video and shares it for 24 hours.
+class NewStoryScreen extends ConsumerStatefulWidget {
+  const NewStoryScreen({super.key});
+
+  @override
+  ConsumerState<NewStoryScreen> createState() => _NewStoryScreenState();
+}
+
+class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
+  NewMedia? _media;
+  CropFrame _frame = const CropFrame();
+  bool _picking = false;
+  bool _sharing = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _pick());
+  }
+
+  Future<void> _pick() async {
+    setState(() => _picking = true);
+    try {
+      final picked = await pickMedia(multiple: false);
+      if (!mounted || picked.isEmpty) return;
+      setState(() {
+        _media = picked.first;
+        _frame = const CropFrame();
+        _error = picked.first.kind == MediaKind.video ? picked.first.problem : null;
+      });
+    } on Object {
+      if (mounted) setState(() => _error = 'Seçilen dosya açılamadı. Başka bir fotoğraf ya da video dene.');
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
+
+  Future<void> _share() async {
+    final media = _media;
+    if (media == null) return;
+    setState(() {
+      _sharing = true;
+      _error = null;
+    });
+    final NewMedia prepared;
+    try {
+      prepared = media.kind == MediaKind.video
+          ? media
+          : await renderPhoto(media, _frame.rectIn(Size(media.width.toDouble(), media.height.toDouble()), GxMedia.story),
+              maxSide: GxMedia.storyMaxSide);
+    } on Object {
+      if (mounted) {
+        setState(() {
+          _sharing = false;
+          _error = 'Fotoğraf hazırlanamadı. Başka bir fotoğraf dene.';
+        });
+      }
+      return;
+    }
+    final result = await ref.read(storyRepositoryProvider).create(prepared);
+    if (!mounted) return;
+    setState(() => _sharing = false);
+    switch (result) {
+      case Ok():
+        refreshStories(ref);
+        _snack(context, 'Hikayen paylaşıldı. 24 saat görünür.');
+        context.pop();
+      case Err(:final failure):
+        setState(() => _error = failure.userMessage);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final media = _media;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Yeni hikaye'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: GxSpacing.sm),
+            child: GxButton(
+              label: 'Hikayene ekle',
+              isLoading: _sharing,
+              onPressed: media == null || (media.kind == MediaKind.video && media.problem != null) ? null : _share,
+            ),
+          ),
+        ],
+      ),
+      body: GxReadingColumn(
+        maxWidth: GxLayout.feedMaxWidth,
+        child: ListView(
+          padding: const EdgeInsets.all(GxSpacing.md),
+          children: [
+            if (_error case final error?) ...[GxFormMessage(error), const SizedBox(height: GxSpacing.sm)],
+            if (media == null)
+              _picking
+                  ? const AspectRatio(aspectRatio: GxMedia.story, child: GxSkeleton(height: double.infinity, borderRadius: GxRadius.lgAll))
+                  : GxEmptyState(
+                      icon: Icons.history_toggle_off,
+                      message: 'Hikayen için bir fotoğraf ya da 60 saniyeye kadar video seç.',
+                      actionLabel: 'Galeriden seç',
+                      onAction: _pick,
+                    )
+            else ...[
+              ClipRRect(
+                borderRadius: GxRadius.lgAll,
+                child: IgnorePointer(
+                  ignoring: _sharing,
+                  child: CropEditor(media: media, ratio: GxMedia.story, frame: _frame, onChanged: (f) => setState(() => _frame = f)),
+                ),
+              ),
+              const SizedBox(height: GxSpacing.sm),
+              GxButton(label: 'Başka seç', variant: GxButtonVariant.secondary, onPressed: _sharing ? null : _pick),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Adds stories to one of the user's highlights or to a new one.
+class AddToHighlightSheet extends ConsumerWidget {
+  const AddToHighlightSheet({super.key, required this.storyIds});
+
+  final List<String> storyIds;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final me = ref.watch(currentUserIdProvider);
+    final highlights = me == null ? const <Highlight>[] : ref.watch(highlightsProvider(me)).value ?? const <Highlight>[];
+    return SafeArea(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ListTile(
+            leading: const CircleAvatar(backgroundColor: GxColors.surfaceMuted, child: Icon(Icons.add, color: GxColors.textPrimary)),
+            title: const Text('Yeni öne çıkan'),
+            onTap: () async {
+              final title = await askHighlightTitle(context);
+              if (title == null || !context.mounted) return;
+              final result = await ref.read(storyRepositoryProvider).createHighlight(title, storyIds);
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+              _snack(context, result is Ok ? '"$title" oluşturuldu.' : userMessageOf((result as Err).failure));
+              refreshStories(ref);
+            },
+          ),
+          for (final h in highlights)
+            ListTile(
+              leading: _HighlightCover(highlight: h, size: GxSpacing.xxl - GxSpacing.xs),
+              title: Text(h.title),
+              subtitle: Text('${h.storyCount} hikaye'),
+              onTap: () async {
+                final result = await ref.read(storyRepositoryProvider).addToHighlight(h.id, storyIds);
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
+                _snack(context, result is Ok ? '"${h.title}" öne çıkanına eklendi.' : userMessageOf((result as Err).failure));
+                refreshStories(ref);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<String?> askHighlightTitle(BuildContext context, {String initial = ''}) {
+  final controller = TextEditingController(text: initial);
+  return showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      title: const Text('Öne çıkan başlığı'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        maxLength: 30,
+        decoration: const InputDecoration(hintText: 'Ör. Kamp 2026'),
+      ),
+      actions: [
+        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GxButton(
+          label: 'Kaydet',
+          onPressed: () {
+            final t = controller.text.trim();
+            if (t.isNotEmpty) Navigator.of(context).pop(t);
+          },
+        ),
+      ],
+    ),
+  ).whenComplete(controller.dispose);
+}
+
+class _HighlightCover extends StatelessWidget {
+  const _HighlightCover({required this.highlight, required this.size});
+
+  final Highlight highlight;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(GxBorders.ringWidth),
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
+        child: ClipOval(
+          child: SizedBox.square(
+            dimension: size,
+            child: highlight.cover == null
+                ? const ColoredBox(color: GxColors.surfaceMuted, child: Icon(Icons.collections_bookmark_outlined, color: GxColors.textSecondary))
+                : MediaThumb(media: highlight.cover!),
+          ),
+        ),
+      );
+}
+
+/// Highlights on a profile; on your own, a "Yeni" circle leads to the archive.
+class HighlightsRow extends ConsumerWidget {
+  const HighlightsRow({super.key, required this.userId, required this.isOwn});
+
+  final String userId;
+  final bool isOwn;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final highlights = ref.watch(highlightsProvider(userId)).value ?? const <Highlight>[];
+    final visible = [for (final h in highlights) if (h.storyCount > 0 || isOwn) h];
+    if (visible.isEmpty && !isOwn) return const SizedBox.shrink();
+    final textTheme = Theme.of(context).textTheme;
+    Widget item({required Widget cover, required String label, required VoidCallback onTap, VoidCallback? onLongPress}) => InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: GxRadius.mdAll,
+          child: SizedBox(
+            width: GxSpacing.xxl + GxSpacing.lg + GxSpacing.xs,
+            child: Column(
+              children: [
+                cover,
+                const SizedBox(height: GxSpacing.xxs),
+                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
+              ],
+            ),
+          ),
+        );
+    return SizedBox(
+      height: GxSpacing.xxl * 2 + GxSpacing.md,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xs),
+        children: [
+          for (final h in visible)
+            item(
+              cover: _HighlightCover(highlight: h, size: GxAvatarSize.lg.dimension),
+              label: h.title,
+              onTap: () => h.storyCount == 0 ? context.push(FeedRoutes.archive) : context.push(FeedRoutes.highlight(h.id)),
+              onLongPress: isOwn ? () => _manage(context, ref, h) : null,
+            ),
+          if (isOwn)
+            item(
+              cover: Container(
+                width: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
+                height: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
+                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
+                child: const Icon(Icons.add),
+              ),
+              label: 'Yeni',
+              onTap: () => context.push(FeedRoutes.archive),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _manage(BuildContext context, WidgetRef ref, Highlight h) => showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheet) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Başlığı değiştir'),
+                onTap: () async {
+                  Navigator.of(sheet).pop();
+                  final title = await askHighlightTitle(context, initial: h.title);
+                  if (title == null || !context.mounted) return;
+                  final result = await ref.read(storyRepositoryProvider).renameHighlight(h.id, title);
+                  if (result case Err(:final failure) when context.mounted) _snack(context, failure.userMessage);
+                  refreshStories(ref);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: GxColors.error),
+                title: const Text('Öne çıkanı sil', style: TextStyle(color: GxColors.error)),
+                subtitle: const Text('Hikayeler arşivinde kalır.'),
+                onTap: () async {
+                  Navigator.of(sheet).pop();
+                  final result = await ref.read(storyRepositoryProvider).deleteHighlight(h.id);
+                  if (result case Err(:final failure) when context.mounted) _snack(context, failure.userMessage);
+                  refreshStories(ref);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+/// All of your stories (also expired); select some to make a highlight.
+class StoryArchiveScreen extends ConsumerStatefulWidget {
+  const StoryArchiveScreen({super.key});
+
+  @override
+  ConsumerState<StoryArchiveScreen> createState() => _StoryArchiveScreenState();
+}
+
+class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
+  final _selected = <String>{};
+
+  Future<void> _addSelected() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => AddToHighlightSheet(storyIds: _selected.toList()),
+    );
+    if (mounted) setState(_selected.clear);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final archive = ref.watch(storyArchiveProvider);
+    final now = DateTime.now();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_selected.isEmpty ? 'Hikaye arşivi' : '${_selected.length} hikaye seçildi'),
+        actions: [
+          if (_selected.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: GxSpacing.sm),
+              child: GxButton(label: 'Öne çıkar', onPressed: _addSelected),
+            ),
+        ],
+      ),
+      body: GxReadingColumn(
+        child: switch (archive) {
+          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+              icon: Icons.history_toggle_off,
+              message: 'Paylaştığın hikayeler 24 saat sonra burada, yalnızca sana görünür şekilde saklanır.',
+              actionLabel: 'Hikaye paylaş',
+              onAction: () => context.push(FeedRoutes.newStory),
+            ),
+          AsyncData(:final value) => Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(GxSpacing.md),
+                  child: Text('Öne çıkan oluşturmak ya da var olana eklemek için hikayeleri seç.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: GxMedia.gridColumns,
+                      childAspectRatio: GxMedia.story,
+                      mainAxisSpacing: GxMedia.gridGap,
+                      crossAxisSpacing: GxMedia.gridGap,
+                    ),
+                    itemCount: value.length,
+                    itemBuilder: (context, i) {
+                      final s = value[i];
+                      final selected = _selected.contains(s.id);
+                      return Semantics(
+                        selected: selected,
+                        button: true,
+                        label: 'Hikaye, ${formatDateTr(s.createdAt)}',
+                        child: InkWell(
+                          onTap: () => setState(() => selected ? _selected.remove(s.id) : _selected.add(s.id)),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              MediaThumb(media: s.media),
+                              Positioned(
+                                left: GxSpacing.xxs,
+                                bottom: GxSpacing.xxs,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs, vertical: 2),
+                                  decoration: const BoxDecoration(color: GxColors.mediaScrim, borderRadius: GxRadius.smAll),
+                                  child: Text(
+                                    s.isActive(now) ? 'Yayında' : formatDateTr(s.createdAt),
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.onMedia),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: GxSpacing.xxs,
+                                top: GxSpacing.xxs,
+                                child: Icon(
+                                  selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+                                  color: selected ? GxColors.primary : GxColors.onMedia,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyArchiveProvider)),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
+    );
+  }
+}

@@ -1,0 +1,298 @@
+import 'package:core/core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../domain/admin_billing.dart';
+import '../domain/admin_content.dart';
+import '../domain/admin_events.dart';
+import '../domain/admin_group.dart';
+import '../domain/admin_live.dart';
+import '../domain/admin_moderation.dart';
+import '../domain/admin_support.dart';
+import '../domain/admin_user.dart';
+
+class SupabaseStaffRepository implements StaffRepository {
+  SupabaseStaffRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Future<Result<StaffRole?>> myRole() async {
+    final id = _client.auth.currentUser?.id;
+    if (id == null) return const Err(UnauthorizedFailure());
+    try {
+      // RLS lets users read only their own staff row.
+      final row = await _client.from('platform_staff').select('role').eq('user_id', id).maybeSingle();
+      return Ok(StaffRole.tryParse(row?['role']));
+    } on Object catch (e) {
+      return Err(failureFromSupabase(e));
+    }
+  }
+}
+
+class ApiAdminUsersRepository implements AdminUsersRepository {
+  ApiAdminUsersRepository(this._api);
+
+  final ApiClient _api;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<UserPage>> search({String? query, AdminAccountStatus? status, int page = 1}) => _api.get(
+        '/admin/users',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'status': ?status?.code,
+          'page': '$page',
+        },
+        decode: (json) => UserPage.fromJson(_map(json), AdminUserSummary.fromJson),
+      );
+
+  @override
+  Future<Result<AdminUserStats>> stats() =>
+      _api.get('/admin/users/stats', decode: (json) => AdminUserStats.fromJson(_map(json)));
+
+  @override
+  Future<Result<AdminUserDetail>> get(String id) =>
+      _api.get('/admin/users/$id', decode: (json) => AdminUserDetail.fromJson(_map(json)));
+
+  @override
+  Future<Result<void>> suspend(String id, {required String reason, DateTime? until}) => _api.post(
+        '/admin/users/$id/suspension',
+        body: {'reason': reason, 'until': until?.toUtc().toIso8601String()},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> unsuspend(String id) => _api.delete('/admin/users/$id/suspension', decode: (_) {});
+}
+
+class ApiAdminGroupsRepository implements AdminGroupsRepository {
+  ApiAdminGroupsRepository(this._api);
+
+  final ApiClient _api;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<GroupPage>> search({String? query, AdminGroupStatus? status, int page = 1}) => _api.get(
+        '/admin/groups',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'status': ?status?.code,
+          'page': '$page',
+        },
+        decode: (json) => GroupPage.fromJson(_map(json), AdminGroupSummary.fromJson),
+      );
+
+  @override
+  Future<Result<AdminGroupStats>> stats() =>
+      _api.get('/admin/groups/stats', decode: (json) => AdminGroupStats.fromJson(_map(json)));
+
+  @override
+  Future<Result<AdminGroupDetail>> get(String id) =>
+      _api.get('/admin/groups/$id', decode: (json) => AdminGroupDetail.fromJson(_map(json)));
+
+  @override
+  Future<Result<void>> suspend(String id, {required String reason}) =>
+      _api.post('/admin/groups/$id/suspension', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> unsuspend(String id) => _api.delete('/admin/groups/$id/suspension', decode: (_) {});
+}
+
+class ApiAdminBillingRepository implements AdminBillingRepository {
+  ApiAdminBillingRepository(this._api);
+
+  final ApiClient _api;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<AdminBillingStats>> stats() =>
+      _api.get('/admin/billing/stats', decode: (json) => AdminBillingStats.fromJson(_map(json)));
+
+  @override
+  Future<Result<OrderPage>> orders({String? query, AdminOrderStatus? status, String? provider, int page = 1}) => _api.get(
+        '/admin/billing/orders',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'status': ?status?.code,
+          'provider': ?provider,
+          'page': '$page',
+        },
+        decode: (json) => OrderPage.fromJson(_map(json), AdminOrder.fromJson),
+      );
+
+  @override
+  Future<Result<SubscriptionPage>> subscriptions({String? query, int page = 1}) => _api.get(
+        '/admin/billing/subscriptions',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'page': '$page',
+        },
+        decode: (json) => SubscriptionPage.fromJson(_map(json), AdminSubscription.fromJson),
+      );
+
+  @override
+  Future<Result<List<AdminPlan>>> plans() => _api.get(
+        '/admin/plans',
+        decode: (json) => [for (final p in (json! as List).cast<Map<String, Object?>>()) AdminPlan.fromJson(p)],
+      );
+
+  @override
+  Future<Result<void>> updatePlan(String slug, AdminPlanUpdate update) =>
+      _api.put('/admin/plans/$slug', body: update.toJson(), decode: (_) {});
+
+  @override
+  Future<Result<void>> cancelSubscription(String id, {required String reason, required bool refunded}) => _api.post(
+        '/admin/subscriptions/$id/cancellation',
+        body: {'reason': reason, 'refunded': refunded},
+        decode: (_) {},
+      );
+}
+
+class ApiAdminContentRepository implements AdminContentRepository {
+  ApiAdminContentRepository(this._api);
+
+  final ApiClient _api;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<PostPage>> search({String? query, AdminContentFilter? filter, int page = 1}) => _api.get(
+        '/admin/posts',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'removed': ?filter?.isRemoved.toString(),
+          'page': '$page',
+        },
+        decode: (json) => PostPage.fromJson(_map(json), AdminPostSummary.fromJson),
+      );
+
+  @override
+  Future<Result<AdminPostDetail>> get(String id) =>
+      _api.get('/admin/posts/$id', decode: (json) => AdminPostDetail.fromJson(_map(json)));
+
+  @override
+  Future<Result<void>> removePost(String id, {required String reason}) =>
+      _api.post('/admin/posts/$id/removal', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> restorePost(String id) => _api.delete('/admin/posts/$id/removal', decode: (_) {});
+
+  @override
+  Future<Result<void>> removeComment(String id, {required String reason}) =>
+      _api.post('/admin/comments/$id/removal', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminEventsRepository implements AdminEventsRepository {
+  ApiAdminEventsRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<AdminEventPage>> search({String? query, AdminEventStatus? status, int page = 1}) => _api.get(
+        '/admin/events',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'status': ?status?.code,
+          'page': '$page',
+        },
+        decode: (json) => AdminEventPage.fromJson((json! as Map).cast(), AdminEvent.fromJson),
+      );
+
+  @override
+  Future<Result<void>> cancel(String id, {required String reason}) =>
+      _api.post('/admin/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminModerationRepository implements AdminModerationRepository {
+  ApiAdminModerationRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<AdminReportPage>> reports({AdminReportScope? scope, AdminReportStatus? status, int page = 1}) => _api.get(
+        '/admin/reports',
+        query: {'scope': ?scope?.code, 'status': ?status?.code, 'page': '$page'},
+        decode: (json) => AdminReportPage.fromJson((json! as Map).cast(), AdminReport.fromJson),
+      );
+
+  @override
+  Future<Result<void>> review(String reportId, {required bool actioned}) =>
+      _api.post('/admin/reports/$reportId/${actioned ? 'resolution' : 'dismissal'}', decode: (_) {});
+
+  @override
+  Future<Result<AdminAppealPage>> appeals({AdminAppealStatus? status, int page = 1}) => _api.get(
+        '/admin/appeals',
+        query: {'status': ?status?.code, 'page': '$page'},
+        decode: (json) => AdminAppealPage.fromJson((json! as Map).cast(), AdminAppeal.fromJson),
+      );
+
+  @override
+  Future<Result<void>> decideAppeal(String appealId, {required bool overturn, required String note}) =>
+      _api.post('/admin/appeals/$appealId/decision', body: {'overturn': overturn, 'note': note}, decode: (_) {});
+}
+
+class ApiAdminLiveRepository implements AdminLiveRepository {
+  ApiAdminLiveRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<BroadcastPage>> search({required bool ended, int page = 1}) => _api.get(
+        '/admin/live',
+        query: {'status': ended ? 'ended' : 'live', 'page': '$page'},
+        decode: (json) => BroadcastPage.fromJson((json! as Map).cast(), AdminBroadcast.fromJson),
+      );
+
+  @override
+  Future<Result<void>> end(String id, {required String reason}) =>
+      _api.post('/admin/live/$id/end', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminSupportRepository implements AdminSupportRepository {
+  ApiAdminSupportRepository(this._api, this._client);
+
+  final ApiClient _api;
+  final SupabaseClient _client;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<AdminSupportStats>> stats() =>
+      _api.get('/admin/support/stats', decode: (json) => AdminSupportStats.fromJson(_map(json)));
+
+  @override
+  Future<Result<TicketPage>> search({String? query, AdminSupportKind? kind, AdminSupportStatus? status, int page = 1}) => _api.get(
+        '/admin/support/tickets',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'kind': ?kind?.code,
+          'status': ?status?.code,
+          'page': '$page',
+        },
+        decode: (json) => TicketPage.fromJson(_map(json), AdminTicket.fromJson),
+      );
+
+  @override
+  Future<Result<AdminTicketDetail>> get(String id) =>
+      _api.get('/admin/support/tickets/$id', decode: (json) => AdminTicketDetail.fromJson(_map(json)));
+
+  @override
+  Future<Result<void>> reply(String id, String body) =>
+      _api.post('/admin/support/tickets/$id/messages', body: {'body': body}, decode: (_) {});
+
+  @override
+  Future<Result<void>> setStatus(String id, AdminSupportStatus status) =>
+      _api.put('/admin/support/tickets/$id/status', body: {'status': status.code}, decode: (_) {});
+
+  @override
+  Future<Result<String>> attachmentUrl(String path) async {
+    try {
+      return Ok(await _client.storage.from('support-attachments').createSignedUrl(path, const Duration(minutes: 30).inSeconds));
+    } on Object catch (e) {
+      return Err(failureFromSupabase(e));
+    }
+  }
+}

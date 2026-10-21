@@ -1,0 +1,355 @@
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../domain/post.dart';
+import 'providers.dart';
+import 'rich_text.dart';
+import 'routes.dart';
+
+/// Comments of a post with one level of replies.
+class CommentsScreen extends ConsumerStatefulWidget {
+  const CommentsScreen({super.key, required this.postId});
+
+  final String postId;
+
+  @override
+  ConsumerState<CommentsScreen> createState() => _CommentsScreenState();
+}
+
+class _CommentsScreenState extends ConsumerState<CommentsScreen> {
+  final _text = TextEditingController();
+  final _focus = FocusNode();
+  Comment? _replyTo;
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _reply(Comment c) {
+    setState(() => _replyTo = c);
+    _text
+      ..text = '@${c.author.username} '
+      ..selection = TextSelection.collapsed(offset: c.author.username.length + 2);
+    _focus.requestFocus();
+  }
+
+  Future<void> _send(Post post) async {
+    final body = _text.text.trim();
+    if (body.isEmpty) return;
+    setState(() => _sending = true);
+    final result = await ref.read(feedRepositoryProvider).addComment(widget.postId, body, replyTo: _replyTo?.id);
+    if (!mounted) return;
+    setState(() => _sending = false);
+    switch (result) {
+      case Ok():
+        _text.clear();
+        setState(() => _replyTo = null);
+        ref.read(postEditsProvider.notifier).put(post.copyWith(commentCount: post.commentCount + 1));
+        ref.invalidate(commentsProvider(widget.postId));
+      case Err(:final failure):
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loaded = ref.watch(postProvider(widget.postId));
+    final post = switch (loaded.value) {
+      final p? => watchPost(ref, p),
+      null => null,
+    };
+    final comments = ref.watch(commentsProvider(widget.postId));
+    final me = ref.watch(currentUserIdProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Yorumlar')),
+      body: GxReadingColumn(
+        maxWidth: GxLayout.feedMaxWidth,
+        child: Column(
+          children: [
+            Expanded(
+              child: switch (comments) {
+                AsyncData(:final value) when value.isEmpty => GxEmptyState(
+                    icon: Icons.mode_comment_outlined,
+                    message: post?.commentsDisabled == true ? 'Bu gönderide yorumlar kapalı.' : 'Henüz yorum yok. İlk yorumu sen yaz.',
+                    actionLabel: post?.commentsDisabled == true ? 'Geri dön' : 'Yorum yaz',
+                    onAction: post?.commentsDisabled == true ? () => Navigator.of(context).maybePop() : _focus.requestFocus,
+                  ),
+                AsyncData(:final value) => RefreshIndicator(
+                    onRefresh: () => ref.refresh(commentsProvider(widget.postId).future),
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(vertical: GxSpacing.xs),
+                      children: [
+                        if (post != null && post.caption.isNotEmpty) ...[
+                          _CaptionRow(post: post),
+                          const Divider(),
+                        ],
+                        for (final c in value) ...[
+                          _CommentRow(
+                            comment: c,
+                            canDelete: c.author.id == me || (post?.canManage ?? false),
+                            onReply: post?.commentsDisabled == true ? null : () => _reply(c),
+                            post: post,
+                          ),
+                          for (final r in c.replies)
+                            Padding(
+                              padding: const EdgeInsets.only(left: GxSpacing.xxl),
+                              child: _CommentRow(
+                                comment: r,
+                                canDelete: r.author.id == me || (post?.canManage ?? false),
+                                onReply: post?.commentsDisabled == true ? null : () => _reply(c),
+                                post: post,
+                              ),
+                            ),
+                        ],
+                      ],
+                    ),
+                  ),
+                AsyncError(:final error) =>
+                  GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(commentsProvider(widget.postId))),
+                _ => const Center(child: CircularProgressIndicator()),
+              },
+            ),
+            if (post != null && !post.commentsDisabled) _composer(post),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _composer(Post post) {
+    final textTheme = Theme.of(context).textTheme;
+    return DecoratedBox(
+      decoration: const BoxDecoration(border: Border(top: GxBorders.hairline), color: GxColors.background),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xs, GxSpacing.xs),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_replyTo case final reply?)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('@${reply.author.username} kullanıcısına yanıt veriyorsun',
+                          style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                    ),
+                    IconButton(
+                      tooltip: 'Yanıtı iptal et',
+                      icon: const Icon(Icons.close, size: GxSpacing.md),
+                      onPressed: () => setState(() {
+                        _replyTo = null;
+                        _text.clear();
+                      }),
+                    ),
+                  ],
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _text,
+                      focusNode: _focus,
+                      minLines: 1,
+                      maxLines: 4,
+                      maxLength: NewPost.maxCaption,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(hintText: 'Yorum ekle…', counterText: '', isDense: true),
+                      onSubmitted: (_) => _send(post),
+                    ),
+                  ),
+                  const SizedBox(width: GxSpacing.xs),
+                  TextButton(onPressed: _sending ? null : () => _send(post), child: const Text('Paylaş')),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CaptionRow extends ConsumerWidget {
+  const _CaptionRow({required this.post});
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final links = ref.read(feedLinksProvider);
+    final group = post.group;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GxAvatar(
+            name: group?.name ?? post.author?.displayName ?? '?',
+            shape: group == null ? GxAvatarShape.user : GxAvatarShape.group,
+            imageUrl: group?.logoUrl ?? post.author?.avatarUrl,
+            size: GxAvatarSize.sm,
+          ),
+          const SizedBox(width: GxSpacing.sm),
+          Expanded(
+            child: FeedRichText(
+              text: post.caption,
+              lead: group?.name ?? post.author?.username,
+              onLeadTap: () => group != null
+                  ? links.openGroup(context, group.handle)
+                  : post.author == null
+                      ? null
+                      : links.openProfile(context, post.author!.username),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommentRow extends ConsumerStatefulWidget {
+  const _CommentRow({required this.comment, required this.canDelete, required this.onReply, required this.post});
+
+  final Comment comment;
+  final bool canDelete;
+  final VoidCallback? onReply;
+  final Post? post;
+
+  @override
+  ConsumerState<_CommentRow> createState() => _CommentRowState();
+}
+
+class _CommentRowState extends ConsumerState<_CommentRow> {
+  late bool _liked = widget.comment.liked;
+  late int _likes = widget.comment.likeCount;
+
+  @override
+  void didUpdateWidget(_CommentRow old) {
+    super.didUpdateWidget(old);
+    if (old.comment != widget.comment) {
+      _liked = widget.comment.liked;
+      _likes = widget.comment.likeCount;
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    final liked = !_liked;
+    setState(() {
+      _liked = liked;
+      _likes += liked ? 1 : -1;
+    });
+    final result = await ref.read(feedRepositoryProvider).setCommentLiked(widget.comment.id, liked);
+    if (!mounted) return;
+    if (result case Err(:final failure)) {
+      setState(() {
+        _liked = !liked;
+        _likes += liked ? -1 : 1;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+  }
+
+  Future<void> _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        title: const Text('Yorum silinsin mi?'),
+        content: const Text('Yorum ve yanıtları kalıcı olarak silinir.'),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GxButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final result = await ref.read(feedRepositoryProvider).deleteComment(widget.comment.id);
+    if (!mounted) return;
+    switch (result) {
+      case Ok():
+        if (widget.post case final post?) {
+          final removed = 1 + widget.comment.replies.length;
+          ref.read(postEditsProvider.notifier).put(post.copyWith(commentCount: (post.commentCount - removed).clamp(0, 1 << 30)));
+        }
+        ref.invalidate(commentsProvider(widget.comment.postId));
+      case Err(:final failure):
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.comment;
+    final textTheme = Theme.of(context).textTheme;
+    final muted = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary);
+    final links = ref.read(feedLinksProvider);
+    return InkWell(
+      onLongPress: widget.canDelete ? _delete : null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xxs, GxSpacing.xs),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: () => links.openProfile(context, c.author.username),
+              customBorder: const CircleBorder(),
+              child: GxAvatar(name: c.author.displayName, shape: GxAvatarShape.user, imageUrl: c.author.avatarUrl, size: GxAvatarSize.sm),
+            ),
+            const SizedBox(width: GxSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FeedRichText(text: c.body, lead: c.author.username, onLeadTap: () => links.openProfile(context, c.author.username)),
+                  Wrap(
+                    spacing: GxSpacing.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(formatAgoTr(c.createdAt), style: muted),
+                      if (_likes > 0) Text('$_likes beğenme', style: muted),
+                      if (widget.onReply != null)
+                        TextButton(
+                          onPressed: widget.onReply,
+                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          child: const Text('Yanıtla'),
+                        ),
+                      if (widget.canDelete)
+                        TextButton(
+                          onPressed: _delete,
+                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          child: const Text('Sil'),
+                        ),
+                      if (c.author.id != ref.read(currentUserIdProvider))
+                        TextButton(
+                          onPressed: () => ref.read(reportLauncherProvider)(context, ReportTarget.comment(c.id)),
+                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          child: const Text('Şikayet et'),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: _liked ? 'Beğenmekten vazgeç' : 'Yorumu beğen',
+              onPressed: _toggleLike,
+              icon: Icon(
+                _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                size: GxSpacing.md,
+                color: _liked ? GxColors.like : GxColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

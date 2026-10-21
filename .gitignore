@@ -1,0 +1,23 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+backend/**/TestResults/
+*.user
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+supabase/signing_keys.json
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker Desktop data (not project files)
+DockerDesktopWSL/
