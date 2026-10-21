@@ -12,6 +12,7 @@ export 'src/presentation/admin_shell.dart' show AdminShell;
 export 'src/presentation/billing_screen.dart';
 export 'src/presentation/content_screens.dart';
 export 'src/presentation/events_screen.dart';
+export 'src/presentation/goals_screen.dart';
 export 'src/presentation/group_detail_screen.dart';
 export 'src/presentation/groups_screen.dart';
 export 'src/presentation/live_screen.dart';

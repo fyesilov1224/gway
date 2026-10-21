@@ -131,4 +131,15 @@ void main() {
     expect(repo.saved.single.reminderDay, isTrue);
     expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, '1 saat önce hatırlat')).value, isFalse);
   });
+  test('a completed goal names it', () {
+    final n = AppNotification(
+      id: 3,
+      type: NotificationType.goalCompleted,
+      actor: const NotificationActor(id: 'u1', username: 'sahip', displayName: 'Sahip'),
+      createdAt: DateTime(2026),
+      goalId: 'q1',
+      goalTitle: 'Ekim yürüyüşleri',
+    );
+    expect(n.action, '"Ekim yürüyüşleri" hedefini tamamladın! Rozetin profilinde.');
+  });
 }

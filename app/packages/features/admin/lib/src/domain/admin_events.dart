@@ -81,9 +81,83 @@ class AdminEvent {
 
 typedef AdminEventPage = PagedList<AdminEvent>;
 
+enum AdminGoalStatus {
+  running('running', 'Süren'),
+  ended('ended', 'Biten'),
+  canceled('canceled', 'İptal edilen');
+
+  const AdminGoalStatus(this.code, this.label);
+
+  final String code;
+  final String label;
+}
+
+const goalKindLabels = {'personal': 'Kişisel', 'group': 'Grup', 'team': 'Takım', 'task': 'Onaylı görev'};
+const goalMetricLabels = {'attended': 'katılım', 'organized': 'düzenleme', 'memories': 'anı'};
+
+/// A group's goal (docs/ARCHITECTURE.md §3d, Hedefler ve görevler).
+class AdminGoal {
+  const AdminGoal({
+    required this.id,
+    required this.title,
+    required this.kind,
+    required this.groupId,
+    required this.groupName,
+    required this.groupHandle,
+    required this.startsAt,
+    required this.endsAt,
+    required this.completions,
+    this.metric,
+    this.target,
+    this.canceledAt,
+  });
+
+  factory AdminGoal.fromJson(Map<String, Object?> j) => AdminGoal(
+        id: j['id']! as String,
+        title: j['title']! as String,
+        kind: j['kind']! as String,
+        metric: j['metric'] as String?,
+        target: j['target'] as int?,
+        groupId: j['groupId']! as String,
+        groupName: j['groupName']! as String,
+        groupHandle: j['groupHandle']! as String,
+        startsAt: DateTime.parse(j['startsAt']! as String),
+        endsAt: DateTime.parse(j['endsAt']! as String),
+        canceledAt: j['canceledAt'] == null ? null : DateTime.parse(j['canceledAt']! as String),
+        completions: j['completions']! as int,
+      );
+
+  final String id;
+  final String title;
+  final String kind;
+  final String? metric;
+  final int? target;
+  final String groupId;
+  final String groupName;
+  final String groupHandle;
+  final DateTime startsAt;
+  final DateTime endsAt;
+  final DateTime? canceledAt;
+  final int completions;
+
+  bool get isRunning => canceledAt == null && endsAt.isAfter(DateTime.now());
+
+  String get summary => [
+        goalKindLabels[kind] ?? kind,
+        if (target != null) '$target ${goalMetricLabels[metric] ?? ''}',
+        '$completions tamamlayan',
+      ].join(' · ');
+}
+
+typedef AdminGoalPage = PagedList<AdminGoal>;
+
 abstract interface class AdminEventsRepository {
   Future<Result<AdminEventPage>> search({String? query, AdminEventStatus? status, int page = 1});
 
   /// Cancels for everyone; attendees are notified.
   Future<Result<void>> cancel(String id, {required String reason});
+
+  Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1});
+
+  Future<Result<void>> cancelGoal(String id);
 }

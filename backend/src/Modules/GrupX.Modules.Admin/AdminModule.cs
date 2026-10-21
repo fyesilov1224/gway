@@ -47,6 +47,7 @@ public static class AdminModule
         services.AddSingleton<AdminLive>();
         services.AddSingleton<AdminEvents>();
         services.AddSingleton<AdminModeration>();
+        services.AddSingleton<AdminGoals>();
         return services;
     }
 
@@ -200,6 +201,14 @@ public static class AdminModule
         content.MapPost("/events/{id:guid}/cancellation", async (
                 Guid id, CancelAdminEventRequest body, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
                 (await events.CancelAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapGet("/goals", async (string? status, int? page, AdminGoals admin, CancellationToken ct) =>
+                TypedResults.Ok(await admin.SearchAsync(status, page ?? 1, ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapPost("/goals/{id:guid}/cancellation", async (Guid id, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
+                (await events.CancelGoalAsync(user.GetUserId(), id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapGet("/reports", async (string? scope, string? status, string? type, int? page, AdminModeration admin, CancellationToken ct) =>

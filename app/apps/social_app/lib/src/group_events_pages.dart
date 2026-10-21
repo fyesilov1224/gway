@@ -29,6 +29,10 @@ Widget profileContributionsSection(BuildContext context, Profile profile, bool i
 Widget groupEventsSection(BuildContext context, Group group, MyMembership me) =>
     GroupEventsSection(groupId: group.id, canManage: me.can(GroupPermission.manageEvents) && !group.isSuspended);
 
+/// The group's goals; events.manage holders (owner, Yönetici) open them.
+Widget groupGoalsSection(BuildContext context, Group group, MyMembership me) =>
+    GroupGoalsSection(groupId: group.id, canManage: me.can(GroupPermission.manageEvents) && !group.isSuspended);
+
 /// The group's polls; members only.
 Widget groupPollsSection(BuildContext context, Group group, MyMembership me) {
   if (!me.isMember) return const SizedBox.shrink();

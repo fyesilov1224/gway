@@ -363,6 +363,13 @@ final _adminEvent = AdminEvent(
 /// Records event cancellations.
 class _FakeEvents implements AdminEventsRepository {
   final canceled = <(String, String)>[];
+  final canceledGoals = <String>[];
+
+  @override
+  Future<Result<void>> cancelGoal(String id) async {
+    canceledGoals.add(id);
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> cancel(String id, {required String reason}) async {
@@ -435,6 +442,15 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         adminLiveRepositoryProvider.overrideWithValue(_live),
         adminEventsRepositoryProvider.overrideWithValue(_events),
         adminModerationRepositoryProvider.overrideWithValue(_moderation),
+        adminGoalSearchProvider.overrideWith(
+          (ref, search) async => AdminGoalPage(items: [
+            AdminGoal(
+              id: 'q1', title: 'Ekim yürüyüşleri', kind: 'group', metric: 'attended', target: 50, groupId: 'g1',
+              groupName: 'Doğa Yürüyüşçüleri', groupHandle: 'doga.yuruyus', startsAt: DateTime(2026, 10, 1),
+              endsAt: DateTime.now().add(const Duration(days: 10)), completions: 7,
+            ),
+          ], total: 1, page: 1, pageSize: 20),
+        ),
         adminReportSearchProvider.overrideWith(
           (ref, search) async => AdminReportPage(items: [_report], total: 1, page: 1, pageSize: 20),
         ),
@@ -784,5 +800,14 @@ void main() {
 
     await _pumpAt(tester, const Size(390, 844), const UsersScreen());
     expect(find.text('E-POSTA'), findsNothing);
+  });
+  testWidgets('moderators cancel a goal', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminGoalsScreen(), role: StaffRole.moderator);
+    expect(find.textContaining('Grup · 50 katılım · 7 tamamlayan'), findsOneWidget);
+    await tester.tap(find.widgetWithText(GxButton, 'İptal et'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
+    await tester.pumpAndSettle();
+    expect(_events.canceledGoals, ['q1']);
   });
 }

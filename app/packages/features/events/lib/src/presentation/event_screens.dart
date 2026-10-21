@@ -291,30 +291,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
   }
 
   Future<void> _cancel(GroupEvent e) async {
-    final reason = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
-        title: const Text('Organizasyonu iptal et'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.'),
-            const SizedBox(height: GxSpacing.sm),
-            TextField(controller: reason, maxLength: 500, decoration: const InputDecoration(labelText: 'Gerekçe')),
-          ],
-        ),
-        actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(true)),
-        ],
-      ),
-    );
-    final text = reason.text;
-    reason.dispose();
-    if (confirmed != true) return;
+    final text = await showDialog<String>(context: context, builder: (_) => const _CancelDialog());
+    if (text == null) return;
     await _run((r) => r.cancel(e.id, reason: text), done: 'Organizasyon iptal edildi.');
     ref.invalidate(groupEventsProvider(e.group.id));
   }
@@ -1154,4 +1132,41 @@ class _NextEvents extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The cancel reason; owns its controller so closing never touches a disposed one.
+class _CancelDialog extends StatefulWidget {
+  const _CancelDialog();
+
+  @override
+  State<_CancelDialog> createState() => _CancelDialogState();
+}
+
+class _CancelDialogState extends State<_CancelDialog> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        title: const Text('Organizasyonu iptal et'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.'),
+            const SizedBox(height: GxSpacing.sm),
+            TextField(controller: _reason, maxLength: 500, decoration: const InputDecoration(labelText: 'Gerekçe')),
+          ],
+        ),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GxButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(_reason.text)),
+        ],
+      );
 }

@@ -148,6 +148,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
       GoRoute(path: NotificationRoutes.preferences, builder: (_, _) => const NotificationPreferencesScreen()),
+      GoRoute(path: '/goals/:id', builder: (_, state) => GoalScreen(goalId: state.pathParameters['id']!)),
       GoRoute(path: '/events/history', builder: (_, state) => EventHistoryScreen(groupId: state.uri.queryParameters['group'] ?? '')),
       GoRoute(path: '/events/new', builder: (_, state) => EventEditorScreen(groupId: state.uri.queryParameters['group'])),
       GoRoute(path: '/live/:id', builder: (_, state) => LiveRoomScreen(broadcastId: state.pathParameters['id']!)),
@@ -180,7 +181,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           handle: state.pathParameters['handle']!,
           onOpenProfile: _openProfile,
           sections: const [groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
-          contentSections: const [groupEventsSection, groupPollsSection, groupPostsSection],
+          contentSections: const [groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
         ),
         routes: [
           GoRoute(

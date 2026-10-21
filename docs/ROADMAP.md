@@ -193,8 +193,17 @@ Kararlar (2026-10-21): organizasyon bitince "katılıyor" görünen herkes katı
 
 ## Faz 12 — Görevler ve Ortak Hedefler
 
-- Kişisel, takım ve grup hedefleri: başlangıç, bitiş, hedef, ilerleme
-- İlerleme sunucuda doğrulanmış katılımlardan sayılır; istemciden puan kabul edilmez
+Kararlar (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler; hedefleri sahip ve Yöneticiler açar; ödül görev rozetidir.
+
+- [x] Hedefler: başlık, açıklama, tür, ölçüt (katılım, düzenleme, anı), hedef sayı, en fazla 92 günlük dönem; grupta en fazla 5 aktif hedef (C# + trigger, audit log)
+- [x] İlerleme sunucuda, Faz 11 katkı kurallarıyla ve yalnızca o grubun dönemindeki kayıtlardan sayılır; istemci ilerleme yazamaz
+- [x] Takım hedefi: yönetici takımları kurar (üye bir hedefte tek takımda), takımın ortak sayacı
+- [x] Onaylı görev: üye "Yaptım" ve not (RLS), yönetici onaylar ya da reddeder
+- [x] Tamamlanma kalıcı kaydedilir (iş + görev onayı), `goal_completed` bildirimi ve profilde "Hedef: …" rozeti
+- [x] Arayüz: grup sayfasında "Hedefler" ve "Hedef oluştur", hedef sayfası (`/goals/<id>`) ilerleme, takımlar, bildirimler ve tamamlayanlarla
+- [x] Admin: "Hedefler" sayfası (durum filtresi, tamamlayan sayısı, iptal)
+- [x] Düzeltme: metin girilen iki pencere (görev bildirimi, organizasyon iptali) kapanırken silinmiş denetleyiciyi kullanıyordu; testler yakaladı
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 26, admin 42), `dotnet build` 0 hata 0 uyarı, C# 146/146, pgTAP 583/583; gerçek API ile uçtan uca deneme (üç hedef, görev bildirimi, tamamlanma ve rozet, yönetici ekranı)
 
 ## Faz 13 — Ekip Arkadaşı
 

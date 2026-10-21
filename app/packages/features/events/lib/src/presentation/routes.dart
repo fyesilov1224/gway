@@ -10,6 +10,8 @@ abstract final class EventRoutes {
 
   static String groupCalendar(String groupId) => '/calendar?group=$groupId';
 
+  static String goal(String id) => '/goals/$id';
+
   /// The group's past events.
   static String history(String groupId) => '/events/history?group=$groupId';
 }

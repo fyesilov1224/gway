@@ -37,6 +37,7 @@ final notificationLinks = NotificationLinks(
   openEvent: (context, eventId) => context.push(EventRoutes.event(eventId)),
   openGroupModeration: (context, handle) => context.push(ModerationRoutes.group(handle)),
   openSanctions: (context) => context.push(ModerationRoutes.mySanctions),
+  openGoal: (context, goalId) => context.push(EventRoutes.goal(goalId)),
 );
 
 Widget peopleResults(BuildContext context, String query, VoidCallback onClear) =>

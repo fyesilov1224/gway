@@ -2,7 +2,9 @@ import 'package:core/core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/events_repository_impl.dart';
+import '../data/goals_repository_impl.dart';
 import '../domain/events.dart';
+import '../domain/goals.dart';
 
 final eventsRepositoryProvider = Provider<EventsRepository>(
   (ref) => EventsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
@@ -10,6 +12,18 @@ final eventsRepositoryProvider = Provider<EventsRepository>(
 
 final groupEventsProvider = FutureProvider.autoDispose.family<GroupEvents, String>(
   (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupEvents(groupId)).getOrThrow(),
+);
+
+final goalsRepositoryProvider = Provider<GoalsRepository>(
+  (ref) => GoalsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
+);
+
+final groupGoalsProvider = FutureProvider.autoDispose.family<List<Goal>, String>(
+  (ref, groupId) async => (await ref.watch(goalsRepositoryProvider).groupGoals(groupId)).getOrThrow(),
+);
+
+final goalDetailProvider = FutureProvider.autoDispose.family<GoalDetail, String>(
+  (ref, id) async => (await ref.watch(goalsRepositoryProvider).goal(id)).getOrThrow(),
 );
 
 /// One calendar page: [from, to) in local time, a group's or the user's own.

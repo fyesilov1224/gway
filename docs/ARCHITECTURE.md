@@ -87,6 +87,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.notification_preferences` | notifications | 9 |
 | `public.events`, `public.event_attendees`, `public.polls`, `public.poll_options`, `public.poll_votes` | events | 5 |
 | `public.event_reviews` | events | 10 |
+| `public.goals`, `public.goal_teams`, `public.goal_team_members`, `public.goal_claims`, `public.goal_completions` | events | 12 |
 | Storage `event-images` | events | 5 |
 | `public.live_broadcasts`, `public.live_kicks`, `public.live_comments`, `public.live_reminders` | live | 7 |
 | `public.reports`, `public.moderation_cases`, `public.case_votes`, `public.sanctions`, `public.sanction_appeals` | moderation | 6 |
@@ -419,7 +420,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Anket kapanınca oy verilemez, sonuçlar kalır.
 
 ### Bildirimler
-`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
+`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`), `goal_completed` (Faz 12, bildirim kaydında `goal_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".
@@ -467,6 +468,25 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Beğeni, takipçi ve gönderi sayısı katkıya girmez. Gönüllülük ve yeni üyelere yardım gibi doğrulanamayan katkılar Faz 12'deki görevlerle gelir.
 - **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Sıralama ve "ayın en iyileri" listesi yoktur.
 
+### Hedefler ve görevler (Faz 12)
+Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.
+
+- **Hedef** (`goals`): grup, oluşturan, başlık (3–80), açıklama (en fazla 500), tür, ölçüt, hedef sayı (1–1000), dönem ve iptal bilgisi. Dönem en çok 92 gündür; bitiş başlangıçtan sonradır ve gelecektedir. Bir grupta aynı anda en fazla **5** aktif hedef (iptal edilmemiş ve dönemi bitmemiş) olur. Hedefi `events.manage` yetkilisi açar, iptal eder, takımlarını kurar ve görevleri onaylar (C# API + trigger, audit log).
+- **Türler:**
+
+  | Tür | İlerleme | Tamamlanınca rozeti alan |
+  |---|---|---|
+  | `personal` | Her üyenin kendi sayısı | Sayısı hedefe ulaşan üye |
+  | `group` | Grubun toplam sayısı | Katkısı olan herkes |
+  | `team` | Takımın toplam sayısı (`goal_teams`, `goal_team_members`; üye bir hedefte tek takımda) | Takımın katkısı olan üyeleri |
+  | `task` | Üyenin "yaptım" bildirimi (`goal_claims`, not en fazla 300 karakter), yöneticinin onayı | Onaylanan üye |
+
+- **Ölçütler** (`personal`, `group`, `team`): `attended` (katılım), `organized` (düzenleme), `memories` (anı). Sayım Faz 11'deki katkı kurallarıyla, yalnızca o grubun dönem içinde başlayan organizasyonlarından (anıda dönem içinde paylaşılan anılardan) yapılır. İstemci ilerleme yazamaz.
+- **Tamamlanma** (`goal_completions`): `EventReminderService` dönemi süren hedefleri değerlendirir ve hedefe ulaşanları bir kez kaydeder (sistem işlemi). Onaylanan görev aynı transaction'da kaydedilir. Kayıt kalıcıdır; sonradan "gelmedi" işaretlense de rozet geri alınmaz. Kişiye `goal_completed` bildirimi gider.
+- **Görev bildirimi:** Üyenin kendi basit yazmasıdır (RLS): grup üyesi, hedef `task` türünde ve dönemi sürüyor olmalıdır. Kişi bir göreve tek bildirim yapar; reddedilirse yeniden bildirebilir.
+- **Rozet:** Profildeki rozetlere tamamlanan hedeflerin adları eklenir ("Hedef: Ekim yürüyüşleri"). Görünürlük Faz 11 kurallarıyla aynıdır.
+- **Arayüz:** Grup sayfasında "Hedefler" bölümü (aktif hedefler, ilerleme çubukları, yetkiliye "Hedef oluştur"). Hedef sayfası (`/goals/<id>`) açıklamayı, dönemi ve ilerlemeyi gösterir; takım hedefinde takımları, görevde "Yaptım" düğmesini ve yöneticiye bekleyen bildirimleri gösterir; tamamlayanları listeler.
+
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
@@ -475,10 +495,12 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `polls`, `poll_options` | Grubun üyeleri | Backend |
 | `poll_votes` | Kendi oyları; açık anketlerde grubun üyeleri | Kendi oyu (RLS) |
 | `event_reviews` | Kişinin kendisi ve grubun `events.manage` yetkilileri; ortalama herkese | Kendi değerlendirmesi (RLS) |
+| `goals`, `goal_teams`, `goal_team_members`, `goal_completions` | Grup görünürse herkes | Backend (tamamlanma: iş ve görev onayı) |
+| `goal_claims` | Kişinin kendisi ve grubun `events.manage` yetkilileri | Kendi bildirimi (RLS); karar backend |
 | Storage `event-images` | Herkes | `events.manage` (kendi grubunun klasörü) |
 
 ### Audit log
-`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `event.no_show_marked`, `event.no_show_cleared`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
+`event.created`, `event.updated`, `event.canceled` (gerekçe), `event.canceled_by_admin` (gerekçe), `event.attendee_approved`, `event.attendee_declined`, `event.no_show_marked`, `event.no_show_cleared`, `goal.created`, `goal.canceled`, `goal.team_created`, `goal.team_deleted`, `goal.claim_approved`, `goal.claim_rejected`, `poll.created`, `poll.closed`, `poll.deleted`. Kayıtların `group_id` alanı doludur. Katılım ve oy kişinin kendi işlemidir; yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -491,6 +513,11 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `POST /events/{id}/requests/{userId}/approval` | Katılım isteğini onaylama (`events.manage`) |
 | `DELETE /events/{id}/requests/{userId}` | Katılım isteğini reddetme (`events.manage`) |
 | `GET /events/{id}/calendar.ics` | Takvime ekle (oturum gerekmez) |
+| `POST /groups/{id}/goals` | Hedef açma (`title`, `description`, `kind`, `metric?`, `target?`, `startsAt`, `endsAt`; `events.manage`, en fazla 5 aktif) |
+| `POST /goals/{id}/cancellation` | Hedefi iptal etme (`events.manage`) |
+| `POST /goals/{id}/teams` | Takım kurma (`name`, `memberIds[]`; `events.manage`) |
+| `DELETE /goals/{id}/teams/{teamId}` | Takımı silme (`events.manage`) |
+| `POST /goals/{id}/claims/{userId}/approval`, `DELETE /goals/{id}/claims/{userId}` | Görev bildirimini onaylama / reddetme (`events.manage`) |
 | `PUT /events/{id}/no-shows/{userId}`, `DELETE /events/{id}/no-shows/{userId}` | Yoklama: "gelmedi" işareti ve kaldırılması (`events.manage`, bitişten sonra 7 gün) |
 | `POST /groups/{id}/polls` | Anket açma (`question`, `options[]`, `allowsMultiple`, `isAnonymous`, `closesAt?`, `eventId?`) |
 | `POST /polls/{id}/close`, `DELETE /polls/{id}` | Anketi kapatma / silme (`events.manage`) |

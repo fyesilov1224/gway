@@ -52,6 +52,7 @@ public static class EventsModule
     {
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<EventService>();
+        services.AddSingleton<GoalService>();
         services.AddSingleton<IEventsAdministration>(sp => sp.GetRequiredService<EventService>());
         services.AddHostedService<EventReminderService>();
         return services;
@@ -91,6 +92,8 @@ public static class EventsModule
                 Guid id, Guid userId, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.SetNoShowAsync(user.GetUserId(), id, userId, noShow: false, ct)).ToHttpResult());
 
+        app.MapGoalEndpoints();
+
         // "Takvime ekle": public like the event page itself.
         app.MapGet("/events/{id:guid}/calendar.ics", async (Guid id, EventService events, CancellationToken ct) =>
                 await events.CalendarAsync(id, ct) is { } ics
@@ -114,9 +117,12 @@ public static class EventsModule
 /// <summary>Event and poll writes; attendance order and the waitlist are decided by the database triggers.</summary>
 internal sealed partial class EventService(
     NpgsqlDataSource db, IGroupPlanLimits planLimits, ISupabaseStorage storage, TimeProvider time, IConfiguration configuration,
-    ILogger<EventService> log)
+    GoalService goals, ILogger<EventService> log)
     : IEventsAdministration
 {
+    public Task<Result> CancelGoalAsync(Guid actorId, Guid goalId, CancellationToken ct) =>
+        goals.CancelAsync(actorId, goalId, staff: true, ct);
+
     public const string Bucket = "event-images";
     private static readonly string[] Currencies = ["TRY", "USD", "EUR"];
     private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
@@ -484,7 +490,8 @@ internal sealed partial class EventService(
     /// <summary>Writes due reminders and review requests (system job); returns how many went out.</summary>
     public async Task<int> SendRemindersAsync(CancellationToken ct)
     {
-        await using var cmd = db.CreateCommand("select private.send_event_reminders() + private.send_review_requests()");
+        await using var cmd = db.CreateCommand(
+            "select private.send_event_reminders() + private.send_review_requests() + private.record_goal_completions()");
         return (int)(await cmd.ExecuteScalarAsync(ct))!;
     }
 

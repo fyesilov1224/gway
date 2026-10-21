@@ -20,7 +20,8 @@ enum NotificationType {
   appealDecided('appeal_decided'),
   eventApproved('event_approved'),
   eventDeclined('event_declined'),
-  eventReview('event_review');
+  eventReview('event_review'),
+  goalCompleted('goal_completed');
 
   const NotificationType(this.code);
 
@@ -80,6 +81,8 @@ class AppNotification {
     this.eventStartsAt,
     this.group,
     this.sanctionType,
+    this.goalId,
+    this.goalTitle,
   });
 
   final int id;
@@ -108,6 +111,10 @@ class AppNotification {
 
   /// `warning`, `mute`, `kick` or `ban`, for sanction_applied.
   final String? sanctionType;
+
+  /// The goal of goal_completed.
+  final String? goalId;
+  final String? goalTitle;
 
   /// What happened, after the actor's username.
   String get action => switch (type) {
@@ -138,6 +145,7 @@ class AppNotification {
         NotificationType.eventApproved => '"${eventTitle ?? ''}" için katılım isteğini onayladı.',
         NotificationType.eventDeclined => '"${eventTitle ?? ''}" için katılım isteğini kabul edemedi.',
         NotificationType.eventReview => '"${eventTitle ?? ''}" nasıldı? Değerlendir, anılarını paylaş.',
+        NotificationType.goalCompleted => '"${goalTitle ?? ''}" hedefini tamamladın! Rozetin profilinde.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.

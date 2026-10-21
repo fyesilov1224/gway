@@ -280,6 +280,63 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
         Assert.Equal(HttpStatusCode.UnprocessableEntity, (await factory.ClientFor(crew.Admin).PutAsync(mark, null, Ct)).StatusCode);
     }
 
+    // Goals (Faz 12) ---------------------------------------------------------------------------
+
+    private static GoalRequest Goal(string kind, string? metric = "attended", int? target = 1, string title = "Ekim yürüyüşleri") =>
+        new(title, "Bu ay birlikte yürüyelim.", kind, metric, target, DateTimeOffset.UtcNow.AddDays(-5), DateTimeOffset.UtcNow.AddDays(20));
+
+    private async Task<Guid> GoalAsync(Crew crew, GoalRequest goal)
+    {
+        var response = await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/groups/{crew.Group}/goals"), goal, Ct);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<CreatedGoal>(Ct))!.Id;
+    }
+
+    [Fact]
+    public async Task Managers_open_goals_that_complete_from_real_attendance()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        await AttendAsync(crew.Member, ev);
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '1 day' where id = @e", ("e", ev));
+
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(crew.Member).PostAsJsonAsync(Path($"/groups/{crew.Group}/goals"), Goal("personal"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(crew.Admin).PostAsJsonAsync(Path($"/groups/{crew.Group}/goals"), Goal("task"), Ct)).StatusCode);
+        var personal = await GoalAsync(crew, Goal("personal"));
+        var team = await GoalAsync(crew, Goal("team", target: 1, title: "Takım yarışı"));
+        var task = await GoalAsync(crew, Goal("task", metric: null, target: null, title: "Yeni üyeye rota anlat"));
+
+        var teams = Path($"/goals/{team}/teams");
+        Assert.Equal(HttpStatusCode.BadRequest, (await factory.ClientFor(crew.Admin).PostAsJsonAsync(
+            teams, new TeamRequest("Kuzey", [crew.Member, Guid.NewGuid()]), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await factory.ClientFor(crew.Admin).PostAsJsonAsync(teams, new TeamRequest("Kuzey", [crew.Member]), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await factory.ClientFor(crew.Admin).PostAsJsonAsync(
+            teams, new TeamRequest("Güney", [crew.Member]), Ct)).StatusCode);
+
+        await _db.ExecuteAsync(
+            "select set_config('request.jwt.claims', json_build_object('sub', @u::text)::text, true); insert into public.goal_claims (goal_id, user_id) values (@g, @u)",
+            ("u", crew.Other), ("g", task));
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(crew.Member).PostAsync(Path($"/goals/{task}/claims/{crew.Other}/approval"), null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await factory.ClientFor(crew.Admin).PostAsync(Path($"/goals/{task}/claims/{crew.Other}/approval"), null, Ct)).StatusCode);
+
+        await factory.Services.GetRequiredService<EventService>().SendRemindersAsync(Ct);
+        Assert.Equal(1L, await CountAsync("select count(*) from public.goal_completions where goal_id = @g and user_id = @u", ("g", personal), ("u", crew.Member)));
+        Assert.Equal(1L, await CountAsync("select count(*) from public.goal_completions where goal_id = @g and user_id = @u", ("g", team), ("u", crew.Member)));
+        Assert.Equal(1L, await CountAsync("select count(*) from public.goal_completions where goal_id = @g and user_id = @u", ("g", task), ("u", crew.Other)));
+        Assert.Equal(3L, await CountAsync("select count(*) from public.notifications where type = 'goal_completed' and group_id = @g", ("g", crew.Group)));
+
+        var staff = await _db.CreateUserAsync(Unique("s_"));
+        await _db.MakeStaffAsync(staff, "moderator");
+        var goals = await factory.ClientFor(staff).GetFromJsonAsync<PagedResult<AdminGoal>>(Path("/admin/goals?status=running"), Ct);
+        Assert.Contains(goals!.Items, g => g.Id == personal && g.Completions == 1);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(staff).PostAsync(Path($"/admin/goals/{personal}/cancellation"), null, Ct)).StatusCode);
+        Assert.Equal(1L, await CountAsync("select count(*) from public.audit_log where action = 'goal.canceled_by_admin' and target_id = @g", ("g", personal.ToString())));
+    }
+
     // Polls -----------------------------------------------------------------------------------
 
     [Fact]

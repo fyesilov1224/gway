@@ -204,6 +204,16 @@ class ApiAdminEventsRepository implements AdminEventsRepository {
   @override
   Future<Result<void>> cancel(String id, {required String reason}) =>
       _api.post('/admin/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1}) => _api.get(
+        '/admin/goals',
+        query: {'status': ?status?.code, 'page': '$page'},
+        decode: (json) => AdminGoalPage.fromJson((json! as Map).cast(), AdminGoal.fromJson),
+      );
+
+  @override
+  Future<Result<void>> cancelGoal(String id) => _api.post('/admin/goals/$id/cancellation', decode: (_) {});
 }
 
 class ApiAdminModerationRepository implements AdminModerationRepository {

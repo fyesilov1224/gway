@@ -134,6 +134,13 @@ final adminAppealSearchProvider = FutureProvider.autoDispose.family<AdminAppealP
       (await ref.watch(adminModerationRepositoryProvider).appeals(status: search.status, page: search.page)).getOrThrow(),
 );
 
+typedef AdminGoalSearch = ({AdminGoalStatus? status, int page});
+
+final adminGoalSearchProvider = FutureProvider.autoDispose.family<AdminGoalPage, AdminGoalSearch>(
+  (ref, search) async =>
+      (await ref.watch(adminEventsRepositoryProvider).goals(status: search.status, page: search.page)).getOrThrow(),
+);
+
 final adminLiveRepositoryProvider = Provider<AdminLiveRepository>(
   (ref) => ApiAdminLiveRepository(ref.watch(apiClientProvider)),
 );

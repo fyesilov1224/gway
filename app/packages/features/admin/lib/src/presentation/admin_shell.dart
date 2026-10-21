@@ -142,6 +142,14 @@ class _Sidebar extends ConsumerWidget {
               ),
               const SizedBox(height: GxSpacing.xxs),
               _NavItem(
+                icon: Icons.flag_circle_outlined,
+                selectedIcon: Icons.flag_circle,
+                label: 'Hedefler',
+                selected: path.startsWith(AdminRoutes.goals),
+                onTap: () => go(AdminRoutes.goals),
+              ),
+              const SizedBox(height: GxSpacing.xxs),
+              _NavItem(
                 icon: Icons.podcasts_outlined,
                 selectedIcon: Icons.podcasts,
                 label: 'Canlı yayınlar',

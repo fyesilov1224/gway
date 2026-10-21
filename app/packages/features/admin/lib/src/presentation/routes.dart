@@ -18,6 +18,8 @@ abstract final class AdminRoutes {
 
   static const reports = '/reports';
 
+  static const goals = '/goals';
+
   static String post(String id) => '/content/$id';
 
   static String ticket(String id) => '/support/$id';

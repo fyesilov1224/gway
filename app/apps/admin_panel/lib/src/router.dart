@@ -101,6 +101,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/content/:id',
             builder: (_, state) => AdminPostDetailScreen(postId: state.pathParameters['id']!),
           ),
+          GoRoute(path: AdminRoutes.goals, builder: (_, _) => const AdminGoalsScreen()),
           GoRoute(path: AdminRoutes.reports, builder: (_, _) => const AdminReportsScreen()),
           GoRoute(path: AdminRoutes.events, builder: (_, _) => const AdminEventsScreen()),
           GoRoute(path: AdminRoutes.live, builder: (_, _) => const AdminLiveScreen()),
