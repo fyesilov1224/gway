@@ -110,10 +110,44 @@ class GroupEvent {
 
   /// Joining still possible: not canceled and not started.
   bool isOpen(DateTime now) => !isCanceled && !hasStarted(now);
+
+  /// Without an end an event takes two hours (as in the calendar file).
+  DateTime get endsOrDefault => endsAt ?? startsAt.add(const Duration(hours: 2));
+
+  /// On the user's own calendar: attending, waiting or requested, and not canceled.
+  bool get isMine => myStatus != null && !isCanceled;
+}
+
+/// Ids of the user's own events whose times overlap another of their own (docs/ARCHITECTURE.md §3d, Takvim).
+Set<String> conflictingIds(Iterable<GroupEvent> events) {
+  final mine = [for (final e in events) if (e.isMine) e]..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+  final ids = <String>{};
+  for (var i = 0; i < mine.length; i++) {
+    for (var j = i + 1; j < mine.length && mine[j].startsAt.isBefore(mine[i].endsOrDefault); j++) {
+      ids..add(mine[i].id)..add(mine[j].id);
+    }
+  }
+  return ids;
+}
+
+/// Another event of the user at the same time.
+class EventConflict {
+  const EventConflict({required this.id, required this.title, required this.startsAt});
+
+  final String id;
+  final String title;
+  final DateTime startsAt;
 }
 
 class EventDetail {
-  const EventDetail({required this.event, this.canManage = false, this.isMember = false, this.attendees, this.requests});
+  const EventDetail({
+    required this.event,
+    this.canManage = false,
+    this.isMember = false,
+    this.attendees,
+    this.requests,
+    this.conflicts = const [],
+  });
 
   final GroupEvent event;
   final bool canManage;
@@ -124,6 +158,9 @@ class EventDetail {
 
   /// Join requests waiting for approval, oldest first; managers only.
   final List<EventPerson>? requests;
+
+  /// The user's other events at the same time.
+  final List<EventConflict> conflicts;
 }
 
 class GroupEvents {
@@ -278,6 +315,10 @@ abstract interface class EventsRepository {
 
   /// The event as an iCalendar file for "Takvime ekle".
   Uri calendarUrl(String id);
+
+  /// Events starting in [from, to) (at most 62 days): a group's, or the user's own and, with
+  /// [includeGroups], every event of their groups.
+  Future<Result<List<GroupEvent>>> calendar(DateTime from, DateTime to, {String? groupId, bool includeGroups = false});
 
   /// A group's polls, or only those of [eventId].
   Future<Result<List<Poll>>> polls(String groupId, {String? eventId});

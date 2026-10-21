@@ -29,6 +29,27 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 
   String? _url(String bucket, Object? path) => path is String ? _client.storage.from(bucket).getPublicUrl(path) : null;
 
+  @override
+  Future<Result<NotificationPreferences>> preferences() => _run(() async {
+        final r = await _client.from('notification_preferences').select().eq('user_id', _me).maybeSingle();
+        if (r == null) return const NotificationPreferences();
+        return NotificationPreferences(
+          reminderDay: r['event_reminder_day'] as bool,
+          reminderHour: r['event_reminder_hour'] as bool,
+          eventUpdates: r['event_updates'] as bool,
+        );
+      });
+
+  @override
+  Future<Result<void>> savePreferences(NotificationPreferences p) => _run(() async {
+        await _client.from('notification_preferences').upsert({
+          'user_id': _me,
+          'event_reminder_day': p.reminderDay,
+          'event_reminder_hour': p.reminderHour,
+          'event_updates': p.eventUpdates,
+        });
+      });
+
   AppNotification? _notification(Map<String, dynamic> r) {
     final type = NotificationType.tryParse(r['type']);
     if (type == null) return null;

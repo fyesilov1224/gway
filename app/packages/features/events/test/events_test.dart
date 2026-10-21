@@ -242,4 +242,62 @@ void main() {
     await tester.pumpAndSettle();
     expect(fake.decisions, ['u7:true']);
   });
+  test('calendar pages: whole weeks for a month, Monday-first weeks', () {
+    final focus = DateTime(2026, 10, 21);
+    final month = calendarRange(CalendarView.month, focus);
+    expect(month.from, DateTime(2026, 9, 28));
+    expect(month.to, DateTime(2026, 11, 2));
+    expect(calendarRange(CalendarView.week, focus).from, DateTime(2026, 10, 19));
+    expect(calendarRange(CalendarView.day, focus).to, DateTime(2026, 10, 22));
+    expect(shiftFocus(CalendarView.month, DateTime(2026, 1, 31), 1), DateTime(2026, 2));
+    expect(calendarTitle(CalendarView.week, focus), '19 – 25 Ekim 2026');
+  });
+
+  test('only my own overlapping events conflict', () {
+    GroupEvent at(String id, int hour, {int? until, AttendanceStatus? mine = AttendanceStatus.going}) => GroupEvent(
+          id: id, group: _group, title: id, startsAt: DateTime(2026, 10, 24, hour),
+          endsAt: until == null ? null : DateTime(2026, 10, 24, until), location: 'Park', myStatus: mine,
+        );
+    expect(conflictingIds([at('a', 9, until: 12), at('b', 11), at('c', 13), at('d', 10, mine: null)]), {'a', 'b'});
+    expect(conflictingIds([at('a', 9), at('b', 11)]), isEmpty, reason: 'without an end an event takes two hours');
+  });
+
+  testWidgets('the calendar shows the selected day and marks conflicts', (tester) async {
+    final today = DateTime.now();
+    final e1 = GroupEvent(id: 'e1', group: _group, title: 'Sabah yürüyüşü', startsAt: DateTime(today.year, today.month, today.day, 9),
+        endsAt: DateTime(today.year, today.month, today.day, 12), location: 'Park', myStatus: AttendanceStatus.going);
+    final e2 = GroupEvent(id: 'e2', group: _group, title: 'Kahvaltı', startsAt: DateTime(today.year, today.month, today.day, 11),
+        location: 'Kafe', myStatus: AttendanceStatus.requested);
+    final fake = _FakeEvents();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        eventsRepositoryProvider.overrideWithValue(fake),
+        calendarProvider.overrideWith((ref, q) async => [e1, e2]),
+      ],
+      child: MaterialApp(theme: GxTheme.light(), home: const CalendarScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Takvimim'), findsOneWidget);
+    expect(find.text('Sabah yürüyüşü'), findsOneWidget);
+    expect(find.text('Çakışıyor'), findsNWidgets(2));
+    await tester.tap(find.text('Hafta'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kahvaltı'), findsOneWidget);
+  });
+
+  testWidgets('the event page warns about my other event at the same time', (tester) async {
+    final e = GroupEvent(id: 'e1', group: _group, title: 'Konser', startsAt: DateTime.now().add(const Duration(days: 3)), location: 'Moda');
+    await _pump(
+      tester,
+      EventScreen(eventId: 'e1', links: _links),
+      detail: EventDetail(
+        event: e,
+        isMember: true,
+        conflicts: [EventConflict(id: 'e2', title: 'Gece koşusu', startsAt: DateTime(2026, 10, 24, 20))],
+      ),
+    );
+    expect(find.text('Bu saatte başka bir organizasyonun var'), findsOneWidget);
+    expect(find.textContaining('Gece koşusu'), findsOneWidget);
+  });
 }

@@ -120,7 +120,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               sections: const [profilePostsSection, _groupsSection],
             ),
           ),
-          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray())),
+          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_calendarButton])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen()),
           GoRoute(path: NotificationRoutes.list, builder: (_, _) => NotificationsScreen(links: notificationLinks)),
@@ -140,6 +140,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => EventScreen(eventId: state.pathParameters['id']!, links: eventLinks),
         routes: [GoRoute(path: 'edit', builder: (_, state) => EventEditorScreen(eventId: state.pathParameters['id']))],
       ),
+      GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
+      GoRoute(path: NotificationRoutes.preferences, builder: (_, _) => const NotificationPreferencesScreen()),
       GoRoute(path: '/events/new', builder: (_, state) => EventEditorScreen(groupId: state.uri.queryParameters['group'])),
       GoRoute(path: '/live/:id', builder: (_, state) => LiveRoomScreen(broadcastId: state.pathParameters['id']!)),
       GoRoute(path: FeedRoutes.saved, builder: (_, _) => const SavedPostsScreen()),
@@ -225,6 +227,17 @@ Widget _groupsSection(BuildContext context, Profile profile, bool isOwn) =>
     UserGroupsSection(userId: profile.id, isOwn: isOwn);
 
 void _openProfile(BuildContext context, String username) => context.push(ProfileRoutes.user(username));
+
+/// "Takvimim" from the home feed.
+const _calendarButton = _CalendarButton();
+
+class _CalendarButton extends StatelessWidget {
+  const _CalendarButton();
+
+  @override
+  Widget build(BuildContext context) =>
+      IconButton(tooltip: 'Takvimim', icon: const Icon(Icons.calendar_month_outlined), onPressed: () => context.push(EventRoutes.calendar));
+}
 
 class _GateErrorScreen extends ConsumerWidget {
   const _GateErrorScreen();

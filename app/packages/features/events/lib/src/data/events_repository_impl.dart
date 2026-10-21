@@ -120,6 +120,10 @@ class EventsRepositoryImpl implements EventsRepository {
           isMember: r['is_member'] == true,
           attendees: attendees == null ? null : [for (final p in attendees.cast<Map<String, dynamic>>()) _person(p)],
           requests: requests == null ? null : [for (final p in requests.cast<Map<String, dynamic>>()) _person(p)],
+          conflicts: [
+            for (final c in (r['conflicts'] as List? ?? const []).cast<Map<String, dynamic>>())
+              EventConflict(id: c['id'] as String, title: c['title'] as String, startsAt: DateTime.parse(c['starts_at'] as String)),
+          ],
         );
       });
 
@@ -164,6 +168,18 @@ class EventsRepositoryImpl implements EventsRepository {
 
   @override
   Uri calendarUrl(String id) => _api.baseUrl.resolve('/events/$id/calendar.ics');
+
+  @override
+  Future<Result<List<GroupEvent>>> calendar(DateTime from, DateTime to, {String? groupId, bool includeGroups = false}) =>
+      _run(() async {
+        final r = await _client.rpc<List<dynamic>>('calendar_events', params: {
+          'range_start': from.toUtc().toIso8601String(),
+          'range_end': to.toUtc().toIso8601String(),
+          'target_group': groupId,
+          'include_groups': includeGroups,
+        });
+        return [for (final e in r.cast<Map<String, dynamic>>()) _event(e)];
+      });
 
   // Polls ---------------------------------------------------------------------------------
 

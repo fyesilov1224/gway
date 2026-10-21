@@ -24,6 +24,10 @@ final unreadNotificationsProvider = StreamProvider.autoDispose<int>((ref) async*
   }
 });
 
+final notificationPreferencesProvider = FutureProvider.autoDispose<NotificationPreferences>(
+  (ref) async => (await ref.watch(notificationsRepositoryProvider).preferences()).getOrThrow(),
+);
+
 class NotificationPage {
   const NotificationPage(this.items, {required this.hasMore, this.loadingMore = false});
 

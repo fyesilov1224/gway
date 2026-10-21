@@ -171,6 +171,26 @@ List<(NotificationPeriod, List<AppNotification>)> groupByPeriod(List<AppNotifica
           (period, group),
     ];
 
+/// Which event notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
+class NotificationPreferences {
+  const NotificationPreferences({this.reminderDay = true, this.reminderHour = true, this.eventUpdates = true});
+
+  /// "Yarın başlıyor" reminder.
+  final bool reminderDay;
+
+  /// "1 saat içinde başlıyor" reminder.
+  final bool reminderHour;
+
+  /// Time, place and cancellation notices.
+  final bool eventUpdates;
+
+  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates}) => NotificationPreferences(
+        reminderDay: reminderDay ?? this.reminderDay,
+        reminderHour: reminderHour ?? this.reminderHour,
+        eventUpdates: eventUpdates ?? this.eventUpdates,
+      );
+}
+
 abstract interface class NotificationsRepository {
   /// Newest first; [beforeId] pages back.
   Future<Result<List<AppNotification>>> list({int? beforeId});
@@ -183,4 +203,8 @@ abstract interface class NotificationsRepository {
 
   /// Fires when a notification for the signed-in user arrives.
   Stream<void> arrivals();
+
+  Future<Result<NotificationPreferences>> preferences();
+
+  Future<Result<void>> savePreferences(NotificationPreferences preferences);
 }

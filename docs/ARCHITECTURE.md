@@ -84,6 +84,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.stories`, `public.story_views`, `public.highlights`, `public.highlight_stories` | feed | 4 |
 | Storage `media` | feed | 4 |
 | `public.notifications` | notifications | 4 |
+| `public.notification_preferences` | notifications | 9 |
 | `public.events`, `public.event_attendees`, `public.polls`, `public.poll_options`, `public.poll_votes` | events | 5 |
 | Storage `event-images` | events | 5 |
 | `public.live_broadcasts`, `public.live_kicks`, `public.live_comments`, `public.live_reminders` | live | 7 |
@@ -339,6 +340,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
 - **Arayüz:** Ekranda bildirimler Bugün / Bu hafta / Daha önce diye gruplanır. Bekleyen takip istekleri en üstte toplanır. Okunmamış sayısı gezinmede görünür.
 - **Push:** Push bildirimi (FCM/APNs) Firebase proje bilgileri gelince bu kayıtlardan gönderilir.
+- **Tercihler** (Faz 9, `notification_preferences`): kişi organizasyon hatırlatmalarını (1 gün önce, 1 saat önce) ve organizasyon değişikliği/iptali bildirimlerini kapatabilir. Kayıt yoksa hepsi açıktır. Kişinin kendi basit yazmasıdır (RLS). Bildirimi yazan fonksiyonlar tercihi okur (`private.wants_notification`); kapalı türde kayıt hiç oluşmaz. Diğer türler (katılım onayı, sıra yükselmesi, yaptırım vb.) kişiyi doğrudan ilgilendirdiği için kapatılamaz.
 
 ### Depolama (`media`)
 - Herkese açık okunur. Yollar tahmin edilemez uuid'lerdir; hangi medyanın kime ait olduğu ancak RLS'in izin verdiği gönderi ve hikaye kayıtlarından öğrenilir. Bu, Instagram'ın CDN modeline benzer.
@@ -423,6 +425,14 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Organizasyon sayfası** (`/e/<id>`): kapak, başlık, grup, tarih ve saat, yer ve harita bağlantısı, ücret bilgisi ("Ücret organizasyon sahibine ödenir, GrupX ödeme almaz"), kapasite çubuğu, katılanlar, bağlı anketler, Katıl / Bekleme listesine gir / Vazgeç. Yetkiliye Düzenle ve İptal et.
 - **Organizasyon sayfası** (Faz 8): katılım koşulları ve ekipman listesi, "Takvime ekle", onaylı katılımda "Katılım isteği gönder" ve "Onay bekliyor"; yetkiliye bekleyen istekler (Onayla / Reddet).
 - **Organizasyon formu:** kapak, başlık, açıklama, tarih ve saat, bitiş, yer, bağlantı, kapasite, ücret, katılım koşulları, ekipman, "Katılım onayla olsun"; bu ay kalan organizasyon hakkı.
+
+### Takvim (Faz 9)
+- Takvim organizasyon tablolarını okur; ayrı bir takvim verisi yoktur.
+- **Takvimim** (`/calendar`): kişinin katıldığı, onay beklediği ve bekleme listesinde olduğu organizasyonlar; isteğe bağlı olarak üyesi olduğu grupların tüm organizasyonları ("Gruplarımın organizasyonları").
+- **Grup takvimi** (`/calendar?group=<id>`): grubun organizasyonları (geçmiş dahil). Grup görünürse herkes okur.
+- **Görünümler:** gün, hafta (pazartesi başlar) ve ay. Günler cihazın saat diliminde hesaplanır; zamanlar veritabanında UTC'dir.
+- **Çakışma:** Kişinin iptal edilmemiş iki organizasyonunun (katılan, bekleyen ya da istek) zamanı kesişiyorsa çakışma sayılır. Bitişi olmayan organizasyon 2 saat sürer sayılır (`.ics` ile aynı). Takvim çakışanları işaretler. Organizasyon sayfası, kişinin o saatteki diğer organizasyonlarını gösterir (`event_detail.conflicts`).
+- `public.calendar_events(range_start, range_end, target_group, include_groups)` en fazla 62 günlük aralık ve 500 organizasyon döner.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |

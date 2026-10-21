@@ -93,9 +93,12 @@ class _StatusBadge extends StatelessWidget {
 
 /// An upcoming event in a list.
 class EventCard extends StatelessWidget {
-  const EventCard({super.key, required this.event});
+  const EventCard({super.key, required this.event, this.conflict = false});
 
   final GroupEvent event;
+
+  /// Overlaps another of the user's events (calendar).
+  final bool conflict;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +138,7 @@ class EventCard extends StatelessWidget {
                       Text(eventSeats(e), style: textTheme.labelMedium),
                       if (e.fee != null) GxBadge(e.fee!.label),
                       _StatusBadge(event: e),
+                      if (conflict) const GxBadge('Çakışıyor', tone: GxBadgeTone.warning),
                     ],
                   ),
                 ],
@@ -182,6 +186,7 @@ class GroupEventsSection extends ConsumerWidget {
           Row(
             children: [
               Expanded(child: Text('Organizasyonlar', style: textTheme.titleMedium)),
+              TextButton(onPressed: () => context.push(EventRoutes.groupCalendar(groupId)), child: const Text('Takvim')),
               if (canManage)
                 TextButton.icon(
                   onPressed: left == 0 ? null : () => context.push(EventRoutes.create(groupId)),
@@ -501,6 +506,25 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                           if (e.feeNote != null) Text(e.feeNote!, style: textTheme.bodyMedium),
                           Text('Ücret organizasyon sahibine ödenir; GrupX ödeme almaz.',
                               style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                        ]),
+                      ),
+                    if (d.conflicts.isNotEmpty && !e.isCanceled)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: GxSpacing.sm),
+                        padding: const EdgeInsets.all(GxSpacing.sm),
+                        decoration: const BoxDecoration(color: GxColors.warningSoft, borderRadius: GxRadius.mdAll),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('Bu saatte başka bir organizasyonun var', style: textTheme.labelLarge?.copyWith(color: GxColors.warning)),
+                          for (final c in d.conflicts)
+                            InkWell(
+                              onTap: () => context.push(EventRoutes.event(c.id)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+                                child: Text('${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}',
+                                    style: textTheme.bodyMedium?.copyWith(color: GxColors.warning, decoration: TextDecoration.underline)),
+                              ),
+                            ),
                         ]),
                       ),
                     if (e.approvalRequired)

@@ -12,6 +12,14 @@ final groupEventsProvider = FutureProvider.autoDispose.family<GroupEvents, Strin
   (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupEvents(groupId)).getOrThrow(),
 );
 
+/// One calendar page: [from, to) in local time, a group's or the user's own.
+typedef CalendarQuery = ({DateTime from, DateTime to, String? groupId, bool includeGroups});
+
+final calendarProvider = FutureProvider.autoDispose.family<List<GroupEvent>, CalendarQuery>(
+  (ref, q) async =>
+      (await ref.watch(eventsRepositoryProvider).calendar(q.from, q.to, groupId: q.groupId, includeGroups: q.includeGroups)).getOrThrow(),
+);
+
 final eventDetailProvider = FutureProvider.autoDispose.family<EventDetail, String>(
   (ref, id) async => (await ref.watch(eventsRepositoryProvider).event(id)).getOrThrow(),
 );

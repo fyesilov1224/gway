@@ -1,5 +1,25 @@
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notifications/notifications.dart';
+
+class _FakePreferences implements NotificationsRepository {
+  final saved = <NotificationPreferences>[];
+
+  @override
+  Future<Result<NotificationPreferences>> preferences() async => const Ok(NotificationPreferences());
+
+  @override
+  Future<Result<void>> savePreferences(NotificationPreferences preferences) async {
+    saved.add(preferences);
+    return const Ok(null);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 AppNotification _n(int id, DateTime at, {NotificationType type = NotificationType.like, String? comment}) => AppNotification(
       id: id,
@@ -96,5 +116,19 @@ void main() {
     );
     expect(vote.lead, 'moderator');
     expect(vote.action, 'Doğa Yürüyüşçüleri grubunda bir disiplin dosyası açtı; oyunu bekliyor.');
+  });
+  testWidgets('turning a reminder off saves it', (tester) async {
+    final repo = _FakePreferences();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
+      child: MaterialApp(theme: GxTheme.light(), home: const NotificationPreferencesScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('1 saat önce hatırlat'));
+    await tester.pumpAndSettle();
+    expect(repo.saved.single.reminderHour, isFalse);
+    expect(repo.saved.single.reminderDay, isTrue);
+    expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, '1 saat önce hatırlat')).value, isFalse);
   });
 }

@@ -164,10 +164,12 @@ Kararlar:
 
 ## Faz 9 — Takvim
 
-- Kişisel takvim ("Takvimim": katıldığım, beklediğim) ve grup takvimi; gün, hafta ve ay görünümü
-- Çakışma uyarısı
-- Bildirim tercihleri (hatırlatma, değişiklik, iptal)
-- Takvim, organizasyon tablolarını okur; ayrı bir veri kaynağı yoktur
+- [x] Kişisel takvim ("Takvimim", ana sayfa üst çubuğundan; isteğe bağlı olarak gruplarımın tüm organizasyonları) ve grup takvimi (Organizasyonlar bölümünden); gün, hafta ve ay görünümü
+- [x] Çakışma: takvimde "Çakışıyor" işareti, organizasyon sayfasında "Bu saatte başka bir organizasyonun var"
+- [x] Bildirim tercihleri (Ayarlar → Bildirim tercihleri): 1 gün önce, 1 saat önce, değişiklik ve iptaller; kapalı türde kayıt hiç oluşmaz
+- [x] Takvim organizasyon tablolarını okur (`calendar_events`); ayrı veri kaynağı yok, C# değişikliği gerekmedi
+- [x] Admin: gerekmedi; takvim kişisel bir görünüm, organizasyonlar admin panelinde zaten var
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (events 17, notifications 7), C# 143/143, pgTAP 523/523; gerçek veriyle uçtan uca deneme (Ayşe'nin takvimi, aynı gündeki iki organizasyonun çakışması, tercih ekranı)
 
 ## Faz 10 — Organizasyon Sonrası
 

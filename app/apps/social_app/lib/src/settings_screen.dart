@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:identity/identity.dart';
 import 'package:moderation/moderation.dart';
+import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 import 'package:support/support.dart';
 
@@ -47,6 +48,8 @@ class SettingsScreen extends ConsumerWidget {
               tile(Icons.bookmark_border_rounded, 'Kaydedilenler', () => context.push(FeedRoutes.saved)),
               const Divider(),
               tile(Icons.history_toggle_off, 'Hikaye arşivi', () => context.push(FeedRoutes.archive)),
+              const Divider(),
+              tile(Icons.notifications_active_outlined, 'Bildirim tercihleri', () => context.push(NotificationRoutes.preferences)),
               const Divider(),
               tile(Icons.shield_outlined, 'Grup yaptırımlarım', () => context.push(ModerationRoutes.mySanctions)),
               const Divider(),
