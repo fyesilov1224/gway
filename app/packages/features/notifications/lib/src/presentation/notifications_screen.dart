@@ -18,6 +18,7 @@ class NotificationLinks {
     required this.openGroupModeration,
     required this.openSanctions,
     required this.openGoal,
+    required this.openTeammates,
   });
 
   final void Function(BuildContext context, String username) openProfile;
@@ -43,6 +44,9 @@ class NotificationLinks {
 
   /// A goal page, for goal_completed.
   final void Function(BuildContext context, String goalId) openGoal;
+
+  /// Teammate requests and suggestions, for teammate_request.
+  final void Function(BuildContext context) openTeammates;
 }
 
 /// Today / this week / earlier, with pending follow requests gathered on top (docs/ARCHITECTURE.md §3c).
@@ -157,6 +161,7 @@ class _NotificationRow extends ConsumerWidget {
   void _open(BuildContext context) {
     final n = notification;
     if (n.goalId != null) return links.openGoal(context, n.goalId!);
+    if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
     if (n.type.fromGroup) return links.openSanctions(context);
     if (n.group != null) return links.openGroupModeration(context, n.group!.handle);
     if (n.liveId != null) return links.openLive(context, n.liveId!);

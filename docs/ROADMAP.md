@@ -207,8 +207,17 @@ Kararlar (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler; he
 
 ## Faz 13 — Ekip Arkadaşı
 
-- Profilde aktivite tercihleri: seviye, uygun zamanlar, "ekip arıyorum"
-- Basit, açıklanabilir eşleştirme; bağlantı isteği; engelleme ve şikayetle birlikte
+Kararlar (2026-10-21): önerilerde yalnızca "Ekip arıyorum"u açanlar görünür; il isteğe bağlıdır, yalnızca eşleştirmede kullanılır ve profilde görünmez; kabul edilen istek takipten ayrı bir "Ekip arkadaşları" ilişkisi kurar.
+
+- [x] Tercihler (RLS, yalnızca sahibi okur): "Ekip arıyorum", seviye, uygun zamanlar, 81 ilden biri, 140 karakter not; Ayarlar → "Ekip arkadaşı tercihleri"
+- [x] Açıklanabilir öneriler: ortak ilgi, il, grup, seviye ve zaman puanı; her öneri nedenleriyle gösterilir. Gizli, engelli, pasif hesaplar ve mevcut ilişkiler elenir; il hiçbir yanıtta dönmez
+- [x] İstek (C# + trigger): 200 karakter mesaj; 24 saatte 20 istek ve aynı kişiye bir istek (geri çekilenler de sayılır); kabul, ret, geri çekme, karşılıklı istekte otomatik kabul; ekip arkadaşlığını bitirme
+- [x] Engelleme istekleri ve ekip arkadaşlığını siler; şikayet profildeki "Şikayet et" ile
+- [x] Bildirimler: `teammate_request`, `teammate_accepted`; geri çekilen isteğin bildirimi silinir
+- [x] Arayüz: "Ekip arkadaşı bul" (ana akıştan; Öneriler / İstekler / Ekibim), profilde "Ekip arıyor · seviye" ve "Ekip arkadaşın" rozetleri, menüde istek işlemleri, kendi profilinde bekleyen istek uyarısı
+- [x] Admin: kullanıcı ayrıntısında "Ekip arkadaşı" paneli (arıyor mu, ekip sayısı, son 24 saatte gönderilen ve bekleyen istekler; il gösterilmez)
+- [x] Düzeltme (0022): uçtan uca denemede tekrar eden "kabul etti" bildirimleri görüldü; geri çekme ile günlük sınırın aşılabildiği fark edildi. İstek günlüğü ve bildirim temizliği eklendi
+- [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (profile 15), `dotnet build` 0 hata 0 uyarı, C# 148/148, pgTAP 612/612; gerçek API ile uçtan uca deneme (tercihler, öneri nedenleri, istek, kabul, rozetler, bildirim, yönetici paneli)
 
 ## Faz 14 — Harita ile Keşif
 

@@ -166,12 +166,14 @@ class AdminUserDetail {
     this.bio,
     this.suspensionReason,
     this.contributions = const AdminContributions(),
+    this.teammates = const AdminTeammates(),
   });
 
   factory AdminUserDetail.fromJson(Map<String, Object?> j) => AdminUserDetail(
         contributions: j['contributions'] == null
             ? const AdminContributions()
             : AdminContributions.fromJson((j['contributions']! as Map).cast()),
+        teammates: j['teammates'] == null ? const AdminTeammates() : AdminTeammates.fromJson((j['teammates']! as Map).cast()),
         user: AdminUserSummary.fromJson((j['user']! as Map).cast()),
         bio: j['bio'] as String?,
         suspensionReason: j['suspensionReason'] as String?,
@@ -194,6 +196,24 @@ class AdminUserDetail {
   final List<AdminConsent> consents;
   final List<AdminAuditItem> history;
   final AdminContributions contributions;
+  final AdminTeammates teammates;
+}
+
+/// Teammate activity, for spotting request spam (docs/ARCHITECTURE.md §3c, Ekip arkadaşı); the province is never shown.
+class AdminTeammates {
+  const AdminTeammates({this.looking = false, this.teammates = 0, this.requestsSentToday = 0, this.requestsPending = 0});
+
+  factory AdminTeammates.fromJson(Map<String, Object?> j) => AdminTeammates(
+        looking: j['looking']! as bool,
+        teammates: j['teammates']! as int,
+        requestsSentToday: j['requestsSentToday']! as int,
+        requestsPending: j['requestsPending']! as int,
+      );
+
+  final bool looking;
+  final int teammates;
+  final int requestsSentToday;
+  final int requestsPending;
 }
 
 /// What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).

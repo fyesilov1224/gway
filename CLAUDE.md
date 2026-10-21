@@ -160,7 +160,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 10 | Organizasyon sonrası: bağlı gönderiler, değerlendirme, geçmiş | ✅ Bitti (2026-10-21) |
 | 11 | Katkı ve rozetler (sunucuda doğrulanan olaylar) | ✅ Bitti (2026-10-21) |
 | 12 | Görevler ve ortak hedefler | ✅ Bitti (2026-10-21) |
-| 13 | Ekip arkadaşı bulma | |
+| 13 | Ekip arkadaşı bulma | ✅ Bitti (2026-10-21) |
 | 14 | Harita ile keşif (sağlayıcı onayı gerekir) | |
 | 15 | Mesajlaşma: birebir ve grup içi, engelleme | |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
@@ -172,7 +172,7 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 ## 6. Şu anki görev
 
-**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–12 bitti; sıradaki Faz 13 (Ekip arkadaşı bulma). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
+**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–13 bitti; sıradaki Faz 14 (Harita ile keşif: önce sağlayıcı maliyet karşılaştırması ve kullanıcı onayı). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.

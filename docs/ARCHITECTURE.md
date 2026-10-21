@@ -78,6 +78,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.support_messages` | support | 3.5 |
 | Storage `support-attachments` | support | 3.5 |
 | `public.follows`, `public.follow_requests`, `public.blocks` | profile | 4 |
+| `public.teammate_preferences`, `public.teammate_requests`, `public.teammates` | profile | 13 |
 | `public.group_follows` | groups | 4 |
 | `public.posts`, `public.post_media`, `public.post_hashtags` | feed | 4 |
 | `public.post_likes`, `public.comments`, `public.comment_likes`, `public.saved_posts` | feed | 4 |
@@ -287,6 +288,35 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Takipçi ve takip listeleri `can_view_user_content` ile korunur. Kişi bekleyen isteklerini ve engellediklerini yalnızca kendisi görür.
 - **Grup takibi** (`group_follows`): kullanıcının kendi basit yazmasıdır (Flutter → Supabase, RLS). Grup görünür olmalıdır. Üye olunan grupların gönderileri takip edilmese de akışa düşer.
 
+### Ekip arkadaşı (profile, Faz 13)
+Ürün kararları (2026-10-21): önerilerde yalnızca "Ekip arıyorum"u açanlar görünür. İsteyen ilini seçer; il yalnızca eşleştirmede kullanılır, profilde gösterilmez. Kabul edilen istek ayrı bir "Ekip arkadaşları" ilişkisi kurar; Faz 15'te mesajlaşma önce ekip arkadaşları arasında açılır.
+
+- **Tercihler** (`teammate_preferences`, kişinin kendi basit yazması, RLS):
+  - "Ekip arıyorum" (`looking`).
+  - Seviye: `beginner` / `intermediate` / `advanced`.
+  - Uygun zamanlar: `weekday_morning`, `weekday_evening`, `weekend_morning`, `weekend_afternoon`.
+  - İsteğe bağlı il (plaka kodu 1–81).
+  - Kısa hedef notu (en fazla 140 karakter).
+
+  İlgi alanları profildeki `profile_interests`'tir. Tercihleri yalnızca kişinin kendisi okur. Profilde yalnızca "Ekip arıyor · seviye" görünür; il gösterilmez.
+- **Öneriler** (`public.teammate_suggestions`): adaylar "Ekip arıyorum"u açık, hesabı aktif ve gizli olmayan kişilerdir. Engel, mevcut ekip arkadaşlığı ve bekleyen istek bulunanlar elenir. Puan basit ve açıklanabilirdir; her öneri nedenlerini döner:
+
+  | Neden | Puan |
+  |---|---|
+  | Her ortak ilgi alanı | 3 |
+  | Aynı il (ikisi de seçtiyse) | 3 |
+  | Her ortak grup | 2 |
+  | Aynı seviye | 2 |
+  | Her ortak uygun zaman | 1 |
+
+  En az 3 puanı olanlar, puan sırasıyla ve en fazla 30 kişi listelenir. Yapay zekâ ya da gizli sinyal kullanılmaz; konum, mesaj ve gezinme verisi okunmaz.
+- **İstek** (`teammate_requests`, C# API): mesaj en fazla 200 karakterdir. Karşı taraf "Ekip arıyorum"u açmış olmalıdır. Engel varsa istek gönderilemez. Karşı taraf kabul eder ya da reddeder; gönderen geri çeker. Karşı taraf zaten istek göndermişse, ona istek atmak o isteği kabul eder. Kabul edilince `teammates` kaydı oluşur ve iki taraf da istediği zaman ekip arkadaşlığını bitirir.
+- **Sınırlar** (`teammate_request_log`, yalnızca trigger yazar, kimse okuyamaz): gönderilen her istek 24 saat kayıtlı kalır. Bu sayede geri çekilen istekler de sayılır:
+  - Bir kişi 24 saatte en fazla 20 istek gönderir.
+  - Aynı kişiye 24 saatte en fazla bir istek gönderilir. Reddedilen ya da geri çekilen istek aynı gün yinelenemez.
+- **Engelleme** iki yöndeki istekleri ve ekip arkadaşlığını siler. Kötüye kullanım için profildeki "Şikayet et" (Faz 6) kullanılır.
+- **Bildirimler:** `teammate_request` (alana), `teammate_accepted` (gönderene). İstek geri çekilir ya da reddedilirse bildirimi de silinir. Bir çift için tek "kabul etti" bildirimi tutulur.
+
 ### Gönderi (feed)
 - **Yazar:** kullanıcı (kendi profili) ya da grup (`group_id`). Grup adına yalnızca `posts.publish` yetkisi olan yayınlar; bu yetki sahip ve Yönetici'dedir. Grup gönderisinde yazan yönetici kayıtlıdır, gönderi grup adıyla gösterilir.
 - **İçerik:**
@@ -366,6 +396,9 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 | `DELETE /me/follow-requests/{userId}` | İsteği reddet |
 | `DELETE /me/followers/{userId}` | Takipçiyi çıkar |
 | `POST /users/{id}/block` / `DELETE /users/{id}/block` | Engelle / engeli kaldır |
+| `POST /users/{id}/teammate` | Ekip arkadaşlığı isteği (`message?`; Faz 13) |
+| `DELETE /users/{id}/teammate` | İsteği geri çekme ya da ekip arkadaşlığını bitirme |
+| `POST /me/teammate-requests/{userId}/approval`, `DELETE /me/teammate-requests/{userId}` | Gelen isteği kabul / reddetme |
 | `POST /posts` | Gönderi (`caption`, `media[]`, `groupId?`, `eventId?` (Faz 10, anı), `commentsDisabled`, `hideLikeCount`) |
 | `PATCH /posts/{id}` | Açıklama ve seçenekler |
 | `DELETE /posts/{id}` | Gönderiyi ve medyasını sil (yazar ya da grup gönderisinde `posts.publish`) |
@@ -420,7 +453,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Anket kapanınca oy verilemez, sonuçlar kalır.
 
 ### Bildirimler
-`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`), `goal_completed` (Faz 12, bildirim kaydında `goal_id`). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
+`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`), `goal_completed` (Faz 12, bildirim kaydında `goal_id`), `teammate_request`, `teammate_accepted` (Faz 13). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".

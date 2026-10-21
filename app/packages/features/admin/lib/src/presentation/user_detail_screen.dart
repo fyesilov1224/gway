@@ -137,6 +137,13 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ('Değerlendirme', formatCount(d.contributions.reviews)),
         ('Gelmedi işareti', formatCount(d.contributions.noShows)),
       ]),
+      const SizedBox(height: GxSpacing.lg),
+      InfoPanel(title: 'Ekip arkadaşı', rows: [
+        ('Ekip arıyor', d.teammates.looking ? 'Evet' : 'Hayır'),
+        ('Ekip arkadaşı', formatCount(d.teammates.teammates)),
+        ('Son 24 saatte gönderdiği istek', '${d.teammates.requestsSentToday} / 20'),
+        ('Yanıt bekleyen istekleri', formatCount(d.teammates.requestsPending)),
+      ]),
       if (d.bio case final bio? when bio.isNotEmpty) ...[
         const SizedBox(height: GxSpacing.lg),
         GxPanel(title: 'Hakkında', child: Text(bio, style: Theme.of(context).textTheme.bodyLarge)),

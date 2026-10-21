@@ -120,7 +120,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
-          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_calendarButton])),
+          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_teammatesButton, _calendarButton])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen()),
           GoRoute(path: NotificationRoutes.list, builder: (_, _) => NotificationsScreen(links: notificationLinks)),
@@ -174,6 +174,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: ProfileRoutes.followRequests, builder: (_, _) => const FollowRequestsScreen()),
       GoRoute(path: ProfileRoutes.blocked, builder: (_, _) => const BlockedAccountsScreen()),
+      GoRoute(path: ProfileRoutes.teammates, builder: (_, _) => const TeammatesScreen()),
+      GoRoute(path: ProfileRoutes.teammateSettings, builder: (_, _) => const TeammateSettingsScreen()),
       GoRoute(path: GroupRoutes.create, builder: (_, _) => const CreateGroupScreen()),
       GoRoute(
         path: '/g/:handle',
@@ -239,6 +241,17 @@ Widget _groupsSection(BuildContext context, Profile profile, bool isOwn) =>
     UserGroupsSection(userId: profile.id, isOwn: isOwn);
 
 void _openProfile(BuildContext context, String username) => context.push(ProfileRoutes.user(username));
+
+/// "Ekip arkadaşı bul" from the home feed.
+const _teammatesButton = _TeammatesButton();
+
+class _TeammatesButton extends StatelessWidget {
+  const _TeammatesButton();
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+      tooltip: 'Ekip arkadaşı bul', icon: const Icon(Icons.diversity_3_outlined), onPressed: () => context.push(ProfileRoutes.teammates));
+}
 
 /// "Takvimim" from the home feed.
 const _calendarButton = _CalendarButton();

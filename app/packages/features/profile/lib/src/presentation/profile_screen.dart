@@ -7,10 +7,13 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/profile.dart';
 import '../domain/social.dart';
+import '../domain/teammates.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'social_providers.dart';
 import 'social_widgets.dart';
+import 'teammate_providers.dart';
+import 'teammate_screens.dart';
 
 /// Builds a section for the given user, shown under the interests (e.g.
 /// their groups). The app supplies it so features stay independent.
@@ -95,6 +98,8 @@ class _ProfileBody extends ConsumerWidget {
     final social = ref.watch(profileSocialProvider(profile.id)).value;
     final requests = isOwn && profile.isPrivate ? ref.watch(followRequestsProvider).value?.length ?? 0 : 0;
     final hidden = social != null && (social.blockedByMe || !social.canView);
+    final teammate = ref.watch(teammateStatusProvider(profile.id)).value;
+    final teammateRequests = isOwn ? ref.watch(myTeammatesProvider).value?.incoming.length ?? 0 : 0;
 
     return RefreshIndicator(
       onRefresh: () async => refreshRelationship(ref, profile.id),
@@ -114,7 +119,9 @@ class _ProfileBody extends ConsumerWidget {
               constraints: BoxConstraints(minHeight: avatar / 2 - GxSpacing.sm),
               child: Align(
                 alignment: Alignment.topRight,
-                child: isOwn ? const _OwnActions() : (social == null ? null : _VisitorActions(profile: profile, social: social)),
+                child: isOwn
+                    ? const _OwnActions()
+                    : (social == null ? null : _VisitorActions(profile: profile, social: social, teammate: teammate)),
               ),
             ),
           ),
@@ -135,9 +142,21 @@ class _ProfileBody extends ConsumerWidget {
                     ],
                   ],
                 ),
-                if (social != null && !isOwn && (social.isFriend || social.followsMe)) ...[
+                if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
+                    (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates))) ...[
                   const SizedBox(height: GxSpacing.xs),
-                  GxBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GxBadgeTone.primary),
+                  Wrap(
+                    spacing: GxSpacing.xs,
+                    runSpacing: GxSpacing.xxs,
+                    children: [
+                      if (social != null && !isOwn && (social.isFriend || social.followsMe))
+                        GxBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GxBadgeTone.primary),
+                      if (teammate?.relation == TeammateRelation.teammates)
+                        const GxBadge('Ekip arkadaşın', tone: GxBadgeTone.success)
+                      else if (teammate?.looking ?? false)
+                        GxBadge(teammate!.label, tone: GxBadgeTone.info),
+                    ],
+                  ),
                 ],
                 if (profile.bio.isNotEmpty) ...[
                   const SizedBox(height: GxSpacing.sm),
@@ -154,6 +173,17 @@ class _ProfileBody extends ConsumerWidget {
                     text: requests == 1 ? '1 takip isteği onay bekliyor.' : '$requests takip isteği onay bekliyor.',
                     actionLabel: 'İncele',
                     onAction: () => context.push(ProfileRoutes.followRequests),
+                  ),
+                ],
+                if (teammateRequests > 0) ...[
+                  const SizedBox(height: GxSpacing.sm),
+                  _Notice(
+                    icon: Icons.diversity_3_outlined,
+                    text: teammateRequests == 1
+                        ? '1 ekip arkadaşlığı isteği seni bekliyor.'
+                        : '$teammateRequests ekip arkadaşlığı isteği seni bekliyor.',
+                    actionLabel: 'İncele',
+                    onAction: () => context.push(ProfileRoutes.teammates),
                   ),
                 ],
               ],
@@ -234,10 +264,11 @@ class _OwnActions extends StatelessWidget {
 
 /// Follow button and the menu with block, remove follower and copy link.
 class _VisitorActions extends ConsumerWidget {
-  const _VisitorActions({required this.profile, required this.social});
+  const _VisitorActions({required this.profile, required this.social, required this.teammate});
 
   final Profile profile;
   final ProfileSocial social;
+  final TeammateStatus? teammate;
 
   Future<void> _run(BuildContext context, WidgetRef ref, Future<Result<void>> Function(SocialRepository r) action, String done) async {
     final result = await action(ref.read(socialRepositoryProvider));
@@ -263,7 +294,42 @@ class _VisitorActions extends ConsumerWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) await _run(context, ref, (r) => r.block(profile.id), '@${profile.username} engellendi.');
+    if (confirmed == true && context.mounted) {
+      await _run(context, ref, (r) => r.block(profile.id), '@${profile.username} engellendi.');
+      refreshTeammates(ref);
+    }
+  }
+
+  /// Ekip arkadaşı actions; offered only to someone looking (or already related).
+  List<PopupMenuEntry<void>> _teammateItems(BuildContext context, WidgetRef ref) {
+    final t = teammate;
+    if (t == null || social.blockedByMe) return const [];
+    final person = PersonSummary(id: profile.id, username: profile.username, displayName: profile.displayName);
+    return switch (t.relation) {
+      TeammateRelation.none when t.looking => [
+          PopupMenuItem(onTap: () => sendTeammateRequest(context, ref, person), child: const Text('Ekip arkadaşı ol')),
+        ],
+      TeammateRelation.incoming => [
+          PopupMenuItem(
+            onTap: () => runTeammateAction(
+                context, ref, (r) => r.accept(profile.id), '${profile.displayName} ile artık ekip arkadaşısınız.'),
+            child: const Text('Ekip arkadaşlığı isteğini kabul et'),
+          ),
+        ],
+      TeammateRelation.requested => [
+          PopupMenuItem(
+            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), 'İstek geri çekildi.'),
+            child: const Text('Ekip arkadaşlığı isteğini geri çek'),
+          ),
+        ],
+      TeammateRelation.teammates => [
+          PopupMenuItem(
+            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), 'Ekip arkadaşlığı bitti.'),
+            child: const Text('Ekip arkadaşlığını bitir'),
+          ),
+        ],
+      _ => const [],
+    };
   }
 
   @override
@@ -292,6 +358,7 @@ class _VisitorActions extends ConsumerWidget {
               }),
               child: const Text('Profil bağlantısını kopyala'),
             ),
+            ..._teammateItems(context, ref),
             if (social.followsMe && !social.blockedByMe)
               PopupMenuItem(
                 onTap: () => _run(context, ref, (r) => r.removeFollower(profile.id), 'Takipçilerinden çıkarıldı.'),

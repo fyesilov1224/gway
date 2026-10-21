@@ -35,10 +35,14 @@ public sealed record AdminUserDetail(
     string? SuspensionReason,
     IReadOnlyList<AdminConsent> Consents,
     IReadOnlyList<AdminAuditItem> History,
-    AdminContributions Contributions);
+    AdminContributions Contributions,
+    AdminTeammates Teammates);
 
 /// <summary>What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).</summary>
 public sealed record AdminContributions(int Attended, int Organized, int Memories, int Reviews, int NoShows);
+
+/// <summary>Teammate activity, for spotting request spam (docs/ARCHITECTURE.md §3c, Ekip arkadaşı); the province is never shown.</summary>
+public sealed record AdminTeammates(bool Looking, int Teammates, int RequestsSentToday, int RequestsPending);
 
 public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Total, int Page, int PageSize);
 
@@ -200,7 +204,22 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
             await reader.ReadAsync(ct);
             contributions = new AdminContributions(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4));
         }
-        return new AdminUserDetail(summary, bio, reason, consents, history, contributions);
+
+        AdminTeammates teammates;
+        await using (var cmd = new NpgsqlCommand(
+            """
+            select coalesce((select looking from public.teammate_preferences where user_id = @id), false),
+                   (select count(*)::int from public.teammates where @id in (user_a, user_b)),
+                   (select count(*)::int from public.teammate_requests where requester_id = @id and created_at > now() - interval '24 hours'),
+                   (select count(*)::int from public.teammate_requests where requester_id = @id)
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("id", userId);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
+            await reader.ReadAsync(ct);
+            teammates = new AdminTeammates(reader.GetBoolean(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
+        }
+        return new AdminUserDetail(summary, bio, reason, consents, history, contributions, teammates);
     }
 
     internal static string EscapeLike(string value) =>

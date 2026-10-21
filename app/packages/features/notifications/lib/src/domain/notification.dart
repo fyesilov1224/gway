@@ -21,7 +21,9 @@ enum NotificationType {
   eventApproved('event_approved'),
   eventDeclined('event_declined'),
   eventReview('event_review'),
-  goalCompleted('goal_completed');
+  goalCompleted('goal_completed'),
+  teammateRequest('teammate_request'),
+  teammateAccepted('teammate_accepted');
 
   const NotificationType(this.code);
 
@@ -146,6 +148,8 @@ class AppNotification {
         NotificationType.eventDeclined => '"${eventTitle ?? ''}" için katılım isteğini kabul edemedi.',
         NotificationType.eventReview => '"${eventTitle ?? ''}" nasıldı? Değerlendir, anılarını paylaş.',
         NotificationType.goalCompleted => '"${goalTitle ?? ''}" hedefini tamamladın! Rozetin profilinde.',
+        NotificationType.teammateRequest => 'seninle ekip arkadaşı olmak istiyor.',
+        NotificationType.teammateAccepted => 'ekip arkadaşlığı isteğini kabul etti.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.

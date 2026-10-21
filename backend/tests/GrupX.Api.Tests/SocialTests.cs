@@ -100,6 +100,75 @@ public sealed class SocialTests(ApiFactory factory) : IClassFixture<ApiFactory>,
         Assert.Equal(FollowResponse.Following, await FollowAsync(them, me));
     }
 
+    // Teammates -----------------------------------------------------------------------------
+
+    private Task LookingAsync(Guid user) =>
+        _db.ExecuteAsync("insert into public.teammate_preferences (user_id, looking, level) values (@id, true, 'beginner')", ("id", user));
+
+    private async Task<string?> TeammateAsync(Guid actor, Guid target, string? message = null)
+    {
+        var response = await factory.ClientFor(actor).PostAsJsonAsync(Path($"/users/{target}/teammate"), new TeammateRequestBody(message), Ct);
+        return response.IsSuccessStatusCode ? (await response.Content.ReadFromJsonAsync<TeammateResponse>(Ct))!.Status : $"{(int)response.StatusCode}";
+    }
+
+    private Task<bool> TeammatesAsync(Guid a, Guid b) =>
+        _db.ScalarAsync<bool>("select private.are_teammates(@a, @b)", ("a", a), ("b", b));
+
+    [Fact]
+    public async Task Teammate_requests_are_accepted_declined_and_crossed()
+    {
+        var (me, them, other, idle) = (await UserAsync(), await UserAsync(), await UserAsync(), await UserAsync());
+        await LookingAsync(me);
+        await LookingAsync(them);
+        await LookingAsync(other);
+
+        Assert.Equal("422", await TeammateAsync(me, idle));
+        Assert.Equal("400", await TeammateAsync(me, them, new string('a', TeammateRequestBody.MaxMessageLength + 1)));
+        Assert.Equal(TeammateResponse.Requested, await TeammateAsync(me, them, " Cumartesi Belgrad? "));
+        Assert.Equal(TeammateResponse.Requested, await TeammateAsync(me, them));
+        Assert.Equal("Cumartesi Belgrad?", await _db.ScalarAsync<string>(
+            "select message from public.teammate_requests where requester_id = @a and target_id = @b", ("a", me), ("b", them)));
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @r and type = 'teammate_request'", ("r", them)));
+
+        var client = factory.ClientFor(them);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsync(Path($"/me/teammate-requests/{me}/approval"), null, Ct)).StatusCode);
+        Assert.True(await TeammatesAsync(me, them));
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @r and type = 'teammate_accepted'", ("r", me)));
+        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsync(Path($"/me/teammate-requests/{me}/approval"), null, Ct)).StatusCode);
+        Assert.Equal(TeammateResponse.Teammates, await TeammateAsync(me, them));
+
+        // A declined request is not repeated the same day; asking back accepts a pending request.
+        Assert.Equal(TeammateResponse.Requested, await TeammateAsync(other, me));
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(me).DeleteAsync(Path($"/me/teammate-requests/{other}"), Ct)).StatusCode);
+        Assert.Equal(0L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @r and actor_id = @a and type = 'teammate_request'", ("r", me), ("a", other)));
+        Assert.Equal("422", await TeammateAsync(other, me));
+        Assert.Equal(TeammateResponse.Requested, await TeammateAsync(me, other));
+        Assert.Equal(TeammateResponse.Teammates, await TeammateAsync(other, me));
+        Assert.True(await TeammatesAsync(me, other));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(me).DeleteAsync(Path($"/users/{other}/teammate"), Ct)).StatusCode);
+        Assert.False(await TeammatesAsync(me, other));
+        Assert.Equal("400", await TeammateAsync(me, me));
+    }
+
+    [Fact]
+    public async Task Blocking_ends_teammates_and_requests()
+    {
+        var (me, them) = (await UserAsync(), await UserAsync());
+        await LookingAsync(me);
+        await LookingAsync(them);
+        await TeammateAsync(me, them);
+        await TeammateAsync(them, me);
+        Assert.True(await TeammatesAsync(me, them));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(them).PostAsync(Path($"/users/{me}/block"), null, Ct)).StatusCode);
+        Assert.False(await TeammatesAsync(me, them));
+        Assert.Equal("404", await TeammateAsync(me, them));
+    }
+
     // Posts ---------------------------------------------------------------------------------
 
     private async Task<string> MediaAsync(Guid owner, string ext = "jpg", string mime = "image/jpeg", long size = 100_000)

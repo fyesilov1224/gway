@@ -43,6 +43,8 @@ class SettingsScreen extends ConsumerWidget {
               const Divider(),
               const _PrivacyTile(),
               const Divider(),
+              tile(Icons.diversity_3_outlined, 'Ekip arkadaşı tercihleri', () => context.push(ProfileRoutes.teammateSettings)),
+              const Divider(),
               tile(Icons.block, 'Engellenen hesaplar', () => context.push(ProfileRoutes.blocked)),
               const Divider(),
               tile(Icons.bookmark_border_rounded, 'Kaydedilenler', () => context.push(FeedRoutes.saved)),

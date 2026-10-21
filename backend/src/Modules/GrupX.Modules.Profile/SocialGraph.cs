@@ -21,10 +21,11 @@ public static class ProfileModule
     public static IServiceCollection AddProfileModule(this IServiceCollection services)
     {
         services.AddSingleton<SocialGraph>();
+        services.AddSingleton<Teammates>();
         return services;
     }
 
-    /// <summary>Follow and block writes (docs/ARCHITECTURE.md §3c); profiles themselves are written through Supabase.</summary>
+    /// <summary>Follow, block and teammate writes (docs/ARCHITECTURE.md §3c); profiles themselves are written through Supabase.</summary>
     public static IEndpointRouteBuilder MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
         var users = app.MapGroup("/users");
@@ -41,6 +42,12 @@ public static class ProfileModule
         users.MapDelete("/{id:guid}/block", async (Guid id, ClaimsPrincipal user, SocialGraph graph, CancellationToken ct) =>
             (await graph.UnblockAsync(user.GetUserId(), id, ct)).ToHttpResult());
 
+        users.MapPost("/{id:guid}/teammate", async (Guid id, TeammateRequestBody? body, ClaimsPrincipal user, Teammates teammates, CancellationToken ct) =>
+            (await teammates.RequestAsync(user.GetUserId(), id, body?.Message, ct)).ToHttpResult());
+
+        users.MapDelete("/{id:guid}/teammate", async (Guid id, ClaimsPrincipal user, Teammates teammates, CancellationToken ct) =>
+            (await teammates.RemoveAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
         var me = app.MapGroup("/me");
 
         me.MapPost("/follow-requests/{userId:guid}/approval", async (Guid userId, ClaimsPrincipal user, SocialGraph graph, CancellationToken ct) =>
@@ -51,6 +58,12 @@ public static class ProfileModule
 
         me.MapDelete("/followers/{userId:guid}", async (Guid userId, ClaimsPrincipal user, SocialGraph graph, CancellationToken ct) =>
             (await graph.RemoveFollowerAsync(user.GetUserId(), userId, ct)).ToHttpResult());
+
+        me.MapPost("/teammate-requests/{userId:guid}/approval", async (Guid userId, ClaimsPrincipal user, Teammates teammates, CancellationToken ct) =>
+            (await teammates.AcceptAsync(user.GetUserId(), userId, ct)).ToHttpResult());
+
+        me.MapDelete("/teammate-requests/{userId:guid}", async (Guid userId, ClaimsPrincipal user, Teammates teammates, CancellationToken ct) =>
+            (await teammates.DeclineAsync(user.GetUserId(), userId, ct)).ToHttpResult());
 
         return app;
     }

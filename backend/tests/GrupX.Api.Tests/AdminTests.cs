@@ -147,6 +147,7 @@ public sealed class AdminTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
 
         var detail = await client.GetFromJsonAsync<AdminUserDetail>($"/admin/users/{target}", Ct);
         Assert.Contains(detail!.History, h => h.Action == "user.suspended" && h.ActorId == moderator);
+        Assert.Equal(new AdminTeammates(false, 0, 0, 0), detail.Teammates);
 
         var unsuspend = await client.DeleteAsync(Suspension(target), Ct);
 
