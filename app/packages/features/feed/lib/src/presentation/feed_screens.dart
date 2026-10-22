@@ -13,69 +13,46 @@ import 'providers.dart';
 import 'routes.dart';
 import 'stories.dart';
 
-/// Opens a sheet to share a post or a story.
-Future<void> showCreateSheet(BuildContext context) => showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.grid_on_outlined),
-              title: const Text('Gönderi'),
-              subtitle: const Text('10 fotoğraf ya da videoya kadar'),
-              onTap: () {
-                Navigator.of(sheet).pop();
-                context.push(FeedRoutes.create);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.history_toggle_off),
-              title: const Text('Hikaye'),
-              subtitle: const Text('24 saat görünür'),
-              onTap: () {
-                Navigator.of(sheet).pop();
-                context.push(FeedRoutes.newStory);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-
-/// Own posts, followed people and groups, newest first, under the story bar.
+/// The home page: the app's sections ([top], e.g. live and upcoming), stories, then posts.
 class HomeFeedScreen extends StatelessWidget {
-  const HomeFeedScreen({super.key, this.trailingActions = const [], this.top});
+  const HomeFeedScreen({super.key, this.title, this.actions = const [], this.top});
 
-  /// App-level actions, e.g. notifications.
-  final List<Widget> trailingActions;
+  /// Defaults to the logo; the app passes a greeting.
+  final Widget? title;
 
-  /// Shown above the story tray, e.g. live broadcasts (supplied by the app).
+  /// App-level actions, e.g. search, notifications and messages.
+  final List<Widget> actions;
+
+  /// Shown above the stories (supplied by the app).
   final Widget? top;
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          titleSpacing: GxSpacing.md,
-          title: const GxLogo(size: GxSpacing.lg + GxSpacing.xxs, wordmark: true),
-          actions: [
-            IconButton(tooltip: 'Paylaş', icon: const Icon(Icons.add_box_outlined), onPressed: () => showCreateSheet(context)),
-            IconButton(tooltip: 'Kaydedilenler', icon: const Icon(Icons.bookmark_border_rounded), onPressed: () => context.push(FeedRoutes.saved)),
-            ...trailingActions,
-            const SizedBox(width: GxSpacing.xs),
-          ],
+          toolbarHeight: GxSpacing.xxl + GxSpacing.md,
+          titleSpacing: GxSpacing.page,
+          title: title ?? const GxLogo(size: GxSpacing.lg + GxSpacing.xxs, wordmark: true),
+          actions: [...actions, const SizedBox(width: GxSpacing.xs)],
         ),
         body: GxReadingColumn(
-        maxWidth: GxLayout.feedMaxWidth,
+          maxWidth: GxLayout.feedMaxWidth,
           child: PagedPostFeed(
             source: const HomeFeed(),
-            header: top == null ? const StoryTray() : Column(mainAxisSize: MainAxisSize.min, children: [top!, const StoryTray()]),
+            header: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ?top,
+                const GxSectionHeader(title: 'Hikâyeler'),
+                const StoryTray(),
+                const GxSectionHeader(title: 'Akış', subtitle: 'Gruplarından ve takip ettiklerinden'),
+              ],
+            ),
             empty: (
               icon: Icons.dynamic_feed_outlined,
               message: 'Akışın boş. Takip ettiğin kişilerin ve grupların gönderileri burada görünür.',
               actionLabel: 'Keşfet',
-              onAction: () => context.go(FeedRoutes.explore),
+              onAction: () => context.push(FeedRoutes.explore),
             ),
           ),
         ),

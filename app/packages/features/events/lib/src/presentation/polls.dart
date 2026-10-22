@@ -289,7 +289,7 @@ class PollsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(title, style: textTheme.titleMedium)),
+              Expanded(child: Text(title, style: textTheme.titleLarge)),
               if (canManage)
                 TextButton.icon(
                   onPressed: () => showPollEditor(context, scope: scope),

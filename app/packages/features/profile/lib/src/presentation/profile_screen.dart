@@ -21,7 +21,14 @@ typedef ProfileSectionBuilder = Widget Function(BuildContext context, Profile pr
 
 /// A user's profile. Without [username] it shows the signed-in user's own.
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key, this.username, this.onOpenSettings, this.sections = const [], this.visitorActions = const []});
+  const ProfileScreen({
+    super.key,
+    this.username,
+    this.onOpenSettings,
+    this.sections = const [],
+    this.visitorActions = const [],
+    this.ownActions = const [],
+  });
 
   final String? username;
 
@@ -32,6 +39,9 @@ class ProfileScreen extends ConsumerWidget {
 
   /// Other features' buttons next to "Takip et" on someone else's profile (e.g. "Mesaj").
   final List<ProfileSectionBuilder> visitorActions;
+
+  /// Other features' shortcuts in the app bar of your own profile (e.g. "Kaydedilenler").
+  final List<Widget> ownActions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,7 +54,8 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: name == null ? GxSpacing.md : 0,
+        // Opened from a link there is no back button, so the title keeps its padding.
+        titleSpacing: name != null && Navigator.canPop(context) ? 0 : GxSpacing.md,
         title: switch (profile.value) {
           final p? => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,6 +67,7 @@ class ProfileScreen extends ConsumerWidget {
           null => const Text('Profil'),
         },
         actions: [
+          if (isOwn) ...ownActions,
           if (isOwn && onOpenSettings != null)
             Padding(
               padding: const EdgeInsets.only(right: GxSpacing.xs),
@@ -98,7 +110,6 @@ class _ProfileBody extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final interests = ref.watch(interestsProvider(profile.id)).value ?? const [];
     final names = {for (final c in ref.watch(categoriesProvider).value ?? const <Category>[]) c.slug: c.name};
-    final avatar = gxHeaderAvatarSize(context);
     final social = ref.watch(profileSocialProvider(profile.id)).value;
     final requests = isOwn && profile.isPrivate ? ref.watch(followRequestsProvider).value?.length ?? 0 : 0;
     final hidden = social != null && (social.blockedByMe || !social.canView);
@@ -108,94 +119,72 @@ class _ProfileBody extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async => refreshRelationship(ref, profile.id),
       child: ListView(
-        padding: EdgeInsets.zero,
+        padding: const EdgeInsets.only(bottom: GxSpacing.xl),
         children: [
-          GxCoverHeader(
+          GxHeroCard(
             name: profile.displayName,
+            subtitle: '@${profile.username}',
             shape: GxAvatarShape.user,
             coverUrl: profile.coverUrl,
             avatarUrl: profile.avatarUrl,
-          ),
-          // Actions share the row with the lower half of the avatar.
-          Padding(
-            padding: EdgeInsets.fromLTRB(GxSpacing.md + avatar + GxSpacing.sm, GxSpacing.sm, GxSpacing.md, 0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: avatar / 2 - GxSpacing.sm),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: isOwn
-                    ? const _OwnActions()
-                    : (social == null
-                        ? null
-                        : _VisitorActions(profile: profile, social: social, teammate: teammate, extra: visitorActions)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, GxSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(profile.displayName, style: textTheme.headlineMedium),
-                Row(
+            coverIcon: interests.isEmpty ? Icons.diversity_3_outlined : categoryIcon(interests.first),
+            subtitleTrailing: (social?.isPrivate ?? profile.isPrivate)
+                ? const Icon(Icons.lock_outline, size: GxSpacing.md, color: GxColors.textSecondary)
+                : null,
+            children: [
+              if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
+                  (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates)))
+                Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xxs,
                   children: [
-                    Flexible(
-                      child: Text('@${profile.username}', style: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary)),
-                    ),
-                    if (social?.isPrivate ?? profile.isPrivate) ...[
-                      const SizedBox(width: GxSpacing.xxs),
-                      const Icon(Icons.lock_outline, size: GxSpacing.md, color: GxColors.textSecondary),
-                    ],
+                    if (social != null && !isOwn && (social.isFriend || social.followsMe))
+                      GxBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GxBadgeTone.primary),
+                    if (teammate?.relation == TeammateRelation.teammates)
+                      const GxBadge('Ekip arkadaşın', tone: GxBadgeTone.success)
+                    else if (teammate?.looking ?? false)
+                      GxBadge(teammate!.label, tone: GxBadgeTone.info),
                   ],
                 ),
-                if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
-                    (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates))) ...[
-                  const SizedBox(height: GxSpacing.xs),
-                  Wrap(
-                    spacing: GxSpacing.xs,
-                    runSpacing: GxSpacing.xxs,
-                    children: [
-                      if (social != null && !isOwn && (social.isFriend || social.followsMe))
-                        GxBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GxBadgeTone.primary),
-                      if (teammate?.relation == TeammateRelation.teammates)
-                        const GxBadge('Ekip arkadaşın', tone: GxBadgeTone.success)
-                      else if (teammate?.looking ?? false)
-                        GxBadge(teammate!.label, tone: GxBadgeTone.info),
-                    ],
-                  ),
-                ],
-                if (profile.bio.isNotEmpty) ...[
-                  const SizedBox(height: GxSpacing.sm),
-                  Text(profile.bio, style: textTheme.bodyLarge),
-                ],
-                const SizedBox(height: GxSpacing.sm),
-                _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYearTr(profile.createdAt)}'),
-                const SizedBox(height: GxSpacing.md),
-                _Stats(profile: profile, social: social),
-                if (requests > 0) ...[
-                  const SizedBox(height: GxSpacing.md),
-                  _Notice(
-                    icon: Icons.person_add_alt,
-                    text: requests == 1 ? '1 takip isteği onay bekliyor.' : '$requests takip isteği onay bekliyor.',
-                    actionLabel: 'İncele',
-                    onAction: () => context.push(ProfileRoutes.followRequests),
-                  ),
-                ],
-                if (teammateRequests > 0) ...[
-                  const SizedBox(height: GxSpacing.sm),
-                  _Notice(
-                    icon: Icons.diversity_3_outlined,
-                    text: teammateRequests == 1
-                        ? '1 ekip arkadaşlığı isteği seni bekliyor.'
-                        : '$teammateRequests ekip arkadaşlığı isteği seni bekliyor.',
-                    actionLabel: 'İncele',
-                    onAction: () => context.push(ProfileRoutes.teammates),
-                  ),
-                ],
-              ],
-            ),
+              if (profile.bio.isNotEmpty) Text(profile.bio, style: textTheme.bodyLarge),
+              _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYearTr(profile.createdAt)}'),
+              if (!hidden && interests.isNotEmpty)
+                Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final slug in interests) GxTag(icon: categoryIcon(slug), label: names[slug] ?? slug, tone: GxTone.of(slug)),
+                  ],
+                ),
+              _Stats(profile: profile, social: social),
+              if (isOwn)
+                const _OwnActions()
+              else if (social != null)
+                _VisitorActions(profile: profile, social: social, teammate: teammate, extra: visitorActions),
+            ],
           ),
-          const Divider(),
+          if (requests > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+              child: _Notice(
+                icon: Icons.person_add_alt,
+                text: requests == 1 ? '1 takip isteği onay bekliyor.' : '$requests takip isteği onay bekliyor.',
+                actionLabel: 'İncele',
+                onAction: () => context.push(ProfileRoutes.followRequests),
+              ),
+            ),
+          if (teammateRequests > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+              child: _Notice(
+                icon: Icons.diversity_3_outlined,
+                text: teammateRequests == 1
+                    ? '1 ekip arkadaşlığı isteği seni bekliyor.'
+                    : '$teammateRequests ekip arkadaşlığı isteği seni bekliyor.',
+                actionLabel: 'İncele',
+                onAction: () => context.push(ProfileRoutes.teammates),
+              ),
+            ),
           if (social != null && social.blockedByMe)
             _Locked(
               icon: Icons.block,
@@ -217,33 +206,17 @@ class _ProfileBody extends ConsumerWidget {
               text: 'Fotoğraflarını, videolarını ve hikayelerini görmek için bu hesabı takip et.',
             )
           else ...[
-            Padding(
-              padding: const EdgeInsets.all(GxSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('İlgi alanları', style: textTheme.titleMedium),
-                  const SizedBox(height: GxSpacing.sm),
-                  if (interests.isEmpty)
-                    Text(
-                      isOwn
-                          ? 'Henüz ilgi alanı eklemedin. Profilini düzenleyerek ekleyebilirsin.'
-                          : 'Henüz ilgi alanı eklenmemiş.',
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
-                    )
-                  else
-                    Wrap(
-                      spacing: GxSpacing.xs,
-                      runSpacing: GxSpacing.xs,
-                      children: [
-                        for (final slug in interests) _InterestTag(icon: categoryIcon(slug), label: names[slug] ?? slug),
-                      ],
-                    ),
-                ],
+            if (isOwn && interests.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+                child: _Notice(
+                  icon: Icons.interests_outlined,
+                  text: 'İlgi alanlarını ekle, sana uygun grupları ve ekip arkadaşlarını bulalım.',
+                  actionLabel: 'Ekle',
+                  onAction: () => context.push(ProfileRoutes.edit),
+                ),
               ),
-            ),
-            const Divider(),
-            for (final section in sections) ...[section(context, profile, isOwn), const Divider()],
+            for (final section in sections) section(context, profile, isOwn),
           ],
         ],
       ),
@@ -256,15 +229,12 @@ class _OwnActions extends StatelessWidget {
   const _OwnActions();
 
   @override
-  Widget build(BuildContext context) => OutlinedButton.icon(
+  Widget build(BuildContext context) => GxButton(
+        label: 'Profili düzenle',
+        icon: Icons.edit_outlined,
+        variant: GxButtonVariant.secondary,
+        expand: true,
         onPressed: () => context.push(ProfileRoutes.edit),
-        icon: const Icon(Icons.edit_outlined, size: GxSpacing.md + GxSpacing.xxs),
-        label: const Text('Profili düzenle'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: GxColors.textPrimary,
-          shape: const StadiumBorder(),
-          side: const BorderSide(color: GxColors.border),
-        ),
       );
 }
 
@@ -404,31 +374,34 @@ class _Stats extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = social;
     final textTheme = Theme.of(context).textTheme;
-    Widget stat(String label, int? value, VoidCallback? onTap) => InkWell(
-          borderRadius: GxRadius.mdAll,
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs),
-              child: Text.rich(
-                TextSpan(children: [
-                  TextSpan(text: value == null ? '–' : formatCount(value), style: textTheme.titleMedium),
-                  TextSpan(text: ' $label', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-                ]),
+    Widget stat(String label, int? value, VoidCallback? onTap) => Expanded(
+          child: Material(
+            color: GxColors.surface,
+            borderRadius: GxRadius.mdAll,
+            child: InkWell(
+              borderRadius: GxRadius.mdAll,
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.sm),
+                child: Column(
+                  children: [
+                    Text(value == null ? '–' : formatCount(value), style: textTheme.titleLarge),
+                    Text(label,
+                        maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                  ],
+                ),
               ),
             ),
           ),
         );
     final open = s != null && s.canView && !s.blockedByMe;
-    return Wrap(
-      spacing: GxSpacing.sm,
+    return Row(
       children: [
-        stat('gönderi', s?.postCount, null),
-        stat('takipçi', s?.followerCount,
-            open ? () => context.push(ProfileRoutes.followers(profile.username)) : null),
-        stat('takip', s?.followingCount,
-            open ? () => context.push(ProfileRoutes.following(profile.username)) : null),
+        stat('Gönderi', s?.postCount, null),
+        const SizedBox(width: GxSpacing.xs),
+        stat('Takipçi', s?.followerCount, open ? () => context.push(ProfileRoutes.followers(profile.username)) : null),
+        const SizedBox(width: GxSpacing.xs),
+        stat('Takip', s?.followingCount, open ? () => context.push(ProfileRoutes.following(profile.username)) : null),
       ],
     );
   }
@@ -515,54 +488,14 @@ class _Meta extends StatelessWidget {
   }
 }
 
-class _InterestTag extends StatelessWidget {
-  const _InterestTag({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
-      decoration: BoxDecoration(color: GxColors.primarySoft, borderRadius: BorderRadius.circular(GxRadius.xl)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.primary),
-          const SizedBox(width: GxSpacing.xs),
-          Text(label, style: Theme.of(context).textTheme.labelLarge),
-        ],
-      ),
-    );
-  }
-}
-
 class _ProfileSkeleton extends StatelessWidget {
   const _ProfileSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final avatar = gxHeaderAvatarSize(context);
     return ListView(
       padding: EdgeInsets.zero,
-      children: [
-        const GxCoverHeaderSkeleton(shape: GxAvatarShape.user),
-        SizedBox(height: avatar / 2 + GxSpacing.md),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: GxSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.lg),
-              SizedBox(height: GxSpacing.xs),
-              GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.md),
-            ],
-          ),
-        ),
-      ],
+      children: const [GxHeroCardSkeleton(shape: GxAvatarShape.user)],
     );
   }
 }

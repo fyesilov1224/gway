@@ -42,25 +42,27 @@ class StoryRingAvatar extends StatelessWidget {
       );
 }
 
-/// The horizontal bar on the home feed: your story first, then followed people.
+/// The story row on the home page: your story first, then followed people,
+/// as small chips so stories stay secondary to groups and organizations.
 class StoryTray extends ConsumerWidget {
   const StoryTray({super.key});
+
+  static const double _height = GxSpacing.xxl + GxSpacing.xs;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rings = ref.watch(storyTrayProvider).value;
-    if (rings == null) return const SizedBox(height: GxSpacing.xxl * 2 + GxSpacing.md);
+    if (rings == null) return const SizedBox(height: _height);
     final mine = rings.where((r) => r.isMine).firstOrNull;
     final others = rings.where((r) => !r.isMine);
-    return Container(
-      height: GxSpacing.xxl * 2 + GxSpacing.md,
-      decoration: const BoxDecoration(border: Border(bottom: GxBorders.hairline)),
+    return SizedBox(
+      height: _height,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
         children: [
           _TrayItem(
-            label: 'Hikayen',
+            label: mine == null ? 'Hikâye ekle' : 'Hikâyen',
             ring: mine,
             onTap: () => context.push(mine == null ? FeedRoutes.newStory : FeedRoutes.stories(mine.userId)),
           ),
@@ -71,7 +73,7 @@ class StoryTray extends ConsumerWidget {
   }
 }
 
-class _TrayItem extends ConsumerWidget {
+class _TrayItem extends StatelessWidget {
   const _TrayItem({required this.label, required this.ring, required this.onTap});
 
   final String label;
@@ -79,35 +81,38 @@ class _TrayItem extends ConsumerWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final textTheme = Theme.of(context).textTheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: GxRadius.mdAll,
-      child: SizedBox(
-        width: GxSpacing.xxl + GxSpacing.lg + GxSpacing.xs,
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                if (ring case final r?)
-                  StoryRingAvatar(name: r.username, imageUrl: r.avatarUrl, unseen: r.hasUnseen)
-                else
-                  Container(
-                    width: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
-                    height: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: GxColors.surface, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
-                    child: const Icon(Icons.add_a_photo_outlined, color: GxColors.textSecondary),
-                  ),
-              ],
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(right: GxSpacing.xs),
+        child: Center(
+          child: Material(
+            color: GxColors.background,
+            shape: const StadiumBorder(side: GxBorders.hairline),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.xxs, GxSpacing.xxs, GxSpacing.md, GxSpacing.xxs),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (ring case final r?)
+                      StoryRingAvatar(name: r.username, imageUrl: r.avatarUrl, unseen: r.hasUnseen, size: GxAvatarSize.sm)
+                    else
+                      Container(
+                        width: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
+                        height: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
+                        decoration: const ShapeDecoration(color: GxColors.primarySoft, shape: CircleBorder()),
+                        child: const Icon(Icons.add_rounded, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.primary),
+                      ),
+                    const SizedBox(width: GxSpacing.xs),
+                    Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelLarge),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: GxSpacing.xxs),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 /// A user's active stories, full screen.
@@ -675,7 +680,7 @@ class _HighlightCover extends StatelessWidget {
       );
 }
 
-/// Highlights on a profile; on your own, a "Yeni" circle leads to the archive.
+/// Highlights on a profile; on your own, an "Öne çıkan ekle" chip leads to the archive.
 class HighlightsRow extends ConsumerWidget {
   const HighlightsRow({super.key, required this.userId, required this.isOwn});
 
@@ -688,30 +693,41 @@ class HighlightsRow extends ConsumerWidget {
     final visible = [for (final h in highlights) if (h.storyCount > 0 || isOwn) h];
     if (visible.isEmpty && !isOwn) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
-    Widget item({required Widget cover, required String label, required VoidCallback onTap, VoidCallback? onLongPress}) => InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          borderRadius: GxRadius.mdAll,
-          child: SizedBox(
-            width: GxSpacing.xxl + GxSpacing.lg + GxSpacing.xs,
-            child: Column(
-              children: [
-                cover,
-                const SizedBox(height: GxSpacing.xxs),
-                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
-              ],
+    // Chips like the home story row, so highlights read as a shelf, not a row of circles.
+    Widget item({required Widget cover, required String label, required VoidCallback onTap, VoidCallback? onLongPress}) => Padding(
+          padding: const EdgeInsets.only(right: GxSpacing.xs),
+          child: Center(
+            child: Material(
+              color: GxColors.background,
+              shape: const StadiumBorder(side: GxBorders.hairline),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onTap,
+                onLongPress: onLongPress,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(GxSpacing.xxs, GxSpacing.xxs, GxSpacing.md, GxSpacing.xxs),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      cover,
+                      const SizedBox(width: GxSpacing.xs),
+                      Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         );
     return SizedBox(
-      height: GxSpacing.xxl * 2 + GxSpacing.md,
+      height: GxSpacing.xxl + GxSpacing.md,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
         children: [
           for (final h in visible)
             item(
-              cover: _HighlightCover(highlight: h, size: GxAvatarSize.lg.dimension),
+              cover: _HighlightCover(highlight: h, size: GxAvatarSize.sm.dimension),
               label: h.title,
               onTap: () => h.storyCount == 0 ? context.push(FeedRoutes.archive) : context.push(FeedRoutes.highlight(h.id)),
               onLongPress: isOwn ? () => _manage(context, ref, h) : null,
@@ -719,12 +735,12 @@ class HighlightsRow extends ConsumerWidget {
           if (isOwn)
             item(
               cover: Container(
-                width: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
-                height: GxAvatarSize.lg.dimension + GxBorders.ringWidth * 4,
-                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
-                child: const Icon(Icons.add),
+                width: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
+                height: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
+                decoration: const ShapeDecoration(color: GxColors.primarySoft, shape: CircleBorder()),
+                child: const Icon(Icons.add_rounded, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.primary),
               ),
-              label: 'Yeni',
+              label: 'Öne çıkan ekle',
               onTap: () => context.push(FeedRoutes.archive),
             ),
         ],

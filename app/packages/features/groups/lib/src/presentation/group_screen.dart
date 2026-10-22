@@ -118,7 +118,6 @@ class _GroupBody extends ConsumerWidget {
     final membership = ref.watch(myMembershipProvider(group.id)).value;
     final me = membership ?? const MyMembership();
     final category = categoryNames(ref)[group.categorySlug];
-    final avatar = gxHeaderAvatarSize(context);
     final requests = me.can(GroupPermission.approveMembers) ? ref.watch(joinRequestsProvider(group.id)).value?.length ?? 0 : 0;
 
     return RefreshIndicator(
@@ -126,83 +125,68 @@ class _GroupBody extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: GxSpacing.xl),
         children: [
-          GxCoverHeader(name: group.name, shape: GxAvatarShape.group, coverUrl: group.coverUrl, avatarUrl: group.logoUrl),
-          // Actions sit right of the overlapping logo and may wrap on narrow screens.
-          Padding(
-            padding: EdgeInsets.fromLTRB(GxSpacing.md + avatar + GxSpacing.sm, GxSpacing.sm, GxSpacing.md, 0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: avatar / 2 - GxSpacing.sm),
-              // No action until the membership is known, so it never flickers.
-              child: Align(
-                alignment: Alignment.topRight,
-                child: membership == null
-                    ? null
-                    : Wrap(
-                        spacing: GxSpacing.xs,
-                        runSpacing: GxSpacing.xs,
-                        alignment: WrapAlignment.end,
-                        children: [
-                          if (!membership.isMember && !group.isSuspended) _FollowAction(group: group, me: membership),
-                          _JoinAction(group: group, me: membership),
-                        ],
-                      ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, GxSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(group.name, style: textTheme.headlineMedium),
-                Text('@${group.handle}', style: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary)),
-                if (group.isSuspended) ...[
-                  const SizedBox(height: GxSpacing.sm),
-                  const _Notice(
-                    icon: Icons.block,
-                    danger: true,
-                    text: 'Bu grup platform ekibi tarafından askıya alındı. Askı sürerken grup yalnızca üyelerine görünür.',
+          GxHeroCard(
+            name: group.name,
+            subtitle: '@${group.handle}',
+            shape: GxAvatarShape.group,
+            coverUrl: group.coverUrl,
+            avatarUrl: group.logoUrl,
+            coverIcon: categoryIcon(group.categorySlug),
+            children: [
+              if (group.isSuspended)
+                const _Notice(
+                  icon: Icons.block,
+                  danger: true,
+                  text: 'Bu grup platform ekibi tarafından askıya alındı. Askı sürerken grup yalnızca üyelerine görünür.',
+                ),
+              if (group.about.isNotEmpty) Text(group.about, style: textTheme.bodyLarge),
+              Wrap(
+                spacing: GxSpacing.md,
+                runSpacing: GxSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (category != null) GxTag(icon: categoryIcon(group.categorySlug), label: category, tone: GxTone.of(group.categorySlug)),
+                  if (group.provinceName case final province?) GroupMeta(icon: Icons.place_outlined, text: province),
+                  GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
+                  InkWell(
+                    onTap: () => context.push(GroupRoutes.members(group.handle)),
+                    child: GroupMeta(icon: Icons.people_outline, text: memberCountLabel(group.memberCount)),
                   ),
+                  GroupMeta(icon: Icons.calendar_month_outlined, text: 'Kuruluş: ${formatMonthYearTr(group.createdAt)}'),
                 ],
-                if (group.about.isNotEmpty) ...[
-                  const SizedBox(height: GxSpacing.sm),
-                  Text(group.about, style: textTheme.bodyLarge),
-                ],
-                const SizedBox(height: GxSpacing.sm),
+              ),
+              // No action until the membership is known, so it never flickers.
+              if (membership != null)
                 Wrap(
-                  spacing: GxSpacing.md,
+                  spacing: GxSpacing.xs,
                   runSpacing: GxSpacing.xs,
                   children: [
-                    if (category != null) GroupMeta(icon: categoryIcon(group.categorySlug), text: category),
-                    if (group.provinceName case final province?) GroupMeta(icon: Icons.place_outlined, text: province),
-                    GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
-                    InkWell(
-                      onTap: () => context.push(GroupRoutes.members(group.handle)),
-                      child: GroupMeta(icon: Icons.people_outline, text: memberCountLabel(group.memberCount)),
-                    ),
-                    GroupMeta(icon: Icons.calendar_month_outlined, text: 'Kuruluş: ${formatMonthYearTr(group.createdAt)}'),
+                    _JoinAction(group: group, me: membership),
+                    if (!membership.isMember && !group.isSuspended) _FollowAction(group: group, me: membership),
                   ],
                 ),
-                if (membership != null)
-                  for (final section in sections) section(context, group, membership),
-                if (requests > 0) ...[
-                  const SizedBox(height: GxSpacing.md),
-                  _Notice(
-                    icon: Icons.how_to_reg_outlined,
-                    text: '$requests katılım isteği onay bekliyor.',
-                    actionLabel: 'İncele',
-                    onAction: () => context.push(GroupRoutes.members(group.handle)),
-                  ),
-                ],
-              ],
-            ),
+              if (requests > 0)
+                _Notice(
+                  icon: Icons.how_to_reg_outlined,
+                  text: '$requests katılım isteği onay bekliyor.',
+                  actionLabel: 'İncele',
+                  onAction: () => context.push(GroupRoutes.members(group.handle)),
+                ),
+            ],
           ),
-          if (group.rules.isNotEmpty) ...[
-            const Divider(),
-            _Section(title: 'Kurallar', child: Text(group.rules, style: textTheme.bodyLarge)),
-          ],
-          if (group.links.isNotEmpty) ...[
-            const Divider(),
+          if (membership != null && sections.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+              child: GxCard(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [for (final section in sections) section(context, group, membership)],
+                ),
+              ),
+            ),
+          if (group.rules.isNotEmpty) _Section(title: 'Kurallar', child: Text(group.rules, style: textTheme.bodyLarge)),
+          if (group.links.isNotEmpty)
             _Section(
               title: 'Bağlantılar',
               child: Column(
@@ -210,11 +194,9 @@ class _GroupBody extends ConsumerWidget {
                 children: [for (final link in group.links) _LinkRow(link: link)],
               ),
             ),
-          ],
-          const Divider(),
           _TeamSection(group: group, onOpenProfile: onOpenProfile),
           if (membership != null)
-            for (final section in contentSections) ...[const Divider(), section(context, group, membership)],
+            for (final section in contentSections) section(context, group, membership),
         ],
       ),
     );
@@ -259,11 +241,7 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
     final group = widget.group;
     final me = widget.me;
     final state = joinStateOf(group, me, userId: ref.watch(currentUserIdProvider));
-    final outlined = OutlinedButton.styleFrom(
-      foregroundColor: GxColors.textPrimary,
-      shape: const StadiumBorder(),
-      side: const BorderSide(color: GxColors.border),
-    );
+    final outlined = OutlinedButton.styleFrom(foregroundColor: GxColors.textPrimary);
     const iconSize = GxSpacing.md + GxSpacing.xxs;
 
     Widget edit() => OutlinedButton.icon(
@@ -447,6 +425,7 @@ class PersonTile extends StatelessWidget {
   }
 }
 
+/// A titled white card below the hero (rules, links, team).
 class _Section extends StatelessWidget {
   const _Section({required this.title, required this.child, this.trailing, this.padChild = true});
 
@@ -458,22 +437,25 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: GxSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
-            child: Row(
-              children: [
-                Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),
-                ?trailing,
-              ],
+      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+      child: GxCard(
+        padding: const EdgeInsets.symmetric(vertical: GxSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: GxSpacing.md, right: trailing == null ? GxSpacing.md : GxSpacing.xs),
+              child: Row(
+                children: [
+                  Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),
+                  ?trailing,
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: GxSpacing.xs),
-          padChild ? Padding(padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md), child: child) : child,
-        ],
+            const SizedBox(height: GxSpacing.xs),
+            padChild ? Padding(padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md), child: child) : child,
+          ],
+        ),
       ),
     );
   }
@@ -547,23 +529,7 @@ class _GroupSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: EdgeInsets.zero,
-      children: [
-        const GxCoverHeaderSkeleton(shape: GxAvatarShape.group),
-        SizedBox(height: gxHeaderAvatarSize(context) / 2 + GxSpacing.md),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: GxSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.lg),
-              SizedBox(height: GxSpacing.xs),
-              GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.md),
-            ],
-          ),
-        ),
-      ],
+      children: const [GxHeroCardSkeleton(shape: GxAvatarShape.group)],
     );
   }
 }

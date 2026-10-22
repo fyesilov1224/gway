@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../tokens/colors.dart';
 import '../tokens/radius.dart';
+import '../tokens/tones.dart';
 
 enum GxAvatarSize {
   sm(32),
@@ -25,6 +25,7 @@ class GxAvatar extends StatelessWidget {
     required this.shape,
     this.imageUrl,
     this.size = GxAvatarSize.md,
+    this.tone,
   });
 
   /// Used for initials and the semantic label.
@@ -33,19 +34,23 @@ class GxAvatar extends StatelessWidget {
   final String? imageUrl;
   final GxAvatarSize size;
 
+  /// Background and initials color without an image; defaults to the name's tone.
+  final GxTone? tone;
+
   @override
   Widget build(BuildContext context) {
     final dimension = size.dimension;
     final url = imageUrl;
-    final fallback = _Initials(name: name, dimension: dimension);
+    final palette = tone ?? GxTone.of(name);
+    final fallback = _Initials(name: name, dimension: dimension, color: palette.strong);
 
     final decoration = switch (shape) {
-      GxAvatarShape.user => const ShapeDecoration(
-          color: GxColors.primarySoft,
-          shape: CircleBorder(),
+      GxAvatarShape.user => ShapeDecoration(
+          color: palette.soft,
+          shape: const CircleBorder(),
         ),
       GxAvatarShape.group => ShapeDecoration(
-          color: GxColors.primarySoft,
+          color: palette.soft,
           shape: RoundedRectangleBorder(
             // Scales with size so small and large group avatars look alike.
             borderRadius: BorderRadius.circular(
@@ -77,15 +82,16 @@ class GxAvatar extends StatelessWidget {
 }
 
 class _Initials extends StatelessWidget {
-  const _Initials({required this.name, required this.dimension});
+  const _Initials({required this.name, required this.dimension, required this.color});
 
   final String name;
   final double dimension;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: GxColors.primary,
+          color: color,
           fontSize: dimension * 0.4,
           height: 1,
         );

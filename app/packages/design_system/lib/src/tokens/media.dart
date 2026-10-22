@@ -9,8 +9,9 @@ abstract final class GxMedia {
   static const double gridTile = 4 / 5;
   static const int gridColumns = 3;
 
-  /// The one spacing that is not a multiple of 4: grid tiles sit almost edge to edge.
-  static const double gridGap = 2;
+  /// Grid tiles are separate rounded cards ([gridRadius]), not an edge-to-edge mosaic.
+  static const double gridGap = 8;
+  static const double gridRadius = 12;
 
   static const int uploadMaxSide = 1440;
   static const int storyMaxSide = 1920;

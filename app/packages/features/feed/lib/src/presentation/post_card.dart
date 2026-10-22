@@ -100,62 +100,47 @@ class PostCard extends ConsumerWidget {
           null => current.author == null ? null : links.openProfile(context, current.author!.username),
         };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _Header(post: current, onOpenOwner: openOwner, onDeleted: onDeleted),
-        MediaCarousel(media: current.media, onDoubleTap: () => toggleLike(context, ref, current, onlyLike: true)),
-        _Actions(post: current),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (current.likeCount case final likes? when likes > 0)
-                Text('${formatCount(likes)} beğenme', style: textTheme.labelLarge),
-              if (current.hideLikeCount && current.canManage)
-                Text('Beğeni sayısı yalnızca sana görünür.', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
-              if (current.caption.isNotEmpty) ...[
-                const SizedBox(height: GxSpacing.xxs),
-                _Caption(post: current, onOpenOwner: openOwner),
-              ],
-              if (current.event case final event?)
-                InkWell(
-                  onTap: links.openEvent == null ? null : () => links.openEvent!(context, event.id),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
-                    child: Row(children: [
-                      const Icon(Icons.event_outlined, size: GxSpacing.md, color: GxColors.primary),
-                      const SizedBox(width: GxSpacing.xxs),
-                      Expanded(
-                        child: Text('Anı · ${event.title}', maxLines: 1, overflow: TextOverflow.ellipsis,
-                            style: textTheme.labelMedium?.copyWith(color: GxColors.primary)),
-                      ),
-                    ]),
-                  ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+      child: GxCard(
+        radius: GxRadius.lgAll,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _Header(post: current, onOpenOwner: openOwner, onDeleted: onDeleted),
+            if (current.media.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+                child: ClipRRect(
+                  borderRadius: GxRadius.mdAll,
+                  child: MediaCarousel(media: current.media, onDoubleTap: () => toggleLike(context, ref, current, onlyLike: true)),
                 ),
-              if (showAllComments && !current.commentsDisabled && current.commentCount > 0) ...[
-                const SizedBox(height: GxSpacing.xxs),
-                InkWell(
-                  onTap: () => context.push(FeedRoutes.comments(current.id)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
-                    child: Text(
-                      current.commentCount == 1 ? '1 yorumu gör' : '${formatCount(current.commentCount)} yorumun tümünü gör',
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: GxSpacing.xxs),
-              Text(
-                '${formatAgoTr(current.createdAt)}${current.editedAt != null ? ' · düzenlendi' : ''}',
-                style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
               ),
-            ],
-          ),
+            _Actions(post: current, showComments: showAllComments),
+            if (current.caption.isNotEmpty || current.event != null || (current.hideLikeCount && current.canManage))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (current.hideLikeCount && current.canManage)
+                      Text('Beğeni sayısı yalnızca sana görünür.', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                    if (current.caption.isNotEmpty) _Caption(post: current, onOpenOwner: openOwner),
+                    if (current.event case final event?)
+                      Padding(
+                        padding: const EdgeInsets.only(top: GxSpacing.xs),
+                        child: InkWell(
+                          borderRadius: GxRadius.xlAll,
+                          onTap: links.openEvent == null ? null : () => links.openEvent!(context, event.id),
+                          child: GxTag(label: 'Anı · ${event.title}', icon: Icons.event_outlined),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -171,40 +156,41 @@ class _Header extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final group = post.group;
-    final name = group?.name ?? post.author?.username ?? 'Silinmiş hesap';
+    final author = post.author;
+    final name = group?.name ?? author?.displayName ?? 'Silinmiş hesap';
+    final meta = [
+      if (author != null) '@${author.username}' else if (group != null) 'Grup gönderisi',
+      formatAgoTr(post.createdAt),
+      if (post.editedAt != null) 'düzenlendi',
+    ].join(' · ');
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xxs, GxSpacing.xs),
+      padding: const EdgeInsets.fromLTRB(GxSpacing.sm, GxSpacing.sm, GxSpacing.xxs, GxSpacing.sm),
       child: Row(
         children: [
-          InkWell(
-            onTap: onOpenOwner,
-            borderRadius: GxRadius.mdAll,
-            child: Row(
-              children: [
-                GxAvatar(
-                  name: group?.name ?? post.author?.displayName ?? '?',
-                  shape: group == null ? GxAvatarShape.user : GxAvatarShape.group,
-                  imageUrl: group?.logoUrl ?? post.author?.avatarUrl,
-                  size: GxAvatarSize.sm,
-                ),
-                const SizedBox(width: GxSpacing.sm),
-              ],
-            ),
-          ),
           Expanded(
             child: InkWell(
               onTap: onOpenOwner,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              borderRadius: GxRadius.mdAll,
+              child: Row(
                 children: [
-                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
-                  if (group != null)
-                    Text(
-                      post.author == null ? 'Grup gönderisi' : 'Grup gönderisi · @${post.author!.username}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                  GxAvatar(
+                    name: group?.name ?? author?.displayName ?? '?',
+                    shape: group == null ? GxAvatarShape.user : GxAvatarShape.group,
+                    imageUrl: group?.logoUrl ?? author?.avatarUrl,
+                  ),
+                  const SizedBox(width: GxSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
+                        Text(meta,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
@@ -236,34 +222,37 @@ class _Header extends ConsumerWidget {
   }
 }
 
+/// Like, comment and share with their counts; save on the right.
 class _Actions extends ConsumerWidget {
-  const _Actions({required this.post});
+  const _Actions({required this.post, required this.showComments});
 
   final Post post;
 
+  /// Off on the comments page itself.
+  final bool showComments;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs),
+        padding: const EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.xxs, GxSpacing.xxs, GxSpacing.xxs),
         child: Row(
           children: [
-            IconButton(
+            _Counter(
               tooltip: post.liked ? 'Beğenmekten vazgeç' : 'Beğen',
-              onPressed: () => toggleLike(context, ref, post),
-              icon: post.liked
-                  ? const Icon(Icons.favorite_rounded, color: GxColors.like)
-                  : const Icon(Icons.favorite_border_rounded),
+              icon: post.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: post.liked ? GxColors.like : null,
+              count: post.likeCount,
+              unit: 'beğenme',
+              onTap: () => toggleLike(context, ref, post),
             ),
             if (!post.commentsDisabled)
-              IconButton(
+              _Counter(
                 tooltip: 'Yorum yap',
-                onPressed: () => context.push(FeedRoutes.comments(post.id)),
-                icon: const Icon(Icons.mode_comment_outlined),
+                icon: Icons.mode_comment_outlined,
+                count: post.commentCount,
+                unit: 'yorum',
+                onTap: showComments ? () => context.push(FeedRoutes.comments(post.id)) : null,
               ),
-            IconButton(
-              tooltip: 'Bağlantıyı kopyala',
-              onPressed: () => copyPostLink(context, post),
-              icon: const Icon(Icons.send_outlined),
-            ),
+            _Counter(tooltip: 'Bağlantıyı kopyala', icon: Icons.ios_share_rounded, onTap: () => copyPostLink(context, post)),
             const Spacer(),
             IconButton(
               tooltip: post.saved ? 'Kaydedilenlerden çıkar' : 'Kaydet',
@@ -273,6 +262,53 @@ class _Actions extends ConsumerWidget {
           ],
         ),
       );
+}
+
+/// An icon with its count; no number when it is zero or hidden.
+class _Counter extends StatelessWidget {
+  const _Counter({required this.tooltip, required this.icon, this.onTap, this.color, this.count, this.unit = ''});
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback? onTap;
+  final Color? color;
+  final int? count;
+
+  /// Read after the number by screen readers ("3 beğenme").
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = count;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: GxRadius.xlAll,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget, minWidth: GxSpacing.minTouchTarget),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: color ?? GxColors.textPrimary, size: GxSpacing.lg - GxSpacing.xxs),
+                if (n != null && n > 0) ...[
+                  const SizedBox(width: GxSpacing.xxs),
+                  Semantics(
+                    label: '${formatCount(n)} $unit',
+                    excludeSemantics: true,
+                    child: Text(formatCount(n), style: Theme.of(context).textTheme.labelLarge),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Two lines with "devamı" to expand.
@@ -316,22 +352,25 @@ class PostCardSkeleton extends StatelessWidget {
   const PostCardSkeleton({super.key});
 
   @override
-  Widget build(BuildContext context) => const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(GxSpacing.md),
-            child: Row(children: [
-              GxSkeleton.circle(size: GxSpacing.xl),
-              SizedBox(width: GxSpacing.sm),
-              GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
-            ]),
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: GxSpacing.page),
+        child: GxCard(
+          radius: GxRadius.lgAll,
+          padding: EdgeInsets.all(GxSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                GxSkeleton.circle(size: GxSpacing.xl + GxSpacing.xs),
+                SizedBox(width: GxSpacing.sm),
+                GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
+              ]),
+              SizedBox(height: GxSpacing.sm),
+              AspectRatio(aspectRatio: 1, child: GxSkeleton(height: double.infinity, borderRadius: GxRadius.mdAll)),
+              SizedBox(height: GxSpacing.sm),
+              GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.md),
+            ],
           ),
-          AspectRatio(aspectRatio: 1, child: GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)),
-          Padding(
-            padding: EdgeInsets.all(GxSpacing.md),
-            child: GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.md),
-          ),
-        ],
+        ),
       );
 }

@@ -60,7 +60,7 @@ class GroupMeta extends StatelessWidget {
   }
 }
 
-/// One group in a list: logo, name and a summary line. Opens the group page.
+/// One group in a list, as a card: logo, name and a summary line. Opens the group page.
 class GroupTile extends ConsumerWidget {
   const GroupTile({super.key, required this.group, this.trailing});
 
@@ -71,10 +71,12 @@ class GroupTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final category = categoryNames(ref)[group.categorySlug];
-    return InkWell(
-      onTap: () => context.push(GroupRoutes.group(group.handle)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xxs),
+      child: GxCard(
+        radius: GxRadius.lgAll,
+        padding: const EdgeInsets.all(GxSpacing.sm),
+        onTap: () => context.push(GroupRoutes.group(group.handle)),
         child: Row(
           children: [
             GxAvatar(name: group.name, shape: GxAvatarShape.group, imageUrl: group.logoUrl, size: GxAvatarSize.lg),
@@ -160,7 +162,7 @@ class UserGroupsSection extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
-          child: Text('Gruplar', style: textTheme.titleMedium),
+          child: Text('Gruplar', style: textTheme.titleLarge),
         ),
         switch (groups) {
           AsyncData(:final value) when value.isEmpty => Padding(

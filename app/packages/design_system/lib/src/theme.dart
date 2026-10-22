@@ -46,7 +46,8 @@ abstract final class GxTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: GxColors.background,
+      // A barely tinted canvas; content sits on white cards (docs/DESIGN.md §5).
+      scaffoldBackgroundColor: GxColors.surface,
       fontFamily: GxTypography.fontFamily,
       package: GxTypography.fontPackage,
       textTheme: textTheme,
@@ -57,13 +58,64 @@ abstract final class GxTheme {
         space: 1,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: GxColors.background,
+        backgroundColor: GxColors.surface,
         foregroundColor: GxColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
-        shape: const Border(bottom: GxBorders.hairline),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: GxColors.textPrimary,
+        unselectedLabelColor: GxColors.textSecondary,
+        labelStyle: textTheme.labelLarge,
+        unselectedLabelStyle: textTheme.labelLarge,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: const _PillIndicator(),
+        dividerColor: GxColors.border,
+        splashBorderRadius: GxRadius.xlAll,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          backgroundColor: GxColors.background,
+          foregroundColor: GxColors.textSecondary,
+          selectedBackgroundColor: GxColors.primarySoft,
+          selectedForegroundColor: GxColors.textPrimary,
+          side: GxBorders.hairline,
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: GxColors.background,
+        selectedColor: GxColors.primarySoft,
+        side: GxBorders.hairline,
+        shape: const StadiumBorder(),
+        labelStyle: textTheme.labelLarge,
+        showCheckmark: false,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: GxColors.background,
+        modalBackgroundColor: GxColors.background,
+        surfaceTintColor: Colors.transparent,
+        dragHandleColor: GxColors.border,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(GxRadius.xl))),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: GxColors.background,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: GxColors.background,
+        surfaceTintColor: Colors.transparent,
+        textStyle: textTheme.bodyLarge,
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.mdAll, side: GxBorders.hairline),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: GxColors.textPrimary,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(color: GxColors.onPrimary),
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.mdAll),
       ),
       cardTheme: const CardThemeData(
         color: GxColors.background,
@@ -107,7 +159,7 @@ abstract final class GxTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: GxColors.surface,
+        fillColor: GxColors.background,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: GxSpacing.md,
           vertical: GxSpacing.sm,
@@ -135,5 +187,23 @@ abstract final class GxTheme {
         ),
       ),
     );
+  }
+}
+
+/// The selected tab: a soft pill inset from the tab's edges.
+class _PillIndicator extends Decoration {
+  const _PillIndicator();
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) => _PillPainter();
+}
+
+class _PillPainter extends BoxPainter {
+  static const _inset = EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs + GxSpacing.xxs / 2);
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final rect = _inset.deflateRect(offset & configuration.size!);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(rect.height / 2)), Paint()..color = GxColors.primarySoft);
   }
 }

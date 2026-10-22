@@ -193,17 +193,18 @@ void main() {
       addTearDown(view.reset);
     });
 
+    // Counts are read as "3 beğenme" by screen readers; the card shows the number next to the icon.
     testWidgets('liking shows at once and the count follows', (tester) async {
       final repo = _FakeFeed();
       await tester.pumpWidget(_app(PostCard(post: _post()), repo));
       await tester.pumpAndSettle();
-      expect(find.text('3 beğenme'), findsOneWidget);
+      expect(find.bySemanticsLabel('3 beğenme'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Beğen'));
       await tester.pumpAndSettle();
 
       expect(repo.likes, [true]);
-      expect(find.text('4 beğenme'), findsOneWidget);
+      expect(find.bySemanticsLabel('4 beğenme'), findsOneWidget);
       expect(find.byTooltip('Beğenmekten vazgeç'), findsOneWidget);
     });
 
@@ -215,14 +216,14 @@ void main() {
       await tester.tap(find.byTooltip('Beğen'));
       await tester.pumpAndSettle();
 
-      expect(find.text('3 beğenme'), findsOneWidget);
+      expect(find.bySemanticsLabel('3 beğenme'), findsOneWidget);
       expect(find.text('Çok fazla beğeni.'), findsOneWidget);
     });
 
     testWidgets('a hidden like count shows nothing to others; edit is only for managers', (tester) async {
       await tester.pumpWidget(_app(PostCard(post: _post(likes: null)), _FakeFeed()));
       await tester.pumpAndSettle();
-      expect(find.textContaining('beğenme'), findsNothing);
+      expect(find.bySemanticsLabel(RegExp('beğenme')), findsNothing);
 
       await tester.tap(find.byTooltip('Diğer seçenekler'));
       await tester.pumpAndSettle();
@@ -236,7 +237,7 @@ void main() {
       await tester.pumpWidget(_app(PostCard(post: _post(canManage: true)), _FakeFeed()));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('2 yorumun tümünü gör'), findsOneWidget);
+      expect(find.bySemanticsLabel('2 yorum'), findsOneWidget);
     });
   });
 }

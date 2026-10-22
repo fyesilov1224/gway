@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../tokens/borders.dart';
 import '../tokens/colors.dart';
 import '../tokens/radius.dart';
 import '../tokens/spacing.dart';
+import '../tokens/tones.dart';
 import 'avatar.dart';
+import 'sections.dart';
 import 'skeleton.dart';
 
-/// Centered reading column ([GxLayout.contentMaxWidth]); on wide screens it
-/// gets hairline side borders. Used by profile and group pages; the feed
-/// passes [GxLayout.feedMaxWidth].
+/// Centered column for pages that read top to bottom ([GxLayout.contentMaxWidth];
+/// the home page passes [GxLayout.feedMaxWidth]).
 class GxReadingColumn extends StatelessWidget {
   const GxReadingColumn({super.key, required this.child, this.maxWidth = GxLayout.contentMaxWidth});
 
@@ -17,122 +17,174 @@ class GxReadingColumn extends StatelessWidget {
   final double maxWidth;
 
   @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth), child: child),
+      );
+}
+
+/// Edge of the hero avatar: 64 on phones, 96 from the reading width on.
+GxAvatarSize gxHeroAvatarSize(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? GxAvatarSize.xl : GxAvatarSize.lg;
+
+/// The identity card at the top of a profile or group page: a rounded card
+/// with the cover inside it, the avatar beside the name (it never overlaps
+/// the cover) and the page's own content ([children]) below.
+class GxHeroCard extends StatelessWidget {
+  const GxHeroCard({
+    super.key,
+    required this.name,
+    required this.subtitle,
+    required this.shape,
+    this.coverUrl,
+    this.avatarUrl,
+    this.tone,
+    this.coverIcon = Icons.groups_2_outlined,
+    this.subtitleTrailing,
+    this.children = const [],
+  });
+
+  final String name;
+
+  /// The @handle line under the name.
+  final String subtitle;
+  final GxAvatarShape shape;
+  final String? coverUrl;
+  final String? avatarUrl;
+
+  /// Tone of the cover placeholder and the avatar fallback; defaults to the name's.
+  final GxTone? tone;
+
+  /// Drawn on the cover placeholder (e.g. the group's category).
+  final IconData coverIcon;
+
+  /// Next to the subtitle, e.g. a lock for private accounts.
+  final Widget? subtitleTrailing;
+
+  /// Bio, meta, stats and actions, separated by [GxSpacing.sm].
+  final List<Widget> children;
+
+  @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width > maxWidth;
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        decoration: wide ? const BoxDecoration(border: Border.symmetric(vertical: GxBorders.hairline)) : null,
-        child: child,
+    final textTheme = Theme.of(context).textTheme;
+    final palette = tone ?? GxTone.of(name);
+    final cover = coverUrl;
+    final placeholder = _CoverPlaceholder(tone: palette, icon: coverIcon);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, 0),
+      child: GxCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 3,
+              child: cover == null
+                  ? placeholder
+                  : Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(GxSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
+                      const SizedBox(width: GxSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: textTheme.headlineMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(subtitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary)),
+                                ),
+                                if (subtitleTrailing case final trailing?) ...[const SizedBox(width: GxSpacing.xxs), trailing],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  for (final child in children) ...[const SizedBox(height: GxSpacing.sm), child],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Edge of the header avatar: 96 on phones, 128 from the reading width on.
-double gxHeaderAvatarSize(BuildContext context) =>
-    (MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? GxAvatarSize.xxl : GxAvatarSize.xl).dimension;
+/// Loading state of [GxHeroCard].
+class GxHeroCardSkeleton extends StatelessWidget {
+  const GxHeroCardSkeleton({super.key, required this.shape});
 
-/// Ring around the header avatar, in pixels.
-const double _ring = GxSpacing.xxs;
-
-/// 3:1 cover (soft brand tint until one is uploaded) with the avatar
-/// overlapping its bottom edge inside a white ring. The avatar sticks out
-/// by half its size; callers reserve that space below.
-class GxCoverHeader extends StatelessWidget {
-  const GxCoverHeader({
-    super.key,
-    required this.name,
-    required this.shape,
-    this.coverUrl,
-    this.avatarUrl,
-  });
-
-  final String name;
   final GxAvatarShape shape;
-  final String? coverUrl;
-  final String? avatarUrl;
 
   @override
   Widget build(BuildContext context) {
-    final size = gxHeaderAvatarSize(context);
-    final cover = coverUrl;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        AspectRatio(
-          aspectRatio: 3,
-          child: cover == null
-              ? const _CoverPlaceholder()
-              : Image.network(
-                  cover,
-                  fit: BoxFit.cover,
-                  semanticLabel: 'Kapak fotoğrafı',
-                  errorBuilder: (_, _, _) => const _CoverPlaceholder(),
-                ),
-        ),
-        Positioned(
-          left: GxSpacing.md,
-          bottom: -size / 2,
-          child: Container(
-            padding: const EdgeInsets.all(_ring),
-            decoration: ShapeDecoration(color: GxColors.background, shape: _ringShape(shape, size)),
-            child: SizedBox.square(
-              dimension: size,
-              child: FittedBox(
-                child: GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: GxAvatarSize.xxl),
+    final size = gxHeroAvatarSize(context).dimension;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, 0),
+      child: GxCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const AspectRatio(aspectRatio: 3, child: GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)),
+            Padding(
+              padding: const EdgeInsets.all(GxSpacing.md),
+              child: Row(
+                children: [
+                  if (shape == GxAvatarShape.user)
+                    GxSkeleton.circle(size: size)
+                  else
+                    GxSkeleton(width: size, height: size, borderRadius: BorderRadius.circular(size * GxRadius.lg / GxAvatarSize.lg.dimension)),
+                  const SizedBox(width: GxSpacing.md),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GxSkeleton(width: GxSpacing.xxl * 3, height: GxSpacing.lg),
+                        SizedBox(height: GxSpacing.xs),
+                        GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-ShapeBorder _ringShape(GxAvatarShape shape, double size) => switch (shape) {
-      GxAvatarShape.user => const CircleBorder(),
-      GxAvatarShape.group => RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular((size + 2 * _ring) * GxRadius.lg / GxAvatarSize.lg.dimension),
-        ),
-    };
-
-/// Loading state of [GxCoverHeader].
-class GxCoverHeaderSkeleton extends StatelessWidget {
-  const GxCoverHeaderSkeleton({super.key, required this.shape});
-
-  final GxAvatarShape shape;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = gxHeaderAvatarSize(context);
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        const AspectRatio(aspectRatio: 3, child: GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)),
-        Positioned(
-          left: GxSpacing.md,
-          bottom: -size / 2,
-          child: shape == GxAvatarShape.user
-              ? GxSkeleton.circle(size: size)
-              : GxSkeleton(width: size, height: size, borderRadius: BorderRadius.circular(size * GxRadius.lg / GxAvatarSize.lg.dimension)),
-        ),
-      ],
-    );
-  }
-}
-
+/// The tone's soft color with its icon repeated faintly, like a club banner.
 class _CoverPlaceholder extends StatelessWidget {
-  const _CoverPlaceholder();
+  const _CoverPlaceholder({required this.tone, required this.icon});
+
+  final GxTone tone;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: GxColors.primarySoft,
-      child: Align(
-        alignment: Alignment(0.85, 0),
-        child: Icon(Icons.groups_2_outlined, size: GxSpacing.xxl * 2, color: GxColors.background),
+    final faint = tone.strong.withValues(alpha: 0.12);
+    return ColoredBox(
+      color: tone.soft,
+      child: Stack(
+        children: [
+          Positioned(right: GxSpacing.lg, bottom: -GxSpacing.md, child: Icon(icon, size: GxSpacing.xxl * 2.5, color: faint)),
+          Positioned(right: GxSpacing.xxl * 3, top: GxSpacing.md, child: Icon(icon, size: GxSpacing.xxl, color: faint)),
+        ],
       ),
     );
   }

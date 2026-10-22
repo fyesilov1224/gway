@@ -15,7 +15,7 @@ typedef EmptyPosts = ({IconData icon, String message, String actionLabel, VoidCa
 
 bool _nearEnd(ScrollNotification n) => n.metrics.extentAfter < 800;
 
-/// Portrait tiles in three columns, almost edge to edge (docs/DESIGN.md §7).
+/// Portrait tiles in three columns, separate rounded cards (docs/DESIGN.md §7).
 const postGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
   crossAxisCount: GxMedia.gridColumns,
   childAspectRatio: GxMedia.gridTile,
@@ -47,6 +47,7 @@ class PagedPostFeed extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             if (header != null) SliverToBoxAdapter(child: header),
+            const SliverPadding(padding: EdgeInsets.only(top: GxSpacing.xs)),
             switch (page) {
               AsyncData() when posts.isEmpty => SliverFillRemaining(
                   hasScrollBody: false,
@@ -54,7 +55,7 @@ class PagedPostFeed extends ConsumerWidget {
                 ),
               AsyncData(:final value) => SliverList.separated(
                   itemCount: posts.length + (value.loadingMore ? 1 : 0),
-                  separatorBuilder: (_, _) => const SizedBox(height: GxSpacing.xs),
+                  separatorBuilder: (_, _) => const SizedBox(height: GxSpacing.sm),
                   itemBuilder: (_, i) => i == posts.length ? const PostCardSkeleton() : PostCard(post: posts[i]),
                 ),
               AsyncError(:final error) => SliverFillRemaining(
@@ -63,6 +64,7 @@ class PagedPostFeed extends ConsumerWidget {
                 ),
               _ => SliverList.list(children: const [PostCardSkeleton(), PostCardSkeleton()]),
             },
+            const SliverPadding(padding: EdgeInsets.only(bottom: GxSpacing.lg)),
           ],
         ),
       ),
@@ -70,7 +72,7 @@ class PagedPostFeed extends ConsumerWidget {
   }
 }
 
-/// Three columns of square previews; opens the post on tap.
+/// Three columns of rounded previews inside the page gutter; opens the post on tap.
 class PostGrid extends ConsumerWidget {
   const PostGrid({super.key, required this.posts, this.scrollable = false});
 
@@ -86,7 +88,7 @@ class PostGrid extends ConsumerWidget {
     return GridView.builder(
       shrinkWrap: !scrollable,
       physics: scrollable ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xs),
       gridDelegate: postGridDelegate,
       itemCount: visible.length,
       itemBuilder: (context, i) => PostTile(post: visible[i]),
@@ -103,18 +105,23 @@ class PostTile extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
         button: true,
         label: post.caption.isEmpty ? 'Gönderi' : 'Gönderi: ${post.caption}',
-        child: InkWell(
-          onTap: () => context.push(FeedRoutes.post(post.id)),
-          child: post.media.isEmpty
-              ? const ColoredBox(color: GxColors.surfaceMuted)
-              : MediaThumb(
-                  media: post.media.first,
-                  badge: post.media.length > 1
-                      ? Icons.collections_outlined
-                      : post.media.first.kind == MediaKind.video
-                          ? Icons.play_arrow_rounded
-                          : null,
-                ),
+        child: Material(
+          color: GxColors.surfaceMuted,
+          clipBehavior: Clip.antiAlias,
+          borderRadius: const BorderRadius.all(Radius.circular(GxMedia.gridRadius)),
+          child: InkWell(
+            onTap: () => context.push(FeedRoutes.post(post.id)),
+            child: post.media.isEmpty
+                ? const SizedBox.expand()
+                : MediaThumb(
+                    media: post.media.first,
+                    badge: post.media.length > 1
+                        ? Icons.collections_outlined
+                        : post.media.first.kind == MediaKind.video
+                            ? Icons.play_arrow_rounded
+                            : null,
+                  ),
+          ),
         ),
       );
 }
@@ -206,9 +213,11 @@ class GridSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GridView.builder(
         gridDelegate: postGridDelegate,
+        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xs),
         shrinkWrap: !scrollable,
         physics: scrollable ? null : const NeverScrollableScrollPhysics(),
         itemCount: rows * GxMedia.gridColumns,
-        itemBuilder: (_, _) => const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero),
+        itemBuilder: (_, _) =>
+            const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.all(Radius.circular(GxMedia.gridRadius))),
       );
 }

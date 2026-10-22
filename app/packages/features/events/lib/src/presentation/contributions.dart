@@ -41,7 +41,7 @@ class ContributionsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Topluluk katkısı', style: textTheme.titleMedium)),
+              Expanded(child: Text('Topluluk katkısı', style: textTheme.titleLarge)),
               TextButton(onPressed: () => showBadgeGuide(context), child: const Text('Rozetler nasıl kazanılır?')),
             ],
           ),

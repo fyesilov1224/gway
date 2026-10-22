@@ -142,6 +142,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
     return AuthLayout(
       title: widget.title,
       subtitle: widget.subtitle,
+      showPitch: widget.allowSignUp,
       children: [
         Form(
           key: _form,
@@ -244,6 +245,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
     return AuthLayout(
       title: 'Kayıt ol',
       subtitle: 'Gruplarını bul, organizasyonlara katıl, yeni insanlarla tanış.',
+      showPitch: true,
       children: [
         Form(
           key: _form,

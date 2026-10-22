@@ -26,8 +26,8 @@ abstract final class GxLayout {
   /// Reading content such as a profile or a list.
   static const double contentMaxWidth = 720;
 
-  /// Feed, post and comment pages.
-  static const double feedMaxWidth = 480;
+  /// Home, post and comment pages (post cards and the home sections).
+  static const double feedMaxWidth = 560;
 
   /// Dashboards and data tables (admin panel).
   static const double dashboardMaxWidth = 1200;

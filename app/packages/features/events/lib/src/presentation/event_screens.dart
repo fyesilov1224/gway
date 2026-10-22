@@ -200,9 +200,17 @@ class GroupEventsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Organizasyonlar', style: textTheme.titleMedium)),
-              TextButton(onPressed: () => context.push(EventRoutes.history(groupId)), child: const Text('Geçmiş')),
-              TextButton(onPressed: () => context.push(EventRoutes.groupCalendar(groupId)), child: const Text('Takvim')),
+              Expanded(child: Text('Organizasyonlar', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleLarge)),
+              IconButton(
+                tooltip: 'Geçmiş organizasyonlar',
+                onPressed: () => context.push(EventRoutes.history(groupId)),
+                icon: const Icon(Icons.history_rounded),
+              ),
+              IconButton(
+                tooltip: 'Grup takvimi',
+                onPressed: () => context.push(EventRoutes.groupCalendar(groupId)),
+                icon: const Icon(Icons.calendar_month_outlined),
+              ),
               if (canManage)
                 TextButton.icon(
                   onPressed: left == 0 ? null : () => context.push(EventRoutes.create(groupId)),

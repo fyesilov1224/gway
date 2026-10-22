@@ -44,11 +44,6 @@ final notificationLinks = NotificationLinks(
 Widget peopleResults(BuildContext context, String query, VoidCallback onClear) =>
     PeopleSearchResults(query: query, onClear: onClear);
 
-Widget _title(BuildContext context, String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.sm),
-      child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-    );
-
 /// Highlights and the post grid on a profile.
 Widget profilePostsSection(BuildContext context, Profile profile, bool isOwn) => _ProfilePosts(profile: profile, isOwn: isOwn);
 
@@ -66,11 +61,8 @@ class _ProfilePosts extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        GxSectionHeader(title: 'Gönderiler', actionLabel: isOwn ? 'Yeni gönderi' : null, onAction: create),
         HighlightsRow(userId: profile.id, isOwn: isOwn),
-        _SectionHeader(
-          title: 'Gönderiler',
-          action: isOwn ? (icon: Icons.add_box_outlined, label: 'Yeni gönderi', onPressed: create) : null,
-        ),
         PostsSection(
           source: UserPosts(profile.id),
           emptyMessage: isOwn ? 'Henüz gönderi paylaşmadın. İlk fotoğrafını ya da videonu paylaş.' : 'Henüz gönderi yok.',
@@ -81,30 +73,6 @@ class _ProfilePosts extends ConsumerWidget {
   }
 }
 
-/// A section title with an optional action on the right.
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.action});
-
-  final String title;
-  final ({IconData icon, String label, VoidCallback onPressed})? action;
-
-  @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          Expanded(child: _title(context, title)),
-          if (action case final a?)
-            Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.sm),
-              child: TextButton.icon(
-                onPressed: a.onPressed,
-                icon: Icon(a.icon, size: GxSpacing.md + GxSpacing.xxs),
-                label: Text(a.label),
-              ),
-            ),
-        ],
-      );
-}
-
 /// The group's posts; publishers (owner, Yönetici) can share from here.
 Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
   final canPublish = me.can(GroupPermission.publishPosts) && !group.isSuspended;
@@ -112,10 +80,7 @@ Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _SectionHeader(
-        title: 'Gönderiler',
-        action: canPublish ? (icon: Icons.add_box_outlined, label: 'Yeni gönderi', onPressed: create) : null,
-      ),
+      GxSectionHeader(title: 'Gönderiler', actionLabel: canPublish ? 'Yeni gönderi' : null, onAction: create),
       PostsSection(
         source: GroupPosts(group.id),
         emptyMessage: canPublish ? 'Grup adına ilk gönderiyi sen paylaş.' : 'Bu grup henüz gönderi paylaşmadı.',

@@ -12,3 +12,4 @@ export 'src/presentation/map_screens.dart';
 export 'src/presentation/polls.dart' show PollCard, PollsSection, showPollEditor;
 export 'src/presentation/providers.dart';
 export 'src/presentation/routes.dart';
+export 'src/presentation/upcoming.dart';

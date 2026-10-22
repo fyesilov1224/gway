@@ -66,6 +66,7 @@ Platform ekibi (admin, moderatör, destek) için. Kullanıcı ve grup yönetimi,
 ## 2. Tasarım (AAA)
 
 - **Ferah, sakin, profesyonel.** Ekranın büyük kısmı **beyaz**. Kullanıcıyı boğmayan, kullanım keyfini artıran, içeriği öne çıkaran bir arayüz.
+- **Topluluk merkezli, X/Instagram kalıbı değil:** ana sayfa "Bugün" (canlı, yaklaşan organizasyonlar, sonra akış); içerik hafif tonlu zemin üzerinde beyaz kartlarda; profil ve grup başında kimlik kartı (taşan avatar yok).
 - Renkler **hafif tonlarda** mor, mavi, siyah ve beyaz:
   - Mor `#6E56CF`: ana aksiyon, soft zemin `#F3F0FF`
   - Mavi `#2F6FE0`: ikincil aksiyon ve bilgi, soft zemin `#EAF2FF`
@@ -163,6 +164,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 13 | Ekip arkadaşı bulma | ✅ Bitti (2026-10-21) |
 | 14 | Harita ile keşif (Stadia; ücretli plan yayında onayla) | ✅ Bitti (2026-10-22) |
 | 15 | Mesajlaşma: birebir ve grup içi, engelleme | ✅ Bitti (2026-10-22) |
+| 15.5 | Görsel kimlik: topluluk merkezli tasarım (kullanıcı isteği) | ✅ Bitti (2026-10-22) |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
 
@@ -172,7 +174,7 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 ## 6. Şu anki görev
 
-**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–15 bitti; sıradaki Faz 16 (Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
+**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–15 ve kullanıcı isteğiyle Faz 15.5 (görsel kimlik) bitti; sıradaki Faz 16 (Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.

@@ -245,6 +245,19 @@ Kararlar (2026-10-22): ekip arkadaşları ve karşılıklı takipleşenler doğr
 - [x] Admin: şikayetlerde "Mesajı incele" (mesaj ve önceki 5 mesaj; her görüntüleme audit log'a yazılır) ve "Mesajı kaldır" (admin, moderatör)
 - [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor (messaging 8), `dotnet build` 0 hata 0 uyarı, C# 156/156, pgTAP 669/669; gerçek API ile uçtan uca deneme (arkadaşla sohbet, fotoğraf, istek ve kabul öncesi yanıt engeli, grup sohbeti, "Görüldü", şikayet, admin incelemesi ve kaldırma)
 
+## Faz 15.5 — Görsel Kimlik (kullanıcı isteği)
+
+Karar (2026-10-22): arayüz X ve Instagram kalıbından çıkarılır, **topluluk merkezli** bir düzene geçer. Palet (mor, mavi, siyah, beyaz) ve Plus Jakarta Sans korunur; özgünlük düzenden, kartlardan, tonlardan ve hiyerarşiden gelir. Veri, API ve modül sınırları değişmez.
+
+- [x] Tasarım sistemi: hafif tonlu zemin ve beyaz kartlar (`GxCard`), kimlik tonları (`GxTone`), `GxHeroCard` (kapak kartın içinde, avatar adın yanında; X tarzı taşan avatar yok), `GxSectionHeader`, `GxDateTile`, `GxTag`; hap seçici sekmeler, yuvarlak köşeli ızgara (3 sütun, 8 boşluk)
+- [x] Gezinme: telefonda yüzen dok (Bugün, Gruplar, ortada Paylaş, Takvim, Ben), geniş ekranda etiketli yan menü (Bildirimler, Mesajlar, Paylaş ve "Gruplarım"); yan menü tam ekran medya ve yayın odası dışında her sayfada kalır
+- [x] "Bugün" ana sayfası: selamlama, Şimdi canlı, Yaklaşanlar (gruplarının organizasyonları), Hikâyeler (küçük çipler), Akış; bildirimler, mesajlar ve arama üst çubukta
+- [x] Gönderi kartı: kart içinde medya, başlıkta zaman, sayılı beğeni / yorum / paylaş
+- [x] Profil ve grup sayfası: kimlik kartı, profilde istatistik kutuları ve ilgi alanı etiketleri, grup araçları ve bölümler ayrı kartlarda; öne çıkanlar çip rafı
+- [x] Giriş ve kayıt: geniş ekranda tanıtım paneli, form kartı (admin girişinde tanıtım yok)
+- [x] Admin paneli: yeni tema ve giriş kartı; ek ekran gerekmedi
+- [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor, telefon (420) ve geniş (1440) ekran görüntüleriyle kontrol
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

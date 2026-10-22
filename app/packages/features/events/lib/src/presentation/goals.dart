@@ -96,7 +96,7 @@ class GroupGoalsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Hedefler', style: textTheme.titleMedium)),
+              Expanded(child: Text('Hedefler', style: textTheme.titleLarge)),
               if (canManage)
                 TextButton.icon(
                   onPressed: () => showGoalEditor(context, groupId: groupId),
