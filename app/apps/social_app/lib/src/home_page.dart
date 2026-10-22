@@ -63,7 +63,12 @@ class _Greeting extends ConsumerWidget {
           '${date.substring(0, date.lastIndexOf(' '))}, ${_weekdays[now.weekday - 1]}',
           style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
         ),
-        Text(name == null ? hello : '$hello, $name', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.headlineMedium),
+        // Shrinks instead of cutting the name off at large text sizes.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(name == null ? hello : '$hello, $name', maxLines: 1, style: textTheme.headlineMedium),
+        ),
       ],
     );
   }
