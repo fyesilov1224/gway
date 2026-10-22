@@ -11,6 +11,9 @@ class ReportTarget {
 
   const ReportTarget.liveComment(int commentId) : id = '$commentId', type = 'live_comment', groupId = null;
 
+  /// A chat message; a group chat's goes to that group's moderation, a direct one to the platform team.
+  const ReportTarget.message(this.id) : type = 'message', groupId = null;
+
   /// A person; reported from a group's member list it goes to that group's moderation.
   const ReportTarget.user(this.id, {this.groupId}) : type = 'user';
 

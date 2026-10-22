@@ -234,9 +234,16 @@ Kararlar (2026-10-21): sağlayıcı karşılaştırması sonrası flutter_map + 
 
 ## Faz 15 — Mesajlaşma
 
-- Birebir ve grup içi mesajlaşma
-- Engelleme
-- Admin: şikayet edilen mesajların incelenmesi
+Kararlar (2026-10-22): ekip arkadaşları ve karşılıklı takipleşenler doğrudan yazar, diğerlerinin ilk mesajı "Mesaj istekleri"ne düşer; her grubun tek sohbeti vardır; mesaj metin ve fotoğraftır; şikayet edilen mesajda platform ekibi yalnızca o mesajı ve önceki 5 mesajı görür.
+
+- [x] Birebir sohbet (C# + trigger): istek kutusu, kabul ve ret, gizli hesaba yalnızca takipçiler, günde 20 yeni istek, dakikada 30 mesaj
+- [x] Grup sohbeti: grup oluşunca açılır, yalnızca üyeler okur ve yazar; susturulan üye yazamaz; "Yalnızca yöneticiler yazsın" (`group.edit`, audit log)
+- [x] Mesaj: metin (2.000 karakter) ve tek fotoğraf (özel depo, imzalı adres); kendi mesajını herkesten silme; okundu bilgisi ("Görüldü", istek kabul edilene kadar gizli); Realtime ile anlık güncelleme
+- [x] Engelleme: iki yönde de yazılamaz, yeni sohbet açılamaz, engellenenin grup mesajları gösterilmez; hesap silinince mesajlar da silinir
+- [x] Şikayet: grup sohbeti mesajı grubun moderasyon masasına (kaldırma, rütbe kuralı), birebir mesaj platform ekibine
+- [x] Arayüz: ana akışta okunmamış sayılı mesaj ikonu, "Mesajlar" (Sohbetler / İstekler), sohbet ekranı (fotoğraf, gün ayracı, uzun basınca kopyala / sil / şikayet et), profilde mesaj butonu, grup sayfasında "Grup sohbeti"
+- [x] Admin: şikayetlerde "Mesajı incele" (mesaj ve önceki 5 mesaj; her görüntüleme audit log'a yazılır) ve "Mesajı kaldır" (admin, moderatör)
+- [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor (messaging 8), `dotnet build` 0 hata 0 uyarı, C# 156/156, pgTAP 669/669; gerçek API ile uçtan uca deneme (arkadaşla sohbet, fotoğraf, istek ve kabul öncesi yanıt engeli, grup sohbeti, "Görüldü", şikayet, admin incelemesi ve kaldırma)
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 

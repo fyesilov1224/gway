@@ -21,6 +21,7 @@ dependencies:
   groups:
   identity:
   live:
+  messaging:
   moderation:
   notifications:
   profile:

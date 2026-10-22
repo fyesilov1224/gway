@@ -2,6 +2,7 @@ using System.Security.Claims;
 using GrupX.Modules.Feed.Contracts;
 using GrupX.Modules.Groups.Contracts;
 using GrupX.Modules.Live.Contracts;
+using GrupX.Modules.Messaging.Contracts;
 using GrupX.Modules.Moderation.Contracts;
 using GrupX.SharedKernel;
 using GrupX.SharedKernel.Auditing;
@@ -67,7 +68,8 @@ public static class ModerationModule
 
 /// <summary>Pre-review, cases, votes, sanctions and appeal decisions; the triggers re-check every rule.</summary>
 internal sealed partial class ModerationService(
-    NpgsqlDataSource db, IGroupMembership membership, IFeedModeration feed, ILiveModeration live, ILogger<ModerationService> log)
+    NpgsqlDataSource db, IGroupMembership membership, IFeedModeration feed, ILiveModeration live, IMessagingModeration messages,
+    ILogger<ModerationService> log)
     : IModerationAdministration
 {
     public static readonly string[] Sanctions = ["warning", "mute", "kick", "ban"];
@@ -158,16 +160,19 @@ internal sealed partial class ModerationService(
             var loaded = await ReviewableAsync(conn, tx, actor, id, ct);
             if (!loaded.IsSuccess) return loaded.Error;
             var report = loaded.Value;
-            if (report.TargetType is not ("comment" or "live_comment"))
+            if (report.TargetType is not ("comment" or "live_comment" or "message"))
                 return Error.RuleViolation("report.not_removable",
                     "Grup gönderilerini ve organizasyonları grubun yöneticileri kendi ekranlarından kaldırır.");
             var groupId = report.GroupId!.Value;
             if (report.SubjectId is { } subject && await RankAsync(conn, tx, groupId, actor, ct) <= await RankAsync(conn, tx, groupId, subject, ct))
                 return RankViolation;
 
-            var removed = report.TargetType == "comment"
-                ? await feed.RemoveCommentAsync(conn, tx, Guid.Parse(report.TargetId), reason, ct)
-                : await live.RemoveCommentAsync(conn, tx, long.Parse(report.TargetId, System.Globalization.CultureInfo.InvariantCulture), ct);
+            var removed = report.TargetType switch
+            {
+                "comment" => await feed.RemoveCommentAsync(conn, tx, Guid.Parse(report.TargetId), reason, ct),
+                "message" => await messages.RemoveMessageAsync(conn, tx, Guid.Parse(report.TargetId), reason, ct),
+                _ => await live.RemoveCommentAsync(conn, tx, long.Parse(report.TargetId, System.Globalization.CultureInfo.InvariantCulture), ct),
+            };
             var closed = await CloseReportsAsync(conn, tx, report, "actioned", null, ct);
             await AuditAsync(conn, tx, actor, AuditActor.User, "report.content_removed", "report", id, groupId,
                 new { report.TargetType, report.TargetId, reason, removed, reports = closed }, ct);

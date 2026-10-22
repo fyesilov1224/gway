@@ -3,6 +3,7 @@
     <ProjectReference Include="..\GrupX.Modules.Feed.Contracts\GrupX.Modules.Feed.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Groups.Contracts\GrupX.Modules.Groups.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Live.Contracts\GrupX.Modules.Live.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Messaging.Contracts\GrupX.Modules.Messaging.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Moderation.Contracts\GrupX.Modules.Moderation.Contracts.csproj" />
   </ItemGroup>
 

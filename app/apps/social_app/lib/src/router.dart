@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:identity/identity.dart';
 import 'package:live/live.dart';
+import 'package:messaging/messaging.dart';
 import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
@@ -15,6 +16,7 @@ import 'package:support/support.dart';
 
 import 'feed_pages.dart';
 import 'gate.dart';
+import 'group_chat_pages.dart';
 import 'group_events_pages.dart';
 import 'group_live_pages.dart';
 import 'group_moderation_pages.dart';
@@ -120,7 +122,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
-          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_teammatesButton, _calendarButton])),
+          GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomeFeedScreen(top: LiveNowTray(), trailingActions: [_teammatesButton, _calendarButton, MessagesButton()])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_mapButton])),
           GoRoute(path: NotificationRoutes.list, builder: (_, _) => NotificationsScreen(links: notificationLinks)),
@@ -164,6 +166,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => ProfileScreen(
           username: state.pathParameters['username'],
           sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
+          visitorActions: const [profileMessageAction],
         ),
         routes: [
           GoRoute(path: 'followers', builder: (_, state) => FollowListsScreen(username: state.pathParameters['username']!)),
@@ -183,7 +186,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => GroupScreen(
           handle: state.pathParameters['handle']!,
           onOpenProfile: _openProfile,
-          sections: const [groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
+          sections: const [groupChatSection, groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
           contentSections: const [groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
         ),
         routes: [
@@ -232,6 +235,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => NewTicketScreen(groupId: state.uri.queryParameters['group']),
       ),
       GoRoute(path: '/support/t/:id', builder: (_, state) => TicketScreen(ticketId: state.pathParameters['id']!)),
+      GoRoute(
+        path: MessagingRoutes.list,
+        builder: (_, _) => ConversationsScreen(onFindPeople: (context) => context.push(ProfileRoutes.teammates)),
+        routes: [
+          GoRoute(
+            path: ':id',
+            builder: (_, state) =>
+                ChatScreen(conversationId: state.pathParameters['id']!, onOpenProfile: _openProfile, onOpenGroup: _openGroup),
+          ),
+        ],
+      ),
     ],
   );
   ref.onDispose(router.dispose);

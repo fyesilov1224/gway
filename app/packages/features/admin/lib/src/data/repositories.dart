@@ -245,6 +245,16 @@ class ApiAdminModerationRepository implements AdminModerationRepository {
   @override
   Future<Result<void>> decideAppeal(String appealId, {required bool overturn, required String note}) =>
       _api.post('/admin/appeals/$appealId/decision', body: {'overturn': overturn, 'note': note}, decode: (_) {});
+
+  @override
+  Future<Result<List<AdminContextMessage>>> messageContext(String reportId) => _api.get(
+        '/admin/reports/$reportId/message-context',
+        decode: (json) => [for (final m in json! as List) AdminContextMessage.fromJson((m as Map).cast())],
+      );
+
+  @override
+  Future<Result<void>> removeMessage(String messageId, {required String reason}) =>
+      _api.post('/admin/messages/$messageId/removal', body: {'reason': reason}, decode: (_) {});
 }
 
 class ApiAdminLiveRepository implements AdminLiveRepository {

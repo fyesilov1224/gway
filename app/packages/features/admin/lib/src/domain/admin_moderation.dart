@@ -40,6 +40,7 @@ const reportTargetLabels = {
   'comment': 'Yorum',
   'event': 'Organizasyon',
   'live_comment': 'Canlı yayın yorumu',
+  'message': 'Mesaj',
   'user': 'Kullanıcı',
 };
 
@@ -197,4 +198,48 @@ abstract interface class AdminModerationRepository {
   Future<Result<AdminAppealPage>> appeals({AdminAppealStatus? status, int page = 1});
 
   Future<Result<void>> decideAppeal(String appealId, {required bool overturn, required String note});
+
+  /// The reported message and the five before it; every viewing is audited (docs/ARCHITECTURE.md §3f).
+  Future<Result<List<AdminContextMessage>>> messageContext(String reportId);
+
+  Future<Result<void>> removeMessage(String messageId, {required String reason});
+}
+
+/// A private message the platform team sees only around a report.
+class AdminContextMessage {
+  const AdminContextMessage({
+    required this.id,
+    required this.senderId,
+    required this.body,
+    required this.createdAt,
+    this.senderUsername,
+    this.senderName,
+    this.hasImage = false,
+    this.deleted = false,
+    this.reported = false,
+  });
+
+  factory AdminContextMessage.fromJson(Map<String, Object?> j) => AdminContextMessage(
+        id: j['id']! as String,
+        senderId: j['senderId']! as String,
+        senderUsername: j['senderUsername'] as String?,
+        senderName: j['senderName'] as String?,
+        body: j['body']! as String,
+        hasImage: j['hasImage'] == true,
+        createdAt: DateTime.parse(j['createdAt']! as String),
+        deleted: j['deleted'] == true,
+        reported: j['reported'] == true,
+      );
+
+  final String id;
+  final String senderId;
+  final String? senderUsername;
+  final String? senderName;
+  final String body;
+  final bool hasImage;
+  final DateTime createdAt;
+  final bool deleted;
+
+  /// The message the report is about.
+  final bool reported;
 }

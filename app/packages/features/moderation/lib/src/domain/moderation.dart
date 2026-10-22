@@ -100,14 +100,15 @@ class GroupReport {
   final int count;
   final DateTime lastAt;
 
-  /// Comments are removed by the group's moderation; posts and events by their managers.
-  bool get removable => targetType == 'comment' || targetType == 'live_comment';
+  /// Comments and chat messages are removed by the group's moderation; posts and events by their managers.
+  bool get removable => targetType == 'comment' || targetType == 'live_comment' || targetType == 'message';
 
   String get targetLabel => switch (targetType) {
         'post' => 'Gönderi',
         'comment' => 'Yorum',
         'event' => 'Organizasyon',
         'live_comment' => 'Canlı yayın yorumu',
+        'message' => 'Grup sohbeti mesajı',
         _ => 'Üye',
       };
 }

@@ -248,6 +248,16 @@ class _ReportRow extends StatelessWidget {
             spacing: GxSpacing.xs,
             runSpacing: GxSpacing.xs,
             children: [
+              if (canAct && r.targetType == 'message')
+                GxButton(
+                  label: 'Mesajı incele',
+                  icon: Icons.forum_outlined,
+                  variant: GxButtonVariant.text,
+                  onPressed: () async {
+                    final removed = await showDialog<bool>(context: context, builder: (_) => _MessageContextDialog(report: r));
+                    if (removed ?? false) await onReview(r, actioned: true);
+                  },
+                ),
               if (location != null)
                 GxButton(label: 'Görüntüle', icon: Icons.open_in_new, variant: GxButtonVariant.text, onPressed: () => context.go(location)),
               if (canAct && r.status == AdminReportStatus.open) ...[
@@ -258,6 +268,129 @@ class _ReportRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The reported message and the five before it. Loaded on each opening, since every viewing is audited.
+class _MessageContextDialog extends ConsumerStatefulWidget {
+  const _MessageContextDialog({required this.report});
+
+  final AdminReport report;
+
+  @override
+  ConsumerState<_MessageContextDialog> createState() => _MessageContextDialogState();
+}
+
+class _MessageContextDialogState extends ConsumerState<_MessageContextDialog> {
+  late Future<Result<List<AdminContextMessage>>> _messages = _load();
+  bool _removing = false;
+
+  Future<Result<List<AdminContextMessage>>> _load() =>
+      ref.read(adminModerationRepositoryProvider).messageContext(widget.report.id);
+
+  Future<void> _remove(AdminContextMessage message) async {
+    final request = await showSuspendDialog(
+      context,
+      title: 'Mesajı kaldır',
+      description: 'Mesaj sohbette "Bu mesaj kaldırıldı" olarak görünür ve şikayet kapanır. Gerekçe kayda geçer.',
+      withDuration: false,
+      confirmLabel: 'Kaldır',
+    );
+    if (request == null || !mounted) return;
+    setState(() => _removing = true);
+    final result = await ref.read(adminModerationRepositoryProvider).removeMessage(message.id, reason: request.reason);
+    if (!mounted) return;
+    setState(() => _removing = false);
+    switch (result) {
+      case Ok():
+        Navigator.of(context).pop(true);
+      case Err(:final failure):
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodySmall?.copyWith(color: GxColors.textSecondary);
+    return AlertDialog(
+      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      title: const Text('Şikayet edilen mesaj'),
+      content: SizedBox(
+        width: GxLayout.formMaxWidth,
+        child: FutureBuilder(
+          future: _messages,
+          builder: (context, snapshot) => switch (snapshot.data) {
+            null => const GxSkeleton(height: GxSpacing.xxl * 2),
+            Err(:final failure) => GxErrorState(
+                message: failure.userMessage,
+                onRetry: () => setState(() => _messages = _load()),
+              ),
+            Ok(:final value) => Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Yalnızca şikayet edilen mesaj ve sohbetteki önceki 5 mesaj gösterilir. Bu görüntüleme kayda geçer.',
+                      style: secondary),
+                  const SizedBox(height: GxSpacing.sm),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final m in value)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: GxSpacing.xs),
+                            padding: const EdgeInsets.all(GxSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: m.reported ? GxColors.warningSoft : GxColors.surface,
+                              borderRadius: GxRadius.mdAll,
+                              border: const Border.fromBorderSide(GxBorders.hairline),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  [
+                                    m.senderUsername == null ? 'Silinmiş hesap' : '${m.senderName} (@${m.senderUsername})',
+                                    formatDateTimeTr(m.createdAt),
+                                    if (m.reported) 'Şikayet edilen',
+                                  ].join(' · '),
+                                  style: textTheme.labelMedium,
+                                ),
+                                const SizedBox(height: GxSpacing.xxs),
+                                if (m.deleted)
+                                  Text('Bu mesaj silindi ya da kaldırıldı.', style: secondary?.copyWith(fontStyle: FontStyle.italic))
+                                else ...[
+                                  if (m.hasImage) Text('[Fotoğraf]', style: secondary),
+                                  if (m.body.isNotEmpty) SelectableText(m.body, style: textTheme.bodyMedium),
+                                ],
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+          },
+        ),
+      ),
+      actions: [
+        GxButton(label: 'Kapat', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+        FutureBuilder(
+          future: _messages,
+          builder: (context, snapshot) => switch (snapshot.data) {
+            Ok(:final value) when value.any((m) => m.reported && !m.deleted) => GxButton(
+                label: 'Mesajı kaldır',
+                icon: Icons.delete_outline,
+                isLoading: _removing,
+                onPressed: () => _remove(value.firstWhere((m) => m.reported)),
+              ),
+            _ => const SizedBox.shrink(),
+          },
+        ),
+      ],
     );
   }
 }

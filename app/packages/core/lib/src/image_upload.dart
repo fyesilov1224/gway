@@ -22,6 +22,9 @@ class ImageUpload {
   String? get contentType => _types[extension];
 }
 
+/// Picks an image; screens take one so tests can replace the gallery.
+typedef PickImage = Future<ImageUpload?> Function();
+
 /// Picks a gallery image scaled down to [maxWidth]. Null when the user cancels.
 Future<ImageUpload?> pickGalleryImage({required double maxWidth}) async {
   final file = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: maxWidth, imageQuality: 85);

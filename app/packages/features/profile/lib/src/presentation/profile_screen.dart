@@ -21,7 +21,7 @@ typedef ProfileSectionBuilder = Widget Function(BuildContext context, Profile pr
 
 /// A user's profile. Without [username] it shows the signed-in user's own.
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key, this.username, this.onOpenSettings, this.sections = const []});
+  const ProfileScreen({super.key, this.username, this.onOpenSettings, this.sections = const [], this.visitorActions = const []});
 
   final String? username;
 
@@ -29,6 +29,9 @@ class ProfileScreen extends ConsumerWidget {
   final VoidCallback? onOpenSettings;
 
   final List<ProfileSectionBuilder> sections;
+
+  /// Other features' buttons next to "Takip et" on someone else's profile (e.g. "Mesaj").
+  final List<ProfileSectionBuilder> visitorActions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,7 +65,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: GxReadingColumn(
         child: switch (profile) {
-          AsyncData(:final value) => _ProfileBody(profile: value, isOwn: isOwn, sections: sections),
+          AsyncData(:final value) => _ProfileBody(profile: value, isOwn: isOwn, sections: sections, visitorActions: visitorActions),
           AsyncError(error: NotFoundFailure()) => GxEmptyState(
               icon: Icons.person_off_outlined,
               message: 'Bu profil bulunamadı ya da artık görünür değil.',
@@ -83,11 +86,12 @@ class ProfileScreen extends ConsumerWidget {
 }
 
 class _ProfileBody extends ConsumerWidget {
-  const _ProfileBody({required this.profile, required this.isOwn, required this.sections});
+  const _ProfileBody({required this.profile, required this.isOwn, required this.sections, required this.visitorActions});
 
   final Profile profile;
   final bool isOwn;
   final List<ProfileSectionBuilder> sections;
+  final List<ProfileSectionBuilder> visitorActions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -121,7 +125,9 @@ class _ProfileBody extends ConsumerWidget {
                 alignment: Alignment.topRight,
                 child: isOwn
                     ? const _OwnActions()
-                    : (social == null ? null : _VisitorActions(profile: profile, social: social, teammate: teammate)),
+                    : (social == null
+                        ? null
+                        : _VisitorActions(profile: profile, social: social, teammate: teammate, extra: visitorActions)),
               ),
             ),
           ),
@@ -264,11 +270,12 @@ class _OwnActions extends StatelessWidget {
 
 /// Follow button and the menu with block, remove follower and copy link.
 class _VisitorActions extends ConsumerWidget {
-  const _VisitorActions({required this.profile, required this.social, required this.teammate});
+  const _VisitorActions({required this.profile, required this.social, required this.teammate, required this.extra});
 
   final Profile profile;
   final ProfileSocial social;
   final TeammateStatus? teammate;
+  final List<ProfileSectionBuilder> extra;
 
   Future<void> _run(BuildContext context, WidgetRef ref, Future<Result<void>> Function(SocialRepository r) action, String done) async {
     final result = await action(ref.read(socialRepositoryProvider));
@@ -338,6 +345,7 @@ class _VisitorActions extends ConsumerWidget {
       spacing: GxSpacing.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        if (!social.blockedByMe) ...[for (final action in extra) action(context, profile, false)],
         if (!social.blockedByMe)
           FollowButton(
             userId: profile.id,

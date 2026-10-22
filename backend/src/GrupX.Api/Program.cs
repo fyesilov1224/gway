@@ -8,6 +8,7 @@ using GrupX.Modules.Events;
 using GrupX.Modules.Feed;
 using GrupX.Modules.Groups;
 using GrupX.Modules.Identity;
+using GrupX.Modules.Messaging;
 using GrupX.Modules.Live;
 using GrupX.Modules.Moderation;
 using GrupX.Modules.Profile;
@@ -57,6 +58,7 @@ builder.Services.AddFeedModule();
 builder.Services.AddEventsModule();
 builder.Services.AddLiveModule();
 builder.Services.AddModerationModule();
+builder.Services.AddMessagingModule();
 builder.Services.AddAdminModule();
 
 var app = builder.Build();
@@ -81,6 +83,7 @@ app.MapFeedEndpoints();
 app.MapEventsEndpoints();
 app.MapLiveEndpoints();
 app.MapModerationEndpoints();
+app.MapMessagingEndpoints();
 app.MapAdminEndpoints();
 app.MapMapTileEndpoints();
 

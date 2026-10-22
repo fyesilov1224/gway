@@ -9,9 +9,6 @@ import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
 
-/// Picks a screenshot; replaceable in tests.
-typedef PickImage = Future<ImageUpload?> Function();
-
 Future<ImageUpload?> _pickScreenshot() => pickGalleryImage(maxWidth: 1600);
 
 /// Kind (colored cards), optional managed group, subject, details and screenshots.

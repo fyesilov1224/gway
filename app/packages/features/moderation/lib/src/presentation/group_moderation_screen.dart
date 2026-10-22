@@ -361,7 +361,7 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
     final r = widget.report;
     final textTheme = Theme.of(context).textTheme;
     final outranks = r.subject != null && widget.desk.rank > r.subject!.rank;
-    final canOpen = r.targetType != 'live_comment' && (r.targetType != 'comment' || r.postId != null);
+    final canOpen = r.targetType != 'live_comment' && r.targetType != 'message' && (r.targetType != 'comment' || r.postId != null);
     return _Card(
       children: [
         Row(

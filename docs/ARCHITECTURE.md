@@ -93,6 +93,8 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | Storage `event-images` | events | 5 |
 | `public.live_broadcasts`, `public.live_kicks`, `public.live_comments`, `public.live_reminders` | live | 7 |
 | `public.reports`, `public.moderation_cases`, `public.case_votes`, `public.sanctions`, `public.sanction_appeals` | moderation | 6 |
+| `public.conversations`, `public.conversation_members`, `public.messages` | messaging | 15 |
+| Storage `message-images` | messaging | 15 |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -776,6 +778,87 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 | `GET /admin/appeals?status=&page=` | Platformun itirazları. Rol: `admin`, `moderator`, `support` |
 | `POST /admin/appeals/{id}/decision` | Platformun itiraz kararı (`overturn`, `note`). Rol: `admin`, `moderator` |
 
+## 3f. Mesajlaşma (Faz 15)
+
+Ürün kararları (2026-10-22):
+- Birebir mesajlaşmada ekip arkadaşları ve karşılıklı takipleşenler doğrudan yazar. Diğerlerinin ilk mesajı "Mesaj istekleri"ne düşer.
+- Her grubun tek bir sohbeti vardır.
+- Mesaj metin ve fotoğraftan oluşur.
+- Şikayet edilen mesajda platform ekibi, mesajı ve sohbetteki önceki 5 mesajı görür.
+
+### Konuşmalar
+- **`conversations`:** `kind` ya `direct` ya da `group` olur.
+  - Birebir konuşma bir kişi çiftine bir kezdir (`user_a < user_b`).
+  - Grup konuşması gruba bir kezdir. Grup oluşturulunca trigger ile açılır; mevcut gruplar migration'da doldurulur.
+  - Grup konuşmasında `admins_only` açıksa yalnızca `posts.publish` yetkilileri (sahip ve Yönetici) yazar. Bu ayarı `group.edit` yetkilisi değiştirir (C# API, audit log).
+- **`conversation_members`:** kişinin konuşmadaki durumu (`active`, `request`, `declined`) ve son okuma zamanı (`last_read_at`).
+  - Birebir konuşmada iki kişinin de satırı vardır.
+  - Grup konuşmasında satır yalnızca okuma zamanı için tutulur. Kimin okuyup yazabileceğini grup üyeliği belirler.
+- **Kim okur:**
+  - Birebir konuşmayı iki taraf okur. Reddeden taraf da okuyabilir, ama konuşma listesinde görünmez.
+  - Grup konuşmasını grubun üyeleri okur. Çıkarılan ya da banlanan kişi üye olmadığı için göremez.
+  - Engellediğin kişilerin grup mesajları sana gösterilmez.
+
+### Birebir mesaj ve istek
+- Konuşmayı başlatan `POST /messages/direct/{userId}` çağrısıdır. Alıcının satırı şöyle belirlenir:
+  - Taraflar ekip arkadaşıysa ya da karşılıklı takipleşiyorsa `active` olur.
+  - Değilse `request` olur ve konuşma alıcının "Mesaj istekleri"ne düşer.
+- **Gizli hesap:** yalnızca takipçileri yazabilir (`message_private`).
+- **Engel:** iki yönde de yazılamaz ve yeni konuşma açılamaz.
+- **İstek** kabul edilene kadar:
+  - Alıcı yanıt veremez (önce kabul eder).
+  - Gönderen alıcının okuma bilgisini görmez.
+  - Gönderen yazmaya devam edebilir.
+- **Ret:** istek reddedilirse gönderen o konuşmaya artık yazamaz (`message_declined`). Alıcı sonradan kendisi yazarsa konuşma yeniden açılır.
+- **Sınırlar:**
+  - Bir kişi günde en fazla 20 yeni istek açar.
+  - Bir kişi dakikada en fazla 30 mesaj gönderir.
+
+### Mesaj
+- **`messages`:** konuşma, gönderen, metin (en fazla 2.000 karakter) ve isteğe bağlı tek fotoğraf. Metin ya da fotoğraftan en az biri zorunludur.
+- **Gönderme** C# API üzerinden yapılır (`POST /conversations/{id}/messages`). Trigger kuralları tekrar kontrol eder:
+  - Hesap aktif olmalı ve engel olmamalı.
+  - İstek ve ret durumları uygulanır.
+  - Grupta susturulan üye yazamaz (Faz 6); `admins_only` modu uygulanır.
+  - Hız sınırı uygulanır.
+- **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür.
+- **Fotoğraf:** özel `message-images` deposunda tutulur (yol `{konuşma}/{dosya}`; JPEG, PNG ya da WebP; en fazla 5 MB).
+  - Yalnızca konuşmanın okurları okur; yükleme yalnızca o konuşmanın okurları içindir.
+  - İstemci imzalı adresle gösterir.
+- **Okundu:** kişi kendi okuma zamanını yazar (`public.mark_conversation_read`, kendi basit yazması). Birebir konuşmada karşı tarafın okuma zamanı "Görüldü" olarak gösterilir; grup sohbetinde gösterilmez.
+- **Anlık güncelleme:** Supabase Realtime ile gelir (`messages`, RLS korur).
+- **Bildirim tablosuna yazılmaz.** Okunmamış mesaj sayısı mesaj ikonunda gösterilir; push bildirimi Firebase bilgileri gelince bağlanır.
+- **Hesap silme:** kişinin mesajlarını da siler (KVKK).
+
+### Şikayet ve moderasyon
+- Mesaj şikayet edilebilir (`reports.target_type = 'message'`; kanıt olarak metin saklanır).
+  - Grup sohbetindeki mesaj şikayeti grubun moderasyon masasına gider. `reports.review` yetkilisi mesajı kaldırabilir; rütbe kuralı uygulanır.
+  - Birebir mesaj şikayeti platform ekibine gider.
+- **Platform ekibinin gördükleri:** şikayet edilen mesaj ve sohbetteki önceki 5 mesaj (`GET /admin/reports/{id}/message-context`). Bunun dışında hiçbir özel mesaj okunamaz. Her görüntüleme audit log'a yazılır (`message.context_viewed`).
+- Platform ekibi (admin, moderatör) mesajı kaldırabilir (`message.removed_by_admin`).
+
+### Veri ve erişim
+| Tablo | Okuma | Yazma |
+|---|---|---|
+| `conversations` | Konuşmanın okurları | Backend (grup konuşması: trigger) |
+| `conversation_members` | Kişinin kendi satırları; birebirde karşı tarafın satırı | Backend; okuma zamanı kişinin kendisi (RPC) |
+| `messages` | Konuşmanın okurları (engellenenlerin mesajları hariç) | Backend |
+| Storage `message-images` | Konuşmanın okurları | Konuşmanın okurları (kendi klasörlerine değil, konuşmanın klasörüne; sahip kendisi) |
+
+### Audit log
+`group.chat_mode_changed`, `message.removed` (grup moderasyonu, rapor üzerinden `report.content_removed`), `message.removed_by_admin`, `message.context_viewed`. Kişinin kendi mesajı ve kendi silmesi yazılmaz.
+
+### C# uç noktaları
+| Uç nokta | Açıklama |
+|---|---|
+| `POST /messages/direct/{userId}` | Birebir konuşmayı bulma ya da açma; yanıt konuşma kimliği ve alıcının durumu (`active` / `request`) |
+| `POST /conversations/{id}/messages` | Mesaj gönderme (`body`, `imagePath?`) |
+| `POST /conversations/{id}/acceptance`, `DELETE /conversations/{id}/acceptance` | Mesaj isteğini kabul etme / reddetme |
+| `DELETE /messages/{id}` | Kendi mesajını herkesten silme |
+| `PUT /groups/{id}/chat` | Grup sohbeti modu (`adminsOnly`; `group.edit`) |
+| `GET /admin/reports/{id}/message-context` | Şikayet edilen mesaj ve önceki 5 mesaj (admin, moderatör; audit log) |
+| `POST /admin/messages/{id}/removal` | Mesajı kaldırma (`reason`; admin, moderatör) |
+
 ## 4. Flutter
 
 ### Klasörler
@@ -788,11 +871,11 @@ app/
   apps/admin_panel             platform ekibi paneli (iOS, Android, Web)
   packages/core                Result<T>, Failure, ortak altyapı
   packages/design_system       tokenlar, tema, ortak bileşenler, font
-  packages/features/<modül>    feature paketleri: identity, profile, groups, billing, support, feed, notifications, events, live, admin
+  packages/features/<modül>    feature paketleri: identity, profile, groups, billing, support, feed, notifications, events, live, moderation, messaging, admin
 ```
 
-- `core` ayrıca Supabase istemcisini (`supabaseClientProvider`), C# API istemcisini (`ApiClient`: Supabase oturum token'ını ekler, ProblemDetails'i `Failure`'a çevirir), `AppConfig`'i (`--dart-define`: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_URL`), ortak kategorileri (`categoriesProvider`), görsel seçimini (`ImageUpload`, `pickGalleryImage`) ve tarih, para (`formatMoney`: `249 ₺`, `$9.99`) ve sayı biçimlendirmesini sağlar. `ApiClient`, ProblemDetails içeren 503 yanıtlarının başlığını da gösterir (ör. ödeme geçici olarak kapalı).
-- Uygulamanın router'ı feature paketlerinin provider'larını birleştirir (oturum, onay, profil durumu). Feature'lar birbirini bilmez; bir feature'ın başka bir feature'ın ekranında yer alması gerekiyorsa uygulama bunu bağlar (ör. profil sayfasındaki "Gruplar" bölümü `ProfileScreen.sections` ile, grup ekranından profile geçiş `onOpenProfile` ile, grup sayfasındaki paket kartı `GroupScreen.sections` ile verilir; paket ve ödeme rotaları `/g/<handle>/plan` ve `/g/<handle>/plan/checkout` grubu uygulamada çözer ve `billing` ekranlarına kimliğini verir; canlı yayın kartı `GroupScreen.sections`, ana sayfadaki canlı yayın şeridi `HomeFeedScreen.top`, `live_started` bildirimi `NotificationLinks.openLive` ile bağlanır, yayın odası `/live/<id>` rotasındadır).
+- `core` ayrıca Supabase istemcisini (`supabaseClientProvider`), C# API istemcisini (`ApiClient`: Supabase oturum token'ını ekler, ProblemDetails'i `Failure`'a çevirir), `AppConfig`'i (`--dart-define`: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_URL`), ortak kategorileri (`categoriesProvider`), görsel seçimini (`ImageUpload`, `pickGalleryImage`; ekranlar testte değiştirilebilen `PickImage` alır) ve tarih, para (`formatMoney`: `249 ₺`, `$9.99`) ve sayı biçimlendirmesini sağlar. `ApiClient`, ProblemDetails içeren 503 yanıtlarının başlığını da gösterir (ör. ödeme geçici olarak kapalı).
+- Uygulamanın router'ı feature paketlerinin provider'larını birleştirir (oturum, onay, profil durumu). Feature'lar birbirini bilmez; bir feature'ın başka bir feature'ın ekranında yer alması gerekiyorsa uygulama bunu bağlar (ör. profil sayfasındaki "Gruplar" bölümü `ProfileScreen.sections` ile, grup ekranından profile geçiş `onOpenProfile` ile, grup sayfasındaki paket kartı `GroupScreen.sections` ile verilir; paket ve ödeme rotaları `/g/<handle>/plan` ve `/g/<handle>/plan/checkout` grubu uygulamada çözer ve `billing` ekranlarına kimliğini verir; canlı yayın kartı `GroupScreen.sections`, ana sayfadaki canlı yayın şeridi `HomeFeedScreen.top`, `live_started` bildirimi `NotificationLinks.openLive` ile bağlanır, yayın odası `/live/<id>` rotasındadır; mesaj butonu profilde `ProfileScreen.visitorActions`, "Grup sohbeti" `GroupScreen.sections` ile verilir, sohbetler `/messages` ve `/messages/<id>` rotalarındadır).
 - Sosyal uygulamanın ana hedefleri (Gruplar, Profil) `HomeShell` içindedir: telefonda alt gezinme çubuğu, geniş ekranda yan ray. Web'de Flutter'ın varsayılan hash URL stratejisi kullanılır (`/#/g/<handle>`).
 - OAuth ve e-posta bağlantıları mobilde `com.grupx.social://auth-callback` deep link'ine döner.
 

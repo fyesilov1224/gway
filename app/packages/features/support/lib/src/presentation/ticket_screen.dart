@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/support.dart';
-import 'new_ticket_screen.dart';
 import 'providers.dart';
 import 'widgets.dart';
 

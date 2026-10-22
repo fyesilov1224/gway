@@ -40,6 +40,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
         'post' => 'Gönderiyi şikayet et',
         'comment' || 'live_comment' => 'Yorumu şikayet et',
         'event' => 'Organizasyonu şikayet et',
+        'message' => 'Mesajı şikayet et',
         _ => 'Kullanıcıyı şikayet et',
       };
 
