@@ -266,117 +266,98 @@ class _ImagesEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final avatar = GxAvatarSize.xl.dimension;
     final cover = profile.coverUrl;
     final hasAvatar = profile.avatarUrl != null;
 
+    // Same proportions as the profile's identity card; nothing overlaps, so every control is tappable.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(GxRadius.lg)),
-              child: AspectRatio(
-                aspectRatio: 3,
-                child: cover == null
-                    ? const ColoredBox(color: GxColors.primarySoft)
-                    : Image.network(cover, fit: BoxFit.cover),
-              ),
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(GxRadius.lg)),
+          child: AspectRatio(
+            aspectRatio: gxCoverAspectRatio(context),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (cover == null) const ColoredBox(color: GxColors.primarySoft) else Image.network(cover, fit: BoxFit.cover),
+                Positioned(
+                  top: GxSpacing.sm,
+                  right: GxSpacing.sm,
+                  child: Wrap(
+                    spacing: GxSpacing.xs,
+                    children: [
+                      if (cover != null)
+                        _OverlayButton(
+                          icon: Icons.delete_outline,
+                          label: 'Kaldır',
+                          tooltip: 'Kapak fotoğrafını kaldır',
+                          onPressed: enabled ? () => onRemove(ProfileImage.cover) : null,
+                        ),
+                      _OverlayButton(
+                        icon: Icons.photo_camera_outlined,
+                        label: cover == null ? 'Kapak ekle' : 'Kapağı değiştir',
+                        loading: uploading == ProfileImage.cover,
+                        onPressed: enabled ? () => onChange(ProfileImage.cover) : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Positioned(
-              top: GxSpacing.sm,
-              right: GxSpacing.sm,
-              child: Wrap(
-                spacing: GxSpacing.xs,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(GxSpacing.md),
+          child: Row(
+            children: [
+              Stack(
                 children: [
-                  if (cover != null)
-                    _OverlayButton(
-                      icon: Icons.delete_outline,
-                      label: 'Kaldır',
-                      tooltip: 'Kapak fotoğrafını kaldır',
-                      onPressed: enabled ? () => onRemove(ProfileImage.cover) : null,
+                  GxAvatar(name: profile.displayName, shape: GxAvatarShape.user, imageUrl: profile.avatarUrl, size: GxAvatarSize.xl),
+                  if (uploading == ProfileImage.avatar)
+                    const Positioned.fill(
+                      child: Center(
+                        child: SizedBox.square(dimension: GxSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
                     ),
-                  _OverlayButton(
-                    icon: Icons.photo_camera_outlined,
-                    label: cover == null ? 'Kapak ekle' : 'Kapağı değiştir',
-                    loading: uploading == ProfileImage.cover,
-                    onPressed: enabled ? () => onChange(ProfileImage.cover) : null,
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: IconButton.filled(
+                      tooltip: 'Profil fotoğrafını değiştir',
+                      icon: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                      style: IconButton.styleFrom(
+                        backgroundColor: GxColors.primary,
+                        foregroundColor: GxColors.onPrimary,
+                        side: const BorderSide(color: GxColors.background, width: 2),
+                      ),
+                      onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
+                    ),
                   ),
                 ],
               ),
-            ),
-            Positioned(
-              left: GxSpacing.lg,
-              bottom: -avatar / 2,
-              child: Container(
-                padding: const EdgeInsets.all(GxSpacing.xxs),
-                decoration: const BoxDecoration(color: GxColors.background, shape: BoxShape.circle),
-                child: Stack(
-                  clipBehavior: Clip.none,
+              const SizedBox(width: GxSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GxAvatar(
-                      name: profile.displayName,
-                      shape: GxAvatarShape.user,
-                      imageUrl: profile.avatarUrl,
-                      size: GxAvatarSize.xl,
+                    Text('Profil ve kapak fotoğrafı', style: textTheme.labelLarge),
+                    Text('JPEG, PNG veya WebP · en fazla 5 MB', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                    TextButton(
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
+                      child: Text(hasAvatar ? 'Profil fotoğrafını değiştir' : 'Profil fotoğrafı ekle'),
                     ),
-                    if (uploading == ProfileImage.avatar)
-                      const Positioned.fill(
-                        child: Center(
-                          child: SizedBox.square(
-                            dimension: GxSpacing.lg,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
+                    if (hasAvatar)
+                      TextButton(
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: GxColors.error),
+                        onPressed: enabled ? () => onRemove(ProfileImage.avatar) : null,
+                        child: const Text('Profil fotoğrafını kaldır'),
                       ),
-                    Positioned(
-                      right: -GxSpacing.xxs,
-                      bottom: -GxSpacing.xxs,
-                      child: IconButton.filled(
-                        tooltip: 'Profil fotoğrafını değiştir',
-                        icon: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md + GxSpacing.xxs),
-                        style: IconButton.styleFrom(
-                          backgroundColor: GxColors.primary,
-                          foregroundColor: GxColors.onPrimary,
-                          side: const BorderSide(color: GxColors.background, width: 2),
-                        ),
-                        onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
-                      ),
-                    ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            GxSpacing.lg + avatar + GxSpacing.md,
-            GxSpacing.sm,
-            GxSpacing.lg,
-            GxSpacing.md,
-          ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: avatar / 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Profil ve kapak fotoğrafı', style: textTheme.labelLarge),
-                Text(
-                  'JPEG, PNG veya WebP · en fazla 5 MB',
-                  style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
-                ),
-                if (hasAvatar)
-                  TextButton(
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: GxColors.error),
-                    onPressed: enabled ? () => onRemove(ProfileImage.avatar) : null,
-                    child: const Text('Profil fotoğrafını kaldır'),
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
       ],

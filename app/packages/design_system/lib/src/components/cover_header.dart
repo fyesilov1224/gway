@@ -27,6 +27,9 @@ class GxReadingColumn extends StatelessWidget {
 GxAvatarSize gxHeroAvatarSize(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? GxAvatarSize.xl : GxAvatarSize.lg;
 
+/// Cover proportion: 2:1 on phones, a little flatter from the reading width on.
+double gxCoverAspectRatio(BuildContext context) => MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? 2.5 : 2;
+
 /// The identity card at the top of a profile or group page: a rounded card
 /// with the cover inside it, the avatar beside the name (it never overlaps
 /// the cover) and the page's own content ([children]) below.
@@ -41,6 +44,8 @@ class GxHeroCard extends StatelessWidget {
     this.tone,
     this.coverIcon = Icons.groups_2_outlined,
     this.subtitleTrailing,
+    this.onEditAvatar,
+    this.onEditCover,
     this.children = const [],
   });
 
@@ -61,6 +66,10 @@ class GxHeroCard extends StatelessWidget {
   /// Next to the subtitle, e.g. a lock for private accounts.
   final Widget? subtitleTrailing;
 
+  /// On your own page: a camera badge on the avatar and a "Kapağı değiştir" button on the cover.
+  final VoidCallback? onEditAvatar;
+  final VoidCallback? onEditCover;
+
   /// Bio, meta, stats and actions, separated by [GxSpacing.sm].
   final List<Widget> children;
 
@@ -77,10 +86,33 @@ class GxHeroCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AspectRatio(
-              aspectRatio: 3,
-              child: cover == null
-                  ? placeholder
-                  : Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
+              aspectRatio: gxCoverAspectRatio(context),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (cover == null)
+                    placeholder
+                  else
+                    Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
+                  if (onEditCover case final edit?)
+                    Positioned(
+                      top: GxSpacing.sm,
+                      right: GxSpacing.sm,
+                      child: FilledButton.icon(
+                        onPressed: edit,
+                        icon: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                        label: Text(cover == null ? 'Kapak ekle' : 'Kapağı değiştir'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: GxColors.textPrimary.withValues(alpha: 0.72),
+                          foregroundColor: GxColors.onPrimary,
+                          minimumSize: const Size(GxSpacing.minTouchTarget, GxSpacing.minTouchTarget),
+                          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+                          shape: const StadiumBorder(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(GxSpacing.md),
@@ -89,7 +121,10 @@ class GxHeroCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
+                      _EditableAvatar(
+                        onEdit: onEditAvatar,
+                        child: GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
+                      ),
                       const SizedBox(width: GxSpacing.md),
                       Expanded(
                         child: Column(
@@ -123,6 +158,45 @@ class GxHeroCard extends StatelessWidget {
   }
 }
 
+/// The avatar, and on your own page a camera badge inside its bounds (so it stays tappable).
+class _EditableAvatar extends StatelessWidget {
+  const _EditableAvatar({required this.child, required this.onEdit});
+
+  final Widget child;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final edit = onEdit;
+    if (edit == null) return child;
+    return Semantics(
+      button: true,
+      label: 'Profil fotoğrafını değiştir',
+      child: GestureDetector(
+        onTap: edit,
+        child: Stack(
+          children: [
+            child,
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(GxSpacing.xxs + GxSpacing.xxs / 2),
+                decoration: BoxDecoration(
+                  color: GxColors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: GxColors.background, width: 2),
+                ),
+                child: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md, color: GxColors.onPrimary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Loading state of [GxHeroCard].
 class GxHeroCardSkeleton extends StatelessWidget {
   const GxHeroCardSkeleton({super.key, required this.shape});
@@ -138,7 +212,10 @@ class GxHeroCardSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AspectRatio(aspectRatio: 3, child: GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)),
+            AspectRatio(
+              aspectRatio: gxCoverAspectRatio(context),
+              child: const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero),
+            ),
             Padding(
               padding: const EdgeInsets.all(GxSpacing.md),
               child: Row(

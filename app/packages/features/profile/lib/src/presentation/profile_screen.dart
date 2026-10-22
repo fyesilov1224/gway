@@ -14,6 +14,7 @@ import 'social_providers.dart';
 import 'social_widgets.dart';
 import 'teammate_providers.dart';
 import 'teammate_screens.dart';
+import 'widgets.dart';
 
 /// Builds a section for the given user, shown under the interests (e.g.
 /// their groups). The app supplies it so features stay independent.
@@ -128,6 +129,8 @@ class _ProfileBody extends ConsumerWidget {
             coverUrl: profile.coverUrl,
             avatarUrl: profile.avatarUrl,
             coverIcon: interests.isEmpty ? Icons.diversity_3_outlined : categoryIcon(interests.first),
+            onEditAvatar: isOwn ? () => changeProfileImage(context, ref, ProfileImage.avatar) : null,
+            onEditCover: isOwn ? () => changeProfileImage(context, ref, ProfileImage.cover) : null,
             subtitleTrailing: (social?.isPrivate ?? profile.isPrivate)
                 ? const Icon(Icons.lock_outline, size: GxSpacing.md, color: GxColors.textSecondary)
                 : null,
@@ -222,6 +225,22 @@ class _ProfileBody extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Picks a photo and uploads it as your avatar or cover, right from your profile.
+Future<void> changeProfileImage(BuildContext context, WidgetRef ref, ProfileImage kind) async {
+  final image = await pickProfileImage(kind);
+  if (image == null || !context.mounted) return;
+  final messenger = ScaffoldMessenger.of(context)
+    ..showSnackBar(const SnackBar(content: Text('Fotoğraf yükleniyor…')));
+  final result = await ref.read(profileRepositoryProvider).setImage(kind, image);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(switch (result) {
+      Ok() => kind == ProfileImage.avatar ? 'Profil fotoğrafın güncellendi.' : 'Kapak fotoğrafın güncellendi.',
+      Err(:final failure) => failure.userMessage,
+    })));
+  ref.invalidate(myProfileProvider);
 }
 
 /// "Profili düzenle" on your own profile.
