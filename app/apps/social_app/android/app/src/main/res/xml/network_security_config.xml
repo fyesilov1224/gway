@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Cleartext only for the local dev stack reached via `adb reverse`; everything else stays HTTPS. -->
+<!-- Cleartext only for the local dev stack: `adb reverse` (localhost) or the home-network APK
+     (the development computer's Wi-Fi address); everything else stays HTTPS. -->
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">127.0.0.1</domain>
         <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">192.168.10.200</domain>
     </domain-config>
 </network-security-config>
