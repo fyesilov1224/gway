@@ -44,8 +44,6 @@ class GxHeroCard extends StatelessWidget {
     this.tone,
     this.coverIcon = Icons.groups_2_outlined,
     this.subtitleTrailing,
-    this.onEditAvatar,
-    this.onEditCover,
     this.children = const [],
   });
 
@@ -66,10 +64,6 @@ class GxHeroCard extends StatelessWidget {
   /// Next to the subtitle, e.g. a lock for private accounts.
   final Widget? subtitleTrailing;
 
-  /// On your own page: a camera badge on the avatar and a "Kapağı değiştir" button on the cover.
-  final VoidCallback? onEditAvatar;
-  final VoidCallback? onEditCover;
-
   /// Bio, meta, stats and actions, separated by [GxSpacing.sm].
   final List<Widget> children;
 
@@ -87,32 +81,9 @@ class GxHeroCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: gxCoverAspectRatio(context),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (cover == null)
-                    placeholder
-                  else
-                    Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
-                  if (onEditCover case final edit?)
-                    Positioned(
-                      top: GxSpacing.sm,
-                      right: GxSpacing.sm,
-                      child: FilledButton.icon(
-                        onPressed: edit,
-                        icon: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md + GxSpacing.xxs),
-                        label: Text(cover == null ? 'Kapak ekle' : 'Kapağı değiştir'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: GxColors.textPrimary.withValues(alpha: 0.72),
-                          foregroundColor: GxColors.onPrimary,
-                          minimumSize: const Size(GxSpacing.minTouchTarget, GxSpacing.minTouchTarget),
-                          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
-                          shape: const StadiumBorder(),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              child: cover == null
+                  ? placeholder
+                  : Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
             ),
             Padding(
               padding: const EdgeInsets.all(GxSpacing.md),
@@ -121,10 +92,7 @@ class GxHeroCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      _EditableAvatar(
-                        onEdit: onEditAvatar,
-                        child: GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
-                      ),
+                      GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
                       const SizedBox(width: GxSpacing.md),
                       Expanded(
                         child: Column(
@@ -149,45 +117,6 @@ class GxHeroCard extends StatelessWidget {
                   ),
                   for (final child in children) ...[const SizedBox(height: GxSpacing.sm), child],
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The avatar, and on your own page a camera badge inside its bounds (so it stays tappable).
-class _EditableAvatar extends StatelessWidget {
-  const _EditableAvatar({required this.child, required this.onEdit});
-
-  final Widget child;
-  final VoidCallback? onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final edit = onEdit;
-    if (edit == null) return child;
-    return Semantics(
-      button: true,
-      label: 'Profil fotoğrafını değiştir',
-      child: GestureDetector(
-        onTap: edit,
-        child: Stack(
-          children: [
-            child,
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.all(GxSpacing.xxs + GxSpacing.xxs / 2),
-                decoration: BoxDecoration(
-                  color: GxColors.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: GxColors.background, width: 2),
-                ),
-                child: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md, color: GxColors.onPrimary),
               ),
             ),
           ],
