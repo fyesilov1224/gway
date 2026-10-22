@@ -20,7 +20,6 @@ class AdminShell extends StatelessWidget {
 
     if (wide) {
       return Scaffold(
-        backgroundColor: GxColors.surface,
         body: Row(
           children: [
             SizedBox(width: GxLayout.sidebarWidth, child: sidebar),
@@ -31,7 +30,6 @@ class AdminShell extends StatelessWidget {
       );
     }
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(title: const _Brand(compact: true)),
       drawer: Drawer(
         width: GxLayout.sidebarWidth,

@@ -78,7 +78,6 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(title: const Text('Grup oluştur')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),

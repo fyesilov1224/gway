@@ -40,7 +40,6 @@ class PlanScreen extends ConsumerWidget {
     final purchases = canManage && ref.watch(purchasesOnThisPlatformProvider);
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(
         titleSpacing: Navigator.canPop(context) ? 0 : GxSpacing.md,
         title: Column(

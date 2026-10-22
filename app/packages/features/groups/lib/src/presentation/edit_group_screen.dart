@@ -186,7 +186,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(
         title: const Text('Grubu düzenle'),
         actions: [

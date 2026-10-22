@@ -71,7 +71,6 @@ class CheckoutScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(title: const Text('Ödeme')),
       body: body,
     );

@@ -32,7 +32,6 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
   Widget build(BuildContext context) {
     final thread = ref.watch(supportThreadProvider(widget.ticketId));
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(title: const Text('Mesaj')),
       body: switch (thread) {
         AsyncData(:final value) => _Thread(thread: value, pickImage: widget.pickImage),

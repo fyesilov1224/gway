@@ -2,6 +2,7 @@ library;
 
 export 'src/category_icons.dart';
 export 'src/components/avatar.dart';
+export 'src/components/backdrop.dart';
 export 'src/components/badge.dart';
 export 'src/components/button.dart';
 export 'src/components/cover_header.dart';

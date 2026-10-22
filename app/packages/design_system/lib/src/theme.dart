@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'components/backdrop.dart';
 import 'tokens/borders.dart';
 import 'tokens/colors.dart';
 import 'tokens/radius.dart';
@@ -46,8 +47,18 @@ abstract final class GxTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      // A barely tinted canvas; content sits on white cards (docs/DESIGN.md §5).
-      scaffoldBackgroundColor: GxColors.surface,
+      // Pages are transparent over GxBackdrop; content sits on white cards (docs/DESIGN.md §1, §5).
+      scaffoldBackgroundColor: Colors.transparent,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.fuchsia: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.linux: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.windows: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.iOS: GxBackdropTransitions(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.macOS: GxBackdropTransitions(CupertinoPageTransitionsBuilder()),
+        },
+      ),
       fontFamily: GxTypography.fontFamily,
       package: GxTypography.fontPackage,
       textTheme: textTheme,
@@ -58,7 +69,7 @@ abstract final class GxTheme {
         space: 1,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: GxColors.surface,
+        backgroundColor: Colors.transparent,
         foregroundColor: GxColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,

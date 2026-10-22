@@ -2,7 +2,7 @@
 
 Hedef: ferah, sakin, profesyonel bir arayüz (AAA). Ekranın büyük kısmı beyazdır, içerik öne çıkar, kullanıcı yorulmaz.
 
-**Kimlik (Faz 15.5):** GrupX bir akış uygulaması değil, toplulukların buluştuğu yerdir. Bu yüzden X ve Instagram kalıpları (taşan avatarlı kapak, kenardan kenara akış, bitişik kare ızgara, hikâye halkası şeridi, beş ikonlu alt çubuk) kullanılmaz. Ana sayfa "Bugün"dür: önce canlı yayınlar ve yaklaşan organizasyonlar, sonra akış. İçerik, hafif tonlu zemin (`surface`) üzerinde beyaz kartlarda durur; kişi, grup ve kategoriler kendi yumuşak tonlarını taşır.
+**Kimlik (Faz 15.5):** GrupX bir akış uygulaması değil, toplulukların buluştuğu yerdir. Bu yüzden X ve Instagram kalıpları (taşan avatarlı kapak, kenardan kenara akış, bitişik kare ızgara, hikâye halkası şeridi, beş ikonlu alt çubuk) kullanılmaz. Ana sayfa "Bugün"dür: önce canlı yayınlar ve yaklaşan organizasyonlar, sonra akış. İçerik, mor–pembe–beyaz geçişli zemin (`GxBackdrop`) üzerinde beyaz kartlarda durur; kişi, grup ve kategoriler kendi yumuşak tonlarını taşır.
 
 Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygulama kodunda doğrudan renk, boşluk, yarıçap veya yazı boyutu yazılmaz.**
 
@@ -42,6 +42,20 @@ Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygul
 - Kontrast: Metin / zemin çiftleri WCAG AA'yı (normal metin ≥ 4.5:1) sağlar. Bu, `design_system` testleriyle doğrulanır.
 - Mavi metin soft mavi zemin üzerinde kullanılmaz (≈4.2:1, AA altı). Soft zeminlerin üzerindeki metin `textPrimary` olur. İstisna: mor metin `primarySoft` üzerinde kullanılabilir (≈4.8:1).
 
+### Zemin — `GxBackdrop`
+
+Her sayfanın arkasında beyazdan açık mora ve açık pembeye geçen, sabit ve yumuşak bir zemin vardır (kullanıcı isteği, 2026-10-22). Sol üstten açık mor, sağ üstte pembe bir ışıltı, ortası beyaza yakın, sol altta yine açık mor.
+
+| Token | Değer | Kullanım |
+|---|---|---|
+| `backdropLilac` | `#EEE8FF` | Zeminin mor ucu |
+| `backdropPink` | `#FFE6F3` | Zeminin pembe ucu |
+
+- Zemin tema üzerinden her sayfa geçişine eklenir (`GxTheme` → `pageTransitionsTheme`); `Scaffold` ve `AppBar` saydamdır. Sayfa kodu zemin rengi vermez.
+- Pembe **yalnızca zeminde** kullanılır; buton, metin ya da ikon rengi değildir.
+- Zemin renkleri açıktır; `textPrimary` ve `textSecondary` üzerlerinde AA'yı sağlar (`design_system` kontrast testi).
+- Tam ekran medya (hikâye, video) ve yayın odası kendi koyu zeminini kullanır.
+
 ### Tonlar — `GxTone`
 
 Paletten türeyen yumuşak kimlik tonları. Bir kişi, grup ya da kategori her yerde aynı tonu taşır (`GxTone.of(id ya da ad)`): avatarın görselsiz hali, kapak yer tutucusu, tarih karosu, etiketler.
@@ -79,7 +93,7 @@ Boşluklar 4'ün katlarıdır: `xxs 4`, `xs 8`, `sm 12`, `md 16`, `lg 24`, `xl 3
 
 ## 5. Yükselti
 
-Gölge kullanılmaz. Sayfa zemini `surface` (#FAFAFD), içerik beyaz kartlardadır (`GxCard`: `xl` ya da `lg` yarıçap, `border` renginde 1 px çizgi). Ayrım kenar çizgisiyle (`GxBorders.hairline`) ve kartlar arası boşlukla yapılır; bölümler arasında tam genişlik ayraç kullanılmaz. Hikaye halkası ve seçili medya çerçevesi `GxBorders.ringWidth` (2 px) kalınlığındadır.
+Gölge kullanılmaz. Sayfa zemini `GxBackdrop`'tur (§1), içerik beyaz kartlardadır (`GxCard`: `xl` ya da `lg` yarıçap, `border` renginde 1 px çizgi). Ayrım kenar çizgisiyle (`GxBorders.hairline`) ve kartlar arası boşlukla yapılır; bölümler arasında tam genişlik ayraç kullanılmaz. Hikaye halkası ve seçili medya çerçevesi `GxBorders.ringWidth` (2 px) kalınlığındadır.
 
 ## 6. Bileşenler
 
@@ -122,7 +136,7 @@ Gölge kullanılmaz. Sayfa zemini `surface` (#FAFAFD), içerik beyaz kartlardad�
 - **Grup sayfası:** Kimlik kartında logo (yuvarlatılmış kare), ad, @adres, tanıtım, kategori etiketi ve meta, altında aksiyonlar: Katıl / Katılma isteği gönder / İstek gönderildi / Daveti kabul et + Reddet / Üyesin (dokununca ayrılma onayı) / Grubu düzenle. Üyelik bilgisi yüklenmeden aksiyon gösterilmez. Askıdaki grupta hata tonunda bir uyarı bandı görünür. Grup araçları (sohbet, moderasyon, yayın, paket, destek) kimlik kartının altında ayrı bir kartta; Kurallar, Bağlantılar ve Yönetim ekibi kendi kartlarında; organizasyonlar, hedefler, anketler ve gönderiler zemin üzerinde bölüm başlıklarıyla.
 - **Gruplar ekranı:** Üstte bekleyen davetler paneli, altında "Keşfet / Gruplarım" seçimi. Keşfet: arama, yatay kaydırılan kategori çipleri, grup kartları (logo, ad, kategori · üye sayısı, serbest değilse katılım tipi).
 - **Sosyal uygulama gezinmesi:** Telefonda yüzen dok (`xl` yarıçaplı beyaz kart): Bugün, Gruplar, ortada mor "Paylaş" (Gönderi, Hikâye, Grup), Takvim, Ben; seçili hedef `primarySoft` hap ve mor etiketle. Dok yalnızca üst düzey sayfalarda görünür. Geniş ekranda (`wideBreakpoint`) 256 genişliğinde etiketli yan menü: logo, hedefler, Bildirimler, Mesajlar, "Paylaş" butonu ve "Gruplarım" (en çok 8 grup). Yan menü tam ekran medya ve yayın odası dışında her sayfada kalır; üst düzey sayfalar ortalı sütunda açılır.
-- **Giriş ve kayıt:** Form beyaz kartta. Uygulamanın giriş ve kayıt ekranında geniş ekranda solda `primarySoft` tanıtım paneli ("Topluluğun seni bekliyor." ve üç madde); admin girişinde yalnızca logo ve kart.
+- **Giriş ve kayıt:** Form beyaz kartta. Uygulamanın giriş ve kayıt ekranında geniş ekranda solda yarı saydam beyaz tanıtım paneli ("Topluluğun seni bekliyor." ve üç madde); admin girişinde yalnızca logo ve kart.
 - **Sekmeler:** Seçili sekme, kenarlardan içeri çekilmiş `primarySoft` hap ile belirtilir (alt çizgi yok).
 - **Paket kartı (grup sayfası):** Tanıtımın altında, `surface` zeminli ince çizgili kart: paket ikonu, "Başlangıç paketi · 9 Kasım 2026 tarihine kadar", üye kullanımı ve "Paket" bağlantısı. Limit dolunca hata tonunda, bitişe 7 gün kala `primarySoft` tonunda tek satırlık uyarı. Yalnızca sahip görür; onay yetkisi olanlar yalnızca "limit doldu" uyarısını görür.
 - **Paket ekranı:** Üstte "Mevcut paket" paneli (paket rozeti, dönem sonu, üye kullanım çubuğu, limitler, sıradaki dönemler). Web'de sahip için altında "Paketler" başlığı, Aylık / Yıllık · 2 ay bedava seçimi, sağlayıcı ve para birimi notu ve paket kartları: geniş ekranda eşit yükseklikte dört sütun, telefonda alt alta. Mevcut paket mor kenarlıkla ve rozetle işaretlenir. Kartın altında satın alma türüne göre ne zaman başlayacağı ve aktarılan süre yazar. Ana aksiyon (Seç / Yükselt) dolu, yenileme ve alt pakete geçiş çerçeveli butondur. Ödemeden dönüşte üstte durum bandı görünür (onaylanıyor / alındı / tamamlanamadı).

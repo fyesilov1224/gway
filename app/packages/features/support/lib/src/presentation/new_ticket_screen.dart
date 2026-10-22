@@ -83,7 +83,6 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
     const gap = SizedBox(height: GxSpacing.md);
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(title: const Text('Yeni mesaj')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),

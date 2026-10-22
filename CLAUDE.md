@@ -65,13 +65,15 @@ Platform ekibi (admin, moderatör, destek) için. Kullanıcı ve grup yönetimi,
 
 ## 2. Tasarım (AAA)
 
-- **Ferah, sakin, profesyonel.** Ekranın büyük kısmı **beyaz**. Kullanıcıyı boğmayan, kullanım keyfini artıran, içeriği öne çıkaran bir arayüz.
+- **Ferah, sakin, profesyonel.** Kullanıcıyı boğmayan, kullanım keyfini artıran, içeriği öne çıkaran bir arayüz.
+- **Zemin:** her ekranın arkasında beyazdan açık mora ve açık pembeye yumuşak geçen bir zemin (`GxBackdrop`) vardır; içerik bu zeminin üstünde **beyaz kartlarda** durur. Kullanıcı isteğiyle 2026-10-22'de eklendi.
 - **Topluluk merkezli, X/Instagram kalıbı değil:** ana sayfa "Bugün" (canlı, yaklaşan organizasyonlar, sonra akış); içerik hafif tonlu zemin üzerinde beyaz kartlarda; profil ve grup başında kimlik kartı (taşan avatar yok).
 - Renkler **hafif tonlarda** mor, mavi, siyah ve beyaz:
   - Mor `#6E56CF`: ana aksiyon, soft zemin `#F3F0FF`
   - Mavi `#2F6FE0`: ikincil aksiyon ve bilgi, soft zemin `#EAF2FF`
   - Yumuşak siyah `#1F2033`: metin; ikincil metin `#5C5F77`
   - Zemin `#FFFFFF`; yüzeyler `#FAFAFD` ve `#F4F4F8`; kenar çizgileri `#ECECF2`
+  - Zemin geçişi: açık mor `#EEE8FF`, açık pembe `#FFE6F3`, beyaz (yalnızca sayfa zemininde)
 - Mor→mavi gradyan **yalnızca** canlı yayın rozeti ve "yayın başlat" butonunda kullanılır.
 - Yazı tipi: **Plus Jakarta Sans**.
 - Boşluklar 4'ün katlarıdır. Köşe yarıçapları: 8, 12, 16 ve 24.

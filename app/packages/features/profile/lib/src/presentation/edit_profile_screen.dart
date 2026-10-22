@@ -142,7 +142,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
     final busy = _saving || _uploading != null;
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
       appBar: AppBar(
         title: const Text('Profili düzenle'),
         actions: [

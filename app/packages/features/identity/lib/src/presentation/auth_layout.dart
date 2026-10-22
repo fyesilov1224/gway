@@ -84,7 +84,7 @@ class _BrandPanel extends StatelessWidget {
               Container(
                 width: GxAvatarSize.md.dimension,
                 height: GxAvatarSize.md.dimension,
-                decoration: const BoxDecoration(color: GxColors.background, borderRadius: GxRadius.mdAll),
+                decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.mdAll),
                 child: Icon(icon, color: GxColors.primary),
               ),
               const SizedBox(width: GxSpacing.sm),
@@ -95,7 +95,12 @@ class _BrandPanel extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(GxSpacing.md),
       padding: const EdgeInsets.all(GxSpacing.xxl),
-      decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.xlAll),
+      // Frosted white over the backdrop, so the lilac and pink show through.
+      decoration: BoxDecoration(
+        color: GxColors.background.withValues(alpha: 0.6),
+        borderRadius: GxRadius.xlAll,
+        border: const Border.fromBorderSide(GxBorders.hairline),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

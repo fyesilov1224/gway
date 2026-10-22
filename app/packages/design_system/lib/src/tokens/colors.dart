@@ -18,6 +18,10 @@ abstract final class GxColors {
 
   static const onPrimary = Color(0xFFFFFFFF);
 
+  /// The page backdrop only (`GxBackdrop`): white melts into these.
+  static const backdropLilac = Color(0xFFEEE8FF);
+  static const backdropPink = Color(0xFFFFE6F3);
+
   static const error = Color(0xFFC4314B);
   static const errorSoft = Color(0xFFFDECEF);
 

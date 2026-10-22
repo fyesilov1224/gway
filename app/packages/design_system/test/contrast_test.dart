@@ -13,6 +13,11 @@ void main() {
   // Every text/background pair the design system uses. WCAG AA, normal text.
   const pairs = <String, (Color, Color)>{
     'textPrimary on background': (GxColors.textPrimary, GxColors.background),
+    'textPrimary on backdropLilac': (GxColors.textPrimary, GxColors.backdropLilac),
+    'textPrimary on backdropPink': (GxColors.textPrimary, GxColors.backdropPink),
+    'textSecondary on backdropLilac': (GxColors.textSecondary, GxColors.backdropLilac),
+    'textSecondary on backdropPink': (GxColors.textSecondary, GxColors.backdropPink),
+    'primary on backdropLilac': (GxColors.primary, GxColors.backdropLilac),
     'textPrimary on surface': (GxColors.textPrimary, GxColors.surface),
     'textPrimary on surfaceMuted': (
       GxColors.textPrimary,
