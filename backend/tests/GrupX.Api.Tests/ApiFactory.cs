@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using GrupX.Modules.Billing.Providers;
 using GrupX.Modules.Live;
+using GrupX.Modules.Notifications;
 using GrupX.SharedKernel.Supabase;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -26,6 +27,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     public FakePaymentProviders Payments { get; } = new();
 
     internal FakeLiveKit LiveKit { get; } = new();
+
+    internal FakePush Push { get; } = new();
 
     public FakeTiles Tiles { get; } = new();
 
@@ -65,6 +68,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Live:MonitorInterval", "00:00:00");
         builder.UseSetting("Events:ReminderInterval", "00:00:00");
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
+        builder.UseSetting("Push:DispatchInterval", "00:00:00");
         builder.UseSetting("Map:TileUrl", FakeTiles.Url);
         builder.UseSetting("Map:ApiKey", FakeTiles.ApiKey);
 
@@ -74,6 +78,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<ISupabaseStorage>(Storage);
             services.RemoveAll<ILiveKit>();
             services.AddSingleton<ILiveKit>(LiveKit);
+            services.RemoveAll<IPushSender>();
+            services.AddSingleton<IPushSender>(Push);
             services.AddHttpClient<PaytrClient>().ConfigurePrimaryHttpMessageHandler(() => new FakePaymentHandler(Payments));
             services.AddHttpClient<IyzicoClient>().ConfigurePrimaryHttpMessageHandler(() => new FakePaymentHandler(Payments));
             services.AddHttpClient(nameof(Endpoints.MapTileEndpoints)).ConfigurePrimaryHttpMessageHandler(Tiles.Handler);

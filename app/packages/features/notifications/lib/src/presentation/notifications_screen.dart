@@ -30,7 +30,7 @@ class NotificationLinks {
   /// "Takip et" / "Takiptesin" next to follow notifications.
   final Widget Function(BuildContext context, NotificationActor actor) followButton;
 
-  /// A live room, for live_started.
+  /// A live room, for live_scheduled and live_started.
   final void Function(BuildContext context, String liveId) openLive;
 
   /// An event page, for the event_* types.

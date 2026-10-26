@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,67 @@ class _FakePreferences implements NotificationsRepository {
   @override
   Future<Result<void>> savePreferences(NotificationPreferences preferences) async {
     saved.add(preferences);
+    return const Ok(null);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Delivers arrivals by hand; list() answers with [listed].
+class _FakeArrivals implements NotificationsRepository {
+  final arrivals$ = StreamController<NotificationArrival>.broadcast();
+  final listed = <AppNotification>[];
+
+  @override
+  Stream<NotificationArrival> arrivals() => arrivals$.stream;
+
+  @override
+  Future<Result<List<AppNotification>>> list({int? beforeId}) async => Ok(listed);
+
+  @override
+  Future<Result<int>> unreadCount() async => const Ok(0);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakePush implements PushMessaging {
+  final refreshes = StreamController<String>.broadcast();
+  final tapped = StreamController<Map<String, Object?>>.broadcast();
+  var deleted = 0;
+
+  @override
+  String get platform => 'android';
+
+  @override
+  Future<String?> token() async => 'token-of-this-phone';
+
+  @override
+  Stream<String> get tokenRefreshes => refreshes.stream;
+
+  @override
+  Future<void> deleteToken() async => deleted++;
+
+  @override
+  Stream<Map<String, Object?>> get taps => tapped.stream;
+}
+
+final _signedIn = NotifierProvider<_SignedIn, String?>(_SignedIn.new);
+
+class _SignedIn extends Notifier<String?> {
+  @override
+  String? build() => 'u1';
+
+  void signOut() => state = null;
+}
+
+class _FakeDevices implements NotificationsRepository {
+  final registered = <(String, String)>[];
+
+  @override
+  Future<Result<void>> registerPushDevice(String token, String platform) async {
+    registered.add((token, platform));
     return const Ok(null);
   }
 
@@ -75,6 +138,61 @@ void main() {
     expect(n.action, 'canlı yayına başladı: Pazar konseri');
   });
 
+  test('a live_scheduled notification names the broadcast and its time', () {
+    final n = AppNotification(
+      id: 1,
+      type: NotificationType.liveScheduled,
+      actor: const NotificationActor(id: 'u2', username: 'elif', displayName: 'Elif'),
+      createdAt: DateTime(2026),
+      liveId: 'b1',
+      liveTitle: 'Pazar konseri',
+      liveScheduledAt: DateTime(2026, 10, 27, 20),
+    );
+    expect(NotificationType.tryParse('live_scheduled'), NotificationType.liveScheduled);
+    expect(n.action, '27 Ekim 2026, 20:00 için canlı yayın planladı: Pazar konseri');
+    expect(NotificationType.liveScheduled.isLive && NotificationType.liveStarted.isLive, isTrue);
+    expect(NotificationType.like.isLive, isFalse);
+  });
+
+  testWidgets('a live notification rings and its strip opens the broadcast; others stay quiet', (tester) async {
+    final repo = _FakeArrivals();
+    var rings = 0;
+    final opened = <String>[];
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        currentUserIdProvider.overrideWithValue('u1'),
+        notificationsRepositoryProvider.overrideWithValue(repo),
+        liveAlertSoundProvider.overrideWithValue(() async => rings++),
+      ],
+      child: MaterialApp(
+        theme: GxTheme.light(),
+        builder: (_, child) => LiveNotificationAlerts(openLive: opened.add, child: child!),
+        home: const Scaffold(),
+      ),
+    ));
+    await tester.pump();
+
+    repo.arrivals$.add(const NotificationArrival(id: 7, type: NotificationType.like));
+    await tester.pump();
+    expect(rings, 0);
+
+    repo.listed.add(AppNotification(
+      id: 8,
+      type: NotificationType.liveStarted,
+      actor: const NotificationActor(id: 'u2', username: 'elif', displayName: 'Elif'),
+      createdAt: DateTime(2026),
+      liveId: 'b1',
+      liveTitle: 'Pazar konseri',
+    ));
+    repo.arrivals$.add(const NotificationArrival(id: 8, type: NotificationType.liveStarted, liveId: 'b1'));
+    await tester.pumpAndSettle();
+    expect(rings, 1);
+    expect(find.text('elif canlı yayına başladı: Pazar konseri'), findsOneWidget);
+
+    await tester.tap(find.text('Katıl'));
+    expect(opened, ['b1']);
+  });
+
   test('event reminders say tomorrow or within the hour', () {
     AppNotification reminder(Duration before) {
       final created = DateTime(2026, 10, 20, 9);
@@ -116,6 +234,49 @@ void main() {
     );
     expect(vote.lead, 'moderator');
     expect(vote.action, 'Doğa Yürüyüşçüleri grubunda bir disiplin dosyası açtı; oyunu bekliyor.');
+  });
+  testWidgets('the phone registers for push while signed in, forgets it on sign-out and opens taps', (tester) async {
+    final push = _FakePush();
+    final repo = _FakeDevices();
+    final opened = <String>[];
+    var listOpened = 0;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        currentUserIdProvider.overrideWith((ref) => ref.watch(_signedIn)),
+        notificationsRepositoryProvider.overrideWithValue(repo),
+        pushMessagingProvider.overrideWithValue(push),
+      ],
+      child: PushNotifications(openLive: opened.add, openNotifications: () => listOpened++, child: const SizedBox()),
+    ));
+    await tester.pump();
+    expect(repo.registered, [('token-of-this-phone', 'android')]);
+
+    push.refreshes.add('new-token-of-this-phone');
+    push.tapped
+      ..add({'type': 'live_started', 'live_id': 'b1'})
+      ..add({'type': 'like'});
+    await tester.pump();
+    expect(repo.registered.last, ('new-token-of-this-phone', 'android'));
+    expect(opened, ['b1']);
+    expect(listOpened, 1);
+
+    ProviderScope.containerOf(tester.element(find.byType(SizedBox))).read(_signedIn.notifier).signOut();
+    await tester.pump();
+    expect(push.deleted, 1);
+  });
+  testWidgets('turning live broadcast notices off saves it', (tester) async {
+    final repo = _FakePreferences();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
+      child: MaterialApp(theme: GxTheme.light(), home: const NotificationPreferencesScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.text('Planlanan ve başlayan yayınlar'), 100);
+    await tester.tap(find.text('Planlanan ve başlayan yayınlar'));
+    await tester.pumpAndSettle();
+    expect(repo.saved.single.liveBroadcasts, isFalse);
+    expect(repo.saved.single.reminderDay, isTrue);
   });
   testWidgets('turning a reminder off saves it', (tester) async {
     final repo = _FakePreferences();

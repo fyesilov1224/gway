@@ -156,6 +156,14 @@ class _Sidebar extends ConsumerWidget {
               ),
               const SizedBox(height: GxSpacing.xxs),
               _NavItem(
+                icon: Icons.notifications_outlined,
+                selectedIcon: Icons.notifications,
+                label: 'Bildirimler',
+                selected: path.startsWith(AdminRoutes.notifications),
+                onTap: () => go(AdminRoutes.notifications),
+              ),
+              const SizedBox(height: GxSpacing.xxs),
+              _NavItem(
                 icon: Icons.support_agent_outlined,
                 selectedIcon: Icons.support_agent,
                 label: 'Destek',

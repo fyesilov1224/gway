@@ -83,7 +83,7 @@ Kullanıcı isteğiyle Faz 4'ten önce eklendi (2026-10-19). Kararlar: renk tür
 - [x] Hikayeler (24 saat), görenler, arşiv, öne çıkanlar
 - [x] Ana akış, keşfet, etiket sayfaları, önerilen hesaplar
 - [x] Grup gönderileri (`posts.publish`), grup takibi
-- [x] Uygulama içi bildirimler. Push bildirimleri (FCM / APNs) Firebase proje bilgileri gelince eklenir.
+- [x] Uygulama içi bildirimler. Push bildirimleri (FCM): Android 2026-10-26'da bağlandı (`push_devices`, C# `PushDispatcher`); iOS için APNs, web için VAPID anahtarı bekleniyor. Admin: "Bildirimler" sayfası (push durumu, cihazlar, son 24 saatte teslim ve kuyruk, tür dağılımı).
 - [x] Admin: içerik görüntüleme, kaldırma ve geri alma, yorum kaldırma
 - [x] Doğrulama (2026-10-20): `flutter analyze` temiz, tüm Flutter testleri geçiyor, `dotnet build` 0 hata 0 uyarı, C# 129/129, pgTAP 392/392
 
@@ -137,9 +137,9 @@ Kullanıcı isteğiyle Faz 4–6 bitmeden yapıldı (2026-10-20). Kararlar: yay�
 - [x] Atılan kullanıcıya o yayın için token verilmemesi. Gruptan ban ve susturma Faz 6'da bu kontrole bağlanır.
 - [x] Yayın dakikası paket limiti (Türkiye saatiyle takvim ayı, C# + trigger); dakika dolunca yayın kendiliğinden biter
 - [x] Gözetim: odası kapanan, sunucusu 2 dakikadan uzun ayrılan ve dakikası dolan yayınları bitirir; zamanı geçen planlı yayını iptal eder
-- [x] Emoji tepkileri (LiveKit veri mesajı), yazılı yorumlar (Realtime), planlı yayın ve `live_started` hatırlatma bildirimi
+- [x] Emoji tepkileri (LiveKit veri mesajı), yazılı yorumlar (Realtime), planlı yayın; planlanınca ve başlayınca bütün üyelere `live_scheduled` / `live_started` bildirimi, uygulama açıkken sesli uyarı (2026-10-26)
 - [x] Arayüz: grup sayfasında canlı kartı, yaklaşanlar ve "Yayın başlat"; ana sayfada canlı yayınlar şeridi; yayın odası (sahne, dinleyiciler, konuşma halkası, yönetici menüsü, tepkiler, yorumlar)
-- [x] Admin: şu an canlı yayınlar (katılımcı sayısıyla), geçmiş, acil kapatma (audit log)
+- [x] Admin: şu an canlı yayınlar (katılımcı sayısıyla), planlı yayınlar (zaman ve duyurulan üye sayısı, 2026-10-26), geçmiş, acil kapatma (audit log)
 - [x] Doğrulama (2026-10-20): `flutter analyze` temiz, tüm Flutter testleri geçiyor (live 10, admin 34), `dotnet build` 0 hata 0 uyarı, C# 129/129, pgTAP 392/392; gerçek LiveKit ile iki kullanıcılı uçtan uca deneme (bağlanma, mikrofon yayını, el kaldırma, sahneye alma, Realtime yorum)
 
 ## Topluluk hareketi planı (2026-10-21)
@@ -257,6 +257,26 @@ Karar (2026-10-22): arayüz X ve Instagram kalıbından çıkarılır, **toplulu
 - [x] Giriş ve kayıt: geniş ekranda tanıtım paneli, form kartı (admin girişinde tanıtım yok)
 - [x] Admin paneli: yeni tema ve giriş kartı; ek ekran gerekmedi
 - [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor, telefon (420) ve geniş (1440) ekran görüntüleriyle kontrol
+
+## Faz 15.6 — Eşleşme (kullanıcı isteği, onay bekliyor)
+
+Kararlar (2026-10-26): ortak gruplardan havuz, kart kaydırma, Arkadaş ve Sevgili modları, freemium, web ödemesi. Kurallar: `docs/ARCHITECTURE.md` §3g.
+
+### 15.6a — Eşleşme çekirdeği
+- [ ] Eşleşme profili: 18 yaş kontrolü, açık rıza, modlar, fotoğraflar (2–6), cinsiyet ve tercih (Sevgili), il, hakkımda, ilgi alanları, duraklatma, tüm verileri silme
+- [ ] Havuz ve deste (ortak gruplar, iki yönlü tercih uyumu, engel), kart kaydırma arayüzü
+- [ ] Beğen / geç (C#, günlük sınır), karşılıklı beğenide eşleşme, eşleşme ekranı, doğrudan sohbet
+- [ ] Eşleşmeler listesi, eşleşmeyi bitirme, şikayet ve engelleme
+- [ ] Bildirimler: `match_created`, `match_liked` (push dahil), tercih
+- [ ] Admin: eşleşme sayfası, şikayet incelemesi, fotoğraf kaldırma, profili kapatma
+- [ ] pgTAP, C# ve Flutter testleri
+
+### 15.6b — Premium
+- [ ] Billing: kişisel ürün (`matching_premium`), aylık / yıllık, PayTR ve iyzico ile web'den satın alma
+- [ ] Sınırsız beğeni, beni kimler beğendi, gelişmiş filtreler, geri al, öne çık
+- [ ] Mobilde durum ve web'e yönlendirme
+- [ ] Admin: fiyatlar, ücretsiz beğeni sınırı, Premium aboneler ve gelir
+- [ ] Testler
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 

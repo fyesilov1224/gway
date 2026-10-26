@@ -21,6 +21,8 @@
     <Project Path="src/Modules/GrupX.Modules.Messaging.Contracts/GrupX.Modules.Messaging.Contracts.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Moderation/GrupX.Modules.Moderation.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Moderation.Contracts/GrupX.Modules.Moderation.Contracts.csproj" />
+    <Project Path="src/Modules/GrupX.Modules.Notifications/GrupX.Modules.Notifications.csproj" />
+    <Project Path="src/Modules/GrupX.Modules.Notifications.Contracts/GrupX.Modules.Notifications.Contracts.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Profile/GrupX.Modules.Profile.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Support/GrupX.Modules.Support.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Support.Contracts/GrupX.Modules.Support.Contracts.csproj" />

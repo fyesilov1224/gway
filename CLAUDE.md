@@ -154,7 +154,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 2 | Gruplar, Roller ve Üyelik: kategoriler, grup sayfası, katılım tipleri, yetki kataloğu, rol atama, rütbe kuralı | ✅ Bitti (2026-10-19) |
 | 3 | Abonelik ve Paketler: paket limitleri, PayTR (yurt içi) + iyzico (yurt dışı), web'den satın alma, admin gelir görünümü | ✅ Bitti (2026-10-19), sağlayıcı anahtarları bekleniyor |
 | 3.5 | Destek ve Geri Bildirim: kullanıcı ve grup yöneticisi mesajları (sorun, talep, istek), admin yanıtı ve durum | ✅ Bitti (2026-10-19) |
-| 4 | Akış, Takip ve Bildirimler: gönderi, medya, beğeni/yorum, takip, keşfet, push | ✅ Bitti (2026-10-20), push için Firebase bilgileri bekleniyor |
+| 4 | Akış, Takip ve Bildirimler: gönderi, medya, beğeni/yorum, takip, keşfet, push | ✅ Bitti (2026-10-20); Android push 2026-10-26'da bağlandı, iOS (APNs) ve web (VAPID) anahtarları bekleniyor |
 | 5 | Organizasyonlar ve Anketler: organizasyon, katılım, ücret bilgisi, anket, hatırlatma | ✅ Bitti (2026-10-20) |
 | 6 | Moderasyon ve Disiplin Kurulu: şikayet, dosya, oylama, yaptırımlar, itiraz | ✅ Bitti (2026-10-21) |
 | 7 | Canlı Sesli Yayın: LiveKit, konuşmacı/dinleyici, el kaldırma, sunucu tarafı moderasyon | ✅ Bitti (2026-10-20), kullanıcı isteğiyle Faz 4–6'dan önce |
@@ -167,6 +167,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 14 | Harita ile keşif (Stadia; ücretli plan yayında onayla) | ✅ Bitti (2026-10-22) |
 | 15 | Mesajlaşma: birebir ve grup içi, engelleme | ✅ Bitti (2026-10-22) |
 | 15.5 | Görsel kimlik: topluluk merkezli tasarım (kullanıcı isteği) | ✅ Bitti (2026-10-22) |
+| 15.6 | Eşleşme: ortak gruplardan arkadaş ve sevgili eşleşmesi, freemium (kullanıcı isteği) | Tasarım yazıldı (2026-10-26), onay bekliyor |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
 
@@ -176,13 +177,14 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 ## 6. Şu anki görev
 
-**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; Firebase (push) proje bilgileri; PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–15 ve kullanıcı isteğiyle Faz 15.5 (görsel kimlik) bitti; sıradaki Faz 16 (Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
+**Faz 4, 5, 6 ve 7 (Faz 7 kullanıcı isteğiyle öne alındı) tamamlandı (2026-10-21).** Açık kalanlar: Google/Apple OAuth istemci bilgileri; iOS push için APNs anahtarı ve web push için VAPID anahtarı (Firebase projesi `grupx-08706`; Android push çalışıyor); PayTR mağaza hesabı ve iyzico anahtarları; LiveKit sunucusu (üretim); KVKK, aydınlatma ve mesafeli satış metinlerinin hukuki incelemesi. Kullanıcı 2026-10-21'de topluluk hareketi planını (Faz 8–17, `docs/ROADMAP.md`) onayladı; Faz 8–15 ve kullanıcı isteğiyle Faz 15.5 (görsel kimlik) bitti; sıradaki Faz 16 (Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi). Proje Git deposudur: her faz kendi dalında yapılır, `main` çalışan sürümdür. Ücretli servis onaysız açılmaz.
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.
 - `backend/`: `dotnet build`, `dotnet test` (DB testleri için Supabase açık olmalı). API: `Supabase__ServiceRoleKey=<SERVICE_ROLE_KEY> ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5089 dotnet run --project src/GrupX.Api`
 - `app/`: `dart run melos run analyze`, `dart run melos run test`. Uygulama: `flutter run -d chrome --web-port 3000 --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_PUBLISHABLE_KEY=<ANON_KEY> --dart-define=API_URL=http://localhost:5089` (admin paneli için `--web-port 3001`).
 - Doğrulama e-postaları yerelde Mailpit'e düşer: http://127.0.0.1:54324
+- Push: API'ye `Push__CredentialsPath=<Firebase servis hesabı JSON yolu>` verilir (yerelde `C:\Users\Fırat\.grupx\firebase-adminsdk.json`; repoya girmez). Yoksa push kapalıdır, bildirimler yalnızca uygulama içinde kalır. Uygulamanın Firebase yapılandırması `app/apps/social_app/lib/firebase_options.dart` ve `android/app/google-services.json`'dadır (`flutterfire configure` ile üretilir).
 - Moderasyon: süresi dolan dosyaları `ModerationMonitor` dakikada bir kapatır (`Moderation__MonitorInterval`, sıfır kapatır).
 - Canlı yayın: `docker run --rm -d --name grupx-livekit -p 7880:7880 -p 7881:7881 -p 7882:7882/udp livekit/livekit-server:v1.9.1 --dev --bind 0.0.0.0 --node-ip 127.0.0.1`. API'ye `LiveKit__ApiKey=devkey LiveKit__ApiSecret=secret` ortam değişkenleri verilir (adres `appsettings.Development.json`'da). Anahtarlar yoksa yayın 503 ile kapalıdır. Telefonda `adb reverse tcp:7880 tcp:7880` ve `tcp:7881` gerekir (ses TCP üzerinden akar).
 - Demo verisi: `supabase/seed.sql` (`supabase db reset` ile yüklenir; yalnızca yerel). Demo kullanıcı, platform yöneticisi, örnek hesaplar, gruplar (sahiplik, roller, bekleyen istek ve davet, askıdaki grup), paket ödemeleri ve destek mesajları içerir; giriş bilgileri dosyanın başında. pgTAP testleri seed verisinden bağımsızdır.

@@ -39,7 +39,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 
 ## 3. Modüller
 
-`core, identity, profile, groups, billing, support, feed, notifications, events, moderation, live, messaging, admin`
+`core, identity, profile, groups, billing, support, feed, notifications, events, moderation, live, messaging, matching, admin`
 
 - Her modül Flutter'da `app/packages/features/<modül>` olarak, C#'ta `backend/src/Modules/GrupX.Modules.<Ad>` olarak **aynı isimle** yaşar.
 - Her modül kendi tablolarının sahibidir. Bir tablonun sahibi migration'daki yorumla belirtilir (`-- owner: <modül>`).
@@ -87,6 +87,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | Storage `media` | feed | 4 |
 | `public.notifications` | notifications | 4 |
 | `public.notification_preferences` | notifications | 9 |
+| `public.push_devices` | notifications | 4 |
 | `public.events`, `public.event_attendees`, `public.polls`, `public.poll_options`, `public.poll_votes` | events | 5 |
 | `public.event_reviews` | events | 10 |
 | `public.goals`, `public.goal_teams`, `public.goal_team_members`, `public.goal_claims`, `public.goal_completions` | events | 12 |
@@ -254,9 +255,9 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 | profile | `profiles.is_private`, `follows`, `follow_requests`, `blocks` |
 | groups | `group_follows` |
 | feed | `posts`, `post_media`, `post_hashtags`, `post_likes`, `comments`, `comment_likes`, `saved_posts`, `stories`, `story_views`, `highlights`, `highlight_stories`, Storage `media` |
-| notifications | `notifications` (kayıtları diğer modüllerin tablolarındaki trigger'lar oluşturur) |
+| notifications | `notifications` (kayıtları diğer modüllerin tablolarındaki trigger'lar oluşturur), `push_devices` |
 
-C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gönderi oluşturma, düzenleme, silme; admin kaldırma) modülleri eklenir. Bildirimlerin C# kodu yoktur.
+C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gönderi oluşturma, düzenleme, silme; admin kaldırma) modülleri eklenir. `GrupX.Modules.Notifications` yalnızca push gönderimini yapar (§3c, Push).
 
 ### Görünürlük kuralı (tek yerde)
 `private.can_view_user_content(author)` bir kullanıcının içeriğinin (gönderi, hikaye, takipçi listeleri) görülüp görülemeyeceğini söyler:
@@ -369,13 +370,19 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Paylaşım:** Gönderi bağlantısı `/#/p/<id>`; bağlantıyı açan kişi gönderiyi görünürlük kuralına göre görür.
 
 ### Bildirimler (notifications)
-- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
+- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `live_scheduled`, `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
 - **Oluşturma:** Bildirimleri ilgili tablolardaki trigger'lar oluşturur. Kişi kendi işlemi için bildirim almaz; engel varsa bildirim oluşmaz.
 - **Silme:** Beğeni geri alınınca, yorum silinince ya da takip bırakılınca ilgili bildirim de silinir.
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
 - **Arayüz:** Ekranda bildirimler Bugün / Bu hafta / Daha önce diye gruplanır. Bekleyen takip istekleri en üstte toplanır. Okunmamış sayısı gezinmede görünür.
-- **Push:** Push bildirimi (FCM/APNs) Firebase proje bilgileri gelince bu kayıtlardan gönderilir.
-- **Tercihler** (Faz 9, `notification_preferences`): kişi organizasyon hatırlatmalarını (1 gün önce, 1 saat önce), organizasyon değişikliği/iptali bildirimlerini ve değerlendirme isteklerini (Faz 10) kapatabilir. Kayıt yoksa hepsi açıktır. Kişinin kendi basit yazmasıdır (RLS). Bildirimi yazan fonksiyonlar tercihi okur (`private.wants_notification`); kapalı türde kayıt hiç oluşmaz. Diğer türler (katılım onayı, sıra yükselmesi, yaptırım vb.) kişiyi doğrudan ilgilendirdiği için kapatılamaz.
+- **Push** (FCM; Firebase projesi `grupx-08706`):
+  - **Cihaz kaydı** (`push_devices`: FCM token, kişi, platform): uygulama girişte bildirim izni ister ve token'ı `public.register_push_device` ile kaydeder. Token yeni giriş yapan kişiye geçer (aynı telefonda hesap değişimi). Kişi başına en fazla 10 cihaz tutulur, en eskisi silinir. Kişi kendi kayıtlarını okur ve siler (RLS). Çıkışta uygulama token'ı FCM'den siler; geçersiz token'ı sunucu ilk gönderimde kaldırır.
+  - **Gönderim:** C#'taki `PushDispatcher` birkaç saniyede bir (`Push:DispatchInterval`, varsayılan 5 sn, sıfır kapatır) gönderilmemiş bildirimleri (`notifications.pushed_at` boş, son 15 dakika) işaretler ve alıcının cihazlarına sesli bildirim olarak gönderir. Önce işaretlenir, sonra gönderilir; bir bildirim en fazla bir kez gider. Metin uygulamadaki cümleyle aynıdır.
+  - **Kimlik bilgisi:** Firebase servis hesabı anahtarı (JSON) yalnızca sunucudadır, repoya girmez: `Push:CredentialsPath`. Tanımlı değilse push kapalıdır, bildirimler yalnızca uygulama içinde kalır.
+  - **Platformlar:** Android. iOS için Apple APNs anahtarı, web için Web Push (VAPID) anahtarı bekleniyor.
+  - Bildirime dokununca yayın bildirimi yayın odasını, diğerleri bildirimler ekranını açar.
+- **Sesli uyarı:** Uygulama açıkken `live_scheduled` ya da `live_started` bildirimi gelince kısa bir uyarı sesi çalar ve ekranın altında yayını açan bir şerit görünür. Uygulama kapalı ya da arka plandayken aynı bildirim push ile sesli gelir.
+- **Tercihler** (Faz 9, `notification_preferences`): kişi organizasyon hatırlatmalarını (1 gün önce, 1 saat önce), organizasyon değişikliği/iptali bildirimlerini, değerlendirme isteklerini (Faz 10) ve canlı yayın bildirimlerini (`live_scheduled`, `live_started`) kapatabilir. Kayıt yoksa hepsi açıktır. Kişinin kendi basit yazmasıdır (RLS). Bildirimi yazan fonksiyonlar tercihi okur (`private.wants_notification`); kapalı türde kayıt hiç oluşmaz. Diğer türler (katılım onayı, sıra yükselmesi, yaptırım vb.) kişiyi doğrudan ilgilendirdiği için kapatılamaz.
 
 ### Depolama (`media`)
 - Herkese açık okunur. Yollar tahmin edilemez uuid'lerdir; hangi medyanın kime ait olduğu ancak RLS'in izin verdiği gönderi ve hikaye kayıtlarından öğrenilir. Bu, Instagram'ın CDN modeline benzer.
@@ -389,6 +396,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Yorumu kaldırma:** `comment.removed`.
 - Kaldırılan içerik kullanıcılara görünmez; sayaçlardan düşer, kanıt olarak saklanır.
 - **Roller:** Görüntüleme `admin`, `moderator`, `support`. Kaldırma `admin`, `moderator`.
+- **Bildirimler sayfası** (`GET /admin/notifications/stats`, rol: `admin`, `moderator`, `support`): push açık mı (sunucuda anahtar var mı), platforma göre kayıtlı cihazlar ve cihazı olan kişi sayısı, son 24 saatte oluşan bildirimler, telefona ulaşanlar (`notifications.push_deliveries` > 0) ve toplam teslim, gönderim kuyruğunda bekleyenler, son 24 saatin tür dağılımı. Yalnızca sayılardır; bildirim içerikleri ve token'lar gösterilmez.
 
 ### C# uç noktaları (Faz 4)
 | Uç nokta | Açıklama |
@@ -859,6 +867,58 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 | `GET /admin/reports/{id}/message-context` | Şikayet edilen mesaj ve önceki 5 mesaj (admin, moderatör; audit log) |
 | `POST /admin/messages/{id}/removal` | Mesajı kaldırma (`reason`; admin, moderatör) |
 
+## 3g. Eşleşme (Faz 15.6, onay bekliyor)
+
+Ürün kararları (2026-10-26, kullanıcı): ortak gruplardan oluşan havuz, kart kaydırma, Arkadaş ve Sevgili modları, freemium, ödeme mevcut web akışıyla (PayTR / iyzico). Uygulama içi satın almaya geçiş Faz 17'de mağaza kurallarına göre ayrıca değerlendirilir.
+
+### İlkeler
+- **İsteğe bağlı ve ayrı:** Eşleşme, sosyal profilden ayrı bir **eşleşme profili**dir. Kişi açmadıkça hiçbir yerde görünmez; açmayan kişi kimseyi de göremez.
+- **18 yaş sınırı:** Modül yalnızca 18 yaşını doldurmuş kişilere açıktır (doğum tarihi, sunucuda ve SQL'de kontrol). Doğum tarihi ve yaş sınırı yalnızca bu modülde tutulur; sosyal profilde yaş görünmez.
+- **KVKK:** Cinsiyet, aradığı kişi ve Sevgili modu özel nitelikli veriye yakın kabul edilir. Eşleşme profili açılırken ayrı **açık rıza** alınır (`consented_at`, `consent_version`). Kişi eşleşme verisinin tamamını tek dokunuşla siler: profil, fotoğraflar, kaydırmalar, eşleşmeler. Mesajlar mesajlaşma modülünün kuralına göre kalır.
+- **Konum:** Yalnızca il (81 ilden biri). Hassas konum alınmaz ve gösterilmez.
+- **Güvenlik:** Engel her iki yönde havuzdan ve eşleşmelerden çıkarır (`blocks` tekrar kullanılır). Eşleşme profili ve fotoğrafları şikayet edilebilir (moderasyon `reports`, yeni hedef türleri). Platform ekibi kişinin eşleşme profilini kapatabilir.
+
+### Eşleşme profili
+- **Modlar:** Arkadaş, Sevgili ya da ikisi. Her mod ayrı bir destedir; bir modda geçilen kişi diğer modda yine görünebilir.
+- **Bilgiler:** 2–6 fotoğraf (ilki kapak), doğum tarihi (yaş gösterilir), cinsiyet (kadın, erkek, ikili olmayan), il, 300 karakter "hakkımda", ilgi alanları (sosyal profildeki `profile_interests`), isteğe bağlı meslek ve eğitim.
+- **Sevgili modunda ek:** aradığı cinsiyetler ve yaş aralığı (18–99). Eşleşme yalnızca **iki taraf da** birbirinin cinsiyet ve yaş tercihine uyuyorsa önerilir.
+- **Duraklat:** Kişi profilini gizler; desteler ve beğeniler durur, mevcut eşleşmeler kalır.
+
+### Havuz ve deste
+- **Havuz:** eşleşme profili açık ve aynı modda olan, en az bir **ortak grubu** (üyelik ya da grup takibi) bulunan, aktif hesaplı, engel ilişkisi olmayan, daha önce bu modda kaydırılmamış ve eşleşilmemiş kişiler.
+- **Sıralama:** öne çıkarılanlar (Premium), sonra ortak grup sayısı, sonra son etkinlik. Kartta "Ortak gruplarınız" adlarıyla yazar.
+- **Kart:** fotoğraflar (dokunarak geçilir), ad ve yaş, il, hakkımda, ilgi alanları (ortak olanlar vurgulu), ortak gruplar. Kullanıcı adı ve sosyal profil bağlantısı eşleşmeden önce gösterilmez.
+- Okuma `public.match_deck(mode, filters)` ile yapılır (RLS ve `security definer` yardımcı; kural tek yerde, `private.match_candidates`).
+
+### Kaydırma ve eşleşme
+- **Beğen / Geç** (ve Premium'da **Geri al**) C# üzerinden yazılır: günlük beğeni sınırı ve Premium kontrolü kural olduğu için (§2).
+- İki kişi aynı modda birbirini beğenince **eşleşme** oluşur. İkisine `match_created` bildirimi (push dahil) gider ve mesajlaşma modülünde mesaj isteği olmadan doğrudan sohbet açılır (`IMessagingMatches`).
+- **Eşleşmeyi bitir:** iki taraf da eşleşmeyi bitirebilir. Sohbet ikisine de kapanır, kişiler birbirinin destesine bir daha çıkmaz.
+- Kaydırmalar 90 gün saklanır; "geç" denen kişi 90 gün sonra yeniden önerilebilir.
+
+### Freemium
+| | Ücretsiz | Premium |
+|---|---|---|
+| Günlük beğeni | 10 (admin değiştirir) | Sınırsız |
+| Beni kimler beğendi | Sayı ve bulanık fotoğraflar | Liste, doğrudan eşleşme |
+| Filtreler | Mod | Yaş aralığı, il, ilgi alanı, ortak grup |
+| Geri al (son geç) | — | Var |
+| Öne çık | — | Günde bir kez 30 dakika destelerin başında |
+
+- **Satış:** billing modülü kişiye ait bir ürün olarak satar (`matching_premium`, aylık ve yıllık, ön ödemeli, otomatik yenileme yok). Satın alma web'dendir; mobil yalnızca durumu gösterir (§7). Hak billing'de tutulur; eşleşme modülü `IBillingEntitlements` ve SQL'de `private.has_matching_premium(uid)` ile sorar.
+- **Başlangıç fiyatı:** aylık 149 ₺ · $5.99, yıllık 1.490 ₺ · $59.90. Admin değiştirir.
+
+### Bildirimler
+`match_created` (eşleştiniz), `match_liked` (biri seni beğendi; kim olduğu yalnızca Premium'da görünür). Tercihlerden kapatılabilir (`match_alerts`).
+
+### Admin
+- **Eşleşme sayfası:** açık profiller (mod ve cinsiyete göre), günlük kaydırma ve eşleşme, Premium abone sayısı ve geliri.
+- **İnceleme:** şikayet edilen eşleşme profilleri ve fotoğrafları. Fotoğraf kaldırma, eşleşme profilini kapatma (süreli ya da kalıcı). Hepsi `audit_log`'a yazılır (`match_profile.suspended`, `match_photo.removed`).
+- **Ayarlar:** günlük ücretsiz beğeni sayısı, Premium fiyatları ve satış durumu.
+
+### Tablolar (sahip: matching)
+`match_profiles`, `match_photos` (Storage `match-photos`, yalnızca havuzda görebilenlere imzalı adres), `match_swipes`, `matches`, `match_boosts`. Billing tarafında `personal_plans`, `personal_plan_prices`, `user_subscriptions`.
+
 ## 4. Flutter
 
 ### Klasörler
@@ -875,7 +935,7 @@ app/
 ```
 
 - `core` ayrıca Supabase istemcisini (`supabaseClientProvider`), C# API istemcisini (`ApiClient`: Supabase oturum token'ını ekler, ProblemDetails'i `Failure`'a çevirir), `AppConfig`'i (`--dart-define`: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_URL`), ortak kategorileri (`categoriesProvider`), görsel seçimini (`ImageUpload`, `pickGalleryImage`; ekranlar testte değiştirilebilen `PickImage` alır) ve tarih, para (`formatMoney`: `249 ₺`, `$9.99`) ve sayı biçimlendirmesini sağlar. `ApiClient`, ProblemDetails içeren 503 yanıtlarının başlığını da gösterir (ör. ödeme geçici olarak kapalı).
-- Uygulamanın router'ı feature paketlerinin provider'larını birleştirir (oturum, onay, profil durumu). Feature'lar birbirini bilmez; bir feature'ın başka bir feature'ın ekranında yer alması gerekiyorsa uygulama bunu bağlar (ör. profil sayfasındaki "Gruplar" bölümü `ProfileScreen.sections` ile, grup ekranından profile geçiş `onOpenProfile` ile, grup sayfasındaki paket kartı `GroupScreen.sections` ile verilir; paket ve ödeme rotaları `/g/<handle>/plan` ve `/g/<handle>/plan/checkout` grubu uygulamada çözer ve `billing` ekranlarına kimliğini verir; canlı yayın kartı `GroupScreen.sections`, ana sayfadaki "Şimdi canlı" ve "Yaklaşanlar" bölümleri `HomeFeedScreen.top` (uygulamanın `HomePage`'i), `live_started` bildirimi `NotificationLinks.openLive` ile bağlanır, yayın odası `/live/<id>` rotasındadır; mesaj butonu profilde `ProfileScreen.visitorActions`, Kaydedilenler ve Ekip arkadaşı bul kısayolları kendi profilinde `ProfileScreen.ownActions`, "Grup sohbeti" `GroupScreen.sections` ile verilir, sohbetler `/messages` ve `/messages/<id>` rotalarındadır).
+- Uygulamanın router'ı feature paketlerinin provider'larını birleştirir (oturum, onay, profil durumu). Feature'lar birbirini bilmez; bir feature'ın başka bir feature'ın ekranında yer alması gerekiyorsa uygulama bunu bağlar (ör. profil sayfasındaki "Gruplar" bölümü `ProfileScreen.sections` ile, grup ekranından profile geçiş `onOpenProfile` ile, grup sayfasındaki paket kartı `GroupScreen.sections` ile verilir; paket ve ödeme rotaları `/g/<handle>/plan` ve `/g/<handle>/plan/checkout` grubu uygulamada çözer ve `billing` ekranlarına kimliğini verir; canlı yayın kartı `GroupScreen.sections`, ana sayfadaki "Şimdi canlı" ve "Yaklaşanlar" bölümleri `HomeFeedScreen.top` (uygulamanın `HomePage`'i), `live_scheduled` ve `live_started` bildirimleri ile sesli uyarı şeridi `NotificationLinks.openLive` ve `LiveNotificationAlerts.openLive` ile bağlanır, yayın odası `/live/<id>` rotasındadır; mesaj butonu profilde `ProfileScreen.visitorActions`, Kaydedilenler ve Ekip arkadaşı bul kısayolları kendi profilinde `ProfileScreen.ownActions`, "Grup sohbeti" `GroupScreen.sections` ile verilir, sohbetler `/messages` ve `/messages/<id>` rotalarındadır).
 - Sosyal uygulamanın sayfaları `HomeShell` içindedir (tam ekran hikâye, hikâye ekleme ve yayın odası hariç): telefonda ana hedeflerde (Bugün, Gruplar, Takvim, Ben) yüzen dok ve ortada Paylaş, geniş ekranda her sayfada etiketli yan menü (docs/DESIGN.md §7). Web'de Flutter'ın varsayılan hash URL stratejisi kullanılır (`/#/g/<handle>`).
 - OAuth ve e-posta bağlantıları mobilde `com.grupx.social://auth-callback` deep link'ine döner.
 
@@ -1188,7 +1248,9 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 
 ### Planlı yayın ve hatırlatma
 - Planlı yayın grup sayfasında "Yaklaşan" olarak görünür. Üye "Hatırlat" der (`live_reminders`, kullanıcının kendi basit yazması; yalnızca planlı yayına).
-- Yayın başlayınca hatırlatma isteyenlere uygulama içi `live_started` bildirimi gider (trigger). Push bildirimi Firebase bilgileri gelince bu kayıtlardan gönderilir.
+- Yayın planlanınca grubun bütün üyelerine (yayıncı hariç) `live_scheduled` bildirimi gider (trigger). Yayın iptal edilirse bu bildirimler silinir.
+- Yayın başlayınca grubun bütün üyelerine `live_started` bildirimi gider (trigger). Canlı yayın bildirimlerini tercihlerinden kapatan üye bildirim almaz; "Hatırlat" demişse yine alır.
+- Bu bildirimler uygulama kapalıyken push ile gider (§3c, Push).
 
 ### Arayüz
 - **Grup sayfası:** Canlı yayın varsa mor→mavi gradyanlı "CANLI" kartı ve katıl düğmesi; yaklaşan planlı yayınlar ve "Hatırlat"; `live.start` yetkilisine gradyanlı "Yayın başlat" düğmesi (hemen ya da planla).
@@ -1224,7 +1286,7 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 | `PUT /live/{id}/muted/{userId}`, `DELETE /live/{id}/muted/{userId}` | Mikrofonu kapatma / açma (yayın yöneticisi + rütbe) |
 | `POST /live/{id}/kicks/{userId}` | Odadan atma (yayın yöneticisi + rütbe) |
 | `DELETE /live/{id}/comments/{commentId}` | Başkasının yorumunu silme (yayın yöneticisi + rütbe) |
-| `GET /admin/live?status=&page=` | Canlı (katılımcı sayısıyla) ve geçmiş yayınlar. Rol: `admin`, `moderator`, `support` |
+| `GET /admin/live?status=&page=` | `live` (katılımcı sayısıyla), `scheduled` (planlanan zaman ve duyurulan üye sayısıyla) ya da `ended` yayınlar; her yayında kaç kişiye bildirim gittiği. Rol: `admin`, `moderator`, `support` |
 | `POST /admin/live/{id}/end` | Acil kapatma (`reason`). Rol: `admin`, `moderator` |
 
 ### Yapılandırma

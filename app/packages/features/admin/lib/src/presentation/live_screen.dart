@@ -11,18 +11,9 @@ import 'routes.dart';
 import 'suspend_dialog.dart';
 import 'widgets.dart';
 
-enum _LiveTab {
-  live('Şu an canlı'),
-  ended('Geçmiş');
-
-  const _LiveTab(this.label);
-
-  final String label;
-}
-
 String _minutes(Duration d) => '${formatCount(d.inMinutes)} dk';
 
-/// Live rooms across the platform with an emergency close, and past broadcasts (docs/ARCHITECTURE.md §8).
+/// Live rooms across the platform with an emergency close, scheduled and past broadcasts (docs/ARCHITECTURE.md §8).
 class AdminLiveScreen extends ConsumerStatefulWidget {
   const AdminLiveScreen({super.key});
 
@@ -31,7 +22,7 @@ class AdminLiveScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
-  _LiveTab _tab = _LiveTab.live;
+  AdminLiveStatus _tab = AdminLiveStatus.live;
   int _page = 1;
 
   Future<void> _end(AdminBroadcast b) async {
@@ -56,13 +47,13 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final key = (ended: _tab == _LiveTab.ended, page: _page);
+    final key = (status: _tab, page: _page);
     final result = ref.watch(broadcastSearchProvider(key));
     final canEnd = ref.watch(myStaffRoleProvider).value?.canSuspend ?? false;
 
     return AdminPage(
       title: 'Canlı yayınlar',
-      subtitle: 'Grupların sesli yayınları. Acil durumda bir yayını herkes için kapatabilirsin.',
+      subtitle: 'Grupların sesli yayınları ve kaç üyeye bildirildikleri. Acil durumda bir yayını herkes için kapatabilirsin.',
       actions: [
         GxButton(
           label: 'Yenile',
@@ -81,8 +72,8 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
                 padding: const EdgeInsets.all(GxSpacing.md),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: SegmentedButton<_LiveTab>(
-                    segments: [for (final t in _LiveTab.values) ButtonSegment(value: t, label: Text(t.label))],
+                  child: SegmentedButton<AdminLiveStatus>(
+                    segments: [for (final t in AdminLiveStatus.values) ButtonSegment(value: t, label: Text(t.label))],
                     selected: {_tab},
                     onSelectionChanged: (s) => setState(() {
                       _tab = s.first;
@@ -97,7 +88,11 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
                     padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
                     child: GxEmptyState(
                       icon: Icons.podcasts_outlined,
-                      message: _tab == _LiveTab.live ? 'Şu anda canlı yayın yok.' : 'Henüz biten yayın yok.',
+                      message: switch (_tab) {
+                        AdminLiveStatus.live => 'Şu anda canlı yayın yok.',
+                        AdminLiveStatus.scheduled => 'Planlanmış yayın yok.',
+                        AdminLiveStatus.ended => 'Henüz biten yayın yok.',
+                      },
                       actionLabel: 'Yenile',
                       onAction: () => ref.invalidate(broadcastSearchProvider(key)),
                     ),
@@ -106,7 +101,7 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       for (final b in value.items) ...[
-                        _BroadcastRow(broadcast: b, onEnd: canEnd && _tab == _LiveTab.live ? () => _end(b) : null),
+                        _BroadcastRow(broadcast: b, onEnd: canEnd && _tab == AdminLiveStatus.live ? () => _end(b) : null),
                         const Divider(),
                       ],
                       PageFooter(
@@ -151,13 +146,17 @@ class _BroadcastRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final b = broadcast;
-    final live = b.endedAt == null;
+    final live = b.status == AdminLiveStatus.live;
+    final scheduled = b.status == AdminLiveStatus.scheduled;
     final meta = [
       '${b.groupName} (@${b.groupHandle})',
       if (b.hostUsername != null) 'Sunucu @${b.hostUsername}',
+      if (scheduled && b.scheduledAt != null) 'Planlanan ${formatDateTimeTr(b.scheduledAt!)}',
       if (b.startedAt != null) formatDateTimeTr(b.startedAt!),
-      _minutes(b.duration(DateTime.now())),
+      if (!scheduled) _minutes(b.duration(DateTime.now())),
       if (live && b.participants != null) '${formatCount(b.participants!)} kişi',
+      if (scheduled) '${formatCount(b.notified)} üyeye duyuruldu',
+      if (!scheduled && b.notified > 0) '${formatCount(b.notified)} üyeye başladığı bildirildi',
       ?b.endReasonLabel,
     ].join(' · ');
     return InkWell(

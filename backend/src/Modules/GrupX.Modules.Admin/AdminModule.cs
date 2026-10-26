@@ -7,6 +7,7 @@ using GrupX.Modules.Identity.Contracts;
 using GrupX.Modules.Live.Contracts;
 using GrupX.Modules.Messaging.Contracts;
 using GrupX.Modules.Moderation.Contracts;
+using GrupX.Modules.Notifications.Contracts;
 using GrupX.Modules.Support.Contracts;
 using GrupX.SharedKernel;
 using GrupX.SharedKernel.Http;
@@ -187,7 +188,11 @@ public static class AdminModule
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapGet("/live", async (string? status, int? page, AdminLive admin, CancellationToken ct) =>
-                TypedResults.Ok(await admin.SearchAsync(status != "ended", page ?? 1, ct)))
+                TypedResults.Ok(await admin.SearchAsync(status, page ?? 1, ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapGet("/notifications/stats", async (INotificationsAdministration notifications, CancellationToken ct) =>
+                TypedResults.Ok(await notifications.PushStatsAsync(ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
         content.MapPost("/live/{id:guid}/end", async (

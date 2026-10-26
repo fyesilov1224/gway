@@ -331,6 +331,31 @@ final _broadcast = AdminBroadcast(
   participants: 37,
 );
 
+final _scheduledBroadcast = AdminBroadcast(
+  id: 'b2',
+  title: 'Pazar konseri',
+  groupId: 'g1',
+  groupName: 'Doğa Yürüyüşçüleri',
+  groupHandle: 'doga.yuruyus',
+  status: AdminLiveStatus.scheduled,
+  hostUsername: 'elif',
+  scheduledAt: DateTime(2026, 11, 2, 20),
+  notified: 42,
+);
+
+const _pushStats = AdminPushStats(
+  configured: false,
+  androidDevices: 12,
+  iosDevices: 0,
+  webDevices: 0,
+  usersWithDevice: 11,
+  created24h: 85,
+  delivered24h: 0,
+  deliveries24h: 0,
+  waiting: 0,
+  byType24h: [(type: 'live_scheduled', count: 42), (type: 'like', count: 30)],
+);
+
 /// Records emergency closes.
 class _FakeLive implements AdminLiveRepository {
   final ended = <(String, String)>[];
@@ -461,8 +486,14 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
           (ref, search) async => AdminEventPage(items: [_adminEvent], total: 1, page: 1, pageSize: 20),
         ),
         broadcastSearchProvider.overrideWith(
-          (ref, search) async => BroadcastPage(items: [_broadcast], total: 1, page: 1, pageSize: 20),
+          (ref, search) async => BroadcastPage(
+            items: [if (search.status == AdminLiveStatus.scheduled) _scheduledBroadcast else _broadcast],
+            total: 1,
+            page: 1,
+            pageSize: 20,
+          ),
         ),
+        pushStatsProvider.overrideWith((ref) async => _pushStats),
         contentSearchProvider.overrideWith(
           (ref, search) async => PostPage(items: [_post, _removedPost], total: 2, page: 1, pageSize: 24),
         ),
@@ -716,6 +747,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(_live.ended.single, ('b1', 'Canlı yayında taciz'));
   });
+
+  testWidgets('scheduled broadcasts show when and to how many members they were announced', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminLiveScreen(), role: StaffRole.moderator);
+    await tester.tap(find.text('Planlı'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pazar konseri'), findsOneWidget);
+    expect(find.textContaining('Planlanan 2 Kasım 2026, 20:00'), findsOneWidget);
+    expect(find.textContaining('42 üyeye duyuruldu'), findsOneWidget);
+    expect(find.byType(GxLiveBadge), findsNothing);
+    expect(find.widgetWithText(GxButton, 'Kapat'), findsNothing);
+  });
+
+  for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
+    testWidgets('notifications screen lays out on $name', (tester) async {
+      await _pumpAt(tester, size, const AdminNotificationsScreen(), role: StaffRole.support);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Push kapalı'), findsOneWidget);
+      expect(find.text('Canlı yayın planlandı'), findsOneWidget);
+      expect(find.text('Gönderi beğenisi'), findsOneWidget);
+      expect(find.text('12'), findsWidgets);
+    });
+  }
 
   testWidgets('support cannot close a live room', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminLiveScreen(), role: StaffRole.support);

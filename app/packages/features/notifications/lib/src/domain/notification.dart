@@ -9,6 +9,7 @@ enum NotificationType {
   follow('follow'),
   followRequest('follow_request'),
   followAccepted('follow_accepted'),
+  liveScheduled('live_scheduled'),
   liveStarted('live_started'),
   eventPromoted('event_promoted'),
   eventUpdated('event_updated'),
@@ -36,6 +37,20 @@ enum NotificationType {
 
   /// Sent on behalf of a group (docs/ARCHITECTURE.md §3e): the group is shown, not a person.
   bool get fromGroup => this == sanctionApplied || this == appealDecided;
+
+  /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
+  bool get isLive => this == liveScheduled || this == liveStarted;
+}
+
+/// A notification row the moment Realtime delivers it, before [NotificationsRepository.list] reads it in full.
+class NotificationArrival {
+  const NotificationArrival({required this.id, this.type, this.liveId});
+
+  final int id;
+
+  /// Null for a type this version does not know.
+  final NotificationType? type;
+  final String? liveId;
 }
 
 class NotificationGroup {
@@ -78,6 +93,7 @@ class AppNotification {
     this.comment,
     this.liveId,
     this.liveTitle,
+    this.liveScheduledAt,
     this.eventId,
     this.eventTitle,
     this.eventStartsAt,
@@ -99,9 +115,10 @@ class AppNotification {
   /// The first 120 characters of the comment, for comment notifications.
   final String? comment;
 
-  /// The broadcast of [NotificationType.liveStarted].
+  /// The broadcast of [NotificationType.liveScheduled] and [NotificationType.liveStarted].
   final String? liveId;
   final String? liveTitle;
+  final DateTime? liveScheduledAt;
 
   /// The event of the event_* types.
   final String? eventId;
@@ -128,6 +145,9 @@ class AppNotification {
         NotificationType.follow => 'seni takip etmeye başladı.',
         NotificationType.followRequest => 'seni takip etmek istiyor.',
         NotificationType.followAccepted => 'takip isteğini kabul etti.',
+        NotificationType.liveScheduled => liveScheduledAt == null
+            ? 'canlı yayın planladı: ${liveTitle ?? ''}'
+            : '${formatDateTimeTr(liveScheduledAt!)} için canlı yayın planladı: ${liveTitle ?? ''}',
         NotificationType.liveStarted => 'canlı yayına başladı: ${liveTitle ?? ''}',
         NotificationType.eventPromoted => '"${eventTitle ?? ''}" için yer açıldı, artık katılıyorsun.',
         NotificationType.eventUpdated => '"${eventTitle ?? ''}" organizasyonunun zamanını ya da yerini değiştirdi.',
@@ -185,9 +205,15 @@ List<(NotificationPeriod, List<AppNotification>)> groupByPeriod(List<AppNotifica
           (period, group),
     ];
 
-/// Which event notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
+/// Which event and live notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
 class NotificationPreferences {
-  const NotificationPreferences({this.reminderDay = true, this.reminderHour = true, this.eventUpdates = true, this.reviewRequests = true});
+  const NotificationPreferences({
+    this.reminderDay = true,
+    this.reminderHour = true,
+    this.eventUpdates = true,
+    this.reviewRequests = true,
+    this.liveBroadcasts = true,
+  });
 
   /// "Yarın başlıyor" reminder.
   final bool reminderDay;
@@ -201,12 +227,16 @@ class NotificationPreferences {
   /// "Nasıldı?" after an event.
   final bool reviewRequests;
 
-  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates, bool? reviewRequests}) =>
+  /// Broadcasts scheduled or started in the user's groups.
+  final bool liveBroadcasts;
+
+  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates, bool? reviewRequests, bool? liveBroadcasts}) =>
       NotificationPreferences(
         reminderDay: reminderDay ?? this.reminderDay,
         reminderHour: reminderHour ?? this.reminderHour,
         eventUpdates: eventUpdates ?? this.eventUpdates,
         reviewRequests: reviewRequests ?? this.reviewRequests,
+        liveBroadcasts: liveBroadcasts ?? this.liveBroadcasts,
       );
 }
 
@@ -221,9 +251,29 @@ abstract interface class NotificationsRepository {
   Future<Result<void>> delete(int id);
 
   /// Fires when a notification for the signed-in user arrives.
-  Stream<void> arrivals();
+  Stream<NotificationArrival> arrivals();
 
   Future<Result<NotificationPreferences>> preferences();
 
   Future<Result<void>> savePreferences(NotificationPreferences preferences);
+
+  /// This device's FCM token now belongs to the signed-in user (docs/ARCHITECTURE.md §3c, Push).
+  Future<Result<void>> registerPushDevice(String token, String platform);
+}
+
+/// The phone's push service; only where Firebase runs (Android and iOS).
+abstract interface class PushMessaging {
+  /// `android` or `ios`.
+  String get platform;
+
+  /// Asks for permission the first time; null when the user refuses.
+  Future<String?> token();
+
+  Stream<String> get tokenRefreshes;
+
+  /// After sign-out the device stops receiving the previous user's notifications.
+  Future<void> deleteToken();
+
+  /// The data of the notification the user tapped, including the one that opened the app.
+  Stream<Map<String, Object?>> get taps;
 }

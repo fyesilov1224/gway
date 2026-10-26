@@ -105,6 +105,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: AdminRoutes.reports, builder: (_, _) => const AdminReportsScreen()),
           GoRoute(path: AdminRoutes.events, builder: (_, _) => const AdminEventsScreen()),
           GoRoute(path: AdminRoutes.live, builder: (_, _) => const AdminLiveScreen()),
+          GoRoute(path: AdminRoutes.notifications, builder: (_, _) => const AdminNotificationsScreen()),
           GoRoute(path: AdminRoutes.billing, builder: (_, _) => const AdminBillingScreen()),
           GoRoute(path: AdminRoutes.plans, builder: (_, _) => const AdminPlansScreen()),
           GoRoute(path: AdminRoutes.support, builder: (_, _) => const AdminSupportScreen()),

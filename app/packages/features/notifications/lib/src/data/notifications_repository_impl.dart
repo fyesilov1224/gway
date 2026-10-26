@@ -38,6 +38,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           reminderHour: r['event_reminder_hour'] as bool,
           eventUpdates: r['event_updates'] as bool,
           reviewRequests: r['event_review_requests'] as bool,
+          liveBroadcasts: r['live_broadcasts'] as bool,
         );
       });
 
@@ -49,7 +50,13 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'event_reminder_hour': p.reminderHour,
           'event_updates': p.eventUpdates,
           'event_review_requests': p.reviewRequests,
+          'live_broadcasts': p.liveBroadcasts,
         });
+      });
+
+  @override
+  Future<Result<void>> registerPushDevice(String token, String platform) => _run(() async {
+        await _client.rpc<void>('register_push_device', params: {'device_token': token, 'device_platform': platform});
       });
 
   AppNotification? _notification(Map<String, dynamic> r) {
@@ -78,6 +85,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       comment: r['comment'] as String?,
       liveId: r['live_id'] as String?,
       liveTitle: r['live_title'] as String?,
+      liveScheduledAt: r['live_scheduled_at'] == null ? null : DateTime.parse(r['live_scheduled_at'] as String),
       eventId: r['event_id'] as String?,
       eventTitle: r['event_title'] as String?,
       eventStartsAt: r['event_starts_at'] == null ? null : DateTime.parse(r['event_starts_at'] as String),
@@ -128,11 +136,11 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       });
 
   @override
-  Stream<void> arrivals() {
+  Stream<NotificationArrival> arrivals() {
     final me = _client.auth.currentUser?.id;
     if (me == null) return const Stream.empty();
     late final RealtimeChannel channel;
-    final controller = StreamController<void>(onCancel: () => _client.removeChannel(channel));
+    final controller = StreamController<NotificationArrival>(onCancel: () => _client.removeChannel(channel));
     channel = _client
         .channel('notifications:$me')
         .onPostgresChanges(
@@ -140,7 +148,11 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           schema: 'public',
           table: 'notifications',
           filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'recipient_id', value: me),
-          callback: (_) => controller.add(null),
+          callback: (payload) => controller.add(NotificationArrival(
+            id: (payload.newRecord['id'] as num).toInt(),
+            type: NotificationType.tryParse(payload.newRecord['type']),
+            liveId: payload.newRecord['live_id'] as String?,
+          )),
         )
         .subscribe();
     return controller.stream;

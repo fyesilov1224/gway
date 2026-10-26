@@ -1,27 +1,45 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:core/core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/firebase_push_messaging.dart';
 import '../data/notifications_repository_impl.dart';
 import '../domain/notification.dart';
 
 final notificationsRepositoryProvider =
     Provider<NotificationsRepository>((ref) => NotificationsRepositoryImpl(ref.watch(supabaseClientProvider)));
 
+/// Null where the app did not start Firebase (web, desktop, tests).
+final pushMessagingProvider =
+    Provider<PushMessaging?>((ref) => Firebase.apps.isEmpty ? null : FirebasePushMessaging(FirebaseMessaging.instance));
+
+/// Notifications as they arrive; one Realtime channel shared by the badge and the live alert.
+final notificationArrivalsProvider = StreamProvider.autoDispose<NotificationArrival>((ref) {
+  if (ref.watch(currentUserIdProvider) == null) return const Stream.empty();
+  return ref.watch(notificationsRepositoryProvider).arrivals();
+});
+
 /// Unread count for the navigation badge; recounts when a notification arrives.
-final unreadNotificationsProvider = StreamProvider.autoDispose<int>((ref) async* {
-  if (ref.watch(currentUserIdProvider) == null) {
-    yield 0;
-    return;
-  }
-  final repo = ref.watch(notificationsRepositoryProvider);
-  Future<int> count() async => switch (await repo.unreadCount()) {
-        Ok(:final value) => value,
-        Err() => 0,
-      };
-  yield await count();
-  await for (final _ in repo.arrivals()) {
-    yield await count();
-  }
+final unreadNotificationsProvider = FutureProvider.autoDispose<int>((ref) async {
+  if (ref.watch(currentUserIdProvider) == null) return 0;
+  ref.watch(notificationArrivalsProvider);
+  return switch (await ref.watch(notificationsRepositoryProvider).unreadCount()) {
+    Ok(:final value) => value,
+    Err() => 0,
+  };
+});
+
+/// Plays the short live alert; quiet in silent mode and mixed over other audio, such as a live room.
+final liveAlertSoundProvider = Provider<Future<void> Function()>((ref) {
+  final player = AudioPlayer()..audioCache = AudioCache(prefix: 'packages/notifications/assets/');
+  ref.onDispose(player.dispose);
+  final context = AudioContextConfig(respectSilence: true, focus: AudioContextConfigFocus.mixWithOthers).build();
+  return () async {
+    await player.setAudioContext(context);
+    await player.play(AssetSource('live_alert.wav'));
+  };
 });
 
 final notificationPreferencesProvider = FutureProvider.autoDispose<NotificationPreferences>(

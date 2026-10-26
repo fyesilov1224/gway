@@ -8,6 +8,7 @@
     <ProjectReference Include="..\GrupX.Modules.Live.Contracts\GrupX.Modules.Live.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Messaging.Contracts\GrupX.Modules.Messaging.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Moderation.Contracts\GrupX.Modules.Moderation.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Notifications.Contracts\GrupX.Modules.Notifications.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Support.Contracts\GrupX.Modules.Support.Contracts.csproj" />
   </ItemGroup>
 </Project>

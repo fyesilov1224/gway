@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/notification.dart';
 import 'providers.dart';
 
-/// The user turns event reminders and change notices on or off (docs/ARCHITECTURE.md §3c, Tercihler).
+/// The user turns event reminders, change notices and live broadcast notices on or off (docs/ARCHITECTURE.md §3c, Tercihler).
 class NotificationPreferencesScreen extends ConsumerStatefulWidget {
   const NotificationPreferencesScreen({super.key});
 
@@ -59,6 +59,12 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                       (v) => p.copyWith(eventUpdates: v)),
                   toggle('Değerlendirme istekleri', 'Katıldığın organizasyon bitince "Nasıldı?" diye sor', p.reviewRequests,
                       (v) => p.copyWith(reviewRequests: v)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                    child: Text('Canlı yayınlar', style: textTheme.titleSmall),
+                  ),
+                  toggle('Planlanan ve başlayan yayınlar', 'Grubunda yayın planlanınca ve başlayınca, uygulama açıksa sesli uyarıyla',
+                      p.liveBroadcasts, (v) => p.copyWith(liveBroadcasts: v)),
                   Padding(
                     padding: const EdgeInsets.all(GxSpacing.page),
                     child: Text(

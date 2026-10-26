@@ -8,6 +8,7 @@ import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_moderation.dart';
+import '../domain/admin_notifications.dart';
 import '../domain/admin_support.dart';
 import '../domain/admin_user.dart';
 
@@ -145,10 +146,18 @@ final adminLiveRepositoryProvider = Provider<AdminLiveRepository>(
   (ref) => ApiAdminLiveRepository(ref.watch(apiClientProvider)),
 );
 
-typedef BroadcastSearch = ({bool ended, int page});
+typedef BroadcastSearch = ({AdminLiveStatus status, int page});
 
 final broadcastSearchProvider = FutureProvider.autoDispose.family<BroadcastPage, BroadcastSearch>(
-  (ref, search) async => (await ref.watch(adminLiveRepositoryProvider).search(ended: search.ended, page: search.page)).getOrThrow(),
+  (ref, search) async => (await ref.watch(adminLiveRepositoryProvider).search(status: search.status, page: search.page)).getOrThrow(),
+);
+
+final adminNotificationsRepositoryProvider = Provider<AdminNotificationsRepository>(
+  (ref) => ApiAdminNotificationsRepository(ref.watch(apiClientProvider)),
+);
+
+final pushStatsProvider = FutureProvider.autoDispose<AdminPushStats>(
+  (ref) async => (await ref.watch(adminNotificationsRepositoryProvider).stats()).getOrThrow(),
 );
 
 final adminBillingRepositoryProvider = Provider<AdminBillingRepository>(

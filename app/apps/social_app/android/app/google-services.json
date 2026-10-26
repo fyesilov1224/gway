@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "981517510131",
+    "project_id": "grupx-08706",
+    "storage_bucket": "grupx-08706.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981517510131:android:3cc764835a4b82cb4a5e86",
+        "android_client_info": {
+          "package_name": "com.grupx.social_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI0G4aC_TTztfliV_GDpxsXeNt36stZW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

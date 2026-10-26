@@ -11,6 +11,7 @@ using GrupX.Modules.Identity;
 using GrupX.Modules.Messaging;
 using GrupX.Modules.Live;
 using GrupX.Modules.Moderation;
+using GrupX.Modules.Notifications;
 using GrupX.Modules.Profile;
 using GrupX.Modules.Support;
 using GrupX.SharedKernel.Supabase;
@@ -59,6 +60,7 @@ builder.Services.AddEventsModule();
 builder.Services.AddLiveModule();
 builder.Services.AddModerationModule();
 builder.Services.AddMessagingModule();
+builder.Services.AddNotificationsModule();
 builder.Services.AddAdminModule();
 
 var app = builder.Build();

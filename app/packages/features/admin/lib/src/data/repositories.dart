@@ -7,6 +7,7 @@ import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_moderation.dart';
+import '../domain/admin_notifications.dart';
 import '../domain/admin_support.dart';
 import '../domain/admin_user.dart';
 
@@ -263,15 +264,25 @@ class ApiAdminLiveRepository implements AdminLiveRepository {
   final ApiClient _api;
 
   @override
-  Future<Result<BroadcastPage>> search({required bool ended, int page = 1}) => _api.get(
+  Future<Result<BroadcastPage>> search({required AdminLiveStatus status, int page = 1}) => _api.get(
         '/admin/live',
-        query: {'status': ended ? 'ended' : 'live', 'page': '$page'},
+        query: {'status': status.code, 'page': '$page'},
         decode: (json) => BroadcastPage.fromJson((json! as Map).cast(), AdminBroadcast.fromJson),
       );
 
   @override
   Future<Result<void>> end(String id, {required String reason}) =>
       _api.post('/admin/live/$id/end', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminNotificationsRepository implements AdminNotificationsRepository {
+  ApiAdminNotificationsRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<AdminPushStats>> stats() =>
+      _api.get('/admin/notifications/stats', decode: (json) => AdminPushStats.fromJson((json! as Map).cast()));
 }
 
 class ApiAdminSupportRepository implements AdminSupportRepository {

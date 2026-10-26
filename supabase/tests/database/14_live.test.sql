@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(37);
 
 -- l1 owner, l2 Yönetici (host), l3 Moderatör, l4 member, l5 outsider, l6 platform admin.
 insert into auth.users (id, email, aud, role) values
@@ -144,6 +144,14 @@ select throws_ok(
 );
 
 -- Scheduled broadcast, reminder, notification ---------------------------------------------------------------------
+-- l3 turns live notifications off; l4 too, but asks for a reminder below.
+set local role authenticated;
+select pg_temp.act('00000000-0000-0000-0000-0000000ab003');
+insert into public.notification_preferences (user_id, live_broadcasts) values ('00000000-0000-0000-0000-0000000ab003', false);
+select pg_temp.act('00000000-0000-0000-0000-0000000ab004');
+insert into public.notification_preferences (user_id, live_broadcasts) values ('00000000-0000-0000-0000-0000000ab004', false);
+reset role;
+
 select pg_temp.act('00000000-0000-0000-0000-0000000ab001');
 insert into public.live_broadcasts (id, group_id, host_id, title, status, scheduled_at)
 values ('00000000-0000-0000-0000-0000000ad002', '00000000-0000-0000-0000-0000000ac001', '00000000-0000-0000-0000-0000000ab001',
@@ -161,6 +169,13 @@ select throws_ok(
 );
 reset role;
 
+select is(
+  (select array_agg(recipient_id::text order by recipient_id) from public.notifications
+   where type = 'live_scheduled' and live_id = '00000000-0000-0000-0000-0000000ad002'),
+  array['00000000-0000-0000-0000-0000000ab002'],
+  'scheduling announces it to members who want it; not the host, the opted out or outsiders'
+);
+
 select pg_temp.act('00000000-0000-0000-0000-0000000ab001');
 select lives_ok(
   $$ update public.live_broadcasts set status = 'ended', end_reason = 'moderator' where id = '00000000-0000-0000-0000-0000000ad001' $$,
@@ -174,6 +189,12 @@ select is(
   (select count(*)::int from public.notifications where recipient_id = '00000000-0000-0000-0000-0000000ab004' and type = 'live_started'),
   1, 'the reminder becomes a live_started notification'
 );
+select is(
+  (select array_agg(recipient_id::text order by recipient_id) from public.notifications
+   where type = 'live_started' and live_id = '00000000-0000-0000-0000-0000000ad002'),
+  array['00000000-0000-0000-0000-0000000ab002', '00000000-0000-0000-0000-0000000ab004'],
+  'the start reaches members who want it and those with a reminder'
+);
 select throws_ok(
   $$ update public.live_broadcasts set status = 'ended', end_reason = 'empty' where id = '00000000-0000-0000-0000-0000000ad002' $$,
   'P0001', 'live_forbidden', 'system reasons are only for the backend monitor'
@@ -182,6 +203,39 @@ select set_config('request.jwt.claims', '', true);
 select lives_ok(
   $$ update public.live_broadcasts set status = 'ended', end_reason = 'empty' where id = '00000000-0000-0000-0000-0000000ad002' $$,
   'the monitor ends an empty room'
+);
+
+-- A canceled broadcast takes its announcement with it ---------------------------------------------------------------------
+select pg_temp.act('00000000-0000-0000-0000-0000000ab002');
+insert into public.live_broadcasts (id, group_id, host_id, title, status, scheduled_at)
+values ('00000000-0000-0000-0000-0000000ad003', '00000000-0000-0000-0000-0000000ac001', '00000000-0000-0000-0000-0000000ab002',
+        'İptal edilecek', 'scheduled', now() + interval '1 day');
+select is(
+  (select count(*)::int from public.notifications where type = 'live_scheduled' and live_id = '00000000-0000-0000-0000-0000000ad003'),
+  1, 'the owner hears of the Yönetici''s broadcast'
+);
+set local role authenticated;
+select pg_temp.act('00000000-0000-0000-0000-0000000ab001');
+select is(
+  (select count(*)::int from public.notifications where type = 'live_scheduled' and live_id = '00000000-0000-0000-0000-0000000ad003'),
+  1, 'the recipient reads their own announcement'
+);
+select pg_temp.act('00000000-0000-0000-0000-0000000ab005');
+select is(
+  (select count(*)::int from public.notifications where live_id = '00000000-0000-0000-0000-0000000ad003'),
+  0, 'others cannot read it'
+);
+update public.notification_preferences set live_broadcasts = true where user_id = '00000000-0000-0000-0000-0000000ab003';
+reset role;
+select is(
+  (select live_broadcasts from public.notification_preferences where user_id = '00000000-0000-0000-0000-0000000ab003'),
+  false, 'nobody changes the preferences of someone else'
+);
+select pg_temp.act('00000000-0000-0000-0000-0000000ab002');
+update public.live_broadcasts set status = 'canceled' where id = '00000000-0000-0000-0000-0000000ad003';
+select is(
+  (select count(*)::int from public.notifications where live_id = '00000000-0000-0000-0000-0000000ad003'),
+  0, 'canceling removes the announcement'
 );
 
 select * from finish();
