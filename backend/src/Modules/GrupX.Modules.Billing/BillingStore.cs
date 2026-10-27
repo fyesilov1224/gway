@@ -7,6 +7,9 @@ internal sealed record BillingGroup(Guid Id, string Handle, string Name);
 
 internal sealed record PlanRow(string Slug, string Name, int Tier, bool IsActive);
 
+/// <summary>A personal plan with its prices in one currency, keyed by period.</summary>
+internal sealed record PersonalPlanRow(string Name, bool IsActive, Dictionary<string, int> Prices);
+
 /// <summary>SQL shared by checkout, settlement and administration. Reads the groups tables, never writes them.</summary>
 internal static class BillingStore
 {
@@ -72,6 +75,28 @@ internal static class BillingStore
                 reader.GetFieldValue<DateTimeOffset>(4), reader.GetFieldValue<DateTimeOffset>(5)));
         }
         return slices;
+    }
+
+    public static async Task<PersonalPlanRow?> PersonalPlanAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, string slug, string currency, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand(
+            """
+            select p.name, p.is_active, pp.period, pp.amount_minor
+            from public.personal_plans p
+            left join public.personal_plan_prices pp on pp.plan_slug = p.slug and pp.currency = @currency
+            where p.slug = @slug
+            """, conn, tx);
+        cmd.Parameters.AddWithValue("slug", slug);
+        cmd.Parameters.AddWithValue("currency", currency);
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        PersonalPlanRow? plan = null;
+        while (await reader.ReadAsync(ct))
+        {
+            plan ??= new PersonalPlanRow(reader.GetString(0), reader.GetBoolean(1), []);
+            if (!reader.IsDBNull(2)) plan.Prices[reader.GetString(2)] = reader.GetInt32(3);
+        }
+        return plan;
     }
 
     public static async Task<int?> SalesTermsVersionAsync(NpgsqlConnection conn, NpgsqlTransaction tx, CancellationToken ct)

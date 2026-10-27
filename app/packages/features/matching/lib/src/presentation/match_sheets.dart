@@ -1,0 +1,107 @@
+import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../domain/matching.dart';
+import 'providers.dart';
+
+/// "Eşleştiniz!" after a mutual like.
+Future<void> showMatchDialog(BuildContext context, {required MatchCard card, required VoidCallback onMessage}) => showDialog<void>(
+      context: context,
+      builder: (dialog) {
+        final textTheme = Theme.of(dialog).textTheme;
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GxAvatar(
+                name: card.displayName,
+                shape: GxAvatarShape.user,
+                size: GxAvatarSize.xl,
+                imageUrl: card.photoUrls.isEmpty ? null : card.photoUrls.first,
+              ),
+              const SizedBox(height: GxSpacing.md),
+              Text('Eşleştiniz!', style: textTheme.headlineSmall?.copyWith(color: GxColors.primary)),
+              const SizedBox(height: GxSpacing.xs),
+              Text('Sen ve ${card.displayName} birbirinizi beğendiniz.', textAlign: TextAlign.center),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            GxButton(label: 'Kaydırmaya devam et', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+            GxButton(
+              label: 'Mesaj gönder',
+              icon: Icons.chat_bubble_outline,
+              onPressed: () {
+                Navigator.of(dialog).pop();
+                onMessage();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+/// Report the profile or the photo on screen, or block the person.
+Future<void> showCardMenu(BuildContext context, WidgetRef ref, MatchCard card, {required int photoIndex, required VoidCallback afterBlock}) =>
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: const Text('Profili şikayet et'),
+              onTap: () {
+                Navigator.of(sheet).pop();
+                ref.read(reportLauncherProvider)(context, ReportTarget.matchProfile(card.userId));
+              },
+            ),
+            if (photoIndex < card.photoIds.length)
+              ListTile(
+                leading: const Icon(Icons.image_not_supported_outlined),
+                title: const Text('Bu fotoğrafı şikayet et'),
+                onTap: () {
+                  Navigator.of(sheet).pop();
+                  ref.read(reportLauncherProvider)(context, ReportTarget.matchPhoto(card.photoIds[photoIndex]));
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.block, color: GxColors.error),
+              title: const Text('Engelle', style: TextStyle(color: GxColors.error)),
+              subtitle: const Text('Birbirinizi hiçbir yerde görmezsiniz.'),
+              onTap: () async {
+                Navigator.of(sheet).pop();
+                final result = await ref.read(matchingRepositoryProvider).block(card.userId);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(switch (result) {
+                    Ok() => '${card.displayName} engellendi.',
+                    Err(:final failure) => failure.userMessage,
+                  }),
+                ));
+                if (result is Ok) afterBlock();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+
+/// Asks before a destructive step; true when confirmed.
+Future<bool> confirmMatchAction(BuildContext context, {required String title, required String message, required String confirmLabel}) async =>
+    await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GxButton(label: confirmLabel, onPressed: () => Navigator.of(dialog).pop(true)),
+        ],
+      ),
+    ) ??
+    false;

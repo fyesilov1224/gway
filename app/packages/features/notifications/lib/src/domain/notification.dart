@@ -24,7 +24,9 @@ enum NotificationType {
   eventReview('event_review'),
   goalCompleted('goal_completed'),
   teammateRequest('teammate_request'),
-  teammateAccepted('teammate_accepted');
+  teammateAccepted('teammate_accepted'),
+  matchCreated('match_created'),
+  matchSuperLiked('match_super_liked');
 
   const NotificationType(this.code);
 
@@ -37,6 +39,9 @@ enum NotificationType {
 
   /// Sent on behalf of a group (docs/ARCHITECTURE.md §3e): the group is shown, not a person.
   bool get fromGroup => this == sanctionApplied || this == appealDecided;
+
+  /// Names nobody: who matched needs a package (docs/ARCHITECTURE.md §3g).
+  bool get anonymous => this == matchCreated;
 
   /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
   bool get isLive => this == liveScheduled || this == liveStarted;
@@ -170,10 +175,16 @@ class AppNotification {
         NotificationType.goalCompleted => '"${goalTitle ?? ''}" hedefini tamamladın! Rozetin profilinde.',
         NotificationType.teammateRequest => 'seninle ekip arkadaşı olmak istiyor.',
         NotificationType.teammateAccepted => 'ekip arkadaşlığı isteğini kabul etti.',
+        NotificationType.matchCreated => "Kim olduğunu Eşleşmelerim'de gör.",
+        NotificationType.matchSuperLiked => 'seni süper beğendi! Destende ilk o görünüyor.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.
-  String get lead => type.fromGroup ? group?.name ?? '' : actor.username;
+  String get lead => switch (type) {
+        _ when type.fromGroup => group?.name ?? '',
+        NotificationType.matchCreated => 'Yeni bir eşleşmen var!',
+        _ => actor.username,
+      };
 
   /// Opens the comments rather than the post.
   bool get aboutComment => comment != null;
@@ -213,6 +224,7 @@ class NotificationPreferences {
     this.eventUpdates = true,
     this.reviewRequests = true,
     this.liveBroadcasts = true,
+    this.matchAlerts = true,
   });
 
   /// "Yarın başlıyor" reminder.
@@ -230,13 +242,24 @@ class NotificationPreferences {
   /// Broadcasts scheduled or started in the user's groups.
   final bool liveBroadcasts;
 
-  NotificationPreferences copyWith({bool? reminderDay, bool? reminderHour, bool? eventUpdates, bool? reviewRequests, bool? liveBroadcasts}) =>
+  /// New matches (docs/ARCHITECTURE.md §3g).
+  final bool matchAlerts;
+
+  NotificationPreferences copyWith({
+    bool? reminderDay,
+    bool? reminderHour,
+    bool? eventUpdates,
+    bool? reviewRequests,
+    bool? liveBroadcasts,
+    bool? matchAlerts,
+  }) =>
       NotificationPreferences(
         reminderDay: reminderDay ?? this.reminderDay,
         reminderHour: reminderHour ?? this.reminderHour,
         eventUpdates: eventUpdates ?? this.eventUpdates,
         reviewRequests: reviewRequests ?? this.reviewRequests,
         liveBroadcasts: liveBroadcasts ?? this.liveBroadcasts,
+        matchAlerts: matchAlerts ?? this.matchAlerts,
       );
 }
 

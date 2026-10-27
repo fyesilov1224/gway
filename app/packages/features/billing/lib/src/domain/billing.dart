@@ -249,6 +249,40 @@ class Order {
   final PlanPeriod period;
 }
 
+/// A period of a personal plan and the time it would add (docs/ARCHITECTURE.md §7, Kişisel ürünler).
+class PersonalOption {
+  const PersonalOption({required this.period, required this.amountMinor, required this.startsAt, required this.endsAt});
+
+  final PlanPeriod period;
+  final int amountMinor;
+  final DateTime startsAt;
+  final DateTime endsAt;
+}
+
+class PersonalOffer {
+  const PersonalOffer({
+    required this.market,
+    required this.purchasesEnabled,
+    required this.planSlug,
+    required this.planName,
+    required this.salesTermsVersion,
+    required this.options,
+    this.activeUntil,
+  });
+
+  final Market market;
+  final bool purchasesEnabled;
+  final String planSlug;
+  final String planName;
+
+  /// The end of the time the person already has.
+  final DateTime? activeUntil;
+  final int salesTermsVersion;
+  final List<PersonalOption> options;
+
+  PersonalOption? option(PlanPeriod period) => options.where((o) => o.period == period).firstOrNull;
+}
+
 abstract interface class BillingRepository {
   /// The whole catalog, by tier.
   Future<Result<List<Plan>>> plans();
@@ -270,4 +304,9 @@ abstract interface class BillingRepository {
   Future<Result<Uri>> checkout(String groupId, CheckoutRequest request);
 
   Future<Result<Order>> order(String orderId);
+
+  Future<Result<PersonalOffer>> personalOffer(String slug);
+
+  /// Opens a personal order and returns the provider's payment page; [request]'s plan is [slug].
+  Future<Result<Uri>> personalCheckout(String slug, CheckoutRequest request);
 }

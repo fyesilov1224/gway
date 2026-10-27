@@ -37,6 +37,10 @@ final lastBillingDetailsProvider = FutureProvider.autoDispose<BillingDetails?>(
   (ref) async => (await ref.watch(billingRepositoryProvider).lastBillingDetails()).getOrThrow(),
 );
 
+final personalOfferProvider = FutureProvider.autoDispose.family<PersonalOffer, String>(
+  (ref, slug) async => (await ref.watch(billingRepositoryProvider).personalOffer(slug)).getOrThrow(),
+);
+
 final orderProvider = FutureProvider.autoDispose.family<Order, String>(
   (ref, orderId) async => (await ref.watch(billingRepositoryProvider).order(orderId)).getOrThrow(),
 );

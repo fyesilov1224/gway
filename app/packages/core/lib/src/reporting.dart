@@ -14,6 +14,11 @@ class ReportTarget {
   /// A chat message; a group chat's goes to that group's moderation, a direct one to the platform team.
   const ReportTarget.message(this.id) : type = 'message', groupId = null;
 
+  /// A matching profile or one of its photos; both go to the platform team (docs/ARCHITECTURE.md §3g).
+  const ReportTarget.matchProfile(this.id) : type = 'match_profile', groupId = null;
+
+  const ReportTarget.matchPhoto(this.id) : type = 'match_photo', groupId = null;
+
   /// A person; reported from a group's member list it goes to that group's moderation.
   const ReportTarget.user(this.id, {this.groupId}) : type = 'user';
 

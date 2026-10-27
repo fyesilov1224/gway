@@ -40,14 +40,14 @@ class ConversationsScreen extends ConsumerWidget {
                     items: [for (final c in value) if (!c.isRequest) c],
                     empty: GxEmptyState(
                       icon: Icons.chat_bubble_outline_rounded,
-                      message: 'Henüz bir sohbetin yok. Ekip arkadaşlarına ya da takipleştiğin kişilere yazabilirsin.',
+                      message: 'Henüz bir sohbetin yok. Eşleştiğin kişilere ve ekip arkadaşlarına yazabilirsin.',
                       actionLabel: 'Kişi bul',
                       onAction: () => onFindPeople(context),
                     ),
                   ),
                   _List(
                     items: [for (final c in value) if (c.isRequest) c],
-                    header: 'Takipleşmediğin kişilerin mesajları burada bekler. Kabul edersen sohbetlerine taşınır.',
+                    header: 'Eski mesaj istekleri burada durur. Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir; yeni istek gelmez.',
                     empty: Builder(
                       builder: (context) => GxEmptyState(
                         icon: Icons.mark_email_unread_outlined,

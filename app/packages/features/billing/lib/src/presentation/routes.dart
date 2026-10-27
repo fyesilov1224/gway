@@ -6,4 +6,8 @@ abstract final class BillingRoutes {
 
   static String checkout(String handle, String planSlug, PlanPeriod period) =>
       Uri(path: '/g/$handle/plan/checkout', queryParameters: {'plan': planSlug, 'period': period.code}).toString();
+
+  /// Checkout of a personal plan (Eşleşme Premium).
+  static String personalCheckout(String slug, PlanPeriod period) =>
+      Uri(path: '/premium/$slug/checkout', queryParameters: {'period': period.code}).toString();
 }

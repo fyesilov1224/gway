@@ -82,8 +82,6 @@ enum AdminOrderStatus {
 class AdminOrder {
   const AdminOrder({
     required this.id,
-    required this.groupName,
-    required this.groupHandle,
     required this.buyerId,
     required this.planName,
     required this.period,
@@ -93,6 +91,8 @@ class AdminOrder {
     required this.status,
     required this.createdAt,
     this.groupId,
+    this.groupName,
+    this.groupHandle,
     this.buyerUsername,
     this.country,
     this.failureReason,
@@ -102,8 +102,8 @@ class AdminOrder {
   factory AdminOrder.fromJson(Map<String, Object?> j) => AdminOrder(
         id: j['id']! as String,
         groupId: j['groupId'] as String?,
-        groupName: j['groupName']! as String,
-        groupHandle: j['groupHandle']! as String,
+        groupName: j['groupName'] as String?,
+        groupHandle: j['groupHandle'] as String?,
         buyerId: j['buyerId']! as String,
         buyerUsername: j['buyerUsername'] as String?,
         planName: j['planName']! as String,
@@ -122,8 +122,10 @@ class AdminOrder {
 
   /// Null once the group was deleted; the order stays as a financial record.
   final String? groupId;
-  final String groupName;
-  final String groupHandle;
+
+  /// Null for a personal plan (Eşleşme Premium), bought by the buyer for themselves.
+  final String? groupName;
+  final String? groupHandle;
   final String buyerId;
   final String? buyerUsername;
   final String planName;

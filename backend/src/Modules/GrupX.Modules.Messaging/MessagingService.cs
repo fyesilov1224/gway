@@ -78,7 +78,6 @@ internal sealed partial class MessagingService(NpgsqlDataSource db, ISupabaseSto
         "message_forbidden" => Error.Forbidden("message.forbidden", "Bu sohbete yazamazsın."),
         "message_not_found" => Error.NotFound("message.user_not_found", "Kullanıcı bulunamadı."),
         "blocked" => Error.RuleViolation("message.blocked", "Engel olduğu için mesaj gönderilemiyor."),
-        "message_private" => Error.RuleViolation("message.private", "Bu hesap gizli; yalnızca takipçileri mesaj gönderebilir."),
         "message_request_pending" => Error.RuleViolation("message.request_pending", "Yanıt vermeden önce mesaj isteğini kabul et."),
         "message_declined" => Error.RuleViolation("message.declined", "Bu kişi mesaj isteğini kabul etmedi."),
         "message_muted" => Error.RuleViolation("message.muted", "Bu grupta susturulduğun için yazamazsın."),
@@ -87,6 +86,12 @@ internal sealed partial class MessagingService(NpgsqlDataSource db, ISupabaseSto
         "message_empty" => Error.Validation("message.empty", "Bir mesaj yaz ya da fotoğraf ekle."),
         "message_image_invalid" => Error.Validation("message.image_invalid", "Fotoğraf bulunamadı. Yeniden yüklemeyi dene."),
         "message_no_request" => Error.NotFound("message.no_request", "Bekleyen bir mesaj isteği yok."),
+        "match_ended" => Error.RuleViolation("message.match_ended", "Eşleşme bittiği için bu sohbet kapandı."),
+        "match_chat_locked" => Error.RuleViolation("message.match_chat_locked", "Eşleştiğin kişiye yazmak için Eşleşme Sohbeti paketi gerekir."),
+        "teammate_chat_locked" => Error.RuleViolation("message.teammate_chat_locked",
+            "Ekip arkadaşına yazmak için Ekip Arkadaşı paketi gerekir."),
+        "message_not_allowed" => Error.RuleViolation("message.not_allowed",
+            "Özel mesaj yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yazışmak içindir."),
         _ => Error.RuleViolation($"message.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
 

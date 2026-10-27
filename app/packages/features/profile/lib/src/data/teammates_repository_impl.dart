@@ -48,6 +48,12 @@ class TeammatesRepositoryImpl implements TeammatesRepository {
           availability: TeammateSlot.parseAll(r['availability']).toSet(),
           province: (r['province'] as num?)?.toInt(),
           note: r['note'] as String? ?? '',
+          activities: {...(r['activities'] as List? ?? const []).cast<String>()},
+          goals: TeammateGoal.parseAll(r['goals']).toSet(),
+          frequency: TeammateFrequency.parse(r['frequency']),
+          groupSizes: TeammateGroupSize.parseAll(r['group_sizes']).toSet(),
+          hasVehicle: r['has_vehicle'] as bool? ?? false,
+          hasEquipment: r['has_equipment'] as bool? ?? false,
         );
       });
 
@@ -60,6 +66,12 @@ class TeammatesRepositoryImpl implements TeammatesRepository {
           'availability': [for (final s in TeammateSlot.values) if (p.availability.contains(s)) s.key],
           'province': p.province,
           'note': p.note.trim(),
+          'activities': p.activities.toList(),
+          'goals': [for (final g in TeammateGoal.values) if (p.goals.contains(g)) g.key],
+          'frequency': p.frequency?.key,
+          'group_sizes': [for (final s in TeammateGroupSize.values) if (p.groupSizes.contains(s)) s.key],
+          'has_vehicle': p.hasVehicle,
+          'has_equipment': p.hasEquipment,
         });
       });
 
@@ -86,6 +98,11 @@ class TeammatesRepositoryImpl implements TeammatesRepository {
               interests: _strings(r['interests']),
               groups: _strings(r['groups']),
               times: TeammateSlot.parseAll(r['times']),
+              activities: _strings(r['activities']),
+              goals: TeammateGoal.parseAll(r['goals']),
+              sameFrequency: r['same_frequency'] == true,
+              hasVehicle: r['has_vehicle'] == true,
+              hasEquipment: r['has_equipment'] == true,
               sameLevel: r['same_level'] == true,
               sameProvince: r['same_province'] == true,
             ),
@@ -100,6 +117,8 @@ class TeammatesRepositoryImpl implements TeammatesRepository {
           teammates: [for (final p in rows('teammates')) _person(p)],
           incoming: [for (final p in rows('incoming')) _request(p)],
           outgoing: [for (final p in rows('outgoing')) _request(p)],
+          locked: r['locked'] == true,
+          waiting: (r['incoming_count'] as num?)?.toInt() ?? 0,
         );
       });
 

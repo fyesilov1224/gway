@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:identity/identity.dart';
 import 'package:live/live.dart';
+import 'package:matching/matching.dart';
 import 'package:messaging/messaging.dart';
 import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
@@ -121,7 +122,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ProfileRoutes.mine,
             builder: (context, _) => ProfileScreen(
               onOpenSettings: () => context.push(AppRoutes.settings),
-              ownActions: const [_savedButton, _teammatesButton],
+              ownActions: const [_savedButton, _matchingButton, _teammatesButton],
               sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
@@ -177,6 +178,37 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: ProfileRoutes.blocked, builder: (_, _) => const BlockedAccountsScreen()),
           GoRoute(path: ProfileRoutes.teammates, builder: (_, _) => const TeammatesScreen()),
           GoRoute(path: ProfileRoutes.teammateSettings, builder: (_, _) => const TeammateSettingsScreen()),
+          GoRoute(path: MatchingRoutes.home, builder: (_, _) => const MatchingScreen(openChat: _openChat)),
+          GoRoute(path: MatchingRoutes.matches, builder: (_, _) => const MatchesScreen(openChat: _openChat)),
+          GoRoute(path: MatchingRoutes.profile, builder: (_, _) => const MatchProfileScreen()),
+          GoRoute(path: MatchingRoutes.setup, builder: (_, _) => const MatchProfileScreen()),
+          GoRoute(path: MatchingRoutes.likes, builder: (_, _) => const MatchLikesScreen(openChat: _openChat)),
+          GoRoute(path: MatchingRoutes.packages, builder: (_, _) => const MatchPackagesScreen()),
+          GoRoute(
+            path: '${MatchingRoutes.packages}/:slug',
+            builder: (_, state) => switch (MatchPackage.bySlug(state.pathParameters['slug']!)) {
+              final package? => MatchPackageScreen(
+                  package: package,
+                  orderId: state.uri.queryParameters['order'],
+                  // Billing sells the packages; matching only shows them.
+                  purchase: (context, slug, orderId) => Consumer(
+                    builder: (context, ref, _) => PersonalPlanPurchase(
+                      slug: slug,
+                      orderId: orderId,
+                      onPaid: () => ref.invalidate(matchStatusProvider),
+                    ),
+                  ),
+                ),
+              null => const MatchPackagesScreen(),
+            },
+          ),
+          GoRoute(
+            path: '/premium/:slug/checkout',
+            builder: (_, state) => PersonalCheckoutScreen(
+              slug: state.pathParameters['slug']!,
+              period: PlanPeriod.parse(state.uri.queryParameters['period']),
+            ),
+          ),
           GoRoute(path: GroupRoutes.create, builder: (_, _) => const CreateGroupScreen()),
           GoRoute(
             path: '/g/:handle',
@@ -239,7 +271,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: ':id',
                 builder: (_, state) =>
-                    ChatScreen(conversationId: state.pathParameters['id']!, onOpenProfile: _openProfile, onOpenGroup: _openGroup),
+                    ChatScreen(
+                      conversationId: state.pathParameters['id']!,
+                      onOpenProfile: _openProfile,
+                      onOpenGroup: _openGroup,
+                    ),
               ),
             ],
           ),
@@ -261,6 +297,19 @@ Widget _groupsSection(BuildContext context, Profile profile, bool isOwn) =>
 void _openProfile(BuildContext context, String username) => context.push(ProfileRoutes.user(username));
 
 void _openGroup(BuildContext context, String handle) => context.push(GroupRoutes.group(handle));
+
+void _openChat(BuildContext context, String conversationId) => context.push(MessagingRoutes.chat(conversationId));
+
+/// "Eşleşme" on your own profile (docs/ARCHITECTURE.md §3g).
+const _matchingButton = _MatchingButton();
+
+class _MatchingButton extends StatelessWidget {
+  const _MatchingButton();
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+      tooltip: 'Eşleşme', icon: const Icon(Icons.favorite_border_rounded), onPressed: () => context.push(MatchingRoutes.home));
+}
 
 /// "Harita" from the groups page.
 const _mapButton = _MapButton();

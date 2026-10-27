@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(37);
+select plan(38);
 
 -- d1 owner of the group, d2 member, d3 member (muted later), d4 stranger, d5 private account, d6 outsider.
 insert into auth.users (id, email, aud, role)
@@ -97,42 +97,66 @@ select lives_ok(
 );
 select is((select body from public.messages where conversation_id = pg_temp.chat() and sender_id = pg_temp.u(2)), '', 'the content is cleared');
 
--- Direct messages ---------------------------------------------------------------------------------------
+-- Direct messages: only matches (28_matching_packages) and teammates (§3f) ----------------------------------
 insert into public.follows (follower_id, followee_id) values (pg_temp.u(1), pg_temp.u(2));
 select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
 insert into public.follows (follower_id, followee_id) values (pg_temp.u(2), pg_temp.u(1));
-select is(private.open_direct_conversation(pg_temp.u(1))->>'state', 'active', 'people who follow each other write directly');
-select is(private.open_direct_conversation(pg_temp.u(4))->>'state', 'request', 'a stranger gets a request');
-select is(private.open_direct_conversation(pg_temp.u(4))->>'state', 'request', 'and the same conversation again');
-select throws_ok($$ select private.open_direct_conversation(pg_temp.u(5)) $$, 'P0001', 'message_private', 'private accounts take their followers only');
-select lives_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Merhaba, rotayı paylaşır mısın?') $$, 'the sender writes into the request');
+select throws_ok($$ select private.open_direct_conversation(pg_temp.u(1)) $$, 'P0001', 'message_not_allowed',
+  'following each other no longer opens a chat');
+select throws_ok($$ select private.open_direct_conversation(pg_temp.u(4)) $$, 'P0001', 'message_not_allowed',
+  'and a stranger gets no request either');
+set local role authenticated;
+select is(public.can_message(pg_temp.u(1)), false, 'so the profile shows no message button');
+reset role;
 
+-- d2 and d4 become teammates (the accepting flow is tested in 22_teammates).
+alter table public.teammates disable trigger teammates_guard;
+insert into public.teammates (user_a, user_b) values (pg_temp.u(2), pg_temp.u(4));
+alter table public.teammates enable trigger teammates_guard;
+select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
+select is(private.open_direct_conversation(pg_temp.u(4))->>'state', 'active', 'teammates write directly');
+select is(private.open_direct_conversation(pg_temp.u(4))->>'state', 'active', 'and the same conversation again');
+set local role authenticated;
+select is(public.can_message(pg_temp.u(4)), true, 'the profile offers the chat');
+reset role;
+select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
+select throws_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Merhaba') $$, 'P0001', 'teammate_chat_locked',
+  'writing to a teammate needs the Ekip Arkadaşı package');
+alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+insert into public.user_subscriptions (user_id, plan_slug, grant_reason, starts_at, ends_at)
+select pg_temp.u(i), 'matching_teammates', 'test', now() - interval '1 minute', now() + interval '1 day' from unnest(array[2, 4]) i;
+alter table public.user_subscriptions enable trigger user_subscriptions_guard;
+select lives_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Merhaba, rotayı paylaşır mısın?') $$, 'one teammate writes');
 select pg_temp.act('00000000-0000-0000-0000-0000000dd104');
-select throws_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Selam') $$, 'P0001', 'message_request_pending', 'the recipient accepts before replying');
+select lives_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Tabii, paylaşırım') $$, 'and the other answers');
 set local role authenticated;
 select is(
-  (select c->>'my_state' from jsonb_array_elements(public.my_conversations()) c where c->>'id' = pg_temp.direct(2, 4)::text), 'request',
-  'the request is in the recipient''s list'
+  (select c->>'my_state' from jsonb_array_elements(public.my_conversations()) c where c->>'id' = pg_temp.direct(2, 4)::text), 'active',
+  'the chat is in both lists'
 );
 select public.mark_conversation_read(pg_temp.direct(2, 4));
 select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
-select is(public.conversation_detail(pg_temp.direct(2, 4))->'peer'->>'read_at', null, 'no read receipt before accepting');
+select isnt(public.conversation_detail(pg_temp.direct(2, 4))->'peer'->>'read_at', null, 'the reader''s receipt shows');
 select pg_temp.act('00000000-0000-0000-0000-0000000dd106');
 select is(public.conversation_detail(pg_temp.direct(2, 4)), null, 'nobody else sees the conversation');
 reset role;
 
-select pg_temp.act('00000000-0000-0000-0000-0000000dd104');
-select lives_ok($$ select private.answer_message_request(pg_temp.direct(2, 4), false) $$, 'the recipient declines');
-select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
-select throws_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Tekrar') $$, 'P0001', 'message_declined', 'then the sender cannot write');
-select pg_temp.act('00000000-0000-0000-0000-0000000dd104');
-select lives_ok($$ select pg_temp.send(pg_temp.direct(2, 4), 'Aslında evet, paylaşırım') $$, 'until the recipient writes');
-select is(pg_temp.state(pg_temp.direct(2, 4), 4), 'active', 'which reopens the conversation');
+-- A chat opened under the old rules (mutual follows) stays readable but closed.
+insert into public.conversations (kind, user_a, user_b, created_by)
+values ('direct', least(pg_temp.u(1), pg_temp.u(3)), greatest(pg_temp.u(1), pg_temp.u(3)), pg_temp.u(1));
+insert into public.conversation_members (conversation_id, user_id, state)
+values (pg_temp.direct(1, 3), pg_temp.u(1), 'active'), (pg_temp.direct(1, 3), pg_temp.u(3), 'active');
+select pg_temp.act('00000000-0000-0000-0000-0000000dd101');
+select throws_ok($$ select pg_temp.send(pg_temp.direct(1, 3), 'Selam') $$, 'P0001', 'message_not_allowed', 'an old chat takes no new messages');
+set local role authenticated;
+select isnt(public.conversation_detail(pg_temp.direct(1, 3)), null, 'but it can still be read');
+reset role;
 
 -- Blocking and limits.
+select pg_temp.act('00000000-0000-0000-0000-0000000dd103');
+insert into public.blocks (blocker_id, blocked_id) values (pg_temp.u(3), pg_temp.u(1));
 select pg_temp.act('00000000-0000-0000-0000-0000000dd101');
-insert into public.blocks (blocker_id, blocked_id) values (pg_temp.u(1), pg_temp.u(2));
-select throws_ok($$ select pg_temp.send(pg_temp.direct(1, 2), 'Selam') $$, 'P0001', 'blocked', 'no messages across a block');
+select throws_ok($$ select pg_temp.send(pg_temp.direct(1, 3), 'Selam') $$, 'P0001', 'blocked', 'no messages across a block');
 reset role;
 select pg_temp.act('00000000-0000-0000-0000-0000000dd102');
 select throws_ok(

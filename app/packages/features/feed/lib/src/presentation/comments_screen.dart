@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/post.dart';
+import 'post_card.dart';
 import 'providers.dart';
 import 'rich_text.dart';
 import 'routes.dart';
@@ -77,9 +78,15 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
               child: switch (comments) {
                 AsyncData(:final value) when value.isEmpty => GxEmptyState(
                     icon: Icons.mode_comment_outlined,
-                    message: post?.commentsDisabled == true ? 'Bu gönderide yorumlar kapalı.' : 'Henüz yorum yok. İlk yorumu sen yaz.',
-                    actionLabel: post?.commentsDisabled == true ? 'Geri dön' : 'Yorum yaz',
-                    onAction: post?.commentsDisabled == true ? () => Navigator.of(context).maybePop() : _focus.requestFocus,
+                    message: switch (post) {
+                      Post(commentsDisabled: true) => 'Bu gönderide yorumlar kapalı.',
+                      Post(canComment: false) => 'Henüz yorum yok. Bu paylaşıma emojiyle tepki bırakabilirsin.',
+                      _ => 'Henüz yorum yok. İlk yorumu sen yaz.',
+                    },
+                    actionLabel: post?.commentsDisabled == true || post?.canComment == false ? 'Geri dön' : 'Yorum yaz',
+                    onAction: post?.commentsDisabled == true || post?.canComment == false
+                        ? () => Navigator.of(context).maybePop()
+                        : _focus.requestFocus,
                   ),
                 AsyncData(:final value) => RefreshIndicator(
                     onRefresh: () => ref.refresh(commentsProvider(widget.postId).future),
@@ -94,7 +101,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           _CommentRow(
                             comment: c,
                             canDelete: c.author.id == me || (post?.canManage ?? false),
-                            onReply: post?.commentsDisabled == true ? null : () => _reply(c),
+                            onReply: post?.commentsDisabled == true || post?.canComment == false ? null : () => _reply(c),
                             post: post,
                           ),
                           for (final r in c.replies)
@@ -103,7 +110,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                               child: _CommentRow(
                                 comment: r,
                                 canDelete: r.author.id == me || (post?.canManage ?? false),
-                                onReply: post?.commentsDisabled == true ? null : () => _reply(c),
+                                onReply: post?.commentsDisabled == true || post?.canComment == false ? null : () => _reply(c),
                                 post: post,
                               ),
                             ),
@@ -116,7 +123,8 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 _ => const Center(child: CircularProgressIndicator()),
               },
             ),
-            if (post != null && !post.commentsDisabled) _composer(post),
+            if (post != null && !post.commentsDisabled && post.canComment) _composer(post),
+            if (post != null && !post.commentsDisabled && !post.canComment) _ReactOnly(post: post),
           ],
         ),
       ),
@@ -352,4 +360,37 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
       ),
     );
   }
+}
+
+/// In place of the composer when the viewer may not comment: why, and the emoji reactions.
+class _ReactOnly extends StatelessWidget {
+  const _ReactOnly({required this.post});
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: const BoxDecoration(color: GxColors.surface, border: Border(top: GxBorders.hairline)),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.only(top: GxSpacing.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+                  child: Text(
+                    'Bu paylaşıma yalnızca eşleştiği kişiler ve ekip arkadaşları yorum yazabilir. Sen emojiyle tepki bırakabilirsin.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  ),
+                ),
+                const SizedBox(height: GxSpacing.xs),
+                PostReactions(post: post),
+              ],
+            ),
+          ),
+        ),
+      );
 }

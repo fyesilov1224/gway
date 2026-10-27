@@ -91,6 +91,39 @@ void main() {
     expect(_direct().blockerText, isNull);
   });
 
+  for (final (allowed, shown) in [(true, findsOneWidget), (false, findsNothing)]) {
+    testWidgets('the profile message button shows only when messaging is allowed ($allowed)', (tester) async {
+      await tester.pumpWidget(ProviderScope(
+        overrides: [canMessageProvider.overrideWith((ref, id) async => allowed)],
+        child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: MessageUserButton(userId: 'deniz'))),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Mesaj gönder'), shown);
+    });
+  }
+
+  testWidgets('a locked match chat offers the package instead of the composer', (tester) async {
+    final thread = ChatThread(conversation: _direct(blocker: 'match_chat_locked'), messages: const []);
+    String? opened;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        messagingRepositoryProvider.overrideWithValue(_FakeMessaging()),
+        currentUserIdProvider.overrideWithValue('me'),
+        chatProvider.overrideWith((ref, id) => Stream.value(thread)),
+        conversationsProvider.overrideWith((ref) => Stream.value(const [])),
+        packageOpenerProvider.overrideWithValue((_, slug) => opened = slug),
+      ],
+      child: MaterialApp(
+        theme: GxTheme.light(),
+        home: ChatScreen(conversationId: 'c1', onOpenProfile: (_, _) {}, onOpenGroup: (_, _) {}),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Eşleşme Sohbeti paketi'), findsOneWidget);
+    await tester.tap(find.text('Paketi incele'));
+    expect(opened, 'matching_chat');
+  });
+
   testWidgets('requests wait in their own tab', (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
@@ -110,7 +143,7 @@ void main() {
 
     await tester.tap(find.text('İstekler (1)'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Takipleşmediğin kişilerin mesajları'), findsOneWidget);
+    expect(find.textContaining('Eski mesaj istekleri'), findsOneWidget);
   });
 
   testWidgets('an empty inbox suggests finding people', (tester) async {

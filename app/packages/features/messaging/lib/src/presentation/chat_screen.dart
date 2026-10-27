@@ -15,7 +15,13 @@ typedef OpenPage = void Function(BuildContext context, String key);
 
 /// A direct conversation or a group chat; opening it marks it read.
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key, required this.conversationId, required this.onOpenProfile, required this.onOpenGroup, this.pickImage});
+  const ChatScreen({
+    super.key,
+    required this.conversationId,
+    required this.onOpenProfile,
+    required this.onOpenGroup,
+    this.pickImage,
+  });
 
   final String conversationId;
   final OpenPage onOpenProfile;
@@ -168,6 +174,13 @@ class _Chat extends ConsumerWidget {
   final FocusNode composerFocus;
   final PickImage? pickImage;
 
+  /// The package that unlocks writing here, if a package is what keeps the user from it.
+  static String? _packageFor(String? blocker) => switch (blocker) {
+        'match_chat_locked' => 'matching_chat',
+        'teammate_chat_locked' => 'matching_teammates',
+        _ => null,
+      };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final me = ref.watch(currentUserIdProvider);
@@ -230,7 +243,12 @@ class _Chat extends ConsumerWidget {
         if (c.isRequest)
           _RequestBar(conversation: c)
         else if (c.blockerText case final text?)
-          _Notice(text, bottom: true)
+          _Notice(
+            text,
+            bottom: true,
+            actionLabel: _packageFor(c.blocker) == null ? null : 'Paketi incele',
+            onAction: () => ref.read(packageOpenerProvider)(context, _packageFor(c.blocker)!),
+          )
         else
           _Composer(conversationId: c.id, focus: composerFocus, pickImage: pickImage),
       ],
@@ -491,10 +509,12 @@ class _Photo extends StatelessWidget {
 }
 
 class _Notice extends StatelessWidget {
-  const _Notice(this.text, {this.bottom = false});
+  const _Notice(this.text, {this.bottom = false, this.actionLabel, this.onAction});
 
   final String text;
   final bool bottom;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -514,6 +534,10 @@ class _Notice extends StatelessWidget {
                 Expanded(
                   child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
                 ),
+                if (actionLabel != null) ...[
+                  const SizedBox(width: GxSpacing.xs),
+                  GxButton(label: actionLabel!, variant: GxButtonVariant.secondary, onPressed: onAction),
+                ],
               ],
             ),
           ),

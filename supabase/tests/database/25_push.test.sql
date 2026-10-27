@@ -38,7 +38,7 @@ select pg_temp.act('00000000-0000-0000-0000-0000000fa002');
 select is((select count(*)::int from public.push_devices), 0, 'others cannot read it');
 delete from public.push_devices where token = 'token-of-phone-one-0000000000';
 reset role;
-select is((select count(*)::int from public.push_devices), 1, 'nor delete it');
+select is((select count(*)::int from public.push_devices where token = 'token-of-phone-one-0000000000'), 1, 'nor delete it');
 
 -- The phone changes hands ---------------------------------------------------------------------
 set local role authenticated;

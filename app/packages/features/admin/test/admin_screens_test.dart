@@ -494,6 +494,40 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
           ),
         ),
         pushStatsProvider.overrideWith((ref) async => _pushStats),
+        matchingStatsProvider.overrideWith(
+          (ref) async => const AdminMatchingStats(
+            profiles: 120,
+            friendProfiles: 90,
+            datingProfiles: 70,
+            women: 55,
+            men: 60,
+            nonbinary: 5,
+            paused: 8,
+            suspended: 2,
+            likes24h: 340,
+            passes24h: 410,
+            matches24h: 23,
+            activeMatches: 180,
+            openReports: 3,
+            premiumProfiles: 14,
+            superLikes24h: 12,
+            activeBoosts: 2,
+            settings: AdminMatchingSettings(dailyFreeLikes: 10, dailyFreeSuperLikes: 1, dailyPremiumSuperLikes: 5, boostMinutes: 30),
+          ),
+        ),
+        matchingPackagesProvider.overrideWith(
+          (ref) async => const [
+            AdminPremium(
+              slug: 'matching_premium',
+              name: 'Hepsi Bir Arada',
+              isActive: true,
+              prices: [(currency: 'TRY', period: 'month', amountMinor: 24900), (currency: 'TRY', period: 'year', amountMinor: 249000)],
+              activeMembers: 16,
+              grantedMembers: 2,
+              revenue30d: [(currency: 'TRY', amountMinor: 498000, orders: 2)],
+            ),
+          ],
+        ),
         contentSearchProvider.overrideWith(
           (ref, search) async => PostPage(items: [_post, _removedPost], total: 2, page: 1, pageSize: 24),
         ),
@@ -769,6 +803,19 @@ void main() {
       expect(find.text('Canlı yayın planlandı'), findsOneWidget);
       expect(find.text('Gönderi beğenisi'), findsOneWidget);
       expect(find.text('12'), findsWidgets);
+    });
+  }
+
+  for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
+    testWidgets('matching screen lays out on $name', (tester) async {
+      await _pumpAt(tester, size, const AdminMatchingScreen());
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Son 24 saatte eşleşme'), findsWidgets);
+      expect(find.text('23'), findsWidgets);
+      expect(find.text('Günlük ücretsiz beğeni'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Hepsi Bir Arada'), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.textContaining('16 kişi (2)'), findsOneWidget);
     });
   }
 

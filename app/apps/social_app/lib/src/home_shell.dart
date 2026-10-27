@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
+import 'package:matching/matching.dart';
 import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
@@ -230,6 +231,12 @@ class _Sidebar extends ConsumerWidget {
               label: 'Mesajlar',
               selected: false,
               onTap: () => context.push(MessagingRoutes.list),
+            ),
+            _SideItem(
+              icon: const Icon(Icons.favorite_border_rounded),
+              label: 'Eşleşme',
+              selected: path.startsWith(MatchingRoutes.home),
+              onTap: () => context.push(MatchingRoutes.home),
             ),
             const SizedBox(height: GxSpacing.md),
             GxButton(label: 'Paylaş', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),

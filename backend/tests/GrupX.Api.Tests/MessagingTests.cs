@@ -5,10 +5,11 @@ using GrupX.Modules.Groups;
 using GrupX.Modules.Messaging;
 using GrupX.Modules.Messaging.Contracts;
 using GrupX.Modules.Moderation;
+using GrupX.Modules.Profile;
 
 namespace GrupX.Api.Tests;
 
-/// <summary>Phase 15: direct messages with requests, the group chat, photos and reports of messages.</summary>
+/// <summary>Phase 15: direct messages (matches and teammates only), the group chat, photos and reports of messages.</summary>
 public sealed class MessagingTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();
@@ -49,60 +50,70 @@ public sealed class MessagingTests(ApiFactory factory) : IClassFixture<ApiFactor
         return (await response.Content.ReadFromJsonAsync<SentMessage>(Ct))!.Id;
     }
 
-    private async Task FollowEachOtherAsync(Guid a, Guid b)
+    /// <summary>Two people with the Ekip Arkadaşı package who asked each other (crossed requests), so they may write.</summary>
+    private async Task TeammatesAsync(Guid a, Guid b)
     {
-        (await factory.ClientFor(a).PostAsync(Path($"/users/{b}/follow"), null, Ct)).EnsureSuccessStatusCode();
-        (await factory.ClientFor(b).PostAsync(Path($"/users/{a}/follow"), null, Ct)).EnsureSuccessStatusCode();
+        await _db.ExecuteAsync(
+            "insert into public.teammate_preferences (user_id, looking, level) values (@a, true, 'beginner'), (@b, true, 'beginner')", ("a", a), ("b", b));
+        await _db.GrantPackageAsync(a, "matching_teammates");
+        await _db.GrantPackageAsync(b, "matching_teammates");
+        (await factory.ClientFor(a).PostAsJsonAsync(Path($"/users/{b}/teammate"), new TeammateRequestBody(null), Ct)).EnsureSuccessStatusCode();
+        (await factory.ClientFor(b).PostAsJsonAsync(Path($"/users/{a}/teammate"), new TeammateRequestBody(null), Ct)).EnsureSuccessStatusCode();
     }
 
     [Fact]
-    public async Task Friends_write_directly_and_strangers_send_a_request()
+    public async Task Only_teammates_and_matches_open_a_direct_chat()
     {
-        var (me, friend, stranger) = (await UserAsync(), await UserAsync(), await UserAsync());
-        await FollowEachOtherAsync(me, friend);
+        var (me, follower, stranger, teammate) = (await UserAsync(), await UserAsync(), await UserAsync(), await UserAsync());
+        (await factory.ClientFor(me).PostAsync(Path($"/users/{follower}/follow"), null, Ct)).EnsureSuccessStatusCode();
+        (await factory.ClientFor(follower).PostAsync(Path($"/users/{me}/follow"), null, Ct)).EnsureSuccessStatusCode();
+        await TeammatesAsync(me, teammate);
 
-        Assert.Equal(DirectConversation.Active, (await OpenAsync(me, friend)).State);
+        foreach (var other in new[] { follower, stranger })
+        {
+            var refused = await factory.ClientFor(me).PostAsync(Path($"/messages/direct/{other}"), null, Ct);
+            Assert.Contains("message.not_allowed", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        }
         Assert.Equal(HttpStatusCode.BadRequest, (await factory.ClientFor(me).PostAsync(Path($"/messages/direct/{me}"), null, Ct)).StatusCode);
 
-        var request = await OpenAsync(me, stranger);
-        Assert.Equal(DirectConversation.Request, request.State);
-        await SentAsync(me, request.Id, "Merhaba, rotayı paylaşır mısın?");
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await SendAsync(stranger, request.Id, "Selam")).StatusCode);
-        Assert.Equal(HttpStatusCode.BadRequest, (await SendAsync(me, request.Id, new string('a', MessagingService.MaxBody + 1))).StatusCode);
-
-        var client = factory.ClientFor(stranger);
-        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsync(Path($"/conversations/{request.Id}/acceptance"), null, Ct)).StatusCode);
-        var reply = await SentAsync(stranger, request.Id, "Tabii, akşam atarım");
-        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsync(Path($"/conversations/{request.Id}/acceptance"), null, Ct)).StatusCode);
+        var chat = await OpenAsync(me, teammate);
+        Assert.Equal(DirectConversation.Active, chat.State);
+        await SentAsync(me, chat.Id, "Merhaba, rotayı paylaşır mısın?");
+        Assert.Equal(HttpStatusCode.BadRequest, (await SendAsync(me, chat.Id, new string('a', MessagingService.MaxBody + 1))).StatusCode);
+        var reply = await SentAsync(teammate, chat.Id, "Tabii, akşam atarım");
 
         // Only the sender deletes, for everyone.
         Assert.Equal(HttpStatusCode.NotFound, (await factory.ClientFor(me).DeleteAsync(Path($"/messages/{reply}"), Ct)).StatusCode);
-        Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync(Path($"/messages/{reply}"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(teammate).DeleteAsync(Path($"/messages/{reply}"), Ct)).StatusCode);
         Assert.Equal("", await _db.ScalarAsync<string>("select body from public.messages where id = @id", ("id", reply)));
     }
 
     [Fact]
-    public async Task A_declined_request_stays_closed_until_the_recipient_writes()
+    public async Task A_chat_opened_under_the_old_rules_is_read_only()
     {
-        var (me, stranger) = (await UserAsync(), await UserAsync());
-        var request = await OpenAsync(me, stranger);
-        await SentAsync(me, request.Id, "Selam");
+        var (me, friend) = (await UserAsync(), await UserAsync());
+        var chat = await _db.ScalarAsync<Guid>(
+            """
+            with c as (
+              insert into public.conversations (kind, user_a, user_b, created_by)
+              values ('direct', least(@a, @b), greatest(@a, @b), @a) returning id
+            ), m as (
+              insert into public.conversation_members (conversation_id, user_id, state)
+              select id, u, 'active' from c, unnest(array[@a, @b]) u
+            )
+            select id from c
+            """, ("a", me), ("b", friend));
 
-        Assert.Equal(HttpStatusCode.NoContent,
-            (await factory.ClientFor(stranger).DeleteAsync(Path($"/conversations/{request.Id}/acceptance"), Ct)).StatusCode);
-        var refused = await SendAsync(me, request.Id, "Tekrar selam");
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, refused.StatusCode);
-        Assert.Contains("message.declined", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
-
-        await SentAsync(stranger, request.Id, "Kusura bakma, şimdi gördüm");
-        await SentAsync(me, request.Id, "Sorun değil");
+        Assert.Equal(chat, (await OpenAsync(me, friend)).Id);
+        var refused = await SendAsync(me, chat, "Selam");
+        Assert.Contains("message.not_allowed", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task Photos_must_be_uploaded_by_the_sender_into_the_conversation()
     {
         var (me, friend) = (await UserAsync(), await UserAsync());
-        await FollowEachOtherAsync(me, friend);
+        await TeammatesAsync(me, friend);
         var chat = (await OpenAsync(me, friend)).Id;
 
         var path = $"{chat}/{Guid.NewGuid():N}.jpg";
@@ -159,7 +170,7 @@ public sealed class MessagingTests(ApiFactory factory) : IClassFixture<ApiFactor
 
         // A direct message: the platform team sees it with the five before it, and the viewing is recorded.
         var (me, friend) = (await UserAsync(), await UserAsync());
-        await FollowEachOtherAsync(me, friend);
+        await TeammatesAsync(me, friend);
         var direct = (await OpenAsync(me, friend)).Id;
         for (var i = 1; i <= 7; i++) await SentAsync(i % 2 == 0 ? me : friend, direct, $"Mesaj {i}");
         var reported = await SentAsync(friend, direct, "Tehdit içeren mesaj");

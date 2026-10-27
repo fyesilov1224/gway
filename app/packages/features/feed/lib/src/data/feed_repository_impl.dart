@@ -11,6 +11,7 @@ const mediaBucket = 'media';
 /// Trigger codes users can run into, as Turkish messages (docs/ARCHITECTURE.md §3c).
 const _rules = {
   'comments_disabled': 'Bu gönderide yorumlar kapalı.',
+  'comment_not_allowed': 'Bu paylaşıma yalnızca eşleştiği kişiler ve ekip arkadaşları yorum yazabilir. Emojiyle tepki bırakabilirsin.',
   'blocked': 'Bu hesapla etkileşime geçemezsin.',
   'comment_rate_limited': 'Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.',
   'muted': 'Bu grupta susturulduğun için şu anda yorum yazamazsın.',
@@ -95,6 +96,9 @@ class FeedMapper {
       liked: r['liked'] as bool,
       saved: r['saved'] as bool,
       canManage: r['can_manage'] as bool,
+      canComment: r['can_comment'] as bool? ?? true,
+      reactions: {for (final MapEntry(:key, :value) in ((r['reactions'] as Map?) ?? const {}).entries) key as String: (value as num).toInt()},
+      myReaction: r['my_reaction'] as String?,
     );
   }
 }
@@ -250,6 +254,14 @@ class FeedRepositoryImpl implements FeedRepository {
         liked
             ? await table.upsert({'post_id': postId, 'user_id': _me}, ignoreDuplicates: true)
             : await table.delete().eq('post_id', postId).eq('user_id', _me);
+      });
+
+  @override
+  Future<Result<void>> setReaction(String postId, String? emoji) => runFeed(() async {
+        final table = _client.from('post_reactions');
+        emoji == null
+            ? await table.delete().eq('post_id', postId).eq('user_id', _me)
+            : await table.upsert({'post_id': postId, 'user_id': _me, 'emoji': emoji}, onConflict: 'post_id,user_id');
       });
 
   @override

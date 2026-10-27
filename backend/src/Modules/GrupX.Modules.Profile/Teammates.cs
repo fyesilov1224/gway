@@ -26,6 +26,8 @@ internal sealed class Teammates(NpgsqlDataSource db)
     {
         "blocked" => NotFound,
         "teammate_not_looking" => Error.RuleViolation("profile.teammate_not_looking", "Bu kişi şu anda ekip arkadaşı aramıyor."),
+        "teammate_package_required" => Error.RuleViolation(
+            "profile.teammate_package_required", "Ekip arkadaşı isteği göndermek için Ekip Arkadaşı paketi gerekir."),
         "teammate_recently_asked" => Error.RuleViolation(
             "profile.teammate_recently_asked", "Bu kişiye son 24 saatte zaten istek gönderdin. Yarın tekrar deneyebilirsin."),
         "teammate_rate_limited" => Error.RuleViolation(

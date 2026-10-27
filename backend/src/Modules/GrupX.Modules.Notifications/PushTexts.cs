@@ -38,9 +38,13 @@ internal static class PushTexts
         return new PushMessage(Lead(n), Action(n), data);
     }
 
-    /// <summary>The group for group notices, otherwise the person.</summary>
-    private static string Lead(PendingPush n) =>
-        n.Type is "sanction_applied" or "appeal_decided" ? n.GroupName ?? "" : n.ActorUsername;
+    /// <summary>The group for group notices, nobody for a match (who it is needs a package), otherwise the person.</summary>
+    private static string Lead(PendingPush n) => n.Type switch
+    {
+        "sanction_applied" or "appeal_decided" => n.GroupName ?? "",
+        "match_created" => "Yeni bir eşleşmen var!",
+        _ => n.ActorUsername,
+    };
 
     private static string Action(PendingPush n) => n.Type switch
     {
@@ -78,6 +82,8 @@ internal static class PushTexts
         "goal_completed" => $"\"{n.GoalTitle}\" hedefini tamamladın! Rozetin profilinde.",
         "teammate_request" => "seninle ekip arkadaşı olmak istiyor.",
         "teammate_accepted" => "ekip arkadaşlığı isteğini kabul etti.",
+        "match_created" => "Kim olduğunu Eşleşmelerim'de gör.",
+        "match_super_liked" => "seni süper beğendi! Destende ilk o görünüyor.",
         _ => "yeni bir bildirim gönderdi.",
     };
 

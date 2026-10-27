@@ -101,25 +101,63 @@ class BillingRepositoryImpl implements BillingRepository {
 
   @override
   Future<Result<Order>> order(String orderId) => _read(() async {
-        final r = await _client.from('billing_orders').select('id, status, plan_slug, period').eq('id', orderId).single();
+        final r = await _client.from('billing_orders').select('id, status, plan_slug, personal_plan_slug, period').eq('id', orderId).single();
         return Order(
           id: r['id'] as String,
           status: OrderStatus.parse(r['status']),
-          planSlug: r['plan_slug'] as String,
+          planSlug: (r['plan_slug'] ?? r['personal_plan_slug']) as String,
           period: PlanPeriod.parse(r['period']),
         );
       });
 
+  static Market _market(Object? json) {
+    final market = (json! as Map).cast<String, Object?>();
+    return Market(
+      country: market['country']! as String,
+      provider: PaymentProvider.parse(market['provider']),
+      currency: market['currency']! as String,
+    );
+  }
+
+  @override
+  Future<Result<PersonalOffer>> personalOffer(String slug) => _api.get('/billing/me/plans/$slug/offer', decode: (json) {
+        final j = (json! as Map).cast<String, Object?>();
+        return PersonalOffer(
+          market: _market(j['market']),
+          purchasesEnabled: j['purchasesEnabled']! as bool,
+          planSlug: j['planSlug']! as String,
+          planName: j['planName']! as String,
+          activeUntil: j['activeUntil'] is String ? DateTime.parse(j['activeUntil']! as String) : null,
+          salesTermsVersion: j['salesTermsVersion']! as int,
+          options: [
+            for (final o in (j['options']! as List).cast<Map<String, Object?>>())
+              PersonalOption(
+                period: PlanPeriod.parse(o['period']),
+                amountMinor: o['amountMinor']! as int,
+                startsAt: DateTime.parse(o['startsAt']! as String),
+                endsAt: DateTime.parse(o['endsAt']! as String),
+              ),
+          ],
+        );
+      });
+
+  @override
+  Future<Result<Uri>> personalCheckout(String slug, CheckoutRequest request) => _api.post(
+        '/billing/me/plans/$slug/orders',
+        body: {
+          'period': request.period.code,
+          'currency': request.currency,
+          'salesTermsVersion': request.salesTermsVersion,
+          'billing': request.details.toJson(),
+        },
+        decode: (json) => Uri.parse((json! as Map)['paymentUrl']! as String),
+      );
+
   @override
   Future<Result<Offer>> offer(String groupId) => _api.get('/billing/groups/$groupId/offer', decode: (json) {
         final j = (json! as Map).cast<String, Object?>();
-        final market = (j['market']! as Map).cast<String, Object?>();
         return Offer(
-          market: Market(
-            country: market['country']! as String,
-            provider: PaymentProvider.parse(market['provider']),
-            currency: market['currency']! as String,
-          ),
+          market: _market(j['market']),
           purchasesEnabled: j['purchasesEnabled']! as bool,
           currentPlanSlug: j['currentPlanSlug']! as String,
           salesTermsVersion: j['salesTermsVersion']! as int,

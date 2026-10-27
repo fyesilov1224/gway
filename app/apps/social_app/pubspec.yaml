@@ -21,6 +21,7 @@ dependencies:
   groups:
   identity:
   live:
+  matching:
   messaging:
   moderation:
   notifications:

@@ -28,6 +28,21 @@ Future<void> toggleLike(BuildContext context, WidgetRef ref, Post post, {bool on
   }
 }
 
+/// Sets, changes or (tapping the same one) removes the viewer's emoji right away; rolls back if refused.
+Future<void> toggleReaction(BuildContext context, WidgetRef ref, Post post, String emoji) async {
+  final next = post.myReaction == emoji ? null : emoji;
+  final counts = {...post.reactions};
+  if (post.myReaction case final old?) counts.update(old, (n) => n - 1);
+  if (next != null) counts.update(next, (n) => n + 1, ifAbsent: () => 1);
+  counts.removeWhere((_, n) => n <= 0);
+  final edits = ref.read(postEditsProvider.notifier)..put(post.copyWith(reactions: counts, myReaction: () => next));
+  final result = await ref.read(feedRepositoryProvider).setReaction(post.id, next);
+  if (result case Err(:final failure)) {
+    edits.put(post);
+    if (context.mounted) _snack(context, failure.userMessage);
+  }
+}
+
 Future<void> toggleSave(BuildContext context, WidgetRef ref, Post post) async {
   final saved = !post.saved;
   final edits = ref.read(postEditsProvider.notifier)..put(post.copyWith(saved: saved));
@@ -117,6 +132,7 @@ class PostCard extends ConsumerWidget {
                 ),
               ),
             _Actions(post: current, showComments: showAllComments),
+            PostReactions(post: current),
             if (current.caption.isNotEmpty || current.event != null || (current.hideLikeCount && current.canManage))
               Padding(
                 padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
@@ -262,6 +278,59 @@ class _Actions extends ConsumerWidget {
           ],
         ),
       );
+}
+
+/// The emoji reactions under a photo or video: anyone who sees it may leave one; each shows its count.
+class PostReactions extends ConsumerWidget {
+  const PostReactions({super.key, required this.post});
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.xs),
+      child: Row(
+        children: [
+          for (final emoji in postReactionEmojis)
+            Padding(
+              padding: const EdgeInsets.only(right: GxSpacing.xs),
+              child: Semantics(
+                button: true,
+                selected: post.myReaction == emoji,
+                label: '$emoji tepkisi, ${post.reactions[emoji] ?? 0}',
+                child: InkWell(
+                  onTap: () => toggleReaction(context, ref, post, emoji),
+                  borderRadius: GxRadius.xlAll,
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget - GxSpacing.xs, minWidth: GxSpacing.minTouchTarget),
+                    padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: post.myReaction == emoji ? GxColors.primarySoft : GxColors.surface,
+                      borderRadius: GxRadius.xlAll,
+                      border: Border.all(color: post.myReaction == emoji ? GxColors.primary : GxColors.border),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ExcludeSemantics(child: Text(emoji, style: textTheme.titleMedium)),
+                        if ((post.reactions[emoji] ?? 0) > 0) ...[
+                          const SizedBox(width: GxSpacing.xxs),
+                          ExcludeSemantics(child: Text(formatCount(post.reactions[emoji]!), style: textTheme.labelLarge)),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 /// An icon with its count; no number when it is zero or hidden.

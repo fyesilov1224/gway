@@ -6,6 +6,7 @@
     <ProjectReference Include="..\GrupX.Modules.Groups.Contracts\GrupX.Modules.Groups.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Identity.Contracts\GrupX.Modules.Identity.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Live.Contracts\GrupX.Modules.Live.Contracts.csproj" />
+    <ProjectReference Include="..\GrupX.Modules.Matching.Contracts\GrupX.Modules.Matching.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Messaging.Contracts\GrupX.Modules.Messaging.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Moderation.Contracts\GrupX.Modules.Moderation.Contracts.csproj" />
     <ProjectReference Include="..\GrupX.Modules.Notifications.Contracts\GrupX.Modules.Notifications.Contracts.csproj" />

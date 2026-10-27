@@ -17,6 +17,8 @@
     <Project Path="src/Modules/GrupX.Modules.Identity.Contracts/GrupX.Modules.Identity.Contracts.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Live/GrupX.Modules.Live.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Live.Contracts/GrupX.Modules.Live.Contracts.csproj" />
+    <Project Path="src/Modules/GrupX.Modules.Matching/GrupX.Modules.Matching.csproj" />
+    <Project Path="src/Modules/GrupX.Modules.Matching.Contracts/GrupX.Modules.Matching.Contracts.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Messaging/GrupX.Modules.Messaging.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Messaging.Contracts/GrupX.Modules.Messaging.Contracts.csproj" />
     <Project Path="src/Modules/GrupX.Modules.Moderation/GrupX.Modules.Moderation.csproj" />

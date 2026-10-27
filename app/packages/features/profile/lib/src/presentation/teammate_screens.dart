@@ -35,6 +35,13 @@ Future<void> sendTeammateRequest(BuildContext context, WidgetRef ref, PersonSumm
   if (message == null || !context.mounted) return;
   final result = await ref.read(teammatesRepositoryProvider).request(person.id, message: message);
   if (!context.mounted) return;
+  if (result case Err(failure: RuleFailure(code: 'profile.teammate_package_required') && final failure)) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(failure.userMessage),
+      action: SnackBarAction(label: 'Paketi incele', onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates')),
+    ));
+    return;
+  }
   _snack(context, switch (result) {
     Ok(value: TeammateRelation.teammates) => '${person.displayName} ile artık ekip arkadaşısınız.',
     Ok() => 'İstek gönderildi. ${person.displayName} kabul edince haber vereceğiz.',
@@ -85,7 +92,9 @@ class TeammatesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final incoming = ref.watch(myTeammatesProvider).value?.incoming.length ?? 0;
+    final mine = ref.watch(myTeammatesProvider).value;
+    if (mine?.locked ?? false) return _Locked(waiting: mine!.waiting);
+    final incoming = mine?.incoming.length ?? 0;
     // Rebuilt once the requests arrive, so pending requests open first.
     return DefaultTabController(
       key: ValueKey(incoming > 0),
@@ -108,6 +117,61 @@ class TeammatesScreen extends ConsumerWidget {
           ]),
         ),
         body: const GxReadingColumn(child: TabBarView(children: [_Suggestions(), _Requests(), _Teammates()])),
+      ),
+    );
+  }
+}
+
+/// The section without the Ekip Arkadaşı package: what it opens and how many requests wait.
+class _Locked extends ConsumerWidget {
+  const _Locked({required this.waiting});
+
+  final int waiting;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ekip arkadaşı bul')),
+      body: GxReadingColumn(
+        maxWidth: GxLayout.formMaxWidth,
+        child: ListView(
+          padding: const EdgeInsets.all(GxSpacing.page),
+          children: [
+            GxCard(
+              padding: const EdgeInsets.all(GxSpacing.lg),
+              child: Column(
+                children: [
+                  const Icon(Icons.groups_2_outlined, size: GxSpacing.xxl, color: GxColors.primary),
+                  const SizedBox(height: GxSpacing.sm),
+                  Text(
+                    waiting == 0 ? 'Ekip arkadaşını bul' : '$waiting kişi seninle ekip arkadaşı olmak istiyor',
+                    textAlign: TextAlign.center,
+                    style: textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: GxSpacing.xs),
+                  Text(
+                    'Önerileri görmek, istek gönderip kabul etmek ve ekip arkadaşlarınla yazışmak Ekip Arkadaşı paketiyle açılır.',
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  ),
+                  const SizedBox(height: GxSpacing.md),
+                  GxButton(
+                    label: 'Paketi incele',
+                    icon: Icons.workspace_premium_outlined,
+                    onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates'),
+                  ),
+                  const SizedBox(height: GxSpacing.xs),
+                  GxButton(
+                    label: 'Ekip arkadaşı tercihlerim',
+                    variant: GxButtonVariant.text,
+                    onPressed: () => context.push(ProfileRoutes.teammateSettings),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -381,8 +445,28 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
   late TeammateLevel? _level = widget.initial.level;
   late final Set<TeammateSlot> _slots = {...widget.initial.availability};
   late int? _province = widget.initial.province;
-  late final _note = TextEditingController(text: widget.initial.note);
+  late final _note = TextEditingController(text: widget.initial.note)..addListener(() => setState(() {}));
+  late final Set<String> _activities = {...widget.initial.activities};
+  late final Set<TeammateGoal> _goals = {...widget.initial.goals};
+  late TeammateFrequency? _frequency = widget.initial.frequency;
+  late final Set<TeammateGroupSize> _sizes = {...widget.initial.groupSizes};
+  late bool _vehicle = widget.initial.hasVehicle;
+  late bool _equipment = widget.initial.hasEquipment;
   bool _saving = false;
+
+  TeammatePreferences get _draft => TeammatePreferences(
+        looking: _looking,
+        level: _level,
+        availability: _slots,
+        province: _province,
+        note: _note.text,
+        activities: _activities,
+        goals: _goals,
+        frequency: _frequency,
+        groupSizes: _sizes,
+        hasVehicle: _vehicle,
+        hasEquipment: _equipment,
+      );
 
   @override
   void dispose() {
@@ -392,13 +476,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
 
   Future<void> _save() async {
     setState(() => _saving = true);
-    final result = await ref.read(teammatesRepositoryProvider).savePreferences(TeammatePreferences(
-          looking: _looking,
-          level: _level,
-          availability: _slots,
-          province: _province,
-          note: _note.text,
-        ));
+    final result = await ref.read(teammatesRepositoryProvider).savePreferences(_draft);
     if (!mounted) return;
     setState(() => _saving = false);
     switch (result) {
@@ -411,76 +489,416 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
     }
   }
 
+  void _toggle<T>(Set<T> set, T value, bool on) => setState(() => on ? set.add(value) : set.remove(value));
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    Widget label(String text, [String? help]) => Padding(
-          padding: const EdgeInsets.only(top: GxSpacing.lg, bottom: GxSpacing.xs),
+    final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final answered = _draft.answered;
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(GxSpacing.page),
+            children: [
+              _VisibilityCard(looking: _looking, onChanged: (v) => setState(() => _looking = v)),
+              const SizedBox(height: GxSpacing.md),
+              _Completeness(answered: answered),
+              _Section(
+                icon: Icons.sports_handball_outlined,
+                title: 'Ne yapmak istiyorsun?',
+                help: 'Ekip arkadaşı aradığın aktiviteler. En fazla ${TeammatePreferences.maxActivities} tane.',
+                trailing: '${_activities.length}/${TeammatePreferences.maxActivities}',
+                child: Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final c in categories)
+                      FilterChip(
+                        avatar: Icon(categoryIcon(c.slug), size: GxSpacing.md + GxSpacing.xxs),
+                        label: Text(c.name),
+                        selected: _activities.contains(c.slug),
+                        onSelected: _activities.contains(c.slug) || _activities.length < TeammatePreferences.maxActivities
+                            ? (on) => _toggle(_activities, c.slug, on)
+                            : null,
+                      ),
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.trending_up_rounded,
+                title: 'Seviyen',
+                child: Row(
+                  children: [
+                    for (final (i, l) in TeammateLevel.values.indexed) ...[
+                      if (i > 0) const SizedBox(width: GxSpacing.xs),
+                      Expanded(
+                        child: _OptionTile(
+                          title: l.label,
+                          subtitle: l.hint,
+                          selected: _level == l,
+                          onTap: () => setState(() => _level = _level == l ? null : l),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.flag_outlined,
+                title: 'Hedeflerin',
+                help: 'Birden fazla seçebilirsin.',
+                child: Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final g in TeammateGoal.values)
+                      FilterChip(label: Text(g.label), selected: _goals.contains(g), onSelected: (on) => _toggle(_goals, g, on)),
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.repeat_rounded,
+                title: 'Ne sıklıkla buluşmak istersin?',
+                child: Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final f in TeammateFrequency.values)
+                      ChoiceChip(
+                        label: Text(f.label),
+                        selected: _frequency == f,
+                        onSelected: (on) => setState(() => _frequency = on ? f : null),
+                      ),
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.event_available_outlined,
+                title: 'Ne zaman uygunsun?',
+                help: 'Uygun olduğun zamanlara dokun.',
+                child: _AvailabilityGrid(selected: _slots, onToggle: (s) => _toggle(_slots, s, !_slots.contains(s))),
+              ),
+              _Section(
+                icon: Icons.groups_2_outlined,
+                title: 'Nasıl bir ekip istersin?',
+                child: Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final s in TeammateGroupSize.values)
+                      FilterChip(label: Text(s.label), selected: _sizes.contains(s), onSelected: (on) => _toggle(_sizes, s, on)),
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.location_on_outlined,
+                title: 'Hangi ildesin?',
+                help: 'Yalnızca eşleştirme için kullanılır, profilinde görünmez.',
+                child: DropdownButtonFormField<int?>(
+                  initialValue: _province,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'İl', prefixIcon: Icon(Icons.lock_outline_rounded)),
+                  items: [
+                    const DropdownMenuItem<int?>(child: Text('Belirtmek istemiyorum')),
+                    for (var i = 0; i < turkishProvinces.length; i++)
+                      DropdownMenuItem<int?>(value: i + 1, child: Text(turkishProvinces[i])),
+                  ],
+                  onChanged: (v) => setState(() => _province = v),
+                ),
+              ),
+              _Section(
+                icon: Icons.backpack_outlined,
+                title: 'Ek bilgiler',
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: const Icon(Icons.directions_car_outlined),
+                      title: const Text('Aracım var'),
+                      subtitle: const Text('Ulaşımda yol arkadaşlığı yapabilirim.'),
+                      value: _vehicle,
+                      onChanged: (v) => setState(() => _vehicle = v),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: const Icon(Icons.handyman_outlined),
+                      title: const Text('Kendi ekipmanım var'),
+                      subtitle: const Text('Bisiklet, çadır, raket gibi malzemem hazır.'),
+                      value: _equipment,
+                      onChanged: (v) => setState(() => _equipment = v),
+                    ),
+                  ],
+                ),
+              ),
+              _Section(
+                icon: Icons.edit_note_rounded,
+                title: 'Kendini anlat',
+                help: 'Önerilerde adının altında görünür.',
+                child: TextField(
+                  controller: _note,
+                  maxLength: TeammatePreferences.noteMaxLength,
+                  minLines: 2,
+                  maxLines: 3,
+                  decoration: const InputDecoration(hintText: 'Hafta sonu sabah yürüyüşü için arkadaş arıyorum.'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        DecoratedBox(
+          decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, GxSpacing.sm),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _looking ? 'Önerilerde görüneceksin.' : 'Şu an önerilerde görünmüyorsun.',
+                      style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                    ),
+                  ),
+                  const SizedBox(width: GxSpacing.sm),
+                  GxButton(label: 'Kaydet', icon: Icons.check_rounded, isLoading: _saving, onPressed: _saving ? null : _save),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// "Ekip arıyorum": whether the person shows in suggestions.
+class _VisibilityCard extends StatelessWidget {
+  const _VisibilityCard({required this.looking, required this.onChanged});
+
+  final bool looking;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(GxSpacing.md),
+      decoration: BoxDecoration(
+        color: looking ? GxColors.primarySoft : GxColors.background,
+        borderRadius: GxRadius.lgAll,
+        border: Border.all(color: looking ? GxColors.primary : GxColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: GxSpacing.xxl,
+            height: GxSpacing.xxl,
+            decoration: BoxDecoration(color: looking ? GxColors.primary : GxColors.surfaceMuted, shape: BoxShape.circle),
+            child: Icon(Icons.person_search_outlined, color: looking ? GxColors.onPrimary : GxColors.textSecondary),
+          ),
+          const SizedBox(width: GxSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ekip arıyorum', style: textTheme.titleMedium),
+                Text(
+                  looking
+                      ? 'Önerilerde görünürsün; sana ekip arkadaşlığı isteği gönderilebilir.'
+                      : 'Açarsan seninle aynı şeyleri sevenler seni bulur. Gizli hesaplar önerilerde görünmez.',
+                  style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          Switch(value: looking, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// How much of the preferences is filled in.
+class _Completeness extends StatelessWidget {
+  const _Completeness({required this.answered});
+
+  final int answered;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final ratio = answered / TeammatePreferences.sections;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text('Tercihlerin %${(ratio * 100).round()} tamam', style: textTheme.labelLarge)),
+            Text('$answered/${TeammatePreferences.sections}', style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+          ],
+        ),
+        const SizedBox(height: GxSpacing.xs),
+        ClipRRect(
+          borderRadius: GxRadius.smAll,
+          child: LinearProgressIndicator(value: ratio, minHeight: GxSpacing.xs, backgroundColor: GxColors.surfaceMuted),
+        ),
+        const SizedBox(height: GxSpacing.xxs),
+        Text(
+          'Ne kadar çok doldurursan önerilerin o kadar isabetli olur.',
+          style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+/// One titled card of the preferences.
+class _Section extends StatelessWidget {
+  const _Section({required this.icon, required this.title, required this.child, this.help, this.trailing});
+
+  final IconData icon;
+  final String title;
+  final String? help;
+  final String? trailing;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: GxSpacing.md),
+      child: GxCard(
+        padding: const EdgeInsets.all(GxSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: GxColors.primary, size: GxSpacing.lg - GxSpacing.xxs),
+                const SizedBox(width: GxSpacing.xs),
+                Expanded(child: Text(title, style: textTheme.titleSmall)),
+                if (trailing != null) Text(trailing!, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+              ],
+            ),
+            if (help != null)
+              Padding(
+                padding: const EdgeInsets.only(top: GxSpacing.xxs),
+                child: Text(help!, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              ),
+            const SizedBox(height: GxSpacing.sm),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A selectable card with a title and a short description.
+class _OptionTile extends StatelessWidget {
+  const _OptionTile({required this.title, required this.subtitle, required this.selected, required this.onTap});
+
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: GxRadius.mdAll,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: GxSpacing.xxl + GxSpacing.md),
+          padding: const EdgeInsets.all(GxSpacing.sm),
+          decoration: BoxDecoration(
+            color: selected ? GxColors.primarySoft : GxColors.surface,
+            borderRadius: GxRadius.mdAll,
+            border: Border.all(color: selected ? GxColors.primary : GxColors.border),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(text, style: textTheme.titleSmall),
-              if (help != null) Text(help, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              Text(title, style: textTheme.titleSmall?.copyWith(color: selected ? GxColors.primary : null)),
+              Text(subtitle, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Weekday and weekend by morning, noon and evening; a tap toggles a slot.
+class _AvailabilityGrid extends StatelessWidget {
+  const _AvailabilityGrid({required this.selected, required this.onToggle});
+
+  final Set<TeammateSlot> selected;
+  final ValueChanged<TeammateSlot> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final parts = [for (final s in TeammateSlot.values) if (!s.weekend) s.part];
+    Widget row(String label, bool weekend) => Padding(
+          padding: const EdgeInsets.only(top: GxSpacing.xs),
+          child: Row(
+            children: [
+              SizedBox(width: GxSpacing.xxl + GxSpacing.lg, child: Text(label, style: textTheme.labelLarge)),
+              for (final slot in TeammateSlot.values.where((s) => s.weekend == weekend))
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: GxSpacing.xs),
+                    child: Semantics(
+                      button: true,
+                      selected: selected.contains(slot),
+                      label: slot.label,
+                      child: InkWell(
+                        onTap: () => onToggle(slot),
+                        borderRadius: GxRadius.mdAll,
+                        child: Container(
+                          height: GxSpacing.minTouchTarget,
+                          decoration: BoxDecoration(
+                            color: selected.contains(slot) ? GxColors.primary : GxColors.surface,
+                            borderRadius: GxRadius.mdAll,
+                            border: Border.all(color: selected.contains(slot) ? GxColors.primary : GxColors.border),
+                          ),
+                          child: Icon(
+                            selected.contains(slot) ? Icons.check_rounded : Icons.add_rounded,
+                            color: selected.contains(slot) ? GxColors.onPrimary : GxColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
-    return ListView(
-      padding: const EdgeInsets.all(GxSpacing.md),
+    return Column(
       children: [
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('Ekip arıyorum'),
-          subtitle: const Text('Açıkken önerilerde görünürsün ve sana ekip arkadaşlığı isteği gönderilebilir. '
-              'Gizli hesaplar önerilerde görünmez.'),
-          value: _looking,
-          onChanged: (v) => setState(() => _looking = v),
-        ),
-        label('Seviyen'),
-        Wrap(
-          spacing: GxSpacing.xs,
+        Row(
           children: [
-            for (final l in TeammateLevel.values)
-              ChoiceChip(
-                label: Text(l.label),
-                selected: _level == l,
-                onSelected: (selected) => setState(() => _level = selected ? l : null),
+            const SizedBox(width: GxSpacing.xxl + GxSpacing.lg),
+            for (final p in parts)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: GxSpacing.xs),
+                  child: Text(p, textAlign: TextAlign.center, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                ),
               ),
           ],
         ),
-        label('Ne zaman uygunsun?'),
-        Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
-          children: [
-            for (final s in TeammateSlot.values)
-              FilterChip(
-                label: Text(s.label),
-                selected: _slots.contains(s),
-                onSelected: (selected) => setState(() => selected ? _slots.add(s) : _slots.remove(s)),
-              ),
-          ],
-        ),
-        label('İlin', 'Yalnızca eşleştirme için kullanılır, profilinde görünmez.'),
-        DropdownButtonFormField<int?>(
-          initialValue: _province,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: 'İl'),
-          items: [
-            const DropdownMenuItem<int?>(child: Text('Belirtmek istemiyorum')),
-            for (var i = 0; i < turkishProvinces.length; i++)
-              DropdownMenuItem<int?>(value: i + 1, child: Text(turkishProvinces[i])),
-          ],
-          onChanged: (v) => setState(() => _province = v),
-        ),
-        label('Kısa not'),
-        TextField(
-          controller: _note,
-          maxLength: TeammatePreferences.noteMaxLength,
-          maxLines: 2,
-          decoration: const InputDecoration(hintText: 'Hafta sonu sabah yürüyüşü için arkadaş arıyorum.'),
-        ),
-        const SizedBox(height: GxSpacing.md),
-        GxButton(label: 'Kaydet', expand: true, isLoading: _saving, onPressed: _saving ? null : _save),
+        row('Hafta içi', false),
+        row('Hafta sonu', true),
       ],
     );
   }

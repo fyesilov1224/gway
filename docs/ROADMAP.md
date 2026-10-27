@@ -258,25 +258,33 @@ Karar (2026-10-22): arayüz X ve Instagram kalıbından çıkarılır, **toplulu
 - [x] Admin paneli: yeni tema ve giriş kartı; ek ekran gerekmedi
 - [x] Doğrulama (2026-10-22): `flutter analyze` temiz, tüm Flutter testleri geçiyor, telefon (420) ve geniş (1440) ekran görüntüleriyle kontrol
 
-## Faz 15.6 — Eşleşme (kullanıcı isteği, onay bekliyor)
+## Faz 15.6 — Eşleşme (kullanıcı isteği, onaylandı 2026-10-26)
 
 Kararlar (2026-10-26): ortak gruplardan havuz, kart kaydırma, Arkadaş ve Sevgili modları, freemium, web ödemesi. Kurallar: `docs/ARCHITECTURE.md` §3g.
 
 ### 15.6a — Eşleşme çekirdeği
-- [ ] Eşleşme profili: 18 yaş kontrolü, açık rıza, modlar, fotoğraflar (2–6), cinsiyet ve tercih (Sevgili), il, hakkımda, ilgi alanları, duraklatma, tüm verileri silme
-- [ ] Havuz ve deste (ortak gruplar, iki yönlü tercih uyumu, engel), kart kaydırma arayüzü
-- [ ] Beğen / geç (C#, günlük sınır), karşılıklı beğenide eşleşme, eşleşme ekranı, doğrudan sohbet
-- [ ] Eşleşmeler listesi, eşleşmeyi bitirme, şikayet ve engelleme
-- [ ] Bildirimler: `match_created`, `match_liked` (push dahil), tercih
-- [ ] Admin: eşleşme sayfası, şikayet incelemesi, fotoğraf kaldırma, profili kapatma
-- [ ] pgTAP, C# ve Flutter testleri
+- [x] Eşleşme profili: 18 yaş kontrolü, açık rıza, modlar, fotoğraflar (2–6), cinsiyet ve tercih (Sevgili), il, hakkımda, ilgi alanları, duraklatma, tüm verileri silme
+- [x] Havuz ve deste (ortak gruplar, iki yönlü tercih uyumu, engel), kart kaydırma arayüzü
+- [x] Beğen / geç (C#, günlük sınır), karşılıklı beğenide eşleşme, eşleşme ekranı, doğrudan sohbet
+- [x] Eşleşmeler listesi, eşleşmeyi bitirme, şikayet ve engelleme
+- [x] Bildirimler: `match_created` (push dahil), tercih; `match_liked` 15.6b'ye kaldı (Premium'a bağlı)
+- [x] Admin: eşleşme sayfası, şikayet incelemesi, fotoğraf kaldırma, profili kapatma, günlük beğeni sınırı
+- [x] pgTAP (27), C# (4) ve Flutter (eşleşme 6, admin 2) testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-26)
 
 ### 15.6b — Premium
-- [ ] Billing: kişisel ürün (`matching_premium`), aylık / yıllık, PayTR ve iyzico ile web'den satın alma
-- [ ] Sınırsız beğeni, beni kimler beğendi, gelişmiş filtreler, geri al, öne çık
-- [ ] Mobilde durum ve web'e yönlendirme
-- [ ] Admin: fiyatlar, ücretsiz beğeni sınırı, Premium aboneler ve gelir
-- [ ] Testler
+- [x] Billing: kişisel ürün (`matching_premium`), aylık / yıllık, PayTR ve iyzico ile web'den satın alma, kalan sürenin ardına ekleme
+- [x] Sınırsız beğeni, beni kimler beğendi, gelişmiş filtreler, geri al, öne çık; süper beğeni (ücretsiz 1, Premium 5) ve `match_super_liked` bildirimi (kullanıcı isteği: Tinder tarzı)
+- [x] Tinder tarzı deste: tam ekran fotoğraflı kart, sağa / sola / yukarı kaydırma, damgalar, uçarak çıkma, alt aksiyon çubuğu, profil ayrıntısı
+- [x] Mobilde durum ve fiyatlar, satın alma web'de
+- [x] Admin: günlük haklar, Premium fiyatları ve satış durumu, Premium üyeler ve gelir, Premium tanımlama, kişisel siparişler
+- [x] pgTAP (27), C# (3 yeni), Flutter (eşleşme 10, billing 2 yeni, admin) testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-26)
+- [x] Kullanıcı kararı (2026-10-26): tek Premium yerine özellik başına ayrı paketler (Eşleşmelerim, Eşleşme Sohbeti, Seni Beğenenler, Sınırsız Beğeni, Süper Beğeni, Öne Çık, Hepsi Bir Arada). Ücretsiz kullanıcı kiminle eşleştiğini göremez, eşleşmesine yazamaz (SQL'de korunur); pgTAP 28_matching_packages (16), C# sohbet kilidi testi, Flutter kilitli eşleşme testleri
+- [x] Kullanıcı kararı (2026-10-26): birebir mesaj yalnızca eşleşenler (Eşleşme Sohbeti paketiyle) ve ekip arkadaşları arasında; takip mesaj hakkı vermez, yabancıya istek gönderilemez, eski sohbetler okunur ama yazılamaz; eşleşme bitince karşılıklı takip kalkar (migration 0031, `public.can_message`). pgTAP 24 ve 28, C# ve Flutter mesajlaşma testleri güncellendi
+- [x] Kullanıcı kararı (2026-10-26): Ekip Arkadaşı paketi (49 ₺ / ay, Hepsi Bir Arada'ya dahil): ekip arkadaşı isteği göndermek ve ekip arkadaşına yazmak paket ister; listeyi görmek ve gelen isteği kabul etmek ücretsiz (migration 0032). Eşleşme ekranı üst çubuğu telefonda taşmayacak şekilde sadeleştirildi
+- [x] Kullanıcı kararı (2026-10-27): iki modda eşleşen kişi tek kayıtta "Arkadaş · Sevgili" olarak görünür; kişi hangisinin kalacağını seçer (migration 0033)
+- [x] Kullanıcı kararı (2026-10-27): kişisel fotoğraf ve videolara yalnızca sahibi, eşleşenleri ve ekip arkadaşları yorum yazar; diğerleri emoji tepkisi bırakır (😍 😂 😮 👏 🔥 🙏, `post_reactions`); grup paylaşımları açık kalır (migration 0034, pgTAP 29_post_reactions)
+- [x] Kullanıcı kararı (2026-10-27): ekip arkadaşı bölümüne giriş paketle (öneriler, istekler, kabul); paketsiz kişi bekleyen istek sayısını görür. Platform yöneticisi tüm paketlere paketsiz sahiptir (migration 0035)
+- [x] Kullanıcı isteği (2026-10-27): ekip arkadaşı tercihleri yeni tasarım ve yeni seçenekler (aktiviteler, hedefler, sıklık, 6 zaman dilimi, ekip büyüklüğü, araç, ekipman); öneri puanı ve gerekçeleri bunları da kullanır (migration 0036)
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 

@@ -44,6 +44,18 @@ public static class BillingModule
             (await checkout.CreateOrderAsync(user.GetUserId(), id, body, geo.MarketOf(http), http.Connection.RemoteIpAddress, ct)).ToHttpResult())
             .RequireRateLimiting(RateLimitPolicies.Sensitive);
 
+        // Personal plans (Eşleşme Premium): the buyer is the signed-in person.
+        billing.MapGet("/me/plans/{slug}/offer", async (
+                string slug, HttpContext http, ClaimsPrincipal user, CheckoutService checkout, CountryResolver geo, CancellationToken ct) =>
+            (await checkout.GetPersonalOfferAsync(user.GetUserId(), slug, geo.MarketOf(http), ct)).ToHttpResult());
+
+        billing.MapPost("/me/plans/{slug}/orders", async (
+                string slug, CreatePersonalOrderRequest body, HttpContext http, ClaimsPrincipal user,
+                CheckoutService checkout, CountryResolver geo, CancellationToken ct) =>
+            (await checkout.CreatePersonalOrderAsync(user.GetUserId(), slug, body, geo.MarketOf(http), http.Connection.RemoteIpAddress, ct))
+                .ToHttpResult())
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
+
         // PayTR retries until it reads a plain "OK".
         billing.MapPost("/paytr/notify", async (HttpRequest request, PaymentService payments, CancellationToken ct) =>
                 request.HasFormContentType && await payments.HandlePaytrAsync(await request.ReadFormAsync(ct), ct)
@@ -58,9 +70,12 @@ public static class BillingModule
             {
                 var token = request.HasFormContentType ? (await request.ReadFormAsync(ct))["token"].ToString() : "";
                 var settled = token.Length > 0 ? await payments.HandleIyzicoAsync(order, token, ct) : null;
-                var target = settled is null
-                    ? new Uri(options.Value.AppUrl.TrimEnd('/') + "/")
-                    : BillingLinks.Plan(options.Value, settled.GroupHandle, settled.Id);
+                var target = settled switch
+                {
+                    { PersonalPlan: { } personal } => BillingLinks.Personal(options.Value, personal, settled.Id),
+                    { GroupHandle: { } handle } => BillingLinks.Plan(options.Value, handle, settled.Id),
+                    _ => new Uri(options.Value.AppUrl.TrimEnd('/') + "/"),
+                };
                 request.HttpContext.Response.Headers.Location = target.ToString();
                 return Results.StatusCode(StatusCodes.Status303SeeOther);
             })

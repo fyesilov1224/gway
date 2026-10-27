@@ -123,6 +123,162 @@ internal sealed class BillingAdministration(NpgsqlDataSource db, TimeProvider ti
         }, ct);
         return result.IsSuccess ? Result.Success() : result.Error;
     }
+
+    public async Task<PersonalPlanSummary> PersonalPlanAsync(string slug, CancellationToken ct)
+    {
+        await using var conn = await db.OpenConnectionAsync(ct);
+        string name;
+        bool active;
+        int members, granted;
+        await using (var cmd = new NpgsqlCommand(
+            """
+            select p.name, p.is_active,
+                   (select count(distinct s.user_id)::int from public.user_subscriptions s
+                    where s.plan_slug = p.slug and now() >= s.starts_at and now() < s.ends_at),
+                   (select count(distinct s.user_id)::int from public.user_subscriptions s
+                    where s.plan_slug = p.slug and s.order_id is null and now() >= s.starts_at and now() < s.ends_at)
+            from public.personal_plans p where p.slug = @slug
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("slug", slug);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            if (!await r.ReadAsync(ct)) throw new InvalidOperationException($"Personal plan {slug} is missing.");
+            (name, active, members, granted) = (r.GetString(0), r.GetBoolean(1), r.GetInt32(2), r.GetInt32(3));
+        }
+
+        var prices = new List<PlanPriceUpdate>();
+        await using (var cmd = new NpgsqlCommand(
+            "select currency, period, amount_minor from public.personal_plan_prices where plan_slug = @slug order by currency desc, period", conn))
+        {
+            cmd.Parameters.AddWithValue("slug", slug);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) prices.Add(new PlanPriceUpdate(r.GetString(0), r.GetString(1), r.GetInt32(2)));
+        }
+
+        var revenue = new List<PersonalRevenue>();
+        await using (var cmd = new NpgsqlCommand(
+            """
+            select currency, sum(amount_minor)::bigint, count(*)::int from public.billing_orders
+            where personal_plan_slug = @slug and status = 'paid' and paid_at > now() - interval '30 days'
+            group by currency order by currency desc
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("slug", slug);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) revenue.Add(new PersonalRevenue(r.GetString(0), r.GetInt64(1), r.GetInt32(2)));
+        }
+
+        return new PersonalPlanSummary(slug, name, active, prices, members, granted, revenue);
+    }
+
+    public async Task<Result> UpdatePersonalPlanAsync(Guid actorId, string slug, PersonalPlanUpdate update, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(update);
+        var name = update.Name?.Trim() ?? "";
+        if (name.Length is < 2 or > 40) return Error.Validation("billing.invalid_plan", "Ürün adı 2–40 karakter olmalı.");
+        var prices = update.Prices ?? [];
+        var expected = (from c in new[] { Currencies.Try, Currencies.Usd } from p in Periods.All select (c, p)).ToHashSet();
+        if (prices.Count != expected.Count || !prices.Select(p => (p.Currency, p.Period)).ToHashSet().SetEquals(expected)
+            || prices.Any(p => p.AmountMinor is < 1 or > 100_000_000))
+            return Error.Validation("billing.invalid_prices", "Her para birimi ve dönem için bir fiyat gir.");
+
+        var result = await BillingStore.RunAsync<bool>(db, async (conn, tx) =>
+        {
+            await ActingUser.SetAsync(conn, tx, actorId, ct);
+            await using (var cmd = new NpgsqlCommand(
+                "update public.personal_plans set name = @name, is_active = @active where slug = @slug", conn, tx))
+            {
+                cmd.Parameters.AddWithValue("slug", slug);
+                cmd.Parameters.AddWithValue("name", name);
+                cmd.Parameters.AddWithValue("active", update.IsActive);
+                if (await cmd.ExecuteNonQueryAsync(ct) == 0) return PlanNotFound;
+            }
+            foreach (var price in prices)
+            {
+                await using var cmd = new NpgsqlCommand(
+                    "update public.personal_plan_prices set amount_minor = @amount where plan_slug = @slug and currency = @currency and period = @period",
+                    conn, tx);
+                cmd.Parameters.AddWithValue("slug", slug);
+                cmd.Parameters.AddWithValue("currency", price.Currency);
+                cmd.Parameters.AddWithValue("period", price.Period);
+                cmd.Parameters.AddWithValue("amount", price.AmountMinor);
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "personal_plan.updated", "personal_plan", slug,
+                new { name, isActive = update.IsActive, prices }), ct);
+            return true;
+        }, ct);
+        return result.IsSuccess ? Result.Success() : result.Error;
+    }
+
+    public async Task<Result> GrantPersonalPlanAsync(Guid actorId, string username, string slug, int days, string reason, CancellationToken ct)
+    {
+        reason = reason?.Trim() ?? "";
+        if (reason.Length is < 3 or > 500) return Error.Validation("billing.invalid_reason", "Gerekçe 3–500 karakter olmalı.");
+        if (days is < 1 or > 365) return Error.Validation("billing.invalid_days", "Süre 1–365 gün olmalı.");
+        var handle = (username ?? "").Trim().TrimStart('@').ToLowerInvariant();
+
+        var result = await BillingStore.RunAsync<bool>(db, async (conn, tx) =>
+        {
+            await ActingUser.SetAsync(conn, tx, actorId, ct);
+            Guid userId;
+            await using (var find = new NpgsqlCommand("select id from public.profiles where username = @username", conn, tx))
+            {
+                find.Parameters.AddWithValue("username", handle);
+                if (await find.ExecuteScalarAsync(ct) is not Guid id) return Error.NotFound("billing.user_not_found", "Bu kullanıcı adıyla biri bulunamadı.");
+                userId = id;
+            }
+
+            var slice = await PersonalTimeline.AppendAsync(conn, tx, userId, slug, time.GetUtcNow(), s => s.AddDays(days), ct);
+            await using (var insert = new NpgsqlCommand(
+                """
+                insert into public.user_subscriptions (user_id, plan_slug, granted_by, grant_reason, starts_at, ends_at)
+                values (@user, @slug, @actor, @reason, @starts, @ends)
+                returning id
+                """, conn, tx))
+            {
+                insert.Parameters.AddWithValue("user", userId);
+                insert.Parameters.AddWithValue("slug", slug);
+                insert.Parameters.AddWithValue("actor", actorId);
+                insert.Parameters.AddWithValue("reason", reason);
+                insert.Parameters.AddWithValue("starts", slice.StartsAt);
+                insert.Parameters.AddWithValue("ends", slice.EndsAt);
+                var id = (Guid)(await insert.ExecuteScalarAsync(ct))!;
+                await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "personal_plan.granted", "user_subscription",
+                    id.ToString(), new { userId, plan = slug, days, reason, startsAt = slice.StartsAt, endsAt = slice.EndsAt }), ct);
+            }
+            return true;
+        }, ct);
+        return result.IsSuccess ? Result.Success() : result.Error;
+    }
+}
+
+/// <summary>Where a person's next slice of a personal plan goes: right after the time they already have.</summary>
+internal static class PersonalTimeline
+{
+    public static async Task<(DateTimeOffset StartsAt, DateTimeOffset EndsAt)> AppendAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, string slug, DateTimeOffset now,
+        Func<DateTimeOffset, DateTimeOffset> length, CancellationToken ct)
+    {
+        // One change per person and plan at a time.
+        await using (var lockUser = new NpgsqlCommand("select pg_advisory_xact_lock(hashtextextended(@key, 11))", conn, tx))
+        {
+            lockUser.Parameters.AddWithValue("key", $"{userId}:{slug}");
+            await lockUser.ExecuteNonQueryAsync(ct);
+        }
+        var until = await UntilAsync(conn, tx, userId, slug, ct);
+        var starts = until is { } u && u > now ? u : now;
+        return (starts, length(starts));
+    }
+
+    /// <summary>The end of the time the person has paid or been given, if any is left.</summary>
+    public static async Task<DateTimeOffset?> UntilAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, string slug, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand("select private.personal_plan_until(@user, @slug)", conn, tx);
+        cmd.Parameters.AddWithValue("user", userId);
+        cmd.Parameters.AddWithValue("slug", slug);
+        return await cmd.ExecuteScalarAsync(ct) is DateTime d ? new DateTimeOffset(DateTime.SpecifyKind(d, DateTimeKind.Utc)) : null;
+    }
 }
 
 /// <summary><see cref="IGroupPlanLimits"/> over <c>private.group_plan_limits</c>.</summary>

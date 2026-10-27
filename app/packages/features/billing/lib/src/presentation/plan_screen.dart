@@ -63,7 +63,7 @@ class PlanScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (orderId != null && canManage) ...[
-                      _OrderStatus(orderId: orderId!, groupId: groupId),
+                      OrderResult(orderId: orderId!, paidText: 'Ödeme alındı. Paketin etkin.', onPaid: () => refreshGroupPlan(ref, groupId)),
                       const SizedBox(height: GxSpacing.md),
                     ],
                     switch (plan) {
@@ -368,17 +368,20 @@ class _PlanCard extends StatelessWidget {
 }
 
 /// Waits for the provider's verified notification after the buyer returns.
-class _OrderStatus extends ConsumerStatefulWidget {
-  const _OrderStatus({required this.orderId, required this.groupId});
+class OrderResult extends ConsumerStatefulWidget {
+  const OrderResult({super.key, required this.orderId, required this.paidText, required this.onPaid});
 
   final String orderId;
-  final String groupId;
+  final String paidText;
+
+  /// Reloads whatever the payment unlocked.
+  final VoidCallback onPaid;
 
   @override
-  ConsumerState<_OrderStatus> createState() => _OrderStatusState();
+  ConsumerState<OrderResult> createState() => _OrderResultState();
 }
 
-class _OrderStatusState extends ConsumerState<_OrderStatus> {
+class _OrderResultState extends ConsumerState<OrderResult> {
   static const _interval = Duration(seconds: 2);
   static const _maxPolls = 30;
 
@@ -409,7 +412,7 @@ class _OrderStatusState extends ConsumerState<_OrderStatus> {
   Widget build(BuildContext context) {
     ref.listen(orderProvider(widget.orderId), (previous, next) {
       if (next.value?.status == OrderStatus.paid && previous?.value?.status != OrderStatus.paid) {
-        refreshGroupPlan(ref, widget.groupId);
+        widget.onPaid();
       }
     });
     final order = ref.watch(orderProvider(widget.orderId)).value;
@@ -423,7 +426,7 @@ class _OrderStatusState extends ConsumerState<_OrderStatus> {
               : 'Ödemen onaylanıyor. Bu birkaç saniye sürebilir.',
           kind: GxFormMessageKind.info,
         ),
-      OrderStatus.paid => const PlanNotice(icon: Icons.check_circle_outline, text: 'Ödeme alındı. Paketin etkin.'),
+      OrderStatus.paid => PlanNotice(icon: Icons.check_circle_outline, text: widget.paidText),
       OrderStatus.failed => const GxFormMessage('Ödeme tamamlanamadı. Tekrar deneyebilir ya da başka bir kart kullanabilirsin.'),
       OrderStatus.refunded => const GxFormMessage('Bu ödeme iade edildi.', kind: GxFormMessageKind.info),
     };

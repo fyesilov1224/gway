@@ -12,7 +12,7 @@ import 'widgets.dart';
 /// Opens a payment page in the current tab; replaceable in tests.
 typedef OpenPaymentPage = Future<bool> Function(Uri url);
 
-Future<bool> _openInThisTab(Uri url) => launchUrl(url, webOnlyWindowName: '_self');
+Future<bool> openInThisTab(Uri url) => launchUrl(url, webOnlyWindowName: '_self');
 
 /// Order summary, invoice details and the sales contract, then the provider's
 /// payment page. Web only (docs/ARCHITECTURE.md §7).
@@ -23,7 +23,7 @@ class CheckoutScreen extends ConsumerWidget {
     required this.groupName,
     required this.planSlug,
     required this.period,
-    this.openPaymentPage = _openInThisTab,
+    this.openPaymentPage = openInThisTab,
   });
 
   final String groupId;
@@ -87,45 +87,55 @@ class CheckoutScreen extends ConsumerWidget {
         onAction: () => Navigator.of(context).maybePop(),
       );
     }
-    return _CheckoutForm(
-      groupId: groupId,
-      groupName: groupName,
-      plan: plan,
-      option: option,
+    return CheckoutForm(
+      summary: _Summary(groupName: groupName, plan: plan, option: option, market: offer.market),
+      amountMinor: option.amountMinor,
       market: offer.market,
       terms: terms,
       initial: last ?? BillingDetails(country: offer.market.country == 'TR' ? 'Türkiye' : ''),
       openPaymentPage: openPaymentPage,
+      submit: (repo, details, termsVersion) => repo.checkout(
+        groupId,
+        CheckoutRequest(planSlug: planSlug, period: period, currency: offer.market.currency, salesTermsVersion: termsVersion, details: details),
+      ),
+      onStale: (ref) => ref.invalidate(offerProvider(groupId)),
     );
   }
 }
 
-class _CheckoutForm extends ConsumerStatefulWidget {
-  const _CheckoutForm({
-    required this.groupId,
-    required this.groupName,
-    required this.plan,
-    required this.option,
+/// Opens the order with the buyer's details and the contract version they read.
+typedef SubmitOrder = Future<Result<Uri>> Function(BillingRepository repo, BillingDetails details, int salesTermsVersion);
+
+/// Invoice details and the sales contract, then the provider's payment page; [summary] shows what is bought.
+class CheckoutForm extends ConsumerStatefulWidget {
+  const CheckoutForm({
+    super.key,
+    required this.summary,
+    required this.amountMinor,
     required this.market,
     required this.terms,
     required this.initial,
     required this.openPaymentPage,
+    required this.submit,
+    required this.onStale,
   });
 
-  final String groupId;
-  final String groupName;
-  final Plan plan;
-  final PlanOption option;
+  final Widget summary;
+  final int amountMinor;
   final Market market;
   final SalesTerms terms;
   final BillingDetails initial;
   final OpenPaymentPage openPaymentPage;
+  final SubmitOrder submit;
+
+  /// Reloads the prices after the server said they changed.
+  final void Function(WidgetRef ref) onStale;
 
   @override
-  ConsumerState<_CheckoutForm> createState() => _CheckoutFormState();
+  ConsumerState<CheckoutForm> createState() => _CheckoutFormState();
 }
 
-class _CheckoutFormState extends ConsumerState<_CheckoutForm> {
+class _CheckoutFormState extends ConsumerState<CheckoutForm> {
   static final _phone = RegExp(r'^\+?[0-9 ()\-]{7,20}$');
 
   final _form = GlobalKey<FormState>();
@@ -159,24 +169,19 @@ class _CheckoutFormState extends ConsumerState<_CheckoutForm> {
       _busy = true;
       _error = null;
     });
-    final result = await ref.read(billingRepositoryProvider).checkout(
-          widget.groupId,
-          CheckoutRequest(
-            planSlug: widget.plan.slug,
-            period: widget.option.period,
-            currency: widget.market.currency,
-            // The version the buyer read; the server rejects it if a newer one exists.
-            salesTermsVersion: widget.terms.version,
-            details: BillingDetails(
-              firstName: _firstName.text.trim(),
-              lastName: _lastName.text.trim(),
-              phone: _phoneNumber.text.trim(),
-              address: _address.text.trim(),
-              city: _city.text.trim(),
-              country: _country.text.trim(),
-            ),
-          ),
-        );
+    final result = await widget.submit(
+      ref.read(billingRepositoryProvider),
+      BillingDetails(
+        firstName: _firstName.text.trim(),
+        lastName: _lastName.text.trim(),
+        phone: _phoneNumber.text.trim(),
+        address: _address.text.trim(),
+        city: _city.text.trim(),
+        country: _country.text.trim(),
+      ),
+      // The version the buyer read; the server rejects it if a newer one exists.
+      widget.terms.version,
+    );
     if (!mounted) return;
     switch (result) {
       case Ok(:final value):
@@ -184,9 +189,8 @@ class _CheckoutFormState extends ConsumerState<_CheckoutForm> {
         if (mounted) setState(() => _error = 'Ödeme sayfası açılamadı. Lütfen tekrar dene.');
       case Err(failure: RuleFailure(code: 'billing.market_changed' || 'billing.terms_outdated') && final failure):
         // Prices or the contract changed: show the new ones before trying again.
-        ref
-          ..invalidate(offerProvider(widget.groupId))
-          ..invalidate(salesTermsProvider);
+        widget.onStale(ref);
+        ref.invalidate(salesTermsProvider);
         setState(() => _error = failure.userMessage);
       case Err(:final failure):
         setState(() => _error = failure.userMessage);
@@ -218,7 +222,7 @@ class _CheckoutFormState extends ConsumerState<_CheckoutForm> {
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
-    final summary = _Summary(groupName: widget.groupName, plan: widget.plan, option: widget.option, market: widget.market);
+    final summary = widget.summary;
     final form = _detailsPanel(context);
 
     return SingleChildScrollView(
@@ -343,7 +347,7 @@ class _CheckoutFormState extends ConsumerState<_CheckoutForm> {
               if (_error != null) ...[gap, GxFormMessage(_error!)],
               const SizedBox(height: GxSpacing.lg),
               GxButton(
-                label: 'Ödemeye geç · ${formatMoney(widget.option.amountMinor, widget.market.currency)}',
+                label: 'Ödemeye geç · ${formatMoney(widget.amountMinor, widget.market.currency)}',
                 icon: Icons.lock_outline,
                 expand: true,
                 isLoading: _busy,
@@ -407,22 +411,32 @@ class _Summary extends StatelessWidget {
             ],
           ),
           const SizedBox(height: GxSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.verified_user_outlined, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.secondary),
-              const SizedBox(width: GxSpacing.xs),
-              Expanded(
-                child: Text(
-                  'Ödeme ${market.provider.label} güvencesiyle ${market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır. '
-                  "Kart bilgilerin GrupX'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
-                  style: secondary,
-                ),
-              ),
-            ],
-          ),
+          PaymentAssurance(market: market),
         ],
       ),
     );
   }
+}
+
+/// Who takes the payment, in which currency, and that it does not renew.
+class PaymentAssurance extends StatelessWidget {
+  const PaymentAssurance({super.key, required this.market});
+
+  final Market market;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.verified_user_outlined, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.secondary),
+          const SizedBox(width: GxSpacing.xs),
+          Expanded(
+            child: Text(
+              'Ödeme ${market.provider.label} güvencesiyle ${market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır. '
+              "Kart bilgilerin GrupX'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+            ),
+          ),
+        ],
+      );
 }

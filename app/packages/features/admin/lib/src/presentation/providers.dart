@@ -7,6 +7,7 @@ import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_live.dart';
+import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
 import '../domain/admin_support.dart';
@@ -150,6 +151,18 @@ typedef BroadcastSearch = ({AdminLiveStatus status, int page});
 
 final broadcastSearchProvider = FutureProvider.autoDispose.family<BroadcastPage, BroadcastSearch>(
   (ref, search) async => (await ref.watch(adminLiveRepositoryProvider).search(status: search.status, page: search.page)).getOrThrow(),
+);
+
+final adminMatchingRepositoryProvider = Provider<AdminMatchingRepository>(
+  (ref) => ApiAdminMatchingRepository(ref.watch(apiClientProvider), ref.watch(supabaseClientProvider)),
+);
+
+final matchingStatsProvider = FutureProvider.autoDispose<AdminMatchingStats>(
+  (ref) async => (await ref.watch(adminMatchingRepositoryProvider).stats()).getOrThrow(),
+);
+
+final matchingPackagesProvider = FutureProvider.autoDispose<List<AdminPremium>>(
+  (ref) async => (await ref.watch(adminMatchingRepositoryProvider).packages()).getOrThrow(),
 );
 
 final adminNotificationsRepositoryProvider = Provider<AdminNotificationsRepository>(

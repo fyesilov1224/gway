@@ -347,4 +347,33 @@ public sealed class BillingTests(ApiFactory factory) : IClassFixture<ApiFactory>
         await NotifyPaytrAsync(await OrderIdAsync(owner, group), "success", 24900);
         (await factory.ClientFor(joiner).PostAsync(Path($"/groups/{group}/join"), null, Ct)).EnsureSuccessStatusCode();
     }
+
+    [Fact]
+    public async Task Premium_is_bought_by_the_person_and_stacks_after_the_time_left()
+    {
+        var buyer = await _db.CreateUserAsync(Unique("b_"));
+        var offer = await ClientFor(buyer).GetFromJsonAsync<PersonalOfferResponse>(Path("/billing/me/plans/matching_premium/offer"), Ct);
+        Assert.Null(offer!.ActiveUntil);
+        Assert.Equal([24900, 249000], offer.Options.Select(o => o.AmountMinor));
+
+        async Task<Guid> BuyAsync()
+        {
+            var response = await ClientFor(buyer).PostAsJsonAsync(Path("/billing/me/plans/matching_premium/orders"),
+                new CreatePersonalOrderRequest("month", "TRY", 1, Details), Ct);
+            response.EnsureSuccessStatusCode();
+            var order = (await response.Content.ReadFromJsonAsync<CreateOrderResponse>(Ct))!.OrderId;
+            (await NotifyPaytrAsync(order, "success", 24900)).EnsureSuccessStatusCode();
+            return order;
+        }
+
+        Assert.Equal("paid", await OrderStatusAsync(await BuyAsync()));
+        Assert.True(await _db.ScalarAsync<bool>("select private.has_matching_premium(@id)", ("id", buyer)));
+        await BuyAsync();
+        Assert.Equal(2L, await _db.ScalarAsync<long>("select count(*) from public.user_subscriptions where user_id = @id", ("id", buyer)));
+        Assert.True(await _db.ScalarAsync<bool>(
+            "select private.personal_plan_until(@id, 'matching_premium') > now() + interval '55 days'", ("id", buyer)));
+        Assert.Equal(2L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'personal_plan.activated' and target_id in "
+            + "(select id::text from public.user_subscriptions where user_id = @id)", ("id", buyer)));
+    }
 }

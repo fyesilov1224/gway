@@ -69,6 +69,9 @@ class PostEvent {
   final String title;
 }
 
+/// The emoji reactions a post offers (`post_reactions`, docs/ARCHITECTURE.md §3c).
+const postReactionEmojis = ['😍', '😂', '😮', '👏', '🔥', '🙏'];
+
 class Post {
   const Post({
     required this.id,
@@ -86,6 +89,9 @@ class Post {
     this.liked = false,
     this.saved = false,
     this.canManage = false,
+    this.canComment = true,
+    this.reactions = const {},
+    this.myReaction,
   });
 
   final String id;
@@ -114,6 +120,16 @@ class Post {
   /// The viewer may edit and delete it (author, or the group's publishers).
   final bool canManage;
 
+  /// The viewer may write a comment: on a personal post only its author, their matches and teammates;
+  /// everyone else reacts with an emoji. Group posts are open (docs/ARCHITECTURE.md §3c).
+  final bool canComment;
+
+  /// How many people reacted with each emoji.
+  final Map<String, int> reactions;
+
+  /// The viewer's own reaction, if any.
+  final String? myReaction;
+
   Post copyWith({
     bool? liked,
     int? likeCount,
@@ -122,6 +138,8 @@ class Post {
     String? caption,
     bool? commentsDisabled,
     bool? hideLikeCount,
+    Map<String, int>? reactions,
+    String? Function()? myReaction,
   }) =>
       Post(
         id: id,
@@ -139,6 +157,9 @@ class Post {
         liked: liked ?? this.liked,
         saved: saved ?? this.saved,
         canManage: canManage,
+        canComment: canComment,
+        reactions: reactions ?? this.reactions,
+        myReaction: myReaction == null ? this.myReaction : myReaction(),
       );
 }
 
@@ -445,6 +466,9 @@ abstract interface class FeedRepository {
   Future<Result<void>> delete(String id);
 
   Future<Result<void>> setLiked(String postId, bool liked);
+
+  /// Sets the viewer's emoji reaction; null removes it.
+  Future<Result<void>> setReaction(String postId, String? emoji);
 
   Future<Result<void>> setSaved(String postId, bool saved);
 

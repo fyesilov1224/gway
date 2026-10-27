@@ -148,6 +148,19 @@ public sealed class TestDatabase : IAsyncLifetime
     public Task MakeStaffAsync(Guid userId, string role) =>
         ExecuteAsync("insert into public.platform_staff (user_id, role) values (@id, @role)", ("id", userId), ("role", role));
 
+    /// <summary>Gives <paramref name="userId"/> a personal plan for a day, granted by a fresh platform admin as the guard requires.</summary>
+    public async Task GrantPackageAsync(Guid userId, string slug)
+    {
+        var admin = await CreateUserAsync($"a_{Guid.NewGuid():N}"[..20]);
+        await MakeStaffAsync(admin, "admin");
+        await ExecuteAsync(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @admin::text)::text, true);
+            insert into public.user_subscriptions (user_id, plan_slug, granted_by, grant_reason, starts_at, ends_at)
+            values (@user, @slug, @admin, 'test', now() - interval '1 minute', now() + interval '1 day')
+            """, ("admin", admin), ("user", userId), ("slug", slug));
+    }
+
     public async Task ExecuteAsync(string sql, params (string Name, object Value)[] parameters)
     {
         await using var cmd = CreateCommand(sql, parameters);

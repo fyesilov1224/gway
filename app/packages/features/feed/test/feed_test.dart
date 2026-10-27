@@ -34,6 +34,13 @@ NewMedia _new({MediaKind kind = MediaKind.image, String name = 'a.jpg', int byte
 class _FakeFeed implements FeedRepository {
   bool failLikes = false;
   final likes = <bool>[];
+  final reactions = <String?>[];
+
+  @override
+  Future<Result<void>> setReaction(String postId, String? emoji) async {
+    reactions.add(emoji);
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> setLiked(String postId, bool liked) async {
@@ -206,6 +213,33 @@ void main() {
       expect(repo.likes, [true]);
       expect(find.bySemanticsLabel('4 beğenme'), findsOneWidget);
       expect(find.byTooltip('Beğenmekten vazgeç'), findsOneWidget);
+    });
+
+    testWidgets('an emoji reaction counts at once, changes, and is taken back with a second tap', (tester) async {
+      final repo = _FakeFeed();
+      final post = Post(
+        id: 'p1',
+        caption: '',
+        createdAt: DateTime.now(),
+        media: [_image(1080, 1350)],
+        author: const PostAuthor(id: 'u2', username: 'ayse', displayName: 'Ayşe'),
+        canComment: false,
+        reactions: const {'🔥': 2},
+      );
+      await tester.pumpWidget(_app(PostCard(post: post), repo));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('🔥 tepkisi, 2'), findsOneWidget);
+
+      await tester.tap(find.bySemanticsLabel('🔥 tepkisi, 2'));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('🔥 tepkisi, 3'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('😂 tepkisi, 0'));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('🔥 tepkisi, 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('😂 tepkisi, 1'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('😂 tepkisi, 1'));
+      await tester.pumpAndSettle();
+      expect(repo.reactions, ['🔥', '😂', null]);
     });
 
     testWidgets('a refused like is rolled back with the reason', (tester) async {

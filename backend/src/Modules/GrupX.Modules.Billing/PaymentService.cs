@@ -15,8 +15,8 @@ internal abstract record PaymentOutcome
     public sealed record Failed(string Reason) : PaymentOutcome;
 }
 
-/// <summary>An order a provider answered for, so the buyer can be sent back to it.</summary>
-internal sealed record OrderRef(Guid Id, string GroupHandle);
+/// <summary>An order a provider answered for, so the buyer can be sent back to it: a group's plan or a personal plan.</summary>
+internal sealed record OrderRef(Guid Id, string? GroupHandle, string? PersonalPlan);
 
 /// <summary>
 /// Settles orders from verified provider notifications only (docs/ARCHITECTURE.md §7, Satın alma akışı).
@@ -54,14 +54,16 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
         OrderRef? order;
         await using (var find = db.CreateCommand(
             """
-            select id, group_handle from public.billing_orders
+            select id, group_handle, personal_plan_slug from public.billing_orders
             where provider = 'iyzico' and provider_token = @token and (@id::uuid is null or id = @id)
             """))
         {
             find.Parameters.AddWithValue("token", token);
             find.Parameters.Add(new NpgsqlParameter<Guid?>("id", orderId));
             await using var reader = await find.ExecuteReaderAsync(ct);
-            order = await reader.ReadAsync(ct) ? new OrderRef(reader.GetGuid(0), reader.GetString(1)) : null;
+            order = await reader.ReadAsync(ct)
+                ? new OrderRef(reader.GetGuid(0), reader.IsDBNull(1) ? null : reader.GetString(1), reader.IsDBNull(2) ? null : reader.GetString(2))
+                : null;
         }
         if (order is null) return null;
 
@@ -90,7 +92,9 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
         return order;
     }
 
-    private sealed record OrderState(string Status, string Provider, Guid? GroupId, string PlanSlug, string Period, string Currency, int AmountMinor);
+    private sealed record OrderState(
+        string Status, string Provider, Guid? GroupId, string? PlanSlug, string Period, string Currency, int AmountMinor,
+        Guid BuyerId, string? PersonalPlan);
 
     private async Task SettleAsync(Guid orderId, string provider, PaymentOutcome outcome, CancellationToken ct)
     {
@@ -124,7 +128,8 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
 
             case PaymentOutcome.Paid paid:
                 await MarkPaidAsync(conn, tx, orderId, paid.PaymentId, ct);
-                if (order.GroupId is { } groupId) await ActivateAsync(conn, tx, orderId, groupId, order, ct);
+                if (order.PersonalPlan is { } personal) await ActivatePersonalAsync(conn, tx, orderId, personal, order, ct);
+                else if (order.GroupId is { } groupId) await ActivateAsync(conn, tx, orderId, groupId, order, ct);
                 else log.LogWarning("Order {OrderId} was paid after its group was deleted", orderId);
                 break;
         }
@@ -143,10 +148,12 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
         }
 
         var now = time.GetUtcNow();
-        var tier = (await BillingStore.PlansAsync(conn, tx, ct)).First(p => p.Slug == order.PlanSlug).Tier;
+        // A group order always names its plan (billing_orders_product).
+        var planSlug = order.PlanSlug!;
+        var tier = (await BillingStore.PlansAsync(conn, tx, ct)).First(p => p.Slug == planSlug).Tier;
         var prices = await BillingStore.PricesAsync(conn, tx, order.Currency, ct);
         var slices = await BillingStore.LiveSlicesAsync(conn, tx, groupId, now, ct);
-        var placement = SubscriptionTimeline.Place(now, slices, order.PlanSlug, tier, order.Period,
+        var placement = SubscriptionTimeline.Place(now, slices, planSlug, tier, order.Period,
             (p, q) => prices.TryGetValue((p, q), out var v) ? v : null, enforceMaxAhead: false).Value;
 
         if (placement.Replaced.Count > 0)
@@ -171,7 +178,7 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
             """, conn, tx))
         {
             insert.Parameters.AddWithValue("group", groupId);
-            insert.Parameters.AddWithValue("plan", order.PlanSlug);
+            insert.Parameters.AddWithValue("plan", planSlug);
             insert.Parameters.AddWithValue("period", order.Period);
             insert.Parameters.AddWithValue("order", orderId);
             insert.Parameters.AddWithValue("starts", placement.StartsAt);
@@ -195,18 +202,53 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
             }, groupId), ct);
     }
 
+    /// <summary>Adds the paid time after whatever the buyer already has (docs/ARCHITECTURE.md §7, Kişisel ürünler).</summary>
+    private async Task ActivatePersonalAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid orderId, string slug, OrderState order, CancellationToken ct)
+    {
+        var slice = await PersonalTimeline.AppendAsync(conn, tx, order.BuyerId, slug, time.GetUtcNow(),
+            s => order.Period == Periods.Year ? s.AddYears(1) : s.AddMonths(1), ct);
+        Guid subscriptionId;
+        await using (var insert = new NpgsqlCommand(
+            """
+            insert into public.user_subscriptions (user_id, plan_slug, period, order_id, starts_at, ends_at)
+            values (@user, @plan, @period, @order, @starts, @ends)
+            returning id
+            """, conn, tx))
+        {
+            insert.Parameters.AddWithValue("user", order.BuyerId);
+            insert.Parameters.AddWithValue("plan", slug);
+            insert.Parameters.AddWithValue("period", order.Period);
+            insert.Parameters.AddWithValue("order", orderId);
+            insert.Parameters.AddWithValue("starts", slice.StartsAt);
+            insert.Parameters.AddWithValue("ends", slice.EndsAt);
+            subscriptionId = (Guid)(await insert.ExecuteScalarAsync(ct))!;
+        }
+        await AuditLog.AppendAsync(conn, tx, new AuditEntry(null, AuditActor.System, "personal_plan.activated", "user_subscription",
+            subscriptionId.ToString(), new
+            {
+                orderId,
+                plan = slug,
+                period = order.Period,
+                startsAt = slice.StartsAt,
+                endsAt = slice.EndsAt,
+                amountMinor = order.AmountMinor,
+                currency = order.Currency,
+            }), ct);
+    }
+
     private static async Task<OrderState?> LockOrderAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid orderId, CancellationToken ct)
     {
         await using var cmd = new NpgsqlCommand(
             """
-            select status, provider, group_id, plan_slug, period, currency, amount_minor
+            select status, provider, group_id, plan_slug, period, currency, amount_minor, buyer_id, personal_plan_slug
             from public.billing_orders where id = @id for update
             """, conn, tx);
         cmd.Parameters.AddWithValue("id", orderId);
         await using var reader = await cmd.ExecuteReaderAsync(ct);
         return await reader.ReadAsync(ct)
             ? new OrderState(reader.GetString(0), reader.GetString(1), reader.IsDBNull(2) ? null : reader.GetGuid(2),
-                reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetInt32(6))
+                reader.IsDBNull(3) ? null : reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetInt32(6),
+                reader.GetGuid(7), reader.IsDBNull(8) ? null : reader.GetString(8))
             : null;
     }
 

@@ -83,6 +83,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.group_follows` | groups | 4 |
 | `public.posts`, `public.post_media`, `public.post_hashtags` | feed | 4 |
 | `public.post_likes`, `public.comments`, `public.comment_likes`, `public.saved_posts` | feed | 4 |
+| `public.post_reactions` | feed | 15.6 |
 | `public.stories`, `public.story_views`, `public.highlights`, `public.highlight_stories` | feed | 4 |
 | Storage `media` | feed | 4 |
 | `public.notifications` | notifications | 4 |
@@ -95,6 +96,8 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.live_broadcasts`, `public.live_kicks`, `public.live_comments`, `public.live_reminders` | live | 7 |
 | `public.reports`, `public.moderation_cases`, `public.case_votes`, `public.sanctions`, `public.sanction_appeals` | moderation | 6 |
 | `public.conversations`, `public.conversation_members`, `public.messages` | messaging | 15 |
+| `public.match_profiles`, `public.match_photos`, `public.match_swipes`, `public.matches`, `public.matching_settings` | matching | 15.6 |
+| Storage `match-photos` | matching | 15.6 |
 | Storage `message-images` | messaging | 15 |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
@@ -254,7 +257,7 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 |---|---|
 | profile | `profiles.is_private`, `follows`, `follow_requests`, `blocks` |
 | groups | `group_follows` |
-| feed | `posts`, `post_media`, `post_hashtags`, `post_likes`, `comments`, `comment_likes`, `saved_posts`, `stories`, `story_views`, `highlights`, `highlight_stories`, Storage `media` |
+| feed | `posts`, `post_media`, `post_hashtags`, `post_likes`, `post_reactions`, `comments`, `comment_likes`, `saved_posts`, `stories`, `story_views`, `highlights`, `highlight_stories`, Storage `media` |
 | notifications | `notifications` (kayıtları diğer modüllerin tablolarındaki trigger'lar oluşturur), `push_devices` |
 
 C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gönderi oluşturma, düzenleme, silme; admin kaldırma) modülleri eklenir. `GrupX.Modules.Notifications` yalnızca push gönderimini yapar (§3c, Push).
@@ -297,21 +300,33 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 
 - **Tercihler** (`teammate_preferences`, kişinin kendi basit yazması, RLS):
   - "Ekip arıyorum" (`looking`).
+  - Aktiviteler: ekip arkadaşı aranan kategoriler (`activities`, en fazla 8, `categories`'ten; 2026-10-27).
   - Seviye: `beginner` / `intermediate` / `advanced`.
-  - Uygun zamanlar: `weekday_morning`, `weekday_evening`, `weekend_morning`, `weekend_afternoon`.
+  - Hedefler (`goals`): `fun`, `fitness`, `competition`, `learning`, `mentoring`, `social`.
+  - Sıklık (`frequency`): `monthly`, `weekly`, `few_weekly`, `daily`.
+  - Uygun zamanlar: hafta içi ve hafta sonu × sabah, öğle, akşam (`weekday_morning`, `weekday_noon`, `weekday_evening`, `weekend_morning`, `weekend_afternoon`, `weekend_evening`).
+  - Ekip büyüklüğü (`group_sizes`): `pair`, `small`, `large`.
+  - Aracı var (`has_vehicle`), kendi ekipmanı var (`has_equipment`).
   - İsteğe bağlı il (plaka kodu 1–81).
   - Kısa hedef notu (en fazla 140 karakter).
+
+  Ekran bölümlere ayrılmış kartlardan oluşur; üstte görünürlük kartı ve tamamlanma çubuğu (8 bölüm), altta sabit kaydet çubuğu bulunur.
 
   İlgi alanları profildeki `profile_interests`'tir. Tercihleri yalnızca kişinin kendisi okur. Profilde yalnızca "Ekip arıyor · seviye" görünür; il gösterilmez.
 - **Öneriler** (`public.teammate_suggestions`): adaylar "Ekip arıyorum"u açık, hesabı aktif ve gizli olmayan kişilerdir. Engel, mevcut ekip arkadaşlığı ve bekleyen istek bulunanlar elenir. Puan basit ve açıklanabilirdir; her öneri nedenlerini döner:
 
   | Neden | Puan |
   |---|---|
+  | Her ortak aktivite | 3 |
   | Her ortak ilgi alanı | 3 |
   | Aynı il (ikisi de seçtiyse) | 3 |
   | Her ortak grup | 2 |
   | Aynı seviye | 2 |
   | Her ortak uygun zaman | 1 |
+  | Her ortak hedef | 1 |
+  | Aynı sıklık | 1 |
+
+  Öneri kartında ayrıca "Aracı var" ve "Kendi ekipmanı var" bilgisi gösterilir (puana katılmaz).
 
   En az 3 puanı olanlar, puan sırasıyla ve en fazla 30 kişi listelenir. Yapay zekâ ya da gizli sinyal kullanılmaz; konum, mesaj ve gezinme verisi okunmaz.
 - **İstek** (`teammate_requests`, C# API): mesaj en fazla 200 karakterdir. Karşı taraf "Ekip arıyorum"u açmış olmalıdır. Engel varsa istek gönderilemez. Karşı taraf kabul eder ya da reddeder; gönderen geri çeker. Karşı taraf zaten istek göndermişse, ona istek atmak o isteği kabul eder. Kabul edilince `teammates` kaydı oluşur ve iki taraf da istediği zaman ekip arkadaşlığını bitirir.
@@ -340,6 +355,8 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Bahsetmeler:** Açıklamadaki ve yorumlardaki `@kullanıcıadı` görünür bir hesabı gösteriyorsa ve engel yoksa bildirim oluşturur.
 - **Beğeni, yorum, yorum beğenisi ve kaydetme** kullanıcının kendi basit yazmasıdır (Flutter → Supabase, RLS):
   - Gönderiyi görebilmek gerekir. Yorum için yorumların açık olması ve engel olmaması gerekir.
+  - **Kişisel fotoğraf ve videoya yorum (kullanıcı kararı, 2026-10-27):** yalnızca paylaşımın sahibi, sahibiyle eşleşenler (§3g) ve ekip arkadaşları yazar (`private.can_comment_as`, trigger `comment_not_allowed`). Diğerleri yalnızca emoji tepkisi bırakır. Grup paylaşımlarına görebilen herkes (üyeler, takipçiler) eskisi gibi yorum yazar. Mevcut yorumlar silinmez. Kart, `can_comment` ile yazma kutusunu gösterir ya da gizler.
+  - **Emoji tepkisi** (`post_reactions`): gönderiyi gören herkes 😍 😂 😮 👏 🔥 🙏 emojilerinden birini bırakır; kişi başına bir tepki, değiştirilebilir ve geri alınabilir. Kart her emojinin sayısını (`reactions`) ve kişinin kendi tepkisini (`my_reaction`) taşır. Tepki bildirim üretmez.
   - Yorum en fazla 2.200 karakterdir. Yanıtlar tek seviyedir (yanıta yanıt, ana yoruma bağlanır).
   - Yorumu yazarı ya da gönderinin sahibi (grup gönderisinde `posts.publish` yetkilisi) siler.
   - Sınırlar: saatte 120 yorum ve 600 beğeni.
@@ -789,7 +806,9 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 ## 3f. Mesajlaşma (Faz 15)
 
 Ürün kararları (2026-10-22):
-- Birebir mesajlaşmada ekip arkadaşları ve karşılıklı takipleşenler doğrudan yazar. Diğerlerinin ilk mesajı "Mesaj istekleri"ne düşer.
+- **Birebir mesajlaşma yalnızca iki ilişkide açıktır (kullanıcı kararı, 2026-10-26):** eşleşenler (§3g; yazmak için Eşleşme Sohbeti paketi, `match_chat_locked`) ve ekip arkadaşları (yazmak için Ekip Arkadaşı paketi, `teammate_chat_locked`; okumak ücretsiz). Takip mesaj hakkı vermez; takip yalnızca gönderileri görmek içindir. Yabancıya mesaj isteği gönderilemez (`message_not_allowed`). Böylece eşleşmenin ücretli sohbeti sosyal taraftan aşılamaz.
+- Biten bir eşleşme aralarındaki sohbeti kapatır (`match_ended`) ve iki tarafın birbirini takibini (ve bekleyen takip isteklerini) kaldırır; sonradan yeniden takip mümkündür ama mesaj hakkı vermez. Ekip arkadaşıysalar (ve paketleri varsa) yazışmaları sürer.
+- **Eski sohbetler:** bu karardan önce karşılıklı takip ya da mesaj isteğiyle açılmış birebir sohbetler silinmez ve okunur; kurala uymayan taraf yeni mesaj yazamaz. Bekleyen eski istekler kabul edilebilir ya da reddedilebilir, ama yazma hakkı açmaz.
 - Her grubun tek bir sohbeti vardır.
 - Mesaj metin ve fotoğraftan oluşur.
 - Şikayet edilen mesajda platform ekibi, mesajı ve sohbetteki önceki 5 mesajı görür.
@@ -808,25 +827,23 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Engellediğin kişilerin grup mesajları sana gösterilmez.
 
 ### Birebir mesaj ve istek
-- Konuşmayı başlatan `POST /messages/direct/{userId}` çağrısıdır. Alıcının satırı şöyle belirlenir:
-  - Taraflar ekip arkadaşıysa ya da karşılıklı takipleşiyorsa `active` olur.
-  - Değilse `request` olur ve konuşma alıcının "Mesaj istekleri"ne düşer.
-- **Gizli hesap:** yalnızca takipçileri yazabilir (`message_private`).
+- Konuşmayı başlatan `POST /messages/direct/{userId}` çağrısıdır. Yeni konuşma yalnızca eşleşenler ve ekip arkadaşları arasında açılır (iki taraf da `active`); diğerlerine `message_not_allowed`. Daha önce açılmış bir konuşma her zaman (okumak için) açılır.
+- Profildeki "Mesaj gönder" düğmesi yalnızca `public.can_message(other)` doğruysa (eşleşme, ekip arkadaşlığı ya da eski bir konuşma) görünür.
+- Aşağıdaki **istek** kuralları yalnızca kararlardan önce açılmış eski isteklere uygulanır; yeni istek oluşmaz.
 - **Engel:** iki yönde de yazılamaz ve yeni konuşma açılamaz.
 - **İstek** kabul edilene kadar:
   - Alıcı yanıt veremez (önce kabul eder).
   - Gönderen alıcının okuma bilgisini görmez.
   - Gönderen yazmaya devam edebilir.
 - **Ret:** istek reddedilirse gönderen o konuşmaya artık yazamaz (`message_declined`). Alıcı sonradan kendisi yazarsa konuşma yeniden açılır.
-- **Sınırlar:**
-  - Bir kişi günde en fazla 20 yeni istek açar.
-  - Bir kişi dakikada en fazla 30 mesaj gönderir.
+- **Sınır:** bir kişi dakikada en fazla 30 mesaj gönderir.
 
 ### Mesaj
 - **`messages`:** konuşma, gönderen, metin (en fazla 2.000 karakter) ve isteğe bağlı tek fotoğraf. Metin ya da fotoğraftan en az biri zorunludur.
 - **Gönderme** C# API üzerinden yapılır (`POST /conversations/{id}/messages`). Trigger kuralları tekrar kontrol eder:
   - Hesap aktif olmalı ve engel olmamalı.
-  - İstek ve ret durumları uygulanır.
+  - Birebir konuşmada taraflar eşleşmiş (ve gönderen Eşleşme Sohbeti paketli) ya da ekip arkadaşı olmalı.
+  - Eski isteklerin istek ve ret durumları uygulanır.
   - Grupta susturulan üye yazamaz (Faz 6); `admins_only` modu uygulanır.
   - Hız sınırı uygulanır.
 - **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür.
@@ -867,9 +884,9 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 | `GET /admin/reports/{id}/message-context` | Şikayet edilen mesaj ve önceki 5 mesaj (admin, moderatör; audit log) |
 | `POST /admin/messages/{id}/removal` | Mesajı kaldırma (`reason`; admin, moderatör) |
 
-## 3g. Eşleşme (Faz 15.6, onay bekliyor)
+## 3g. Eşleşme (Faz 15.6)
 
-Ürün kararları (2026-10-26, kullanıcı): ortak gruplardan oluşan havuz, kart kaydırma, Arkadaş ve Sevgili modları, freemium, ödeme mevcut web akışıyla (PayTR / iyzico). Uygulama içi satın almaya geçiş Faz 17'de mağaza kurallarına göre ayrıca değerlendirilir.
+Ürün kararları (2026-10-26, kullanıcı onayladı): ortak gruplardan oluşan havuz, kart kaydırma, Arkadaş ve Sevgili modları, freemium, ödeme mevcut web akışıyla (PayTR / iyzico). Uygulama içi satın almaya geçiş Faz 17'de mağaza kurallarına göre ayrıca değerlendirilir.
 
 ### İlkeler
 - **İsteğe bağlı ve ayrı:** Eşleşme, sosyal profilden ayrı bir **eşleşme profili**dir. Kişi açmadıkça hiçbir yerde görünmez; açmayan kişi kimseyi de göremez.
@@ -886,38 +903,85 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 
 ### Havuz ve deste
 - **Havuz:** eşleşme profili açık ve aynı modda olan, en az bir **ortak grubu** (üyelik ya da grup takibi) bulunan, aktif hesaplı, engel ilişkisi olmayan, daha önce bu modda kaydırılmamış ve eşleşilmemiş kişiler.
-- **Sıralama:** öne çıkarılanlar (Premium), sonra ortak grup sayısı, sonra son etkinlik. Kartta "Ortak gruplarınız" adlarıyla yazar.
-- **Kart:** fotoğraflar (dokunarak geçilir), ad ve yaş, il, hakkımda, ilgi alanları (ortak olanlar vurgulu), ortak gruplar. Kullanıcı adı ve sosyal profil bağlantısı eşleşmeden önce gösterilmez.
-- Okuma `public.match_deck(mode, filters)` ile yapılır (RLS ve `security definer` yardımcı; kural tek yerde, `private.match_candidates`).
+- **Sıralama:** seni süper beğenenler, öne çıkanlar (Premium), sonra ortak grup sayısı, sonra son etkinlik. Kartta "Ortak gruplarınız" adlarıyla yazar.
+- **Kart (Tinder tarzı deste):** kartın tamamı fotoğraftır; kenarlara dokununca fotoğraflar geçer. Fotoğrafın üstünde ad ve yaş, meslek, il, ortak grup ve en fazla üç ilgi alanı (ortak olanlar kalpli); "i" düğmesi profilin tamamını (tüm fotoğraflar, hakkımda, eğitim, ilgi alanları, ortak gruplar) açar. Seni süper beğenen kişinin kartında "Seni süper beğendi" yazar. Kullanıcı adı ve sosyal profil bağlantısı eşleşmeden önce gösterilmez.
+- **Hareketler:** sağa kaydır beğen, sola geç, yukarı süper beğen; kart sürüklenirken BEĞEN / GEÇ / SÜPER damgası belirir, bırakınca uçarak çıkar, arkadaki kart büyüyerek öne gelir. Altta aynı işler için düğmeler: Geri al · Geç · Süper beğen · Beğen · Öne çık.
+- Okuma `public.match_deck(deck, page_size, min_age, max_age, in_province, with_interest, in_group)` ile yapılır; filtreler Premium ister (`premium_required`).
 
 ### Kaydırma ve eşleşme
-- **Beğen / Geç** (ve Premium'da **Geri al**) C# üzerinden yazılır: günlük beğeni sınırı ve Premium kontrolü kural olduğu için (§2).
+- **Beğen / Geç / Süper beğen** (ve Premium'da **Geri al**, **Öne çık**) C# üzerinden yazılır: günlük haklar ve Premium kontrolü kural olduğu için (§2).
+- **Süper beğeni:** bir beğenidir; ayrı günlük hakkı vardır (ücretsiz 1, Premium 5; admin değiştirir) ve beğeni hakkından düşmez. Beğenilen kişiye `match_super_liked` bildirimi gider, süper beğenen kişi onun destesinde en başa çıkar.
+- **Geri al (Premium):** kişinin son kaydırması bir "geç" ise silinir ve kart destenin başına döner. Beğeniler geri alınmaz.
+- **Öne çık (Premium):** Türkiye gününde bir kez, `boost_minutes` (varsayılan 30) dakika boyunca kişi ortak gruplarındaki destelerde en başta görünür (`match_boosts`).
 - İki kişi aynı modda birbirini beğenince **eşleşme** oluşur. İkisine `match_created` bildirimi (push dahil) gider ve mesajlaşma modülünde mesaj isteği olmadan doğrudan sohbet açılır (`IMessagingMatches`).
 - **Eşleşmeyi bitir:** iki taraf da eşleşmeyi bitirebilir. Sohbet ikisine de kapanır, kişiler birbirinin destesine bir daha çıkmaz.
+- **İki modda eşleşme (kullanıcı kararı, 2026-10-27):** aynı iki kişi hem Arkadaş hem Sevgili olarak eşleşirse Eşleşmelerim'de tek kayıt görünür ve iki mod birlikte yazar (`my_matches()` kişi başına bir satır, `modes`). İkisinden biri "Yalnızca arkadaş kal" ya da "Yalnızca sevgili kal" diyerek diğer modu iki taraf için bitirir; sohbet ve takip sürer. Takip ve sohbet ancak son eşleşme de bitince kapanır.
 - Kaydırmalar 90 gün saklanır; "geç" denen kişi 90 gün sonra yeniden önerilebilir.
 
-### Freemium
-| | Ücretsiz | Premium |
-|---|---|---|
-| Günlük beğeni | 10 (admin değiştirir) | Sınırsız |
-| Beni kimler beğendi | Sayı ve bulanık fotoğraflar | Liste, doğrudan eşleşme |
-| Filtreler | Mod | Yaş aralığı, il, ilgi alanı, ortak grup |
-| Geri al (son geç) | — | Var |
-| Öne çık | — | Günde bir kez 30 dakika destelerin başında |
+### Ücretli paketler (kullanıcı kararı, 2026-10-26)
+Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır. Arkadaş ve Sevgili modu için kural aynıdır.
 
-- **Satış:** billing modülü kişiye ait bir ürün olarak satar (`matching_premium`, aylık ve yıllık, ön ödemeli, otomatik yenileme yok). Satın alma web'dendir; mobil yalnızca durumu gösterir (§7). Hak billing'de tutulur; eşleşme modülü `IBillingEntitlements` ve SQL'de `private.has_matching_premium(uid)` ile sorar.
-- **Başlangıç fiyatı:** aylık 149 ₺ · $5.99, yıllık 1.490 ₺ · $59.90. Admin değiştirir.
+| Paket (`slug`) | Açtığı özellik (`feature`) | Aylık | Yıllık |
+|---|---|---|---|
+| Eşleşmelerim (`matching_reveal`) | `reveal`: kiminle eşleştiğini görmek (ad, fotoğraflar, profil) | 49 ₺ · $1.99 | 490 ₺ · $19.90 |
+| Eşleşme Sohbeti (`matching_chat`) | `chat` ve `reveal`: eşleştiklerine yazmak | 99 ₺ · $3.99 | 990 ₺ · $39.90 |
+| Seni Beğenenler (`matching_admirers`) | `admirers`: seni beğenenlerin listesi, beğenerek anında eşleşme | 79 ₺ · $2.99 | 790 ₺ · $29.90 |
+| Sınırsız Beğeni (`matching_unlimited`) | `unlimited`: sınırsız beğeni, geri al, filtreler | 79 ₺ · $2.99 | 790 ₺ · $29.90 |
+| Süper Beğeni (`matching_super`) | `super`: günde 5 süper beğeni | 49 ₺ · $1.99 | 490 ₺ · $19.90 |
+| Öne Çık (`matching_boost`) | `boost`: günde bir kez 30 dakika destelerin başında | 69 ₺ · $2.49 | 690 ₺ · $24.90 |
+| Ekip Arkadaşı (`matching_teammates`) | `teammates`: ekip arkadaşı bölümüne giriş (öneriler, istekler, ekibim), istek göndermek ve kabul etmek, ekip arkadaşına yazmak (Faz 13). Paketsiz kişi yalnızca kendisini bekleyen istek sayısını görür | 49 ₺ · $1.99 | 490 ₺ · $19.90 |
+| Hepsi Bir Arada (`matching_premium`) | Hepsi | 249 ₺ · $9.99 | 2.490 ₺ · $99.90 |
+
+- **Ücretsiz:** eşleşme profili, kaydırma, günde 10 beğeni ve 1 süper beğeni (admin değiştirir), eşleştiğini bilmek. Kiminle eşleştiği gizlidir: Eşleşmelerim'de kilitli, bulanık bir kart, bildirimde kişi adı yoktur. Seni beğenenlerin yalnızca sayısını görür; fotoğraf telefona hiç gelmez.
+- **Gizlilik SQL'de korunur:** `reveal` yoksa `matches` satırları okunmaz (RLS), eşleşilen kişinin eşleşme profili ve fotoğrafları görünmez (`private.can_view_match_profile`), `my_matches()` yalnızca kilitli kayıt döner. `match_created` bildirimi kişiyi taşımaz (aktör alıcının kendisidir), push "Yeni bir eşleşmen var!" der.
+- **Eşleşme sohbeti:** yazmak `chat` ister (`message_blocker` → `match_chat_locked`); okumak ücretsizdir. Ekip arkadaşları Ekip Arkadaşı paketiyle yazışır; takip mesaj hakkı vermez (§3f). Grup sohbetleri ücretsizdir. Mevcut eşleşme sohbetleri silinmez, paket alınınca devam eder.
+- **Eşleşmeyi bitirmek** (iki taraftan biri, platform askısı ya da tüm eşleşme verilerini silme) sohbeti kapatır ve karşılıklı takibi kaldırır (§3f).
+- **Platform yöneticisi** (`platform_staff.role = 'admin'`) destek ve deneme için tüm özelliklere paketsiz sahiptir (`private.has_full_access`); durum yanıtında `full_access` döner (kullanıcı kararı, 2026-10-27).
+- **Hak sorgusu:** `private.has_matching_feature(uid, feature)`; `matching_premium` her özelliği açar, `matching_chat` `reveal`'ı da açar. Paketler billing'de (`personal_plans`, `user_subscriptions`) tutulur (§7, Kişisel ürünler).
+- **Satış:** her paket ayrı, aylık ve yıllık, ön ödemeli, otomatik yenileme yok, kalan sürenin ardına eklenir. Satın alma web'dendir; mobil durumu ve fiyatları gösterir.
+- **Tanımlama:** platform yöneticisi bir kullanıcıya gerekçeyle 1–365 gün istediği paketi verebilir; `audit_log`'a yazılır (`personal_plan.granted`).
+- **Ekranlar:** deste, "Seni beğenenler" (`/matching/likes`), Paketler (`/matching/packages`: her paketin durumu; `/matching/packages/{slug}`: özellikler, fiyatlar, web'de satın alma), filtreler. Kilitli bir özelliğe dokununca o paketi ve Hepsi Bir Arada'yı öneren bir pencere açılır; sohbette yazma kutusunun yerinde paket çağrısı görünür.
 
 ### Bildirimler
-`match_created` (eşleştiniz), `match_liked` (biri seni beğendi; kim olduğu yalnızca Premium'da görünür). Tercihlerden kapatılabilir (`match_alerts`).
+`match_created` (yeni bir eşleşmen var; kişi adı içermez, push dahil, dokununca Eşleşmelerim açılır) ve `match_super_liked` (seni süper beğendi; dokununca deste açılır, o kişi en baştadır). İkisi de tercihlerden kapatılabilir (`match_alerts`). Eşleşme bitince bildirimi silinir. Sıradan beğeniler bildirim göndermez (bildirim yağmuru ve "Seni Beğenenler" paketi yüzünden); sayısı destede kalp simgesinde görünür.
 
 ### Admin
-- **Eşleşme sayfası:** açık profiller (mod ve cinsiyete göre), günlük kaydırma ve eşleşme, Premium abone sayısı ve geliri.
+- **Eşleşme sayfası:** açık profiller (mod ve cinsiyete göre), son 24 saatte beğeni, süper beğeni, geç ve eşleşme, şu an öne çıkanlar, Premium üye sayısı (tanımlananlar ayrı) ve son 30 günün geliri.
 - **İnceleme:** şikayet edilen eşleşme profilleri ve fotoğrafları. Fotoğraf kaldırma, eşleşme profilini kapatma (süreli ya da kalıcı). Hepsi `audit_log`'a yazılır (`match_profile.suspended`, `match_photo.removed`).
-- **Ayarlar:** günlük ücretsiz beğeni sayısı, Premium fiyatları ve satış durumu.
+- **Ayarlar:** günlük ücretsiz beğeni, süper beğeni (ücretsiz ve Premium), öne çıkma süresi; Premium adı, fiyatları ve satış durumu; Premium tanımlama. Hepsi `audit_log`'a yazılır.
+
+### Veri ve erişim
+| Tablo | Okuma | Yazma |
+|---|---|---|
+| `match_profiles` | Kendisi, eşleştikleri, destesinde olanlar, platform ekibi (`private.can_view_match_profile`) | Kendisi (RLS, 18+ trigger); askı yalnızca C# (admin) |
+| `match_photos`, Storage `match-photos` | Aynı kural; fotoğraflar gizli kovadadır, adresler imzalı ve 1 saatliktir | Kendisi (en fazla 6, kendi klasörü) |
+| `match_swipes` | Kendisinin | Yalnızca C# (günlük haklar); süper beğeni trigger ile `match_super_liked` yazar |
+| `match_boosts` | Kendisinin | Yalnızca C# (Premium, günde bir) |
+| `matches` | İki taraf | Yalnızca C#; oluşunca trigger iki tarafa `match_created` yazar |
+| `matching_settings` | Herkes (giriş yapmış) | Yalnızca C# (admin) |
+
+- Okuma RPC'leri: `public.match_deck(…)`, `public.my_matches()`, `public.match_status()` (Premium, kalan beğeni ve süper beğeni, öne çıkma, mod başına bekleyen beğeni sayısı), `public.match_admirers(deck)` (Premium), `public.match_likes_left()`; kapak değişimi `public.swap_match_photos(first, second)`.
+- **Tüm verileri sil** (`DELETE /me/matching`): profil, fotoğraflar (depo dahil), öne çıkmalar ve kişinin verdiği ve aldığı beğeniler silinir; satın alınan Premium süresi billing'de kalır. Eşleşmeleri biter; yalnızca "bitti" kaydı kalır ki açılmış sohbetler kapalı kalsın.
+- **Platform askısı:** `suspended_until` (süresiz için sonsuz). Askıdaki profil kimseye görünmez, eşleşmeleri biter; hesabın geri kalanı etkilenmez.
+
+### C# uç noktaları
+| Uç nokta | Açıklama |
+|---|---|
+| `POST /matching/swipes` | `targetId`, `mode`, `like`, `super`. Kişi destede olmalı; beğeni ve süper beğeni günlük haklara tabi (`match.like_limit`, `match.super_like_limit`; Premium'da beğeni sınırsız). Karşılıklı beğenide eşleşme; yanıt `matched`, `matchId`, `likesLeft` (Premium'da boş), `superLikesLeft` |
+| `POST /matching/rewind` | Premium. Son kaydırma bir "geç" ise geri alır; yanıt `targetId`, `mode` (`match.nothing_to_rewind`) |
+| `POST /matching/boost` | Premium, günde bir. Yanıt `endsAt` (`match.boost_used`) |
+| `DELETE /matching/matches/{id}` | Eşleşmeyi bitir (iki taraf da) |
+| `DELETE /me/matching` | Tüm eşleşme verilerini sil |
+| `GET /admin/matching/stats` | Sayılar. Rol: `admin`, `moderator`, `support` |
+| `POST /admin/matching/profiles/{userId}/suspension`, `DELETE …/suspension` | Profili kapat (`reason`, `until?`) / aç. Rol: `admin`, `moderator` |
+| `POST /admin/matching/photos/{id}/removal` | Fotoğrafı kaldır (`reason`). Rol: `admin`, `moderator` |
+| `PUT /admin/matching/settings` | `dailyFreeLikes`, `dailyFreeSuperLikes`, `dailyPremiumSuperLikes`, `boostMinutes`. Rol: `admin` |
+| `GET /admin/matching/premium` | Premium: ad, satış durumu, fiyatlar, Premium üye ve tanımlanan sayısı, son 30 gün geliri. Rol: `admin`, `moderator`, `support` |
+| `PUT /admin/matching/premium` | Ad, satış durumu, dört fiyat (TRY/USD × aylık/yıllık). Rol: `admin` |
+| `POST /admin/matching/premium/grants` | `username`, `days` (1–365), `reason`. Rol: `admin` |
 
 ### Tablolar (sahip: matching)
-`match_profiles`, `match_photos` (Storage `match-photos`, yalnızca havuzda görebilenlere imzalı adres), `match_swipes`, `matches`, `match_boosts`. Billing tarafında `personal_plans`, `personal_plan_prices`, `user_subscriptions`.
+`match_profiles`, `match_photos` (Storage `match-photos`), `match_swipes`, `matches`, `matching_settings`, `match_boosts`. Billing tarafında `personal_plans`, `personal_plan_prices`, `user_subscriptions` (§7, Kişisel ürünler).
 
 ## 4. Flutter
 
@@ -1115,6 +1179,8 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 |---|---|
 | `GET /billing/groups/{id}/offer` | Pazar (ülke, sağlayıcı, para birimi), seçenekler (paket × dönem: tutar, tür, tahmini başlangıç ve bitiş, aktarılan süre, alınabilir mi), sözleşme sürümü. `billing.manage` |
 | `POST /billing/groups/{id}/orders` | Sipariş ve ödeme oturumu (`planSlug`, `period`, `currency`, `salesTermsVersion`, `billing`). Yanıt: `orderId`, `paymentUrl`. `billing.manage` |
+| `GET /billing/me/plans/{slug}/offer` | Kişisel ürün teklifi: pazar, ürün adı, kalan süre (`activeUntil`), dönemler (tutar, tahmini başlangıç ve bitiş), satış açık mı, sözleşme sürümü |
+| `POST /billing/me/plans/{slug}/orders` | Kişisel sipariş (`period`, `currency`, `salesTermsVersion`, `billing`). Yanıt: `orderId`, `paymentUrl` |
 | `POST /billing/paytr/notify` | PayTR bildirimi (anonim, hash doğrulamalı, yanıt `OK`) |
 | `POST /billing/iyzico/callback?order=` | iyzico'dan dönüş (anonim). Sonucu iyzico'dan sorar, uygulamaya 303 ile yönlendirir. |
 | `POST /billing/iyzico/webhook` | iyzico bildirimi (anonim, `X-IYZ-SIGNATURE-V3` doğrulamalı) |
@@ -1126,6 +1192,15 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 | `POST /admin/subscriptions/{id}/cancellation` | Aboneliği iptal (`reason`, `refunded`). Şu anki dilim hemen biter, ileri tarihli dilim başlamaz. `refunded` ise sipariş `refunded` olur. Rol: `admin` |
 
 `GET /admin/groups/{id}` yanıtına grubun güncel paketi ve abonelik geçmişi eklenir.
+
+### Kişisel ürünler (Faz 15.6b)
+- Grup paketlerinin yanında kişinin kendisi için aldığı ürünler: `personal_plans` (şimdilik yalnızca `matching_premium`), `personal_plan_prices`. Fiyat ve satış durumu yalnızca platform yöneticisince değişir (trigger).
+- `billing_orders` bir grup paketini **ya da** bir kişisel ürünü taşır (`personal_plan_slug`; o zaman grup alanları boştur, `billing_orders_product`). Sipariş açılışı aynı tetikleyiciyle korunur: alıcı kendisi, tutar liste fiyatı.
+- Ödeme doğrulanınca `user_subscriptions`'a yeni dilim eklenir: kişinin kalan süresinin hemen ardına (aylık bir ay, yıllık bir yıl). Dilimler aynı ürün için çakışamaz (exclusion). Kalan süre 400 günü aşıyorsa yeni süre satılmaz (`billing.too_far_ahead`).
+- Yönetici tanımlaması (`grant_reason`, `granted_by`) da aynı tabloya, aynı kuralla eklenir; siparişsiz dilimi yalnızca platform yöneticisi açabilir.
+- Hak sorgusu: `private.has_matching_premium(uid)`, kalan süre `private.personal_plan_until(uid, slug)`.
+- Ödeme dönüşü: web'de `/#/matching/premium?order=<id>`; ekran siparişi bekler ve Premium açılınca yenilenir. Mobil uygulama fiyatları ve durumu gösterir, satın almayı web'e bırakır.
+- Admin sipariş listesi kişisel siparişleri ürün adı ve alıcıyla gösterir; aylık gelir grafiği hepsini kapsar.
 
 ### Yapılandırma
 `Billing:AppUrl` (dönüş adresleri için web uygulaması, ör. `https://grupx.app`) ve `Billing:PublicApiUrl` (iyzico callback'i için API'nin dışarıdan erişilen adresi) tanımlanır. Ayrıca:

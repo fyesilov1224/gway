@@ -5,6 +5,7 @@ using GrupX.Modules.Feed.Contracts;
 using GrupX.Modules.Groups.Contracts;
 using GrupX.Modules.Identity.Contracts;
 using GrupX.Modules.Live.Contracts;
+using GrupX.Modules.Matching.Contracts;
 using GrupX.Modules.Messaging.Contracts;
 using GrupX.Modules.Moderation.Contracts;
 using GrupX.Modules.Notifications.Contracts;
@@ -35,6 +36,10 @@ public sealed record EndLiveRequest(string Reason);
 public sealed record CancelAdminEventRequest(string Reason);
 
 public sealed record AdminAppealDecision(bool Overturn, string? Note);
+
+public sealed record SuspendMatchProfileRequest(string Reason, DateTimeOffset? Until);
+
+public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
 
 public static class AdminModule
 {
@@ -194,6 +199,52 @@ public static class AdminModule
         content.MapGet("/notifications/stats", async (INotificationsAdministration notifications, CancellationToken ct) =>
                 TypedResults.Ok(await notifications.PushStatsAsync(ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapGet("/matching/stats", async (IMatchingAdministration matching, CancellationToken ct) =>
+                TypedResults.Ok(await matching.StatsAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapPost("/matching/profiles/{userId:guid}/suspension", async (
+                Guid userId, SuspendMatchProfileRequest body, ClaimsPrincipal user, IMatchingAdministration matching, CancellationToken ct) =>
+                (await matching.SuspendAsync(user.GetUserId(), userId, body.Reason, body.Until, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapDelete("/matching/profiles/{userId:guid}/suspension", async (
+                Guid userId, ClaimsPrincipal user, IMatchingAdministration matching, CancellationToken ct) =>
+                (await matching.LiftSuspensionAsync(user.GetUserId(), userId, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/matching/photos/{id:guid}/removal", async (
+                Guid id, RemoveContentRequest body, ClaimsPrincipal user, IMatchingAdministration matching, CancellationToken ct) =>
+                (await matching.RemovePhotoAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPut("/matching/settings", async (
+                MatchingSettings body, ClaimsPrincipal user, IMatchingAdministration matching, CancellationToken ct) =>
+                (await matching.UpdateSettingsAsync(user.GetUserId(), body, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        content.MapGet("/matching/packages", async (IBillingAdministration billingAdmin, CancellationToken ct) =>
+            {
+                var packages = new List<PersonalPlanSummary>();
+                foreach (var slug in PersonalPlans.Matching) packages.Add(await billingAdmin.PersonalPlanAsync(slug, ct));
+                return TypedResults.Ok(packages);
+            })
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapPut("/matching/packages/{slug}", async (
+                string slug, PersonalPlanUpdate body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                PersonalPlans.Matching.Contains(slug)
+                    ? (await billingAdmin.UpdatePersonalPlanAsync(user.GetUserId(), slug, body, ct)).ToHttpResult()
+                    : Results.NotFound())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        content.MapPost("/matching/packages/grants", async (
+                GrantPackageRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                PersonalPlans.Matching.Contains(body.Slug)
+                    ? (await billingAdmin.GrantPersonalPlanAsync(user.GetUserId(), body.Username, body.Slug, body.Days, body.Reason, ct)).ToHttpResult()
+                    : Results.NotFound())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
 
         content.MapPost("/live/{id:guid}/end", async (
                 Guid id, EndLiveRequest body, ClaimsPrincipal user, ILiveAdministration live, CancellationToken ct) =>

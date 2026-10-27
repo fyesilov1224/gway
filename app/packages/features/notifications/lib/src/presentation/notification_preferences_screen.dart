@@ -66,6 +66,11 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                   toggle('Planlanan ve başlayan yayınlar', 'Grubunda yayın planlanınca ve başlayınca, uygulama açıksa sesli uyarıyla',
                       p.liveBroadcasts, (v) => p.copyWith(liveBroadcasts: v)),
                   Padding(
+                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                    child: Text('Eşleşme', style: textTheme.titleSmall),
+                  ),
+                  toggle('Yeni eşleşmeler', 'Biriyle karşılıklı beğenince', p.matchAlerts, (v) => p.copyWith(matchAlerts: v)),
+                  Padding(
                     padding: const EdgeInsets.all(GxSpacing.page),
                     child: Text(
                       'Katılım isteğinin sonucu, bekleme listesinden yükselmen ve grup yaptırımları seni doğrudan ilgilendirdiği için her zaman bildirilir.',

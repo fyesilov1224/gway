@@ -17,6 +17,9 @@ const _categoryIcons = <String, IconData>{
   'food': Icons.restaurant_outlined,
   'technology': Icons.memory_outlined,
   'volunteering': Icons.volunteer_activism_outlined,
+  'motorcycle': Icons.two_wheeler,
+  'camping': Icons.forest_outlined,
+  'chess': Icons.extension_outlined,
 };
 
 IconData categoryIcon(String slug) => _categoryIcons[slug] ?? Icons.tag;

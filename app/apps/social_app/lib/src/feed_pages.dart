@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:live/live.dart';
+import 'package:matching/matching.dart';
 import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
@@ -39,6 +40,8 @@ final notificationLinks = NotificationLinks(
   openSanctions: (context) => context.push(ModerationRoutes.mySanctions),
   openGoal: (context, goalId) => context.push(EventRoutes.goal(goalId)),
   openTeammates: (context) => context.push(ProfileRoutes.teammates),
+  openMatches: (context) => context.push(MatchingRoutes.matches),
+  openMatching: (context) => context.push(MatchingRoutes.home),
 );
 
 Widget peopleResults(BuildContext context, String query, VoidCallback onClear) =>

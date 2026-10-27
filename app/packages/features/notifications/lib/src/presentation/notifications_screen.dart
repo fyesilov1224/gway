@@ -19,6 +19,8 @@ class NotificationLinks {
     required this.openSanctions,
     required this.openGoal,
     required this.openTeammates,
+    required this.openMatches,
+    required this.openMatching,
   });
 
   final void Function(BuildContext context, String username) openProfile;
@@ -47,6 +49,12 @@ class NotificationLinks {
 
   /// Teammate requests and suggestions, for teammate_request.
   final void Function(BuildContext context) openTeammates;
+
+  /// The user's matches, for match_created.
+  final void Function(BuildContext context) openMatches;
+
+  /// The matching deck, for match_super_liked (the super liker comes first).
+  final void Function(BuildContext context) openMatching;
 }
 
 /// Today / this week / earlier, with pending follow requests gathered on top (docs/ARCHITECTURE.md §3c).
@@ -162,6 +170,8 @@ class _NotificationRow extends ConsumerWidget {
     final n = notification;
     if (n.goalId != null) return links.openGoal(context, n.goalId!);
     if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
+    if (n.type == NotificationType.matchCreated) return links.openMatches(context);
+    if (n.type == NotificationType.matchSuperLiked) return links.openMatching(context);
     if (n.type.fromGroup) return links.openSanctions(context);
     if (n.group != null) return links.openGroupModeration(context, n.group!.handle);
     if (n.liveId != null) return links.openLive(context, n.liveId!);
@@ -199,6 +209,13 @@ class _NotificationRow extends ConsumerWidget {
               children: [
                 if (n.type.fromGroup)
                   GxAvatar(name: n.group?.name ?? '', shape: GxAvatarShape.group, imageUrl: n.group?.logoUrl, size: GxAvatarSize.md)
+                else if (n.type.anonymous)
+                  Container(
+                    width: GxAvatarSize.md.dimension,
+                    height: GxAvatarSize.md.dimension,
+                    decoration: const BoxDecoration(color: GxColors.primarySoft, shape: BoxShape.circle),
+                    child: const Icon(Icons.favorite_rounded, color: GxColors.primary),
+                  )
                 else
                   InkWell(
                     customBorder: const CircleBorder(),

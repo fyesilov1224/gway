@@ -12,6 +12,8 @@ internal static class BillingErrors
         "billing.group_suspended", "Bu grup askıya alındığı için paket satın alınamaz.");
     public static readonly Error PlanNotForSale = Error.Validation("billing.plan_not_for_sale", "Bu paket şu anda satın alınamıyor.");
     public static readonly Error InvalidPeriod = Error.Validation("billing.invalid_period", "Geçersiz ödeme dönemi.");
+    public static readonly Error TooFarAhead = Error.RuleViolation(
+        "billing.too_far_ahead", "Bir yıldan uzun süren için şimdilik yeni süre alınamaz.");
     public static readonly Error MarketChanged = Error.Conflict(
         "billing.market_changed", "Bulunduğun ülkeye göre fiyatlar değişti. Lütfen fiyatları yeniden kontrol et.");
     public static readonly Error TermsOutdated = Error.Conflict(

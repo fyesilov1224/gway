@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using GrupX.Modules.Billing.Contracts;
 using GrupX.Modules.Billing.Providers;
 using GrupX.SharedKernel;
 using GrupX.SharedKernel.Database;
@@ -30,6 +31,20 @@ public sealed record OfferResponse(
 public sealed record CreateOrderRequest(string? PlanSlug, string? Period, string? Currency, int SalesTermsVersion, BillingDetails? Billing);
 
 public sealed record CreateOrderResponse(Guid OrderId, Uri PaymentUrl);
+
+/// <summary>A period of a personal plan and the time it would add, right after the time already left.</summary>
+public sealed record PersonalOfferOption(string Period, int AmountMinor, DateTimeOffset StartsAt, DateTimeOffset EndsAt);
+
+public sealed record PersonalOfferResponse(
+    Market Market,
+    bool PurchasesEnabled,
+    string PlanSlug,
+    string PlanName,
+    DateTimeOffset? ActiveUntil,
+    int SalesTermsVersion,
+    IReadOnlyList<PersonalOfferOption> Options);
+
+public sealed record CreatePersonalOrderRequest(string? Period, string? Currency, int SalesTermsVersion, BillingDetails? Billing);
 
 /// <summary>Offers and checkout (docs/ARCHITECTURE.md §7, Satın alma akışı). Settlement is <see cref="PaymentService"/>.</summary>
 internal sealed class CheckoutService(
@@ -75,6 +90,91 @@ internal sealed class CheckoutService(
             var terms = await BillingStore.SalesTermsVersionAsync(conn, tx, ct) ?? 0;
             return new OfferResponse(market, PurchasesEnabled(market), current, terms, offers);
         }, ct);
+
+    /// <summary>Personal time is sold at most this far ahead.</summary>
+    private static readonly TimeSpan PersonalMaxAhead = TimeSpan.FromDays(400);
+
+    private static DateTimeOffset PersonalEnd(DateTimeOffset starts, string period) =>
+        period == Periods.Year ? starts.AddYears(1) : starts.AddMonths(1);
+
+    public Task<Result<PersonalOfferResponse>> GetPersonalOfferAsync(Guid actorId, string slug, Market market, CancellationToken ct) =>
+        BillingStore.RunAsync<PersonalOfferResponse>(db, async (conn, tx) =>
+        {
+            var plan = await BillingStore.PersonalPlanAsync(conn, tx, slug, market.Currency, ct);
+            if (plan is null) return BillingErrors.PlanNotForSale;
+
+            var now = time.GetUtcNow();
+            var until = await PersonalTimeline.UntilAsync(conn, tx, actorId, slug, ct);
+            var starts = until is { } u && u > now ? u : now;
+            var options = plan.Prices
+                .Select(p => new PersonalOfferOption(p.Key, p.Value, starts, PersonalEnd(starts, p.Key)))
+                .OrderBy(o => o.Period == Periods.Year)
+                .ToList();
+            var terms = await BillingStore.SalesTermsVersionAsync(conn, tx, ct) ?? 0;
+            var enabled = plan.IsActive && PurchasesEnabled(market) && starts - now < PersonalMaxAhead;
+            return new PersonalOfferResponse(market, enabled, slug, plan.Name, until, terms, options);
+        }, ct);
+
+    public async Task<Result<CreateOrderResponse>> CreatePersonalOrderAsync(
+        Guid actorId, string slug, CreatePersonalOrderRequest request, Market market, IPAddress? clientIp, CancellationToken ct)
+    {
+        if (request.Period is not { } period || !Periods.All.Contains(period)) return BillingErrors.InvalidPeriod;
+        var details = (request.Billing ?? new BillingDetails(null, null, null, null, null, null)).Validate();
+        if (!details.IsSuccess) return details.Error;
+        if (request.Currency != market.Currency) return BillingErrors.MarketChanged;
+        if (!PurchasesEnabled(market)) return BillingErrors.ProviderUnavailable;
+
+        var ip = clientIp is { IsIPv4MappedToIPv6: true } ? clientIp.MapToIPv4() : clientIp;
+        var opened = await BillingStore.RunAsync<OpenedOrder>(db, async (conn, tx) =>
+        {
+            await ActingUser.SetAsync(conn, tx, actorId, ct);
+            var plan = await BillingStore.PersonalPlanAsync(conn, tx, slug, market.Currency, ct);
+            if (plan is not { IsActive: true } || !plan.Prices.TryGetValue(period, out var amount)) return BillingErrors.PlanNotForSale;
+            if (await BillingStore.SalesTermsVersionAsync(conn, tx, ct) != request.SalesTermsVersion) return BillingErrors.TermsOutdated;
+            var now = time.GetUtcNow();
+            if (await PersonalTimeline.UntilAsync(conn, tx, actorId, slug, ct) is { } until && until - now >= PersonalMaxAhead)
+                return BillingErrors.TooFarAhead;
+
+            string email;
+            await using (var findEmail = new NpgsqlCommand("select email from auth.users where id = @id", conn, tx))
+            {
+                findEmail.Parameters.AddWithValue("id", actorId);
+                email = (string)(await findEmail.ExecuteScalarAsync(ct))!;
+            }
+
+            await using var insert = new NpgsqlCommand(
+                """
+                insert into public.billing_orders (buyer_id, personal_plan_slug, period, provider, country, currency, amount_minor,
+                                                   billing_details, sales_terms_version, client_ip)
+                values (@buyer, @plan, @period, @provider, @country, @currency, @amount, @details, @terms, @ip)
+                returning id
+                """, conn, tx);
+            insert.Parameters.AddWithValue("buyer", actorId);
+            insert.Parameters.AddWithValue("plan", slug);
+            insert.Parameters.AddWithValue("period", period);
+            insert.Parameters.AddWithValue("provider", market.Provider);
+            insert.Parameters.AddWithValue("country", market.Country);
+            insert.Parameters.AddWithValue("currency", market.Currency);
+            insert.Parameters.AddWithValue("amount", amount);
+            insert.Parameters.Add(new NpgsqlParameter("details", NpgsqlDbType.Jsonb)
+            {
+                Value = JsonSerializer.Serialize(details.Value, JsonSerializerOptions.Web),
+            });
+            insert.Parameters.AddWithValue("terms", request.SalesTermsVersion);
+            insert.Parameters.Add(new NpgsqlParameter<IPAddress?>("ip", NpgsqlDbType.Inet) { TypedValue = ip });
+
+            var id = (Guid)(await insert.ExecuteScalarAsync(ct))!;
+            var monthly = period == Periods.Year ? "yıllık" : "aylık";
+            return new OpenedOrder(id, $"GrupX {plan.Name} ({monthly})", $"GrupX {plan.Name} ({(period == Periods.Year ? "yearly" : "monthly")})",
+                BillingLinks.Personal(options.Value, slug, id), amount, email);
+        }, ct);
+        if (!opened.IsSuccess) return opened.Error;
+
+        var order = opened.Value;
+        var started = await StartPaymentAsync(order, market, details.Value, ip, actorId, ct);
+        await RecordStartAsync(order.Id, started, ct);
+        return started.IsSuccess ? new CreateOrderResponse(order.Id, started.Value.PaymentUrl) : started.Error;
+    }
 
     public async Task<Result<CreateOrderResponse>> CreateOrderAsync(
         Guid actorId, Guid groupId, CreateOrderRequest request, Market market, IPAddress? clientIp, CancellationToken ct)
@@ -134,20 +234,26 @@ internal sealed class CheckoutService(
             insert.Parameters.AddWithValue("terms", request.SalesTermsVersion);
             insert.Parameters.Add(new NpgsqlParameter<IPAddress?>("ip", NpgsqlDbType.Inet) { TypedValue = ip });
 
-            return new OpenedOrder((Guid)(await insert.ExecuteScalarAsync(ct))!, group.Value.Handle, plan.Name, amount, email);
+            var id = (Guid)(await insert.ExecuteScalarAsync(ct))!;
+            var handle = group.Value.Handle;
+            return new OpenedOrder(id,
+                $"GrupX {plan.Name} paketi ({(period == Periods.Year ? "yıllık" : "aylık")}) - @{handle}",
+                $"GrupX {plan.Name} ({(period == Periods.Year ? "yearly" : "monthly")}) - @{handle}",
+                BillingLinks.Plan(options.Value, handle, id), amount, email);
         }, ct);
         if (!opened.IsSuccess) return opened.Error;
 
         var order = opened.Value;
-        var started = await StartPaymentAsync(order, period, market, details.Value, ip, actorId, ct);
+        var started = await StartPaymentAsync(order, market, details.Value, ip, actorId, ct);
         await RecordStartAsync(order.Id, started, ct);
         return started.IsSuccess ? new CreateOrderResponse(order.Id, started.Value.PaymentUrl) : started.Error;
     }
 
-    private sealed record OpenedOrder(Guid Id, string Handle, string PlanName, int AmountMinor, string Email);
+    /// <summary>An order to pay: its line on the provider's page (Turkish for PayTR, English for iyzico) and where the buyer returns.</summary>
+    private sealed record OpenedOrder(Guid Id, string Title, string EnglishTitle, Uri ReturnUrl, int AmountMinor, string Email);
 
     private async Task<Result<(string Token, Uri PaymentUrl)>> StartPaymentAsync(
-        OpenedOrder order, string period, Market market, BillingDetails details, IPAddress? ip, Guid buyerId, CancellationToken ct)
+        OpenedOrder order, Market market, BillingDetails details, IPAddress? ip, Guid buyerId, CancellationToken ct)
     {
         var o = options.Value;
         try
@@ -159,18 +265,18 @@ internal sealed class CheckoutService(
                     ip?.ToString() ?? "127.0.0.1",
                     order.Email,
                     order.AmountMinor,
-                    $"GrupX {order.PlanName} paketi ({(period == Periods.Year ? "yıllık" : "aylık")}) - @{order.Handle}",
+                    order.Title,
                     $"{details.FirstName} {details.LastName}",
                     $"{details.Address}, {details.City}, {details.Country}",
                     details.Phone!,
-                    BillingLinks.Plan(o, order.Handle, order.Id)), ct);
+                    order.ReturnUrl), ct);
             }
 
             return await iyzico.StartAsync(new IyzicoCheckout(
                 order.Id,
                 order.AmountMinor,
                 market.Currency,
-                $"GrupX {order.PlanName} ({(period == Periods.Year ? "yearly" : "monthly")}) - @{order.Handle}",
+                order.EnglishTitle,
                 new IyzicoBuyer(buyerId, details.FirstName!, details.LastName!, order.Email, details.Phone!, details.Address!,
                     details.City!, details.Country!, ip?.ToString() ?? "127.0.0.1"),
                 BillingLinks.IyzicoCallback(o, order.Id)), ct);
@@ -199,6 +305,13 @@ internal static class BillingLinks
     /// <summary>The group's plan screen in the web app (hash routes), showing <paramref name="orderId"/>.</summary>
     public static Uri Plan(BillingOptions options, string handle, Guid orderId) =>
         new($"{options.AppUrl.TrimEnd('/')}/#/g/{handle}/plan?order={orderId}");
+
+    /// <summary>The personal plan's screen in the web app, showing <paramref name="orderId"/>.</summary>
+    public static Uri Personal(BillingOptions options, string slug, Guid orderId) => slug switch
+    {
+        _ when PersonalPlans.Matching.Contains(slug) => new($"{options.AppUrl.TrimEnd('/')}/#/matching/packages/{slug}?order={orderId}"),
+        _ => throw new ArgumentOutOfRangeException(nameof(slug), slug, "No screen for this personal plan."),
+    };
 
     public static Uri IyzicoCallback(BillingOptions options, Guid orderId) =>
         new($"{options.PublicApiUrl.TrimEnd('/')}/billing/iyzico/callback?order={orderId}");

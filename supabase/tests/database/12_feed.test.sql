@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(66);
+select plan(67);
 
 -- p1 public author (group owner), p2 private author, p3 viewer (follows p1, member/follower of the group),
 -- p4 blocked by p1, p5 stranger, m1 platform moderator.
@@ -33,6 +33,11 @@ insert into public.groups (id, handle, name, category_slug, owner_id)
 values ('00000000-0000-0000-0000-0000000ce001', 'akis.grubu', 'Akış Grubu', 'nature', '00000000-0000-0000-0000-0000000cc001');
 insert into public.group_members (group_id, user_id) values ('00000000-0000-0000-0000-0000000ce001', '00000000-0000-0000-0000-0000000cc001');
 insert into public.group_follows (user_id, group_id) values ('00000000-0000-0000-0000-0000000cc003', '00000000-0000-0000-0000-0000000ce001');
+-- Comments on a personal post take a relation (0034): p3 is p1's teammate, p5 matched with p1.
+alter table public.teammates disable trigger teammates_guard;
+insert into public.teammates (user_a, user_b) values ('00000000-0000-0000-0000-0000000cc001', '00000000-0000-0000-0000-0000000cc003');
+alter table public.teammates enable trigger teammates_guard;
+insert into public.matches (user_a, user_b, mode) values ('00000000-0000-0000-0000-0000000cc001', '00000000-0000-0000-0000-0000000cc005', 'friend');
 
 -- Posts (backend writes) -------------------------------------------------------------------
 select set_config('request.jwt.claims', '', true);
@@ -135,14 +140,20 @@ select is((select like_count from public.posts where id = '00000000-0000-0000-00
 select lives_ok(
   $$ insert into public.comments (id, post_id, author_id, body) values
        ('00000000-0000-0000-0000-0000000cd001', '00000000-0000-0000-0000-0000000cf001', '00000000-0000-0000-0000-0000000cc003', ' Harika! ') $$,
-  'a follower comments'
+  'a teammate comments'
+);
+select pg_temp.act('00000000-0000-0000-0000-0000000cc0a1');
+select throws_ok(
+  $$ insert into public.comments (post_id, author_id, body) values
+       ('00000000-0000-0000-0000-0000000cf001', '00000000-0000-0000-0000-0000000cc0a1', 'Merhaba') $$,
+  'P0001', 'comment_not_allowed', 'without a match or a teammate, a personal post takes reactions only'
 );
 select pg_temp.act('00000000-0000-0000-0000-0000000cc005');
 select lives_ok(
   $$ insert into public.comments (id, post_id, author_id, parent_id, body) values
        ('00000000-0000-0000-0000-0000000cd002', '00000000-0000-0000-0000-0000000cf001', '00000000-0000-0000-0000-0000000cc005',
         '00000000-0000-0000-0000-0000000cd001', 'Katılıyorum') $$,
-  'a stranger replies on a public post'
+  'a match replies'
 );
 select lives_ok(
   $$ insert into public.comments (id, post_id, author_id, parent_id, body) values

@@ -42,6 +42,7 @@ class MessagesButton extends ConsumerWidget {
 }
 
 /// The message icon next to "Takip et" on another person's profile: opens (or starts) the direct conversation.
+/// Shown only to matches, teammates and people who already have a conversation (docs/ARCHITECTURE.md §3f).
 class MessageUserButton extends ConsumerStatefulWidget {
   const MessageUserButton({super.key, required this.userId});
 
@@ -68,12 +69,15 @@ class _MessageUserButtonState extends ConsumerState<MessageUserButton> {
   }
 
   @override
-  Widget build(BuildContext context) => IconButton.outlined(
-        tooltip: 'Mesaj gönder',
-        onPressed: _busy ? null : _open,
-        icon: const Icon(Icons.chat_bubble_outline_rounded, size: GxSpacing.md + GxSpacing.xxs),
-        style: IconButton.styleFrom(foregroundColor: GxColors.textPrimary, side: const BorderSide(color: GxColors.border)),
-      );
+  Widget build(BuildContext context) {
+    if (!(ref.watch(canMessageProvider(widget.userId)).value ?? false)) return const SizedBox.shrink();
+    return IconButton.outlined(
+      tooltip: 'Mesaj gönder',
+      onPressed: _busy ? null : _open,
+      icon: const Icon(Icons.chat_bubble_outline_rounded, size: GxSpacing.md + GxSpacing.xxs),
+      style: IconButton.styleFrom(foregroundColor: GxColors.textPrimary, side: const BorderSide(color: GxColors.border)),
+    );
+  }
 }
 
 /// "Grup sohbeti" on the group page, for members.

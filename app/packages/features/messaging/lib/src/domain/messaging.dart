@@ -101,6 +101,10 @@ class Conversation {
         'message_muted' => 'Bu grupta susturulduğun için şu anda yazamazsın.',
         'message_admins_only' => 'Bu sohbette yalnızca yöneticiler yazabilir.',
         'blocked' => 'Engel olduğu için bu sohbete yazılamıyor.',
+        'match_ended' => 'Eşleşme bittiği için bu sohbet kapandı.',
+        'match_chat_locked' => 'Eşleştiğin kişiye yazmak için Eşleşme Sohbeti paketi gerekir. Mesajları okumak ücretsiz.',
+        'teammate_chat_locked' => 'Ekip arkadaşına yazmak için Ekip Arkadaşı paketi gerekir. Mesajları okumak ücretsiz.',
+        'message_not_allowed' => 'Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir. Eski mesajlarını okuyabilirsin.',
         _ => 'Bu sohbete şu anda yazamazsın.',
       };
 }
@@ -158,6 +162,9 @@ abstract interface class MessagingRepository {
   Stream<void> changes({String? conversationId});
 
   Future<Result<DirectChat>> openDirect(String userId);
+
+  /// Whether the profile offers a chat with [userId]: a match, a teammate, or an earlier conversation (docs/ARCHITECTURE.md §3f).
+  Future<Result<bool>> canMessage(String userId);
 
   Future<Result<String?>> groupConversation(String groupId);
 

@@ -163,6 +163,9 @@ class MessagingRepositoryImpl implements MessagingRepository {
       );
 
   @override
+  Future<Result<bool>> canMessage(String userId) => _run(() => _client.rpc<bool>('can_message', params: {'other': userId}));
+
+  @override
   Future<Result<String?>> groupConversation(String groupId) =>
       _run(() => _client.rpc<String?>('group_conversation', params: {'target_group': groupId}));
 

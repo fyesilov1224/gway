@@ -10,6 +10,7 @@ using GrupX.Modules.Groups;
 using GrupX.Modules.Identity;
 using GrupX.Modules.Messaging;
 using GrupX.Modules.Live;
+using GrupX.Modules.Matching;
 using GrupX.Modules.Moderation;
 using GrupX.Modules.Notifications;
 using GrupX.Modules.Profile;
@@ -60,6 +61,7 @@ builder.Services.AddEventsModule();
 builder.Services.AddLiveModule();
 builder.Services.AddModerationModule();
 builder.Services.AddMessagingModule();
+builder.Services.AddMatchingModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddAdminModule();
 
@@ -86,6 +88,7 @@ app.MapEventsEndpoints();
 app.MapLiveEndpoints();
 app.MapModerationEndpoints();
 app.MapMessagingEndpoints();
+app.MapMatchingEndpoints();
 app.MapAdminEndpoints();
 app.MapMapTileEndpoints();
 

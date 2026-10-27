@@ -23,6 +23,11 @@ final conversationsProvider = StreamProvider.autoDispose<List<Conversation>>((re
 });
 
 /// Conversations with unread messages, including requests (the messages icon badge).
+/// Whether another person's profile shows the message button.
+final canMessageProvider = FutureProvider.autoDispose.family<bool, String>(
+  (ref, userId) async => (await ref.watch(messagingRepositoryProvider).canMessage(userId)).getOrThrow(),
+);
+
 final unreadConversationsProvider = Provider.autoDispose<int>(
   (ref) => ref.watch(conversationsProvider).value?.where((c) => c.unread > 0).length ?? 0,
 );

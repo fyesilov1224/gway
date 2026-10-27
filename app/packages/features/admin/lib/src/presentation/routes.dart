@@ -16,6 +16,8 @@ abstract final class AdminRoutes {
 
   static const notifications = '/notifications';
 
+  static const matching = '/matching';
+
   static const events = '/events';
 
   static const reports = '/reports';

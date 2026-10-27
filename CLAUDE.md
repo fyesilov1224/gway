@@ -167,7 +167,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 14 | Harita ile keşif (Stadia; ücretli plan yayında onayla) | ✅ Bitti (2026-10-22) |
 | 15 | Mesajlaşma: birebir ve grup içi, engelleme | ✅ Bitti (2026-10-22) |
 | 15.5 | Görsel kimlik: topluluk merkezli tasarım (kullanıcı isteği) | ✅ Bitti (2026-10-22) |
-| 15.6 | Eşleşme: ortak gruplardan arkadaş ve sevgili eşleşmesi, freemium (kullanıcı isteği) | Tasarım yazıldı (2026-10-26), onay bekliyor |
+| 15.6 | Eşleşme: ortak gruplardan arkadaş ve sevgili eşleşmesi, freemium (kullanıcı isteği) | ✅ Bitti (2026-10-26, dal `gelistirme/eslesme`): 15.6a çekirdek, 15.6b Tinder tarzı deste ve özellik başına ayrı ücretli paketler (eşleşmeleri görme, eşleşme sohbeti, seni beğenenler, sınırsız beğeni, süper beğeni, öne çık, hepsi bir arada; web'den satın alma) |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | |
 

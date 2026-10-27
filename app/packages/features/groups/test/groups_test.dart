@@ -154,6 +154,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(find.text('Paket: İstanbul Koşu Kulübü'), 200);
       expect(find.text('Paket: İstanbul Koşu Kulübü'), findsOneWidget);
     });
 

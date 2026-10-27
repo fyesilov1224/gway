@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/admin_moderation.dart';
 import 'admin_shell.dart';
+import 'matching_screen.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'suspend_dialog.dart';
@@ -256,6 +257,31 @@ class _ReportRow extends StatelessWidget {
                   onPressed: () async {
                     final removed = await showDialog<bool>(context: context, builder: (_) => _MessageContextDialog(report: r));
                     if (removed ?? false) await onReview(r, actioned: true);
+                  },
+                ),
+              if (r.targetType == 'match_photo')
+                GxButton(
+                  label: 'Fotoğrafı gör',
+                  icon: Icons.image_outlined,
+                  variant: GxButtonVariant.text,
+                  onPressed: () => showDialog<void>(context: context, builder: (_) => MatchPhotoDialog(path: r.excerpt)),
+                ),
+              if (canAct && r.status == AdminReportStatus.open && r.targetType == 'match_photo')
+                GxButton(
+                  label: 'Fotoğrafı kaldır',
+                  icon: Icons.hide_image_outlined,
+                  variant: GxButtonVariant.text,
+                  onPressed: () async {
+                    if (await removeMatchPhoto(context, r.targetId) && context.mounted) await onReview(r, actioned: true);
+                  },
+                ),
+              if (canAct && r.status == AdminReportStatus.open && r.targetType == 'match_profile')
+                GxButton(
+                  label: 'Eşleşme profilini kapat',
+                  icon: Icons.block,
+                  variant: GxButtonVariant.text,
+                  onPressed: () async {
+                    if (await suspendMatchProfile(context, r.targetId) && context.mounted) await onReview(r, actioned: true);
                   },
                 ),
               if (location != null)

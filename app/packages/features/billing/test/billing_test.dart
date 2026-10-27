@@ -54,8 +54,26 @@ class _FakeBilling implements BillingRepository {
   }
 
   @override
+  Future<Result<Uri>> personalCheckout(String slug, CheckoutRequest request) async {
+    requests.add(request);
+    return checkoutResult;
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+final _premium = PersonalOffer(
+  market: const Market(country: 'TR', provider: PaymentProvider.paytr, currency: 'TRY'),
+  purchasesEnabled: true,
+  planSlug: 'matching_premium',
+  planName: 'Hepsi Bir Arada',
+  salesTermsVersion: 1,
+  options: [
+    PersonalOption(period: PlanPeriod.month, amountMinor: 14900, startsAt: _now, endsAt: _now.add(const Duration(days: 30))),
+    PersonalOption(period: PlanPeriod.year, amountMinor: 149000, startsAt: _now, endsAt: _now.add(const Duration(days: 365))),
+  ],
+);
 
 Widget _app(
   Widget child, {
@@ -73,6 +91,7 @@ Widget _app(
         groupPlanProvider.overrideWith((ref, id) async => plan),
         planTimelineProvider.overrideWith((ref, id) async => const []),
         offerProvider.overrideWith((ref, id) async => _offer),
+        personalOfferProvider.overrideWith((ref, slug) async => _premium),
         salesTermsProvider.overrideWith((ref) async => _terms),
         lastBillingDetailsProvider.overrideWith((ref) async => null),
         orderProvider.overrideWith((ref, id) async => order!()),
@@ -105,6 +124,36 @@ Widget _card({required bool canManage, GroupPlan? plan}) => _app(
     );
 
 void main() {
+  group('personal plan', () {
+    testWidgets('mobile shows the prices and points to the web', (tester) async {
+      await _pump(tester, _app(Scaffold(body: PersonalPlanPurchase(slug: 'matching_premium', onPaid: () {})), web: false));
+
+      expect(_price('1.490 ₺'), findsOneWidget);
+      expect(find.text('%17 avantajlı'), findsOneWidget);
+      expect(find.textContaining('web sitesinde'), findsOneWidget);
+      expect(find.textContaining('Devam et'), findsNothing);
+    });
+
+    testWidgets('checkout sends the chosen period with the details', (tester) async {
+      final billing = _FakeBilling();
+      await _pump(
+        tester,
+        _app(PersonalCheckoutScreen(slug: 'matching_premium', period: PlanPeriod.month, openPaymentPage: (_) async => true), billing: billing),
+      );
+
+      expect(find.text('Hepsi Bir Arada · Aylık'), findsOneWidget);
+      for (final (label, value) in [('Ad', 'Ada'), ('Soyad', 'Yılmaz'), ('Telefon', '+90 555 000 00 00'), ('Adres', 'Moda Cad. 1'), ('Şehir', 'İstanbul'), ('Ülke', 'Türkiye')]) {
+        await tester.enterText(find.widgetWithText(TextFormField, label), value);
+      }
+      await tester.tap(find.byType(Checkbox));
+      await tester.tap(find.textContaining('Ödemeye geç'));
+      // The button keeps spinning while the payment page opens.
+      await tester.pump();
+      expect(billing.requests.single.period, PlanPeriod.month);
+      expect(billing.requests.single.details.city, 'İstanbul');
+    });
+  });
+
   group('group plan card', () {
     testWidgets('owner sees the plan, usage and the way to manage it', (tester) async {
       await _pump(tester, _card(canManage: true, plan: _onStarter()));

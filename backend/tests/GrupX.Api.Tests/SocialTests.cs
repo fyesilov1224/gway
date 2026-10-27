@@ -102,8 +102,12 @@ public sealed class SocialTests(ApiFactory factory) : IClassFixture<ApiFactory>,
 
     // Teammates -----------------------------------------------------------------------------
 
-    private Task LookingAsync(Guid user) =>
-        _db.ExecuteAsync("insert into public.teammate_preferences (user_id, looking, level) values (@id, true, 'beginner')", ("id", user));
+    /// <summary>Looking for teammates, with the Ekip Arkadaşı package that sending a request needs.</summary>
+    private async Task LookingAsync(Guid user, bool withPackage = true)
+    {
+        await _db.ExecuteAsync("insert into public.teammate_preferences (user_id, looking, level) values (@id, true, 'beginner')", ("id", user));
+        if (withPackage) await _db.GrantPackageAsync(user, "matching_teammates");
+    }
 
     private async Task<string?> TeammateAsync(Guid actor, Guid target, string? message = null)
     {
@@ -152,6 +156,25 @@ public sealed class SocialTests(ApiFactory factory) : IClassFixture<ApiFactory>,
         Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(me).DeleteAsync(Path($"/users/{other}/teammate"), Ct)).StatusCode);
         Assert.False(await TeammatesAsync(me, other));
         Assert.Equal("400", await TeammateAsync(me, me));
+    }
+
+    [Fact]
+    public async Task Sending_and_accepting_teammate_requests_need_the_package()
+    {
+        var (me, them) = (await UserAsync(), await UserAsync());
+        await LookingAsync(me, withPackage: false);
+        await LookingAsync(them);
+
+        var refused = await factory.ClientFor(me).PostAsJsonAsync(Path($"/users/{them}/teammate"), new TeammateRequestBody(null), Ct);
+        Assert.Contains("profile.teammate_package_required", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+
+        Assert.Equal(TeammateResponse.Requested, await TeammateAsync(them, me));
+        var locked = await factory.ClientFor(me).PostAsync(Path($"/me/teammate-requests/{them}/approval"), null, Ct);
+        Assert.Contains("profile.teammate_package_required", await locked.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+
+        await _db.GrantPackageAsync(me, "matching_teammates");
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(me).PostAsync(Path($"/me/teammate-requests/{them}/approval"), null, Ct)).StatusCode);
+        Assert.True(await TeammatesAsync(me, them));
     }
 
     [Fact]

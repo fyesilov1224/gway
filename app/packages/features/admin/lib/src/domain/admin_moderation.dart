@@ -42,6 +42,8 @@ const reportTargetLabels = {
   'live_comment': 'Canlı yayın yorumu',
   'message': 'Mesaj',
   'user': 'Kullanıcı',
+  'match_profile': 'Eşleşme profili',
+  'match_photo': 'Eşleşme fotoğrafı',
 };
 
 const sanctionLabels = {'warning': 'Uyarı', 'mute': 'Susturma', 'kick': 'Gruptan çıkarma', 'ban': 'Ban'};

@@ -25,6 +25,10 @@ $$;
 
 select pg_temp.act('00000000-0000-0000-0000-0000000dd001');
 insert into public.blocks (blocker_id, blocked_id) values ('00000000-0000-0000-0000-0000000dd001', '00000000-0000-0000-0000-0000000dd004');
+-- The fan may comment as n1's teammate (comment rule, 0034).
+alter table public.teammates disable trigger teammates_guard;
+insert into public.teammates (user_a, user_b) values ('00000000-0000-0000-0000-0000000dd001', '00000000-0000-0000-0000-0000000dd002');
+alter table public.teammates enable trigger teammates_guard;
 insert into public.posts (id, author_id, caption) values
   ('00000000-0000-0000-0000-0000000df001', '00000000-0000-0000-0000-0000000dd001', 'Merhaba @notif_two ve @notif_four @kimse_yok');
 

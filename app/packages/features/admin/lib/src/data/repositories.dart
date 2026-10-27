@@ -6,6 +6,7 @@ import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_live.dart';
+import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
 import '../domain/admin_support.dart';
@@ -273,6 +274,65 @@ class ApiAdminLiveRepository implements AdminLiveRepository {
   @override
   Future<Result<void>> end(String id, {required String reason}) =>
       _api.post('/admin/live/$id/end', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminMatchingRepository implements AdminMatchingRepository {
+  ApiAdminMatchingRepository(this._api, this._client);
+
+  final ApiClient _api;
+  final SupabaseClient _client;
+
+  @override
+  Future<Result<AdminMatchingStats>> stats() =>
+      _api.get('/admin/matching/stats', decode: (json) => AdminMatchingStats.fromJson((json! as Map).cast()));
+
+  @override
+  Future<Result<void>> suspend(String userId, {required String reason, DateTime? until}) => _api.post(
+        '/admin/matching/profiles/$userId/suspension',
+        body: {'reason': reason, 'until': until?.toUtc().toIso8601String()},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> removePhoto(String photoId, {required String reason}) =>
+      _api.post('/admin/matching/photos/$photoId/removal', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> updateSettings(AdminMatchingSettings settings) =>
+      _api.put('/admin/matching/settings', body: settings.toJson(), decode: (_) {});
+
+  @override
+  Future<Result<List<AdminPremium>>> packages() => _api.get('/admin/matching/packages',
+      decode: (json) => [for (final p in (json! as List).cast<Map<String, Object?>>()) AdminPremium.fromJson(p)]);
+
+  @override
+  Future<Result<void>> updatePackage(String slug, {required String name, required bool isActive, required List<AdminPrice> prices}) =>
+      _api.put(
+        '/admin/matching/packages/$slug',
+        body: {
+          'name': name,
+          'isActive': isActive,
+          'prices': [for (final p in prices) {'currency': p.currency, 'period': p.period, 'amountMinor': p.amountMinor}],
+        },
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> grantPackage({required String username, required String slug, required int days, required String reason}) =>
+      _api.post(
+        '/admin/matching/packages/grants',
+        body: {'username': username, 'slug': slug, 'days': days, 'reason': reason},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<String>> photoUrl(String path) async {
+    try {
+      return Ok(await _client.storage.from('match-photos').createSignedUrl(path, const Duration(minutes: 10).inSeconds));
+    } on Object catch (e) {
+      return Err(failureFromSupabase(e));
+    }
+  }
 }
 
 class ApiAdminNotificationsRepository implements AdminNotificationsRepository {

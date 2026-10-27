@@ -16,8 +16,8 @@ public sealed record AdminBillingStats(
 public sealed record AdminOrder(
     Guid Id,
     Guid? GroupId,
-    string GroupName,
-    string GroupHandle,
+    string? GroupName,
+    string? GroupHandle,
     Guid BuyerId,
     string? BuyerUsername,
     string? BuyerDisplayName,
@@ -131,7 +131,8 @@ internal sealed class AdminBilling(NpgsqlDataSource db)
 
     private const string OrderFilter =
         """
-        where (@q is null or o.group_name ilike @q escape '\' or o.group_handle ilike @q escape '\')
+        where (@q is null or o.group_name ilike @q escape '\' or o.group_handle ilike @q escape '\'
+               or o.personal_plan_slug is not null and exists (select 1 from public.profiles b where b.id = o.buyer_id and b.username ilike @q escape '\'))
           and (@status is null or o.status = @status)
           and (@provider is null or o.provider = @provider)
         """;
@@ -160,10 +161,11 @@ internal sealed class AdminBilling(NpgsqlDataSource db)
         await using (var cmd = new NpgsqlCommand(
             $"""
             select o.id, o.group_id, o.group_name, o.group_handle, o.buyer_id, p.username, p.display_name,
-                   o.plan_slug, pl.name, o.period, o.provider, o.country, o.currency, o.amount_minor, o.status,
-                   o.failure_reason, o.created_at, o.paid_at
+                   coalesce(o.plan_slug, o.personal_plan_slug), coalesce(pl.name, pp.name), o.period, o.provider, o.country,
+                   o.currency, o.amount_minor, o.status, o.failure_reason, o.created_at, o.paid_at
             from public.billing_orders o
-            join public.plans pl on pl.slug = o.plan_slug
+            left join public.plans pl on pl.slug = o.plan_slug
+            left join public.personal_plans pp on pp.slug = o.personal_plan_slug
             left join public.profiles p on p.id = o.buyer_id
             {OrderFilter}
             order by o.created_at desc, o.id
@@ -176,7 +178,8 @@ internal sealed class AdminBilling(NpgsqlDataSource db)
             while (await r.ReadAsync(ct))
             {
                 items.Add(new AdminOrder(
-                    r.GetGuid(0), r.IsDBNull(1) ? null : r.GetGuid(1), r.GetString(2), r.GetString(3), r.GetGuid(4),
+                    r.GetGuid(0), r.IsDBNull(1) ? null : r.GetGuid(1), r.IsDBNull(2) ? null : r.GetString(2),
+                    r.IsDBNull(3) ? null : r.GetString(3), r.GetGuid(4),
                     r.IsDBNull(5) ? null : r.GetString(5), r.IsDBNull(6) ? null : r.GetString(6),
                     r.GetString(7), r.GetString(8), r.GetString(9), r.GetString(10), r.IsDBNull(11) ? null : r.GetString(11),
                     r.GetString(12), r.GetInt32(13), r.GetString(14), r.IsDBNull(15) ? null : r.GetString(15),

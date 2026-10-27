@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(29);
+select plan(34);
 
 -- t1 looks for teammates, t2 t3 look too, t4 is private, t5 does not look.
 insert into auth.users (id, email, aud, role)
@@ -17,6 +17,12 @@ create function pg_temp.act(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
 $$;
 create function pg_temp.u(i int) returns uuid language sql as $$ select ('00000000-0000-0000-0000-0000000bb10' || i)::uuid $$;
+
+-- t1, t2 and t3 have the Ekip Arkadaşı package (granting is tested in 27_matching_premium).
+alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+insert into public.user_subscriptions (user_id, plan_slug, grant_reason, starts_at, ends_at)
+select pg_temp.u(i), 'matching_teammates', 'test', now() - interval '1 minute', now() + interval '1 day' from unnest(array[1, 2, 3]) i;
+alter table public.user_subscriptions enable trigger user_subscriptions_guard;
 
 set local role authenticated;
 
@@ -62,6 +68,18 @@ select ok(
   (select bool_and(not s ? 'province') from jsonb_array_elements(public.teammate_suggestions()) s),
   'the province itself is never returned'
 );
+select throws_ok(
+  $$ update public.teammate_preferences set activities = array['uzay_yuruyusu'] where user_id = pg_temp.u(1) $$,
+  'P0001', 'teammate_activity_invalid', 'activities are categories'
+);
+update public.teammate_preferences set activities = array['running', 'hiking'], goals = array['fitness'] where user_id = pg_temp.u(1);
+select pg_temp.act('00000000-0000-0000-0000-0000000bb102');
+update public.teammate_preferences set activities = array['running'], goals = array['fitness', 'fun'] where user_id = pg_temp.u(2);
+select pg_temp.act('00000000-0000-0000-0000-0000000bb101');
+select is(
+  (select (s->'activities') || (s->'goals') from jsonb_array_elements(public.teammate_suggestions()) s where s->'person'->>'username' = 'team_user2'),
+  '["Koşu", "fitness"]'::jsonb, 'shared activities and goals are reasons too'
+);
 select is(public.teammate_status(pg_temp.u(2))->>'level', 'intermediate', 'the profile shows looking and the level');
 select ok(not (public.teammate_status(pg_temp.u(2)) ? 'province'), 'but not the province');
 
@@ -71,6 +89,12 @@ select throws_ok(
   '42501', null, 'clients do not write requests directly'
 );
 reset role;
+select pg_temp.act('00000000-0000-0000-0000-0000000bb104');
+select throws_ok(
+  $$ insert into public.teammate_requests (requester_id, target_id) values (pg_temp.u(4), pg_temp.u(2)) $$,
+  'P0001', 'teammate_package_required', 'sending a request needs the Ekip Arkadaşı package'
+);
+select pg_temp.act('00000000-0000-0000-0000-0000000bb101');
 select lives_ok(
   $$ insert into public.teammate_requests (requester_id, target_id, message) values (pg_temp.u(1), pg_temp.u(2), ' Cumartesi Belgrad? ') $$,
   'a request goes to someone looking'
@@ -139,6 +163,17 @@ select throws_ok(
 );
 set local role authenticated;
 select throws_ok($$ select * from public.teammate_request_log $$, '42501', null, 'the request log is not readable');
+
+-- Without the package the section shows only how many requests wait ----------------------------------------
+reset role;
+select pg_temp.act('00000000-0000-0000-0000-0000000bb101');
+delete from public.teammate_requests where requester_id = pg_temp.u(1);
+insert into public.teammate_requests (requester_id, target_id) values (pg_temp.u(1), pg_temp.u(4));
+set local role authenticated;
+select pg_temp.act('00000000-0000-0000-0000-0000000bb104');
+select is(public.my_teammates() - 'teammates' - 'incoming' - 'outgoing', '{"locked": true, "incoming_count": 1}'::jsonb,
+  'without the package: locked, with the count of waiting requests');
+select is((select count(*)::int from public.teammate_requests), 0, 'and the requests themselves are not readable');
 
 -- Blocking ------------------------------------------------------------------------------------------------
 reset role;

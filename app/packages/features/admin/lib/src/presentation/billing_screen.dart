@@ -428,7 +428,7 @@ class _OrderRow extends StatelessWidget {
     final buyer = order.buyerUsername == null ? 'silinmiş hesap' : '@${order.buyerUsername}';
     final reason = order.status == AdminOrderStatus.failed && order.failureReason != null ? ' · ${order.failureReason}' : '';
     return _ListRow(
-      title: '${order.groupName} (@${order.groupHandle})',
+      title: order.groupName == null ? '${order.planName} · $buyer' : '${order.groupName} (@${order.groupHandle})',
       subtitle: '${planAndPeriod(order.planName, order.period)} · ${providerLabels[order.provider] ?? order.provider}'
           '${order.country == null ? '' : ' (${order.country})'} · $buyer · ${formatDateTimeTr(order.paidAt ?? order.createdAt)}$reason',
       amount: formatMoney(order.amountMinor, order.currency),
