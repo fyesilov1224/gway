@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -8,8 +10,18 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Upload key for Google Play (docs/ARCHITECTURE.md §10). key.properties stays out of the repository; without it a
+// release build is signed with the debug key, for local testing only.
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+// Cleartext http only for the home-network APK: flutter build apk --android-project-arg=lanHttp=true
+val lanHttp = (project.findProperty("lanHttp") as String?) == "true"
+
 android {
-    namespace = "com.grupx.social_app"
+    namespace = "com.grupx.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -23,21 +35,30 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.grupx.social_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // Permanent on Google Play.
+        applicationId = "com.grupx.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["networkSecurityConfig"] =
+            if (lanHttp) "@xml/network_security_config_lan" else "@xml/network_security_config"
+    }
+
+    signingConfigs {
+        if (keyProperties.isNotEmpty()) {
+            create("upload") {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keyProperties.isNotEmpty()) signingConfigs.getByName("upload") else signingConfigs.getByName("debug")
         }
     }
 }

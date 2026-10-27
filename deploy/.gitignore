@@ -1,0 +1,4 @@
+# Server-side secrets and build output (docs/DEPLOY.md).
+.env
+secrets/
+www/

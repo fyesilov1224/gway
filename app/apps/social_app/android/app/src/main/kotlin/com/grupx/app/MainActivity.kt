@@ -1,4 +1,4 @@
-package com.grupx.social_app
+package com.grupx.app
 
 import android.content.Context
 import android.content.Intent

@@ -1,0 +1,42 @@
+# Automatic https (Let's Encrypt) for every subdomain of {$DOMAIN} (docs/DEPLOY.md).
+{
+	email {$ACME_EMAIL}
+}
+
+# The social web app (Flutter web build in www/app). Also serves the public pages Google Play links to:
+# https://app.{$DOMAIN}/#/gizlilik, /#/kosullar, /#/hesap-silme
+app.{$DOMAIN} {
+	root * /srv/app
+	encode zstd gzip
+	try_files {path} /index.html
+	file_server
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}
+
+# The admin panel (www/panel).
+panel.{$DOMAIN} {
+	root * /srv/panel
+	encode zstd gzip
+	try_files {path} /index.html
+	file_server
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+	}
+}
+
+# The C# API.
+api.{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:8080
+}
+
+# LiveKit signalling (WebSocket); media goes to the server's ports 7881/tcp and 7882/udp.
+livekit.{$DOMAIN} {
+	reverse_proxy livekit:7880
+}

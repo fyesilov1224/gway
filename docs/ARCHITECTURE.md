@@ -110,6 +110,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.security_reviews` | identity | 15.8 |
 | `public.passkeys` | identity | 15.8 |
 | `public.webauthn_challenges` | identity | 15.8 |
+| `public.birth_dates` | identity | 17a |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -132,6 +133,15 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - Metinler taslaktır; yayından önce hukuki incelemeden geçmelidir.
 - **Yönetim (Faz 15.7'de admin paneline eklendi):** platform yöneticisi (`admin`) her türün metinlerini panelden yönetir (`/admin/legal`). Her tür için yeni **sürüm** yayınlar (başlık, gövde, yayın zamanı); yayın zamanı ileri tarihli olabilir (o zamana kadar taslak, kimseye görünmez). `audience` türden türetilir (`distance_sales → purchase`, diğerleri `signup`). Yazmalar C# API'den geçer; her işlem `audit_log`'a yazılır (`legal.published`, `legal.updated`, `legal.deleted`).
 - **Değişmezlik:** bir sürüme **en az bir onay (`consents`) bağlandıysa** o sürümün başlığı ve gövdesi artık değiştirilemez, silinemez (hem FK hem `legal_documents_guard` trigger ile). Kullanıcıların onayladığı metin kayıt altında kalır; metni güncellemek için yeni sürüm açılır. Henüz kimsenin onaylamadığı bir sürüm (taslak ya da yeni yayın) serbestçe düzenlenip silinebilir.
+
+### Yaş sınırı: 18+ (Faz 17a, kullanıcı kararı 2026-10-27)
+- GrupX yalnızca 18 yaş ve üstüne açıktır (eşleşmede sevgili bulma var; Play hedef kitlesi 18+).
+- Giriş sonrası sıra: güvenlik → KVKK → **doğum tarihi** → onboarding → uygulama. Doğum tarihi olmayan mevcut hesaplar da bu adımı görür.
+- `birth_dates` (identity): kullanıcı başına bir satır.
+  - Kullanıcı kendi tarihini bir kez ekler ve okur (kendi verisine basit yazma).
+  - Değiştiremez, silemez; düzeltme destek ekibinden yapılır.
+  - Trigger, 18 yaşından küçükse (Türkiye saatine göre bugün) ya da tarih 1900'den önceyse reddeder.
+- Doğum tarihi başkalarına gösterilmez. Eşleşme profilindeki doğum tarihi ayrı tutulur (§3g).
 
 ### Profil
 - `profiles` satırı onboarding sonunda kullanıcı tarafından oluşturulur (Flutter → Supabase, RLS `id = auth.uid()`).
@@ -1547,6 +1557,41 @@ Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemle
 | `POST /admin/legal/{kind}` | Yeni sürüm yayınla (`title`, `body`, `publishedAt?`). Rol: `admin` |
 | `PUT /admin/legal/{kind}/{version}` | Onay bağlı değilse düzenle (`title`, `body`, `publishedAt`). Rol: `admin` |
 | `DELETE /admin/legal/{kind}/{version}` | Onay bağlı değilse sil. Rol: `admin` |
+
+## 10. Google Play (Faz 17a, kullanıcı kararları 2026-10-27)
+
+### Uygulama kimliği ve imza
+- Paket adı **`com.grupx.app`**. Yayından sonra değişmez. Firebase'de bu adla ayrı bir Android uygulaması vardır (`google-services.json`).
+- Sürüm `pubspec.yaml`'daki `version`'dan gelir (`1.0.0+1`; `+` sonrası her yüklemede artar).
+- **Play App Signing** kullanılır. Bizdeki anahtar yalnızca *yükleme anahtarıdır*.
+  - Anahtar ve şifreleri repoya girmez; `%USERPROFILE%\.grupx\upload-keystore.jks` ve `android/key.properties` (gitignore) dosyalarındadır.
+  - Kaybolursa Play Console'dan yükleme anahtarı sıfırlanır.
+  - `key.properties` yoksa sürüm derlemesi debug anahtarıyla imzalanır; bu yalnızca yerel deneme içindir.
+- Play'e **App Bundle** yüklenir: `flutter build appbundle --release`.
+
+### Ağ
+- Sürüm derlemesinde şifresiz (http) trafik kapalıdır. API ve Supabase `https` olmalıdır.
+- Ev ağı APK'sı için şifresiz trafik yalnızca açıkça istenince açılır: `--android-project-arg=lanHttp=true`. Bu derleme Play'e yüklenmez.
+
+### Ödeme (Play kuralı)
+- Android uygulamasında **satış yoktur**. Paket satın alma ekranları, fiyatlar ve web'e yönlendiren hiçbir metin ya da bağlantı Android'de gösterilmez.
+- Kullanıcı paketlerin **durumunu** görür (aktif mi, ne zaman biter). Satın alma yalnızca web'dedir.
+- Kural tek yerden uygulanır: `purchasesOnThisPlatformProvider` (billing) yalnızca web'de `true`. Satın alma, ödeme ve fiyat ekranları buna bakar.
+
+### Herkese açık sayfalar (web uygulaması, girişsiz)
+- `/gizlilik`: en güncel aydınlatma metni (Play'deki gizlilik politikası bağlantısı).
+- `/kosullar`: kullanım koşulları.
+- `/hesap-silme`: hesap ve veri silmenin nasıl yapıldığı ve 30 günlük süre (Play'in istediği web bağlantısı).
+
+### İzinler ve Play beyanları
+- Konum: yalnızca uygulama açıkken (`ACCESS_FINE/COARSE_LOCATION`). Arka planda konum yok. İzinden önce amaç ekranı gösterilir.
+- Mikrofon: yalnızca canlı yayında sahneye alınınca.
+- `QUERY_ALL_PACKAGES` yok; yalnızca VPN servisleri sorgulanır (`<queries>`).
+- Ayrıntılı beyan cevapları, veri güvenliği formu, içerik derecelendirmesi ve mağaza metinleri: `docs/PLAY_STORE.md`.
+
+### Sunucu
+- Yayında API, LiveKit, web uygulaması ve panel tek sunucuda, Docker Compose ile çalışır. Caddy otomatik `https` verir.
+- Kurulum dosyaları `deploy/` klasöründe, adımlar `docs/DEPLOY.md`'de.
 
 ## 9. Test ve "bitti" tanımı
 

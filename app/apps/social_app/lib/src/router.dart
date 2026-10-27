@@ -43,6 +43,7 @@ String? _gateLocation(AppGate gate) => switch (gate) {
       AppGate.deletionPending => IdentityRoutes.deletionPending,
       AppGate.security => IdentityRoutes.security,
       AppGate.needsConsent => IdentityRoutes.consent,
+      AppGate.needsBirthDate => IdentityRoutes.birthDate,
       AppGate.needsOnboarding => ProfileRoutes.onboarding,
       AppGate.ready => null,
     };
@@ -57,6 +58,7 @@ final _gateOnly = {
   IdentityRoutes.deletionPending,
   IdentityRoutes.security,
   IdentityRoutes.consent,
+  IdentityRoutes.birthDate,
   ProfileRoutes.onboarding,
 };
 
@@ -64,6 +66,9 @@ final _gateOnly = {
 String? redirectFor(AppGate gate, Uri location) {
   final path = location.path;
   final target = _gateLocation(gate);
+
+  // Privacy policy, terms and account deletion stay open in every state (Google Play links).
+  if (IdentityRoutes.openToAll.contains(path)) return null;
 
   if (gate == AppGate.ready) {
     if (!_gateOnly.contains(path)) return null;
@@ -113,6 +118,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: IdentityRoutes.deletionPending, builder: (_, _) => const DeletionPendingScreen()),
       GoRoute(path: IdentityRoutes.security, builder: (_, _) => const SecurityScreen()),
       GoRoute(path: IdentityRoutes.consent, builder: (_, _) => const ConsentScreen()),
+      GoRoute(path: IdentityRoutes.birthDate, builder: (_, _) => const BirthDateScreen()),
+      GoRoute(
+        path: IdentityRoutes.privacyPolicy,
+        builder: (_, _) => const PublicLegalScreen(kind: LegalKind.privacyNotice),
+      ),
+      GoRoute(path: IdentityRoutes.termsOfUse, builder: (_, _) => const PublicLegalScreen(kind: LegalKind.terms)),
+      GoRoute(
+        path: IdentityRoutes.accountDeletionInfo,
+        builder: (context, _) => AccountDeletionInfoScreen(onSignIn: () => context.go(IdentityRoutes.signIn)),
+      ),
       GoRoute(
         path: ProfileRoutes.onboarding,
         builder: (_, _) => OnboardingScreen(onSignOut: () => ref.read(authRepositoryProvider).signOut()),

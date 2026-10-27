@@ -48,6 +48,10 @@ select u.id, d.kind, d.version
 from seed_users u
 cross join public.legal_documents d;
 
+-- Every demo account is an adult (18+ limit, docs/ARCHITECTURE.md §3a).
+insert into public.birth_dates (user_id, birth_date)
+select u.id, date '1995-06-15' from seed_users u;
+
 insert into public.profiles (id, username, display_name, bio)
 select id, username, display_name, bio from seed_users;
 

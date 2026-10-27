@@ -7,8 +7,10 @@ import '../data/api_security_repository.dart';
 import '../data/device_signal_source.dart';
 import '../data/passkey_authenticator.dart';
 import '../data/supabase_auth_repository.dart';
+import '../data/supabase_birth_date_repository.dart';
 import '../data/supabase_consent_repository.dart';
 import '../domain/account.dart';
+import '../domain/age.dart';
 import '../domain/auth.dart';
 import '../domain/legal.dart';
 import '../domain/security.dart';
@@ -28,6 +30,16 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final consentRepositoryProvider = Provider<ConsentRepository>(
   (ref) => SupabaseConsentRepository(ref.watch(supabaseClientProvider)),
 );
+
+final birthDateRepositoryProvider = Provider<BirthDateRepository>(
+  (ref) => SupabaseBirthDateRepository(ref.watch(supabaseClientProvider)),
+);
+
+/// The signed-in user's date of birth; null when not given yet (or signed out).
+final birthDateProvider = FutureProvider<DateTime?>((ref) async {
+  if (ref.watch(currentUserIdProvider) == null) return null;
+  return (await ref.watch(birthDateRepositoryProvider).mine()).getOrThrow();
+});
 
 final accountRepositoryProvider = Provider<AccountRepository>(
   (ref) => ApiAccountRepository(ref.watch(apiClientProvider)),

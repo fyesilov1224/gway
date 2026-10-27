@@ -4,7 +4,8 @@ import 'package:identity/identity.dart';
 import 'package:profile/profile.dart';
 
 /// Where the signed-in (or not) user must be. Enforces the order
-/// sign-in → security verification → KVKK consents → onboarding → app (docs/ARCHITECTURE.md §3a, §3h).
+/// sign-in → security verification → KVKK consents → date of birth (18+) → onboarding → app
+/// (docs/ARCHITECTURE.md §3a, §3h).
 enum AppGate {
   loading,
   error,
@@ -14,6 +15,7 @@ enum AppGate {
   deletionPending,
   security,
   needsConsent,
+  needsBirthDate,
   needsOnboarding,
   ready,
 }
@@ -24,6 +26,7 @@ AppGate resolveGate({
   required AsyncValue<AccountState?> account,
   required AsyncValue<SecurityStatus?> security,
   required AsyncValue<List<LegalDocument>> pendingConsents,
+  required AsyncValue<DateTime?> birthDate,
   required AsyncValue<Profile?> profile,
   required DateTime now,
 }) {
@@ -44,6 +47,9 @@ AppGate resolveGate({
   if (!pendingConsents.hasValue) return pendingConsents.hasError ? AppGate.error : AppGate.loading;
   if (pendingConsents.value!.isNotEmpty) return AppGate.needsConsent;
 
+  if (!birthDate.hasValue) return birthDate.hasError ? AppGate.error : AppGate.loading;
+  if (birthDate.value == null) return AppGate.needsBirthDate;
+
   if (!profile.hasValue) return profile.hasError ? AppGate.error : AppGate.loading;
   if (profile.value == null) return AppGate.needsOnboarding;
 
@@ -60,6 +66,7 @@ final gateProvider = Provider<AppGate>((ref) {
     account: ref.watch(accountStateProvider),
     security: security,
     pendingConsents: verified ? ref.watch(pendingConsentsProvider) : const AsyncLoading(),
+    birthDate: verified ? ref.watch(birthDateProvider) : const AsyncLoading(),
     profile: verified ? ref.watch(myProfileProvider) : const AsyncLoading(),
     now: DateTime.now(),
   );
@@ -71,5 +78,6 @@ void refreshGate(WidgetRef ref) {
     ..invalidate(accountStateProvider)
     ..invalidate(securityStatusProvider)
     ..invalidate(pendingConsentsProvider)
+    ..invalidate(birthDateProvider)
     ..invalidate(myProfileProvider);
 }

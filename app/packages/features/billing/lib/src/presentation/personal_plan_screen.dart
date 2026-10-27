@@ -11,7 +11,8 @@ import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
 
-/// Prices of a personal plan and the way to buy it: checkout on the web, a pointer to the web on mobile
+/// Prices of a personal plan and checkout on the web; on mobile only whether the user has it (Google Play rule,
+/// docs/ARCHITECTURE.md §10: no prices, no purchase and no pointer to another way to pay)
 /// (docs/ARCHITECTURE.md §7). [orderId] is the order the buyer came back from; [onPaid] reloads what it unlocked.
 class PersonalPlanPurchase extends ConsumerStatefulWidget {
   const PersonalPlanPurchase({super.key, required this.slug, this.orderId, required this.onPaid});
@@ -48,6 +49,15 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
           const SizedBox(height: GxSpacing.md),
         ],
         switch (offer) {
+          AsyncData(:final value) when !onWeb => GxPanel(
+              title: 'Paket durumu',
+              child: Text(
+                value.activeUntil == null
+                    ? 'Bu paket hesabında açık değil.'
+                    : 'Paketin ${formatDateTr(value.activeUntil!)} tarihine kadar açık.',
+                style: textTheme.bodyLarge,
+              ),
+            ),
           AsyncData(:final value) => GxPanel(
               title: value.activeUntil == null ? 'Satın al' : 'Süreni uzat',
               subtitle: value.activeUntil == null
@@ -67,13 +77,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
                     const SizedBox(height: GxSpacing.xs),
                   ],
                   const SizedBox(height: GxSpacing.xs),
-                  if (!onWeb)
-                    const PlanNotice(
-                      icon: Icons.language_rounded,
-                      text: 'Paketler GrupX web sitesinde Eşleşme > Paketler bölümünden satın alınır. '
-                          'Mobil uygulama yalnızca durumunu gösterir.',
-                    )
-                  else if (!value.purchasesEnabled)
+                  if (!value.purchasesEnabled)
                     const PlanNotice(icon: Icons.schedule_rounded, text: 'Bu paketin satışı şu anda kapalı. Lütfen daha sonra tekrar dene.')
                   else ...[
                     GxButton(

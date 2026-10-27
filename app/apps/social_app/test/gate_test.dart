@@ -17,6 +17,7 @@ AppGate _gate({
   AsyncValue<AccountState?> account = const AsyncData(AccountState(status: AccountStatus.active)),
   AsyncValue<SecurityStatus?>? security,
   AsyncValue<List<LegalDocument>> consents = const AsyncData([]),
+  AsyncValue<DateTime?>? birthDate,
   AsyncValue<Profile?>? profile,
 }) =>
     resolveGate(
@@ -25,6 +26,7 @@ AppGate _gate({
       account: account,
       security: security ?? AsyncData(_security(SecurityStep.done)),
       pendingConsents: consents,
+      birthDate: birthDate ?? AsyncData(DateTime(1995, 6, 15)),
       profile: profile ?? AsyncData(_profile),
       now: _now,
     );
@@ -85,6 +87,12 @@ void main() {
       );
     });
 
+    test('the date of birth comes after consents and before onboarding', () {
+      expect(_gate(consents: const AsyncData([_doc]), birthDate: const AsyncData(null)), AppGate.needsConsent);
+      expect(_gate(birthDate: const AsyncData(null), profile: const AsyncData(null)), AppGate.needsBirthDate);
+      expect(_gate(birthDate: const AsyncLoading()), AppGate.loading);
+    });
+
     test('consents come before onboarding', () {
       expect(_gate(consents: const AsyncData([_doc]), profile: const AsyncData(null)), AppGate.needsConsent);
       expect(_gate(profile: const AsyncData(null)), AppGate.needsOnboarding);
@@ -99,6 +107,13 @@ void main() {
 
   group('redirectFor', () {
     Uri u(String s) => Uri.parse(s);
+
+    test('the public pages open in every state', () {
+      for (final gate in AppGate.values) {
+        expect(redirectFor(gate, u('/gizlilik')), isNull);
+        expect(redirectFor(gate, u('/hesap-silme')), isNull);
+      }
+    });
 
     test('signed-out users may browse auth screens only', () {
       expect(redirectFor(AppGate.signedOut, u('/sign-up')), isNull);

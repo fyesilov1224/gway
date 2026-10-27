@@ -341,6 +341,19 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 
 ## Faz 17 — Yayına Hazırlık
 
+### 17a — Google Play (kullanıcı isteği, onaylandı 2026-10-27; ayrıntılar `docs/ARCHITECTURE.md` §10)
+- [x] Paket adı `com.grupx.app`, Firebase Android uygulaması, yükleme anahtarı ve imza (Play App Signing için yükleme anahtarı), App Bundle, sürüm `1.0.0+1`; AAB derlendi ve yükleme anahtarıyla imzalı (2026-10-27)
+- [x] Sürümde şifresiz trafik kapalı; ev ağı APK'sı yalnızca `lanHttp=true` ile
+- [x] geolocator'ın konum ön plan servisi manifest'ten çıkarıldı (arka planda konum yok, Play ön plan servisi beyanı gerekmez)
+- [x] Android'de satış ve web'e yönlendirme yok; yalnızca paket durumu
+- [x] 18+ yaş sınırı: doğum tarihi adımı (`birth_dates`, migration `0043`, pgTAP)
+- [x] Herkese açık sayfalar: `/gizlilik`, `/kosullar`, `/hesap-silme`
+- [x] Sunucu kurulumu (`deploy/`, `docs/DEPLOY.md`): Docker Compose, Caddy (https), API, LiveKit, web ve panel; API imajı derlendi ve sağlık kontrolü geçti
+- [x] `docs/PLAY_STORE.md`: veri güvenliği, içerik derecelendirmesi, izin beyanları, mağaza metinleri, kapalı test ve Google girişi adımları
+- [x] Testler (pgTAP 832, Flutter 17 paket); `flutter analyze` temiz
+- [ ] Kullanıcıda: Play geliştirici hesabı, alan adı ve sunucu, Twilio, hukuk incelemesi ve yeni aydınlatma metni, OAuth onay ekranını yayına alma, mağaza görselleri, kapalı test (12 kişi, 14 gün)
+- [ ] İnceleme hesabı muafiyeti (güvenlik doğrulaması açıkken Play inceleme ekibinin girebilmesi): istenirse
+
 - Karanlık tema
 - Performans
 - Güvenlik testi

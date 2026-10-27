@@ -1,0 +1,71 @@
+# GrupX production stack on one server (docs/DEPLOY.md, docs/ARCHITECTURE.md §10).
+# Caddy terminates https for every subdomain; the API and LiveKit are reachable only through it (LiveKit media
+# also uses its own TCP/UDP ports). Supabase stays the hosted project.
+name: grupx
+
+networks:
+  grupx:
+    ipam:
+      config:
+        # Fixed so the API can trust Caddy's X-Forwarded-For (ReverseProxy__KnownNetworks below).
+        - subnet: 172.28.0.0/16
+
+services:
+  caddy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./www/app:/srv/app:ro
+      - ./www/panel:/srv/panel:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [grupx]
+    depends_on: [api, livekit]
+
+  api:
+    build:
+      context: ../backend
+      dockerfile: ../deploy/api.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ReverseProxy__KnownNetworks__0: 172.28.0.0/16
+      Cors__AllowedOrigins__0: https://app.${DOMAIN}
+      Cors__AllowedOrigins__1: https://panel.${DOMAIN}
+      Billing__AppUrl: https://app.${DOMAIN}
+      Billing__PublicApiUrl: https://api.${DOMAIN}
+      Events__AppUrl: https://app.${DOMAIN}
+      LiveKit__Url: wss://livekit.${DOMAIN}
+      LiveKit__ApiUrl: http://livekit:7880
+      Security__Passkeys__RelyingPartyId: ${DOMAIN}
+      Security__Passkeys__Origins__0: https://app.${DOMAIN}
+      Security__Passkeys__Origins__1: https://panel.${DOMAIN}
+      Push__CredentialsPath: /secrets/firebase-adminsdk.json
+    volumes:
+      - ./secrets:/secrets:ro
+    networks: [grupx]
+
+  livekit:
+    image: livekit/livekit-server:v1.9.1
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    environment:
+      LIVEKIT_KEYS: "${LiveKit__ApiKey}: ${LiveKit__ApiSecret}"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7881:7881"
+      - "7882:7882/udp"
+    networks: [grupx]
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -125,12 +125,12 @@ Widget _card({required bool canManage, GroupPlan? plan}) => _app(
 
 void main() {
   group('personal plan', () {
-    testWidgets('mobile shows the prices and points to the web', (tester) async {
+    testWidgets('mobile shows only the status: no prices, no purchase, no pointer elsewhere (Play rule)', (tester) async {
       await _pump(tester, _app(Scaffold(body: PersonalPlanPurchase(slug: 'matching_premium', onPaid: () {})), web: false));
 
-      expect(_price('1.490 ₺'), findsOneWidget);
-      expect(find.text('%17 avantajlı'), findsOneWidget);
-      expect(find.textContaining('web sitesinde'), findsOneWidget);
+      expect(find.text('Paket durumu'), findsOneWidget);
+      expect(_price('1.490 ₺'), findsNothing);
+      expect(find.textContaining('web'), findsNothing);
       expect(find.textContaining('Devam et'), findsNothing);
     });
 
