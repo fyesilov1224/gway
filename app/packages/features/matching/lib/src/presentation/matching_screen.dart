@@ -551,7 +551,7 @@ class _Intro extends StatelessWidget {
               const SizedBox(height: GxSpacing.md),
               point(Icons.groups_2_outlined, 'Yalnızca üye olduğun ya da takip ettiğin gruplardaki, eşleşmeyi açmış kişileri görürsün.'),
               point(Icons.swipe_rounded, 'Kartı sağa kaydır beğen, sola kaydır geç, yukarı kaydır süper beğen.'),
-              point(Icons.favorite_border_rounded, 'İkiniz de birbirinizi beğenince eşleşirsiniz ve sohbet hemen açılır.'),
+              point(Icons.favorite_border_rounded, 'İkiniz de birbirinizi beğenince eşleşirsiniz. Eşleştiğin kişiye Eşleşme Sohbeti paketiyle yazarsın.'),
               point(Icons.people_outline, 'Arkadaş ve Sevgili ayrı modlardır; istediğini ya da ikisini seçersin.'),
               point(Icons.lock_outline, 'Profilin yalnızca eşleşmeyi açanlara görünür. İstediğin an duraklatır ya da tamamen silersin.'),
               const SizedBox(height: GxSpacing.md),

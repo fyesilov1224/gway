@@ -92,9 +92,10 @@ internal sealed class MatchingService(NpgsqlDataSource db, ISupabaseStorage stor
         {
             // One swipe at a time per person, so the daily limit holds under parallel requests.
             await ActingTransaction.ScalarAsync(conn, tx, "select pg_advisory_xact_lock(hashtextextended(@actor::text, 7))", ct, ("actor", actor));
-            var fits = (bool)(await ActingTransaction.ScalarAsync(conn, tx, "select private.match_fits(@actor, @target, @mode)", ct,
+            // The deck's own rule: someone already liked, passed in the last 90 days or matched is not swiped again.
+            var inDeck = (bool)(await ActingTransaction.ScalarAsync(conn, tx, "select private.match_in_deck(@actor, @target, @mode)", ct,
                 ("actor", actor), ("target", request.TargetId), ("mode", request.Mode)))!;
-            if (!fits) return NotInDeck;
+            if (!inDeck) return NotInDeck;
 
             var unlimited = (bool)(await ActingTransaction.ScalarAsync(conn, tx,
                 "select private.has_matching_feature(@actor, 'unlimited')", ct, ("actor", actor)))!;

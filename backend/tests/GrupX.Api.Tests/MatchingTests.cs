@@ -198,6 +198,32 @@ public sealed class MatchingTests(ApiFactory factory) : IClassFixture<ApiFactory
 
         var again = await factory.ClientFor(him).PostAsJsonAsync(Path("/matching/swipes"), new SwipeRequest(her, "friend", true, Super: true), Ct);
         Assert.Contains("match.super_like_limit", await ErrorOfAsync(again), StringComparison.Ordinal);
+
+        // The super like did not use a free like.
+        Assert.Equal(9, (await SwipeAsync(him, her, mode: "friend"))!.LikesLeft);
+
+        // Deleting his matching data takes the super like's notification with it.
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(him).DeleteAsync(Path("/me/matching"), Ct)).StatusCode);
+        Assert.Equal(0L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @id and type = 'match_super_liked'", ("id", her)));
+    }
+
+    [Fact]
+    public async Task Someone_already_swiped_is_not_swiped_again()
+    {
+        var (her, him) = await PairAsync();
+
+        Assert.NotNull(await SwipeAsync(her, him));
+        Assert.Null(await SwipeAsync(her, him));
+        var super = await factory.ClientFor(her).PostAsJsonAsync(Path("/matching/swipes"), new SwipeRequest(him, "dating", true, Super: true), Ct);
+        Assert.Contains("match.not_in_deck", await ErrorOfAsync(super), StringComparison.Ordinal);
+
+        Assert.NotNull(await SwipeAsync(her, him, like: false, mode: "friend"));
+        Assert.Null(await SwipeAsync(her, him, mode: "friend"));
+        // A pass older than 90 days is forgotten.
+        await _db.ExecuteAsync("update public.match_swipes set created_at = now() - interval '91 days' where swiper_id = @id and mode = 'friend'",
+            ("id", her));
+        Assert.NotNull(await SwipeAsync(her, him, mode: "friend"));
     }
 
     [Fact]

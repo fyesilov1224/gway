@@ -376,4 +376,20 @@ public sealed class BillingTests(ApiFactory factory) : IClassFixture<ApiFactory>
             "select count(*) from public.audit_log where action = 'personal_plan.activated' and target_id in "
             + "(select id::text from public.user_subscriptions where user_id = @id)", ("id", buyer)));
     }
+
+    [Fact]
+    public async Task A_personal_order_paid_after_the_buyer_is_deleted_settles_without_a_slice()
+    {
+        var buyer = await _db.CreateUserAsync(Unique("b_"));
+        var response = await ClientFor(buyer).PostAsJsonAsync(Path("/billing/me/plans/matching_premium/orders"),
+            new CreatePersonalOrderRequest("month", "TRY", 1, Details), Ct);
+        response.EnsureSuccessStatusCode();
+        var order = (await response.Content.ReadFromJsonAsync<CreateOrderResponse>(Ct))!.OrderId;
+        await _db.ExecuteAsync("delete from auth.users where id = @id", ("id", buyer));
+
+        // PayTR must read "OK" or it retries forever.
+        (await NotifyPaytrAsync(order, "success", 24900)).EnsureSuccessStatusCode();
+        Assert.Equal("paid", await OrderStatusAsync(order));
+        Assert.Equal(0L, await _db.ScalarAsync<long>("select count(*) from public.user_subscriptions where order_id = @id", ("id", order)));
+    }
 }

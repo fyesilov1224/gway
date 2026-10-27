@@ -49,6 +49,7 @@ internal sealed partial class AccountPurger(NpgsqlDataSource db, ISupabaseStorag
         await storage.DeleteFolderAsync("covers", userId.ToString(), ct);
         await storage.DeleteFolderAsync("support-attachments", userId.ToString(), ct);
         await storage.DeleteFolderAsync("media", userId.ToString(), ct);
+        await storage.DeleteFolderAsync("match-photos", userId.ToString(), ct);
 
         await using var conn = await db.OpenConnectionAsync(ct);
         await using var tx = await conn.BeginTransactionAsync(ct);

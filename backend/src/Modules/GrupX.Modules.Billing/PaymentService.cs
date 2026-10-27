@@ -128,7 +128,12 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
 
             case PaymentOutcome.Paid paid:
                 await MarkPaidAsync(conn, tx, orderId, paid.PaymentId, ct);
-                if (order.PersonalPlan is { } personal) await ActivatePersonalAsync(conn, tx, orderId, personal, order, ct);
+                if (order.PersonalPlan is { } personal)
+                {
+                    // The buyer has no foreign key (orders outlive accounts); a purged buyer gets no slice, the payment still settles.
+                    if (await BuyerExistsAsync(conn, tx, order.BuyerId, ct)) await ActivatePersonalAsync(conn, tx, orderId, personal, order, ct);
+                    else log.LogWarning("Order {OrderId} was paid after its buyer's account was deleted", orderId);
+                }
                 else if (order.GroupId is { } groupId) await ActivateAsync(conn, tx, orderId, groupId, order, ct);
                 else log.LogWarning("Order {OrderId} was paid after its group was deleted", orderId);
                 break;
@@ -234,6 +239,13 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
                 amountMinor = order.AmountMinor,
                 currency = order.Currency,
             }), ct);
+    }
+
+    private static async Task<bool> BuyerExistsAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid buyerId, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand("select exists (select 1 from public.profiles where id = @id)", conn, tx);
+        cmd.Parameters.AddWithValue("id", buyerId);
+        return (bool)(await cmd.ExecuteScalarAsync(ct))!;
     }
 
     private static async Task<OrderState?> LockOrderAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid orderId, CancellationToken ct)

@@ -916,7 +916,8 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 - İki kişi aynı modda birbirini beğenince **eşleşme** oluşur. İkisine `match_created` bildirimi (push dahil) gider ve mesajlaşma modülünde mesaj isteği olmadan doğrudan sohbet açılır (`IMessagingMatches`).
 - **Eşleşmeyi bitir:** iki taraf da eşleşmeyi bitirebilir. Sohbet ikisine de kapanır, kişiler birbirinin destesine bir daha çıkmaz.
 - **İki modda eşleşme (kullanıcı kararı, 2026-10-27):** aynı iki kişi hem Arkadaş hem Sevgili olarak eşleşirse Eşleşmelerim'de tek kayıt görünür ve iki mod birlikte yazar (`my_matches()` kişi başına bir satır, `modes`). İkisinden biri "Yalnızca arkadaş kal" ya da "Yalnızca sevgili kal" diyerek diğer modu iki taraf için bitirir; sohbet ve takip sürer. Takip ve sohbet ancak son eşleşme de bitince kapanır.
-- Kaydırmalar 90 gün saklanır; "geç" denen kişi 90 gün sonra yeniden önerilebilir.
+- Kaydırmalar 90 gün saklanır; "geç" denen kişi 90 gün sonra yeniden önerilebilir. "Seni beğenenler" de aynı kuralı izler.
+- Kaydırma yalnızca destedeki kişiye yapılır (`private.match_in_deck`: havuzda, bu modda beğenilmemiş, son 90 günde geçilmemiş, eşleşilmemiş). Aynı kişiyi API üzerinden yeniden kaydırmak `match.not_in_deck` döner; geçilen kişiye dönmenin yolu "Geri al"dır.
 
 ### Ücretli paketler (kullanıcı kararı, 2026-10-26)
 Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır. Arkadaş ve Sevgili modu için kural aynıdır.
@@ -943,7 +944,7 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 - **Ekranlar:** deste, "Seni beğenenler" (`/matching/likes`), Paketler (`/matching/packages`: her paketin durumu; `/matching/packages/{slug}`: özellikler, fiyatlar, web'de satın alma), filtreler. Kilitli bir özelliğe dokununca o paketi ve Hepsi Bir Arada'yı öneren bir pencere açılır; sohbette yazma kutusunun yerinde paket çağrısı görünür.
 
 ### Bildirimler
-`match_created` (yeni bir eşleşmen var; kişi adı içermez, push dahil, dokununca Eşleşmelerim açılır) ve `match_super_liked` (seni süper beğendi; dokununca deste açılır, o kişi en baştadır). İkisi de tercihlerden kapatılabilir (`match_alerts`). Eşleşme bitince bildirimi silinir. Sıradan beğeniler bildirim göndermez (bildirim yağmuru ve "Seni Beğenenler" paketi yüzünden); sayısı destede kalp simgesinde görünür.
+`match_created` (yeni bir eşleşmen var; kişi adı içermez, push dahil, dokununca Eşleşmelerim açılır) ve `match_super_liked` (seni süper beğendi; dokununca deste açılır, o kişi en baştadır). İkisi de tercihlerden kapatılabilir (`match_alerts`). Eşleşme bitince bildirimi silinir; süper beğeni kaydı silinince (eşleşme verilerini silme, hesap silme) `match_super_liked` bildirimi de silinir. Sıradan beğeniler bildirim göndermez (bildirim yağmuru ve "Seni Beğenenler" paketi yüzünden); sayısı destede kalp simgesinde görünür.
 
 ### Admin
 - **Eşleşme sayfası:** açık profiller (mod ve cinsiyete göre), son 24 saatte beğeni, süper beğeni, geç ve eşleşme, şu an öne çıkanlar, Premium üye sayısı (tanımlananlar ayrı) ve son 30 günün geliri.
@@ -961,7 +962,7 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 | `matching_settings` | Herkes (giriş yapmış) | Yalnızca C# (admin) |
 
 - Okuma RPC'leri: `public.match_deck(…)`, `public.my_matches()`, `public.match_status()` (Premium, kalan beğeni ve süper beğeni, öne çıkma, mod başına bekleyen beğeni sayısı), `public.match_admirers(deck)` (Premium), `public.match_likes_left()`; kapak değişimi `public.swap_match_photos(first, second)`.
-- **Tüm verileri sil** (`DELETE /me/matching`): profil, fotoğraflar (depo dahil), öne çıkmalar ve kişinin verdiği ve aldığı beğeniler silinir; satın alınan Premium süresi billing'de kalır. Eşleşmeleri biter; yalnızca "bitti" kaydı kalır ki açılmış sohbetler kapalı kalsın.
+- **Tüm verileri sil** (`DELETE /me/matching`): profil, fotoğraflar (depo dahil), öne çıkmalar ve kişinin verdiği ve aldığı beğeniler silinir; satın alınan Premium süresi billing'de kalır. Eşleşmeleri biter; yalnızca "bitti" kaydı kalır ki açılmış sohbetler kapalı kalsın. Hesap kalıcı silinince `match-photos/<uid>/` klasörü de temizlenir.
 - **Platform askısı:** `suspended_until` (süresiz için sonsuz). Askıdaki profil kimseye görünmez, eşleşmeleri biter; hesabın geri kalanı etkilenmez.
 
 ### C# uç noktaları
@@ -1194,12 +1195,13 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 `GET /admin/groups/{id}` yanıtına grubun güncel paketi ve abonelik geçmişi eklenir.
 
 ### Kişisel ürünler (Faz 15.6b)
-- Grup paketlerinin yanında kişinin kendisi için aldığı ürünler: `personal_plans` (şimdilik yalnızca `matching_premium`), `personal_plan_prices`. Fiyat ve satış durumu yalnızca platform yöneticisince değişir (trigger).
+- Grup paketlerinin yanında kişinin kendisi için aldığı ürünler: `personal_plans` (eşleşme paketleri ve Ekip Arkadaşı, §3g Ücretli paketler), `personal_plan_prices`. Fiyat ve satış durumu yalnızca platform yöneticisince değişir (trigger).
 - `billing_orders` bir grup paketini **ya da** bir kişisel ürünü taşır (`personal_plan_slug`; o zaman grup alanları boştur, `billing_orders_product`). Sipariş açılışı aynı tetikleyiciyle korunur: alıcı kendisi, tutar liste fiyatı.
 - Ödeme doğrulanınca `user_subscriptions`'a yeni dilim eklenir: kişinin kalan süresinin hemen ardına (aylık bir ay, yıllık bir yıl). Dilimler aynı ürün için çakışamaz (exclusion). Kalan süre 400 günü aşıyorsa yeni süre satılmaz (`billing.too_far_ahead`).
 - Yönetici tanımlaması (`grant_reason`, `granted_by`) da aynı tabloya, aynı kuralla eklenir; siparişsiz dilimi yalnızca platform yöneticisi açabilir.
-- Hak sorgusu: `private.has_matching_premium(uid)`, kalan süre `private.personal_plan_until(uid, slug)`.
-- Ödeme dönüşü: web'de `/#/matching/premium?order=<id>`; ekran siparişi bekler ve Premium açılınca yenilenir. Mobil uygulama fiyatları ve durumu gösterir, satın almayı web'e bırakır.
+- Hak sorgusu: `private.has_matching_feature(uid, feature)` (herhangi bir eşleşme paketi: `private.has_matching_premium(uid)`), kalan süre `private.personal_plan_until(uid, slug)`.
+- Ödeme bildirimi alıcının hesabı kalıcı silindikten sonra gelirse sipariş "ödendi" olur ama süre açılmaz; durum uyarı olarak loglanır (grubu silinmiş grup siparişindeki gibi).
+- Ödeme dönüşü: web'de `/#/matching/packages/<slug>?order=<id>`; ekran siparişi bekler ve paket açılınca yenilenir. Mobil uygulama fiyatları ve durumu gösterir, satın almayı web'e bırakır.
 - Admin sipariş listesi kişisel siparişleri ürün adı ve alıcıyla gösterir; aylık gelir grafiği hepsini kapsar.
 
 ### Yapılandırma

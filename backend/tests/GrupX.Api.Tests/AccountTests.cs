@@ -98,6 +98,7 @@ public sealed class AccountTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(1L, await _db.ScalarAsync<long>("select count(*) from auth.users where id = @id", ("id", notDue)));
         Assert.Contains(("avatars", due.ToString()), factory.Storage.DeletedFolders);
         Assert.Contains(("covers", due.ToString()), factory.Storage.DeletedFolders);
+        Assert.Contains(("match-photos", due.ToString()), factory.Storage.DeletedFolders);
         Assert.DoesNotContain(factory.Storage.DeletedFolders, f => f.Folder == notDue.ToString());
         Assert.Equal(1L, await _db.ScalarAsync<long>(
             "select count(*) from public.audit_log where action = 'account.purged' and actor_kind = 'system' and target_id = @id",
