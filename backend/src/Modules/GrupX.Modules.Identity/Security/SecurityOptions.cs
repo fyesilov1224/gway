@@ -6,6 +6,18 @@ public sealed class SecurityOptions
     public const string Section = "Security";
 
     public TwilioOptions Twilio { get; set; } = new();
+
+    public PasskeyOptions Passkeys { get; set; } = new();
+}
+
+/// <summary>WebAuthn relying party (docs/ARCHITECTURE.md §3h, Parmak izi).</summary>
+public sealed class PasskeyOptions
+{
+    /// <summary>The site's domain, e.g. <c>grupx.app</c>; <c>localhost</c> locally.</summary>
+    public string RelyingPartyId { get; set; } = "localhost";
+
+    /// <summary>Exact origins of the app and the panel, e.g. <c>https://grupx.app</c>.</summary>
+    public string[] Origins { get; set; } = [];
 }
 
 public sealed class TwilioOptions

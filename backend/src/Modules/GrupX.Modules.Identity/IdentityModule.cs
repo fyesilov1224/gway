@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using Fido2NetLib;
 using GrupX.Modules.Identity.Contracts;
+using GrupX.SharedKernel;
 using GrupX.SharedKernel.Geo;
 using GrupX.SharedKernel.Http;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +38,7 @@ public static class IdentityModule
                 ? sp.GetRequiredService<DevSmsVerifier>()
                 : sp.GetRequiredService<TwilioVerifier>());
         services.AddSingleton<SecurityService>();
+        services.AddSingleton<PasskeyService>();
         services.AddSingleton<ISecurityAdministration, SecurityAdministration>();
         return services;
     }
@@ -92,6 +95,34 @@ public static class IdentityModule
         security.MapDelete("/totp", async (ClaimsPrincipal user, SecurityService service, CancellationToken ct) =>
             (await service.DeleteTotpAsync(user.GetUserId(), user.GetSessionId(), ct)).ToHttpResult());
 
+        // Passkeys (fingerprint, face or screen lock through WebAuthn), docs/ARCHITECTURE.md §3h.
+        security.MapPost("/passkeys/options", async (ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+                WebAuthnJson(await passkeys.RegistrationOptionsAsync(user.GetUserId(), user.GetSessionId(), ct)))
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
+
+        security.MapPost("/passkeys", async (PasskeyRegistration body, ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+                (await passkeys.RegisterAsync(user.GetUserId(), user.GetSessionId(), body, ct)).ToHttpResult())
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
+
+        security.MapGet("/passkeys", async (ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+            TypedResults.Ok(await passkeys.ListAsync(user.GetUserId(), ct)));
+
+        security.MapDelete("/passkeys/{id}", async (string id, ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+            (await passkeys.DeleteAsync(user.GetUserId(), user.GetSessionId(), id, ct)).ToHttpResult());
+
+        security.MapPost("/second-factor/passkey/options", async (ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+                WebAuthnJson(await passkeys.AssertionOptionsAsync(user.GetUserId(), ct)))
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
+
+        security.MapPost("/second-factor/passkey", async (
+                AuthenticatorAssertionRawResponse body, ClaimsPrincipal user, PasskeyService passkeys, CancellationToken ct) =>
+                (await passkeys.VerifyAsync(user.GetUserId(), user.GetSessionId(), body, ct)).ToHttpResult())
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
+
         return app;
     }
+
+    /// <summary>WebAuthn options are already JSON in the shape browsers expect; they go out as they are.</summary>
+    private static IResult WebAuthnJson(Result<string> options) =>
+        options.IsSuccess ? Results.Text(options.Value, "application/json") : options.Error.ToProblem();
 }

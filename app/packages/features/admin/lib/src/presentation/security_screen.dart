@@ -368,6 +368,7 @@ class UserSecurityPanel extends ConsumerWidget {
               ('Telefon', value.phoneMasked == null ? 'Doğrulanmadı' : '${value.phoneMasked} (${value.phoneCountry})'),
               ('Telefon doğrulama', date(value.phoneVerifiedAt)),
               ('Doğrulama uygulaması', value.totpEnabled ? 'Açık' : 'Kapalı'),
+              ('Parmak izi (passkey)', value.passkeyCount == 0 ? 'Yok' : '${value.passkeyCount} cihaz'),
               ('İzinli ülke', value.allowedCountry ?? '—'),
               ('Son konum kontrolü', date(value.locationCheckedAt)),
               if (value.exemptUntil case final until? when until.isAfter(DateTime.now()))

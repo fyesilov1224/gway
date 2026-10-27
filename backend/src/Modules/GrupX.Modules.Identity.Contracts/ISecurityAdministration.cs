@@ -43,6 +43,7 @@ public sealed record UserSecurityView(
     string? PhoneCountry,
     DateTimeOffset? PhoneVerifiedAt,
     bool TotpEnabled,
+    int PasskeyCount,
     string? AllowedCountry,
     DateTimeOffset? LocationCheckedAt,
     DateTimeOffset? ExemptUntil,

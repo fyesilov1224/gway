@@ -35,6 +35,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public FakeTiles Tiles { get; } = new();
 
+    /// <summary>The web app origin passkeys are created on in tests.</summary>
+    public const string PasskeyOrigin = "http://localhost:3000";
+
     public const string LiveKitSecret = "livekit-test-secret-that-is-long-enough";
 
     /// <summary>Request header that sets the buyer's country in tests (a trusted proxy header in production).</summary>
@@ -73,6 +76,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
         builder.UseSetting("Push:DispatchInterval", "00:00:00");
         builder.UseSetting("Map:TileUrl", FakeTiles.Url);
+        builder.UseSetting("Security:Passkeys:RelyingPartyId", "localhost");
+        builder.UseSetting("Security:Passkeys:Origins:0", PasskeyOrigin);
         builder.UseSetting("Map:ApiKey", FakeTiles.ApiKey);
 
         builder.ConfigureTestServices(services =>

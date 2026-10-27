@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:core/core.dart';
 
 import '../domain/security.dart';
@@ -41,4 +43,31 @@ class ApiSecurityRepository implements SecurityRepository {
 
   @override
   Future<Result<void>> deleteTotp() => _api.delete('/security/totp', decode: (_) {});
+
+  @override
+  Future<Result<String>> passkeyRegistrationOptions() => _api.post('/security/passkeys/options', decode: jsonEncode);
+
+  @override
+  Future<Result<PasskeyView>> registerPasskey(String name, Map<String, Object?> response) => _api.post(
+        '/security/passkeys',
+        body: {'name': name, 'response': response},
+        decode: (json) => PasskeyView.fromJson((json! as Map).cast()),
+      );
+
+  @override
+  Future<Result<List<PasskeyView>>> passkeys() => _api.get(
+        '/security/passkeys',
+        decode: (json) => [for (final p in (json! as List).cast<Map<String, Object?>>()) PasskeyView.fromJson(p)],
+      );
+
+  @override
+  Future<Result<void>> deletePasskey(String id) => _api.delete('/security/passkeys/$id', decode: (_) {});
+
+  @override
+  Future<Result<String>> passkeyAssertionOptions() =>
+      _api.post('/security/second-factor/passkey/options', decode: jsonEncode);
+
+  @override
+  Future<Result<SecurityStatus>> verifyPasskey(Map<String, Object?> response) =>
+      _api.post('/security/second-factor/passkey', body: response, decode: _status);
 }

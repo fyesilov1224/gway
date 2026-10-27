@@ -330,6 +330,11 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] Testler (panel ekranları masaüstü ve telefon, destek rolü, gate); `flutter analyze` ve `dotnet build` temiz; docs güncel. Yerel uçtan uca deneme: admin girişi → ikinci adım → gerçek VPN incelemesi → 30 gün muafiyetle onay (2026-10-27)
 - [ ] Bulut: `0039`/`0040` migration'ları ve token hook'u (`supabase config push`), Twilio Verify hesabı ve anahtarları, aydınlatma metnine konum ve telefon işleme (yeni `privacy_notice` sürümü), ardından zorlamayı açma — kullanıcı onayıyla
 
+### 15.8d — Parmak izi ve Authenticator önerisi (kullanıcı kararı, 2026-10-27)
+- [x] Passkey (WebAuthn, `Fido2`) ile ikinci adım: kayıt, giriş, ayarlarda liste ve silme (web; mobil uygulama sonra); yöntem sırası passkey > uygulama > SMS
+- [x] Telefon doğrulandıktan sonra "Parmak izi / Google Authenticator ekle" önerisi; kurulan yöntem varsayılan
+- [x] pgTAP, C# (yazılım doğrulayıcıyla gerçek imza, tekrar oynatma ve başka hesap reddi), Flutter testleri; Chrome sanal doğrulayıcısıyla uçtan uca deneme: telefon → öneri → parmak izi ekle → yeniden giriş → parmak iziyle doğrulama, token `authenticated` (2026-10-27)
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

@@ -46,8 +46,30 @@ class _FakeSecurity implements SecurityRepository {
     return const Ok(_done);
   }
 
+  Map<String, Object?>? passkeyResponse;
+
+  @override
+  Future<Result<String>> passkeyAssertionOptions() async => const Ok('{"challenge":"AAAA"}');
+
+  @override
+  Future<Result<SecurityStatus>> verifyPasskey(Map<String, Object?> response) async {
+    passkeyResponse = response;
+    return const Ok(_done);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakePasskeys implements PasskeyAuthenticator {
+  @override
+  bool get isSupported => true;
+
+  @override
+  Future<Map<String, Object?>?> create(String optionsJson) async => {'id': 'new'};
+
+  @override
+  Future<Map<String, Object?>?> get(String optionsJson) async => {'id': 'signed'};
 }
 
 class _WarningSecurity extends _FakeSecurity {
@@ -97,7 +119,7 @@ const _signals = DeviceSignals(
   platform: 'android',
 );
 
-SecurityStatus _status(SecurityStep step, {bool totp = false}) => SecurityStatus(
+SecurityStatus _status(SecurityStep step, {bool totp = false, int passkeys = 0}) => SecurityStatus(
       enforced: true,
       sessionVerified: false,
       step: step,
@@ -105,10 +127,12 @@ SecurityStatus _status(SecurityStep step, {bool totp = false}) => SecurityStatus
       callingCode: 90,
       phoneMasked: '+90 ••• ••• •• 34',
       totpEnabled: totp,
+      passkeyCount: passkeys,
     );
 
 Widget _app(SecurityStatus status, _FakeSecurity security, [_FakeDevice? device]) => ProviderScope(
       overrides: [
+        passkeyAuthenticatorProvider.overrideWithValue(_FakePasskeys()),
         securityStatusProvider.overrideWith((ref) async => status),
         securityRepositoryProvider.overrideWithValue(security),
         deviceSignalSourceProvider.overrideWithValue(device ?? _FakeDevice(const LocationRead(_signals))),
@@ -172,6 +196,38 @@ void main() {
     expect(security.verifiedPhone, ('+905321234567', '246810'));
 
     // The resend button waits out its cooldown.
+    await tester.pump(const Duration(seconds: 61));
+  });
+
+  testWidgets('a registered passkey comes first in the second factor', (tester) async {
+    final security = _FakeSecurity();
+    await tester.pumpWidget(_app(_status(SecurityStep.secondFactor, totp: true, passkeys: 1), security));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Parmak izi'), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
+    await tester.tap(find.text('Parmak iziyle doğrula'));
+    await tester.pump();
+    expect(security.passkeyResponse, {'id': 'signed'});
+  });
+
+  testWidgets('a verified phone is followed by the faster sign-in offer', (tester) async {
+    final security = _FakeSecurity();
+    await tester.pumpWidget(_app(_status(SecurityStep.phone), security));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '5321234567');
+    await tester.tap(find.text('Kod gönder'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, '6 haneli kod'), '246810');
+    await tester.tap(find.text('Doğrula'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Girişlerini hızlandır'), findsOneWidget);
+    expect(find.text('Parmak izi ekle'), findsOneWidget);
+    expect(find.text('Google Authenticator ekle'), findsOneWidget);
+    await tester.tap(find.text('Şimdi değil'));
     await tester.pump(const Duration(seconds: 61));
   });
 

@@ -330,6 +330,60 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
     }
 
     [Fact]
+    public async Task A_passkey_registered_on_a_verified_session_verifies_the_next_sign_in()
+    {
+        await _db.ExecuteAsync("update public.security_settings set enforce = true");
+        var (user, _, first) = await NewUserAsync();
+        await VerifyPhoneAsync(first);
+        using var device = new SoftAuthenticator(ApiFactory.PasskeyOrigin);
+
+        // An unverified session may not add a passkey.
+        var stranger = factory.ClientFor(user, await NewSessionAsync(user), "unverified");
+        Assert.Equal(HttpStatusCode.Forbidden, (await stranger.PostAsync(Path("/security/passkeys/options"), null, Ct)).StatusCode);
+
+        var options = await (await first.PostAsync(Path("/security/passkeys/options"), null, Ct)).Content.ReadAsStringAsync(Ct);
+        Assert.Contains("\"userVerification\":\"required\"", options, StringComparison.Ordinal);
+        var registered = await first.PostAsJsonAsync(Path("/security/passkeys"), new { name = "Dizüstü", response = device.Create(options) }, Ct);
+        Assert.Equal(HttpStatusCode.OK, registered.StatusCode);
+        Assert.Equal(1, (await StatusAsync(first)).PasskeyCount);
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'security.passkey_added' and actor_id = @u", ("u", user)));
+
+        // The same key twice is refused (the challenge was used too).
+        var again = await (await first.PostAsync(Path("/security/passkeys/options"), null, Ct)).Content.ReadAsStringAsync(Ct);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await first.PostAsJsonAsync(Path("/security/passkeys"), new { name = "x", response = device.Create(again) }, Ct)).StatusCode);
+
+        // Next sign-in: sign the challenge, the session is verified.
+        var second = factory.ClientFor(user, await NewSessionAsync(user), "unverified");
+        var assertion = await (await second.PostAsync(Path("/security/second-factor/passkey/options"), null, Ct)).Content.ReadAsStringAsync(Ct);
+        var signed = device.Get(assertion);
+        var status = await (await second.PostAsJsonAsync(Path("/security/second-factor/passkey"), signed, Ct))
+            .Content.ReadFromJsonAsync<SecurityStatus>(Ct);
+        Assert.True(status!.SessionVerified);
+        Assert.Equal(SecuritySteps.Done, status.Step);
+        Assert.Equal("passkey", await _db.ScalarAsync<string>(
+            "select method from public.verified_sessions where user_id = @u order by verified_at desc limit 1", ("u", user)));
+
+        // A replayed signature is refused: its challenge is gone.
+        var third = factory.ClientFor(user, await NewSessionAsync(user), "unverified");
+        await third.PostAsync(Path("/security/second-factor/passkey/options"), null, Ct);
+        Assert.Equal(HttpStatusCode.BadRequest, (await third.PostAsJsonAsync(Path("/security/second-factor/passkey"), signed, Ct)).StatusCode);
+
+        // Another account cannot use this key.
+        var (_, _, other) = await NewUserAsync();
+        await VerifyPhoneAsync(other);
+        var otherOptions = await other.PostAsync(Path("/security/second-factor/passkey/options"), null, Ct);
+        Assert.Equal(HttpStatusCode.NotFound, otherOptions.StatusCode);
+
+        // Removing it.
+        var list = await first.GetFromJsonAsync<List<PasskeyView>>(Path("/security/passkeys"), Ct);
+        Assert.Equal("Dizüstü", list!.Single().Name);
+        Assert.Equal(HttpStatusCode.NoContent, (await first.DeleteAsync(Path($"/security/passkeys/{list![0].Id}"), Ct)).StatusCode);
+        Assert.Equal(0, (await StatusAsync(first)).PasskeyCount);
+    }
+
+    [Fact]
     public async Task Virtual_numbers_are_refused_after_lookup()
     {
         var (_, _, client) = await NewUserAsync();

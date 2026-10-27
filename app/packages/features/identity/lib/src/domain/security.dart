@@ -12,6 +12,7 @@ class SecurityStatus {
     this.callingCode,
     this.phoneMasked,
     this.totpEnabled = false,
+    this.passkeyCount = 0,
     this.warnings = const [],
   });
 
@@ -29,6 +30,7 @@ class SecurityStatus {
         callingCode: j['callingCode'] as int?,
         phoneMasked: j['phoneMasked'] as String?,
         totpEnabled: j['totpEnabled']! as bool,
+        passkeyCount: (j['passkeyCount'] as int?) ?? 0,
         warnings: (j['warnings'] as List?)?.cast<String>() ?? const [],
       );
 
@@ -41,6 +43,9 @@ class SecurityStatus {
   final int? callingCode;
   final String? phoneMasked;
   final bool totpEnabled;
+
+  /// Passkeys (fingerprint, face or screen lock) registered for this account.
+  final int passkeyCount;
 
   /// Only on a location check's answer: messages that do not restrict, e.g. `vpn_installed`.
   final List<String> warnings;
@@ -131,6 +136,35 @@ class TotpSetup {
   final String uri;
 }
 
+/// A registered passkey (docs/ARCHITECTURE.md §3h, Parmak izi).
+class PasskeyView {
+  const PasskeyView({required this.id, required this.name, required this.createdAt, this.lastUsedAt});
+
+  factory PasskeyView.fromJson(Map<String, Object?> j) => PasskeyView(
+        id: j['id']! as String,
+        name: j['name']! as String,
+        createdAt: DateTime.parse(j['createdAt']! as String),
+        lastUsedAt: switch (j['lastUsedAt']) { final String s => DateTime.parse(s), _ => null },
+      );
+
+  final String id;
+  final String name;
+  final DateTime createdAt;
+  final DateTime? lastUsedAt;
+}
+
+/// The platform's WebAuthn: creates and uses passkeys with the device's fingerprint, face or screen lock.
+abstract interface class PasskeyAuthenticator {
+  /// False where the platform has no WebAuthn (or the page is not https/localhost).
+  bool get isSupported;
+
+  /// `navigator.credentials.create` for the server's options; null when cancelled or refused.
+  Future<Map<String, Object?>?> create(String optionsJson);
+
+  /// `navigator.credentials.get` for the server's options; null when cancelled or refused.
+  Future<Map<String, Object?>?> get(String optionsJson);
+}
+
 abstract interface class SecurityRepository {
   Future<Result<SecurityStatus>> status();
 
@@ -151,4 +185,18 @@ abstract interface class SecurityRepository {
   Future<Result<void>> confirmTotp(String code);
 
   Future<Result<void>> deleteTotp();
+
+  /// WebAuthn options (JSON) for adding a passkey.
+  Future<Result<String>> passkeyRegistrationOptions();
+
+  Future<Result<PasskeyView>> registerPasskey(String name, Map<String, Object?> response);
+
+  Future<Result<List<PasskeyView>>> passkeys();
+
+  Future<Result<void>> deletePasskey(String id);
+
+  /// WebAuthn options (JSON) for the second factor.
+  Future<Result<String>> passkeyAssertionOptions();
+
+  Future<Result<SecurityStatus>> verifyPasskey(Map<String, Object?> response);
 }

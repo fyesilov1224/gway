@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/api_account_repository.dart';
 import '../data/api_security_repository.dart';
 import '../data/device_signal_source.dart';
+import '../data/passkey_authenticator.dart';
 import '../data/supabase_auth_repository.dart';
 import '../data/supabase_consent_repository.dart';
 import '../domain/account.dart';
@@ -54,6 +55,13 @@ final securityRepositoryProvider = Provider<SecurityRepository>(
 );
 
 final deviceSignalSourceProvider = Provider<DeviceSignalSource>((ref) => PlatformDeviceSignalSource());
+
+final passkeyAuthenticatorProvider = Provider<PasskeyAuthenticator>((ref) => createPasskeyAuthenticator());
+
+/// The signed-in user's passkeys (settings).
+final passkeysProvider = FutureProvider.autoDispose<List<PasskeyView>>(
+  (ref) async => (await ref.watch(securityRepositoryProvider).passkeys()).getOrThrow(),
+);
 
 /// Security verification state of this session (docs/ARCHITECTURE.md §3h). Null when signed out.
 ///

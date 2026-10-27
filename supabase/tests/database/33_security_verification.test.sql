@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(21);
 
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-00000000ff01', 's1@test.local', 'authenticated', 'authenticated');
@@ -53,6 +53,11 @@ select throws_ok($$ update public.user_security set state = 'ok' $$, '42501', nu
 select throws_ok($$ insert into public.verified_sessions (session_id, user_id, method) values (gen_random_uuid(), auth.uid(), 'sms') $$,
   '42501', null, 'kullanıcı oturumunu kendisi doğrulayamaz');
 select throws_ok($$ select * from public.totp_factors $$, '42501', null, 'kullanıcı TOTP anahtarını okuyamaz');
+select throws_ok($$ select * from public.passkeys $$, '42501', null, 'kullanıcı passkey kayıtlarını doğrudan okuyamaz');
+select throws_ok($$ insert into public.passkeys (id, user_id, public_key, name)
+  values (decode('00112233445566778899aabbccddeeff', 'hex'), auth.uid(), decode('00', 'hex'), 'x') $$,
+  '42501', null, 'kullanıcı passkey ekleyemez');
+select throws_ok($$ select * from public.webauthn_challenges $$, '42501', null, 'kullanıcı WebAuthn meydan okumalarını okuyamaz');
 
 -- The unverified role reads published legal texts and nothing else -----------------------------
 -- (It cannot even see the pgTAP functions, so this is checked from outside the role.)

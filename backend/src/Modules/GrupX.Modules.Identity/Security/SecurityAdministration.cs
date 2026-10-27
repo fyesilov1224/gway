@@ -157,7 +157,8 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
         await using (var cmd = new NpgsqlCommand(
             """
             select coalesce(us.state, 'ok'), pv.phone, pv.country, pv.verified_at, tf.confirmed_at is not null,
-                   us.allowed_country, us.location_checked_at, us.exempt_until
+                   us.allowed_country, us.location_checked_at, us.exempt_until,
+                   (select count(*)::int from public.passkeys k where k.user_id = u.id)
             from auth.users u
             left join public.user_security us on us.user_id = u.id
             left join public.phone_verifications pv on pv.user_id = u.id
@@ -170,7 +171,7 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
             if (!await r.ReadAsync(ct)) return Error.NotFound("account.not_found", "Hesap bulunamadı.");
             view = new UserSecurityView(
                 r.GetString(0), r.IsDBNull(1) ? null : PhoneRules.Mask(r.GetString(1)), r.IsDBNull(2) ? null : r.GetString(2),
-                r.IsDBNull(3) ? null : r.GetFieldValue<DateTimeOffset>(3), r.GetBoolean(4), r.IsDBNull(5) ? null : r.GetString(5),
+                r.IsDBNull(3) ? null : r.GetFieldValue<DateTimeOffset>(3), r.GetBoolean(4), r.GetInt32(8), r.IsDBNull(5) ? null : r.GetString(5),
                 r.IsDBNull(6) ? null : r.GetFieldValue<DateTimeOffset>(6), r.IsDBNull(7) ? null : r.GetFieldValue<DateTimeOffset>(7), []);
         }
 

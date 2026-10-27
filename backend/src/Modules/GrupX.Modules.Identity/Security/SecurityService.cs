@@ -27,6 +27,7 @@ public sealed record SecurityStatus(
     int? CallingCode,
     string? PhoneMasked,
     bool TotpEnabled,
+    int PasskeyCount = 0,
     IReadOnlyList<string>? Warnings = null);
 
 public sealed record LocationSignals(
@@ -86,10 +87,10 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
 
     private const int MaxVpnApps = 20;
 
-    private static readonly Error LocationRequired = Error.RuleViolation(
+    internal static readonly Error LocationRequired = Error.RuleViolation(
         "security.location_required", "Devam etmek için konumunu doğrulamamız gerekiyor.");
 
-    private static readonly Error Restricted = Error.Forbidden(
+    internal static readonly Error Restricted = Error.Forbidden(
         "security.restricted", "Hesabın güvenlik incelemesinde. Sorun olduğunu düşünüyorsan destek ekibine yaz.");
 
     private static readonly Error Banned = Error.Forbidden(
@@ -101,29 +102,30 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
     private static readonly Error PhoneAlreadyVerified = Error.Conflict(
         "security.phone_already_verified", "Telefon numaran zaten doğrulandı.");
 
-    private static readonly Error PhoneRequired = Error.RuleViolation(
+    internal static readonly Error PhoneRequired = Error.RuleViolation(
         "security.phone_required", "Önce telefon numaranı doğrulaman gerekiyor.");
 
     private static readonly Error CodeInvalid = Error.Validation(
         "security.code_invalid", "Kod hatalı ya da süresi dolmuş.");
 
-    private static readonly Error NoSession = Error.Unauthorized(
+    internal static readonly Error NoSession = Error.Unauthorized(
         "security.no_session", "Oturumun bulunamadı. Lütfen yeniden giriş yap.");
 
-    private static readonly Error SessionUnverified = Error.Forbidden(
+    internal static readonly Error SessionUnverified = Error.Forbidden(
         "security.session_unverified", "Bu işlem için önce oturumunu doğrulaman gerekiyor.");
 
     private static readonly Error NotMobile = Error.Validation(
         "security.phone_not_mobile", "Yalnızca cep telefonu numarasıyla doğrulama yapılabilir.");
 
-    private sealed record UserState(
+    internal sealed record UserState(
         bool Enforce,
         string State,
         string? AllowedCountry,
         bool LocationFresh,
         string? Phone,
         bool Totp,
-        bool SessionVerified);
+        bool SessionVerified,
+        int Passkeys);
 
     public async Task<SecurityStatus> GetStatusAsync(Guid userId, Guid? sessionId, CancellationToken ct)
     {
@@ -391,14 +393,15 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         return Result.Success();
     }
 
-    /// <summary>Deletes location checks and SMS records older than the retention period (§3h, Veri ve erişim).</summary>
+    /// <summary>Deletes location checks and SMS records past retention and expired WebAuthn challenges (§3h, Veri ve erişim).</summary>
     public async Task<int> PurgeExpiredAsync(CancellationToken ct)
     {
         await using var cmd = db.CreateCommand(
             $"""
             with checks as (delete from public.location_checks where checked_at < now() - interval '{RetentionDays} days' returning 1),
-                 sends as (delete from public.sms_sends where sent_at < now() - interval '{RetentionDays} days' returning 1)
-            select (select count(*) from checks) + (select count(*) from sends)
+                 sends as (delete from public.sms_sends where sent_at < now() - interval '{RetentionDays} days' returning 1),
+                 challenges as (delete from public.webauthn_challenges where expires_at < now() returning 1)
+            select (select count(*) from checks) + (select count(*) from sends) + (select count(*) from challenges)
             """);
         return (int)(long)(await cmd.ExecuteScalarAsync(ct))!;
     }
@@ -557,7 +560,7 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         return true;
     }
 
-    private static async Task MarkSessionVerifiedAsync(
+    internal static async Task MarkSessionVerifiedAsync(
         NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, Guid sessionId, string method, CancellationToken ct) =>
         await ExecuteAsync(conn, tx,
             """
@@ -566,12 +569,12 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             """, ct, ("s", sessionId), ("u", userId), ("m", method));
 
     /// <summary>A restricted account or a stale location stops every phone step.</summary>
-    private static Error? Precondition(UserState state) =>
+    internal static Error? Precondition(UserState state) =>
         state.State == "restricted" ? Restricted
         : !state.LocationFresh || state.AllowedCountry is null ? LocationRequired
         : null;
 
-    private static SecurityStatus ToStatus(UserState s)
+    internal static SecurityStatus ToStatus(UserState s)
     {
         var step = !s.Enforce ? SecuritySteps.Done
             : s.State == "restricted" ? SecuritySteps.Restricted
@@ -586,10 +589,12 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             s.AllowedCountry,
             s.AllowedCountry is { } c ? PhoneRules.CallingCode(c) : null,
             s.Phone is { } p ? PhoneRules.Mask(p) : null,
-            s.Totp);
+            s.Totp,
+            s.Passkeys,
+            []);
     }
 
-    private static async Task<UserState> ReadStateAsync(
+    internal static async Task<UserState> ReadStateAsync(
         NpgsqlConnection conn, NpgsqlTransaction? tx, Guid userId, Guid? sessionId, CancellationToken ct)
     {
         await using var cmd = new NpgsqlCommand(
@@ -600,7 +605,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
                    coalesce(us.location_checked_at > now() - interval '24 hours', false),
                    pv.phone,
                    tf.confirmed_at is not null,
-                   private.is_session_verified(@u, @s)
+                   private.is_session_verified(@u, @s),
+                   (select count(*)::int from public.passkeys k where k.user_id = @u)
             from public.security_settings s
             left join public.user_security us on us.user_id = @u
             left join public.phone_verifications pv on pv.user_id = @u
@@ -612,7 +618,7 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         await r.ReadAsync(ct);
         return new UserState(
             r.GetBoolean(0), r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2), r.GetBoolean(3),
-            r.IsDBNull(4) ? null : r.GetString(4), r.GetBoolean(5), r.GetBoolean(6));
+            r.IsDBNull(4) ? null : r.GetString(4), r.GetBoolean(5), r.GetBoolean(6), r.GetInt32(7));
     }
 
     /// <summary>Creates the row on first use and locks it; returns the state and whether an exemption is running.</summary>

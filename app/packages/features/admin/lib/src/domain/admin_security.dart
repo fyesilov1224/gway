@@ -170,6 +170,7 @@ class AdminUserSecurity {
     required this.phoneCountry,
     required this.phoneVerifiedAt,
     required this.totpEnabled,
+    this.passkeyCount = 0,
     required this.allowedCountry,
     required this.locationCheckedAt,
     required this.exemptUntil,
@@ -184,6 +185,7 @@ class AdminUserSecurity {
       phoneCountry: j['phoneCountry'] as String?,
       phoneVerifiedAt: date(j['phoneVerifiedAt']),
       totpEnabled: j['totpEnabled']! as bool,
+      passkeyCount: (j['passkeyCount'] as int?) ?? 0,
       allowedCountry: j['allowedCountry'] as String?,
       locationCheckedAt: date(j['locationCheckedAt']),
       exemptUntil: date(j['exemptUntil']),
@@ -197,6 +199,7 @@ class AdminUserSecurity {
   final String? phoneCountry;
   final DateTime? phoneVerifiedAt;
   final bool totpEnabled;
+  final int passkeyCount;
   final String? allowedCountry;
   final DateTime? locationCheckedAt;
   final DateTime? exemptUntil;

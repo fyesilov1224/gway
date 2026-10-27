@@ -64,6 +64,26 @@ Future<void> showSecurityWarnings(BuildContext context, List<String> warnings) a
   );
 }
 
+/// Adds a passkey on this device. Null on success, otherwise a message for the user. [refreshStatus] false while
+/// another flow still owns the screen (the offer after phone verification).
+Future<String?> addPasskey(WidgetRef ref, {bool refreshStatus = true}) async {
+  final repo = ref.read(securityRepositoryProvider);
+  final options = await repo.passkeyRegistrationOptions();
+  final String json;
+  switch (options) {
+    case Ok(:final value):
+      json = value;
+    case Err(:final failure):
+      return failure.userMessage;
+  }
+  final response = await ref.read(passkeyAuthenticatorProvider).create(json);
+  if (response == null) return 'Parmak izi eklenmedi: işlem iptal edildi ya da bu cihaz zaten kayıtlı.';
+  final saved = await repo.registerPasskey('Parmak izi · ${formatDateTr(DateTime.now())}', response);
+  ref.invalidate(passkeysProvider);
+  if (refreshStatus) ref.invalidate(securityStatusProvider);
+  return switch (saved) { Ok() => null, Err(:final failure) => failure.userMessage };
+}
+
 /// After any step: the server's answer decides what comes next. A failure may mean the account was restricted
 /// or banned, so the account state is reloaded too.
 void _reload(WidgetRef ref) => ref
@@ -310,7 +330,61 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
       });
       return;
     }
-    _reload(ref);
+    await _offerFasterSignIn();
+    if (mounted) _reload(ref);
+  }
+
+  /// The phone is verified: suggest a passkey or an authenticator app for the next sign-ins (§3h, 15.8d).
+  Future<void> _offerFasterSignIn() async {
+    final passkeys = ref.read(passkeyAuthenticatorProvider).isSupported;
+    final choice = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialog) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        icon: const Icon(Icons.verified_user_outlined),
+        title: const Text('Girişlerini hızlandır'),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(passkeys
+                  ? 'Sonraki girişlerinde SMS beklemeden parmak izinle ya da Google Authenticator koduyla doğrulama yapabilirsin.'
+                  : 'Sonraki girişlerinde SMS beklemeden Google Authenticator koduyla doğrulama yapabilirsin.'),
+              _gap,
+              if (passkeys) ...[
+                GxButton(
+                  label: 'Parmak izi ekle',
+                  icon: Icons.fingerprint,
+                  onPressed: () => Navigator.of(dialog).pop('passkey'),
+                  expand: true,
+                ),
+                const SizedBox(height: GxSpacing.sm),
+              ],
+              GxButton(
+                label: 'Google Authenticator ekle',
+                icon: Icons.phonelink_lock_outlined,
+                variant: passkeys ? GxButtonVariant.secondary : GxButtonVariant.primary,
+                onPressed: () => Navigator.of(dialog).pop('totp'),
+                expand: true,
+              ),
+              GxButton(label: 'Şimdi değil', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    switch (choice) {
+      case 'passkey':
+        final error = await addPasskey(ref, refreshStatus: false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error ?? 'Parmak izi eklendi.')));
+      case 'totp':
+        await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TotpSetupScreen()));
+    }
   }
 
   @override
@@ -370,7 +444,14 @@ class _SecondFactorStep extends ConsumerStatefulWidget {
 
 class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _ResendCooldown {
   final _code = TextEditingController();
-  late String _method = widget.status.totpEnabled ? 'totp' : 'sms';
+
+  /// Preference order: passkey, authenticator app, SMS (§3h, 15.8d).
+  late final List<String> _methods = [
+    if (widget.status.passkeyCount > 0 && ref.read(passkeyAuthenticatorProvider).isSupported) 'passkey',
+    if (widget.status.totpEnabled) 'totp',
+    'sms',
+  ];
+  late String _method = _methods.first;
   bool _sent = false;
   bool _busy = false;
   String? _error;
@@ -399,6 +480,41 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
     setState(() => _busy = false);
   }
 
+  Future<void> _verifyPasskey() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final repo = ref.read(securityRepositoryProvider);
+    final options = await repo.passkeyAssertionOptions();
+    if (!mounted) return;
+    final Result<SecurityStatus> result;
+    switch (options) {
+      case Ok(:final value):
+        final response = await ref.read(passkeyAuthenticatorProvider).get(value);
+        if (!mounted) return;
+        if (response == null) {
+          setState(() {
+            _busy = false;
+            _error = 'Doğrulama iptal edildi ya da bu cihazda kayıtlı parmak izi yok. Başka bir yöntem seçebilirsin.';
+          });
+          return;
+        }
+        result = await repo.verifyPasskey(response);
+      case Err(:final failure):
+        result = Err(failure);
+    }
+    if (!mounted) return;
+    if (result case Err(:final failure)) {
+      setState(() {
+        _busy = false;
+        _error = failure.userMessage;
+      });
+      return;
+    }
+    _reload(ref);
+  }
+
   Future<void> _verify() async {
     if (_code.text.length != 6) {
       setState(() => _error = '6 haneli kodu gir.');
@@ -423,18 +539,25 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
   @override
   Widget build(BuildContext context) {
     final sms = _method == 'sms';
+    final passkey = _method == 'passkey';
     return AuthLayout(
       title: 'Girişini doğrula',
-      subtitle: sms
-          ? 'Güvenliğin için bu girişi doğrulaman gerekiyor. ${widget.status.phoneMasked ?? 'Kayıtlı numarana'} '
-              'numarasına bir kod göndereceğiz.'
-          : 'Doğrulama uygulamandaki 6 haneli kodu gir.',
+      subtitle: switch (_method) {
+        'passkey' => 'Bu cihazın parmak izi, yüz tanıma ya da ekran kilidiyle girişini doğrula.',
+        'totp' => 'Doğrulama uygulamandaki 6 haneli kodu gir.',
+        _ => 'Güvenliğin için bu girişi doğrulaman gerekiyor. ${widget.status.phoneMasked ?? 'Kayıtlı numarana'} '
+            'numarasına bir kod göndereceğiz.',
+      },
       children: [
-        if (widget.status.totpEnabled) ...[
+        if (_methods.length > 1) ...[
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'totp', label: Text('Uygulama'), icon: Icon(Icons.phonelink_lock_outlined)),
-              ButtonSegment(value: 'sms', label: Text('SMS'), icon: Icon(Icons.sms_outlined)),
+            segments: [
+              for (final m in _methods)
+                switch (m) {
+                  'passkey' => const ButtonSegment(value: 'passkey', label: Text('Parmak izi'), icon: Icon(Icons.fingerprint)),
+                  'totp' => const ButtonSegment(value: 'totp', label: Text('Uygulama'), icon: Icon(Icons.phonelink_lock_outlined)),
+                  _ => const ButtonSegment(value: 'sms', label: Text('SMS'), icon: Icon(Icons.sms_outlined)),
+                },
             ],
             selected: {_method},
             onSelectionChanged: _busy
@@ -447,12 +570,20 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
           ),
           _gap,
         ],
-        if (!sms || _sent) ...[
+        if (!passkey && (!sms || _sent)) ...[
           _CodeField(controller: _code, onSubmitted: _verify),
           _gap,
         ],
         if (_error != null) ...[GxFormMessage(_error!), _gap],
-        if (sms && !_sent)
+        if (passkey)
+          GxButton(
+            label: 'Parmak iziyle doğrula',
+            icon: Icons.fingerprint,
+            onPressed: _verifyPasskey,
+            isLoading: _busy,
+            expand: true,
+          )
+        else if (sms && !_sent)
           GxButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
         else ...[
           GxButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
@@ -564,8 +695,11 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                               ? 'Açık. Yeni girişlerini uygulamadaki kodla da doğrulayabilirsin.'
                               : 'Google Authenticator gibi bir uygulamayla SMS beklemeden giriş yap.'),
                         ),
+                        const Divider(height: 1),
+                        const _PasskeysSection(),
+                        const Divider(height: 1),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+                          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.md),
                           child: s.totpEnabled
                               ? GxButton(
                                   label: 'Kaldır',
@@ -595,6 +729,82 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Settings: passkeys on this account, adding one on this device, removing one.
+class _PasskeysSection extends ConsumerStatefulWidget {
+  const _PasskeysSection();
+
+  @override
+  ConsumerState<_PasskeysSection> createState() => _PasskeysSectionState();
+}
+
+class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
+  bool _busy = false;
+
+  void _say(String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+
+  Future<void> _add() async {
+    setState(() => _busy = true);
+    final error = await addPasskey(ref);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    _say(error ?? 'Parmak izi eklendi.');
+  }
+
+  Future<void> _remove(PasskeyView p) async {
+    final result = await ref.read(securityRepositoryProvider).deletePasskey(p.id);
+    if (!mounted) return;
+    _say(switch (result) { Ok() => '${p.name} kaldırıldı.', Err(:final failure) => failure.userMessage });
+    ref
+      ..invalidate(passkeysProvider)
+      ..invalidate(securityStatusProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final supported = ref.watch(passkeyAuthenticatorProvider).isSupported;
+    final passkeys = ref.watch(passkeysProvider).value ?? const <PasskeyView>[];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          leading: const Icon(Icons.fingerprint),
+          title: const Text('Parmak izi ve yüz tanıma'),
+          subtitle: Text(passkeys.isEmpty
+              ? 'Girişlerini cihazının parmak izi, yüz tanıma ya da ekran kilidiyle doğrula.'
+              : '${passkeys.length} cihaz kayıtlı. Girişlerde önce bu yöntem sorulur.'),
+        ),
+        for (final p in passkeys)
+          ListTile(
+            contentPadding: const EdgeInsets.only(left: GxSpacing.xxl + GxSpacing.md, right: GxSpacing.xs),
+            title: Text(p.name),
+            subtitle: Text(p.lastUsedAt == null ? 'Henüz kullanılmadı' : 'Son kullanım: ${formatDateTimeTr(p.lastUsedAt!)}'),
+            trailing: IconButton(
+              tooltip: 'Kaldır',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _busy ? null : () => _remove(p),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+          child: supported
+              ? GxButton(
+                  label: 'Bu cihazda parmak izi ekle',
+                  icon: Icons.add,
+                  variant: GxButtonVariant.secondary,
+                  isLoading: _busy,
+                  onPressed: _add,
+                  expand: true,
+                )
+              : Text(
+                  'Bu cihaz ya da tarayıcı parmak iziyle girişi desteklemiyor.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                ),
+        ),
+      ],
     );
   }
 }

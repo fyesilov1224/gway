@@ -108,6 +108,8 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.sms_sends` | identity | 15.8 |
 | `public.location_checks` | identity | 15.8 |
 | `public.security_reviews` | identity | 15.8 |
+| `public.passkeys` | identity | 15.8 |
+| `public.webauthn_challenges` | identity | 15.8 |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -1090,11 +1092,25 @@ Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kap
 - SMS sınırları (`sms_sends`): kullanıcı başına saatte 5, günde 10; numara başına saatte 5. Doğrulama denemesini Twilio Verify sınırlar (kod başına 5). Uçlarda `Sensitive` rate limit vardır.
 - TOTP: RFC 6238, SHA-1, 30 sn, 6 hane, ±1 adım. Gizli anahtar `totp_factors`'tadır (yalnızca service role). Aynı adım iki kez kullanılamaz.
 
+### Parmak izi (passkey) ve Authenticator önerisi (15.8d, kullanıcı kararı 2026-10-27)
+- **Passkey (WebAuthn)**, ikinci adım yöntemlerinden biridir:
+  - Kullanıcı cihazın parmak izi, yüz tanıma ya da ekran kilidiyle (`userVerification: required`) imza atar; sunucu imzayı doğrular.
+  - Anahtar cihazdan çıkmaz, kopyalanamaz. Değiştirilmiş bir istemci doğrulamayı atlayamaz.
+  - Web'de Windows Hello, Mac Touch ID ve telefon tarayıcısı ile çalışır. Mobil uygulamada sonraki aşamada eklenir.
+- Sunucu: `Fido2` (fido2-net-lib). Yapılandırma:
+  - `Security:Passkeys:RelyingPartyId`: yerelde `localhost`, yayında alan adı.
+  - `Security:Passkeys:Origins`: uygulama ve panel adresleri.
+  - Tarayıcı WebAuthn'u yalnızca `https` ya da `localhost` üzerinde açar.
+- Kayıt: doğrulanmış oturumda (zorlama kapalıysa her oturumda). Kullanıcı başına en çok 10 passkey. Tasdik (attestation) istenmez (`none`); aynı anahtar iki kez kaydedilmez.
+- Meydan okuma (challenge): `webauthn_challenges`'ta kullanıcı ve amaç başına tek, 5 dakika geçerli, tek kullanımlık.
+- İkinci adımda yöntem sırası: passkey > doğrulama uygulaması > SMS. İmza sayacı geriye giderse reddedilir (kopyalanmış anahtar belirtisi).
+- **Authenticator önerisi:** telefon doğrulandıktan hemen sonra kullanıcıya "Parmak izi ekle / Google Authenticator ekle / Şimdi değil" önerisi gösterilir. Kurulan yöntem sonraki girişlerde varsayılan olur, SMS yedek kalır.
+
 ### Veri ve erişim
 - Tabloların hepsinde RLS açık, istemciye politika **yok**. Okuma ve yazma C# (service role) ve hook üzerinden yapılır. Platform ekibi panelden C# ile okur.
 - `location_checks` ve `sms_sends` **90 gün** saklanır, `AccountPurgeService` siler. `phone_bans` dolandırıcılık önleme amacıyla süresiz tutulur.
-- Hesap silinince `phone_verifications`, `user_security`, `verified_sessions` ve `totp_factors` cascade ile silinir. `phone_bans` kalır.
-- Audit: `security.phone_verified`, `security.totp_enabled`, `security.totp_disabled`, `security.restricted`, `security.banned`, `security.review_approved`, `security.review_banned`, `security.settings_changed`.
+- Hesap silinince `phone_verifications`, `user_security`, `verified_sessions`, `totp_factors`, `passkeys` ve `webauthn_challenges` cascade ile silinir. `phone_bans` kalır. Süresi geçmiş meydan okumaları `AccountPurgeService` siler.
+- Audit: `security.phone_verified`, `security.totp_enabled`, `security.totp_disabled`, `security.passkey_added`, `security.passkey_removed`, `security.restricted`, `security.banned`, `security.review_approved`, `security.review_banned`, `security.settings_changed`.
 
 ### Uç noktalar
 | Uç nokta | Açıklama |
@@ -1108,6 +1124,11 @@ Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kap
 | `POST /security/totp` | Doğrulanmış oturumda kurulum başlatır: gizli anahtar ve `otpauth://` adresi |
 | `POST /security/totp/confirm` | `code`: kurulumu tamamlar |
 | `DELETE /security/totp` | Kaldırır |
+| `POST /security/passkeys/options` | Kayıt seçenekleri (WebAuthn JSON). Doğrulanmış oturum |
+| `POST /security/passkeys` | `name?`, `response` (tarayıcının yanıtı): passkey'i kaydeder |
+| `GET /security/passkeys`, `DELETE /security/passkeys/{id}` | Kendi passkey'leri; silme doğrulanmış oturumda |
+| `POST /security/second-factor/passkey/options` | Giriş için imza seçenekleri |
+| `POST /security/second-factor/passkey` | Tarayıcının imzası: oturumu doğrular |
 | `GET /admin/security/settings`, `PUT /admin/security/settings` | Zorlama ve tespit anahtarları (`enforce`, `detectVpn`, `warnInstalledVpn`, `detectPhoneMismatch`; PUT'ta yalnızca gönderilenler değişir), sağlayıcı durumu. Her değişiklik `security.settings_changed`. Rol: `admin` |
 | `GET /admin/security/reviews?status=` | İnceleme listesi (sinyal özeti). Rol: `admin`, `moderator` |
 | `POST /admin/security/reviews/{id}/approval` | `exemptDays?` (0–90), `note`. Rol: `admin`, `moderator` |
