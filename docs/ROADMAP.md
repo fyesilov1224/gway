@@ -286,6 +286,28 @@ Kararlar (2026-10-26): ortak gruplardan havuz, kart kaydırma, Arkadaş ve Sevgi
 - [x] Kullanıcı kararı (2026-10-27): ekip arkadaşı bölümüne giriş paketle (öneriler, istekler, kabul); paketsiz kişi bekleyen istek sayısını görür. Platform yöneticisi tüm paketlere paketsiz sahiptir (migration 0035)
 - [x] Kullanıcı isteği (2026-10-27): ekip arkadaşı tercihleri yeni tasarım ve yeni seçenekler (aktiviteler, hedefler, sıklık, 6 zaman dilimi, ekip büyüklüğü, araç, ekipman); öneri puanı ve gerekçeleri bunları da kullanır (migration 0036)
 
+- [x] İnceleme düzeltmeleri (2026-10-27): süper beğeni ücretsiz beğeniden düşmez, kaydırma yalnızca destedeki kişiye, "Seni beğenenler" 90 gün kuralı, süper beğeni bildirimi silmeyle gider, hesap silinince `match-photos` temizlenir, silinmiş alıcının ödemesi takılmaz (migration 0037); gönderi emoji tepkisi upsert izni (migration 0038)
+- [x] Admin: kullanıcı sayfasından paket tanımlama ve iptal (iade dahil); sohbette gönderenin profil fotoğrafı (kullanıcı istekleri, 2026-10-27)
+
+## Faz 15.7 — Yönetim Paneli: Analiz ve Denetim (kullanıcı isteği, onaylandı 2026-10-27)
+
+Ayrıntılar: `docs/ARCHITECTURE.md` §8b. Her aşama bitince kullanıcıya gösterilir.
+
+### 15.7a — Genel bakış
+- [x] Panelin açılış sayfası: tarih aralığı (7 / 30 / 90 / 365 gün), "Şu an" özeti, önceki dönemle karşılaştırmalı KPI kartları ve mini grafikleri, zaman grafikleri (kullanıcı büyümesi ve aktif kullanıcı, etkileşim, mesajlar, eşleşme, gelir, moderasyon, gruplar ve canlı yayın); her grafikte açıklama, değer kutusu ve tablo görünümü
+- [x] `GET /admin/analytics/overview`; günler Türkiye saatine göre, yıl 52 hafta; gelir yalnızca faturalamayı gören rollere
+- [x] Grafikler `fl_chart` ile, yalnızca admin paketinde; seri renkleri tasarım sisteminde (`GxColors.chartSeries`, renk körlüğü için doğrulandı)
+- [x] C# (1), Flutter (genel bakış masaüstü ve telefon, biçimlendirme) testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-27)
+
+### 15.7b — Modül analizleri
+- [ ] Her modül sayfasında grafikli analiz: kullanıcılar, gruplar, içerik, mesajlaşma, eşleşme, gelir, canlı yayın, organizasyon, moderasyon, destek
+
+### 15.7c — Denetim
+- [ ] Ayrıntılı kullanıcı sayfası: etkinlik zaman çizelgesi, grupları, paylaşımları, şikayetleri, konuşmaları
+- [ ] Konuşmalar: üst bilgi serbest; içerik gerekçeyle açılır, her açılış `audit_log`'a yazılır ve panelde görünür; aydınlatma metnine eklenir (kullanıcı kararı, 2026-10-27)
+- [ ] İşlem kaydı görüntüleyici (`audit_log`), genel arama, CSV dışa aktarma
+- [ ] Testler; `flutter analyze` ve `dotnet build` temiz; docs güncel
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

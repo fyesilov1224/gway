@@ -43,6 +43,14 @@ abstract final class GxColors {
   /// Behind text laid over photos.
   static const mediaScrim = Color(0x73111118);
 
+  /// Chart series, in this fixed order and never cycled (docs/DESIGN.md §1, Grafikler). Checked for color vision
+  /// deficiency and contrast on white as adjacent pairs: purple and blue never sit side by side.
+  static const chartSeries = [primary, Color(0xFFEB6834), secondary, Color(0xFF138A5F)];
+
+  /// The previous range under the current one, and grid lines.
+  static const chartCompare = Color(0xFFB4B6C8);
+  static const chartGrid = border;
+
   /// Reserved for the live badge and the "start live" button only (`GxLiveBadge`, `GxLiveButton`).
   static const liveGradient = LinearGradient(
     colors: [primary, secondary],

@@ -1,5 +1,7 @@
 abstract final class AdminRoutes {
-  static const users = '/';
+  static const overview = '/';
+
+  static const users = '/users';
   static const notAuthorized = '/not-authorized';
 
   static const groups = '/groups';

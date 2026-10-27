@@ -1374,6 +1374,19 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 ### Yapılandırma
 `LiveKit:Url` (istemcinin bağlandığı adres, ör. `wss://live.grupx.app`), `LiveKit:ApiUrl` (sunucu API'si; boşsa `Url`'in http karşılığı), `LiveKit:ApiKey`, `LiveKit:ApiSecret`. Anahtarlar tanımlı değilse yayın kapalıdır (`live.unavailable`, 503). Yerelde LiveKit Docker'da `--dev` modunda çalışır (§9).
 
+## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
+
+Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemleri ayrıntılı ama düzenli gösterir; istatistikler profesyonel grafiklerle sunulur.
+
+### Genel bakış (15.7a)
+- Panelin açılış sayfasıdır (`/overview`). Üstte tarih aralığı: 7, 30, 90 ya da 365 gün (varsayılan 30).
+- **Günler Türkiye saatine göredir** (`Europe/Istanbul`); 365 günlük aralık haftalık toplanır, diğerleri günlük.
+- **KPI kartları:** seçili dönemin toplamı, bir önceki eşit uzunluktaki dönemle farkı (yüzde; önceki dönem sıfırsa "yeni") ve mini eğri. Kartlar: yeni kullanıcı, aktif kullanıcı, yeni grup, gönderi, mesaj, eşleşme, gelir (TRY ve USD ayrı, iade düşülmüş), açılan şikayet.
+- **Aktif kullanıcı:** o gün en az bir şey yazan kişi: gönderi, yorum, beğeni, emoji tepkisi, mesaj, eşleşme kaydırması ya da gruba katılma. Dönemin aktif kullanıcısı tekil kişi sayısıdır. Yalnızca okuyan kişi sayılmaz (okuma kaydı tutulmaz).
+- **Grafikler:** kullanıcı büyümesi (yeni ve aktif kullanıcı), etkileşim (gönderi, yorum, mesaj, tepki), eşleşme (beğeni, süper beğeni, eşleşme), gelir (ödenen siparişler, para birimine göre), moderasyon (açılan ve incelenen şikayet). Her grafikte açıklama, eksen etiketleri ve dokununca / üzerine gelince değerler; boş dönemde boş durum metni.
+- `GET /admin/analytics/overview?days=7|30|90|365`. Rol: `admin`, `moderator`, `support`; gelir ölçüleri yalnızca faturalamayı gören rollere (`admin`, `support`) döner. 365 günlük aralık 52 tam haftadır; haftalık görünümde aktif kullanıcı noktası o haftanın günlük ortalamasıdır.
+- Grafikler `fl_chart` ile çizilir; bağımlılık yalnızca `features/admin`'dedir. Renkler tasarım sistemi tokenlarından gelir.
+
 ## 9. Test ve "bitti" tanımı
 
 Bir faz şu koşullar sağlanınca biter:

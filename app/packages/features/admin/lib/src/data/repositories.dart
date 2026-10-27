@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
@@ -352,6 +353,19 @@ class ApiAdminMatchingRepository implements AdminMatchingRepository {
       return Err(failureFromSupabase(e));
     }
   }
+}
+
+class ApiAdminAnalyticsRepository implements AdminAnalyticsRepository {
+  ApiAdminAnalyticsRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<AdminOverview>> overview(int days) => _api.get(
+        '/admin/analytics/overview',
+        query: {'days': '$days'},
+        decode: (json) => AdminOverview.fromJson((json! as Map).cast()),
+      );
 }
 
 class ApiAdminNotificationsRepository implements AdminNotificationsRepository {

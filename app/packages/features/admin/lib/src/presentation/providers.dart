@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories.dart';
+import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
@@ -168,6 +169,15 @@ final matchingPackagesProvider = FutureProvider.autoDispose<List<AdminPremium>>(
 /// One person's package slices (user page).
 final userPackagesProvider = FutureProvider.autoDispose.family<List<AdminPersonalSubscription>, String>(
   (ref, userId) async => (await ref.watch(adminMatchingRepositoryProvider).userPackages(userId)).getOrThrow(),
+);
+
+final adminAnalyticsRepositoryProvider = Provider<AdminAnalyticsRepository>(
+  (ref) => ApiAdminAnalyticsRepository(ref.watch(apiClientProvider)),
+);
+
+/// The overview for a range of 7, 30, 90 or 365 days.
+final overviewProvider = FutureProvider.autoDispose.family<AdminOverview, int>(
+  (ref, days) async => (await ref.watch(adminAnalyticsRepositoryProvider).overview(days)).getOrThrow(),
 );
 
 final adminNotificationsRepositoryProvider = Provider<AdminNotificationsRepository>(

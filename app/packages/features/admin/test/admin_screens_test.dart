@@ -577,6 +577,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         ),
         userDetailProvider.overrideWith((ref, id) async => _detail),
         userPackagesProvider.overrideWith((ref, id) async => _userPackages),
+        overviewProvider.overrideWith((ref, days) async => _overview(days)),
         categoriesProvider.overrideWith((ref) async => const [Category(slug: 'cycling', name: 'Bisiklet')]),
         groupStatsProvider.overrideWith((ref) async => const AdminGroupStats(total: 2, active: 1, suspended: 1)),
         groupSearchProvider.overrideWith(
@@ -586,6 +587,32 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
       ],
       child: MaterialApp(theme: GxTheme.light(), home: Scaffold(body: child)),
     );
+
+// A week of every measure: rising, so the cards show a rise against the previous week.
+AdminOverview _overview(int days) {
+  const keys = [
+    'new_users', 'active_users', 'new_groups', 'posts', 'comments', 'likes', 'reactions', 'messages', 'match_likes',
+    'super_likes', 'matches', 'reports_opened', 'reports_reviewed', 'live_started', 'revenue_try', 'revenue_usd', 'paid_orders',
+  ];
+  final points = [for (var i = 0; i < 7; i++) (i + 1) * 3];
+  final previous = [for (var i = 0; i < 7; i++) i + 1];
+  return AdminOverview(
+    days: days,
+    weekly: false,
+    buckets: [for (var i = 0; i < 7; i++) DateTime(2026, 10, 21 + i)],
+    metrics: {
+      for (final k in keys)
+        k: AdminMetric(
+          key: k,
+          current: k.startsWith('revenue') ? 2490000 : points.fold(0, (a, b) => a + b),
+          previous: previous.fold(0, (a, b) => a + b),
+          points: k.startsWith('revenue') ? [for (final p in points) p * 10000] : points,
+          previousPoints: previous,
+        ),
+    },
+    snapshot: const AdminSnapshot(users: 1250, groups: 48, openReports: 3, openTickets: 2, liveNow: 1, matchProfiles: 310),
+  );
+}
 
 // A running granted package and an earlier bought one that was refunded.
 final _userPackages = [
@@ -630,6 +657,28 @@ Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole ro
 }
 
 void main() {
+  for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
+    testWidgets('overview lays out on $name', (tester) async {
+      await _pumpAt(tester, size, const AdminOverviewScreen());
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Genel bakış'), findsWidgets);
+      expect(find.text('Yeni kullanıcı'), findsWidgets);
+      expect(find.text('1.250'), findsOneWidget);
+      expect(find.text('Gelir (TRY)'), findsOneWidget);
+      // 84 against 28: a 200% rise.
+      expect(find.text('%200'), findsWidgets);
+      expect(find.text('Kullanıcı büyümesi'), findsOneWidget);
+
+      // Every chart has a table view.
+      await tester.ensureVisible(find.byTooltip('Tablo olarak göster').first);
+      await tester.tap(find.byTooltip('Tablo olarak göster').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Toplam'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
     testWidgets('users screen lays out on $name', (tester) async {
       await _pumpAt(tester, size, const UsersScreen());

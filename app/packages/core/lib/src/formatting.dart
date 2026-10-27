@@ -9,6 +9,21 @@ String formatDateTr(DateTime date) {
   return '${d.day} ${_months[d.month - 1]} ${d.year}';
 }
 
+/// `18 Eki` in local time, for chart axes.
+String formatDayMonthTr(DateTime date) {
+  final d = date.toLocal();
+  return '${d.day} ${_months[d.month - 1].substring(0, 3)}';
+}
+
+/// `950`, `12,5 B`, `1,2 Mn`: a short count for chart axes.
+String formatCompactTr(num value) {
+  String one(double v) => (v >= 100 ? v.round().toString() : v.toStringAsFixed(1).replaceAll('.0', '')).replaceAll('.', ',');
+  final abs = value.abs();
+  if (abs >= 1000000) return '${one(value / 1000000)} Mn';
+  if (abs >= 1000) return '${one(value / 1000)} B';
+  return value.round().toString();
+}
+
 /// `18 Ekim 2026, 09:05` in local time.
 String formatDateTimeTr(DateTime date) {
   final d = date.toLocal();

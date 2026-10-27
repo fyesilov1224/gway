@@ -34,7 +34,7 @@ String? adminRedirectFor(AdminGate gate, Uri location) {
     AdminGate.ready => null,
   };
 
-  if (target == null) return _gateOnly.contains(path) ? AdminRoutes.users : null;
+  if (target == null) return _gateOnly.contains(path) ? AdminRoutes.overview : null;
   if (gate == AdminGate.signedOut && _publicPaths.contains(path)) return null;
   return path == target ? null : target;
 }
@@ -57,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         icon: Icons.link_off,
         message: 'Aradığın sayfa bulunamadı. Bağlantı eski ya da hatalı olabilir.',
         actionLabel: 'Kullanıcılara dön',
-        onAction: () => context.go(AdminRoutes.users),
+        onAction: () => context.go(AdminRoutes.overview),
       ),
     ),
     routes: [
@@ -86,6 +86,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (_, _, child) => AdminShell(onSignOut: signOut, child: child),
         routes: [
+          GoRoute(path: AdminRoutes.overview, builder: (_, _) => const AdminOverviewScreen()),
           GoRoute(path: AdminRoutes.users, builder: (_, _) => const UsersScreen()),
           GoRoute(
             path: '/users/:id',

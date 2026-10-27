@@ -42,6 +42,13 @@ Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygul
 - Kontrast: Metin / zemin çiftleri WCAG AA'yı (normal metin ≥ 4.5:1) sağlar. Bu, `design_system` testleriyle doğrulanır.
 - Mavi metin soft mavi zemin üzerinde kullanılmaz (≈4.2:1, AA altı). Soft zeminlerin üzerindeki metin `textPrimary` olur. İstisna: mor metin `primarySoft` üzerinde kullanılabilir (≈4.8:1).
 
+### Grafikler — `GxColors.chartSeries` (Faz 15.7, yalnızca yönetim paneli)
+- Seri renkleri **sabit sırayla** verilir, asla döngüye girmez: mor `#6E56CF`, turuncu `#EB6834`, mavi `#2F6FE0`, yeşil `#138A5F`. Mor ve mavi renk körlüğünde karışır, bu yüzden yan yana gelmez. Sıra beyaz zeminde renk körlüğü, normal görme ve 3:1 kontrast için betikle doğrulandı (bitişik çiftler).
+- Bir grafikte en fazla 4 seri; fazlası ayrı grafiğe bölünür. İki seri ve üstünde açıklama (legend) her zaman bulunur, seri adı ayrıca doğrudan çizginin ucuna yazılır; kimlik yalnızca renge bırakılmaz.
+- Önceki dönem, güncel serinin altında açık gri (`chartCompare`) kesik çizgidir. Izgara çizgileri kenar rengindedir, eksenler sakindir.
+- Tek eksen: farklı ölçekteki iki ölçü (ör. gelir ve sipariş sayısı) aynı grafikte iki eksene konmaz, ayrı grafik olur.
+- Çizgi 2 px, sütun uçları 4 yuvarlak, sütunlar arası 2 px boşluk. Üzerine gelince / dokununca değer kutusu çıkar. Yazılar seri renginde değil, metin renklerindedir.
+
 ### Zemin — `GxBackdrop`
 
 Her sayfanın arkasında beyazdan açık mora ve açık pembeye geçen, sabit ve yumuşak bir zemin vardır (kullanıcı isteği, 2026-10-22). Sol üstten açık mor, sağ üstte pembe bir ışıltı, ortası beyaza yakın, sol altta yine açık mor.

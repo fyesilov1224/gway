@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GrupX.Modules.Admin;
 
@@ -45,6 +46,8 @@ public sealed record GrantUserPackageRequest(string Slug, int Days, string Reaso
 
 public static class AdminModule
 {
+    private static readonly TimeZoneInfo Turkey = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+
     public static IServiceCollection AddAdminModule(this IServiceCollection services)
     {
         services.AddSingleton<PlatformStaff>();
@@ -57,11 +60,26 @@ public static class AdminModule
         services.AddSingleton<AdminEvents>();
         services.AddSingleton<AdminModeration>();
         services.AddSingleton<AdminGoals>();
+        services.AddSingleton<AdminAnalytics>();
+        services.TryAddSingleton(TimeProvider.System);
         return services;
     }
 
     public static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
+        // The overview page (docs/ARCHITECTURE.md §8b); revenue only for the roles that see billing.
+        app.MapGet("/admin/analytics/overview", async (
+                int? days, ClaimsPrincipal user, PlatformStaff staff, AdminAnalytics analytics, TimeProvider time, CancellationToken ct) =>
+            {
+                var range = days ?? 30;
+                if (!AdminAnalytics.Ranges.Contains(range))
+                    return Error.Validation("admin.invalid_range", "Aralık 7, 30, 90 ya da 365 gün olmalı.").ToProblem();
+                var role = await staff.GetRoleAsync(user.GetUserId(), ct);
+                var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(time.GetUtcNow(), Turkey).DateTime);
+                return TypedResults.Ok(await analytics.OverviewAsync(range, StaffRoles.Billing.Contains(role), today, ct));
+            })
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
         var users = app.MapGroup("/admin/users");
 
         users.MapGet("", async (string? q, string? status, int? page, AdminUsers admin, CancellationToken ct) =>

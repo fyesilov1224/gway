@@ -43,7 +43,7 @@ class StatCard extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       selected: selected,
-      label: '$label: ${valueText ?? value ?? '-'}',
+      label: '$label: ${valueText ?? (value == null ? '-' : formatCount(value!))}',
       excludeSemantics: true,
       child: Material(
         color: GxColors.background,
@@ -66,7 +66,7 @@ class StatCard extends StatelessWidget {
                       const SizedBox(height: GxSpacing.xxs),
                       switch ((valueText, value)) {
                         (final String text, _) => Text(text, style: textTheme.headlineMedium),
-                        (_, final int v) => Text('$v', style: textTheme.headlineMedium),
+                        (_, final int v) => Text(formatCount(v), style: textTheme.headlineMedium),
                         _ => const GxSkeleton(width: GxSpacing.xxl, height: GxSpacing.xl),
                       },
                     ],
@@ -86,17 +86,18 @@ class StatCard extends StatelessWidget {
   }
 }
 
-/// A responsive row of [StatCard]s: four columns from the reading width on, two below.
+/// A responsive row of [StatCard]s: [wideColumns] (four) from the reading width on, two below.
 class StatCardRow extends StatelessWidget {
-  const StatCardRow({super.key, required this.cards});
+  const StatCardRow({super.key, required this.cards, this.wideColumns = 4});
 
   final List<StatCard> cards;
+  final int wideColumns;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= GxLayout.contentMaxWidth ? 4 : 2;
+        final columns = constraints.maxWidth >= GxLayout.contentMaxWidth ? wideColumns : 2;
         final width = (constraints.maxWidth - GxSpacing.md * (columns - 1)) / columns;
         return Wrap(
           spacing: GxSpacing.md,

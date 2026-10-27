@@ -22,7 +22,7 @@ void main() {
     expect(adminRedirectFor(AdminGate.signedOut, u('/users/1')), IdentityRoutes.signIn);
     expect(adminRedirectFor(AdminGate.signedOut, u('/forgot-password')), isNull);
     expect(adminRedirectFor(AdminGate.notAuthorized, u('/')), AdminRoutes.notAuthorized);
-    expect(adminRedirectFor(AdminGate.ready, u('/sign-in')), AdminRoutes.users);
+    expect(adminRedirectFor(AdminGate.ready, u('/sign-in')), AdminRoutes.overview);
     expect(adminRedirectFor(AdminGate.ready, u('/users/1')), isNull);
   });
 }

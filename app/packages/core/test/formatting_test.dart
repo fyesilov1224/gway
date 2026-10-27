@@ -19,4 +19,14 @@ void main() {
     expect(formatMoney(0, 'TRY'), '0 ₺');
     expect(formatCount(10000), '10.000');
   });
+
+  test('chart axes: short counts and short dates', () {
+    expect(formatCompactTr(950), '950');
+    expect(formatCompactTr(1000), '1 B');
+    expect(formatCompactTr(12500), '12,5 B');
+    expect(formatCompactTr(250000), '250 B');
+    expect(formatCompactTr(1200000), '1,2 Mn');
+    expect(formatDayMonthTr(DateTime(2026, 10, 27)), '27 Eki');
+    expect(formatDayMonthTr(DateTime(2026, 8, 3)), '3 Ağu');
+  });
 }
