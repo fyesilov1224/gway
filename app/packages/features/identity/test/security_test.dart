@@ -50,6 +50,11 @@ class _FakeSecurity implements SecurityRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _RefusingSecurity extends _FakeSecurity {
+  @override
+  Future<Result<SecurityStatus>> sendLocation(DeviceSignals signals) async => const Err(ForbiddenFailure());
+}
+
 class _FakeDevice implements DeviceSignalSource {
   _FakeDevice(this.reading);
 
@@ -155,13 +160,23 @@ void main() {
     expect(security.secondFactorSends, 0);
   });
 
-  testWidgets('the restricted notice does not say why', (tester) async {
+  testWidgets('the restricted notice shows the warning', (tester) async {
     await tester.pumpWidget(_app(_status(SecurityStep.restricted), _FakeSecurity()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Hesabın güvenlik incelemesinde'), findsOneWidget);
-    expect(find.textContaining('VPN'), findsNothing);
+    expect(find.text('Güvenli giriş yapılamadı'), findsOneWidget);
+    expect(find.text(securityWarning), findsOneWidget);
     expect(find.text('Durumu yenile'), findsOneWidget);
+  });
+
+  testWidgets('a refused location check shows the warning, not a blank page', (tester) async {
+    final security = _RefusingSecurity();
+    await tester.pumpWidget(_app(_status(SecurityStep.location), security));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Konum iznini ver'));
+    await tester.pumpAndSettle();
+    expect(find.text(securityWarning), findsOneWidget);
   });
 
   testWidgets('security steps fit a small phone at 130% text', (tester) async {

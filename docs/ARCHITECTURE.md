@@ -1063,7 +1063,7 @@ Kesin koordinat **saklanmaz**, yalnızca türetilen ülkeler ve bayraklar saklan
 
 - **İzinli ülke:** GPS ülkesi. Bulunamazsa IP ülkesidir.
 - **Ban:** mevcut askı akışıyla (`account_status` + Supabase Auth ban) kalıcı uygulanır. Gerekçe kodu `security.*`, aktör `system`. Numara `phone_bans`'a eklenir.
-- **Kısıtlama:** `user_security.state = 'restricted'` olur ve bir `security_reviews` kaydı açılır. Kullanıcı genel bir ekran görür: "Hesabın güvenlik incelemesinde", destek bağlantısıyla. Hangi sinyalin tetiklediği gösterilmez.
+- **Kısıtlama:** `user_security.state = 'restricted'` olur ve bir `security_reviews` kaydı açılır. Kullanıcı uyarı ekranı görür (kullanıcı kararı, 2026-10-27): "Konumunuz, kullandığınız telefon ve VPN tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın." Hangi sinyalin tetiklendiği tek tek söylenmez. Konum adımı reddedilirse aynı uyarı o ekranda gösterilir; ekran hiçbir durumda boş kalmaz.
 - **Admin incelemesi:** "Onayla" seçeneği kısıtlamayı kaldırır. Admin isterse `exempt_until` verir (en çok 90 gün; ör. yurt dışında yaşayan veya seyahatteki kullanıcı); bu süre boyunca belirsiz sinyaller kısıtlamaz. "Banla" seçeneği ban uygular. Her karar `audit_log`'a yazılır.
 - Otomatik karara itiraz (KVKK m.11/g): kullanıcı destekten yazar, admin incelemesi itiraz yoludur. Otomatik banı yalnızca platform ekibi kaldırır.
 - **Bilinen sınırlar:**

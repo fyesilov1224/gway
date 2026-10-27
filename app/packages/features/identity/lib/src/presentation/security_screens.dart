@@ -27,10 +27,23 @@ class SecurityScreen extends ConsumerWidget {
       SecurityStep.phone => _PhoneStep(status: status!),
       SecurityStep.secondFactor => _SecondFactorStep(status: status!),
       SecurityStep.restricted => const _RestrictedStep(),
-      _ => const GxSplash(),
+      // Still loading, or the status could not be read: never a blank page.
+      _ => switch (ref.watch(securityStatusProvider)) {
+          AsyncError(:final error) => AuthLayout(
+              title: 'Güvenlik doğrulaması',
+              children: [
+                GxErrorState(message: userMessageOf(error), onRetry: () => _reload(ref)),
+                const _SignOutButton(),
+              ],
+            ),
+          _ => const GxSplash(caption: 'Güvenlik kontrol ediliyor'),
+        },
     };
   }
 }
+
+/// Shown when a location check is refused or the account is under review (user decision, 2026-10-27).
+const securityWarning = 'Konumunuz, kullandığınız telefon ve VPN tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.';
 
 /// After any step: the server's answer decides what comes next. A failure may mean the account was restricted
 /// or banned, so the account state is reloaded too.
@@ -78,7 +91,10 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
       case LocationRead(:final signals):
         final result = await ref.read(securityRepositoryProvider).sendLocation(signals);
         if (!mounted) return;
-        if (result case Err(:final failure)) setState(() => _error = failure.userMessage);
+        // A refusal means the check restricted or banned the account: say so instead of a raw error.
+        if (result case Err(:final failure)) {
+          setState(() => _error = failure is ForbiddenFailure ? securityWarning : failure.userMessage);
+        }
         _reload(ref);
       case LocationDenied(:final permanently):
         _permanentlyDenied = permanently;
@@ -435,7 +451,7 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
 
 // ---------------------------------------------------------------------------
 
-/// Deliberately general: which signal caused the review is not shown (§3h).
+/// The warning, without naming the exact signal (§3h, Kısıtlama).
 class _RestrictedStep extends ConsumerWidget {
   const _RestrictedStep();
 
@@ -443,10 +459,12 @@ class _RestrictedStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final refreshing = ref.watch(securityStatusProvider).isLoading;
     return AuthLayout(
-      title: 'Hesabın güvenlik incelemesinde',
-      subtitle: 'Hesabını korumak için kısa bir inceleme yapıyoruz. İnceleme sonuçlanınca uygulamayı kullanmaya '
-          'kaldığın yerden devam edebilirsin.',
+      title: 'Güvenli giriş yapılamadı',
+      subtitle: 'Hesabın güvenlik incelemesine alındı. İnceleme sonuçlanınca uygulamayı kullanmaya kaldığın yerden '
+          'devam edebilirsin.',
       children: [
+        const GxFormMessage(securityWarning),
+        const SizedBox(height: GxSpacing.md),
         GxButton(
           label: 'Durumu yenile',
           icon: Icons.refresh,
