@@ -4,6 +4,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="libphonenumber-csharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Natural Earth 1:50m country borders (public domain), docs/ARCHITECTURE.md §3h. -->
+    <EmbeddedResource Include="Security\countries.json.gz" LogicalName="countries.json.gz" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="GrupX.Api.Tests" />
   </ItemGroup>
 </Project>

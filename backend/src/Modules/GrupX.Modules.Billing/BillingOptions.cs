@@ -11,23 +11,9 @@ public sealed class BillingOptions
     /// <summary>Public base URL of this API, for the iyzico callback.</summary>
     public string PublicApiUrl { get; set; } = "";
 
-    public GeoOptions Geo { get; set; } = new();
-
     public PaytrOptions Paytr { get; set; } = new();
 
     public IyzicoOptions Iyzico { get; set; } = new();
-}
-
-public sealed class GeoOptions
-{
-    /// <summary>Country header set by a trusted proxy in front of the API (e.g. <c>CF-IPCountry</c>).</summary>
-    public string? CountryHeader { get; set; }
-
-    /// <summary>MaxMind DB country database (DB-IP Lite or GeoLite2 Country).</summary>
-    public string? DatabasePath { get; set; }
-
-    /// <summary>Used when the country cannot be found (local and private addresses).</summary>
-    public string FallbackCountry { get; set; } = "TR";
 }
 
 public sealed class PaytrOptions

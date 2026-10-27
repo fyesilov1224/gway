@@ -102,7 +102,37 @@ public static class AdminModule
                 string kind, int version, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
             (await admin.DeleteAsync(user.GetUserId(), kind, version, ct)).ToHttpResult());
 
+        // Security verification (docs/ARCHITECTURE.md §3h): the switch is admin only, reviews admin and moderator.
+        var security = app.MapGroup("/admin/security");
+
+        security.MapGet("/settings", async (ISecurityAdministration admin, CancellationToken ct) =>
+                TypedResults.Ok(await admin.GetSettingsAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        security.MapPut("/settings", async (
+                SecuritySettingsRequest body, ClaimsPrincipal user, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.SetEnforceAsync(user.GetUserId(), body.Enforce, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        security.MapGet("/reviews", async (string? status, int? page, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.ListReviewsAsync(status, page ?? 1, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        security.MapPost("/reviews/{id:guid}/approval", async (
+                Guid id, ReviewApprovalRequest body, ClaimsPrincipal user, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.ApproveAsync(user.GetUserId(), id, body, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        security.MapPost("/reviews/{id:guid}/ban", async (
+                Guid id, ReviewBanRequest body, ClaimsPrincipal user, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.BanAsync(user.GetUserId(), id, body, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
         var users = app.MapGroup("/admin/users");
+
+        users.MapGet("/{id:guid}/security", async (Guid id, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.GetUserAsync(id, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
         users.MapGet("", async (string? q, string? status, int? page, AdminUsers admin, CancellationToken ct) =>
                 status is not null && !AdminUsers.Statuses.Contains(status)

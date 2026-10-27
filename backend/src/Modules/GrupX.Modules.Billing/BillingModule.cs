@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using GrupX.Modules.Billing.Contracts;
 using GrupX.Modules.Billing.Providers;
+using GrupX.SharedKernel.Geo;
 using GrupX.SharedKernel.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ public static class BillingModule
     {
         services.AddOptions<BillingOptions>().BindConfiguration(BillingOptions.Section);
         services.TryAddSingleton(TimeProvider.System);
-        services.AddSingleton<CountryResolver>();
+        services.AddGeo();
         services.AddHttpClient<PaytrClient>(http => http.Timeout = ProviderTimeout);
         services.AddHttpClient<IyzicoClient>(http => http.Timeout = ProviderTimeout);
         services.AddScoped<CheckoutService>();

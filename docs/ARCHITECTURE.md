@@ -99,6 +99,15 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.match_profiles`, `public.match_photos`, `public.match_swipes`, `public.matches`, `public.matching_settings` | matching | 15.6 |
 | Storage `match-photos` | matching | 15.6 |
 | Storage `message-images` | messaging | 15 |
+| `public.security_settings` | identity | 15.8 |
+| `public.user_security` | identity | 15.8 |
+| `public.phone_verifications` | identity | 15.8 |
+| `public.phone_bans` | identity | 15.8 |
+| `public.verified_sessions` | identity | 15.8 |
+| `public.totp_factors` | identity | 15.8 |
+| `public.sms_sends` | identity | 15.8 |
+| `public.location_checks` | identity | 15.8 |
+| `public.security_reviews` | identity | 15.8 |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -107,7 +116,7 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 ### Hesap yaşam döngüsü
 - Kayıt: e-posta + şifre (**e-posta doğrulaması zorunlu**), Google, Apple. Şifre sıfırlama e-postayla yapılır.
 - `auth.users` kaydı oluşunca trigger `account_status` satırını `active` olarak açar.
-- Giriş sonrası zorunlu sıra: **KVKK onayları → onboarding → uygulama.** Router bu sırayı zorlar.
+- Giriş sonrası zorunlu sıra: **güvenlik doğrulaması (konum, telefon, ikinci adım; §3h) → KVKK onayları → onboarding → uygulama.** Router bu sırayı zorlar; güvenlik adımını ayrıca sunucu zorlar.
 - Durumlar (`account_status.status`):
   - `active`: normal.
   - `suspended`: platform ekibi askıya aldı. Supabase Auth'ta da ban uygulanır (giriş ve token yenileme kapanır). `suspended_until` geçince hesap kendiliğinden aktif sayılır. Profil başkalarına gizlenir, kullanıcı kendi verisine yazamaz.
@@ -991,6 +1000,100 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 ### Tablolar (sahip: matching)
 `match_profiles`, `match_photos` (Storage `match-photos`), `match_swipes`, `matches`, `matching_settings`, `match_boosts`. Billing tarafında `personal_plans`, `personal_plan_prices`, `user_subscriptions` (§7, Kişisel ürünler).
 
+## 3h. Güvenlik doğrulaması (Faz 15.8)
+
+Kullanıcı isteği (2026-10-27): yabancı numara ve VPN ile konumunu farklı gösteren hesapları önlemek. Konum izni vermeyen uygulamayı kullanamaz. Telefon doğrulaması, bulunduğu ülkenin numarasıyla ve Google/Apple girişinde de zorunludur. Her yeni oturumda ikinci adım doğrulama istenir. Uyuşmazlıkta kademeli yaptırım uygulanır. Modül: **identity**.
+
+### Kullanıcı kararları (2026-10-27)
+- Yaptırım **kademeli**: kesin sinyalde otomatik ban, belirsiz sinyalde hesap kısıtlanır ve admin incelemesine düşer.
+- SMS sağlayıcısı **Twilio Verify**. İkinci adım: **SMS**, isteğe bağlı olarak **doğrulama uygulaması (TOTP)**.
+- Konum **gizlice işlenmez** (KVKK ve mağaza kuralları, ayrıca izin penceresini işletim sistemi gösterir). İzin ekranı amacı tek cümleyle söyler: "Hesap güvenliği ve sahte hesapların önlenmesi". Hangi sinyallerin nasıl karşılaştırıldığı arayüzde anlatılmaz. Aydınlatma metnine konum ve telefon işleme eklenir (admin panelinden yeni `privacy_notice` sürümü).
+
+### Akış
+1. Giriş (e-posta, Google, Apple). Oturum henüz doğrulanmamıştır.
+2. **Konum:** uygulama konum izni ister. İzin yoksa uygulama açılmaz, ayarlara yönlendiren ekran kalır. İzin varsa sinyaller `POST /security/location` ile gönderilir.
+3. **Telefon (bir kez):** numara alanının ülke kodu, sunucunun bildirdiği **izinli ülkeye** kilitlidir (`GET /security/status` → `allowedCountry`). SMS kodu Twilio Verify ile gider, `POST /security/phone/verify` ile doğrulanır. Bir numara tek hesapta olabilir.
+4. **İkinci adım (her yeni oturumda):** kayıtlı numaraya SMS kodu ya da kuruluysa doğrulama uygulamasının kodu. Telefonun doğrulandığı oturum ayrıca ikinci adım istemez.
+5. Oturum doğrulanınca istemci token'ını yeniler (`refreshSession`). Ardından KVKK onayları, onboarding ve uygulama gelir.
+6. Uygulama her açılışta ve öne gelişte, son kontrolün üzerinden 30 dakika geçtiyse konumu yeniden gönderir. Sunucu son **24 saatte** konum kontrolü olmayan oturumu doğrulanmamış sayar.
+
+### Sunucu tarafı zorlama (atlanamaz kısım)
+- **Custom access token hook** (`private.custom_access_token_hook`): Supabase Auth her token üretişinde (giriş ve saatlik yenileme) çağırır. Zorlama açıksa ve oturum doğrulanmamışsa token'ın `role` claim'i `authenticated` yerine **`unverified`** olur.
+- Doğrulanmış oturum şunların hepsini ister:
+  - `verified_sessions` içinde token'ın `session_id` değeri,
+  - doğrulanmış telefon,
+  - `user_security.state = 'ok'`,
+  - son 24 saatte konum kontrolü.
+- `unverified` rolü Postgres'te yalnızca `legal_documents` okuyabilir. Diğer tüm RLS politikaları `authenticated` içindir, `SECURITY DEFINER` fonksiyonlar da yalnızca `authenticated`'e açıktır. Bu yüzden değiştirilmiş bir istemci bile veri okuyamaz, yazamaz, Storage ve Realtime'a erişemez.
+- C# API'nin varsayılan yetki politikası `role = authenticated` ister. Yalnızca `/security/*`, `GET /account` ve `/me` uçları `unverified` rolünü de kabul eder.
+- Yaptırım ve kısıtlama en geç bir token yenilemesinde (≤ 1 saat) etkili olur. Ban ise mevcut askı akışıyla oturumları hemen siler.
+- Zorlama `security_settings.enforce` ile açılıp kapanır. Varsayılan **kapalı**: Twilio anahtarları gelene kadar kimse dışarıda kalmasın diye. Yalnızca `admin` değiştirir, işlem `audit_log`'a yazılır. API, SMS sağlayıcısı yapılandırılmamışsa zorlamayı açtırmaz (`security.sms_not_configured`). Yerelde Development ortamında sahte gönderici kodu API günlüğüne yazar.
+- Platform ekibi de aynı akıştan geçer. Admin paneli aynı ekranları kullanır.
+
+### Sinyaller ve karar
+İstemci şunları gönderir:
+- GPS koordinatı ve doğruluğu, sahte konum bayrağı (`isMocked`; Android ve iOS 15+),
+- cihazın VPN bağlantısı bildirimi (Android ve iOS),
+- SIM ülkesi (yalnızca Android),
+- platform.
+
+Sunucu şunları kendisi bulur:
+- koordinatın ülkesi, gömülü Natural Earth ülke sınırlarıyla (istemcinin söylediği ülke kullanılmaz),
+- IP ülkesi (`Geo`, §7 Pazar).
+
+Kesin koordinat **saklanmaz**, yalnızca türetilen ülkeler ve bayraklar saklanır.
+
+| Sinyal | Sınıf | Sonuç |
+|---|---|---|
+| Sahte konum (`isMocked`) | Kesin | Otomatik ban |
+| Telefon doğrulamasında izinli ülke dışından numara (arayüz bunu engeller, ancak değiştirilmiş istemci gönderir) | Kesin | Otomatik ban |
+| Numara `phone_bans` listesinde | Kesin | Kod gönderilmez, ban |
+| GPS ülkesi ≠ IP ülkesi | Belirsiz | Kısıtla + inceleme |
+| VPN bildirimi | Belirsiz | Kısıtla + inceleme |
+| SIM ülkesi ≠ GPS ülkesi | Belirsiz | Kısıtla + inceleme |
+| Kayıtlı numaranın ülkesi ≠ GPS ülkesi (sonraki girişler) | Belirsiz | Kısıtla + inceleme |
+| GPS ülkesi bulunamadı (deniz, sınır yakını) | — | IP ülkesi kullanılır, işlem yok |
+
+- **İzinli ülke:** GPS ülkesi. Bulunamazsa IP ülkesidir.
+- **Ban:** mevcut askı akışıyla (`account_status` + Supabase Auth ban) kalıcı uygulanır. Gerekçe kodu `security.*`, aktör `system`. Numara `phone_bans`'a eklenir.
+- **Kısıtlama:** `user_security.state = 'restricted'` olur ve bir `security_reviews` kaydı açılır. Kullanıcı genel bir ekran görür: "Hesabın güvenlik incelemesinde", destek bağlantısıyla. Hangi sinyalin tetiklediği gösterilmez.
+- **Admin incelemesi:** "Onayla" seçeneği kısıtlamayı kaldırır. Admin isterse `exempt_until` verir (en çok 90 gün; ör. yurt dışında yaşayan veya seyahatteki kullanıcı); bu süre boyunca belirsiz sinyaller kısıtlamaz. "Banla" seçeneği ban uygular. Her karar `audit_log`'a yazılır.
+- Otomatik karara itiraz (KVKK m.11/g): kullanıcı destekten yazar, admin incelemesi itiraz yoludur. Otomatik banı yalnızca platform ekibi kaldırır.
+- **Bilinen sınırlar:**
+  - GPS ve SIM, köklü (root) cihazlarda taklit edilebilir. Değiştirilmemiş uygulama kanıtı (Play Integrity, App Attest) mağaza yayını gerektirir, Faz 17'ye bırakılır.
+  - Web'de tarayıcı konumu masaüstünde IP'den türetilebilir. Web'de SIM ve VPN sinyali yoktur.
+  - iOS SIM ülkesi vermez.
+
+### Telefon
+- Numara `PhoneNumbers` (libphonenumber) ile E.164'e çevrilir. Ülkesi ve türü (yalnızca `MOBILE` ya da `FIXED_LINE_OR_MOBILE`) sunucuda belirlenir.
+- Twilio Lookup açıksa (`Security:Twilio:LookupLineType`), sanal ve VoIP numaralar reddedilir.
+- SMS sınırları (`sms_sends`): kullanıcı başına saatte 5, günde 10; numara başına saatte 5. Doğrulama denemesini Twilio Verify sınırlar (kod başına 5). Uçlarda `Sensitive` rate limit vardır.
+- TOTP: RFC 6238, SHA-1, 30 sn, 6 hane, ±1 adım. Gizli anahtar `totp_factors`'tadır (yalnızca service role). Aynı adım iki kez kullanılamaz.
+
+### Veri ve erişim
+- Tabloların hepsinde RLS açık, istemciye politika **yok**. Okuma ve yazma C# (service role) ve hook üzerinden yapılır. Platform ekibi panelden C# ile okur.
+- `location_checks` ve `sms_sends` **90 gün** saklanır, `AccountPurgeService` siler. `phone_bans` dolandırıcılık önleme amacıyla süresiz tutulur.
+- Hesap silinince `phone_verifications`, `user_security`, `verified_sessions` ve `totp_factors` cascade ile silinir. `phone_bans` kalır.
+- Audit: `security.phone_verified`, `security.totp_enabled`, `security.totp_disabled`, `security.restricted`, `security.banned`, `security.review_approved`, `security.review_banned`, `security.enforce_changed`.
+
+### Uç noktalar
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /security/status` | Zorlama açık mı, oturum doğrulandı mı, sıradaki adım (`location` / `phone` / `second_factor` / `restricted` / `done`), izinli ülke, kayıtlı numaranın maskesi, TOTP kurulu mu. `unverified` da çağırır |
+| `POST /security/location` | Sinyaller (`latitude`, `longitude`, `accuracy`, `isMocked`, `vpn`, `simCountry?`, `platform`). Kararı uygular |
+| `POST /security/phone/start` | `phone`: ülke ve tür kontrolü, SMS gönderimi |
+| `POST /security/phone/verify` | `phone`, `code`: numarayı kaydeder, oturumu doğrular |
+| `POST /security/second-factor/start` | Kayıtlı numaraya SMS |
+| `POST /security/second-factor/verify` | `method` (`sms` / `totp`), `code`: oturumu doğrular |
+| `POST /security/totp` | Doğrulanmış oturumda kurulum başlatır: gizli anahtar ve `otpauth://` adresi |
+| `POST /security/totp/confirm` | `code`: kurulumu tamamlar |
+| `DELETE /security/totp` | Kaldırır |
+| `GET /admin/security/settings`, `PUT /admin/security/settings` | Zorlama anahtarı ve sağlayıcı durumu. Rol: `admin` |
+| `GET /admin/security/reviews?status=` | İnceleme listesi (sinyal özeti). Rol: `admin`, `moderator` |
+| `POST /admin/security/reviews/{id}/approval` | `exemptDays?` (0–90), `note`. Rol: `admin`, `moderator` |
+| `POST /admin/security/reviews/{id}/ban` | `note`. Rol: `admin`, `moderator` |
+| `GET /admin/users/{id}/security` | Kullanıcının durumu, numara maskesi, son kontroller. Rol: `admin`, `moderator`, `support` |
+
 ## 4. Flutter
 
 ### Klasörler
@@ -1111,9 +1214,9 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 | Diğer | iyzico (Checkout Form) | USD |
 
 - Ülke şu sırayla bulunur:
-  1. `Billing:Geo:CountryHeader` tanımlıysa ve istekte varsa o başlık. Yalnızca API, başlığı kendisi ekleyen bir proxy'nin arkasındaysa tanımlanır (ör. Cloudflare `CF-IPCountry`).
-  2. `Billing:Geo:DatabasePath` ile verilen MaxMind DB biçimli ülke veritabanı (DB-IP Lite veya GeoLite2 Country). Veritabanı dosyası repoya girmez, ortama kurulur ve aylık güncellenir.
-  3. Bulunamazsa `Billing:Geo:FallbackCountry` (varsayılan `TR`). Yerelde istek `127.0.0.1`'den geldiği için bu değer kullanılır; iyzico akışını yerelde denemek için `DE` gibi bir değer verilir.
+  1. `Geo:CountryHeader` tanımlıysa ve istekte varsa o başlık. Yalnızca API, başlığı kendisi ekleyen bir proxy'nin arkasındaysa tanımlanır (ör. Cloudflare `CF-IPCountry`).
+  2. `Geo:DatabasePath` ile verilen MaxMind DB biçimli ülke veritabanı (DB-IP Lite veya GeoLite2 Country). Veritabanı dosyası repoya girmez, ortama kurulur ve aylık güncellenir.
+  3. Bulunamazsa `Geo:FallbackCountry` (varsayılan `TR`). Yerelde istek `127.0.0.1`'den geldiği için bu değer kullanılır; iyzico akışını yerelde denemek için `DE` gibi bir değer verilir.
 - İstemci IP'si `HttpContext.Connection.RemoteIpAddress`'tir. API ters proxy arkasındaysa yalnızca `ReverseProxy:KnownProxies` ve `ReverseProxy:KnownNetworks` listesindeki proxy'lerin `X-Forwarded-For` başlığına güvenilir. Liste boşsa başlık yok sayılır.
 - Pazar istemciden alınmaz. İstemci yalnızca ekranda gördüğü para birimini siparişe yazar. Sunucunun belirlediği pazar bundan farklıysa sipariş reddedilir (`billing.market_changed`, 409) ve ekran fiyatları yeniden yükler.
 - VPN ile pazar değiştirmek mümkündür. Bu bir güvenlik açığı değildir: iki sağlayıcı da gerçek ödeme alır, tutar sunucudaki fiyat listesinden gelir.
@@ -1215,7 +1318,7 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 `Billing:AppUrl` (dönüş adresleri için web uygulaması, ör. `https://grupx.app`) ve `Billing:PublicApiUrl` (iyzico callback'i için API'nin dışarıdan erişilen adresi) tanımlanır. Ayrıca:
 - `Billing:Paytr:MerchantId`, `MerchantKey`, `MerchantSalt`, `TestMode`
 - `Billing:Iyzico:ApiKey`, `SecretKey`, `BaseUrl` (sandbox: `https://sandbox-api.iyzipay.com`)
-- `Billing:Geo:*`
+- `Geo:*`
 
 Anahtarlar yalnızca ortam değişkeni veya user-secrets ile verilir.
 

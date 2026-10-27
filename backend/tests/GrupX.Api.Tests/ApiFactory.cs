@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text;
 using GrupX.Modules.Billing.Providers;
+using GrupX.Modules.Identity;
 using GrupX.Modules.Live;
 using GrupX.Modules.Notifications;
 using GrupX.SharedKernel.Supabase;
@@ -30,6 +31,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     internal FakePush Push { get; } = new();
 
+    internal FakeSms Sms { get; } = new();
+
     public FakeTiles Tiles { get; } = new();
 
     public const string LiveKitSecret = "livekit-test-secret-that-is-long-enough";
@@ -54,7 +57,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("RateLimiting:SensitivePermitsPer10Minutes", "1000");
         builder.UseSetting("Billing:AppUrl", "http://localhost:3000");
         builder.UseSetting("Billing:PublicApiUrl", "http://api.test");
-        builder.UseSetting("Billing:Geo:CountryHeader", CountryHeader);
+        builder.UseSetting("Geo:CountryHeader", CountryHeader);
         builder.UseSetting("Billing:Paytr:MerchantId", "123456");
         builder.UseSetting("Billing:Paytr:MerchantKey", PaytrKey);
         builder.UseSetting("Billing:Paytr:MerchantSalt", PaytrSalt);
@@ -76,6 +79,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<ISupabaseStorage>();
             services.AddSingleton<ISupabaseStorage>(Storage);
+            services.RemoveAll<ISmsVerifier>();
+            services.AddSingleton<ISmsVerifier>(Sms);
             services.RemoveAll<ILiveKit>();
             services.AddSingleton<ILiveKit>(LiveKit);
             services.RemoveAll<IPushSender>();
@@ -93,19 +98,33 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         return client;
     }
 
+    /// <summary>A client for one Supabase Auth session, with the role the token hook gave it (docs/ARCHITECTURE.md §3h).</summary>
+    public HttpClient ClientFor(Guid userId, Guid sessionId, string role = "authenticated")
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", CreateToken(userId, sessionId: sessionId, role: role));
+        return client;
+    }
+
     public static string CreateToken(
         Guid userId,
         string issuer = Issuer,
         string audience = "authenticated",
         string secret = JwtSecret,
-        DateTime? expires = null)
+        DateTime? expires = null,
+        Guid? sessionId = null,
+        string role = "authenticated")
     {
         var now = DateTime.UtcNow;
         var descriptor = new SecurityTokenDescriptor
         {
             Issuer = issuer,
             Audience = audience,
-            Subject = new ClaimsIdentity([new Claim("sub", userId.ToString()), new Claim("role", "authenticated")]),
+            Subject = new ClaimsIdentity([
+                new Claim("sub", userId.ToString()),
+                new Claim("role", role),
+                .. sessionId is { } sid ? new[] { new Claim("session_id", sid.ToString()) } : [],
+            ]),
             NotBefore = now.AddMinutes(-10),
             IssuedAt = now.AddMinutes(-10),
             Expires = expires ?? now.AddMinutes(10),

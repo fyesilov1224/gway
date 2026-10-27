@@ -4,6 +4,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MaxMind.Db" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
 </Project>

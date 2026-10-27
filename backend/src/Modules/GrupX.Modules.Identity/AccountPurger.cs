@@ -83,7 +83,8 @@ internal sealed partial class AccountPurger(NpgsqlDataSource db, ISupabaseStorag
     private static partial void LogPurgeFailed(ILogger logger, Exception ex, Guid userId);
 }
 
-internal sealed partial class AccountPurgeService(AccountPurger purger, IConfiguration configuration, ILogger<AccountPurgeService> logger)
+internal sealed partial class AccountPurgeService(
+    AccountPurger purger, SecurityService security, IConfiguration configuration, ILogger<AccountPurgeService> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -98,6 +99,7 @@ internal sealed partial class AccountPurgeService(AccountPurger purger, IConfigu
             try
             {
                 await purger.PurgeDueAsync(stoppingToken);
+                await security.PurgeExpiredAsync(stoppingToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

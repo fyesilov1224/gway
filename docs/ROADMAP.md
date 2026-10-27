@@ -308,6 +308,26 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §8b. Her aşama bitince kullanıcıya gös
 - [ ] İşlem kaydı görüntüleyici (`audit_log`), genel arama, CSV dışa aktarma
 - [ ] Testler; `flutter analyze` ve `dotnet build` temiz; docs güncel
 
+## Faz 15.8 — Güvenlik Doğrulaması (kullanıcı isteği, onaylandı 2026-10-27)
+
+Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio Verify, SMS + isteğe bağlı doğrulama uygulaması; konum gizli işlenmez.
+
+### 15.8a — Sunucu
+- [x] Migration `0040`: güvenlik tabloları, `unverified` rolü, custom access token hook, zorlama anahtarı (varsayılan kapalı); hook yerel Supabase Auth ve PostgREST ile denendi (unverified token profillere 403 alır, hukuki metinleri okur)
+- [x] C#: `Geo` ortak çekirdeğe taşındı; konumdan ülke (Natural Earth 1:50m, kıyıda 11 km tolerans), sinyal kararı, Twilio Verify ve Lookup, telefon ve ikinci adım, TOTP, otomatik ban ve inceleme, 90 gün saklama; admin uçları
+- [x] Varsayılan yetki politikası `role = authenticated`
+- [x] pgTAP (`33_security_verification`) ve C# (`SecurityTests`, `SecurityRulesTests`) testleri; `dotnet build` temiz (2026-10-27)
+
+### 15.8b — Uygulama
+- [ ] Konum izni ekranı (izinsiz uygulama açılmaz), sinyal gönderimi (açılış ve öne geliş), Android SIM ülkesi
+- [ ] Telefon doğrulama (ülke kodu kilitli), ikinci adım ekranı, kısıtlı hesap ekranı; ayarlarda doğrulama uygulaması kurulumu
+- [ ] Router sırası: güvenlik → KVKK → onboarding; Flutter testleri
+
+### 15.8c — Yönetim paneli
+- [ ] Panel girişi aynı akıştan geçer
+- [ ] Güvenlik incelemeleri (onayla ve muafiyet, banla), kullanıcı sayfasında güvenlik özeti, zorlama anahtarı
+- [ ] Testler; `flutter analyze` ve `dotnet build` temiz; docs güncel
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

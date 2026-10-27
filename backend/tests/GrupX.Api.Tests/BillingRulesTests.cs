@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using GrupX.Modules.Billing;
 using GrupX.Modules.Billing.Providers;
+using GrupX.SharedKernel.Geo;
 
 namespace GrupX.Api.Tests;
 

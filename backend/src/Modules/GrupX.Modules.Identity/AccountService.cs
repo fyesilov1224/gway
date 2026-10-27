@@ -96,30 +96,7 @@ internal sealed class AccountService(NpgsqlDataSource db) : IAccountAdministrati
         if (current.Status == AccountStatuses.PendingDeletion)
             return Error.RuleViolation("account.pending_deletion", "Silinmek üzere olan bir hesap askıya alınamaz.");
 
-        await using (var cmd = new NpgsqlCommand(
-            """
-            update public.account_status
-            set status = 'suspended', suspended_until = @until, suspension_reason = @reason, updated_at = now()
-            where user_id = @id
-            """, conn, tx))
-        {
-            cmd.Parameters.AddWithValue("id", userId);
-            cmd.Parameters.AddWithValue("until", (object?)until?.UtcDateTime ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("reason", reason);
-            await cmd.ExecuteNonQueryAsync(ct);
-        }
-
-        // Block sign-in and token refresh in Supabase Auth, and end existing sessions.
-        await using (var cmd = new NpgsqlCommand(
-            """
-            update auth.users set banned_until = coalesce(@until, now() + interval '100 years') where id = @id;
-            delete from auth.sessions where user_id = @id;
-            """, conn, tx))
-        {
-            cmd.Parameters.AddWithValue("id", userId);
-            cmd.Parameters.AddWithValue("until", (object?)until?.UtcDateTime ?? DBNull.Value);
-            await cmd.ExecuteNonQueryAsync(ct);
-        }
+        await ApplySuspensionAsync(conn, tx, userId, reason, until, ct);
 
         await AuditLog.AppendAsync(conn, tx,
             new AuditEntry(actorId, AuditActor.Staff, "user.suspended", "user", userId.ToString(), new { reason, until }), ct);
@@ -156,6 +133,39 @@ internal sealed class AccountService(NpgsqlDataSource db) : IAccountAdministrati
 
     private static bool IsSuspensionInEffect(AccountState s) =>
         s.Status == AccountStatuses.Suspended && (s.SuspendedUntil is null || s.SuspendedUntil > DateTimeOffset.UtcNow);
+
+    /// <summary>
+    /// Suspends inside the caller's transaction: account state, Supabase Auth ban and ending the sessions.
+    /// Used by staff suspensions and automatic security bans (docs/ARCHITECTURE.md §3h).
+    /// </summary>
+    internal static async Task ApplySuspensionAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, string reason, DateTimeOffset? until, CancellationToken ct)
+    {
+        await using (var cmd = new NpgsqlCommand(
+            """
+            update public.account_status
+            set status = 'suspended', suspended_until = @until, suspension_reason = @reason, updated_at = now()
+            where user_id = @id
+            """, conn, tx))
+        {
+            cmd.Parameters.AddWithValue("id", userId);
+            cmd.Parameters.AddWithValue("until", (object?)until?.UtcDateTime ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("reason", reason);
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        // Block sign-in and token refresh in Supabase Auth, and end existing sessions.
+        await using (var cmd = new NpgsqlCommand(
+            """
+            update auth.users set banned_until = coalesce(@until, now() + interval '100 years') where id = @id;
+            delete from auth.sessions where user_id = @id;
+            """, conn, tx))
+        {
+            cmd.Parameters.AddWithValue("id", userId);
+            cmd.Parameters.AddWithValue("until", (object?)until?.UtcDateTime ?? DBNull.Value);
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+    }
 
     private static async Task<AccountState?> LockAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, CancellationToken ct)
     {

@@ -1,4 +1,5 @@
 using System.Text;
+using GrupX.SharedKernel.Http;
 using GrupX.SharedKernel.Supabase;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -47,10 +48,18 @@ public static class SupabaseAuthentication
                 }
             });
 
+        // A session the token hook has not verified carries role `unverified` (docs/ARCHITECTURE.md §3h):
+        // it may only reach the endpoints that opt into AllowUnverified.
+        var verified = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .RequireClaim("role", AuthPolicies.VerifiedRole)
+            .Build();
         services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+            .SetDefaultPolicy(verified)
+            .SetFallbackPolicy(verified)
+            .AddPolicy(AuthPolicies.AllowUnverified, policy => policy
                 .RequireAuthenticatedUser()
-                .Build());
+                .RequireClaim("role", AuthPolicies.VerifiedRole, AuthPolicies.UnverifiedRole));
 
         return services;
     }
