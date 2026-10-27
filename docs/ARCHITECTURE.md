@@ -1040,7 +1040,8 @@ Kullanıcı isteği (2026-10-27): yabancı numara ve VPN ile konumunu farklı g�
 ### Sinyaller ve karar
 İstemci şunları gönderir:
 - GPS koordinatı ve doğruluğu, sahte konum bayrağı (`isMocked`; Android ve iOS 15+),
-- cihazın VPN bağlantısı bildirimi (Android ve iOS),
+- cihazın VPN bağlantısı bildirimi (Android'de etkin ağın `TRANSPORT_VPN` özelliği, diğerlerinde `connectivity_plus`),
+- **yüklü VPN uygulamaları** (yalnızca Android, en çok 20 paket adı): `android.net.VpnService` servisini sunan uygulamalar. Manifest'te `<queries>` ile yalnızca bu servis sorgulanır; bütün uygulamaları tarama izni (`QUERY_ALL_PACKAGES`) kullanılmaz (Google Play kuralı),
 - SIM ülkesi (yalnızca Android),
 - platform.
 
@@ -1059,7 +1060,19 @@ Kesin koordinat **saklanmaz**, yalnızca türetilen ülkeler ve bayraklar saklan
 | VPN bildirimi | Belirsiz | Kısıtla + inceleme |
 | SIM ülkesi ≠ GPS ülkesi | Belirsiz | Kısıtla + inceleme |
 | Kayıtlı numaranın ülkesi ≠ GPS ülkesi (sonraki girişler) | Belirsiz | Kısıtla + inceleme |
+| Yüklü VPN uygulaması (çalışmıyor) | Bilgi | Kullanıcıya uyarı mesajı, kısıtlama yok |
 | GPS ülkesi bulunamadı (deniz, sınır yakını) | — | IP ülkesi kullanılır, işlem yok |
+
+**Tespit anahtarları** (kullanıcı isteği, 2026-10-27; `security_settings`, yalnızca `admin`, varsayılan açık):
+- `detect_vpn`: VPN bildirimi ve GPS/IP uyuşmazlığı sinyal üretir.
+- `warn_installed_vpn`: yüklü VPN uygulaması uyarı üretir.
+- `detect_phone_mismatch`: SIM ve kayıtlı numara uyuşmazlığı sinyal üretir.
+
+Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kapalı bir anahtarın sinyali yine de kontrol kaydına yazılır (`signals` dışında, ham bayrak olarak), ancak karar üretmez.
+
+**Uyarı:** konum kontrolünün yanıtı `warnings` listesi taşır (`vpn_installed`). Uygulama bunu oturum başına bir kez iletişim kutusu olarak gösterir: "Cihazınızda VPN uygulaması tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın."
+
+**Bilgisayar ve iPhone:** tarayıcı bir web sayfasına yüklü uygulamaları göstermez ve çalışan VPN'i doğrudan bildirmez. Web'de yalnızca IP ülkesi ile tarayıcı konumunun ülkesi karşılaştırılır. iOS yüklü uygulama listesi vermez.
 
 - **İzinli ülke:** GPS ülkesi. Bulunamazsa IP ülkesidir.
 - **Ban:** mevcut askı akışıyla (`account_status` + Supabase Auth ban) kalıcı uygulanır. Gerekçe kodu `security.*`, aktör `system`. Numara `phone_bans`'a eklenir.
@@ -1081,7 +1094,7 @@ Kesin koordinat **saklanmaz**, yalnızca türetilen ülkeler ve bayraklar saklan
 - Tabloların hepsinde RLS açık, istemciye politika **yok**. Okuma ve yazma C# (service role) ve hook üzerinden yapılır. Platform ekibi panelden C# ile okur.
 - `location_checks` ve `sms_sends` **90 gün** saklanır, `AccountPurgeService` siler. `phone_bans` dolandırıcılık önleme amacıyla süresiz tutulur.
 - Hesap silinince `phone_verifications`, `user_security`, `verified_sessions` ve `totp_factors` cascade ile silinir. `phone_bans` kalır.
-- Audit: `security.phone_verified`, `security.totp_enabled`, `security.totp_disabled`, `security.restricted`, `security.banned`, `security.review_approved`, `security.review_banned`, `security.enforce_changed`.
+- Audit: `security.phone_verified`, `security.totp_enabled`, `security.totp_disabled`, `security.restricted`, `security.banned`, `security.review_approved`, `security.review_banned`, `security.settings_changed`.
 
 ### Uç noktalar
 | Uç nokta | Açıklama |
@@ -1095,7 +1108,7 @@ Kesin koordinat **saklanmaz**, yalnızca türetilen ülkeler ve bayraklar saklan
 | `POST /security/totp` | Doğrulanmış oturumda kurulum başlatır: gizli anahtar ve `otpauth://` adresi |
 | `POST /security/totp/confirm` | `code`: kurulumu tamamlar |
 | `DELETE /security/totp` | Kaldırır |
-| `GET /admin/security/settings`, `PUT /admin/security/settings` | Zorlama anahtarı ve sağlayıcı durumu. Rol: `admin` |
+| `GET /admin/security/settings`, `PUT /admin/security/settings` | Zorlama ve tespit anahtarları (`enforce`, `detectVpn`, `warnInstalledVpn`, `detectPhoneMismatch`; PUT'ta yalnızca gönderilenler değişir), sağlayıcı durumu. Her değişiklik `security.settings_changed`. Rol: `admin` |
 | `GET /admin/security/reviews?status=` | İnceleme listesi (sinyal özeti). Rol: `admin`, `moderator` |
 | `POST /admin/security/reviews/{id}/approval` | `exemptDays?` (0–90), `note`. Rol: `admin`, `moderator` |
 | `POST /admin/security/reviews/{id}/ban` | `note`. Rol: `admin`, `moderator` |

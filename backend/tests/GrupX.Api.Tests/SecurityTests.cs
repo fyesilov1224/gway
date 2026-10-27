@@ -21,7 +21,8 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
 
     public async ValueTask DisposeAsync()
     {
-        await _db.ExecuteAsync("update public.security_settings set enforce = false");
+        await _db.ExecuteAsync(
+            "update public.security_settings set enforce = false, detect_vpn = true, warn_installed_vpn = true, detect_phone_mismatch = true");
         await _db.DisposeAsync();
     }
 
@@ -52,11 +53,12 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
     }
 
     private static async Task<HttpResponseMessage> LocateAsync(
-        HttpClient client, (double Lat, double Lon) at, string ipCountry = "TR", bool mocked = false, bool vpn = false, string? sim = null)
+        HttpClient client, (double Lat, double Lon) at, string ipCountry = "TR", bool mocked = false, bool vpn = false, string? sim = null,
+        string[]? vpnApps = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, Path("/security/location"))
         {
-            Content = JsonContent.Create(new LocationSignals(at.Lat, at.Lon, 12, mocked, vpn, sim, "android")),
+            Content = JsonContent.Create(new LocationSignals(at.Lat, at.Lon, 12, mocked, vpn, sim, "android", vpnApps)),
         };
         request.Headers.Add(ApiFactory.CountryHeader, ipCountry);
         return await client.SendAsync(request, Ct);
@@ -283,13 +285,48 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
         await _db.MakeStaffAsync(moderator, "moderator");
 
         Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(moderator).PutAsJsonAsync(Path("/admin/security/settings"),
-            new SecuritySettingsRequest(true), Ct)).StatusCode);
+            new SecuritySettingsRequest(true, null, null, null), Ct)).StatusCode);
         var settings = await (await factory.ClientFor(admin).PutAsJsonAsync(Path("/admin/security/settings"),
-            new SecuritySettingsRequest(true), Ct)).Content.ReadFromJsonAsync<SecuritySettingsView>(Ct);
+            new SecuritySettingsRequest(true, null, null, null), Ct)).Content.ReadFromJsonAsync<SecuritySettingsView>(Ct);
         Assert.True(settings!.Enforce);
+        Assert.True(settings.DetectVpn);
         Assert.True(settings.SmsConfigured);
-        Assert.Equal(1L, await _db.ScalarAsync<long>(
-            "select count(*) from public.audit_log where action = 'security.enforce_changed' and actor_id = @a", ("a", admin)));
+
+        // Only the switches sent change.
+        settings = await (await factory.ClientFor(admin).PutAsJsonAsync(Path("/admin/security/settings"),
+            new SecuritySettingsRequest(null, false, null, null), Ct)).Content.ReadFromJsonAsync<SecuritySettingsView>(Ct);
+        Assert.True(settings!.Enforce);
+        Assert.False(settings.DetectVpn);
+        Assert.True(settings.WarnInstalledVpn);
+        Assert.Equal(2L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'security.settings_changed' and actor_id = @a", ("a", admin)));
+    }
+
+    [Fact]
+    public async Task An_installed_vpn_app_warns_without_restricting_and_switches_turn_signals_off()
+    {
+        var (user, _, client) = await NewUserAsync();
+
+        // Installed but not running: a warning, no review. Junk entries are dropped.
+        var status = await (await LocateAsync(client, Istanbul, vpnApps: ["com.nordvpn.android", "bad name!"]))
+            .Content.ReadFromJsonAsync<SecurityStatus>(Ct);
+        Assert.Equal(["vpn_installed"], status!.Warnings);
+        Assert.Equal("ok", await _db.ScalarAsync<string>("select state from public.user_security where user_id = @u", ("u", user)));
+        var apps = await _db.ScalarAsync<string[]>(
+            "select vpn_apps from public.location_checks where user_id = @u order by id desc limit 1", ("u", user));
+        Assert.Equal(["com.nordvpn.android"], apps!);
+
+        // With the switches off, a running VPN, a foreign SIM and an installed app neither restrict nor warn.
+        await _db.ExecuteAsync("update public.security_settings set detect_vpn = false, warn_installed_vpn = false, detect_phone_mismatch = false");
+        status = await (await LocateAsync(client, Istanbul, ipCountry: "DE", vpn: true, sim: "DE", vpnApps: ["com.nordvpn.android"]))
+            .Content.ReadFromJsonAsync<SecurityStatus>(Ct);
+        Assert.Empty(status!.Warnings!);
+        Assert.Equal("ok", await _db.ScalarAsync<string>("select state from public.user_security where user_id = @u", ("u", user)));
+        // The raw flags are still on record.
+        Assert.True(await _db.ScalarAsync<bool>("select vpn from public.location_checks where user_id = @u order by id desc limit 1", ("u", user)));
+
+        // A mocked location bans whatever the switches say.
+        Assert.Equal(HttpStatusCode.Forbidden, (await LocateAsync(client, Istanbul, mocked: true)).StatusCode);
     }
 
     [Fact]

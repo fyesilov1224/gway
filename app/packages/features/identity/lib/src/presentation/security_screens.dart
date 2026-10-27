@@ -45,6 +45,25 @@ class SecurityScreen extends ConsumerWidget {
 /// Shown when a location check is refused or the account is under review (user decision, 2026-10-27).
 const securityWarning = 'Konumunuz, kullandığınız telefon ve VPN tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.';
 
+/// The warning for an installed (not running) VPN app (user decision, 2026-10-27).
+const vpnInstalledWarning =
+    'Cihazınızda VPN uygulaması tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.';
+
+/// Shows the warnings of a location check's answer, as a dialog.
+Future<void> showSecurityWarnings(BuildContext context, List<String> warnings) async {
+  if (!warnings.contains('vpn_installed')) return;
+  await showDialog<void>(
+    context: context,
+    builder: (dialog) => AlertDialog(
+      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      icon: const Icon(Icons.vpn_lock_outlined),
+      title: const Text('Güvenlik uyarısı'),
+      content: const Text(vpnInstalledWarning),
+      actions: [GxButton(label: 'Anladım', onPressed: () => Navigator.of(dialog).pop())],
+    ),
+  );
+}
+
 /// After any step: the server's answer decides what comes next. A failure may mean the account was restricted
 /// or banned, so the account state is reloaded too.
 void _reload(WidgetRef ref) => ref
@@ -91,9 +110,13 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
       case LocationRead(:final signals):
         final result = await ref.read(securityRepositoryProvider).sendLocation(signals);
         if (!mounted) return;
-        // A refusal means the check restricted or banned the account: say so instead of a raw error.
-        if (result case Err(:final failure)) {
-          setState(() => _error = failure is ForbiddenFailure ? securityWarning : failure.userMessage);
+        switch (result) {
+          case Ok(:final value):
+            await showSecurityWarnings(context, value.warnings);
+            if (!mounted) return;
+          // A refusal means the check restricted or banned the account: say so instead of a raw error.
+          case Err(:final failure):
+            setState(() => _error = failure is ForbiddenFailure ? securityWarning : failure.userMessage);
         }
         _reload(ref);
       case LocationDenied(:final permanently):
@@ -708,9 +731,12 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
 /// (docs/ARCHITECTURE.md §3h, Akış 6). Silent: a refused permission or a failed read only reloads the status,
 /// and the server asks again once the last check is a day old.
 class SecurityHeartbeat extends ConsumerStatefulWidget {
-  const SecurityHeartbeat({super.key, required this.child});
+  const SecurityHeartbeat({super.key, required this.child, this.navigatorContext});
 
   final Widget child;
+
+  /// The heartbeat sits above the app's navigator; warnings are shown in the context this returns.
+  final BuildContext? Function()? navigatorContext;
 
   @override
   ConsumerState<SecurityHeartbeat> createState() => _SecurityHeartbeatState();
@@ -722,6 +748,9 @@ class _SecurityHeartbeatState extends ConsumerState<SecurityHeartbeat> with Widg
   DateTime? _lastSent;
   Timer? _timer;
   bool _running = false;
+
+  /// Each warning once per app run, not every half hour.
+  final _warned = <String>{};
 
   @override
   void initState() {
@@ -761,7 +790,12 @@ class _SecurityHeartbeatState extends ConsumerState<SecurityHeartbeat> with Widg
         _lastSent = DateTime.now();
         final result = await ref.read(securityRepositoryProvider).sendLocation(signals);
         if (!mounted) return;
-        if (result case Ok(:final value) when value.step == status.step) return;
+        if (result case Ok(:final value)) {
+          final fresh = value.warnings.where(_warned.add).toList();
+          final context = widget.navigatorContext?.call();
+          if (fresh.isNotEmpty && context != null && context.mounted) unawaited(showSecurityWarnings(context, fresh));
+          if (value.step == status.step) return;
+        }
         _reload(ref);
       }
     } finally {

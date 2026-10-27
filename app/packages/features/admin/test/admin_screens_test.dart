@@ -735,6 +735,9 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Konum, telefon ve giriş doğrulaması zorunlu'), findsOneWidget);
       expect(find.text('SMS sağlayıcısı yapılandırılmadı'), findsOneWidget);
+      expect(find.text('VPN tespiti'), findsOneWidget);
+      expect(find.text('Yüklü VPN uygulaması uyarısı'), findsOneWidget);
+      expect(find.text('Farklı numara ve SIM tespiti'), findsOneWidget);
       expect(find.text('Ayşe Yılmaz'), findsOneWidget);
       expect(find.text('VPN açık'), findsOneWidget);
       expect(find.text('GPS DE · IP TR · SIM TR · Numara — · android'), findsOneWidget);

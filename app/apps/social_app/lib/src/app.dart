@@ -23,7 +23,10 @@ class SocialApp extends ConsumerWidget {
         openNotifications: () => router.push(NotificationRoutes.list),
         child: LiveNotificationAlerts(
           openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
-          child: SecurityHeartbeat(child: child!),
+          child: SecurityHeartbeat(
+            navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,
+            child: child!,
+          ),
         ),
       ),
     );

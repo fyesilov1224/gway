@@ -2,7 +2,14 @@ using GrupX.SharedKernel;
 
 namespace GrupX.Modules.Identity.Contracts;
 
-public sealed record SecuritySettingsView(bool Enforce, bool SmsConfigured, bool LookupEnabled, DateTimeOffset UpdatedAt);
+public sealed record SecuritySettingsView(
+    bool Enforce,
+    bool DetectVpn,
+    bool WarnInstalledVpn,
+    bool DetectPhoneMismatch,
+    bool SmsConfigured,
+    bool LookupEnabled,
+    DateTimeOffset UpdatedAt);
 
 /// <summary>One location check as staff see it: derived countries and flags, never coordinates.</summary>
 public sealed record LocationCheckView(
@@ -14,6 +21,7 @@ public sealed record LocationCheckView(
     string? PhoneCountry,
     bool IsMocked,
     bool Vpn,
+    IReadOnlyList<string> VpnApps,
     IReadOnlyList<string> Signals,
     string Verdict);
 
@@ -44,14 +52,15 @@ public sealed record ReviewApprovalRequest(int? ExemptDays, string? Note);
 
 public sealed record ReviewBanRequest(string? Note);
 
-public sealed record SecuritySettingsRequest(bool Enforce);
+/// <summary>Only the switches that are sent change.</summary>
+public sealed record SecuritySettingsRequest(bool? Enforce, bool? DetectVpn, bool? WarnInstalledVpn, bool? DetectPhoneMismatch);
 
 /// <summary>Security verification for the admin panel (docs/ARCHITECTURE.md §3h). Callers check staff roles first.</summary>
 public interface ISecurityAdministration
 {
     Task<SecuritySettingsView> GetSettingsAsync(CancellationToken ct);
 
-    Task<Result<SecuritySettingsView>> SetEnforceAsync(Guid actorId, bool enforce, CancellationToken ct);
+    Task<Result<SecuritySettingsView>> UpdateSettingsAsync(Guid actorId, SecuritySettingsRequest body, CancellationToken ct);
 
     /// <param name="status"><c>open</c>, <c>approved</c>, <c>banned</c>, or null for all.</param>
     Task<Result<IReadOnlyList<SecurityReviewItem>>> ListReviewsAsync(string? status, int page, CancellationToken ct);

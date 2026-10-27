@@ -12,6 +12,7 @@ class SecurityStatus {
     this.callingCode,
     this.phoneMasked,
     this.totpEnabled = false,
+    this.warnings = const [],
   });
 
   factory SecurityStatus.fromJson(Map<String, Object?> j) => SecurityStatus(
@@ -28,6 +29,7 @@ class SecurityStatus {
         callingCode: j['callingCode'] as int?,
         phoneMasked: j['phoneMasked'] as String?,
         totpEnabled: j['totpEnabled']! as bool,
+        warnings: (j['warnings'] as List?)?.cast<String>() ?? const [],
       );
 
   final bool enforced;
@@ -39,6 +41,9 @@ class SecurityStatus {
   final int? callingCode;
   final String? phoneMasked;
   final bool totpEnabled;
+
+  /// Only on a location check's answer: messages that do not restrict, e.g. `vpn_installed`.
+  final List<String> warnings;
 }
 
 /// What the device reports for a location check. The server derives the countries itself.
@@ -51,6 +56,7 @@ class DeviceSignals {
     required this.vpn,
     required this.simCountry,
     required this.platform,
+    this.vpnApps = const [],
   });
 
   final double latitude;
@@ -63,6 +69,9 @@ class DeviceSignals {
   /// `android`, `ios` or `web`.
   final String platform;
 
+  /// Apps offering a VPN service on this device (Android only), running or not.
+  final List<String> vpnApps;
+
   Map<String, Object?> toJson() => {
         'latitude': latitude,
         'longitude': longitude,
@@ -71,6 +80,7 @@ class DeviceSignals {
         'vpn': vpn,
         'simCountry': simCountry,
         'platform': platform,
+        'vpnApps': vpnApps,
       };
 }
 

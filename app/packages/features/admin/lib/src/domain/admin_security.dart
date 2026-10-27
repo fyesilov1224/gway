@@ -9,6 +9,7 @@ const securitySignalLabels = {
   'vpn': 'VPN açık',
   'sim_mismatch': 'SIM ülkesi farklı',
   'phone_mismatch': 'Numaranın ülkesi farklı',
+  'vpn_installed': 'VPN uygulaması yüklü',
 };
 
 String securitySignalLabel(String code) => securitySignalLabels[code] ?? code;
@@ -26,6 +27,7 @@ class AdminLocationCheck {
     required this.phoneCountry,
     required this.isMocked,
     required this.vpn,
+    this.vpnApps = const [],
     required this.signals,
     required this.verdict,
   });
@@ -39,6 +41,7 @@ class AdminLocationCheck {
         phoneCountry: j['phoneCountry'] as String?,
         isMocked: j['isMocked']! as bool,
         vpn: j['vpn']! as bool,
+        vpnApps: (j['vpnApps'] as List?)?.cast<String>() ?? const [],
         signals: (j['signals']! as List).cast<String>(),
         verdict: j['verdict']! as String,
       );
@@ -51,6 +54,9 @@ class AdminLocationCheck {
   final String? phoneCountry;
   final bool isMocked;
   final bool vpn;
+
+  /// Package names of VPN apps installed on the device (Android).
+  final List<String> vpnApps;
   final List<String> signals;
 
   /// `ok`, `restricted` or `banned`.
@@ -62,6 +68,7 @@ class AdminLocationCheck {
         'IP ${ipCountry ?? '—'}',
         'SIM ${simCountry ?? '—'}',
         'Numara ${phoneCountry ?? '—'}',
+        if (vpnApps.isNotEmpty) 'VPN uygulaması: ${vpnApps.length}',
         platform,
       ].join(' · ');
 }
@@ -123,6 +130,9 @@ class AdminSecurityReview {
 class AdminSecuritySettings {
   const AdminSecuritySettings({
     required this.enforce,
+    this.detectVpn = true,
+    this.warnInstalledVpn = true,
+    this.detectPhoneMismatch = true,
     required this.smsConfigured,
     required this.lookupEnabled,
     required this.updatedAt,
@@ -130,12 +140,24 @@ class AdminSecuritySettings {
 
   factory AdminSecuritySettings.fromJson(Map<String, Object?> j) => AdminSecuritySettings(
         enforce: j['enforce']! as bool,
+        detectVpn: j['detectVpn']! as bool,
+        warnInstalledVpn: j['warnInstalledVpn']! as bool,
+        detectPhoneMismatch: j['detectPhoneMismatch']! as bool,
         smsConfigured: j['smsConfigured']! as bool,
         lookupEnabled: j['lookupEnabled']! as bool,
         updatedAt: DateTime.parse(j['updatedAt']! as String),
       );
 
   final bool enforce;
+
+  /// A running VPN and a GPS/IP country mismatch restrict.
+  final bool detectVpn;
+
+  /// An installed VPN app shows the user a warning.
+  final bool warnInstalledVpn;
+
+  /// A foreign SIM or a number from another country restricts.
+  final bool detectPhoneMismatch;
   final bool smsConfigured;
   final bool lookupEnabled;
   final DateTime updatedAt;
@@ -184,7 +206,13 @@ class AdminUserSecurity {
 abstract interface class AdminSecurityRepository {
   Future<Result<AdminSecuritySettings>> settings();
 
-  Future<Result<AdminSecuritySettings>> setEnforce(bool enforce);
+  /// Only the switches given change.
+  Future<Result<AdminSecuritySettings>> updateSettings({
+    bool? enforce,
+    bool? detectVpn,
+    bool? warnInstalledVpn,
+    bool? detectPhoneMismatch,
+  });
 
   Future<Result<List<AdminSecurityReview>>> reviews(AdminReviewStatus? status, {int page = 1});
 

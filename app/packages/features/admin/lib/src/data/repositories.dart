@@ -402,8 +402,22 @@ class ApiAdminSecurityRepository implements AdminSecurityRepository {
   Future<Result<AdminSecuritySettings>> settings() => _api.get('/admin/security/settings', decode: _settings);
 
   @override
-  Future<Result<AdminSecuritySettings>> setEnforce(bool enforce) =>
-      _api.put('/admin/security/settings', body: {'enforce': enforce}, decode: _settings);
+  Future<Result<AdminSecuritySettings>> updateSettings({
+    bool? enforce,
+    bool? detectVpn,
+    bool? warnInstalledVpn,
+    bool? detectPhoneMismatch,
+  }) =>
+      _api.put(
+        '/admin/security/settings',
+        body: {
+          'enforce': enforce,
+          'detectVpn': detectVpn,
+          'warnInstalledVpn': warnInstalledVpn,
+          'detectPhoneMismatch': detectPhoneMismatch,
+        },
+        decode: _settings,
+      );
 
   @override
   Future<Result<List<AdminSecurityReview>>> reviews(AdminReviewStatus? status, {int page = 1}) => _api.get(

@@ -18,6 +18,7 @@ public static class SecuritySteps
 }
 
 /// <param name="CallingCode">Dialling code of <paramref name="AllowedCountry"/>; the app locks the phone prefix to it.</param>
+/// <param name="Warnings">Only on a location check's answer: messages for the user that do not restrict (<c>vpn_installed</c>).</param>
 public sealed record SecurityStatus(
     bool Enforced,
     bool SessionVerified,
@@ -25,7 +26,8 @@ public sealed record SecurityStatus(
     string? AllowedCountry,
     int? CallingCode,
     string? PhoneMasked,
-    bool TotpEnabled);
+    bool TotpEnabled,
+    IReadOnlyList<string>? Warnings = null);
 
 public sealed record LocationSignals(
     double Latitude,
@@ -34,7 +36,8 @@ public sealed record LocationSignals(
     bool IsMocked,
     bool Vpn,
     string? SimCountry,
-    string Platform);
+    string Platform,
+    IReadOnlyList<string>? VpnApps = null);
 
 public sealed record PhoneStartRequest(string Phone);
 
@@ -59,6 +62,9 @@ internal static class SecuritySignals
     public const string Vpn = "vpn";
     public const string SimMismatch = "sim_mismatch";
     public const string PhoneMismatch = "phone_mismatch";
+
+    // Information only: a warning for the user, no restriction.
+    public const string VpnInstalled = "vpn_installed";
 }
 
 /// <summary>
@@ -77,6 +83,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
     private static readonly Lazy<CountryLocator> Borders = new(CountryLocator.Load);
 
     private static readonly HashSet<string> Platforms = ["android", "ios", "web"];
+
+    private const int MaxVpnApps = 20;
 
     private static readonly Error LocationRequired = Error.RuleViolation(
         "security.location_required", "Devam etmek için konumunu doğrulamamız gerekiyor.");
@@ -132,6 +140,12 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             || signals.Accuracy is < 0 || !Platforms.Contains(signals.Platform ?? ""))
             return Error.Validation("security.location_invalid", "Konum bilgisi okunamadı. Tekrar dene.");
 
+        // Package names only; anything else the device sent is dropped rather than failing the sign-in.
+        var vpnApps = (signals.VpnApps ?? [])
+            .Where(a => a is { Length: > 0 and <= 200 } && a.All(c => char.IsAsciiLetterOrDigit(c) || c is '.' or '_'))
+            .Distinct(StringComparer.Ordinal)
+            .Take(MaxVpnApps)
+            .ToArray();
         var gps = Borders.Value.CountryAt(signals.Latitude, signals.Longitude);
         var ip = geo.TryResolve(http);
         var sim = CountryResolver.Normalize(signals.SimCountry);
@@ -141,18 +155,28 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         await using var tx = await conn.BeginTransactionAsync(ct);
 
         var (state, exempt) = await LockUserSecurityAsync(conn, tx, userId, ct);
+        var switches = await ReadSwitchesAsync(conn, tx, ct);
         var phoneCountry = await ScalarAsync<string>(conn, tx,
             "select country from public.phone_verifications where user_id = @u", ("u", userId), ct);
 
         var hard = new List<string>();
         var soft = new List<string>();
+        var warnings = new List<string>();
         if (signals.IsMocked) hard.Add(SecuritySignals.MockLocation);
-        if (gps is not null && ip is not null && gps != ip) soft.Add(SecuritySignals.IpMismatch);
-        if (signals.Vpn) soft.Add(SecuritySignals.Vpn);
-        if (sim is not null && sim != allowed) soft.Add(SecuritySignals.SimMismatch);
-        if (phoneCountry is not null && phoneCountry != allowed) soft.Add(SecuritySignals.PhoneMismatch);
+        if (switches.DetectVpn)
+        {
+            if (gps is not null && ip is not null && gps != ip) soft.Add(SecuritySignals.IpMismatch);
+            if (signals.Vpn) soft.Add(SecuritySignals.Vpn);
+        }
+        if (switches.DetectPhoneMismatch)
+        {
+            if (sim is not null && sim != allowed) soft.Add(SecuritySignals.SimMismatch);
+            if (phoneCountry is not null && phoneCountry != allowed) soft.Add(SecuritySignals.PhoneMismatch);
+        }
+        // A running VPN is already a signal; an installed one only warns.
+        if (switches.WarnInstalledVpn && vpnApps.Length > 0 && !signals.Vpn) warnings.Add(SecuritySignals.VpnInstalled);
 
-        var all = hard.Concat(soft).ToArray();
+        var all = hard.Concat(soft).Concat(warnings).ToArray();
         var staff = await IsStaffAsync(conn, tx, userId, ct);
         var verdict = hard.Count > 0 && !staff ? "banned"
             : hard.Count > 0 || (soft.Count > 0 && !exempt) ? "restricted"
@@ -162,8 +186,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         await using (var cmd = new NpgsqlCommand(
             """
             insert into public.location_checks
-              (user_id, platform, gps_country, ip_country, sim_country, phone_country, accuracy_m, is_mocked, vpn, signals, verdict)
-            values (@u, @platform, @gps, @ip, @sim, @phone, @accuracy, @mocked, @vpn, @signals, @verdict)
+              (user_id, platform, gps_country, ip_country, sim_country, phone_country, accuracy_m, is_mocked, vpn, vpn_apps, signals, verdict)
+            values (@u, @platform, @gps, @ip, @sim, @phone, @accuracy, @mocked, @vpn, @apps, @signals, @verdict)
             returning id
             """, conn, tx))
         {
@@ -176,6 +200,7 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             cmd.Parameters.AddWithValue("accuracy", NpgsqlDbType.Real, signals.Accuracy is { } a ? (float)a : DBNull.Value);
             cmd.Parameters.AddWithValue("mocked", signals.IsMocked);
             cmd.Parameters.AddWithValue("vpn", signals.Vpn);
+            cmd.Parameters.AddWithValue("apps", vpnApps);
             cmd.Parameters.AddWithValue("signals", all);
             cmd.Parameters.AddWithValue("verdict", verdict);
             checkId = (long)(await cmd.ExecuteScalarAsync(ct))!;
@@ -188,7 +213,7 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             return Banned;
         }
 
-        if (verdict == "restricted") await RestrictAsync(conn, tx, userId, state, all, checkId, ct);
+        if (verdict == "restricted") await RestrictAsync(conn, tx, userId, state, [.. hard, .. soft], checkId, ct);
 
         await ExecuteAsync(conn, tx,
             """
@@ -197,9 +222,20 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
             where user_id = @u
             """, ct, ("u", userId), ("allowed", allowed));
 
-        var result = ToStatus(await ReadStateAsync(conn, tx, userId, sessionId, ct));
+        var result = ToStatus(await ReadStateAsync(conn, tx, userId, sessionId, ct)) with { Warnings = warnings };
         await tx.CommitAsync(ct);
         return result;
+    }
+
+    private sealed record Switches(bool DetectVpn, bool WarnInstalledVpn, bool DetectPhoneMismatch);
+
+    private static async Task<Switches> ReadSwitchesAsync(NpgsqlConnection conn, NpgsqlTransaction tx, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand(
+            "select detect_vpn, warn_installed_vpn, detect_phone_mismatch from public.security_settings", conn, tx);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        await r.ReadAsync(ct);
+        return new Switches(r.GetBoolean(0), r.GetBoolean(1), r.GetBoolean(2));
     }
 
     public async Task<Result> StartPhoneAsync(Guid userId, PhoneStartRequest body, CancellationToken ct)

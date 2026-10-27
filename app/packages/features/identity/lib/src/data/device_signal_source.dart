@@ -7,7 +7,8 @@ import '../domain/security.dart';
 
 /// Reads the location check signals on this device (docs/ARCHITECTURE.md §3h, Sinyaller).
 class PlatformDeviceSignalSource implements DeviceSignalSource {
-  /// Android only: `MainActivity` answers `simCountry` with TelephonyManager's SIM country.
+  /// Android only: `MainActivity` answers `simCountry` (TelephonyManager), `vpnActive` (the active network has
+  /// TRANSPORT_VPN) and `vpnApps` (apps offering android.net.VpnService).
   static const _device = MethodChannel('grupx/device');
 
   static const _timeout = Duration(seconds: 20);
@@ -42,13 +43,15 @@ class PlatformDeviceSignalSource implements DeviceSignalSource {
     }
 
     final network = await Connectivity().checkConnectivity();
+    final sim = await _android<String>('simCountry');
     return LocationRead(DeviceSignals(
       latitude: position.latitude,
       longitude: position.longitude,
       accuracy: position.accuracy,
       isMocked: position.isMocked,
-      vpn: network.contains(ConnectivityResult.vpn),
-      simCountry: await _simCountry(),
+      vpn: await _android<bool>('vpnActive') ?? network.contains(ConnectivityResult.vpn),
+      vpnApps: (await _android<List<Object?>>('vpnApps'))?.whereType<String>().toList() ?? const [],
+      simCountry: sim == null || sim.isEmpty ? null : sim.toUpperCase(),
       platform: kIsWeb
           ? 'web'
           : defaultTargetPlatform == TargetPlatform.iOS
@@ -62,11 +65,11 @@ class PlatformDeviceSignalSource implements DeviceSignalSource {
     if (!kIsWeb) await Geolocator.openAppSettings();
   }
 
-  static Future<String?> _simCountry() async {
+  /// Null off Android or when the platform cannot answer; the check then goes on without that signal.
+  static Future<T?> _android<T>(String method) async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
     try {
-      final code = await _device.invokeMethod<String>('simCountry');
-      return code == null || code.isEmpty ? null : code.toUpperCase();
+      return await _device.invokeMethod<T>(method);
     } on PlatformException {
       return null;
     } on MissingPluginException {

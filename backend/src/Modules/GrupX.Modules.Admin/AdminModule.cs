@@ -111,7 +111,7 @@ public static class AdminModule
 
         security.MapPut("/settings", async (
                 SecuritySettingsRequest body, ClaimsPrincipal user, ISecurityAdministration admin, CancellationToken ct) =>
-                (await admin.SetEnforceAsync(user.GetUserId(), body.Enforce, ct)).ToHttpResult())
+                (await admin.UpdateSettingsAsync(user.GetUserId(), body, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
 
         security.MapGet("/reviews", async (string? status, int? page, ISecurityAdministration admin, CancellationToken ct) =>

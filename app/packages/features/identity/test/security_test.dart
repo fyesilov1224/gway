@@ -50,6 +50,19 @@ class _FakeSecurity implements SecurityRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _WarningSecurity extends _FakeSecurity {
+  @override
+  Future<Result<SecurityStatus>> sendLocation(DeviceSignals signals) async {
+    sentLocation = signals;
+    return const Ok(SecurityStatus(
+      enforced: true,
+      sessionVerified: false,
+      step: SecurityStep.phone,
+      warnings: ['vpn_installed'],
+    ));
+  }
+}
+
 class _RefusingSecurity extends _FakeSecurity {
   @override
   Future<Result<SecurityStatus>> sendLocation(DeviceSignals signals) async => const Err(ForbiddenFailure());
@@ -114,6 +127,21 @@ void main() {
     await tester.tap(find.text('Konum iznini ver'));
     await tester.pumpAndSettle();
     expect(security.sentLocation?.simCountry, 'TR');
+  });
+
+  testWidgets('an installed VPN app shows the warning dialog', (tester) async {
+    final security = _WarningSecurity();
+    await tester.pumpWidget(_app(_status(SecurityStep.location), security));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Konum iznini ver'));
+    // The button keeps spinning while the dialog is open, so pump a while instead of settling.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text(vpnInstalledWarning), findsOneWidget);
+    await tester.tap(find.text('Anladım'));
+    await tester.pumpAndSettle();
+    expect(find.text(vpnInstalledWarning), findsNothing);
   });
 
   testWidgets('a permanently refused permission points to the settings', (tester) async {

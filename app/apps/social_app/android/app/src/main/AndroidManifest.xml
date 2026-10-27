@@ -7,6 +7,12 @@
     <!-- Security verification: location check at sign-in and app start (docs/ARCHITECTURE.md §3h). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Only apps offering a VPN service are visible to the security check; never QUERY_ALL_PACKAGES (Play policy). -->
+    <queries>
+        <intent>
+            <action android:name="android.net.VpnService"/>
+        </intent>
+    </queries>
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application

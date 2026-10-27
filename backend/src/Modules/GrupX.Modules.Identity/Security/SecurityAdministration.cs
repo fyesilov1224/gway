@@ -22,30 +22,46 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
     private static readonly Error ReviewClosed = Error.Conflict("security.review_closed", "Bu inceleme zaten sonuçlandırıldı.");
 
     private const string CheckColumns =
-        "c.checked_at, c.platform, c.gps_country, c.ip_country, c.sim_country, c.phone_country, c.is_mocked, c.vpn, c.signals, c.verdict";
+        "c.checked_at, c.platform, c.gps_country, c.ip_country, c.sim_country, c.phone_country, c.is_mocked, c.vpn, c.vpn_apps, c.signals, c.verdict";
 
     public async Task<SecuritySettingsView> GetSettingsAsync(CancellationToken ct)
     {
-        await using var cmd = db.CreateCommand("select enforce, updated_at from public.security_settings");
+        await using var cmd = db.CreateCommand(
+            "select enforce, detect_vpn, warn_installed_vpn, detect_phone_mismatch, updated_at from public.security_settings");
         await using var r = await cmd.ExecuteReaderAsync(ct);
         await r.ReadAsync(ct);
-        return new SecuritySettingsView(r.GetBoolean(0), sms.IsConfigured, options.Value.Twilio.LookupLineType && sms.IsConfigured,
-            r.GetFieldValue<DateTimeOffset>(1));
+        return new SecuritySettingsView(r.GetBoolean(0), r.GetBoolean(1), r.GetBoolean(2), r.GetBoolean(3),
+            sms.IsConfigured, options.Value.Twilio.LookupLineType && sms.IsConfigured, r.GetFieldValue<DateTimeOffset>(4));
     }
 
-    public async Task<Result<SecuritySettingsView>> SetEnforceAsync(Guid actorId, bool enforce, CancellationToken ct)
+    public async Task<Result<SecuritySettingsView>> UpdateSettingsAsync(Guid actorId, SecuritySettingsRequest body, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(body);
         // Without SMS nobody could finish verification: everyone would be locked out.
-        if (enforce && !sms.IsConfigured) return SmsErrors.NotConfigured;
+        if (body.Enforce == true && !sms.IsConfigured) return SmsErrors.NotConfigured;
 
         await using (var conn = await db.OpenConnectionAsync(ct))
         await using (var tx = await conn.BeginTransactionAsync(ct))
         {
-            await SecurityService.ExecuteAsync(conn, tx,
-                "update public.security_settings set enforce = @e, updated_at = now(), updated_by = @a",
-                ct, ("e", enforce), ("a", actorId));
-            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "security.enforce_changed",
-                "security_settings", null, new { enforce }), ct);
+            await using (var cmd = new NpgsqlCommand(
+                """
+                update public.security_settings
+                set enforce = coalesce(@enforce, enforce),
+                    detect_vpn = coalesce(@vpn, detect_vpn),
+                    warn_installed_vpn = coalesce(@installed, warn_installed_vpn),
+                    detect_phone_mismatch = coalesce(@phone, detect_phone_mismatch),
+                    updated_at = now(), updated_by = @a
+                """, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("enforce", NpgsqlDbType.Boolean, (object?)body.Enforce ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("vpn", NpgsqlDbType.Boolean, (object?)body.DetectVpn ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("installed", NpgsqlDbType.Boolean, (object?)body.WarnInstalledVpn ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("phone", NpgsqlDbType.Boolean, (object?)body.DetectPhoneMismatch ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("a", actorId);
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "security.settings_changed",
+                "security_settings", null, body), ct);
             await tx.CommitAsync(ct);
         }
         return await GetSettingsAsync(ct);
@@ -185,5 +201,6 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
         r.GetFieldValue<DateTimeOffset>(o), r.GetString(o + 1),
         r.IsDBNull(o + 2) ? null : r.GetString(o + 2), r.IsDBNull(o + 3) ? null : r.GetString(o + 3),
         r.IsDBNull(o + 4) ? null : r.GetString(o + 4), r.IsDBNull(o + 5) ? null : r.GetString(o + 5),
-        r.GetBoolean(o + 6), r.GetBoolean(o + 7), r.GetFieldValue<string[]>(o + 8), r.GetString(o + 9));
+        r.GetBoolean(o + 6), r.GetBoolean(o + 7), r.GetFieldValue<string[]>(o + 8), r.GetFieldValue<string[]>(o + 9),
+        r.GetString(o + 10));
 }

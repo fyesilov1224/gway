@@ -138,7 +138,12 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
     );
     if (ok != true || !mounted) return;
     setState(() => _saving = true);
-    final result = await ref.read(adminSecurityRepositoryProvider).setEnforce(enforce);
+    await _save(() => ref.read(adminSecurityRepositoryProvider).updateSettings(enforce: enforce));
+  }
+
+  Future<void> _save(Future<Result<AdminSecuritySettings>> Function() update) async {
+    setState(() => _saving = true);
+    final result = await update();
     if (!mounted) return;
     setState(() => _saving = false);
     if (result case Err(:final failure)) {
@@ -162,6 +167,38 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
                 title: const Text('Konum, telefon ve giriş doğrulaması zorunlu'),
                 subtitle: Text('Son değişiklik: ${formatDateTimeTr(value.updatedAt)}'),
                 onChanged: _saving ? null : _toggle,
+              ),
+              const Divider(),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: value.detectVpn,
+                title: const Text('VPN tespiti'),
+                subtitle: const Text('Çalışan VPN ya da konum ve IP ülkesi uyuşmazlığı hesabı kısıtlar.'),
+                onChanged: _saving
+                    ? null
+                    : (v) => _save(() => ref.read(adminSecurityRepositoryProvider).updateSettings(detectVpn: v)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: value.warnInstalledVpn,
+                title: const Text('Yüklü VPN uygulaması uyarısı'),
+                subtitle: const Text('Telefonda (Android) yüklü bir VPN uygulaması varsa kullanıcı uyarı mesajı görür.'),
+                onChanged: _saving
+                    ? null
+                    : (v) => _save(() => ref.read(adminSecurityRepositoryProvider).updateSettings(warnInstalledVpn: v)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: value.detectPhoneMismatch,
+                title: const Text('Farklı numara ve SIM tespiti'),
+                subtitle: const Text('Başka ülkenin SIM kartı ya da kayıtlı numaranın ülkesi uyuşmazsa hesap kısıtlanır.'),
+                onChanged: _saving
+                    ? null
+                    : (v) => _save(() => ref.read(adminSecurityRepositoryProvider).updateSettings(detectPhoneMismatch: v)),
+              ),
+              Text(
+                'Bilgisayarda (web) tarayıcı yüklü uygulamaları göstermez; orada yalnızca konum ve IP ülkesi karşılaştırılır.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
               ),
               const SizedBox(height: GxSpacing.xs),
               Wrap(
