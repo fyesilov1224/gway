@@ -19,6 +19,7 @@ final _gateOnly = {
   PanelRoutes.error,
   ..._publicPaths,
   IdentityRoutes.resetPassword,
+  IdentityRoutes.security,
   AdminRoutes.notAuthorized,
 };
 
@@ -30,6 +31,7 @@ String? adminRedirectFor(AdminGate gate, Uri location) {
     AdminGate.error => PanelRoutes.error,
     AdminGate.signedOut => IdentityRoutes.signIn,
     AdminGate.passwordRecovery => IdentityRoutes.resetPassword,
+    AdminGate.security => IdentityRoutes.security,
     AdminGate.notAuthorized => AdminRoutes.notAuthorized,
     AdminGate.ready => null,
   };
@@ -82,6 +84,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: IdentityRoutes.forgotPassword, builder: (_, _) => const ForgotPasswordScreen()),
       GoRoute(path: IdentityRoutes.resetPassword, builder: (_, _) => const ResetPasswordScreen()),
+      GoRoute(path: IdentityRoutes.security, builder: (_, _) => const SecurityScreen()),
       GoRoute(path: AdminRoutes.notAuthorized, builder: (_, _) => NotAuthorizedScreen(onSignOut: signOut)),
       ShellRoute(
         builder: (_, _, child) => AdminShell(onSignOut: signOut, child: child),
@@ -108,6 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: AdminRoutes.live, builder: (_, _) => const AdminLiveScreen()),
           GoRoute(path: AdminRoutes.notifications, builder: (_, _) => const AdminNotificationsScreen()),
           GoRoute(path: AdminRoutes.legal, builder: (_, _) => const AdminLegalScreen()),
+          GoRoute(path: AdminRoutes.securityReviews, builder: (_, _) => const AdminSecurityScreen()),
           GoRoute(path: AdminRoutes.matching, builder: (_, _) => const AdminMatchingScreen()),
           GoRoute(path: AdminRoutes.billing, builder: (_, _) => const AdminBillingScreen()),
           GoRoute(path: AdminRoutes.plans, builder: (_, _) => const AdminPlansScreen()),

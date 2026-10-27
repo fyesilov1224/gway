@@ -579,6 +579,9 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         userPackagesProvider.overrideWith((ref, id) async => _userPackages),
         overviewProvider.overrideWith((ref, days) async => _overview(days)),
         legalKindsProvider.overrideWith((ref) async => _legalKinds),
+        securitySettingsProvider.overrideWith((ref) async => _securitySettings),
+        securityReviewsProvider.overrideWith((ref, status) async => _securityReviews),
+        userSecurityProvider.overrideWith((ref, id) async => _userSecurity),
         categoriesProvider.overrideWith((ref) async => const [Category(slug: 'cycling', name: 'Bisiklet')]),
         groupStatsProvider.overrideWith((ref) async => const AdminGroupStats(total: 2, active: 1, suspended: 1)),
         groupSearchProvider.overrideWith(
@@ -661,6 +664,53 @@ final _legalKinds = [
   const LegalKind(kind: 'distance_sales', audience: 'purchase', versions: []),
 ];
 
+final _securitySettings = AdminSecuritySettings(
+  enforce: true,
+  smsConfigured: false,
+  lookupEnabled: false,
+  updatedAt: DateTime(2026, 10, 27, 12),
+);
+
+final _check = AdminLocationCheck(
+  checkedAt: DateTime(2026, 10, 27, 11),
+  platform: 'android',
+  gpsCountry: 'DE',
+  ipCountry: 'TR',
+  simCountry: 'TR',
+  phoneCountry: null,
+  isMocked: false,
+  vpn: true,
+  signals: const ['ip_mismatch', 'vpn', 'sim_mismatch'],
+  verdict: 'restricted',
+);
+
+final _securityReviews = [
+  AdminSecurityReview(
+    id: 'r1',
+    userId: 'u1',
+    username: 'ayse',
+    displayName: 'Ayşe Yılmaz',
+    signals: const ['ip_mismatch', 'vpn', 'sim_mismatch'],
+    status: AdminReviewStatus.open,
+    openedAt: DateTime(2026, 10, 27, 11),
+    resolvedAt: null,
+    note: null,
+    check: _check,
+  ),
+];
+
+final _userSecurity = AdminUserSecurity(
+  state: 'restricted',
+  phoneMasked: '+90 ••• ••• •• 34',
+  phoneCountry: 'TR',
+  phoneVerifiedAt: DateTime(2026, 10, 20),
+  totpEnabled: true,
+  allowedCountry: 'DE',
+  locationCheckedAt: DateTime(2026, 10, 27, 11),
+  exemptUntil: null,
+  checks: [_check],
+);
+
 Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole role = StaffRole.admin}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -670,7 +720,28 @@ Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole ro
 }
 
 void main() {
+  testWidgets('support sees no security switch and cannot act on reviews', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminSecurityScreen(), role: StaffRole.support);
+
+    expect(find.text('Konum, telefon ve giriş doğrulaması zorunlu'), findsNothing);
+    expect(find.text('Ayşe Yılmaz'), findsOneWidget);
+    expect(find.text('Onayla'), findsNothing);
+  });
+
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
+    testWidgets('security reviews lay out on $name', (tester) async {
+      await _pumpAt(tester, size, const AdminSecurityScreen());
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Konum, telefon ve giriş doğrulaması zorunlu'), findsOneWidget);
+      expect(find.text('SMS sağlayıcısı yapılandırılmadı'), findsOneWidget);
+      expect(find.text('Ayşe Yılmaz'), findsOneWidget);
+      expect(find.text('VPN açık'), findsOneWidget);
+      expect(find.text('GPS DE · IP TR · SIM TR · Numara — · android'), findsOneWidget);
+      expect(find.text('Onayla'), findsOneWidget);
+      expect(find.text('Banla'), findsOneWidget);
+    });
+
     testWidgets('legal management lays out on $name', (tester) async {
       await _pumpAt(tester, size, const AdminLegalScreen());
 

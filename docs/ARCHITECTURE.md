@@ -1022,6 +1022,7 @@ Kullanıcı isteği (2026-10-27): yabancı numara ve VPN ile konumunu farklı g�
 - Gate yalnızca adım `done` olunca KVKK ve profil verisini ister, çünkü öncesindeki token bunları okuyamaz. Sunucu oturumu doğrulanmış saydığı halde elde hâlâ `unverified` token varsa oturum yenilenir.
 - Push cihaz kaydı, token rolü (`sessionRoleProvider`, core) `authenticated` olunca yapılır.
 - Android: `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` izinleri ve SIM ülkesi için `grupx/device` kanalı. iOS: `NSLocationWhenInUseUsageDescription`.
+- Admin paneli aynı `SecurityScreen` ve `SecurityHeartbeat`'i kullanır. Personel rolü ancak oturum doğrulanınca okunur. Panelin "Güvenlik" sayfası `/security-reviews` yolundadır (`/security` doğrulama adımıdır).
 
 ### Sunucu tarafı zorlama (atlanamaz kısım)
 - **Custom access token hook** (`private.custom_access_token_hook`): Supabase Auth her token üretişinde (giriş ve saatlik yenileme) çağırır. Zorlama açıksa ve oturum doğrulanmamışsa token'ın `role` claim'i `authenticated` yerine **`unverified`** olur.

@@ -11,6 +11,7 @@ import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
+import '../domain/admin_security.dart';
 import '../domain/admin_support.dart';
 import '../domain/admin_user.dart';
 
@@ -388,6 +389,43 @@ class ApiAdminLegalRepository implements AdminLegalRepository {
 
   @override
   Future<Result<void>> remove(String kind, int version) => _api.delete('/admin/legal/$kind/$version', decode: (_) {});
+}
+
+class ApiAdminSecurityRepository implements AdminSecurityRepository {
+  ApiAdminSecurityRepository(this._api);
+
+  final ApiClient _api;
+
+  static AdminSecuritySettings _settings(Object? json) => AdminSecuritySettings.fromJson((json! as Map).cast());
+
+  @override
+  Future<Result<AdminSecuritySettings>> settings() => _api.get('/admin/security/settings', decode: _settings);
+
+  @override
+  Future<Result<AdminSecuritySettings>> setEnforce(bool enforce) =>
+      _api.put('/admin/security/settings', body: {'enforce': enforce}, decode: _settings);
+
+  @override
+  Future<Result<List<AdminSecurityReview>>> reviews(AdminReviewStatus? status, {int page = 1}) => _api.get(
+        '/admin/security/reviews',
+        query: {'status': ?status?.code, 'page': '$page'},
+        decode: (json) => [for (final r in (json! as List).cast<Map<String, Object?>>()) AdminSecurityReview.fromJson(r)],
+      );
+
+  @override
+  Future<Result<void>> approve(String reviewId, {required int exemptDays, String? note}) => _api.post(
+        '/admin/security/reviews/$reviewId/approval',
+        body: {'exemptDays': exemptDays, 'note': note},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> ban(String reviewId, {required String note}) =>
+      _api.post('/admin/security/reviews/$reviewId/ban', body: {'note': note}, decode: (_) {});
+
+  @override
+  Future<Result<AdminUserSecurity>> user(String userId) =>
+      _api.get('/admin/users/$userId/security', decode: (json) => AdminUserSecurity.fromJson((json! as Map).cast()));
 }
 
 class ApiAdminAnalyticsRepository implements AdminAnalyticsRepository {

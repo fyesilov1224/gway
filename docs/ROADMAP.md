@@ -325,9 +325,10 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] Flutter testleri (güvenlik ekranları, %130 yazı, gate, push); yerel uçtan uca deneme: giriş → konum → telefon → SMS → ana sayfa ve ikinci girişte SMS ile ikinci adım; token rolü `authenticated` (2026-10-27)
 
 ### 15.8c — Yönetim paneli
-- [ ] Panel girişi aynı akıştan geçer
-- [ ] Güvenlik incelemeleri (onayla ve muafiyet, banla), kullanıcı sayfasında güvenlik özeti, zorlama anahtarı
-- [ ] Testler; `flutter analyze` ve `dotnet build` temiz; docs güncel
+- [x] Panel girişi aynı akıştan geçer (rol ancak oturum doğrulanınca okunur)
+- [x] "Güvenlik" sayfası (`/security-reviews`, admin ve moderatör): incelemeler (onayla ve 0/30/90 gün muafiyet, banla), zorlama anahtarı (yalnızca admin, SMS sağlayıcısı durumu); kullanıcı sayfasında güvenlik özeti, son konum kontrolleri ve işlem geçmişinde güvenlik kayıtları
+- [x] Testler (panel ekranları masaüstü ve telefon, destek rolü, gate); `flutter analyze` ve `dotnet build` temiz; docs güncel. Yerel uçtan uca deneme: admin girişi → ikinci adım → gerçek VPN incelemesi → 30 gün muafiyetle onay (2026-10-27)
+- [ ] Bulut: `0039`/`0040` migration'ları ve token hook'u (`supabase config push`), Twilio Verify hesabı ve anahtarları, aydınlatma metnine konum ve telefon işleme (yeni `privacy_notice` sürümü), ardından zorlamayı açma — kullanıcı onayıyla
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 

@@ -170,6 +170,16 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.notifications),
                 onTap: () => go(AdminRoutes.notifications),
               ),
+              if (role?.canSuspend ?? false) ...[
+                const SizedBox(height: GxSpacing.xxs),
+                _NavItem(
+                  icon: Icons.shield_outlined,
+                  selectedIcon: Icons.shield,
+                  label: 'Güvenlik',
+                  selected: path.startsWith(AdminRoutes.securityReviews),
+                  onTap: () => go(AdminRoutes.securityReviews),
+                ),
+              ],
               if (role?.code == 'admin') ...[
                 const SizedBox(height: GxSpacing.xxs),
                 _NavItem(

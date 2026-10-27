@@ -8,6 +8,7 @@ import '../domain/admin_user.dart';
 import 'admin_shell.dart';
 import 'providers.dart';
 import 'routes.dart';
+import 'security_screen.dart';
 import 'status_chip.dart';
 import 'suspend_dialog.dart';
 import 'user_packages_panel.dart';
@@ -18,6 +19,13 @@ const _actionLabels = {
   'user.unsuspended': ('Askı kaldırıldı', Icons.lock_open_outlined),
   'account.deletion_requested': ('Hesap silme istendi', Icons.delete_outline),
   'account.deletion_cancelled': ('Hesap silme geri alındı', Icons.restore),
+  'security.phone_verified': ('Telefon doğrulandı', Icons.sms_outlined),
+  'security.totp_enabled': ('Doğrulama uygulaması eklendi', Icons.phonelink_lock_outlined),
+  'security.totp_disabled': ('Doğrulama uygulaması kaldırıldı', Icons.phonelink_erase_outlined),
+  'security.restricted': ('Güvenlik incelemesine alındı', Icons.shield_outlined),
+  'security.banned': ('Güvenlik nedeniyle otomatik banlandı', Icons.gpp_bad_outlined),
+  'security.review_approved': ('Güvenlik incelemesi onaylandı', Icons.verified_user_outlined),
+  'security.review_banned': ('Güvenlik incelemesinde banlandı', Icons.gpp_bad_outlined),
 };
 
 const _consentLabels = {
@@ -151,6 +159,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       ],
     ];
     final right = [
+      UserSecurityPanel(userId: u.id),
+      const SizedBox(height: GxSpacing.lg),
       UserPackagesPanel(userId: u.id, title: u.title),
       const SizedBox(height: GxSpacing.lg),
       _ConsentsPanel(consents: d.consents),

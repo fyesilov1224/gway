@@ -20,6 +20,9 @@ abstract final class AdminRoutes {
 
   static const legal = '/legal';
 
+  /// Not `/security`: that is the sign-in verification step (identity).
+  static const securityReviews = '/security-reviews';
+
   static const matching = '/matching';
 
   static const events = '/events';

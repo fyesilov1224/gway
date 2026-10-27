@@ -12,6 +12,7 @@ import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
+import '../domain/admin_security.dart';
 import '../domain/admin_support.dart';
 import '../domain/admin_user.dart';
 
@@ -184,6 +185,23 @@ final legalKindsProvider = FutureProvider.autoDispose<List<LegalKind>>(
 /// One version's full body.
 final legalDocumentProvider = FutureProvider.autoDispose.family<LegalDocument, ({String kind, int version})>(
   (ref, key) async => (await ref.watch(adminLegalRepositoryProvider).get(key.kind, key.version)).getOrThrow(),
+);
+
+final adminSecurityRepositoryProvider = Provider<AdminSecurityRepository>(
+  (ref) => ApiAdminSecurityRepository(ref.watch(apiClientProvider)),
+);
+
+/// The enforcement switch (admin only).
+final securitySettingsProvider = FutureProvider.autoDispose<AdminSecuritySettings>(
+  (ref) async => (await ref.watch(adminSecurityRepositoryProvider).settings()).getOrThrow(),
+);
+
+final securityReviewsProvider = FutureProvider.autoDispose.family<List<AdminSecurityReview>, AdminReviewStatus?>(
+  (ref, status) async => (await ref.watch(adminSecurityRepositoryProvider).reviews(status)).getOrThrow(),
+);
+
+final userSecurityProvider = FutureProvider.autoDispose.family<AdminUserSecurity, String>(
+  (ref, userId) async => (await ref.watch(adminSecurityRepositoryProvider).user(userId)).getOrThrow(),
 );
 
 final adminAnalyticsRepositoryProvider = Provider<AdminAnalyticsRepository>(
