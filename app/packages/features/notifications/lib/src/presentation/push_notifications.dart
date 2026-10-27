@@ -36,11 +36,13 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
           widget.openNotifications();
         }
       }));
-    ref.listenManual(currentUserIdProvider, fireImmediately: true, (before, now) async {
+    // Registers once the session may write: a session still in security verification has role `unverified`
+    // and becomes `authenticated` after it (docs/ARCHITECTURE.md §3h).
+    ref.listenManual(sessionRoleProvider, fireImmediately: true, (before, now) async {
       try {
-        if (now != null) {
+        if (now == 'authenticated' && before != 'authenticated') {
           if (await push.token() case final token?) await _register(token);
-        } else if (before != null) {
+        } else if (now == null && before != null) {
           await push.deleteToken();
         }
       } on Object {
@@ -52,7 +54,7 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
   /// A failed registration only means no push on this phone; the next start tries again.
   Future<void> _register(String token) async {
     final push = ref.read(pushMessagingProvider);
-    if (push == null || ref.read(currentUserIdProvider) == null) return;
+    if (push == null || ref.read(sessionRoleProvider) != 'authenticated') return;
     await ref.read(notificationsRepositoryProvider).registerPushDevice(token, push.platform);
   }
 

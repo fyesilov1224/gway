@@ -62,11 +62,14 @@ class _FakePush implements PushMessaging {
   Stream<Map<String, Object?>> get taps => tapped.stream;
 }
 
+/// The session's token role: `unverified` during security verification, then `authenticated`.
 final _signedIn = NotifierProvider<_SignedIn, String?>(_SignedIn.new);
 
 class _SignedIn extends Notifier<String?> {
   @override
-  String? build() => 'u1';
+  String? build() => 'unverified';
+
+  void verify() => state = 'authenticated';
 
   void signOut() => state = null;
 }
@@ -242,12 +245,17 @@ void main() {
     var listOpened = 0;
     await tester.pumpWidget(ProviderScope(
       overrides: [
-        currentUserIdProvider.overrideWith((ref) => ref.watch(_signedIn)),
+        sessionRoleProvider.overrideWith((ref) => ref.watch(_signedIn)),
         notificationsRepositoryProvider.overrideWithValue(repo),
         pushMessagingProvider.overrideWithValue(push),
       ],
       child: PushNotifications(openLive: opened.add, openNotifications: () => listOpened++, child: const SizedBox()),
     ));
+    await tester.pump();
+    // Not while the session is still in security verification: its token may not write yet.
+    expect(repo.registered, isEmpty);
+
+    ProviderScope.containerOf(tester.element(find.byType(SizedBox))).read(_signedIn.notifier).verify();
     await tester.pump();
     expect(repo.registered, [('token-of-this-phone', 'android')]);
 

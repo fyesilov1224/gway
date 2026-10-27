@@ -9,11 +9,13 @@ import 'package:social_app/src/router.dart';
 final _now = DateTime.utc(2026, 10, 18);
 final _profile = Profile(id: 'u1', username: 'ayse', displayName: 'Ayşe', bio: '', createdAt: _now);
 const _doc = LegalDocument(kind: LegalKind.terms, version: 1, title: 't', body: 'b');
+SecurityStatus _security(SecurityStep step) => SecurityStatus(enforced: true, sessionVerified: false, step: step);
 
 AppGate _gate({
   bool signedIn = true,
   bool recovery = false,
   AsyncValue<AccountState?> account = const AsyncData(AccountState(status: AccountStatus.active)),
+  AsyncValue<SecurityStatus?>? security,
   AsyncValue<List<LegalDocument>> consents = const AsyncData([]),
   AsyncValue<Profile?>? profile,
 }) =>
@@ -21,6 +23,7 @@ AppGate _gate({
       signedIn: signedIn,
       passwordRecovery: recovery,
       account: account,
+      security: security ?? AsyncData(_security(SecurityStep.done)),
       pendingConsents: consents,
       profile: profile ?? AsyncData(_profile),
       now: _now,
@@ -61,6 +64,27 @@ void main() {
       );
     });
 
+    test('every security step holds the user before consents and onboarding', () {
+      for (final step in [SecurityStep.location, SecurityStep.phone, SecurityStep.secondFactor, SecurityStep.restricted]) {
+        expect(
+          _gate(security: AsyncData(_security(step)), consents: const AsyncData([_doc]), profile: const AsyncData(null)),
+          AppGate.security,
+        );
+      }
+      expect(_gate(security: const AsyncLoading()), AppGate.loading);
+      expect(_gate(security: AsyncError(Exception(), StackTrace.empty)), AppGate.error);
+    });
+
+    test('suspension comes before security', () {
+      expect(
+        _gate(
+          account: const AsyncData(AccountState(status: AccountStatus.suspended)),
+          security: AsyncData(_security(SecurityStep.restricted)),
+        ),
+        AppGate.suspended,
+      );
+    });
+
     test('consents come before onboarding', () {
       expect(_gate(consents: const AsyncData([_doc]), profile: const AsyncData(null)), AppGate.needsConsent);
       expect(_gate(profile: const AsyncData(null)), AppGate.needsOnboarding);
@@ -86,6 +110,9 @@ void main() {
       expect(redirectFor(AppGate.needsConsent, u('/')), IdentityRoutes.consent);
       expect(redirectFor(AppGate.needsOnboarding, u('/settings')), ProfileRoutes.onboarding);
       expect(redirectFor(AppGate.needsOnboarding, u('/onboarding')), isNull);
+      expect(redirectFor(AppGate.security, u('/consent')), IdentityRoutes.security);
+      expect(redirectFor(AppGate.security, u('/security')), isNull);
+      expect(redirectFor(AppGate.ready, u('/security')), FeedRoutes.home);
     });
 
     test('a deep link opened while loading is restored when ready', () {

@@ -65,6 +65,8 @@ class SettingsScreen extends ConsumerWidget {
                 badge: unread == 0 ? null : '$unread yeni yanıt',
               ),
               const Divider(),
+              tile(Icons.verified_user_outlined, 'İki adımlı doğrulama', () => context.push(IdentityRoutes.twoFactor)),
+              const Divider(),
               tile(Icons.description_outlined, 'Hukuki metinler', () => context.push(IdentityRoutes.legalDocuments)),
               const Divider(),
               tile(Icons.delete_outline, 'Hesabı sil', () => context.push(IdentityRoutes.deleteAccount)),

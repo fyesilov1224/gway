@@ -319,9 +319,10 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] pgTAP (`33_security_verification`) ve C# (`SecurityTests`, `SecurityRulesTests`) testleri; `dotnet build` temiz (2026-10-27)
 
 ### 15.8b — Uygulama
-- [ ] Konum izni ekranı (izinsiz uygulama açılmaz), sinyal gönderimi (açılış ve öne geliş), Android SIM ülkesi
-- [ ] Telefon doğrulama (ülke kodu kilitli), ikinci adım ekranı, kısıtlı hesap ekranı; ayarlarda doğrulama uygulaması kurulumu
-- [ ] Router sırası: güvenlik → KVKK → onboarding; Flutter testleri
+- [x] Konum izni ekranı (izinsiz uygulama açılmaz, aydınlatma metni okunabilir), sinyal gönderimi (açılış ve 30 dakikada bir öne geliş), Android SIM ülkesi (`grupx/device` kanalı)
+- [x] Telefon doğrulama (ülke kodu kilitli), ikinci adım ekranı (SMS ya da uygulama), kısıtlı hesap ekranı; ayarlarda "İki adımlı doğrulama" ve QR'lı uygulama kurulumu
+- [x] Router sırası: güvenlik → KVKK → onboarding; push kaydı token rolü `authenticated` olunca yapılır
+- [x] Flutter testleri (güvenlik ekranları, %130 yazı, gate, push); yerel uçtan uca deneme: giriş → konum → telefon → SMS → ana sayfa ve ikinci girişte SMS ile ikinci adım; token rolü `authenticated` (2026-10-27)
 
 ### 15.8c — Yönetim paneli
 - [ ] Panel girişi aynı akıştan geçer

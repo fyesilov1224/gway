@@ -41,6 +41,7 @@ String? _gateLocation(AppGate gate) => switch (gate) {
       AppGate.passwordRecovery => IdentityRoutes.resetPassword,
       AppGate.suspended => IdentityRoutes.suspended,
       AppGate.deletionPending => IdentityRoutes.deletionPending,
+      AppGate.security => IdentityRoutes.security,
       AppGate.needsConsent => IdentityRoutes.consent,
       AppGate.needsOnboarding => ProfileRoutes.onboarding,
       AppGate.ready => null,
@@ -54,6 +55,7 @@ final _gateOnly = {
   IdentityRoutes.resetPassword,
   IdentityRoutes.suspended,
   IdentityRoutes.deletionPending,
+  IdentityRoutes.security,
   IdentityRoutes.consent,
   ProfileRoutes.onboarding,
 };
@@ -109,6 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: IdentityRoutes.resetPassword, builder: (_, _) => const ResetPasswordScreen()),
       GoRoute(path: IdentityRoutes.suspended, builder: (_, _) => const SuspendedScreen()),
       GoRoute(path: IdentityRoutes.deletionPending, builder: (_, _) => const DeletionPendingScreen()),
+      GoRoute(path: IdentityRoutes.security, builder: (_, _) => const SecurityScreen()),
       GoRoute(path: IdentityRoutes.consent, builder: (_, _) => const ConsentScreen()),
       GoRoute(
         path: ProfileRoutes.onboarding,
@@ -258,6 +261,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: IdentityRoutes.deleteAccount, builder: (_, _) => const DeleteAccountScreen()),
           GoRoute(path: IdentityRoutes.legalDocuments, builder: (_, _) => const LegalDocumentsScreen()),
+          GoRoute(path: IdentityRoutes.twoFactor, builder: (_, _) => const TwoFactorSettingsScreen()),
           GoRoute(path: SupportRoutes.list, builder: (_, _) => const SupportScreen()),
           GoRoute(
             path: '/support/new',

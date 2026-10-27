@@ -1,6 +1,7 @@
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:identity/identity.dart';
 import 'package:live/live.dart';
 import 'package:notifications/notifications.dart';
 
@@ -22,7 +23,7 @@ class SocialApp extends ConsumerWidget {
         openNotifications: () => router.push(NotificationRoutes.list),
         child: LiveNotificationAlerts(
           openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
-          child: child!,
+          child: SecurityHeartbeat(child: child!),
         ),
       ),
     );

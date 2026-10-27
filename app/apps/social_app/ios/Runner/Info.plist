@@ -11,6 +11,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Hesap güvenliği ve sahte hesapların önlenmesi için giriş yaparken ve uygulamayı açtığında konumunu kullanırız.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Canlı yayında sahneye alındığında konuşabilmen için mikrofona erişim gerekir.</string>
 	<key>UIBackgroundModes</key>

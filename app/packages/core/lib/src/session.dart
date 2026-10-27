@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -25,6 +27,25 @@ final currentUserIdProvider = Provider<String?>((ref) {
   return state.value?.session?.user.id ??
       ref.watch(supabaseClientProvider).auth.currentUser?.id;
 });
+
+/// The `role` claim of the current access token: `authenticated`, or `unverified` while the session has not
+/// passed security verification (docs/ARCHITECTURE.md §3h). Null when signed out. Follows token refreshes.
+final sessionRoleProvider = Provider<String?>((ref) {
+  final state = ref.watch(authStateProvider);
+  return tokenRole(state.value?.session?.accessToken ?? ref.watch(supabaseClientProvider).auth.currentSession?.accessToken);
+});
+
+/// The `role` claim of a Supabase access token, or null if it cannot be read.
+String? tokenRole(String? accessToken) {
+  final parts = accessToken?.split('.');
+  if (parts == null || parts.length != 3) return null;
+  try {
+    final payload = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+    return payload is Map ? payload['role'] as String? : null;
+  } on FormatException {
+    return null;
+  }
+}
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(

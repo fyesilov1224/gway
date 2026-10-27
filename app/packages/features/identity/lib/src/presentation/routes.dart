@@ -11,6 +11,10 @@ abstract final class IdentityRoutes {
   static const suspended = '/suspended';
   static const deleteAccount = '/settings/delete-account';
   static const legalDocuments = '/settings/legal';
+  static const twoFactor = '/settings/two-factor';
+
+  /// Location, phone and second factor (docs/ARCHITECTURE.md §3h).
+  static const security = '/security';
 
   /// Screens reachable without a session.
   static const public = {signIn, signUp, checkEmail, forgotPassword};
