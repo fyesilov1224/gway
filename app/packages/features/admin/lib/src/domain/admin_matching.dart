@@ -138,6 +138,60 @@ class AdminPremium {
       prices.where((p) => p.currency == currency && p.period == period).firstOrNull?.amountMinor;
 }
 
+/// One slice of a person's package: bought ([orderId]) or given by an admin ([grantReason]).
+class AdminPersonalSubscription {
+  const AdminPersonalSubscription({
+    required this.id,
+    required this.planSlug,
+    required this.planName,
+    required this.period,
+    required this.startsAt,
+    required this.endsAt,
+    required this.canceledAt,
+    required this.orderId,
+    required this.orderStatus,
+    required this.amountMinor,
+    required this.currency,
+    required this.grantReason,
+    required this.grantedByUsername,
+  });
+
+  factory AdminPersonalSubscription.fromJson(Map<String, Object?> j) => AdminPersonalSubscription(
+        id: j['id']! as String,
+        planSlug: j['planSlug']! as String,
+        planName: j['planName']! as String,
+        period: j['period'] as String?,
+        startsAt: DateTime.parse(j['startsAt']! as String),
+        endsAt: DateTime.parse(j['endsAt']! as String),
+        canceledAt: switch (j['canceledAt']) { final String at => DateTime.parse(at), _ => null },
+        orderId: j['orderId'] as String?,
+        orderStatus: j['orderStatus'] as String?,
+        amountMinor: j['amountMinor'] as int?,
+        currency: j['currency'] as String?,
+        grantReason: j['grantReason'] as String?,
+        grantedByUsername: j['grantedByUsername'] as String?,
+      );
+
+  final String id;
+  final String planSlug;
+  final String planName;
+  final String? period;
+  final DateTime startsAt;
+  final DateTime endsAt;
+  final DateTime? canceledAt;
+  final String? orderId;
+  final String? orderStatus;
+  final int? amountMinor;
+  final String? currency;
+  final String? grantReason;
+  final String? grantedByUsername;
+
+  bool get isGrant => orderId == null;
+
+  /// Running now or still to come (an empty, canceled slice never runs).
+  bool isLive(DateTime now) => endsAt.isAfter(now) && endsAt.isAfter(startsAt);
+}
+
 abstract interface class AdminMatchingRepository {
   Future<Result<AdminMatchingStats>> stats();
 
@@ -155,6 +209,15 @@ abstract interface class AdminMatchingRepository {
 
   /// Gives [username] the package for [days], after any time they already have.
   Future<Result<void>> grantPackage({required String username, required String slug, required int days, required String reason});
+
+  /// Every slice of the person's packages, newest first.
+  Future<Result<List<AdminPersonalSubscription>>> userPackages(String userId);
+
+  /// Gives the person the package for [days], after any time they already have.
+  Future<Result<void>> grantUserPackage(String userId, {required String slug, required int days, required String reason});
+
+  /// Ends the person's running and upcoming time of the package now; [refunded] marks those orders refunded.
+  Future<Result<void>> cancelUserPackage(String userId, String slug, {required String reason, required bool refunded});
 
   /// A short-lived address of a reported photo; the platform team may view matching photos.
   Future<Result<String>> photoUrl(String path);

@@ -38,6 +38,25 @@ public sealed record PersonalPlanSummary(
     int GrantedMembers,
     IReadOnlyList<PersonalRevenue> Revenue30d);
 
+/// <summary>
+/// One slice of a person's personal plan for the admin panel: bought (<see cref="OrderId"/>) or granted (<see cref="GrantReason"/>).
+/// A canceled slice ends when it was canceled.
+/// </summary>
+public sealed record PersonalSubscription(
+    Guid Id,
+    string PlanSlug,
+    string PlanName,
+    string? Period,
+    DateTimeOffset StartsAt,
+    DateTimeOffset EndsAt,
+    DateTimeOffset? CanceledAt,
+    Guid? OrderId,
+    string? OrderStatus,
+    int? AmountMinor,
+    string? Currency,
+    string? GrantReason,
+    string? GrantedByUsername);
+
 /// <summary>Billing actions the admin module may trigger. Callers check platform staff roles first.</summary>
 public interface IBillingAdministration
 {
@@ -52,4 +71,15 @@ public interface IBillingAdministration
 
     /// <summary>Gives <paramref name="username"/> the plan for <paramref name="days"/>, after any time they already have.</summary>
     Task<Result> GrantPersonalPlanAsync(Guid actorId, string username, string slug, int days, string reason, CancellationToken ct);
+
+    /// <summary>Gives the person the plan for <paramref name="days"/>, after any time they already have; not found when the account is gone.</summary>
+    Task<Result> GrantPersonalPlanAsync(Guid actorId, Guid userId, string slug, int days, string reason, CancellationToken ct);
+
+    /// <summary>Every slice of the person's personal plans, newest first.</summary>
+    Task<IReadOnlyList<PersonalSubscription>> PersonalSubscriptionsAsync(Guid userId, CancellationToken ct);
+
+    /// <summary>
+    /// Ends the person's running and upcoming slices of the plan now; <paramref name="refunded"/> marks their paid orders refunded.
+    /// </summary>
+    Task<Result> CancelPersonalPlanAsync(Guid actorId, Guid userId, string slug, string reason, bool refunded, CancellationToken ct);
 }

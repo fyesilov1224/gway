@@ -264,6 +264,21 @@ Future<void> _editPremium(BuildContext context, WidgetRef ref, AdminPremium curr
 }
 
 Future<void> _grantPackage(BuildContext context, WidgetRef ref, List<AdminPremium> packages) async {
+  final request = await showGrantPackageDialog(context, packages);
+  if (request == null || !context.mounted) return;
+  final (:username, :package, :days, :reason) = request;
+  final result = await ref.read(adminMatchingRepositoryProvider).grantPackage(username: username!, slug: package.slug, days: days, reason: reason);
+  if (!context.mounted) return;
+  _reportDone(context, result, '@$username için $days gün ${package.name} tanımlandı.');
+  ref
+    ..invalidate(matchingPackagesProvider)
+    ..invalidate(matchingStatsProvider);
+}
+
+typedef GrantPackageRequest = ({String? username, AdminPremium package, int days, String reason});
+
+/// Package, days and reason; the username too unless the person is already known ([askUsername] false).
+Future<GrantPackageRequest?> showGrantPackageDialog(BuildContext context, List<AdminPremium> packages, {bool askUsername = true}) async {
   final username = TextEditingController();
   final days = TextEditingController(text: '30');
   final reason = TextEditingController();
@@ -286,8 +301,10 @@ Future<void> _grantPackage(BuildContext context, WidgetRef ref, List<AdminPremiu
               items: [for (final p in packages) DropdownMenuItem(value: p, child: Text(p.name))],
               onChanged: (p) => package = p ?? package,
             ),
-            const SizedBox(height: GxSpacing.sm),
-            TextField(controller: username, decoration: const InputDecoration(labelText: 'Kullanıcı adı', prefixText: '@')),
+            if (askUsername) ...[
+              const SizedBox(height: GxSpacing.sm),
+              TextField(controller: username, decoration: const InputDecoration(labelText: 'Kullanıcı adı', prefixText: '@')),
+            ],
             const SizedBox(height: GxSpacing.sm),
             TextField(controller: days, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Gün (1–365)')),
             const SizedBox(height: GxSpacing.sm),
@@ -305,13 +322,8 @@ Future<void> _grantPackage(BuildContext context, WidgetRef ref, List<AdminPremiu
   for (final c in [username, days, reason]) {
     c.dispose();
   }
-  if (save != true || !context.mounted) return;
-  final result = await ref.read(adminMatchingRepositoryProvider).grantPackage(username: who, slug: package.slug, days: count, reason: why);
-  if (!context.mounted) return;
-  _reportDone(context, result, '@$who için $count gün ${package.name} tanımlandı.');
-  ref
-    ..invalidate(matchingPackagesProvider)
-    ..invalidate(matchingStatsProvider);
+  if (save != true) return null;
+  return (username: askUsername ? who : null, package: package, days: count, reason: why);
 }
 
 /// A reported matching photo; matching photos are private, so the address is short-lived.

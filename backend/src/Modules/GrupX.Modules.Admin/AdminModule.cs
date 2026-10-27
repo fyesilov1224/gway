@@ -41,6 +41,8 @@ public sealed record SuspendMatchProfileRequest(string Reason, DateTimeOffset? U
 
 public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
 
+public sealed record GrantUserPackageRequest(string Slug, int Days, string Reason);
+
 public static class AdminModule
 {
     public static IServiceCollection AddAdminModule(this IServiceCollection services)
@@ -91,6 +93,26 @@ public static class AdminModule
                 Guid id, ClaimsPrincipal user, IAccountAdministration accounts, CancellationToken ct) =>
                 (await accounts.UnsuspendAsync(user.GetUserId(), id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        // The person's personal packages (docs/ARCHITECTURE.md §3g, Kullanıcının paketleri).
+        users.MapGet("/{id:guid}/packages", async (Guid id, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                TypedResults.Ok(await billingAdmin.PersonalSubscriptionsAsync(id, ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        users.MapPost("/{id:guid}/packages", async (
+                Guid id, GrantUserPackageRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                PersonalPlans.Matching.Contains(body.Slug)
+                    ? (await billingAdmin.GrantPersonalPlanAsync(user.GetUserId(), id, body.Slug, body.Days, body.Reason, ct)).ToHttpResult()
+                    : Results.NotFound())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        users.MapPost("/{id:guid}/packages/{slug}/cancellation", async (
+                Guid id, string slug, CancelSubscriptionRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin,
+                CancellationToken ct) =>
+                PersonalPlans.Matching.Contains(slug)
+                    ? (await billingAdmin.CancelPersonalPlanAsync(user.GetUserId(), id, slug, body.Reason, body.Refunded, ct)).ToHttpResult()
+                    : Results.NotFound())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
 
         var groups = app.MapGroup("/admin/groups");
 

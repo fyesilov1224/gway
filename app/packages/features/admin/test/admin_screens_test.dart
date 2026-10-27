@@ -576,6 +576,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
           (ref, search) async => UserPage(items: _users, total: _users.length, page: 1, pageSize: 20),
         ),
         userDetailProvider.overrideWith((ref, id) async => _detail),
+        userPackagesProvider.overrideWith((ref, id) async => _userPackages),
         categoriesProvider.overrideWith((ref) async => const [Category(slug: 'cycling', name: 'Bisiklet')]),
         groupStatsProvider.overrideWith((ref) async => const AdminGroupStats(total: 2, active: 1, suspended: 1)),
         groupSearchProvider.overrideWith(
@@ -585,6 +586,40 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
       ],
       child: MaterialApp(theme: GxTheme.light(), home: Scaffold(body: child)),
     );
+
+// A running granted package and an earlier bought one that was refunded.
+final _userPackages = [
+  AdminPersonalSubscription(
+    id: 's1',
+    planSlug: 'matching_chat',
+    planName: 'Eşleşme Sohbeti',
+    period: null,
+    startsAt: DateTime.now().subtract(const Duration(days: 1)),
+    endsAt: DateTime.now().add(const Duration(days: 29)),
+    canceledAt: null,
+    orderId: null,
+    orderStatus: null,
+    amountMinor: null,
+    currency: null,
+    grantReason: 'Destek telafisi',
+    grantedByUsername: 'ekip',
+  ),
+  AdminPersonalSubscription(
+    id: 's0',
+    planSlug: 'matching_premium',
+    planName: 'Hepsi Bir Arada',
+    period: 'month',
+    startsAt: DateTime(2026, 9, 1),
+    endsAt: DateTime(2026, 9, 10),
+    canceledAt: DateTime(2026, 9, 10),
+    orderId: 'o0',
+    orderStatus: 'refunded',
+    amountMinor: 24900,
+    currency: 'TRY',
+    grantReason: null,
+    grantedByUsername: null,
+  ),
+];
 
 Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole role = StaffRole.admin}) async {
   tester.view.physicalSize = size;
@@ -614,8 +649,21 @@ void main() {
       expect(find.textContaining('Spam paylaşımları'), findsOneWidget);
       expect(find.text('Hesap askıya alındı'), findsOneWidget);
       expect(find.textContaining('GrupX Ekibi'), findsOneWidget);
+      expect(find.text('Paketleri'), findsOneWidget);
+      expect(find.text('Eşleşme Sohbeti'), findsOneWidget);
+      expect(find.text('Paket tanımla'), findsOneWidget);
+      expect(find.text('İptal et'), findsOneWidget);
+      expect(find.textContaining('iade edildi'), findsOneWidget);
     });
   }
+
+  testWidgets('only platform admins give or cancel packages', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const UserDetailScreen(userId: 'u2'), role: StaffRole.support);
+
+    expect(find.text('Eşleşme Sohbeti'), findsOneWidget);
+    expect(find.text('Paket tanımla'), findsNothing);
+    expect(find.text('İptal et'), findsNothing);
+  });
 
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
     testWidgets('groups screen lays out on $name', (tester) async {

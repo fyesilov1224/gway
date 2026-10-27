@@ -3,7 +3,9 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using GrupX.Modules.Admin;
 using GrupX.Modules.Billing;
+using GrupX.Modules.Billing.Contracts;
 using GrupX.Modules.Groups;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -375,6 +377,47 @@ public sealed class BillingTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(2L, await _db.ScalarAsync<long>(
             "select count(*) from public.audit_log where action = 'personal_plan.activated' and target_id in "
             + "(select id::text from public.user_subscriptions where user_id = @id)", ("id", buyer)));
+    }
+
+    [Fact]
+    public async Task An_admin_grants_lists_and_cancels_a_persons_packages()
+    {
+        var buyer = await _db.CreateUserAsync(Unique("b_"));
+        var (admin, support) = (await _db.CreateUserAsync(Unique("s_")), await _db.CreateUserAsync(Unique("s_")));
+        await _db.MakeStaffAsync(admin, "admin");
+        await _db.MakeStaffAsync(support, "support");
+
+        // Bought time, then granted time after it.
+        var response = await ClientFor(buyer).PostAsJsonAsync(Path("/billing/me/plans/matching_premium/orders"),
+            new CreatePersonalOrderRequest("month", "TRY", 1, Details), Ct);
+        var order = (await response.Content.ReadFromJsonAsync<CreateOrderResponse>(Ct))!.OrderId;
+        (await NotifyPaytrAsync(order, "success", 24900)).EnsureSuccessStatusCode();
+        var grant = new GrantUserPackageRequest("matching_premium", 10, "Destek telafisi");
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await ClientFor(support).PostAsJsonAsync(Path($"/admin/users/{buyer}/packages"), grant, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await ClientFor(admin).PostAsJsonAsync(Path($"/admin/users/{buyer}/packages"), grant, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await ClientFor(admin).PostAsJsonAsync(Path($"/admin/users/{Guid.NewGuid()}/packages"), grant, Ct))
+            .StatusCode);
+
+        var slices = await ClientFor(support).GetFromJsonAsync<List<PersonalSubscription>>(Path($"/admin/users/{buyer}/packages"), Ct);
+        Assert.Equal(2, slices!.Count);
+        Assert.Equal("Destek telafisi", slices[0].GrantReason);
+        Assert.Equal(order, slices[1].OrderId);
+
+        var cancel = new CancelSubscriptionRequest("Kullanıcı isteği", Refunded: true);
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await ClientFor(support).PostAsJsonAsync(Path($"/admin/users/{buyer}/packages/matching_premium/cancellation"), cancel, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await ClientFor(admin).PostAsJsonAsync(Path($"/admin/users/{buyer}/packages/matching_premium/cancellation"), cancel, Ct)).StatusCode);
+        Assert.False(await _db.ScalarAsync<bool>("select private.has_matching_premium(@id)", ("id", buyer)));
+        Assert.Null(await _db.ScalarAsync<DateTime?>("select private.personal_plan_until(@id, 'matching_premium')", ("id", buyer)));
+        Assert.Equal("refunded", await OrderStatusAsync(order));
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'personal_plan.canceled' and target_id = @id", ("id", buyer.ToString())));
+        // Nothing left to cancel.
+        Assert.Equal(HttpStatusCode.NotFound,
+            (await ClientFor(admin).PostAsJsonAsync(Path($"/admin/users/{buyer}/packages/matching_premium/cancellation"), cancel, Ct)).StatusCode);
     }
 
     [Fact]

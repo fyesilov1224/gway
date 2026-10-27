@@ -15,7 +15,14 @@ class GroupPlanPanel extends ConsumerWidget {
   final AdminGroupDetail detail;
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, AdminSubscription s) async {
-    final request = await showDialog<({String reason, bool refunded})>(context: context, builder: (_) => const _CancelDialog());
+    final request = await showDialog<({String reason, bool refunded})>(
+      context: context,
+      builder: (_) => const CancelPlanDialog(
+        title: 'Aboneliği iptal et',
+        message: 'Süren dönem hemen biter, sıradaki dönem başlamaz. Grup başka bir dönemi yoksa Ücretsiz pakete döner. '
+            'İade, ödeme sağlayıcısının panelinden ayrıca yapılır.',
+      ),
+    );
     if (request == null || !context.mounted) return;
     final result = await ref
         .read(adminBillingRepositoryProvider)
@@ -104,14 +111,18 @@ class _SliceBadge extends StatelessWidget {
   }
 }
 
-class _CancelDialog extends StatefulWidget {
-  const _CancelDialog();
+/// Reason and "refunded" for ending paid time early; a group's plan and a person's package use it alike.
+class CancelPlanDialog extends StatefulWidget {
+  const CancelPlanDialog({super.key, required this.title, required this.message});
+
+  final String title;
+  final String message;
 
   @override
-  State<_CancelDialog> createState() => _CancelDialogState();
+  State<CancelPlanDialog> createState() => _CancelPlanDialogState();
 }
 
-class _CancelDialogState extends State<_CancelDialog> {
+class _CancelPlanDialogState extends State<CancelPlanDialog> {
   final _form = GlobalKey<FormState>();
   final _reason = TextEditingController();
   bool _refunded = false;
@@ -131,7 +142,7 @@ class _CancelDialogState extends State<_CancelDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
-      title: const Text('Aboneliği iptal et'),
+      title: Text(widget.title),
       content: Form(
         key: _form,
         child: SingleChildScrollView(
@@ -139,8 +150,7 @@ class _CancelDialogState extends State<_CancelDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Süren dönem hemen biter, sıradaki dönem başlamaz. Grup başka bir dönemi yoksa Ücretsiz pakete döner. '
-                  'İade, ödeme sağlayıcısının panelinden ayrıca yapılır.'),
+              Text(widget.message),
               const SizedBox(height: GxSpacing.md),
               TextFormField(
                 controller: _reason,

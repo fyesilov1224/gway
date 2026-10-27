@@ -165,6 +165,11 @@ final matchingPackagesProvider = FutureProvider.autoDispose<List<AdminPremium>>(
   (ref) async => (await ref.watch(adminMatchingRepositoryProvider).packages()).getOrThrow(),
 );
 
+/// One person's package slices (user page).
+final userPackagesProvider = FutureProvider.autoDispose.family<List<AdminPersonalSubscription>, String>(
+  (ref, userId) async => (await ref.watch(adminMatchingRepositoryProvider).userPackages(userId)).getOrThrow(),
+);
+
 final adminNotificationsRepositoryProvider = Provider<AdminNotificationsRepository>(
   (ref) => ApiAdminNotificationsRepository(ref.watch(apiClientProvider)),
 );

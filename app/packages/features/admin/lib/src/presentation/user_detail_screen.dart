@@ -10,6 +10,7 @@ import 'providers.dart';
 import 'routes.dart';
 import 'status_chip.dart';
 import 'suspend_dialog.dart';
+import 'user_packages_panel.dart';
 import 'widgets.dart';
 
 const _actionLabels = {
@@ -150,6 +151,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       ],
     ];
     final right = [
+      UserPackagesPanel(userId: u.id, title: u.title),
+      const SizedBox(height: GxSpacing.lg),
       _ConsentsPanel(consents: d.consents),
       const SizedBox(height: GxSpacing.lg),
       HistoryPanel(

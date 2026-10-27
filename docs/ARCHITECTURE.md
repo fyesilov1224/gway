@@ -941,6 +941,7 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 - **Hak sorgusu:** `private.has_matching_feature(uid, feature)`; `matching_premium` her özelliği açar, `matching_chat` `reveal`'ı da açar. Paketler billing'de (`personal_plans`, `user_subscriptions`) tutulur (§7, Kişisel ürünler).
 - **Satış:** her paket ayrı, aylık ve yıllık, ön ödemeli, otomatik yenileme yok, kalan sürenin ardına eklenir. Satın alma web'dendir; mobil durumu ve fiyatları gösterir.
 - **Tanımlama:** platform yöneticisi bir kullanıcıya gerekçeyle 1–365 gün istediği paketi verebilir; `audit_log`'a yazılır (`personal_plan.granted`).
+- **Kullanıcının paketleri (admin):** kullanıcı sayfasında kişinin bütün paket dilimleri (satın alınan ve tanımlanan, süren, sıradaki, biten) görünür. Platform yöneticisi oradan paket tanımlar ya da bir paketi iptal eder: o paketin süren ve sıradaki bütün dilimleri hemen biter (`cancel_reason = 'admin'`); "ödeme iade edildi" seçilirse bu dilimlerin ödenmiş siparişleri `refunded` olur. İade, ödeme sağlayıcısının panelinden ayrıca yapılır. `audit_log`: `personal_plan.canceled`.
 - **Ekranlar:** deste, "Seni beğenenler" (`/matching/likes`), Paketler (`/matching/packages`: her paketin durumu; `/matching/packages/{slug}`: özellikler, fiyatlar, web'de satın alma), filtreler. Kilitli bir özelliğe dokununca o paketi ve Hepsi Bir Arada'yı öneren bir pencere açılır; sohbette yazma kutusunun yerinde paket çağrısı görünür.
 
 ### Bildirimler
@@ -977,9 +978,12 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 | `POST /admin/matching/profiles/{userId}/suspension`, `DELETE …/suspension` | Profili kapat (`reason`, `until?`) / aç. Rol: `admin`, `moderator` |
 | `POST /admin/matching/photos/{id}/removal` | Fotoğrafı kaldır (`reason`). Rol: `admin`, `moderator` |
 | `PUT /admin/matching/settings` | `dailyFreeLikes`, `dailyFreeSuperLikes`, `dailyPremiumSuperLikes`, `boostMinutes`. Rol: `admin` |
-| `GET /admin/matching/premium` | Premium: ad, satış durumu, fiyatlar, Premium üye ve tanımlanan sayısı, son 30 gün geliri. Rol: `admin`, `moderator`, `support` |
-| `PUT /admin/matching/premium` | Ad, satış durumu, dört fiyat (TRY/USD × aylık/yıllık). Rol: `admin` |
-| `POST /admin/matching/premium/grants` | `username`, `days` (1–365), `reason`. Rol: `admin` |
+| `GET /admin/matching/packages` | Her paket: ad, satış durumu, fiyatlar, paketli ve tanımlanan kişi sayısı, son 30 gün geliri. Rol: `admin`, `moderator`, `support` |
+| `PUT /admin/matching/packages/{slug}` | Ad, satış durumu, dört fiyat (TRY/USD × aylık/yıllık). Rol: `admin` |
+| `POST /admin/matching/packages/grants` | `username`, `slug`, `days` (1–365), `reason`. Rol: `admin` |
+| `GET /admin/users/{id}/packages` | Kişinin bütün paket dilimleri (ürün, dönem, tarihler, kaynak: sipariş ya da tanımlama, sipariş durumu, iptal). Rol: `admin`, `moderator`, `support` |
+| `POST /admin/users/{id}/packages` | Paket tanımla: `slug`, `days` (1–365), `reason`. Rol: `admin` |
+| `POST /admin/users/{id}/packages/{slug}/cancellation` | Paketi iptal et (`reason`, `refunded`): süren ve sıradaki dilimler hemen biter. Rol: `admin` |
 
 ### Tablolar (sahip: matching)
 `match_profiles`, `match_photos` (Storage `match-photos`), `match_swipes`, `matches`, `matching_settings`, `match_boosts`. Billing tarafında `personal_plans`, `personal_plan_prices`, `user_subscriptions` (§7, Kişisel ürünler).

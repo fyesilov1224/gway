@@ -326,6 +326,25 @@ class ApiAdminMatchingRepository implements AdminMatchingRepository {
       );
 
   @override
+  Future<Result<List<AdminPersonalSubscription>>> userPackages(String userId) => _api.get(
+        '/admin/users/$userId/packages',
+        decode: (json) => [
+          for (final s in (json! as List).cast<Map<String, Object?>>()) AdminPersonalSubscription.fromJson(s),
+        ],
+      );
+
+  @override
+  Future<Result<void>> grantUserPackage(String userId, {required String slug, required int days, required String reason}) =>
+      _api.post('/admin/users/$userId/packages', body: {'slug': slug, 'days': days, 'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> cancelUserPackage(String userId, String slug, {required String reason, required bool refunded}) => _api.post(
+        '/admin/users/$userId/packages/$slug/cancellation',
+        body: {'reason': reason, 'refunded': refunded},
+        decode: (_) {},
+      );
+
+  @override
   Future<Result<String>> photoUrl(String path) async {
     try {
       return Ok(await _client.storage.from('match-photos').createSignedUrl(path, const Duration(minutes: 10).inSeconds));
