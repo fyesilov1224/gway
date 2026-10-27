@@ -57,7 +57,7 @@ class _FakeMessaging implements MessagingRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Future<_FakeMessaging> _pumpChat(WidgetTester tester, ChatThread thread) async {
+Future<_FakeMessaging> _pumpChat(WidgetTester tester, ChatThread thread, {void Function(String username)? onOpenProfile}) async {
   final fake = _FakeMessaging();
   await tester.pumpWidget(ProviderScope(
     overrides: [
@@ -68,7 +68,11 @@ Future<_FakeMessaging> _pumpChat(WidgetTester tester, ChatThread thread) async {
     ],
     child: MaterialApp(
       theme: GxTheme.light(),
-      home: ChatScreen(conversationId: thread.conversation.id, onOpenProfile: (_, _) {}, onOpenGroup: (_, _) {}),
+      home: ChatScreen(
+        conversationId: thread.conversation.id,
+        onOpenProfile: (_, username) => onOpenProfile?.call(username),
+        onOpenGroup: (_, _) {},
+      ),
     ),
   ));
   await tester.pumpAndSettle();
@@ -101,6 +105,24 @@ void main() {
       expect(find.byTooltip('Mesaj gönder'), shown);
     });
   }
+
+  testWidgets('the sender\'s photo sits beside the last message of their run and opens their profile', (tester) async {
+    final day = DateTime(2026, 10, 22, 9);
+    final thread = ChatThread(conversation: _direct(), messages: [
+      _message('m1', _deniz, day),
+      _message('m2', _deniz, day.add(const Duration(minutes: 1))),
+      _message('m3', _me, day.add(const Duration(minutes: 2))),
+    ]);
+    String? opened;
+    await _pumpChat(tester, thread, onOpenProfile: (username) => opened = username);
+
+    // One photo for Deniz's two messages, none for mine.
+    final photos = find.descendant(of: find.byType(ListView), matching: find.byType(GxAvatar));
+    expect(photos, findsOneWidget);
+    expect(tester.widget<GxAvatar>(photos).name, 'Deniz');
+    await tester.tap(photos);
+    expect(opened, 'deniz');
+  });
 
   testWidgets('a locked match chat offers the package instead of the composer', (tester) async {
     final thread = ChatThread(conversation: _direct(blocker: 'match_chat_locked'), messages: const []);

@@ -851,6 +851,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Yalnızca konuşmanın okurları okur; yükleme yalnızca o konuşmanın okurları içindir.
   - İstemci imzalı adresle gösterir.
 - **Okundu:** kişi kendi okuma zamanını yazar (`public.mark_conversation_read`, kendi basit yazması). Birebir konuşmada karşı tarafın okuma zamanı "Görüldü" olarak gösterilir; grup sohbetinde gösterilmez.
+- **Gönderenin fotoğrafı (kullanıcı isteği, 2026-10-27):** Instagram'daki gibi karşı tarafın mesajlarının solunda yuvarlak profil fotoğrafı durur; art arda gelen mesajlarda yalnızca son mesajın yanında görünür, diğerleri hizayı korur. Fotoğrafa dokununca kişinin profili açılır. Birebir ve grup sohbetinde aynıdır; kişinin kendi mesajlarında fotoğraf yoktur.
 - **Anlık güncelleme:** Supabase Realtime ile gelir (`messages`, RLS korur).
 - **Bildirim tablosuna yazılmaz.** Okunmamış mesaj sayısı mesaj ikonunda gösterilir; push bildirimi Firebase bilgileri gelince bağlanır.
 - **Hesap silme:** kişinin mesajlarını da siler (KVKK).

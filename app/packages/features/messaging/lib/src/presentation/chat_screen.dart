@@ -65,7 +65,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
       body: switch (chat) {
-        AsyncData(:final value) => _Chat(thread: value, composerFocus: _composerFocus, pickImage: widget.pickImage),
+        AsyncData(:final value) => _Chat(
+            thread: value,
+            composerFocus: _composerFocus,
+            pickImage: widget.pickImage,
+            onOpenProfile: (username) => widget.onOpenProfile(context, username),
+          ),
         AsyncError(error: NotFoundFailure()) => GxEmptyState(
             icon: Icons.forum_outlined,
             message: 'Bu sohbet bulunamadı ya da artık göremiyorsun.',
@@ -168,11 +173,12 @@ class _ChatSettings extends ConsumerWidget {
 }
 
 class _Chat extends ConsumerWidget {
-  const _Chat({required this.thread, required this.composerFocus, required this.pickImage});
+  const _Chat({required this.thread, required this.composerFocus, required this.pickImage, required this.onOpenProfile});
 
   final ChatThread thread;
   final FocusNode composerFocus;
   final PickImage? pickImage;
+  final ValueChanged<String> onOpenProfile;
 
   /// The package that unlocks writing here, if a package is what keeps the user from it.
   static String? _packageFor(String? blocker) => switch (blocker) {
@@ -214,6 +220,7 @@ class _Chat extends ConsumerWidget {
                     final index = messages.length - 1 - i;
                     final m = messages[index];
                     final previous = index > 0 ? messages[index - 1] : null;
+                    final next = index < messages.length - 1 ? messages[index + 1] : null;
                     final newDay = previous == null || !DateUtils.isSameDay(previous.createdAt.toLocal(), m.createdAt.toLocal());
                     final mine = m.sender.id == me;
                     return Center(
@@ -227,6 +234,12 @@ class _Chat extends ConsumerWidget {
                               message: m,
                               mine: mine,
                               showSender: group && !mine && (newDay || previous.sender.id != m.sender.id),
+                              // As in Instagram: the sender's photo beside the last message of their run.
+                              showAvatar: !mine &&
+                                  (next == null ||
+                                      next.sender.id != m.sender.id ||
+                                      !DateUtils.isSameDay(next.createdAt.toLocal(), m.createdAt.toLocal())),
+                              onOpenSender: () => onOpenProfile(m.sender.username),
                               status: m.id == seenId
                                   ? 'Görüldü'
                                   : m.id == lastMine && !group && !m.isDeleted
@@ -277,11 +290,22 @@ class _DayLabel extends StatelessWidget {
 }
 
 class _Bubble extends ConsumerStatefulWidget {
-  const _Bubble({required this.message, required this.mine, required this.showSender, this.status});
+  const _Bubble({
+    required this.message,
+    required this.mine,
+    required this.showSender,
+    required this.showAvatar,
+    required this.onOpenSender,
+    this.status,
+  });
 
   final ChatMessage message;
   final bool mine;
   final bool showSender;
+
+  /// The sender's photo beside the bubble; others' messages without it keep its room so the bubbles line up.
+  final bool showAvatar;
+  final VoidCallback onOpenSender;
 
   /// "Görüldü" or "Gönderildi" under the user's latest message.
   final String? status;
@@ -304,6 +328,8 @@ class _BubbleState extends ConsumerState<_Bubble> {
     final textTheme = Theme.of(context).textTheme;
     final m = message;
     final time = formatChatTime(m.createdAt);
+    // The avatar and the gap after it.
+    final avatarRoom = GxAvatarSize.sm.dimension + GxSpacing.xs;
     final clock = '${m.createdAt.toLocal().hour.toString().padLeft(2, '0')}:${m.createdAt.toLocal().minute.toString().padLeft(2, '0')}';
     final bubble = Container(
       padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
@@ -364,18 +390,53 @@ class _BubbleState extends ConsumerState<_Bubble> {
                     children: [
                       if (showSender)
                         Padding(
-                          padding: const EdgeInsets.only(left: GxSpacing.xs, bottom: GxSpacing.xxs),
+                          padding: EdgeInsets.only(left: avatarRoom + GxSpacing.xs, bottom: GxSpacing.xxs),
                           child: Text(m.sender.displayName, style: textTheme.labelMedium?.copyWith(color: GxColors.primary)),
                         ),
-                      Semantics(
-                        label: '${mine ? 'Sen' : m.sender.displayName}, $time',
-                        child: GestureDetector(
-                          onLongPress: m.isDeleted ? null : _actions,
-                          child: bubble,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (!mine)
+                            SizedBox(
+                              width: avatarRoom,
+                              child: widget.showAvatar
+                                  ? Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Semantics(
+                                        button: true,
+                                        label: '${m.sender.displayName} profili',
+                                        child: GestureDetector(
+                                          onTap: widget.onOpenSender,
+                                          child: GxAvatar(
+                                            name: m.sender.displayName,
+                                            imageUrl: m.sender.avatarUrl,
+                                            shape: GxAvatarShape.user,
+                                            size: GxAvatarSize.sm,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          Flexible(
+                            child: Semantics(
+                              label: '${mine ? 'Sen' : m.sender.displayName}, $time',
+                              child: GestureDetector(
+                                onLongPress: m.isDeleted ? null : _actions,
+                                child: bubble,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs),
+                        padding: EdgeInsets.only(
+                          left: (mine ? 0 : avatarRoom) + GxSpacing.xs,
+                          right: GxSpacing.xs,
+                          top: GxSpacing.xxs,
+                          bottom: GxSpacing.xxs,
+                        ),
                         child: Text(
                           status == null ? clock : '$clock · $status',
                           style: textTheme.labelSmall?.copyWith(color: GxColors.textSecondary),
