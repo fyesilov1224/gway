@@ -125,7 +125,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ProfileRoutes.mine,
             builder: (context, _) => ProfileScreen(
               onOpenSettings: () => context.push(AppRoutes.settings),
-              ownActions: const [_savedButton, _matchingButton, _teammatesButton],
+              ownActions: const [_notificationsButton, _savedButton, _matchingButton, _teammatesButton],
               sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
@@ -335,6 +335,17 @@ class _TeammatesButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IconButton(
       tooltip: 'Ekip arkadaşı bul', icon: const Icon(Icons.diversity_3_outlined), onPressed: () => context.push(ProfileRoutes.teammates));
+}
+
+/// Notifications with the unread count, on your own profile too (not only on "Bugün").
+const _notificationsButton = _NotificationsButton();
+
+class _NotificationsButton extends StatelessWidget {
+  const _NotificationsButton();
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+      tooltip: 'Bildirimler', icon: const NotificationsIcon(), onPressed: () => context.go(NotificationRoutes.list));
 }
 
 /// "Kaydedilenler" on your own profile.
