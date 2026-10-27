@@ -119,6 +119,8 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - Kullanıcının her zorunlu türün **en güncel sürümünü** onaylamış olması gerekir. Yeni sürüm yayınlanınca onay ekranı yeniden gösterilir.
 - `consents` yalnızca ekleme yapılan bir kayıttır. Kullanıcı yalnızca kendi adına ekler (kendi verisine basit yazma), değiştiremez ve silemez.
 - Metinler taslaktır; yayından önce hukuki incelemeden geçmelidir.
+- **Yönetim (Faz 15.7'de admin paneline eklendi):** platform yöneticisi (`admin`) her türün metinlerini panelden yönetir (`/admin/legal`). Her tür için yeni **sürüm** yayınlar (başlık, gövde, yayın zamanı); yayın zamanı ileri tarihli olabilir (o zamana kadar taslak, kimseye görünmez). `audience` türden türetilir (`distance_sales → purchase`, diğerleri `signup`). Yazmalar C# API'den geçer; her işlem `audit_log`'a yazılır (`legal.published`, `legal.updated`, `legal.deleted`).
+- **Değişmezlik:** bir sürüme **en az bir onay (`consents`) bağlandıysa** o sürümün başlığı ve gövdesi artık değiştirilemez, silinemez (hem FK hem `legal_documents_guard` trigger ile). Kullanıcıların onayladığı metin kayıt altında kalır; metni güncellemek için yeni sürüm açılır. Henüz kimsenin onaylamadığı bir sürüm (taslak ya da yeni yayın) serbestçe düzenlenip silinebilir.
 
 ### Profil
 - `profiles` satırı onboarding sonunda kullanıcı tarafından oluşturulur (Flutter → Supabase, RLS `id = auth.uid()`).
@@ -1386,6 +1388,21 @@ Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemle
 - **Grafikler:** kullanıcı büyümesi (yeni ve aktif kullanıcı), etkileşim (gönderi, yorum, mesaj, tepki), eşleşme (beğeni, süper beğeni, eşleşme), gelir (ödenen siparişler, para birimine göre), moderasyon (açılan ve incelenen şikayet). Her grafikte açıklama, eksen etiketleri ve dokununca / üzerine gelince değerler; boş dönemde boş durum metni.
 - `GET /admin/analytics/overview?days=7|30|90|365`. Rol: `admin`, `moderator`, `support`; gelir ölçüleri yalnızca faturalamayı gören rollere (`admin`, `support`) döner. 365 günlük aralık 52 tam haftadır; haftalık görünümde aktif kullanıcı noktası o haftanın günlük ortalamasıdır.
 - Grafikler `fl_chart` ile çizilir; bağımlılık yalnızca `features/admin`'dedir. Renkler tasarım sistemi tokenlarından gelir.
+
+### Hukuki metin yönetimi (15.7, §3a KVKK)
+- `/admin/legal` sayfası hukuki metinleri yönetir: KVKK aydınlatma (`privacy_notice`), kullanım koşulları (`terms`), açık rıza (`explicit_consent`), mesafeli satış (`distance_sales`). Rol: **yalnızca `admin`**; görüntüleme de dâhil (metinler hassastır).
+- Her tür sürümlüdür. Sayfa, türleri ve her türün sürümlerini listeler: sürüm no, başlık, yayın zamanı, **güncel mi** (yayınlanmış en yüksek sürüm), **kaç onay bağlı**, taslak mı (yayın zamanı gelecekte).
+- **Yeni sürüm yayınla:** başlık, gövde ve yayın zamanı (şimdi ya da ileri tarih). Sürüm no otomatik (`max+1`). `audience` türden türetilir. İleri tarihli sürüm o ana kadar kimseye görünmez ve güncel sayılmaz.
+- **Düzenle / sil:** yalnızca **hiç onay bağlı olmayan** sürümde. Onay bağlı sürüm değişmezdir (yeni sürüm açılır). Kural API'de ve `legal_documents_guard` trigger'ında çift korunur.
+- Her işlem `audit_log`'a yazılır: `legal.published`, `legal.updated`, `legal.deleted`.
+
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /admin/legal` | Türler ve sürümleri (sürüm, başlık, yayın zamanı, güncel mi, onay sayısı, audience). Rol: `admin` |
+| `GET /admin/legal/{kind}/{version}` | Bir sürümün tam gövdesi (düzenleme için). Rol: `admin` |
+| `POST /admin/legal/{kind}` | Yeni sürüm yayınla (`title`, `body`, `publishedAt?`). Rol: `admin` |
+| `PUT /admin/legal/{kind}/{version}` | Onay bağlı değilse düzenle (`title`, `body`, `publishedAt`). Rol: `admin` |
+| `DELETE /admin/legal/{kind}/{version}` | Onay bağlı değilse sil. Rol: `admin` |
 
 ## 9. Test ve "bitti" tanımı
 

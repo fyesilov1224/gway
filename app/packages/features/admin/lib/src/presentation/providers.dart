@@ -7,6 +7,7 @@ import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
+import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
@@ -169,6 +170,20 @@ final matchingPackagesProvider = FutureProvider.autoDispose<List<AdminPremium>>(
 /// One person's package slices (user page).
 final userPackagesProvider = FutureProvider.autoDispose.family<List<AdminPersonalSubscription>, String>(
   (ref, userId) async => (await ref.watch(adminMatchingRepositoryProvider).userPackages(userId)).getOrThrow(),
+);
+
+final adminLegalRepositoryProvider = Provider<AdminLegalRepository>(
+  (ref) => ApiAdminLegalRepository(ref.watch(apiClientProvider)),
+);
+
+/// Legal text kinds and their versions.
+final legalKindsProvider = FutureProvider.autoDispose<List<LegalKind>>(
+  (ref) async => (await ref.watch(adminLegalRepositoryProvider).list()).getOrThrow(),
+);
+
+/// One version's full body.
+final legalDocumentProvider = FutureProvider.autoDispose.family<LegalDocument, ({String kind, int version})>(
+  (ref, key) async => (await ref.watch(adminLegalRepositoryProvider).get(key.kind, key.version)).getOrThrow(),
 );
 
 final adminAnalyticsRepositoryProvider = Provider<AdminAnalyticsRepository>(

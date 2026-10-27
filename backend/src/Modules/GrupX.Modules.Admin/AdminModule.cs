@@ -61,6 +61,7 @@ public static class AdminModule
         services.AddSingleton<AdminModeration>();
         services.AddSingleton<AdminGoals>();
         services.AddSingleton<AdminAnalytics>();
+        services.AddSingleton<AdminLegal>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
@@ -79,6 +80,27 @@ public static class AdminModule
                 return TypedResults.Ok(await analytics.OverviewAsync(range, StaffRoles.Billing.Contains(role), today, ct));
             })
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        // Legal texts (docs/ARCHITECTURE.md §8b, Hukuki metin yönetimi): admin only, even to read.
+        var legal = app.MapGroup("/admin/legal").AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        legal.MapGet("", async (AdminLegal admin, CancellationToken ct) => TypedResults.Ok(await admin.ListAsync(ct)));
+
+        legal.MapGet("/{kind}/{version:int}", async (string kind, int version, AdminLegal admin, CancellationToken ct) =>
+            (await admin.GetAsync(kind, version, ct)).ToHttpResult());
+
+        legal.MapPost("/{kind}", async (string kind, LegalVersionRequest body, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
+            AdminLegal.IsKind(kind)
+                ? (await admin.PublishAsync(user.GetUserId(), kind, body, ct)).ToHttpResult()
+                : Results.NotFound());
+
+        legal.MapPut("/{kind}/{version:int}", async (
+                string kind, int version, LegalVersionRequest body, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
+            (await admin.UpdateAsync(user.GetUserId(), kind, version, body, ct)).ToHttpResult());
+
+        legal.MapDelete("/{kind}/{version:int}", async (
+                string kind, int version, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
+            (await admin.DeleteAsync(user.GetUserId(), kind, version, ct)).ToHttpResult());
 
         var users = app.MapGroup("/admin/users");
 

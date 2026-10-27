@@ -18,6 +18,8 @@ abstract final class AdminRoutes {
 
   static const notifications = '/notifications';
 
+  static const legal = '/legal';
+
   static const matching = '/matching';
 
   static const events = '/events';

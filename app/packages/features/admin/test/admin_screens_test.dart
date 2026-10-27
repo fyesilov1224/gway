@@ -578,6 +578,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         userDetailProvider.overrideWith((ref, id) async => _detail),
         userPackagesProvider.overrideWith((ref, id) async => _userPackages),
         overviewProvider.overrideWith((ref, days) async => _overview(days)),
+        legalKindsProvider.overrideWith((ref) async => _legalKinds),
         categoriesProvider.overrideWith((ref) async => const [Category(slug: 'cycling', name: 'Bisiklet')]),
         groupStatsProvider.overrideWith((ref) async => const AdminGroupStats(total: 2, active: 1, suspended: 1)),
         groupSearchProvider.overrideWith(
@@ -648,6 +649,18 @@ final _userPackages = [
   ),
 ];
 
+final _legalKinds = [
+  LegalKind(kind: 'privacy_notice', audience: 'signup', versions: [
+    LegalVersion(
+        version: 2, title: 'Aydınlatma v2', publishedAt: DateTime(2026, 10, 1), isCurrent: true, isDraft: false, consentCount: 0),
+    LegalVersion(
+        version: 1, title: 'Aydınlatma v1', publishedAt: DateTime(2026, 9, 1), isCurrent: false, isDraft: false, consentCount: 42),
+  ]),
+  const LegalKind(kind: 'explicit_consent', audience: 'signup', versions: []),
+  const LegalKind(kind: 'terms', audience: 'signup', versions: []),
+  const LegalKind(kind: 'distance_sales', audience: 'purchase', versions: []),
+];
+
 Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole role = StaffRole.admin}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -658,6 +671,19 @@ Future<void> _pumpAt(WidgetTester tester, Size size, Widget child, {StaffRole ro
 
 void main() {
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
+    testWidgets('legal management lays out on $name', (tester) async {
+      await _pumpAt(tester, size, const AdminLegalScreen());
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('KVKK Aydınlatma Metni'), findsOneWidget);
+      expect(find.text('Aydınlatma v2'), findsOneWidget);
+      expect(find.text('Yürürlükte'), findsOneWidget);
+      // The consented v1 is frozen: it shows the lock badge, not a delete button.
+      expect(find.text('42 onay · kilitli'), findsOneWidget);
+      expect(find.text('Bu tür için henüz bir metin yayınlanmadı.'), findsWidgets);
+      expect(find.text('Yeni sürüm'), findsWidgets);
+    });
+
     testWidgets('overview lays out on $name', (tester) async {
       await _pumpAt(tester, size, const AdminOverviewScreen());
 

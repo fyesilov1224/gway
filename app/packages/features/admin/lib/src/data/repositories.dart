@@ -6,6 +6,7 @@ import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
+import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
 import '../domain/admin_moderation.dart';
@@ -353,6 +354,40 @@ class ApiAdminMatchingRepository implements AdminMatchingRepository {
       return Err(failureFromSupabase(e));
     }
   }
+}
+
+class ApiAdminLegalRepository implements AdminLegalRepository {
+  ApiAdminLegalRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<List<LegalKind>>> list() => _api.get(
+        '/admin/legal',
+        decode: (json) => [for (final k in (json! as List).cast<Map<String, Object?>>()) LegalKind.fromJson(k)],
+      );
+
+  @override
+  Future<Result<LegalDocument>> get(String kind, int version) =>
+      _api.get('/admin/legal/$kind/$version', decode: (json) => LegalDocument.fromJson((json! as Map).cast()));
+
+  @override
+  Future<Result<void>> publish(String kind, {required String title, required String body, DateTime? publishedAt}) => _api.post(
+        '/admin/legal/$kind',
+        body: {'title': title, 'body': body, 'publishedAt': publishedAt?.toUtc().toIso8601String()},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> update(String kind, int version, {required String title, required String body, required DateTime publishedAt}) =>
+      _api.put(
+        '/admin/legal/$kind/$version',
+        body: {'title': title, 'body': body, 'publishedAt': publishedAt.toUtc().toIso8601String()},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> remove(String kind, int version) => _api.delete('/admin/legal/$kind/$version', decode: (_) {});
 }
 
 class ApiAdminAnalyticsRepository implements AdminAnalyticsRepository {

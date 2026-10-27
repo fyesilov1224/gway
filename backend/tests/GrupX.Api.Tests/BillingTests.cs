@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace GrupX.Api.Tests;
 
+[Collection("Billing")]
 public sealed class BillingTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();

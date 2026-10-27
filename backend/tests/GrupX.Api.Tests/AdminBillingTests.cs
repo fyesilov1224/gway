@@ -7,6 +7,7 @@ using GrupX.Modules.Groups;
 
 namespace GrupX.Api.Tests;
 
+[Collection("Billing")]
 public sealed class AdminBillingTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();

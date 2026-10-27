@@ -170,6 +170,16 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.notifications),
                 onTap: () => go(AdminRoutes.notifications),
               ),
+              if (role?.code == 'admin') ...[
+                const SizedBox(height: GxSpacing.xxs),
+                _NavItem(
+                  icon: Icons.gavel_outlined,
+                  selectedIcon: Icons.gavel,
+                  label: 'Hukuki metinler',
+                  selected: path.startsWith(AdminRoutes.legal),
+                  onTap: () => go(AdminRoutes.legal),
+                ),
+              ],
               const SizedBox(height: GxSpacing.xxs),
               _NavItem(
                 icon: Icons.favorite_border_rounded,
