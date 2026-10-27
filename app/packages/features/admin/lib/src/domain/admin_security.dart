@@ -174,6 +174,7 @@ class AdminUserSecurity {
     required this.allowedCountry,
     required this.locationCheckedAt,
     required this.exemptUntil,
+    this.reviewExempt = false,
     required this.checks,
   });
 
@@ -189,6 +190,7 @@ class AdminUserSecurity {
       allowedCountry: j['allowedCountry'] as String?,
       locationCheckedAt: date(j['locationCheckedAt']),
       exemptUntil: date(j['exemptUntil']),
+      reviewExempt: (j['reviewExempt'] as bool?) ?? false,
       checks: [for (final c in (j['checks']! as List).cast<Map<String, Object?>>()) AdminLocationCheck.fromJson(c)],
     );
   }
@@ -203,6 +205,9 @@ class AdminUserSecurity {
   final String? allowedCountry;
   final DateTime? locationCheckedAt;
   final DateTime? exemptUntil;
+
+  /// Store review account: skips security verification (docs/ARCHITECTURE.md §3h).
+  final bool reviewExempt;
   final List<AdminLocationCheck> checks;
 }
 
@@ -225,4 +230,6 @@ abstract interface class AdminSecurityRepository {
   Future<Result<void>> ban(String reviewId, {required String note});
 
   Future<Result<AdminUserSecurity>> user(String userId);
+
+  Future<Result<void>> setReviewExempt(String userId, {required bool exempt, required String note});
 }

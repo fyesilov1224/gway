@@ -134,6 +134,12 @@ public static class AdminModule
                 (await admin.GetUserAsync(id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
+        // Store review accounts (docs/ARCHITECTURE.md §3h, İnceleme hesabı muafiyeti): admin only.
+        users.MapPut("/{id:guid}/security/review-exempt", async (
+                Guid id, ReviewExemptRequest body, ClaimsPrincipal user, ISecurityAdministration admin, CancellationToken ct) =>
+                (await admin.SetReviewExemptAsync(user.GetUserId(), id, body, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
         users.MapGet("", async (string? q, string? status, int? page, AdminUsers admin, CancellationToken ct) =>
                 status is not null && !AdminUsers.Statuses.Contains(status)
                     ? Error.Validation("admin.invalid_status", "Geçersiz durum filtresi.").ToProblem()

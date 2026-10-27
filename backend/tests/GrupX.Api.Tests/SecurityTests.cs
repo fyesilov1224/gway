@@ -384,6 +384,53 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
     }
 
     [Fact]
+    public async Task A_store_review_account_skips_verification_and_is_never_sanctioned()
+    {
+        await _db.ExecuteAsync("update public.security_settings set enforce = true");
+        var (reviewer, session, client) = await NewUserAsync();
+        var admin = await _db.CreateUserAsync(Unique("adm_"));
+        await _db.MakeStaffAsync(admin, "admin");
+        var moderator = await _db.CreateUserAsync(Unique("mod_"));
+        await _db.MakeStaffAsync(moderator, "moderator");
+        var path = Path($"/admin/users/{reviewer}/security/review-exempt");
+
+        Assert.Equal(SecuritySteps.Location, (await StatusAsync(client)).Step);
+
+        // Admin only, with a reason.
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(moderator).PutAsJsonAsync(path, new ReviewExemptRequest(true, "Play inceleme"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(admin).PutAsJsonAsync(path, new ReviewExemptRequest(true, ""), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await factory.ClientFor(admin).PutAsJsonAsync(path, new ReviewExemptRequest(true, "Play inceleme hesabı"), Ct)).StatusCode);
+
+        // No location, no phone, no second factor: done and verified, and the hook issues `authenticated`.
+        var status = await StatusAsync(client);
+        Assert.Equal(SecuritySteps.Done, status.Step);
+        Assert.True(status.SessionVerified);
+        Assert.Equal("authenticated", await _db.ScalarAsync<string>(
+            "select private.custom_access_token_hook(jsonb_build_object('user_id', @u::text, 'claims', jsonb_build_object('role', 'authenticated', 'session_id', @s::text))) #>> '{claims,role}'",
+            ("u", reviewer), ("s", session)));
+
+        // An emulator's mocked location and a VPN are recorded, not sanctioned.
+        var located = await LocateAsync(client, Istanbul, ipCountry: "US", mocked: true, vpn: true);
+        Assert.Equal(HttpStatusCode.OK, located.StatusCode);
+        Assert.Equal("active", await AccountStatusAsync(reviewer));
+        Assert.Equal("ok", await _db.ScalarAsync<string>(
+            "select verdict from public.location_checks where user_id = @u order by id desc limit 1", ("u", reviewer)));
+
+        var view = await factory.ClientFor(admin).GetFromJsonAsync<UserSecurityView>(Path($"/admin/users/{reviewer}/security"), Ct);
+        Assert.True(view!.ReviewExempt);
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'security.review_exempt_changed' and target_id = @u", ("u", reviewer.ToString())));
+
+        // Turned off: the steps are back.
+        await factory.ClientFor(admin).PutAsJsonAsync(path, new ReviewExemptRequest(false, "İnceleme bitti"), Ct);
+        await _db.ExecuteAsync("update public.user_security set location_checked_at = null where user_id = @u", ("u", reviewer));
+        Assert.Equal(SecuritySteps.Location, (await StatusAsync(client)).Step);
+    }
+
+    [Fact]
     public async Task Virtual_numbers_are_refused_after_lookup()
     {
         var (_, _, client) = await NewUserAsync();

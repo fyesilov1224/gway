@@ -438,6 +438,13 @@ class ApiAdminSecurityRepository implements AdminSecurityRepository {
       _api.post('/admin/security/reviews/$reviewId/ban', body: {'note': note}, decode: (_) {});
 
   @override
+  Future<Result<void>> setReviewExempt(String userId, {required bool exempt, required String note}) => _api.put(
+        '/admin/users/$userId/security/review-exempt',
+        body: {'exempt': exempt, 'note': note},
+        decode: (_) {},
+      );
+
+  @override
   Future<Result<AdminUserSecurity>> user(String userId) =>
       _api.get('/admin/users/$userId/security', decode: (json) => AdminUserSecurity.fromJson((json! as Map).cast()));
 }

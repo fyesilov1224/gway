@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(23);
 
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-00000000ff01', 's1@test.local', 'authenticated', 'authenticated');
@@ -35,6 +35,12 @@ select is(pg_temp.role_for('00000000-0000-0000-0000-00000000ff51'), 'unverified'
 update public.user_security set location_checked_at = now(), state = 'restricted';
 select is(pg_temp.role_for('00000000-0000-0000-0000-00000000ff51'), 'unverified', 'kısıtlı hesap doğrulanmış sayılmaz');
 update public.user_security set state = 'ok';
+
+-- A store review account is verified without any step (docs/ARCHITECTURE.md §3h).
+update public.user_security set review_exempt = true, state = 'restricted', location_checked_at = null;
+select is(pg_temp.role_for('00000000-0000-0000-0000-00000000ff51'), 'authenticated', 'inceleme hesabı adımsız doğrulanmış sayılır');
+select is(pg_temp.role_for(''), 'unverified', 'inceleme hesabında da oturumsuz token doğrulanmış sayılmaz');
+update public.user_security set review_exempt = false, state = 'ok', location_checked_at = now();
 
 delete from auth.sessions where id = '00000000-0000-0000-0000-00000000ff51';
 select is((select count(*)::int from public.verified_sessions), 0, 'oturum silinince doğrulaması da silinir');

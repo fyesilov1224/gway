@@ -47,6 +47,7 @@ public sealed record UserSecurityView(
     string? AllowedCountry,
     DateTimeOffset? LocationCheckedAt,
     DateTimeOffset? ExemptUntil,
+    bool ReviewExempt,
     IReadOnlyList<LocationCheckView> Checks);
 
 public sealed record ReviewApprovalRequest(int? ExemptDays, string? Note);
@@ -54,6 +55,8 @@ public sealed record ReviewApprovalRequest(int? ExemptDays, string? Note);
 public sealed record ReviewBanRequest(string? Note);
 
 /// <summary>Only the switches that are sent change.</summary>
+public sealed record ReviewExemptRequest(bool Exempt, string? Note);
+
 public sealed record SecuritySettingsRequest(bool? Enforce, bool? DetectVpn, bool? WarnInstalledVpn, bool? DetectPhoneMismatch);
 
 /// <summary>Security verification for the admin panel (docs/ARCHITECTURE.md §3h). Callers check staff roles first.</summary>
@@ -71,4 +74,7 @@ public interface ISecurityAdministration
     Task<Result> BanAsync(Guid actorId, Guid reviewId, ReviewBanRequest body, CancellationToken ct);
 
     Task<Result<UserSecurityView>> GetUserAsync(Guid userId, CancellationToken ct);
+
+    /// <summary>Store review account: skips security verification (§3h). Admin only; the caller checks the role.</summary>
+    Task<Result> SetReviewExemptAsync(Guid actorId, Guid userId, ReviewExemptRequest body, CancellationToken ct);
 }

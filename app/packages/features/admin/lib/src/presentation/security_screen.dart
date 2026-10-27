@@ -358,11 +358,25 @@ class UserSecurityPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final security = ref.watch(userSecurityProvider(userId));
+    final admin = ref.watch(myStaffRoleProvider).value == StaffRole.admin;
     String date(DateTime? d) => d == null ? '—' : formatDateTimeTr(d);
     return switch (security) {
       AsyncData(:final value) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (value.reviewExempt) ...[
+              const DetailBanner(
+                tone: GxBadgeTone.warning,
+                icon: Icons.verified_outlined,
+                title: 'Mağaza inceleme hesabı',
+                body: 'Konum, telefon ve giriş doğrulaması istenmez; konum sinyalleri ban ya da kısıtlama üretmez.',
+              ),
+              const SizedBox(height: GxSpacing.md),
+            ],
+            if (admin) ...[
+              _ReviewExemptSwitch(userId: userId, exempt: value.reviewExempt),
+              const SizedBox(height: GxSpacing.md),
+            ],
             InfoPanel(title: 'Güvenlik', rows: [
               ('Durum', value.state == 'restricted' ? 'Kısıtlı (inceleme)' : 'Normal'),
               ('Telefon', value.phoneMasked == null ? 'Doğrulanmadı' : '${value.phoneMasked} (${value.phoneCountry})'),
@@ -397,6 +411,56 @@ class UserSecurityPanel extends ConsumerWidget {
       _ => const GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
     };
   }
+}
+
+/// Admin only: marks a store review account (docs/ARCHITECTURE.md §3h, İnceleme hesabı muafiyeti).
+class _ReviewExemptSwitch extends ConsumerStatefulWidget {
+  const _ReviewExemptSwitch({required this.userId, required this.exempt});
+
+  final String userId;
+  final bool exempt;
+
+  @override
+  ConsumerState<_ReviewExemptSwitch> createState() => _ReviewExemptSwitchState();
+}
+
+class _ReviewExemptSwitchState extends ConsumerState<_ReviewExemptSwitch> {
+  bool _saving = false;
+
+  Future<void> _toggle(bool exempt) async {
+    final request = await showSuspendDialog(
+      context,
+      title: exempt ? 'Mağaza inceleme hesabı yap' : 'İnceleme muafiyetini kaldır',
+      description: exempt
+          ? 'Bu hesap konum, telefon ve giriş doğrulamasından kalıcı olarak muaf olur. Yalnızca mağaza incelemesi için '
+              'açılmış, gerçek bir kişiye ait olmayan hesaplara ver. Gerekçe kayda geçer.'
+          : 'Hesap bir sonraki girişte yeniden güvenlik doğrulamasından geçer. Gerekçe kayda geçer.',
+      withDuration: false,
+      confirmLabel: exempt ? 'Muaf tut' : 'Kaldır',
+    );
+    if (request == null || !mounted) return;
+    setState(() => _saving = true);
+    final result = await ref
+        .read(adminSecurityRepositoryProvider)
+        .setReviewExempt(widget.userId, exempt: exempt, note: request.reason);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (result case Err(:final failure)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+    ref.invalidate(userSecurityProvider(widget.userId));
+  }
+
+  @override
+  Widget build(BuildContext context) => GxPanel(
+        child: SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: widget.exempt,
+          title: const Text('Mağaza inceleme hesabı'),
+          subtitle: const Text('Google Play inceleme ekibinin Türkiye konumu ve numarası olmadan girebilmesi için.'),
+          onChanged: _saving ? null : _toggle,
+        ),
+      );
 }
 
 class _CheckRow extends StatelessWidget {

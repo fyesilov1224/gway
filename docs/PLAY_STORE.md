@@ -44,9 +44,12 @@ Yüklenecek dosya: `build\app\outputs\bundle\release\app-release.aab`. Önce **K
 | Devlet / finans / sağlık uygulaması | Hayır |
 | Hesap silme | Uygulama içinden: **Evet** (Ayarlar → Hesabı sil). Web bağlantısı: `https://app.<alan adı>/#/hesap-silme` |
 
-**İnceleme hesabı:** Güvenlik doğrulaması açıkken inceleme ekibi (genellikle ABD'den) Türkiye konumu ve Türk numarası olmadan giremez. İnceleme sürecinde iki yol var:
-- Doğrulamayı panelden geçici olarak kapatmak.
-- İnceleme hesabı için kalıcı bir muafiyet eklemek (henüz yok; istenirse eklenir).
+**İnceleme hesabı:** Güvenlik doğrulaması açıkken inceleme ekibi (genellikle ABD'den) Türkiye konumu ve Türk numarası olmadan giremez. Bunun için kalıcı muafiyetli bir hesap kullanılır:
+1. Uygulamada e-postayla yeni bir hesap aç, örneğin `play-review@<alan adı>`, güçlü bir şifreyle. E-postayı doğrula.
+2. Yönetim panelinde *Kullanıcılar* → bu hesap → *Güvenlik* kartı → **Mağaza inceleme hesabı** anahtarını aç ve gerekçe yaz.
+3. Hesapla bir kez giriş yap: KVKK onayı, doğum tarihi (18+) ve profil adımlarını tamamla.
+4. Play Console → *Uygulama erişimi* bölümüne e-posta ve şifreyi gir. Not alanına şunu yaz: "Hesap giriş yapmaya hazırdır; ek doğrulama istenmez."
+5. Muafiyet yalnızca güvenlik doğrulamasını kapsar; hesap gerçek bir kişiye verilmez. İnceleme bitince şifreyi değiştirebilirsin; hesabı bir sonraki sürüm için saklamak da mümkün.
 
 ### Veri güvenliği formu
 Toplanan veriler (hepsi aktarım sırasında şifreli: **Evet**; kullanıcı silme isteyebilir: **Evet**; satılmaz; reklam için kullanılmaz):

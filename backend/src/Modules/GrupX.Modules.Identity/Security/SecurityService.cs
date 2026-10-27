@@ -125,7 +125,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         string? Phone,
         bool Totp,
         bool SessionVerified,
-        int Passkeys);
+        int Passkeys,
+        bool ReviewExempt);
 
     public async Task<SecurityStatus> GetStatusAsync(Guid userId, Guid? sessionId, CancellationToken ct)
     {
@@ -156,7 +157,7 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         await using var conn = await db.OpenConnectionAsync(ct);
         await using var tx = await conn.BeginTransactionAsync(ct);
 
-        var (state, exempt) = await LockUserSecurityAsync(conn, tx, userId, ct);
+        var (state, exempt, reviewExempt) = await LockUserSecurityAsync(conn, tx, userId, ct);
         var switches = await ReadSwitchesAsync(conn, tx, ct);
         var phoneCountry = await ScalarAsync<string>(conn, tx,
             "select country from public.phone_verifications where user_id = @u", ("u", userId), ct);
@@ -180,7 +181,9 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
 
         var all = hard.Concat(soft).Concat(warnings).ToArray();
         var staff = await IsStaffAsync(conn, tx, userId, ct);
-        var verdict = hard.Count > 0 && !staff ? "banned"
+        // A store review account is recorded but never sanctioned (emulators report mocked locations).
+        var verdict = reviewExempt ? "ok"
+            : hard.Count > 0 && !staff ? "banned"
             : hard.Count > 0 || (soft.Count > 0 && !exempt) ? "restricted"
             : "ok";
 
@@ -576,7 +579,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
 
     internal static SecurityStatus ToStatus(UserState s)
     {
-        var step = !s.Enforce ? SecuritySteps.Done
+        // A store review account skips every step (§3h, İnceleme hesabı muafiyeti).
+        var step = !s.Enforce || s.ReviewExempt ? SecuritySteps.Done
             : s.State == "restricted" ? SecuritySteps.Restricted
             : !s.LocationFresh ? SecuritySteps.Location
             : s.Phone is null ? SecuritySteps.Phone
@@ -606,7 +610,8 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
                    pv.phone,
                    tf.confirmed_at is not null,
                    private.is_session_verified(@u, @s),
-                   (select count(*)::int from public.passkeys k where k.user_id = @u)
+                   (select count(*)::int from public.passkeys k where k.user_id = @u),
+                   coalesce(us.review_exempt, false)
             from public.security_settings s
             left join public.user_security us on us.user_id = @u
             left join public.phone_verifications pv on pv.user_id = @u
@@ -618,20 +623,22 @@ internal sealed class SecurityService(NpgsqlDataSource db, ISmsVerifier sms, Cou
         await r.ReadAsync(ct);
         return new UserState(
             r.GetBoolean(0), r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2), r.GetBoolean(3),
-            r.IsDBNull(4) ? null : r.GetString(4), r.GetBoolean(5), r.GetBoolean(6), r.GetInt32(7));
+            r.IsDBNull(4) ? null : r.GetString(4), r.GetBoolean(5), r.GetBoolean(6), r.GetInt32(7), r.GetBoolean(8));
     }
 
-    /// <summary>Creates the row on first use and locks it; returns the state and whether an exemption is running.</summary>
-    private static async Task<(string State, bool Exempt)> LockUserSecurityAsync(
+    /// <summary>Creates the row on first use and locks it; returns the state, whether a review exemption from uncertain
+    /// signals is running, and whether this is a store review account.</summary>
+    private static async Task<(string State, bool Exempt, bool ReviewExempt)> LockUserSecurityAsync(
         NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, CancellationToken ct)
     {
         await ExecuteAsync(conn, tx, "insert into public.user_security (user_id) values (@u) on conflict do nothing", ct, ("u", userId));
         await using var cmd = new NpgsqlCommand(
-            "select state, coalesce(exempt_until > now(), false) from public.user_security where user_id = @u for update", conn, tx);
+            "select state, coalesce(exempt_until > now(), false), review_exempt from public.user_security where user_id = @u for update",
+            conn, tx);
         cmd.Parameters.AddWithValue("u", userId);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         await r.ReadAsync(ct);
-        return (r.GetString(0), r.GetBoolean(1));
+        return (r.GetString(0), r.GetBoolean(1), r.GetBoolean(2));
     }
 
     /// <summary>Platform staff are never banned automatically (§3h); reads the admin module's table, read only.</summary>

@@ -158,7 +158,8 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
             """
             select coalesce(us.state, 'ok'), pv.phone, pv.country, pv.verified_at, tf.confirmed_at is not null,
                    us.allowed_country, us.location_checked_at, us.exempt_until,
-                   (select count(*)::int from public.passkeys k where k.user_id = u.id)
+                   (select count(*)::int from public.passkeys k where k.user_id = u.id),
+                   coalesce(us.review_exempt, false)
             from auth.users u
             left join public.user_security us on us.user_id = u.id
             left join public.phone_verifications pv on pv.user_id = u.id
@@ -172,7 +173,8 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
             view = new UserSecurityView(
                 r.GetString(0), r.IsDBNull(1) ? null : PhoneRules.Mask(r.GetString(1)), r.IsDBNull(2) ? null : r.GetString(2),
                 r.IsDBNull(3) ? null : r.GetFieldValue<DateTimeOffset>(3), r.GetBoolean(4), r.GetInt32(8), r.IsDBNull(5) ? null : r.GetString(5),
-                r.IsDBNull(6) ? null : r.GetFieldValue<DateTimeOffset>(6), r.IsDBNull(7) ? null : r.GetFieldValue<DateTimeOffset>(7), []);
+                r.IsDBNull(6) ? null : r.GetFieldValue<DateTimeOffset>(6), r.IsDBNull(7) ? null : r.GetFieldValue<DateTimeOffset>(7),
+                r.GetBoolean(9), []);
         }
 
         var checks = new List<LocationCheckView>();
@@ -184,6 +186,28 @@ internal sealed class SecurityAdministration(NpgsqlDataSource db, ISmsVerifier s
             while (await r.ReadAsync(ct)) checks.Add(ReadCheck(r, 0));
         }
         return view with { Checks = checks };
+    }
+
+    public async Task<Result> SetReviewExemptAsync(Guid actorId, Guid userId, ReviewExemptRequest body, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        var note = body.Note?.Trim() ?? "";
+        if (note.Length is < 3 or > 500)
+            return Error.Validation("security.review_exempt_note", "Gerekçe 3–500 karakter olmalı.");
+
+        await using var conn = await db.OpenConnectionAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(ct);
+        if (await SecurityService.ScalarAsync<Guid?>(conn, tx, "select id from auth.users where id = @u", ("u", userId), ct) is null)
+            return Error.NotFound("account.not_found", "Hesap bulunamadı.");
+        await SecurityService.ExecuteAsync(conn, tx,
+            """
+            insert into public.user_security (user_id, review_exempt) values (@u, @e)
+            on conflict (user_id) do update set review_exempt = excluded.review_exempt, updated_at = now()
+            """, ct, ("u", userId), ("e", body.Exempt));
+        await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "security.review_exempt_changed", "user",
+            userId.ToString(), new { exempt = body.Exempt, note }), ct);
+        await tx.CommitAsync(ct);
+        return Result.Success();
     }
 
     private static async Task<Result<Guid>> LockOpenReviewAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid reviewId, CancellationToken ct)

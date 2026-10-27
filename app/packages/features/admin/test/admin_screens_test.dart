@@ -803,6 +803,7 @@ void main() {
       expect(find.text('Paket tanımla'), findsOneWidget);
       expect(find.text('İptal et'), findsOneWidget);
       expect(find.textContaining('iade edildi'), findsOneWidget);
+      expect(find.text('Mağaza inceleme hesabı'), findsOneWidget);
     });
   }
 
@@ -812,6 +813,8 @@ void main() {
     expect(find.text('Eşleşme Sohbeti'), findsOneWidget);
     expect(find.text('Paket tanımla'), findsNothing);
     expect(find.text('İptal et'), findsNothing);
+    // The store review exemption is for platform admins only.
+    expect(find.text('Mağaza inceleme hesabı'), findsNothing);
   });
 
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {

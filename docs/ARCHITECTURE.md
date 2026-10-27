@@ -1102,6 +1102,16 @@ Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kap
 - SMS sınırları (`sms_sends`): kullanıcı başına saatte 5, günde 10; numara başına saatte 5. Doğrulama denemesini Twilio Verify sınırlar (kod başına 5). Uçlarda `Sensitive` rate limit vardır.
 - TOTP: RFC 6238, SHA-1, 30 sn, 6 hane, ±1 adım. Gizli anahtar `totp_factors`'tadır (yalnızca service role). Aynı adım iki kez kullanılamaz.
 
+### İnceleme hesabı muafiyeti (Faz 17a, kullanıcı kararı 2026-10-27)
+- Mağaza inceleme ekipleri (Google Play) Türkiye konumu ve Türk numarası olmadan giriş yapamaz. Bu yüzden belirli hesaplar **kalıcı olarak** güvenlik doğrulamasından muaf tutulabilir: `user_security.review_exempt`.
+- Muaf hesap için:
+  - konum, telefon ve ikinci adım istenmez,
+  - oturum doğrulanmış sayılır (`private.is_session_verified` ve token hook),
+  - konum kontrolü gelirse kaydedilir, ama ban ya da kısıtlama üretmez (emülatörler sahte konum bildirir).
+- Muafiyet yalnızca bu üçünü kapsar. Askıya alma, 18+ sınırı, KVKK onayları ve diğer kurallar aynen geçerlidir.
+- Yalnızca platform yöneticisi (`admin`) açıp kapatır: `PUT /admin/users/{id}/security/review-exempt` (`exempt`, `note` zorunlu). İşlem `audit_log`'a yazılır (`security.review_exempt_changed`). Panelin kullanıcı sayfasında muaf hesap açıkça işaretlidir.
+- Kural: muafiyet yalnızca inceleme için açılmış, gerçek kişiye ait olmayan hesaba verilir. Şifresi yalnızca mağaza konsoluna girilir.
+
 ### Parmak izi (passkey) ve Authenticator önerisi (15.8d, kullanıcı kararı 2026-10-27)
 - **Passkey (WebAuthn)**, ikinci adım yöntemlerinden biridir:
   - Kullanıcı cihazın parmak izi, yüz tanıma ya da ekran kilidiyle (`userVerification: required`) imza atar; sunucu imzayı doğrular.
@@ -1143,7 +1153,8 @@ Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kap
 | `GET /admin/security/reviews?status=` | İnceleme listesi (sinyal özeti). Rol: `admin`, `moderator` |
 | `POST /admin/security/reviews/{id}/approval` | `exemptDays?` (0–90), `note`. Rol: `admin`, `moderator` |
 | `POST /admin/security/reviews/{id}/ban` | `note`. Rol: `admin`, `moderator` |
-| `GET /admin/users/{id}/security` | Kullanıcının durumu, numara maskesi, son kontroller. Rol: `admin`, `moderator`, `support` |
+| `GET /admin/users/{id}/security` | Kullanıcının durumu, numara maskesi, son kontroller, inceleme muafiyeti. Rol: `admin`, `moderator`, `support` |
+| `PUT /admin/users/{id}/security/review-exempt` | `exempt`, `note`: inceleme hesabı muafiyeti. Rol: `admin` |
 
 ## 4. Flutter
 

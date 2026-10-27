@@ -352,7 +352,7 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] `docs/PLAY_STORE.md`: veri güvenliği, içerik derecelendirmesi, izin beyanları, mağaza metinleri, kapalı test ve Google girişi adımları
 - [x] Testler (pgTAP 832, Flutter 17 paket); `flutter analyze` temiz
 - [ ] Kullanıcıda: Play geliştirici hesabı, alan adı ve sunucu, Twilio, hukuk incelemesi ve yeni aydınlatma metni, OAuth onay ekranını yayına alma, mağaza görselleri, kapalı test (12 kişi, 14 gün)
-- [ ] İnceleme hesabı muafiyeti (güvenlik doğrulaması açıkken Play inceleme ekibinin girebilmesi): istenirse
+- [x] İnceleme hesabı muafiyeti (`user_security.review_exempt`, migration `0044`, yalnızca admin, gerekçeli ve kayıtlı; panelde kullanıcı sayfasında anahtar; pgTAP, C# ve Flutter testleri; kullanıcı kararı 2026-10-27)
 
 - Karanlık tema
 - Performans
