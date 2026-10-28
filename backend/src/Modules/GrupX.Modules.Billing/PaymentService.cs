@@ -28,7 +28,12 @@ internal sealed class PaymentService(NpgsqlDataSource db, PaytrClient paytr, Iyz
     public async Task<bool> HandlePaytrAsync(IFormCollection form, CancellationToken ct)
     {
         string F(string key) => form[key].ToString();
-        if (!paytr.Verify(F("merchant_oid"), F("status"), F("total_amount"), F("hash"))) return false;
+        if (!paytr.Verify(F("merchant_oid"), F("status"), F("total_amount"), F("hash")))
+        {
+            // Most often a wrong merchant key or salt (docs/PAYMENTS.md, Sorun giderme).
+            log.LogWarning("PayTR notification for {MerchantOid} has a wrong hash; check Billing:Paytr:MerchantKey and MerchantSalt", F("merchant_oid"));
+            return false;
+        }
 
         if (!Guid.TryParseExact(F("merchant_oid"), "N", out var orderId))
         {

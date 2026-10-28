@@ -65,7 +65,7 @@ class BillingRepositoryImpl implements BillingRepository {
             if (r['ends_at'] != r['starts_at'])
               PlanSlice(
                 planSlug: r['plan_slug'] as String,
-                period: PlanPeriod.parse(r['period']),
+                period: r['period'] == null ? null : PlanPeriod.parse(r['period']),
                 startsAt: DateTime.parse(r['starts_at'] as String),
                 endsAt: DateTime.parse(r['ends_at'] as String),
               ),

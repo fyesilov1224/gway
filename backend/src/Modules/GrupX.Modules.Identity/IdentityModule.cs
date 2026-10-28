@@ -22,6 +22,7 @@ public static class IdentityModule
     {
         services.AddSingleton<AccountService>();
         services.AddSingleton<IAccountAdministration>(sp => sp.GetRequiredService<AccountService>());
+        services.AddSingleton<IAccountSanctions>(sp => sp.GetRequiredService<AccountService>());
         services.AddSingleton<AccountPurger>();
         services.AddHostedService<AccountPurgeService>();
 

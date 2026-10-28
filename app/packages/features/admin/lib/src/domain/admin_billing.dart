@@ -152,16 +152,19 @@ class AdminSubscription {
     required this.groupName,
     required this.groupHandle,
     required this.planName,
-    required this.period,
     required this.startsAt,
     required this.endsAt,
-    required this.orderId,
-    required this.orderStatus,
-    required this.provider,
-    required this.currency,
-    required this.amountMinor,
+    this.period,
+    this.orderId,
+    this.orderStatus,
+    this.provider,
+    this.currency,
+    this.amountMinor,
     this.canceledAt,
     this.cancelReason,
+    this.grantReason,
+    this.grantedByUsername,
+    this.cancelNote,
   });
 
   factory AdminSubscription.fromJson(Map<String, Object?> j) => AdminSubscription(
@@ -170,16 +173,19 @@ class AdminSubscription {
         groupName: j['groupName']! as String,
         groupHandle: j['groupHandle']! as String,
         planName: j['planName']! as String,
-        period: j['period']! as String,
+        period: j['period'] as String?,
         startsAt: DateTime.parse(j['startsAt']! as String),
         endsAt: DateTime.parse(j['endsAt']! as String),
         canceledAt: j['canceledAt'] is String ? DateTime.parse(j['canceledAt']! as String) : null,
         cancelReason: j['cancelReason'] as String?,
-        orderId: j['orderId']! as String,
-        orderStatus: AdminOrderStatus.parse(j['orderStatus']),
-        provider: j['provider']! as String,
-        currency: j['currency']! as String,
-        amountMinor: j['amountMinor']! as int,
+        orderId: j['orderId'] as String?,
+        orderStatus: j['orderStatus'] == null ? null : AdminOrderStatus.parse(j['orderStatus']),
+        provider: j['provider'] as String?,
+        currency: j['currency'] as String?,
+        amountMinor: j['amountMinor'] as int?,
+        grantReason: j['grantReason'] as String?,
+        grantedByUsername: j['grantedByUsername'] as String?,
+        cancelNote: j['cancelNote'] as String?,
       );
 
   final String id;
@@ -187,18 +193,31 @@ class AdminSubscription {
   final String groupName;
   final String groupHandle;
   final String planName;
-  final String period;
+
+  /// `month` or `year`; null when a platform admin gave the slice.
+  final String? period;
   final DateTime startsAt;
   final DateTime endsAt;
   final DateTime? canceledAt;
 
   /// `upgraded` or `admin`.
   final String? cancelReason;
-  final String orderId;
-  final AdminOrderStatus orderStatus;
-  final String provider;
-  final String currency;
-  final int amountMinor;
+
+  /// The order fields are null for a slice a platform admin gave.
+  final String? orderId;
+  final AdminOrderStatus? orderStatus;
+  final String? provider;
+  final String? currency;
+  final int? amountMinor;
+
+  /// Why a platform admin gave the slice, and who.
+  final String? grantReason;
+  final String? grantedByUsername;
+
+  /// Why a platform admin cancelled it.
+  final String? cancelNote;
+
+  bool get isGrant => orderId == null;
 
   bool isCurrent(DateTime now) => !startsAt.isAfter(now) && endsAt.isAfter(now);
 
@@ -300,6 +319,55 @@ typedef OrderPage = PagedList<AdminOrder>;
 
 typedef SubscriptionPage = PagedList<AdminSubscription>;
 
+/// An address to enter in a provider's merchant panel.
+class ProviderAddress {
+  const ProviderAddress({required this.label, required this.url});
+
+  factory ProviderAddress.fromJson(Map<String, Object?> j) => ProviderAddress(label: j['label']! as String, url: j['url']! as String);
+
+  final String label;
+  final String url;
+}
+
+/// A payment provider's setup (docs/PAYMENTS.md); the API never sends a key.
+class PaymentProviderStatus {
+  const PaymentProviderStatus({
+    required this.provider,
+    required this.market,
+    required this.configured,
+    required this.testMode,
+    this.addresses = const [],
+    this.warnings = const [],
+  });
+
+  factory PaymentProviderStatus.fromJson(Map<String, Object?> j) => PaymentProviderStatus(
+        provider: j['provider']! as String,
+        market: j['market']! as String,
+        configured: j['configured']! as bool,
+        testMode: j['testMode']! as bool,
+        addresses: [for (final a in (j['addresses']! as List).cast<Map<String, Object?>>()) ProviderAddress.fromJson(a)],
+        warnings: (j['warnings']! as List).cast<String>(),
+      );
+
+  /// `paytr` or `iyzico`.
+  final String provider;
+  final String market;
+  final bool configured;
+  final bool testMode;
+  final List<ProviderAddress> addresses;
+  final List<String> warnings;
+}
+
+/// What a provider answered to the configured keys.
+class ProviderCheck {
+  const ProviderCheck({required this.connected, required this.message});
+
+  factory ProviderCheck.fromJson(Map<String, Object?> j) => ProviderCheck(connected: j['connected']! as bool, message: j['message']! as String);
+
+  final bool connected;
+  final String message;
+}
+
 abstract interface class AdminBillingRepository {
   Future<Result<AdminBillingStats>> stats();
 
@@ -312,4 +380,15 @@ abstract interface class AdminBillingRepository {
   Future<Result<void>> updatePlan(String slug, AdminPlanUpdate update);
 
   Future<Result<void>> cancelSubscription(String id, {required String reason, required bool refunded});
+
+  /// Gives the group [slug] for [days] by the timeline rules (docs/ARCHITECTURE.md §7, Yönetici işlemleri).
+  Future<Result<void>> grantGroupPlan(String groupId, {required String slug, required int days, required String reason});
+
+  /// Ends the group's running and upcoming time; the group is on the free plan.
+  Future<Result<void>> cancelGroupPlan(String groupId, {required String reason, required bool refunded});
+
+  Future<Result<List<PaymentProviderStatus>>> providers();
+
+  /// Asks the provider whether the configured keys work.
+  Future<Result<ProviderCheck>> checkProvider(String provider);
 }

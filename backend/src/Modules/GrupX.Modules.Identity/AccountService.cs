@@ -5,7 +5,7 @@ using Npgsql;
 
 namespace GrupX.Modules.Identity;
 
-internal sealed class AccountService(NpgsqlDataSource db) : IAccountAdministration
+internal sealed class AccountService(NpgsqlDataSource db) : IAccountAdministration, IAccountSanctions
 {
     public const int DeletionGraceDays = 30;
     public const int MaxReasonLength = 500;
@@ -129,6 +129,25 @@ internal sealed class AccountService(NpgsqlDataSource db) : IAccountAdministrati
             new AuditEntry(actorId, AuditActor.Staff, "user.unsuspended", "user", userId.ToString()), ct);
         await tx.CommitAsync(ct);
         return state;
+    }
+
+    async Task<bool> IAccountSanctions.SuspendAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, string reason, DateTimeOffset? until, CancellationToken ct)
+    {
+        // A deleted account has nothing to suspend; one being deleted keeps its schedule (the case's evidence is kept elsewhere).
+        if (await LockAsync(conn, tx, userId, ct) is not { Status: not AccountStatuses.PendingDeletion }) return false;
+        await ApplySuspensionAsync(conn, tx, userId, reason, until, ct);
+        return true;
+    }
+
+    async Task<bool> IAccountSanctions.UnsuspendAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, CancellationToken ct)
+    {
+        if (await LockAsync(conn, tx, userId, ct) is not { Status: AccountStatuses.Suspended }) return false;
+        await UpdateAsync(conn, tx, userId, "status = 'active', suspended_until = null, suspension_reason = null", ct);
+        await using var cmd = new NpgsqlCommand("update auth.users set banned_until = null where id = @id", conn, tx);
+        cmd.Parameters.AddWithValue("id", userId);
+        await cmd.ExecuteNonQueryAsync(ct);
+        return true;
     }
 
     private static bool IsSuspensionInEffect(AccountState s) =>

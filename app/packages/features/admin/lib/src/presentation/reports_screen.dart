@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/admin_moderation.dart';
+import '../domain/admin_user.dart';
 import 'admin_shell.dart';
 import 'matching_screen.dart';
 import 'providers.dart';
@@ -12,9 +13,10 @@ import 'routes.dart';
 import 'suspend_dialog.dart';
 import 'widgets.dart';
 
-enum _View { reports, appeals }
+enum _View { reports, appeals, referrals }
 
-/// Reports across the platform and the appeals the platform decides (docs/ARCHITECTURE.md §3e, Admin).
+/// Reports across the platform, the appeals the platform decides and the illegal-activity referrals of the group
+/// boards (docs/ARCHITECTURE.md §3e, Admin and Yasa dışı faaliyet).
 class AdminReportsScreen extends ConsumerStatefulWidget {
   const AdminReportsScreen({super.key});
 
@@ -27,6 +29,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   AdminReportScope? _scope;
   AdminReportStatus? _status = AdminReportStatus.open;
   AdminAppealStatus? _appealStatus = AdminAppealStatus.pending;
+  AdminReferralStatus? _referralStatus = AdminReferralStatus.pending;
   int _page = 1;
 
   void _done(Result<void> result, String message) {
@@ -37,10 +40,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         Err(:final failure) => failure.userMessage,
       }),
     ));
-    ref
-      ..invalidate(adminReportSearchProvider)
-      ..invalidate(adminAppealSearchProvider);
+    _refresh();
   }
+
+  void _refresh() => ref
+    ..invalidate(adminReportSearchProvider)
+    ..invalidate(adminAppealSearchProvider)
+    ..invalidate(adminReferralSearchProvider);
 
   Future<void> _review(AdminReport r, {required bool actioned}) async {
     final result = await ref.read(adminModerationRepositoryProvider).review(r.id, actioned: actioned);
@@ -60,6 +66,30 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     _done(result, overturn ? 'Yaptırım kaldırıldı.' : 'İtiraz reddedildi; yaptırım sürüyor.');
   }
 
+  Future<void> _decideReferral(AdminReferral r) async {
+    final outcome = await showDialog<AdminReferralOutcome>(context: context, builder: (_) => _ReferralDecisionDialog(referral: r));
+    if (outcome == null || !mounted) return;
+    _done(
+      const Ok(null),
+      outcome.banned
+          ? 'Hesap kapatıldı. ${outcome.canceledPlans} paket dilimi iadesiz iptal edildi, ${outcome.suspendedGroups} grup askıya alındı.'
+          : 'Kişi temize çıktı; hesap askısı kalktı.',
+    );
+  }
+
+  Future<void> _authoritiesNotified(AdminReferral r) async {
+    final request = await showSuspendDialog(
+      context,
+      title: 'Kolluğa bildirildi',
+      description: 'Başvurduğun yeri ve evrak numarasını yaz. Not kayda geçer ve sonradan değişmez.',
+      withDuration: false,
+      confirmLabel: 'Kaydet',
+    );
+    if (request == null || !mounted) return;
+    final result = await ref.read(adminModerationRepositoryProvider).markAuthoritiesNotified(r.id, note: request.reason);
+    _done(result, 'Kolluk bildirimi kaydedildi.');
+  }
+
   Widget _chips<T>(List<(T, String)> options, T? selected, ValueChanged<T?> onChanged, {String allLabel = 'Tümü'}) => Wrap(
         spacing: GxSpacing.xs,
         runSpacing: GxSpacing.xs,
@@ -72,19 +102,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final canAct = ref.watch(myStaffRoleProvider).value?.canSuspend ?? false;
+    final role = ref.watch(myStaffRoleProvider).value;
+    final canAct = role?.canSuspend ?? false;
     return AdminPage(
       title: 'Şikayetler',
-      subtitle: 'Platform genelindeki şikayetler ve sahibin taraf olduğu dosyaların itirazları.',
+      subtitle: 'Platform genelindeki şikayetler, sahibin taraf olduğu dosyaların itirazları ve yasa dışı faaliyet bildirimleri.',
       actions: [
-        GxButton(
-          label: 'Yenile',
-          icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
-          onPressed: () => ref
-            ..invalidate(adminReportSearchProvider)
-            ..invalidate(adminAppealSearchProvider),
-        ),
+        GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: _refresh),
       ],
       children: [
         GxPanel(
@@ -101,6 +125,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                       segments: const [
                         ButtonSegment(value: _View.reports, label: Text('Şikayetler'), icon: Icon(Icons.flag_outlined)),
                         ButtonSegment(value: _View.appeals, label: Text('İtirazlar'), icon: Icon(Icons.record_voice_over_outlined)),
+                        ButtonSegment(value: _View.referrals, label: Text('Yasa dışı'), icon: Icon(Icons.policy_outlined)),
                       ],
                       selected: {_view},
                       onSelectionChanged: (v) => setState(() {
@@ -119,9 +144,14 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                             _scope = s;
                             _page = 1;
                           }), allLabel: 'Her kapsam'),
-                    ] else
+                    ] else if (_view == _View.appeals)
                       _chips([for (final s in AdminAppealStatus.values) (s, s.label)], _appealStatus, (s) => setState(() {
                             _appealStatus = s;
+                            _page = 1;
+                          }))
+                    else
+                      _chips([for (final s in AdminReferralStatus.values) (s, s.label)], _referralStatus, (s) => setState(() {
+                            _referralStatus = s;
                             _page = 1;
                           })),
                   ],
@@ -135,12 +165,21 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   onPage: (p) => setState(() => _page = p),
                   onReview: _review,
                 )
-              else
+              else if (_view == _View.appeals)
                 _AppealList(
                   search: (status: _appealStatus, page: _page),
                   canAct: canAct,
                   onPage: (p) => setState(() => _page = p),
                   onDecide: _decide,
+                )
+              else
+                _ReferralList(
+                  search: (status: _referralStatus, page: _page),
+                  // Only a platform admin decides: a ban cancels paid plans without refund.
+                  canDecide: role == StaffRole.admin,
+                  onPage: (p) => setState(() => _page = p),
+                  onDecide: _decideReferral,
+                  onAuthoritiesNotified: _authoritiesNotified,
                 ),
             ],
           ),
@@ -505,5 +544,278 @@ class _AppealList extends ConsumerWidget {
         ),
       _ => _loading(),
     };
+  }
+}
+
+class _ReferralList extends ConsumerWidget {
+  const _ReferralList({
+    required this.search,
+    required this.canDecide,
+    required this.onPage,
+    required this.onDecide,
+    required this.onAuthoritiesNotified,
+  });
+
+  final AdminReferralSearch search;
+  final bool canDecide;
+  final ValueChanged<int> onPage;
+  final Future<void> Function(AdminReferral referral) onDecide;
+  final Future<void> Function(AdminReferral referral) onAuthoritiesNotified;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => switch (ref.watch(adminReferralSearchProvider(search))) {
+        AsyncData(:final value) when value.items.isEmpty => Padding(
+            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+            child: GxEmptyState(
+              icon: Icons.policy_outlined,
+              message: 'Bu filtrede bildirim yok. Kurulun onayladığı yasa dışı faaliyet dosyaları buraya düşer.',
+              actionLabel: 'Yenile',
+              onAction: () => ref.invalidate(adminReferralSearchProvider(search)),
+            ),
+          ),
+        AsyncData(:final value) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final r in value.items) ...[
+                _ReferralRow(referral: r, canDecide: canDecide, onDecide: onDecide, onAuthoritiesNotified: onAuthoritiesNotified),
+                const Divider(),
+              ],
+              PageFooter(
+                from: value.range.$1,
+                to: value.range.$2,
+                total: value.total,
+                noun: 'bildirim',
+                page: value.page,
+                pageCount: value.pageCount,
+                onPage: onPage,
+              ),
+            ],
+          ),
+        AsyncError(:final error) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+            child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminReferralSearchProvider(search))),
+          ),
+        _ => _loading(),
+      };
+}
+
+class _ReferralRow extends StatelessWidget {
+  const _ReferralRow({required this.referral, required this.canDecide, required this.onDecide, required this.onAuthoritiesNotified});
+
+  final AdminReferral referral;
+  final bool canDecide;
+  final Future<void> Function(AdminReferral referral) onDecide;
+  final Future<void> Function(AdminReferral referral) onAuthoritiesNotified;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = referral;
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final decision = switch (r.status) {
+      AdminReferralStatus.pending => null,
+      AdminReferralStatus.banned => r.banUntil == null ? 'Kalıcı ban' : 'Ban, ${formatDateTimeTr(r.banUntil!)} tarihine kadar',
+      AdminReferralStatus.cleared => 'Temize çıktı',
+    };
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: GxSpacing.xs,
+            runSpacing: GxSpacing.xs,
+            children: [
+              GxBadge(r.categoryLabel, tone: GxBadgeTone.danger),
+              GxBadge(r.status.label, tone: r.status == AdminReferralStatus.pending ? GxBadgeTone.warning : GxBadgeTone.neutral),
+              if (r.lawEnforcement != LawEnforcementState.none)
+                GxBadge(r.lawEnforcement.label, tone: r.lawEnforcement == LawEnforcementState.toNotify ? GxBadgeTone.warning : GxBadgeTone.info),
+            ],
+          ),
+          const SizedBox(height: GxSpacing.xs),
+          Text('@${r.subjectUsername ?? 'silinmiş hesap'} · ${r.groupName}', style: textTheme.labelLarge),
+          Text('Kurulun gerekçesi: ${r.reason}', style: textTheme.bodyLarge),
+          if (r.evidence.isNotEmpty) ...[
+            const SizedBox(height: GxSpacing.xs),
+            Text('Kanıt (${r.evidence.length})', style: textTheme.labelMedium),
+            for (final e in r.evidence)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: GxSpacing.xxs),
+                padding: const EdgeInsets.all(GxSpacing.sm),
+                decoration: const BoxDecoration(
+                  color: GxColors.surface,
+                  borderRadius: GxRadius.mdAll,
+                  border: Border.fromBorderSide(GxBorders.hairline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      [e.targetLabel, if (e.reportedAt != null) formatDateTimeTr(e.reportedAt!)].join(' · '),
+                      style: textTheme.labelSmall?.copyWith(color: GxColors.textSecondary),
+                    ),
+                    if (e.excerpt.isNotEmpty) SelectableText(e.excerpt, style: textTheme.bodyMedium),
+                    if (e.note case final note?) Text('“$note”', style: secondary?.copyWith(fontStyle: FontStyle.italic)),
+                  ],
+                ),
+              ),
+          ],
+          const SizedBox(height: GxSpacing.xxs),
+          if (decision != null) Text('Karar: $decision${r.decisionNote == null ? '' : ' · ${r.decisionNote}'}', style: secondary),
+          if (r.authoritiesNote case final note?)
+            Text('Kolluk: $note${r.authoritiesNotifiedAt == null ? '' : ' · ${formatDateTimeTr(r.authoritiesNotifiedAt!)}'}', style: secondary),
+          Text(formatDateTimeTr(r.createdAt), style: secondary),
+          const SizedBox(height: GxSpacing.xs),
+          Wrap(
+            spacing: GxSpacing.xs,
+            runSpacing: GxSpacing.xs,
+            children: [
+              GxButton(
+                label: 'Kullanıcı',
+                icon: Icons.open_in_new,
+                variant: GxButtonVariant.text,
+                onPressed: () => context.go(AdminRoutes.user(r.subjectId)),
+              ),
+              if (r.groupId case final group?)
+                GxButton(label: 'Grup', icon: Icons.open_in_new, variant: GxButtonVariant.text, onPressed: () => context.go(AdminRoutes.group(group))),
+              if (canDecide && r.status == AdminReferralStatus.pending)
+                GxButton(label: 'Karar ver', icon: Icons.gavel_outlined, onPressed: () => onDecide(r)),
+              if (canDecide && r.lawEnforcement == LawEnforcementState.toNotify)
+                GxButton(
+                  label: 'Kolluğa bildirildi',
+                  icon: Icons.local_police_outlined,
+                  variant: GxButtonVariant.secondary,
+                  onPressed: () => onAuthoritiesNotified(r),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Ban (for a while or for good) or clear; a ban ends the person's paid plans without refund and suspends their groups.
+class _ReferralDecisionDialog extends ConsumerStatefulWidget {
+  const _ReferralDecisionDialog({required this.referral});
+
+  final AdminReferral referral;
+
+  @override
+  ConsumerState<_ReferralDecisionDialog> createState() => _ReferralDecisionDialogState();
+}
+
+class _ReferralDecisionDialogState extends ConsumerState<_ReferralDecisionDialog> {
+  static const _durations = <int?>[30, 90, 365, 1825, null];
+
+  final _note = TextEditingController();
+  bool _ban = true;
+  int? _days;
+  bool _lawEnforcement = false;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_note.text.trim().length < 3) {
+      setState(() => _error = 'Karar notu en az 3 karakter olmalı.');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final result = await ref.read(adminModerationRepositoryProvider).decideReferral(
+          widget.referral.id,
+          ban: _ban,
+          banDays: _ban ? _days : null,
+          lawEnforcement: _lawEnforcement,
+          note: _note.text.trim(),
+        );
+    if (!mounted) return;
+    switch (result) {
+      case Ok(:final value):
+        Navigator.of(context).pop(value);
+      case Err(:final failure):
+        setState(() {
+          _busy = false;
+          _error = failure.userMessage;
+        });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodySmall?.copyWith(color: GxColors.textSecondary);
+    return AlertDialog(
+      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      title: Text('@${widget.referral.subjectUsername ?? 'silinmiş hesap'} hakkında karar'),
+      content: SizedBox(
+        width: GxLayout.formMaxWidth,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: true, label: Text('Banla'), icon: Icon(Icons.block)),
+                  ButtonSegment(value: false, label: Text('Temize çıkar'), icon: Icon(Icons.verified_outlined)),
+                ],
+                selected: {_ban},
+                onSelectionChanged: (v) => setState(() => _ban = v.single),
+              ),
+              const SizedBox(height: GxSpacing.sm),
+              if (_ban) ...[
+                Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final d in _durations)
+                      ChoiceChip(
+                        label: Text(d == null ? 'Kalıcı' : '$d gün'),
+                        selected: _days == d,
+                        onSelected: (_) => setState(() => _days = d),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: GxSpacing.xs),
+                Text(
+                  'Hesap bu süreyle kapanır. Kişisel paketleri iadesiz iptal edilir; sahibi olduğu gruplar askıya alınır ve paketleri iadesiz iptal edilir.',
+                  style: secondary,
+                ),
+              ] else
+                Text('Hesap askısı kalkar. Grup banı kurulun kararıdır, sürer; kişi itiraz edebilir.', style: secondary),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _lawEnforcement,
+                onChanged: (v) => setState(() => _lawEnforcement = v),
+                title: const Text('Kolluğa bildirilecek'),
+                subtitle: const Text('Bildirimi yaptıktan sonra "Kolluğa bildirildi" ile kaydedersin.'),
+              ),
+              TextField(
+                controller: _note,
+                maxLength: 1000,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Karar notu', hintText: 'Kararın gerekçesi; kayda geçer.'),
+              ),
+              if (_error != null) GxFormMessage(_error!),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        GxButton(label: _ban ? 'Banla' : 'Temize çıkar', isLoading: _busy, onPressed: _submit),
+      ],
+    );
   }
 }

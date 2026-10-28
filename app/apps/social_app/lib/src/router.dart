@@ -147,7 +147,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomePage()),
           GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
-          GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_mapButton])),
+          GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_mapButton], packages: groupPackagesRow)),
           GoRoute(path: NotificationRoutes.list, builder: (_, _) => NotificationsScreen(links: notificationLinks)),
           GoRoute(
             path: '/p/:id',

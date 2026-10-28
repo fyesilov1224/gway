@@ -188,8 +188,144 @@ class AdminAppeal {
   String get sanctionLabel => sanctionLabels[sanctionType] ?? sanctionType;
 }
 
+/// Illegal-activity kinds a board may mark a ban case with (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet).
+const illegalCategoryLabels = {
+  'violence': 'Şiddet',
+  'threat': 'Tehdit',
+  'insult': 'Hakaret',
+  'hate': 'Nefret söylemi',
+  'sexual': 'Cinsel istismar',
+  'fraud': 'Dolandırıcılık',
+  'drugs': 'Uyuşturucu',
+  'terror': 'Terör',
+  'other_crime': 'Başka bir suç',
+};
+
+enum AdminReferralStatus {
+  pending('pending', 'Karar bekliyor'),
+  banned('banned', 'Banlandı'),
+  cleared('cleared', 'Temize çıktı');
+
+  const AdminReferralStatus(this.code, this.label);
+
+  final String code;
+  final String label;
+
+  static AdminReferralStatus parse(Object? code) => values.firstWhere((s) => s.code == code, orElse: () => pending);
+}
+
+enum LawEnforcementState {
+  none('none', 'Kolluk bildirimi yok'),
+  toNotify('to_notify', 'Kolluğa bildirilecek'),
+  notified('notified', 'Kolluğa bildirildi');
+
+  const LawEnforcementState(this.code, this.label);
+
+  final String code;
+  final String label;
+
+  static LawEnforcementState parse(Object? code) => values.firstWhere((s) => s.code == code, orElse: () => none);
+}
+
+/// A copy of one report the case was built on; it stays even if the content is deleted.
+class AdminReferralEvidence {
+  const AdminReferralEvidence({required this.targetType, required this.reason, required this.excerpt, this.note, this.reportedAt});
+
+  factory AdminReferralEvidence.fromJson(Map<String, Object?> j) => AdminReferralEvidence(
+        targetType: j['targetType'] as String? ?? '',
+        reason: j['reason'] as String? ?? '',
+        excerpt: j['excerpt'] as String? ?? '',
+        note: j['note'] as String?,
+        reportedAt: _time(j['reportedAt']),
+      );
+
+  final String targetType;
+  final String reason;
+  final String excerpt;
+  final String? note;
+  final DateTime? reportedAt;
+
+  String get targetLabel => reportTargetLabels[targetType] ?? targetType;
+}
+
+/// An approved illegal-activity case a group board sent to the platform team.
+class AdminReferral {
+  const AdminReferral({
+    required this.id,
+    required this.groupName,
+    required this.subjectId,
+    required this.category,
+    required this.reason,
+    required this.evidence,
+    required this.status,
+    required this.lawEnforcement,
+    required this.createdAt,
+    this.groupId,
+    this.subjectUsername,
+    this.banUntil,
+    this.authoritiesNote,
+    this.authoritiesNotifiedAt,
+    this.decisionNote,
+    this.decidedAt,
+  });
+
+  factory AdminReferral.fromJson(Map<String, Object?> j) => AdminReferral(
+        id: j['id']! as String,
+        groupId: j['groupId'] as String?,
+        groupName: j['groupName']! as String,
+        subjectId: j['subjectId']! as String,
+        subjectUsername: j['subjectUsername'] as String?,
+        category: j['category']! as String,
+        reason: j['reason']! as String,
+        evidence: [for (final e in j['evidence'] as List? ?? const []) AdminReferralEvidence.fromJson((e as Map).cast())],
+        status: AdminReferralStatus.parse(j['status']),
+        banUntil: _time(j['banUntil']),
+        lawEnforcement: LawEnforcementState.parse(j['lawEnforcement']),
+        authoritiesNote: j['authoritiesNote'] as String?,
+        authoritiesNotifiedAt: _time(j['authoritiesNotifiedAt']),
+        decisionNote: j['decisionNote'] as String?,
+        decidedAt: _time(j['decidedAt']),
+        createdAt: DateTime.parse(j['createdAt']! as String),
+      );
+
+  final String id;
+  final String? groupId;
+  final String groupName;
+  final String subjectId;
+  final String? subjectUsername;
+  final String category;
+  final String reason;
+  final List<AdminReferralEvidence> evidence;
+  final AdminReferralStatus status;
+  final DateTime? banUntil;
+  final LawEnforcementState lawEnforcement;
+  final String? authoritiesNote;
+  final DateTime? authoritiesNotifiedAt;
+  final String? decisionNote;
+  final DateTime? decidedAt;
+  final DateTime createdAt;
+
+  String get categoryLabel => illegalCategoryLabels[category] ?? category;
+}
+
+/// What a decision did: after a ban, how many paid slices ended and how many owned groups were suspended.
+class AdminReferralOutcome {
+  const AdminReferralOutcome({required this.banned, this.canceledPlans = 0, this.suspendedGroups = 0});
+
+  factory AdminReferralOutcome.fromJson(Map<String, Object?> j) => AdminReferralOutcome(
+        banned: j['banned'] == true,
+        canceledPlans: (j['canceledPlans'] as num?)?.toInt() ?? 0,
+        suspendedGroups: (j['suspendedGroups'] as List?)?.length ?? 0,
+      );
+
+  final bool banned;
+  final int canceledPlans;
+  final int suspendedGroups;
+}
+
 typedef AdminReportPage = PagedList<AdminReport>;
 typedef AdminAppealPage = PagedList<AdminAppeal>;
+typedef AdminReferralPage = PagedList<AdminReferral>;
 
 abstract interface class AdminModerationRepository {
   Future<Result<AdminReportPage>> reports({AdminReportScope? scope, AdminReportStatus? status, int page = 1});
@@ -200,6 +336,19 @@ abstract interface class AdminModerationRepository {
   Future<Result<AdminAppealPage>> appeals({AdminAppealStatus? status, int page = 1});
 
   Future<Result<void>> decideAppeal(String appealId, {required bool overturn, required String note});
+
+  Future<Result<AdminReferralPage>> referrals({AdminReferralStatus? status, int page = 1});
+
+  /// Bans the account for [banDays] (null: for good) or clears it; [lawEnforcement] marks it for the authorities.
+  Future<Result<AdminReferralOutcome>> decideReferral(
+    String referralId, {
+    required bool ban,
+    int? banDays,
+    required bool lawEnforcement,
+    required String note,
+  });
+
+  Future<Result<void>> markAuthoritiesNotified(String referralId, {required String note});
 
   /// The reported message and the five before it; every viewing is audited (docs/ARCHITECTURE.md §3f).
   Future<Result<List<AdminContextMessage>>> messageContext(String reportId);

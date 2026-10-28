@@ -27,6 +27,7 @@ public static class BillingModule
         services.AddScoped<PaymentService>();
         services.AddScoped<IBillingAdministration, BillingAdministration>();
         services.AddSingleton<IGroupPlanLimits, GroupPlanLimitsReader>();
+        services.AddHostedService<ProviderSetupLog>();
         return services;
     }
 

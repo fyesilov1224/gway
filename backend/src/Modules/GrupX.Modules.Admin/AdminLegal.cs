@@ -34,6 +34,7 @@ internal sealed class AdminLegal(NpgsqlDataSource db, TimeProvider time)
         ["privacy_notice"] = "signup",
         ["explicit_consent"] = "signup",
         ["terms"] = "signup",
+        ["community_rules"] = "signup",
         ["distance_sales"] = "purchase",
     };
 

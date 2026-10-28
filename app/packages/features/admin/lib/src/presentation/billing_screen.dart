@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../domain/admin_billing.dart';
 import '../domain/admin_user.dart';
 import 'admin_shell.dart';
+import 'payment_providers_panel.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -36,7 +37,8 @@ class OrderStatusBadge extends StatelessWidget {
 }
 
 /// "Pro · Aylık".
-String planAndPeriod(String plan, String period) => '$plan · ${planPeriodLabels[period] ?? period}';
+/// A granted slice has no period; it shows the plan alone.
+String planAndPeriod(String plan, String? period) => period == null ? plan : '$plan · ${planPeriodLabels[period] ?? period}';
 
 enum _Tab { orders, subscriptions }
 
@@ -65,12 +67,15 @@ class _AdminBillingScreenState extends ConsumerState<AdminBillingScreen> {
           variant: GxButtonVariant.secondary,
           onPressed: () => ref
             ..invalidate(billingStatsProvider)
+            ..invalidate(paymentProvidersProvider)
             ..invalidate(orderSearchProvider)
             ..invalidate(subscriptionSearchProvider),
         ),
       ],
       children: [
         if (canManage) ...[
+          const PaymentProvidersPanel(),
+          const SizedBox(height: GxSpacing.lg),
           const _Revenue(),
           const SizedBox(height: GxSpacing.lg),
         ],
@@ -449,7 +454,10 @@ class _SubscriptionRow extends StatelessWidget {
     return _ListRow(
       title: '${s.groupName} (@${s.groupHandle})',
       subtitle: '${planAndPeriod(s.planName, s.period)} · ${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
-      amount: formatMoney(s.amountMinor, s.currency),
+      amount: switch ((s.amountMinor, s.currency)) {
+        (final amount?, final currency?) => formatMoney(amount, currency),
+        _ => 'Tanımlandı',
+      },
       badge: s.isCurrent(DateTime.now())
           ? const GxBadge('Aktif', tone: GxBadgeTone.primary, dot: true)
           : const GxBadge('Sırada', tone: GxBadgeTone.info, dot: true),

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using GrupX.Modules.Feed.Contracts;
 using GrupX.Modules.Groups.Contracts;
+using GrupX.Modules.Identity.Contracts;
 using GrupX.Modules.Live.Contracts;
 using GrupX.Modules.Messaging.Contracts;
 using GrupX.Modules.Moderation.Contracts;
@@ -21,7 +22,9 @@ namespace GrupX.Modules.Moderation;
 
 public sealed record RemoveReportedRequest(string Reason);
 
-public sealed record OpenCaseRequest(Guid SubjectId, string? Sanction, int? DurationDays, string? Reason, Guid? ReportId, bool MuteNow);
+/// <param name="IllegalCategory">Marks a ban case as illegal activity; once approved it goes to the platform team (§3e).</param>
+public sealed record OpenCaseRequest(
+    Guid SubjectId, string? Sanction, int? DurationDays, string? Reason, Guid? ReportId, bool MuteNow, string? IllegalCategory = null);
 
 public sealed record CreatedCase(Guid Id);
 
@@ -69,10 +72,16 @@ public static class ModerationModule
 /// <summary>Pre-review, cases, votes, sanctions and appeal decisions; the triggers re-check every rule.</summary>
 internal sealed partial class ModerationService(
     NpgsqlDataSource db, IGroupMembership membership, IFeedModeration feed, ILiveModeration live, IMessagingModeration messages,
-    ILogger<ModerationService> log)
+    IAccountSanctions accounts, ILogger<ModerationService> log)
     : IModerationAdministration
 {
     public static readonly string[] Sanctions = ["warning", "mute", "kick", "ban"];
+
+    /// <summary>What counts as illegal activity (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet).</summary>
+    public static readonly string[] IllegalCategories = ["violence", "threat", "insult", "hate", "sexual", "fraud", "drugs", "terror", "other_crime"];
+
+    /// <summary>Shown to the person while the platform team reviews the referral.</summary>
+    public const string ReviewSuspensionReason = "Yasa dışı faaliyet bildirimi platform ekibince inceleniyor.";
 
     private static readonly Error ReportNotFound = Error.NotFound("report.not_found", "Şikayet bulunamadı.");
     private static readonly Error ReportReviewed = Error.Conflict("report.reviewed", "Bu şikayet zaten incelendi.");
@@ -194,6 +203,8 @@ internal sealed partial class ModerationService(
         };
         if (!durationOk)
             return Error.Validation("case.invalid_duration", "Susturma 1–90 gün, ban 1–365 gün ya da kalıcı olur; uyarı ve çıkarmanın süresi yoktur.");
+        if (r.IllegalCategory is { } category && (r.Sanction != "ban" || !IllegalCategories.Contains(category)))
+            return Error.Validation("case.invalid_illegal", "Yasa dışı faaliyet yalnızca ban önerisiyle ve listedeki bir kategoriyle işaretlenir.");
         return reason.Length is < 10 or > 1000 ? Error.Validation("case.invalid_reason", "Gerekçe 10–1000 karakter olmalı.") : null;
     }
 
@@ -234,13 +245,14 @@ internal sealed partial class ModerationService(
 
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
-                insert into public.moderation_cases (group_id, subject_id, opened_by, sanction, duration_days, reason, threshold, voting_ends_at)
-                values (@g, @u, @actor, @sanction, @days, @reason, 'majority', now())
+                insert into public.moderation_cases
+                  (group_id, subject_id, opened_by, sanction, duration_days, reason, threshold, voting_ends_at, illegal_category)
+                values (@g, @u, @actor, @sanction, @days, @reason, 'majority', now(), @illegal)
                 returning id
                 """, ct, ("g", groupId), ("u", request.SubjectId), ("actor", actor), ("sanction", request.Sanction),
-                ("days", request.DurationDays), ("reason", reason)))!;
+                ("days", request.DurationDays), ("reason", reason), ("illegal", request.IllegalCategory)))!;
             await AuditAsync(conn, tx, actor, AuditActor.User, "case.opened", "moderation_case", id, groupId,
-                new { userId = request.SubjectId, request.Sanction, request.DurationDays }, ct);
+                new { userId = request.SubjectId, request.Sanction, request.DurationDays, request.IllegalCategory }, ct);
             if (report is not null) await CloseReportsAsync(conn, tx, report, "actioned", id, ct);
             if (request.MuteNow)
             {
@@ -256,15 +268,17 @@ internal sealed partial class ModerationService(
         return opened;
     }
 
-    private sealed record CaseRow(Guid Id, Guid GroupId, Guid SubjectId, string Sanction, string Status);
+    private sealed record CaseRow(Guid Id, Guid GroupId, Guid SubjectId, string Sanction, string Status, string? IllegalCategory);
 
     private static async Task<CaseRow?> LoadCaseAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid id, CancellationToken ct)
     {
         await using var cmd = new NpgsqlCommand(
-            "select id, group_id, subject_id, sanction, status from public.moderation_cases where id = @id for update", conn, tx);
+            "select id, group_id, subject_id, sanction, status, illegal_category from public.moderation_cases where id = @id for update", conn, tx);
         cmd.Parameters.AddWithValue("id", id);
         await using var r = await cmd.ExecuteReaderAsync(ct);
-        return await r.ReadAsync(ct) ? new CaseRow(r.GetGuid(0), r.GetGuid(1), r.GetGuid(2), r.GetString(3), r.GetString(4)) : null;
+        return await r.ReadAsync(ct)
+            ? new CaseRow(r.GetGuid(0), r.GetGuid(1), r.GetGuid(2), r.GetString(3), r.GetString(4), r.IsDBNull(5) ? null : r.GetString(5))
+            : null;
     }
 
     public async Task<Result<CaseVoteResult>> VoteAsync(Guid actor, Guid id, bool approve, CancellationToken ct)
@@ -311,7 +325,101 @@ internal sealed partial class ModerationService(
         var removed = c.Sanction is "kick" or "ban" && await membership.RemoveAsync(conn, tx, c.GroupId, c.SubjectId, ct);
         await AuditAsync(conn, tx, actor, actorKind, "sanction.applied", "moderation_case", c.Id, c.GroupId,
             new { userId = c.SubjectId, type = c.Sanction, removed }, ct);
+        if (c.IllegalCategory is not null) await OpenReferralAsync(conn, tx, c, actor, actorKind, ct);
         return outcome;
+    }
+
+    /// <summary>
+    /// An approved illegal-activity case: the platform team gets a referral with the evidence, and the account is suspended
+    /// until it decides (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet).
+    /// </summary>
+    private async Task OpenReferralAsync(NpgsqlConnection conn, NpgsqlTransaction tx, CaseRow c, Guid? actor, string actorKind, CancellationToken ct)
+    {
+        var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
+            """
+            insert into public.platform_referrals (case_id, group_id, group_name, subject_id, subject_username, category, reason, evidence)
+            select c.id, c.group_id, g.name, c.subject_id, p.username, c.illegal_category, c.reason,
+                   coalesce((select jsonb_agg(jsonb_build_object(
+                               'targetType', r.target_type, 'reason', r.reason, 'excerpt', r.excerpt, 'note', r.note, 'reportedAt', r.created_at)
+                             order by r.created_at)
+                             from public.reports r where r.case_id = c.id), '[]'::jsonb)
+            from public.moderation_cases c
+            join public.groups g on g.id = c.group_id
+            left join public.profiles p on p.id = c.subject_id
+            where c.id = @c
+            returning id
+            """, ct, ("c", c.Id)))!;
+        var suspended = await accounts.SuspendAsync(conn, tx, c.SubjectId, ReviewSuspensionReason, null, ct);
+        await AuditAsync(conn, tx, actor, actorKind, "referral.opened", "platform_referral", id, c.GroupId,
+            new { userId = c.SubjectId, caseId = c.Id, category = c.IllegalCategory, accountSuspended = suspended }, ct);
+    }
+
+    // Platform referrals -------------------------------------------------------------------------
+
+    private static readonly Error ReferralNotFound = Error.NotFound("referral.not_found", "Bildirim bulunamadı.");
+
+    public Task<Result<ReferralDecision>> DecideReferralAsync(
+        Guid actorId, Guid referralId, bool ban, int? banDays, bool notifyAuthorities, string note, CancellationToken ct)
+    {
+        note = note?.Trim() ?? "";
+        if (note.Length is < 3 or > 1000)
+            return Task.FromResult<Result<ReferralDecision>>(Error.Validation("referral.invalid_note", "Karar notu 3–1000 karakter olmalı."));
+        if (ban && banDays is not null and (< 1 or > 3650))
+            return Task.FromResult<Result<ReferralDecision>>(Error.Validation("referral.invalid_days", "Ban 1–3650 gün ya da kalıcı olur."));
+
+        return ActingTransaction.RunAsync<ReferralDecision>(db, actorId, async (conn, tx) =>
+        {
+            Guid subject;
+            string status, category;
+            await using (var cmd = new NpgsqlCommand(
+                "select subject_id, status, category from public.platform_referrals where id = @id for update", conn, tx))
+            {
+                cmd.Parameters.AddWithValue("id", referralId);
+                await using var r = await cmd.ExecuteReaderAsync(ct);
+                if (!await r.ReadAsync(ct)) return ReferralNotFound;
+                (subject, status, category) = (r.GetGuid(0), r.GetString(1), r.GetString(2));
+            }
+            if (status != "pending") return Error.Conflict("referral.decided", "Bu bildirim karara bağlandı.");
+
+            DateTimeOffset? until = ban && banDays is { } days ? DateTimeOffset.UtcNow.AddDays(days) : null;
+            await ActingTransaction.ExecuteAsync(conn, tx,
+                """
+                update public.platform_referrals
+                set status = @status, ban_until = @until, law_enforcement = @authorities, decision_note = @note, decided_by = @actor
+                where id = @id
+                """, ct, ("status", ban ? "banned" : "cleared"), ("until", until?.UtcDateTime), ("authorities", notifyAuthorities ? "to_notify" : "none"),
+                ("note", note), ("actor", actorId), ("id", referralId));
+
+            var accountChanged = ban
+                ? await accounts.SuspendAsync(conn, tx, subject,
+                    until is null ? $"Yasa dışı faaliyet nedeniyle hesap kalıcı olarak kapatıldı: {note}" : $"Yasa dışı faaliyet nedeniyle hesap kapatıldı: {note}",
+                    until, ct)
+                : await accounts.UnsuspendAsync(conn, tx, subject, ct);
+            await AuditAsync(conn, tx, actorId, AuditActor.Staff, "referral.decided", "platform_referral", referralId, null,
+                new { userId = subject, ban, banDays, notifyAuthorities, note, category, accountChanged }, ct);
+            return new ReferralDecision(subject, ban, until);
+        }, RuleError, ct);
+    }
+
+    public Task<Result> MarkAuthoritiesNotifiedAsync(Guid actorId, Guid referralId, string note, CancellationToken ct)
+    {
+        note = note?.Trim() ?? "";
+        if (note.Length is < 3 or > 1000)
+            return Task.FromResult<Result>(Error.Validation("referral.invalid_note", "Bildirim notu 3–1000 karakter olmalı (ör. başvuru yeri, evrak no)."));
+
+        return ActingTransaction.RunAsync(db, actorId, async (conn, tx) =>
+        {
+            var current = await ActingTransaction.ScalarAsync(conn, tx,
+                "select law_enforcement from public.platform_referrals where id = @id for update", ct, ("id", referralId));
+            if (current is not string state) return ReferralNotFound;
+            if (state != "to_notify") return Error.Conflict("referral.not_to_notify", "Bu bildirim kolluğa bildirilecek olarak işaretli değil.");
+            await ActingTransaction.ExecuteAsync(conn, tx,
+                "update public.platform_referrals set law_enforcement = 'notified', authorities_note = @note where id = @id", ct,
+                ("note", note), ("id", referralId));
+            await AuditAsync(conn, tx, actorId, AuditActor.Staff, "referral.authorities_notified", "platform_referral", referralId, null,
+                new { note }, ct);
+            return Result.Success();
+        }, RuleError, ct);
     }
 
     /// <summary>Decides the cases whose 72 hours are over (system job); returns how many were decided.</summary>

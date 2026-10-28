@@ -44,6 +44,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
   SanctionType _sanction = SanctionType.warning;
   int? _days;
   bool _muteNow = false;
+  IllegalCategory? _illegal;
   bool _busy = false;
   String? _error;
 
@@ -56,6 +57,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
   void _pick(SanctionType type) => setState(() {
         _sanction = type;
         _days = type.durations.firstOrNull;
+        if (type != SanctionType.ban) _illegal = null;
       });
 
   Future<void> _submit() async {
@@ -73,6 +75,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
             reason: _reason.text,
             reportId: widget.reportId,
             muteNow: _muteNow,
+            illegalCategory: _illegal,
           ),
         );
     if (!mounted) return;
@@ -134,6 +137,26 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
                     ),
                 ],
               ),
+            ],
+            if (_sanction == SanctionType.ban) ...[
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _illegal != null,
+                onChanged: (v) => setState(() => _illegal = v ? IllegalCategory.values.first : null),
+                title: const Text('Yasa dışı faaliyet'),
+                subtitle: const Text(
+                  'Kurul onaylarsa dosya platform ekibine gider ve hesap incelemeye kadar askıya alınır. Bu işaret sonradan değişmez.',
+                ),
+              ),
+              if (_illegal != null)
+                Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final c in IllegalCategory.values)
+                      ChoiceChip(label: Text(c.label), selected: _illegal == c, onSelected: (_) => setState(() => _illegal = c)),
+                  ],
+                ),
             ],
             const SizedBox(height: GxSpacing.md),
             TextFormField(

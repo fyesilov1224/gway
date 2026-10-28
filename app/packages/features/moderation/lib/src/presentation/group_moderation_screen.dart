@@ -505,6 +505,10 @@ class _CaseCardState extends ConsumerState<CaseCard> {
         ),
         const SizedBox(height: GxSpacing.sm),
         Text('Önerilen: ${c.proposal}', style: textTheme.titleSmall),
+        if (c.illegalCategory case final illegal?) ...[
+          const SizedBox(height: GxSpacing.xxs),
+          GxBadge('Yasa dışı faaliyet: ${illegal.label}', tone: GxBadgeTone.danger),
+        ],
         const SizedBox(height: GxSpacing.xxs),
         Text(c.reason, style: textTheme.bodyMedium),
         const SizedBox(height: GxSpacing.xs),

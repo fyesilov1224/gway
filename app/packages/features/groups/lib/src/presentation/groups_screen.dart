@@ -11,15 +11,19 @@ import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
 
-enum _Tab { discover, mine }
+enum _Tab { discover, mine, packages }
 
 /// Discover groups (search, category filter) and the user's own groups.
-/// Pending invitations are shown above both.
+/// Pending invitations are shown above both. With [packages], a third tab
+/// lists the groups the user owns with their package.
 class GroupsScreen extends ConsumerStatefulWidget {
-  const GroupsScreen({super.key, this.actions = const []});
+  const GroupsScreen({super.key, this.actions = const [], this.packages});
 
   /// Extra app bar actions the app supplies (e.g. the map), before "Grup oluştur".
   final List<Widget> actions;
+
+  /// The package summary of an owned group (billing, supplied by the app).
+  final Widget Function(BuildContext context, Group group)? packages;
 
   static const pageSize = 30;
 
@@ -92,15 +96,23 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                 padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
                 child: SegmentedButton<_Tab>(
                   showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment(value: _Tab.discover, label: Text('Keşfet'), icon: Icon(Icons.explore_outlined)),
-                    ButtonSegment(value: _Tab.mine, label: Text('Gruplarım'), icon: Icon(Icons.groups_outlined)),
+                  segments: [
+                    const ButtonSegment(value: _Tab.discover, label: Text('Keşfet'), icon: Icon(Icons.explore_outlined)),
+                    const ButtonSegment(value: _Tab.mine, label: Text('Gruplarım'), icon: Icon(Icons.groups_outlined)),
+                    if (widget.packages != null)
+                      const ButtonSegment(value: _Tab.packages, label: Text('Paketler'), icon: Icon(Icons.workspace_premium_outlined)),
                   ],
                   selected: {_tab},
                   onSelectionChanged: (s) => setState(() => _tab = s.first),
                 ),
               ),
-              if (_tab == _Tab.discover) ..._discover() else if (userId != null) _MyGroups(userId: userId, onDiscover: () => setState(() => _tab = _Tab.discover)),
+              if (_tab == _Tab.discover)
+                ..._discover()
+              else if (userId != null)
+                switch ((_tab, widget.packages)) {
+                  (_Tab.packages, final packages?) => _OwnedPackages(userId: userId, packages: packages),
+                  _ => _MyGroups(userId: userId, onDiscover: () => setState(() => _tab = _Tab.discover)),
+                },
             ],
           ),
         ),
@@ -223,6 +235,47 @@ class _MyGroups extends ConsumerWidget {
               ),
           ],
         ),
+      AsyncError(:final error) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+          child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),
+        ),
+      _ => const GroupListSkeleton(),
+    };
+  }
+}
+
+/// The groups the user owns, each with its package. Only the owner buys packages.
+class _OwnedPackages extends ConsumerWidget {
+  const _OwnedPackages({required this.userId, required this.packages});
+
+  final String userId;
+  final Widget Function(BuildContext context, Group group) packages;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return switch (ref.watch(userGroupsProvider(userId))) {
+      AsyncData(:final value) => switch ([for (final g in value) if (g.ownerId == userId) g]) {
+          [] => Padding(
+              padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+              child: GxEmptyState(
+                icon: Icons.workspace_premium_outlined,
+                message: 'Paketleri grup sahipleri alır. Grubunu kurup paketini seçebilirsin.',
+                actionLabel: 'Grup oluştur',
+                onAction: () => context.push(GroupRoutes.create),
+              ),
+            ),
+          final owned => Column(
+              children: [
+                for (final g in owned) ...[
+                  GroupTile(group: g),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.md),
+                    child: packages(context, g),
+                  ),
+                ],
+              ],
+            ),
+        },
       AsyncError(:final error) => Padding(
           padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
           child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),

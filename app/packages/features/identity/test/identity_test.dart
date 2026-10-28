@@ -44,6 +44,7 @@ const _docs = [
   LegalDocument(kind: LegalKind.terms, version: 1, title: 'Kullanım Koşulları', body: 'a'),
   LegalDocument(kind: LegalKind.privacyNotice, version: 1, title: 'KVKK Aydınlatma Metni', body: 'b'),
   LegalDocument(kind: LegalKind.explicitConsent, version: 1, title: 'Açık Rıza Metni', body: 'c'),
+  LegalDocument(kind: LegalKind.communityRules, version: 1, title: 'Topluluk Kuralları', body: 'd'),
 ];
 
 Widget _app(Widget child, List<dynamic> overrides) => ProviderScope(
@@ -111,7 +112,7 @@ void main() {
     });
   });
 
-  testWidgets('consent requires every document to be accepted', (tester) async {
+  testWidgets('consent requires every document to be read and accepted', (tester) async {
     final consents = _FakeConsents();
     await tester.pumpWidget(
       _app(const ConsentScreen(), [
@@ -125,22 +126,35 @@ void main() {
     expect(tester.widget<FilledButton>(button).onPressed, isNull);
 
     final boxes = find.byType(Checkbox);
-    expect(boxes, findsNWidgets(3));
+    expect(boxes, findsNWidgets(4));
     Future<void> tap(Finder f) async {
       await tester.ensureVisible(f);
       await tester.pumpAndSettle();
       await tester.tap(f);
-      await tester.pump();
+      await tester.pumpAndSettle();
     }
 
-    await tap(boxes.at(0));
-    await tap(boxes.at(1));
-    expect(tester.widget<FilledButton>(button).onPressed, isNull, reason: 'explicit consent still missing');
+    Future<void> read(int i) async {
+      await tap(find.widgetWithText(TextButton, 'Metni oku').at(i));
+      Navigator.of(tester.element(find.text(_docs[i].body))).pop();
+      await tester.pumpAndSettle();
+    }
 
-    await tap(boxes.at(2));
-    await tap(button);
+    expect(tester.widget<Checkbox>(boxes.at(0)).onChanged, isNull, reason: 'unread text cannot be accepted');
+    for (var i = 0; i < 3; i++) {
+      await read(i);
+      await tap(boxes.at(i));
+    }
+    expect(tester.widget<FilledButton>(button).onPressed, isNull, reason: 'community rules still missing');
 
-    expect(consents.accepted, hasLength(3));
+    await read(3);
+    await tap(boxes.at(3));
+    await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
+    await tester.tap(button);
+    await tester.pump();
+
+    expect(consents.accepted, hasLength(4));
   });
 
   testWidgets('sign-in validates before calling the server and shows safe errors', (tester) async {

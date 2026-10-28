@@ -238,6 +238,36 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
         }, ct);
     }
 
+    public async Task<IReadOnlyList<Guid>> SuspendOwnedAsync(Guid actorId, Guid ownerId, string reason, CancellationToken ct)
+    {
+        reason = reason.Trim();
+        if (reason.Length > GroupRules.MaxReason) reason = reason[..GroupRules.MaxReason];
+
+        var result = await access.RunAsync<IReadOnlyList<Guid>>(actorId, async (conn, tx) =>
+        {
+            var suspended = new List<Guid>();
+            await using (var cmd = new NpgsqlCommand(
+                """
+                update public.groups set status = 'suspended', suspension_reason = @reason, suspended_at = now()
+                where owner_id = @owner and status = 'active'
+                returning id
+                """, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("owner", ownerId);
+                cmd.Parameters.AddWithValue("reason", reason);
+                await using var r = await cmd.ExecuteReaderAsync(ct);
+                while (await r.ReadAsync(ct)) suspended.Add(r.GetGuid(0));
+            }
+            foreach (var id in suspended)
+            {
+                await AuditLog.AppendAsync(conn, tx,
+                    new AuditEntry(actorId, AuditActor.Staff, "group.suspended", "group", id.ToString(), new { reason }, id), ct);
+            }
+            return suspended;
+        }, ct);
+        return result.IsSuccess ? result.Value : [];
+    }
+
     public Task<Result<GroupState>> UnsuspendAsync(Guid actorId, Guid groupId, CancellationToken ct) =>
         access.RunAsync(actorId, async (conn, tx) =>
         {

@@ -5,6 +5,7 @@ const legalKindLabels = {
   'privacy_notice': 'KVKK Aydınlatma Metni',
   'explicit_consent': 'Açık Rıza Metni',
   'terms': 'Kullanım Koşulları',
+  'community_rules': 'Topluluk Kuralları, Yaptırımlar ve Yasal İşlemler Sözleşmesi',
   'distance_sales': 'Mesafeli Satış Sözleşmesi',
 };
 

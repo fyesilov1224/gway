@@ -75,6 +75,12 @@ public sealed class FakePaymentProviders
                     ? new { status = "failure", errorCode = "10051", errorMessage = "test refusal" }
                     : (object)new { status = "success", token = $"iyz-{conversation}", paymentPageUrl = $"{IyzicoUrl}/pay/iyz-{conversation}" });
             }
+            if (path == "/payment/iyzipos/installment")
+            {
+                return Json(Refuse
+                    ? new { status = "failure", errorCode = "1001", errorMessage = "api bilgileri bulunamadı" }
+                    : (object)new { status = "success", installmentDetails = Array.Empty<object>() });
+            }
             if (path == "/payment/iyzipos/checkoutform/auth/ecom/detail")
             {
                 var token = doc.RootElement.GetProperty("token").GetString()!;

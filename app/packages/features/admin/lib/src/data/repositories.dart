@@ -154,6 +154,32 @@ class ApiAdminBillingRepository implements AdminBillingRepository {
         body: {'reason': reason, 'refunded': refunded},
         decode: (_) {},
       );
+
+  @override
+  Future<Result<void>> grantGroupPlan(String groupId, {required String slug, required int days, required String reason}) => _api.post(
+        '/admin/groups/$groupId/plan',
+        body: {'slug': slug, 'days': days, 'reason': reason},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> cancelGroupPlan(String groupId, {required String reason, required bool refunded}) => _api.post(
+        '/admin/groups/$groupId/plan/cancellation',
+        body: {'reason': reason, 'refunded': refunded},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<List<PaymentProviderStatus>>> providers() => _api.get(
+        '/admin/billing/providers',
+        decode: (json) => [
+          for (final p in (_map(json)['providers']! as List).cast<Map<String, Object?>>()) PaymentProviderStatus.fromJson(p),
+        ],
+      );
+
+  @override
+  Future<Result<ProviderCheck>> checkProvider(String provider) =>
+      _api.post('/admin/billing/providers/$provider/check', decode: (json) => ProviderCheck.fromJson(_map(json)));
 }
 
 class ApiAdminContentRepository implements AdminContentRepository {
@@ -250,6 +276,31 @@ class ApiAdminModerationRepository implements AdminModerationRepository {
   @override
   Future<Result<void>> decideAppeal(String appealId, {required bool overturn, required String note}) =>
       _api.post('/admin/appeals/$appealId/decision', body: {'overturn': overturn, 'note': note}, decode: (_) {});
+
+  @override
+  Future<Result<AdminReferralPage>> referrals({AdminReferralStatus? status, int page = 1}) => _api.get(
+        '/admin/referrals',
+        query: {'status': ?status?.code, 'page': '$page'},
+        decode: (json) => AdminReferralPage.fromJson((json! as Map).cast(), AdminReferral.fromJson),
+      );
+
+  @override
+  Future<Result<AdminReferralOutcome>> decideReferral(
+    String referralId, {
+    required bool ban,
+    int? banDays,
+    required bool lawEnforcement,
+    required String note,
+  }) =>
+      _api.post(
+        '/admin/referrals/$referralId/decision',
+        body: {'ban': ban, 'banDays': banDays, 'lawEnforcement': lawEnforcement, 'note': note},
+        decode: (json) => AdminReferralOutcome.fromJson((json! as Map).cast()),
+      );
+
+  @override
+  Future<Result<void>> markAuthoritiesNotified(String referralId, {required String note}) =>
+      _api.post('/admin/referrals/$referralId/authorities', body: {'note': note}, decode: (_) {});
 
   @override
   Future<Result<List<AdminContextMessage>>> messageContext(String reportId) => _api.get(

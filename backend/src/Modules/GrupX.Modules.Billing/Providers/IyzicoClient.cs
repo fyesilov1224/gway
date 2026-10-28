@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using GrupX.Modules.Billing.Contracts;
 using GrupX.SharedKernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,6 +26,7 @@ internal sealed class IyzicoClient(HttpClient http, IOptions<BillingOptions> opt
 {
     public const string InitializePath = "/payment/iyzipos/checkoutform/initialize/auth/ecom";
     public const string DetailPath = "/payment/iyzipos/checkoutform/auth/ecom/detail";
+    public const string InstallmentPath = "/payment/iyzipos/installment";
 
     // iyzico's documented placeholder for buyers without a Turkish identity number.
     private const string ForeignIdentityNumber = "11111111111";
@@ -105,6 +107,26 @@ internal sealed class IyzicoClient(HttpClient http, IOptions<BillingOptions> opt
             Text(r, "paymentId"));
     }
 
+    /// <summary>
+    /// Asks iyzico for the installment options of a test card number: a signed call that opens no payment, so the API
+    /// and secret keys and the base URL are checked. Returns iyzico's message when it refuses.
+    /// </summary>
+    public async Task<ProviderCheck> CheckAsync(CancellationToken ct)
+    {
+        if (!IsConfigured) return ProviderCheck.NotConfigured;
+        try
+        {
+            var r = await SendAsync(InstallmentPath, new { locale = "tr", conversationId = "grupx-check", binNumber = "554960", price = "100.0" }, ct);
+            return Text(r, "status") == "success"
+                ? ProviderCheck.Success
+                : new ProviderCheck(false, $"iyzico reddetti: {Text(r, "errorCode")} {Text(r, "errorMessage")}".TrimEnd());
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            return new ProviderCheck(false, $"iyzico'ya ulaşılamadı: {ex.Message}");
+        }
+    }
+
     /// <summary>Checks <c>X-IYZ-SIGNATURE-V3</c> of a Checkout Form webhook.</summary>
     public bool VerifyWebhook(string? signature, IyzicoWebhook webhook)
     {
@@ -113,7 +135,12 @@ internal sealed class IyzicoClient(HttpClient http, IOptions<BillingOptions> opt
         var expected = Convert.ToHexStringLower(HMACSHA256.HashData(
             Encoding.UTF8.GetBytes(o.SecretKey),
             Encoding.UTF8.GetBytes(o.SecretKey + webhook.EventType + webhook.PaymentId + webhook.Token + webhook.ConversationId + webhook.Status)));
-        return CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(signature.ToLowerInvariant()));
+        if (CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(signature.ToLowerInvariant())))
+            return true;
+
+        // Most often the secret key of another environment (sandbox vs live; docs/PAYMENTS.md, Sorun giderme).
+        log.LogWarning("iyzico webhook for {ConversationId} has a wrong signature; check Billing:Iyzico:SecretKey", webhook.ConversationId);
+        return false;
     }
 
     /// <summary>Reads a webhook body; null when a signed field is missing.</summary>

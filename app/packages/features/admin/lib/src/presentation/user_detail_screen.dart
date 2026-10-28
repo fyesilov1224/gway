@@ -32,6 +32,7 @@ const _consentLabels = {
   'terms': 'Kullanım Koşulları',
   'privacy_notice': 'KVKK Aydınlatma Metni',
   'explicit_consent': 'Açık Rıza Metni',
+  'community_rules': 'Topluluk Kuralları',
 };
 
 class UserDetailScreen extends ConsumerStatefulWidget {

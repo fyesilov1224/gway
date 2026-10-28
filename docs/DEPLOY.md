@@ -40,7 +40,7 @@ mkdir -p secrets        # firebase-adminsdk.json (push) ve isteğe bağlı ülke
 - `ACME_EMAIL`: sertifika bildirimleri için e-posta.
 - Supabase URL'si, service role anahtarı, veritabanı bağlantısı (Session pooler, `SSL Mode=Require`).
 - LiveKit için iki uzun rastgele değer: `openssl rand -hex 16` ve `openssl rand -hex 32`.
-- Twilio Verify anahtarları, Stadia harita anahtarı, ödeme anahtarları (boş kalanlar ilgili özelliği 503 ile kapatır).
+- Twilio Verify anahtarları, Stadia harita anahtarı, ödeme anahtarları (boş kalanlar ilgili özelliği 503 ile kapatır). Ödeme sağlayıcılarını bağlama: `docs/PAYMENTS.md`.
 
 ## 5. Web uygulaması ve paneli derleme (geliştirme bilgisayarında)
 ```bash

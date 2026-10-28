@@ -4,6 +4,7 @@ enum LegalKind {
   terms('terms'),
   privacyNotice('privacy_notice'),
   explicitConsent('explicit_consent'),
+  communityRules('community_rules'),
 
   /// Accepted at checkout (billing), never at sign-up.
   distanceSales('distance_sales');

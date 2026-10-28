@@ -69,12 +69,14 @@ class GroupPlan {
   bool renewalDue(DateTime now) => paidUntil != null && paidUntil!.difference(now) <= reminderWindow;
 }
 
-/// One paid slice of the group's timeline (owner only, RLS).
+/// One slice of the group's timeline (owner only, RLS): paid, or given by the platform team.
 class PlanSlice {
-  const PlanSlice({required this.planSlug, required this.period, required this.startsAt, required this.endsAt});
+  const PlanSlice({required this.planSlug, required this.startsAt, required this.endsAt, this.period});
 
   final String planSlug;
-  final PlanPeriod period;
+
+  /// Null when the platform team gave the slice.
+  final PlanPeriod? period;
   final DateTime startsAt;
   final DateTime endsAt;
 }

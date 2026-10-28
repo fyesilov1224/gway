@@ -118,9 +118,10 @@ Future<void> _pump(WidgetTester tester, Widget app, {Size size = const Size(1280
 
 Finder _price(String amount) => find.textContaining('$amount / ', findRichText: true);
 
-Widget _card({required bool canManage, GroupPlan? plan}) => _app(
+Widget _card({required bool canManage, GroupPlan? plan, bool web = true}) => _app(
       Scaffold(body: GroupPlanCard(groupId: 'g1', canManage: canManage, onManage: () {})),
       plan: plan,
+      web: web,
     );
 
 void main() {
@@ -160,6 +161,16 @@ void main() {
 
       expect(find.textContaining('Başlangıç paketi ·'), findsOneWidget);
       expect(find.text('12 / 250 üye'), findsOneWidget);
+      expect(find.text('Paketi yükselt'), findsOneWidget);
+    });
+
+    testWidgets('owner of a free group is offered a package on the web, only the status on mobile', (tester) async {
+      const free = GroupPlan(plan: _free, memberCount: 12, paidUntil: null);
+      await _pump(tester, _card(canManage: true, plan: free));
+      expect(find.text('Paket al'), findsOneWidget);
+
+      await _pump(tester, _card(canManage: true, plan: free, web: false));
+      expect(find.text('Paket al'), findsNothing);
       expect(find.text('Paket'), findsOneWidget);
     });
 
@@ -173,6 +184,7 @@ void main() {
       await _pump(tester, _card(canManage: false, plan: _onStarter()));
       expect(find.textContaining('limit'), findsNothing);
       expect(find.text('Paket'), findsNothing);
+      expect(find.text('Paketi yükselt'), findsNothing);
 
       await _pump(tester, _card(canManage: false, plan: _onStarter(members: 250)));
       expect(find.textContaining('üye limitine ulaştı'), findsOneWidget);

@@ -71,7 +71,7 @@ internal static class BillingStore
         var slices = new List<Slice>();
         while (await reader.ReadAsync(ct))
         {
-            slices.Add(new Slice(reader.GetGuid(0), reader.GetString(1), reader.GetInt32(2), reader.GetString(3),
+            slices.Add(new Slice(reader.GetGuid(0), reader.GetString(1), reader.GetInt32(2), reader.IsDBNull(3) ? null : reader.GetString(3),
                 reader.GetFieldValue<DateTimeOffset>(4), reader.GetFieldValue<DateTimeOffset>(5)));
         }
         return slices;

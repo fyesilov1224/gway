@@ -44,6 +44,7 @@ Widget _app(
   Group? group,
   MyMembership me = const MyMembership(),
   List<GroupPerson> requests = const [],
+  List<Group> myGroups = const [],
 }) =>
     ProviderScope(
       overrides: [
@@ -56,7 +57,7 @@ Widget _app(
         groupInvitationsProvider.overrideWith((ref, id) async => const []),
         discoverGroupsProvider.overrideWith((ref, search) async => [_group(), _group(policy: JoinPolicy.request)]),
         myInvitationsProvider.overrideWith((ref) async => const []),
-        userGroupsProvider.overrideWith((ref, id) async => const []),
+        userGroupsProvider.overrideWith((ref, id) async => myGroups),
       ],
       child: MaterialApp(theme: GxTheme.light(), home: child),
     );
@@ -224,6 +225,42 @@ void main() {
 
       expect(find.text('Henüz bir gruba katılmadın.'), findsOneWidget);
       expect(find.text('Grupları keşfet'), findsOneWidget);
+    });
+
+    testWidgets('packages tab lists only the groups the user owns, at 130% text scale', (tester) async {
+      final owned = _group(owner: 'me');
+      final joined = Group(
+        id: 'g2',
+        handle: 'bisiklet',
+        name: 'Bisiklet Turları',
+        categorySlug: 'running',
+        joinPolicy: JoinPolicy.open,
+        ownerId: 'owner',
+        memberCount: 8,
+        createdAt: DateTime(2026, 10, 1),
+      );
+      await _pumpSmallPhone(
+        tester,
+        _app(GroupsScreen(packages: (_, g) => Text('paket ${g.handle}')), userId: 'me', myGroups: [owned, joined]),
+      );
+
+      await tester.tap(find.text('Paketler'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('paket istanbul.kosu'), findsOneWidget);
+      expect(find.text('Bisiklet Turları'), findsNothing);
+    });
+
+    testWidgets('packages tab without an owned group offers to create one', (tester) async {
+      await tester.pumpWidget(_app(GroupsScreen(packages: (_, g) => const SizedBox()), userId: 'me'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Paketler'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Paketleri grup sahipleri alır.'), findsOneWidget);
+      expect(find.text('Grup oluştur'), findsNWidgets(2));
     });
   });
 

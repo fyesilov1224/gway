@@ -38,6 +38,27 @@ enum SanctionType {
       };
 }
 
+/// What counts as illegal activity (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet). An approved ban case marked
+/// with one goes to the platform team, which may close the account.
+enum IllegalCategory {
+  violence('violence', 'Şiddet'),
+  threat('threat', 'Tehdit'),
+  insult('insult', 'Hakaret'),
+  hate('hate', 'Nefret söylemi'),
+  sexual('sexual', 'Cinsel istismar'),
+  fraud('fraud', 'Dolandırıcılık'),
+  drugs('drugs', 'Uyuşturucu'),
+  terror('terror', 'Terör'),
+  otherCrime('other_crime', 'Başka bir suç');
+
+  const IllegalCategory(this.code, this.label);
+
+  final String code;
+  final String label;
+
+  static IllegalCategory? parse(Object? code) => values.where((c) => c.code == code).firstOrNull;
+}
+
 /// "7 gün ban", "Kalıcı ban", "Uyarı".
 String sanctionLabel(SanctionType type, int? days) => switch (type) {
       SanctionType.mute => '$days gün susturma',
@@ -137,6 +158,7 @@ class ModerationCase {
     required this.voters,
     this.openedBy,
     this.durationDays,
+    this.illegalCategory,
     this.threshold = CaseThreshold.majority,
     this.decidedAt,
     this.approvals = 0,
@@ -150,6 +172,9 @@ class ModerationCase {
   final ModerationPerson? openedBy;
   final SanctionType sanction;
   final int? durationDays;
+
+  /// Set when the case is about illegal activity; approved, it goes to the platform team.
+  final IllegalCategory? illegalCategory;
   final String reason;
   final CaseThreshold threshold;
   final CaseStatus status;
@@ -298,6 +323,7 @@ class CaseForm {
     this.durationDays,
     this.reportId,
     this.muteNow = false,
+    this.illegalCategory,
   });
 
   final String subjectId;
@@ -307,6 +333,9 @@ class CaseForm {
   final String? reportId;
   final bool muteNow;
 
+  /// Only with a ban.
+  final IllegalCategory? illegalCategory;
+
   Map<String, Object?> toJson() => {
         'subjectId': subjectId,
         'sanction': sanction.code,
@@ -314,6 +343,7 @@ class CaseForm {
         'reason': reason.trim(),
         'reportId': reportId,
         'muteNow': muteNow,
+        'illegalCategory': illegalCategory?.code,
       };
 }
 

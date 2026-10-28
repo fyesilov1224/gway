@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Npgsql;
 
 namespace GrupX.Modules.Admin;
@@ -38,7 +39,26 @@ public sealed record AdminAppeal(
     DateTimeOffset CreatedAt,
     DateTimeOffset? DecidedAt);
 
-/// <summary>Read side of the admin reports and appeals pages (docs/ARCHITECTURE.md §3e, Admin).</summary>
+public sealed record AdminReferral(
+    Guid Id,
+    Guid? CaseId,
+    Guid? GroupId,
+    string GroupName,
+    Guid SubjectId,
+    string? SubjectUsername,
+    string Category,
+    string Reason,
+    JsonElement Evidence,
+    string Status,
+    DateTimeOffset? BanUntil,
+    string LawEnforcement,
+    string? AuthoritiesNote,
+    DateTimeOffset? AuthoritiesNotifiedAt,
+    string? DecisionNote,
+    DateTimeOffset? DecidedAt,
+    DateTimeOffset CreatedAt);
+
+/// <summary>Read side of the admin reports, appeals and referrals pages (docs/ARCHITECTURE.md §3e, Admin).</summary>
 internal sealed class AdminModeration(NpgsqlDataSource db)
 {
     public const int PageSize = 20;
@@ -152,5 +172,47 @@ internal sealed class AdminModeration(NpgsqlDataSource db)
             }
         }
         return new PagedResult<AdminAppeal>(items, total, page, PageSize);
+    }
+
+    /// <summary>Illegal-activity referrals from the group boards (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet).</summary>
+    public async Task<PagedResult<AdminReferral>> ReferralsAsync(string? status, int page, CancellationToken ct)
+    {
+        page = Math.Max(page, 1);
+        const string Where = "where (@status is null or f.status = @status)";
+        await using var conn = await db.OpenConnectionAsync(ct);
+
+        int total;
+        await using (var count = new NpgsqlCommand($"select count(*)::int from public.platform_referrals f {Where}", conn))
+        {
+            count.Parameters.Add(new NpgsqlParameter<string?>("status", status));
+            total = (int)(await count.ExecuteScalarAsync(ct))!;
+        }
+
+        var items = new List<AdminReferral>();
+        await using (var cmd = new NpgsqlCommand(
+            $"""
+            select f.id, f.case_id, f.group_id, f.group_name, f.subject_id, f.subject_username, f.category, f.reason, f.evidence::text,
+                   f.status, f.ban_until, f.law_enforcement, f.authorities_note, f.authorities_notified_at, f.decision_note, f.decided_at,
+                   f.created_at
+            from public.platform_referrals f
+            {Where}
+            order by (f.status = 'pending') desc, f.created_at desc, f.id
+            limit {PageSize} offset @offset
+            """, conn))
+        {
+            cmd.Parameters.Add(new NpgsqlParameter<string?>("status", status));
+            cmd.Parameters.AddWithValue("offset", (page - 1) * PageSize);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+            {
+                items.Add(new AdminReferral(
+                    r.GetGuid(0), r.IsDBNull(1) ? null : r.GetGuid(1), r.IsDBNull(2) ? null : r.GetGuid(2), r.GetString(3), r.GetGuid(4),
+                    r.IsDBNull(5) ? null : r.GetString(5), r.GetString(6), r.GetString(7), JsonDocument.Parse(r.GetString(8)).RootElement.Clone(), r.GetString(9),
+                    r.IsDBNull(10) ? null : r.GetFieldValue<DateTimeOffset>(10), r.GetString(11), r.IsDBNull(12) ? null : r.GetString(12),
+                    r.IsDBNull(13) ? null : r.GetFieldValue<DateTimeOffset>(13), r.IsDBNull(14) ? null : r.GetString(14),
+                    r.IsDBNull(15) ? null : r.GetFieldValue<DateTimeOffset>(15), r.GetFieldValue<DateTimeOffset>(16)));
+            }
+        }
+        return new PagedResult<AdminReferral>(items, total, page, PageSize);
     }
 }

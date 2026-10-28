@@ -65,9 +65,18 @@ class GroupPlanCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                TextButton(onPressed: onManage, child: const Text('Paket')),
+                // Mobile only shows the status; buying is on the web (docs/ARCHITECTURE.md §7).
+                if (!ref.watch(purchasesOnThisPlatformProvider)) TextButton(onPressed: onManage, child: const Text('Paket')),
               ],
             ),
+            if (ref.watch(purchasesOnThisPlatformProvider)) ...[
+              const SizedBox(height: GxSpacing.sm),
+              GxButton(
+                label: plan.plan.isFree ? 'Paket al' : 'Paketi yükselt',
+                icon: planIcon,
+                onPressed: onManage,
+              ),
+            ],
             if (full != null) ...[
               const SizedBox(height: GxSpacing.sm),
               PlanNotice(icon: Icons.group_off_outlined, text: full, danger: true),

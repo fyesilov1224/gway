@@ -229,6 +229,98 @@ public sealed class ModerationTests(ApiFactory factory) : IClassFixture<ApiFacto
         Assert.Equal("actioned", await _db.ScalarAsync<string>("select status from public.reports where id = @r", ("r", report)));
     }
 
+    /// <summary>An approved illegal-activity ban case of <paramref name="crew"/>; returns its platform referral.</summary>
+    private async Task<Guid> ReferralAsync(Crew crew, string category = "threat")
+    {
+        var report = await ReportCommentAsync(crew);
+        var illegal = new OpenCaseRequest(crew.Offender, "ban", null, "Üyeleri ölümle tehdit etti.", report, MuteNow: false, category);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await OpenCaseAsync(crew.Moderator, crew, illegal with { Sanction = "kick", ReportId = null })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await OpenCaseAsync(crew.Moderator, crew, illegal with { IllegalCategory = "gossip", ReportId = null })).StatusCode);
+        var caseId = await CaseAsync(crew.Moderator, crew, illegal);
+        await VoteAsync(crew.Board1, caseId, approve: true);
+        Assert.Equal("approved", (await VoteAsync(crew.Board2, caseId, approve: true))!.Status);
+        return await _db.ScalarAsync<Guid>("select id from public.platform_referrals where case_id = @c", ("c", caseId));
+    }
+
+    [Fact]
+    public async Task An_illegal_activity_ban_goes_to_the_platform_and_an_admin_bans_the_account()
+    {
+        var crew = await CrewAsync();
+        await _db.GrantPackageAsync(crew.Offender, "matching_teammates");
+        var created = await factory.ClientFor(crew.Offender).PostAsJsonAsync(
+            Path("/groups"), new CreateGroupRequest(Unique("g_"), "Kendi Grubu", "running", "open", null), Ct);
+        var owned = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
+        var (admin, moderator, support) = (await _db.CreateUserAsync(Unique("s_")), await _db.CreateUserAsync(Unique("s_")),
+            await _db.CreateUserAsync(Unique("s_")));
+        await _db.MakeStaffAsync(admin, "admin");
+        await _db.MakeStaffAsync(moderator, "moderator");
+        await _db.MakeStaffAsync(support, "support");
+        (await factory.ClientFor(admin).PostAsJsonAsync(
+            Path($"/admin/groups/{owned}/plan"), new GrantGroupPlanRequest("pro", 30, "Test paketi"), Ct)).EnsureSuccessStatusCode();
+
+        var referral = await ReferralAsync(crew);
+        Assert.Equal("suspended", await _db.ScalarAsync<string>("select status from public.account_status where user_id = @u", ("u", crew.Offender)));
+        Assert.True(await _db.ScalarAsync<bool>("select banned_until is not null from auth.users where id = @u", ("u", crew.Offender)));
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(support).GetAsync(Path("/admin/referrals"), Ct)).StatusCode);
+        var page = await factory.ClientFor(moderator).GetFromJsonAsync<PagedResult<AdminReferral>>(Path("/admin/referrals?status=pending"), Ct);
+        var row = Assert.Single(page!.Items, r => r.Id == referral);
+        Assert.Equal(("threat", "Koşu Kulübü", 1), (row.Category, row.GroupName, row.Evidence.GetArrayLength()));
+        Assert.Equal("Kaba bir yorum", row.Evidence[0].GetProperty("excerpt").GetString());
+
+        var decision = new AdminReferralDecision(Ban: true, BanDays: null, LawEnforcement: true, "Tehdit kanıtlandı.");
+        var url = Path($"/admin/referrals/{referral}/decision");
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(moderator).PostAsJsonAsync(url, decision, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(admin).PostAsJsonAsync(url, decision with { BanDays = 5000 }, Ct)).StatusCode);
+        var decided = await factory.ClientFor(admin).PostAsJsonAsync(url, decision, Ct);
+        decided.EnsureSuccessStatusCode();
+        var outcome = (await decided.Content.ReadFromJsonAsync<AdminReferralOutcome>(Ct))!;
+        Assert.True(outcome.Banned);
+        Assert.Null(outcome.Until);
+        Assert.Equal(2, outcome.CanceledPlans);
+        Assert.Equal([owned], outcome.SuspendedGroups);
+        Assert.Equal(HttpStatusCode.Conflict, (await factory.ClientFor(admin).PostAsJsonAsync(url, decision, Ct)).StatusCode);
+
+        Assert.Equal("suspended", await _db.ScalarAsync<string>("select status from public.groups where id = @g", ("g", owned)));
+        Assert.Equal("free", await _db.ScalarAsync<string>("select private.group_plan_slug(@g)", ("g", owned)));
+        Assert.Equal(0L, await CountAsync(
+            "select count(*) from public.user_subscriptions where user_id = @u and canceled_at is null and ends_at > now()", ("u", crew.Offender)));
+        Assert.Equal("to_notify", await _db.ScalarAsync<string>("select law_enforcement from public.platform_referrals where id = @f", ("f", referral)));
+
+        var authorities = Path($"/admin/referrals/{referral}/authorities");
+        Assert.Equal(HttpStatusCode.BadRequest, (await factory.ClientFor(admin).PostAsJsonAsync(authorities, new AdminReferralNote("x"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await factory.ClientFor(admin).PostAsJsonAsync(authorities, new AdminReferralNote("Savcılık, evrak 2026/123"), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict,
+            (await factory.ClientFor(admin).PostAsJsonAsync(authorities, new AdminReferralNote("Tekrar"), Ct)).StatusCode);
+        Assert.Equal(3L, await CountAsync(
+            "select count(*) from public.audit_log where target_id = @f and action in ('referral.opened', 'referral.decided', 'referral.authorities_notified')",
+            ("f", referral.ToString())));
+    }
+
+    [Fact]
+    public async Task Clearing_a_referral_lifts_the_review_suspension_but_the_group_ban_stays()
+    {
+        var crew = await CrewAsync();
+        var admin = await _db.CreateUserAsync(Unique("s_"));
+        await _db.MakeStaffAsync(admin, "admin");
+        var referral = await ReferralAsync(crew, "insult");
+
+        var decided = await factory.ClientFor(admin).PostAsJsonAsync(
+            Path($"/admin/referrals/{referral}/decision"), new AdminReferralDecision(false, null, false, "Suç unsuru yok."), Ct);
+        decided.EnsureSuccessStatusCode();
+        Assert.False((await decided.Content.ReadFromJsonAsync<AdminReferralOutcome>(Ct))!.Banned);
+        Assert.Equal("active", await _db.ScalarAsync<string>("select status from public.account_status where user_id = @u", ("u", crew.Offender)));
+        Assert.True(await _db.ScalarAsync<bool>("select banned_until is null from auth.users where id = @u", ("u", crew.Offender)));
+        Assert.Equal(0L, await CountAsync("select count(*) from public.group_members where group_id = @g and user_id = @u",
+            ("g", crew.Group), ("u", crew.Offender)));
+        Assert.Equal(HttpStatusCode.Conflict, (await factory.ClientFor(admin).PostAsJsonAsync(
+            Path($"/admin/referrals/{referral}/authorities"), new AdminReferralNote("Savcılık"), Ct)).StatusCode);
+    }
+
     [Fact]
     public async Task Only_the_owner_sets_the_board_threshold()
     {

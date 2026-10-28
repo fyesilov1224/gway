@@ -17,6 +17,9 @@ public interface IGroupAdministration
     Task<Result<GroupState>> SuspendAsync(Guid actorId, Guid groupId, string reason, CancellationToken ct);
 
     Task<Result<GroupState>> UnsuspendAsync(Guid actorId, Guid groupId, CancellationToken ct);
+
+    /// <summary>Suspends every active group <paramref name="ownerId"/> owns (a platform ban); returns their ids.</summary>
+    Task<IReadOnlyList<Guid>> SuspendOwnedAsync(Guid actorId, Guid ownerId, string reason, CancellationToken ct);
 }
 
 /// <summary>Membership changes other modules make inside their own transaction.</summary>

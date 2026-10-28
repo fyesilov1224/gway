@@ -127,8 +127,9 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - Kalıcı silme (`AccountPurgeService`, saatlik): storage dosyaları (`avatars/<uid>/`, `covers/<uid>/`) ve `auth.users` kaydı silinir. Bağlı satırlar `on delete cascade` ile gider. `audit_log` kaydı (`account.purged`) kalır, yalnızca uuid içerir.
 
 ### KVKK
-- Hukuki metinler `legal_documents` tablosunda sürümlüdür (`kind`, `version`). Zorunlu türler: `terms` (kullanım koşulları), `privacy_notice` (aydınlatma metni), `explicit_consent` (açık rıza: verilerin yurt dışındaki sunucularda işlenmesi).
-- Kullanıcının her zorunlu türün **en güncel sürümünü** onaylamış olması gerekir. Yeni sürüm yayınlanınca onay ekranı yeniden gösterilir.
+- Hukuki metinler `legal_documents` tablosunda sürümlüdür (`kind`, `version`). Zorunlu türler: `terms` (kullanım koşulları), `privacy_notice` (aydınlatma metni), `explicit_consent` (açık rıza: verilerin yurt dışındaki sunucularda işlenmesi), `community_rules` (Topluluk Kuralları, Yaptırımlar ve Yasal İşlemler Sözleşmesi; 2026-10-28, §3e Yasa dışı faaliyet).
+- Kullanıcının her zorunlu türün **en güncel sürümünü** onaylamış olması gerekir. Yeni sürüm yayınlanınca onay ekranı yeniden gösterilir. Yeni bir zorunlu tür eklendiğinde mevcut kullanıcılar da bir sonraki açılışta onaylar.
+- **Okumadan onay yok** (kullanıcı kararı, 2026-10-28): onay ekranında bir metnin onay kutusu, metin açılıp **sonuna kadar kaydırılmadan** işaretlenemez. Bu kural arayüzdedir; sunucu onayın sürümünü ve zamanını saklar.
 - `consents` yalnızca ekleme yapılan bir kayıttır. Kullanıcı yalnızca kendi adına ekler (kendi verisine basit yazma), değiştiremez ve silemez.
 - Metinler taslaktır; yayından önce hukuki incelemeden geçmelidir.
 - **Yönetim (Faz 15.7'de admin paneline eklendi):** platform yöneticisi (`admin`) her türün metinlerini panelden yönetir (`/admin/legal`). Her tür için yeni **sürüm** yayınlar (başlık, gövde, yayın zamanı); yayın zamanı ileri tarihli olabilir (o zamana kadar taslak, kimseye görünmez). `audience` türden türetilir (`distance_sales → purchase`, diğerleri `signup`). Yazmalar C# API'den geçer; her işlem `audit_log`'a yazılır (`legal.published`, `legal.updated`, `legal.deleted`).
@@ -766,6 +767,36 @@ Aynı hedefin açık şikayetleri ekranda tek satırda toplanır. Ön inceleme k
 - İtiraz kararı beklenirken yaptırım sürer. Kaldırılan ban ya da çıkarmada üyelik geri gelmez; kişi yeniden katılabilir.
 - Sahibe `appeal_submitted` bildirimi gider. Kişiye karar `appeal_decided` bildirimiyle iletilir.
 
+### Yasa dışı faaliyet ve platform bildirimi (kullanıcı kararı, 2026-10-28)
+Şiddet, tehdit, hakaret, nefret söylemi, cinsel istismar, dolandırıcılık, uyuşturucu, terör ya da başka bir suç teşkil eden faaliyet, grup kurallarının ötesinde platformun da sorunudur.
+- **Dosya:** Dosyayı açan (`reports.review`), önerilen yaptırım **ban** iken dosyayı "yasa dışı faaliyet" olarak işaretleyip bir kategori seçebilir (`moderation_cases.illegal_category`): `violence`, `threat`, `insult`, `hate`, `sexual`, `fraud`, `drugs`, `terror`, `other_crime`. İşaret ve kategori sonradan değişmez. Oylama ve eşik her dosyadakiyle aynıdır; kararı disiplin kurulu verir (kurul yoksa sahip).
+- **Onay anında** (aynı transaction'da):
+  1. Grup banı her zamanki gibi uygulanır.
+  2. Kişinin **hesabı platform incelemesine kadar askıya alınır**. Supabase Auth banı uygulanır, oturumlar kapanır. Gerekçe "Yasa dışı faaliyet bildirimi platform ekibince inceleniyor."dur. Silinmek üzere olan hesap askıya alınmaz; bildirim yine açılır.
+  3. Bir **platform bildirimi** (`platform_referrals`) açılır.
+- **Bildirimin alanları:**
+  - grup, grup adı, kişi ve kullanıcı adı (anlık kopya),
+  - kategori ve kurulun gerekçesi,
+  - kanıt: dosyaya bağlı şikayetlerin içerik kopyaları,
+  - durum, karar ve kolluk bilgisi.
+
+  Kişi ya da grup silinse de bildirim ve kanıtı kalır (yasal saklama; kişi kimliği yabancı anahtarsız tutulur).
+- **Kanıt kapsamı:** Kurul yalnızca grubun içindekileri görür: gönderi, yorum, grup sohbeti, canlı yayın yorumu ve şikayet edilen içeriklerin kopyaları. Birebir (özel) mesajları göremez; özel mesaj şikayetleri yalnızca platform ekibine gider (haberleşmenin gizliliği).
+- **Platform kararı** (admin paneli; `admin` ve `moderator` görür, kararı ve kolluk kaydını yalnızca `admin` verir, çünkü iadesiz paket iptali de yalnızca platform yöneticisine açıktır):
+  - **Banla:** Süreli (1–3650 gün) ya da kalıcı. Hesap bu süreyle askıda kalır. Kişinin kişisel paketleri (eşleşme ve ekip arkadaşı) **iadesiz** iptal edilir. Sahibi olduğu gruplar askıya alınır ve paketleri iadesiz iptal edilir. İptal gerekçesi `cancel_note`'a yazılır.
+  - **Temize çıkar:** Hesap askısı kalkar. Grup banı kurulun kararıdır, sürer; kişi itiraz hakkını kullanabilir.
+  - Kararla birlikte **kolluk durumu** seçilir: `none` ya da `to_notify` (bildirilecek). Bildirim yapıldığında `notified` olarak işaretlenir ve tarih ile notu (ör. başvuru yeri, evrak no) kaydedilir.
+  - Kolluğa ve adli makamlara veri aktarımını yalnızca GrupX (veri sorumlusu) yapar, grup kurulu yapmaz. Aktarım, kanunun öngördüğü durumlarda ya da yetkili makamların talebiyle olur (KVKK m.8/2, 5651).
+- Bütün adımlar `audit_log`'a yazılır: `referral.opened`, `referral.decided`, `referral.authorities_notified`.
+- **Tablo koruması:** `platform_referrals` RLS ile yalnızca platform ekibine (`admin`, `moderator`) görünür. İstemci yazamaz. Trigger kuralları:
+  - bildirim yalnızca onaylanmış, işaretli bir dosyadan açılır,
+  - kanıt alanları değişmez,
+  - durum yalnızca `pending → banned | cleared` yönünde ilerler,
+  - kolluk durumu `to_notify → notified` yönünde ilerler,
+  - kararı yalnızca platform yöneticisi (`admin`) verir.
+- **Uç noktalar:** `GET /admin/referrals?status=`, `POST /admin/referrals/{id}/decision` (`ban`, `banDays` ya da kalıcı, `lawEnforcement`, `note`), `POST /admin/referrals/{id}/authorities` (`note`).
+- **Sözleşme:** Bu süreç, kayıtta ve mevcut kullanıcılara bir sonraki açılışta onaylatılan `community_rules` metninde ayrıntılı yazılıdır. Metin bir taslaktır ve hukuki incelemeden geçmelidir.
+
 ### Bildirimler
 | Tür | Kime |
 |---|---|
@@ -1363,8 +1394,21 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 | `GET /admin/plans` | Paketler ve fiyatları. Rol: `admin`, `support` |
 | `PUT /admin/plans/{slug}` | Paketi güncelleme (ad, limitler, satış durumu, fiyatlar). Rol: `admin` |
 | `POST /admin/subscriptions/{id}/cancellation` | Aboneliği iptal (`reason`, `refunded`). Şu anki dilim hemen biter, ileri tarihli dilim başlamaz. `refunded` ise sipariş `refunded` olur. Rol: `admin` |
+| `POST /admin/groups/{id}/plan` | Gruba paket tanımlama (`slug`, `days` 1–365, `reason` 3–500). Rol: `admin` |
+| `POST /admin/groups/{id}/plan/cancellation` | Grubun bütün paketini iptal (`reason`, `refunded`). Rol: `admin` |
+| `GET /admin/billing/providers` | PayTR ve iyzico kurulumu: anahtar var mı, test mi, panele girilecek bildirim adresleri, eksikler. Anahtar döndürmez. Rol: `admin` |
+| `POST /admin/billing/providers/{provider}/check` | Anahtarları sağlayıcıya sorar: PayTR'da ödenmeyecek 1 TL'lik test siparişine token, iyzico'da imzalı taksit sorgusu. Para çekilmez. Rol: `admin` |
 
-`GET /admin/groups/{id}` yanıtına grubun güncel paketi ve abonelik geçmişi eklenir.
+`GET /admin/groups/{id}` yanıtına grubun güncel paketi ve abonelik geçmişi eklenir. Geçmişteki her dilim satın alındıysa tutarını ve sağlayıcısını, tanımlandıysa tanımlayanı ve gerekçesini, iptal edildiyse iptal gerekçesini taşır.
+
+### Yönetici işlemleri (kullanıcı isteği, 2026-10-28)
+- **Paket tanımlama:** Platform yöneticisi, admin panelinde grup sayfasından gruba Ücretsiz dışında herhangi bir paketi istediği gün sayısı kadar (1–365) tanımlar. Açıklama zorunludur. Dilim siparişsiz ve dönemsiz açılır, `granted_by` ve `grant_reason` alanlarına yazılır. Yerleşim satın almayla aynı kurala uyar:
+  - Daha yüksek kademe hemen başlar. Kalan süre, aylık TL liste fiyatıyla oranlanarak eklenir ve eski dilimler `upgraded` ile kapanır.
+  - Aynı ya da daha düşük kademe zaman çizelgesinin sonuna eklenir.
+  - Böylece ödenmiş süre kaybolmaz. Tanımlanan sürenin yükseltmede aktarılan değeri de aylık fiyatla hesaplanır. 400 gün sınırı yönetici için uygulanmaz.
+- **Paketi iptal:** Grubun süren ve sıradaki bütün dilimleri hemen biter (`cancel_reason = 'admin'`); grup Ücretsiz pakete döner. "Ödeme iade edildi" seçilirse bu dilimlerin ödenmiş siparişleri `refunded` olur. Tek bir dilim de iptal edilebilir.
+- **Gerekçeler veritabanında:** Tanımlama gerekçesi `grant_reason`, her yönetici iptalinin gerekçesi `cancel_note` sütununa yazılır ve sonradan değişmez (trigger). Ayrıca `audit_log`'a da yazılır: `subscription.granted`, `subscription.canceled`, `group_plan.canceled`.
+- **Veritabanı koruması:** Siparişsiz dilimi yalnızca platform yöneticisi kendi adına açabilir. Ücretsiz paket tanımlanamaz. İptal gerekçesi yalnızca yönetici iptaliyle birlikte yazılır (`group_subscriptions_guard`, migration `0045`). Grup sahibinin paket ekranında tanımlanan dönem "GrupX tanımladı" olarak görünür.
 
 ### Kişisel ürünler (Faz 15.6b)
 - Grup paketlerinin yanında kişinin kendisi için aldığı ürünler: `personal_plans` (eşleşme paketleri ve Ekip Arkadaşı, §3g Ücretli paketler), `personal_plan_prices`. Fiyat ve satış durumu yalnızca platform yöneticisince değişir (trigger).
@@ -1382,7 +1426,7 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 - `Billing:Iyzico:ApiKey`, `SecretKey`, `BaseUrl` (sandbox: `https://sandbox-api.iyzipay.com`)
 - `Geo:*`
 
-Anahtarlar yalnızca ortam değişkeni veya user-secrets ile verilir.
+Anahtarlar yalnızca ortam değişkeni veya user-secrets ile verilir (yerelde `backend/scripts/payment-keys.ps1`). API açılışta her sağlayıcının durumunu ve eksikleri (boş ya da yerel `PublicApiUrl`, test modu) günlüğe yazar. İmzası tutmayan bildirim reddedilir ve uyarı olarak loglanır. Üyelikten canlıya adımlar: `docs/PAYMENTS.md`.
 
 ## 7b. Destek ve geri bildirim (Faz 3.5)
 

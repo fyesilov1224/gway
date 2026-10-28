@@ -139,6 +139,13 @@ final adminAppealSearchProvider = FutureProvider.autoDispose.family<AdminAppealP
       (await ref.watch(adminModerationRepositoryProvider).appeals(status: search.status, page: search.page)).getOrThrow(),
 );
 
+typedef AdminReferralSearch = ({AdminReferralStatus? status, int page});
+
+final adminReferralSearchProvider = FutureProvider.autoDispose.family<AdminReferralPage, AdminReferralSearch>(
+  (ref, search) async =>
+      (await ref.watch(adminModerationRepositoryProvider).referrals(status: search.status, page: search.page)).getOrThrow(),
+);
+
 typedef AdminGoalSearch = ({AdminGoalStatus? status, int page});
 
 final adminGoalSearchProvider = FutureProvider.autoDispose.family<AdminGoalPage, AdminGoalSearch>(
@@ -227,6 +234,10 @@ final adminBillingRepositoryProvider = Provider<AdminBillingRepository>(
 
 final billingStatsProvider = FutureProvider.autoDispose<AdminBillingStats>(
   (ref) async => (await ref.watch(adminBillingRepositoryProvider).stats()).getOrThrow(),
+);
+
+final paymentProvidersProvider = FutureProvider.autoDispose<List<PaymentProviderStatus>>(
+  (ref) async => (await ref.watch(adminBillingRepositoryProvider).providers()).getOrThrow(),
 );
 
 typedef OrderSearch = ({String query, AdminOrderStatus? status, int page});

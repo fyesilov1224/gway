@@ -1,4 +1,5 @@
 import 'package:admin/admin.dart';
+import 'package:admin/src/presentation/group_plan_panel.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -193,6 +194,29 @@ const _plans = [
 /// Records plan edits; everything else is read through provider overrides.
 class _FakeBilling implements AdminBillingRepository {
   final updates = <(String, AdminPlanUpdate)>[];
+  final grants = <(String, String, int, String)>[];
+  final groupCancels = <(String, String, bool)>[];
+  final checks = <String>[];
+
+  @override
+  Future<Result<ProviderCheck>> checkProvider(String provider) async {
+    checks.add(provider);
+    return provider == 'paytr'
+        ? const Ok(ProviderCheck(connected: true, message: 'Bağlantı başarılı; anahtarlar sağlayıcı tarafından kabul edildi.'))
+        : const Ok(ProviderCheck(connected: false, message: 'iyzico reddetti: 1001 api bilgileri bulunamadı'));
+  }
+
+  @override
+  Future<Result<void>> grantGroupPlan(String groupId, {required String slug, required int days, required String reason}) async {
+    grants.add((groupId, slug, days, reason));
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> cancelGroupPlan(String groupId, {required String reason, required bool refunded}) async {
+    groupCancels.add((groupId, reason, refunded));
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> updatePlan(String slug, AdminPlanUpdate update) async {
@@ -205,6 +229,24 @@ class _FakeBilling implements AdminBillingRepository {
 }
 
 final _billing = _FakeBilling();
+
+const _paymentProviders = [
+  PaymentProviderStatus(
+    provider: 'paytr',
+    market: 'TR · TL',
+    configured: true,
+    testMode: true,
+    addresses: [ProviderAddress(label: 'Bildirim URL (PayTR paneli)', url: 'https://api.grupx.app/billing/paytr/notify')],
+    warnings: ['Test modu açık: kartlardan para çekilmez.'],
+  ),
+  PaymentProviderStatus(
+    provider: 'iyzico',
+    market: 'Yurt dışı · USD',
+    configured: true,
+    testMode: true,
+    addresses: [ProviderAddress(label: 'Webhook adresi (iyzico paneli)', url: 'https://api.grupx.app/billing/iyzico/webhook')],
+  ),
+];
 
 final _ticket = AdminTicket(
   id: 't1',
@@ -424,6 +466,27 @@ class _FakeModeration implements AdminModerationRepository {
     return const Ok(null);
   }
 
+  final referralDecisions = <(String, bool, int?, bool, String)>[];
+  final authorities = <(String, String)>[];
+
+  @override
+  Future<Result<AdminReferralOutcome>> decideReferral(
+    String referralId, {
+    required bool ban,
+    int? banDays,
+    required bool lawEnforcement,
+    required String note,
+  }) async {
+    referralDecisions.add((referralId, ban, banDays, lawEnforcement, note));
+    return const Ok(AdminReferralOutcome(banned: true, canceledPlans: 2, suspendedGroups: 1));
+  }
+
+  @override
+  Future<Result<void>> markAuthoritiesNotified(String referralId, {required String note}) async {
+    authorities.add((referralId, note));
+    return const Ok(null);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -459,6 +522,23 @@ final _appeal = AdminAppeal(
   createdAt: DateTime(2026, 10, 21),
 );
 
+AdminReferral _referral({AdminReferralStatus status = AdminReferralStatus.pending, LawEnforcementState law = LawEnforcementState.none}) =>
+    AdminReferral(
+      id: 'f1',
+      groupId: 'g1',
+      groupName: 'Doğa Yürüyüşçüleri',
+      subjectId: 'u9',
+      subjectUsername: 'tehditci',
+      category: 'threat',
+      reason: 'Üyeleri ölümle tehdit etti.',
+      evidence: [AdminReferralEvidence(targetType: 'comment', reason: 'violence', excerpt: 'Seni bulacağım', reportedAt: DateTime(2026, 10, 27))],
+      status: status,
+      lawEnforcement: law,
+      createdAt: DateTime(2026, 10, 28),
+    );
+
+var _referralRow = _referral();
+
 Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
       overrides: [
         adminBillingRepositoryProvider.overrideWithValue(_billing),
@@ -481,6 +561,9 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         ),
         adminAppealSearchProvider.overrideWith(
           (ref, search) async => AdminAppealPage(items: [_appeal], total: 1, page: 1, pageSize: 20),
+        ),
+        adminReferralSearchProvider.overrideWith(
+          (ref, search) async => AdminReferralPage(items: [_referralRow], total: 1, page: 1, pageSize: 20),
         ),
         adminEventSearchProvider.overrideWith(
           (ref, search) async => AdminEventPage(items: [_adminEvent], total: 1, page: 1, pageSize: 20),
@@ -571,6 +654,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
           (ref, search) async => SubscriptionPage(items: [_subscription], total: 1, page: 1, pageSize: 20),
         ),
         adminPlansProvider.overrideWith((ref) async => _plans),
+        paymentProvidersProvider.overrideWith((ref) async => _paymentProviders),
         userStatsProvider.overrideWith((ref) async => const AdminUserStats(total: 3, active: 2, suspended: 1, pendingDeletion: 0)),
         userSearchProvider.overrideWith(
           (ref, search) async => UserPage(items: _users, total: _users.length, page: 1, pageSize: 20),
@@ -916,6 +1000,96 @@ void main() {
     await _pumpAt(tester, const Size(1280, 900), const AdminGroupDetailScreen(groupId: 'g2'), role: StaffRole.support);
     expect(find.text('Paket'), findsOneWidget);
     expect(find.text('İptal et'), findsNothing);
+    expect(find.text('Paket tanımla'), findsNothing);
+    expect(find.text('Paketi iptal et'), findsNothing);
+  });
+
+  testWidgets('admins see where to connect the payment providers and check their keys', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminBillingScreen());
+
+    expect(find.text('Ödeme sağlayıcıları'), findsOneWidget);
+    expect(find.text('https://api.grupx.app/billing/paytr/notify'), findsOneWidget);
+    expect(find.text('https://api.grupx.app/billing/iyzico/webhook'), findsOneWidget);
+    expect(find.text('Test modu açık: kartlardan para çekilmez.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(GxButton, 'Bağlantıyı dene').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(GxButton, 'Bağlantıyı dene').last);
+    await tester.pumpAndSettle();
+    expect(_billing.checks.sublist(_billing.checks.length - 2), ['paytr', 'iyzico']);
+    expect(find.textContaining('Bağlantı başarılı'), findsOneWidget);
+    expect(find.text('iyzico reddetti: 1001 api bilgileri bulunamadı'), findsOneWidget);
+  });
+
+  testWidgets('support staff do not see the payment provider setup', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminBillingScreen(), role: StaffRole.support);
+    expect(find.text('Ödeme sağlayıcıları'), findsNothing);
+  });
+
+  testWidgets('an admin gives a group a plan for some days with a reason', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminGroupDetailScreen(groupId: 'g2'));
+    await tester.tap(find.widgetWithText(GxButton, 'Paket tanımla'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Grubun mevcut süresi bitince başlar.'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gün (1–365)'), '400');
+    await tester.tap(find.widgetWithText(GxButton, 'Tanımla'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 ile 365 arasında bir gün sayısı yaz.'), findsOneWidget);
+    expect(find.text('Bir açıklama yaz.'), findsOneWidget);
+    expect(_billing.grants, isEmpty);
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gün (1–365)'), '45');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Açıklama'), 'Festival sponsorluğu');
+    await tester.tap(find.widgetWithText(GxButton, 'Tanımla'));
+    await tester.pumpAndSettle();
+    expect(_billing.grants.last, ('g2', 'starter', 45, 'Festival sponsorluğu'));
+  });
+
+  testWidgets('an admin cancels all of a group plan with a reason', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminGroupDetailScreen(groupId: 'g2'));
+    await tester.tap(find.widgetWithText(GxButton, 'Paketi iptal et'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Topluluk kuralları ihlali');
+    await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
+    await tester.pumpAndSettle();
+    expect(_billing.groupCancels.last, ('g2', 'Topluluk kuralları ihlali', false));
+  });
+
+  testWidgets('a granted and a cancelled slice show who gave them and why', (tester) async {
+    final now = DateTime.now();
+    final detail = AdminGroupDetail(
+      group: _groups[1],
+      plan: const AdminGroupPlan(slug: 'free', name: 'Ücretsiz', maxMembers: 50),
+      subscriptions: [
+        AdminSubscription(
+          id: 's9',
+          groupId: 'g2',
+          groupName: 'Pedal Kadıköy',
+          groupHandle: 'pedal',
+          planName: 'Pro',
+          startsAt: now.subtract(const Duration(days: 5)),
+          endsAt: now.subtract(const Duration(days: 1)),
+          canceledAt: now.subtract(const Duration(days: 1)),
+          cancelReason: 'admin',
+          grantReason: 'Festival sponsorluğu',
+          grantedByUsername: 'grupx_ekip',
+          cancelNote: 'Sponsorluk bitti',
+        ),
+      ],
+      about: '',
+      pendingRequests: 0,
+      pendingInvitations: 0,
+      team: const [],
+      history: const [],
+    );
+    await _pumpAt(tester, const Size(1280, 900), Scaffold(body: SingleChildScrollView(child: GroupPlanPanel(detail: detail))));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Pro'), findsOneWidget);
+    expect(find.textContaining('Tanımlandı (@grupx_ekip): Festival sponsorluğu'), findsOneWidget);
+    expect(find.text('İptal gerekçesi: Sponsorluk bitti'), findsOneWidget);
+    expect(find.text('Paketi iptal et'), findsNothing);
   });
 
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
@@ -1059,6 +1233,39 @@ void main() {
     await tester.tap(find.widgetWithText(GxButton, 'Kaldır'));
     await tester.pumpAndSettle();
     expect(_moderation.decided.single, ('a1', true, 'Duyuru reklam sayılmaz'));
+  });
+
+  testWidgets('an admin bans an illegal-activity referral and records the authorities', (tester) async {
+    _referralRow = _referral();
+    await _pumpAt(tester, const Size(1280, 900), const AdminReportsScreen());
+    await tester.tap(find.text('Yasa dışı'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kurulun gerekçesi: Üyeleri ölümle tehdit etti.'), findsOneWidget);
+    expect(find.text('Seni bulacağım'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(GxButton, 'Karar ver'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Kalıcı'));
+    await tester.tap(find.text('Kolluğa bildirilecek'));
+    await tester.tap(find.widgetWithText(GxButton, 'Banla').last);
+    await tester.pumpAndSettle();
+    expect(_moderation.referralDecisions, isEmpty, reason: 'a decision needs a note');
+    await tester.enterText(find.widgetWithText(TextField, 'Karar notu'), 'Tehdit kanıtlandı');
+    await tester.tap(find.widgetWithText(GxButton, 'Banla').last);
+    await tester.pumpAndSettle();
+    expect(_moderation.referralDecisions.single, ('f1', true, null, true, 'Tehdit kanıtlandı'));
+    expect(find.textContaining('2 paket dilimi iadesiz iptal edildi, 1 grup askıya alındı'), findsOneWidget);
+  });
+
+  testWidgets('moderators read referrals but only an admin decides', (tester) async {
+    _referralRow = _referral(status: AdminReferralStatus.banned, law: LawEnforcementState.toNotify);
+    await _pumpAt(tester, const Size(390, 844), const AdminReportsScreen(), role: StaffRole.moderator);
+    await tester.tap(find.text('Yasa dışı'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Kolluğa bildirilecek'), findsOneWidget);
+    expect(find.widgetWithText(GxButton, 'Karar ver'), findsNothing);
+    expect(find.widgetWithText(GxButton, 'Kolluğa bildirildi'), findsNothing);
   });
 
   testWidgets('support staff only read reports', (tester) async {

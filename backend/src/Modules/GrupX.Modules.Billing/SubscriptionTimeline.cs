@@ -23,8 +23,8 @@ internal static class ChangeKinds
     public const string Downgrade = "downgrade";
 }
 
-/// <summary>A live (not yet ended) slice of a group's timeline.</summary>
-internal sealed record Slice(Guid Id, string PlanSlug, int Tier, string Period, DateTimeOffset StartsAt, DateTimeOffset EndsAt);
+/// <summary>A live (not yet ended) slice of a group's timeline; <see cref="Period"/> is null for a slice an admin gave.</summary>
+internal sealed record Slice(Guid Id, string PlanSlug, int Tier, string? Period, DateTimeOffset StartsAt, DateTimeOffset EndsAt);
 
 /// <summary>Where a new purchase goes and which live slices it replaces.</summary>
 internal sealed record Placement(string Kind, DateTimeOffset StartsAt, DateTimeOffset EndsAt, TimeSpan Credit, IReadOnlyList<Guid> Replaced);
@@ -44,6 +44,7 @@ internal static class SubscriptionTimeline
     /// <param name="slices">The group's slices that end after <paramref name="now"/>.</param>
     /// <param name="price">List price of (plan, period) in the order's currency; null when there is none.</param>
     /// <param name="enforceMaxAhead">False at settlement: a paid order always gets its time.</param>
+    /// <param name="length">The new slice's end from its start; <paramref name="period"/> by default (an admin grant gives days).</param>
     public static Result<Placement> Place(
         DateTimeOffset now,
         IReadOnlyList<Slice> slices,
@@ -51,8 +52,10 @@ internal static class SubscriptionTimeline
         int tier,
         string period,
         Func<string, string, int?> price,
-        bool enforceMaxAhead = true)
+        bool enforceMaxAhead = true,
+        Func<DateTimeOffset, DateTimeOffset>? length = null)
     {
+        length ??= start => Periods.Add(start, period);
         var current = slices.FirstOrDefault(s => s.StartsAt <= now && now < s.EndsAt);
 
         if (tier > (current?.Tier ?? 0))
@@ -64,12 +67,14 @@ internal static class SubscriptionTimeline
                 foreach (var slice in slices)
                 {
                     var remaining = slice.EndsAt - (slice.StartsAt > now ? slice.StartsAt : now);
-                    if (remaining <= TimeSpan.Zero || price(slice.PlanSlug, slice.Period) is not { } oldPrice) continue;
-                    var oldDaily = (decimal)oldPrice / Periods.NominalDays(slice.Period);
+                    // Granted time is valued at the monthly price.
+                    var slicePeriod = slice.Period ?? Periods.Month;
+                    if (remaining <= TimeSpan.Zero || price(slice.PlanSlug, slicePeriod) is not { } oldPrice) continue;
+                    var oldDaily = (decimal)oldPrice / Periods.NominalDays(slicePeriod);
                     credit += TimeSpan.FromSeconds((double)Math.Floor((decimal)remaining.TotalSeconds * oldDaily / newDaily));
                 }
             }
-            return new Placement(ChangeKinds.Upgrade, now, Periods.Add(now, period) + credit, credit, [.. slices.Select(s => s.Id)]);
+            return new Placement(ChangeKinds.Upgrade, now, length(now) + credit, credit, [.. slices.Select(s => s.Id)]);
         }
 
         var end = slices.Count == 0 ? now : slices.Max(s => s.EndsAt);
@@ -77,6 +82,6 @@ internal static class SubscriptionTimeline
         if (enforceMaxAhead && end - now > MaxAhead) return TooLong;
 
         var kind = tier == current?.Tier ? ChangeKinds.Renewal : ChangeKinds.Downgrade;
-        return new Placement(kind, end, Periods.Add(end, period), TimeSpan.Zero, []);
+        return new Placement(kind, end, length(end), TimeSpan.Zero, []);
     }
 }

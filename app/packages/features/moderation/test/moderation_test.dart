@@ -53,6 +53,12 @@ class _FakeModeration implements ModerationRepository {
   }
 
   @override
+  Future<Result<void>> openCase(String groupId, CaseForm form) async {
+    calls.add('case:$groupId:${form.sanction.code}:${form.durationDays}:${form.illegalCategory?.code}');
+    return const Ok(null);
+  }
+
+  @override
   Future<Result<CaseStatus>> vote(String caseId, {required bool approve}) async {
     calls.add('vote:$caseId:$approve');
     return const Ok(CaseStatus.voting);
@@ -172,6 +178,60 @@ void main() {
     await tester.tap(find.widgetWithText(GxButton, 'Onayla'));
     await tester.pumpAndSettle();
     expect(fake.calls, ['vote:c1:true']);
+  });
+
+  testWidgets('only a ban case is marked as illegal activity, with a category', (tester) async {
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final fake = await _pump(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showCaseSheet(context, groupId: 'g1', subjectId: 'u6', subjectName: 'Kaba Üye'),
+            child: const Text('Aç'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Aç'));
+    await tester.pumpAndSettle();
+    expect(find.text('Yasa dışı faaliyet'), findsNothing, reason: 'a warning is never illegal activity');
+    await tester.enterText(find.byType(TextFormField), 'Üyeleri ölümle tehdit etti.');
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Ban'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yasa dışı faaliyet'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Tehdit'));
+    await tester.scrollUntilVisible(find.widgetWithText(GxButton, 'Dosyayı aç'), 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(find.widgetWithText(GxButton, 'Dosyayı aç'));
+    await tester.pumpAndSettle();
+    expect(fake.calls, ['case:g1:ban:7:threat']);
+  });
+
+  testWidgets('the case card shows the illegal-activity mark', (tester) async {
+    final marked = ModerationCase(
+      id: 'c2',
+      subject: _offender,
+      sanction: SanctionType.ban,
+      illegalCategory: IllegalCategory.fraud,
+      reason: 'Üyelerden sahte bilet parası topladı.',
+      status: CaseStatus.voting,
+      votingEndsAt: DateTime.now().add(const Duration(hours: 50)),
+      createdAt: DateTime(2026, 10, 28),
+      voters: 2,
+      isVoter: true,
+    );
+    await _pump(
+      tester,
+      const GroupModerationScreen(groupId: 'g1', groupName: 'Koşu Kulübü', links: _links),
+      desk: GroupModeration(rank: 60, cases: [marked]),
+    );
+    await tester.tap(find.text('Dosyalar (1)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Yasa dışı faaliyet: Dolandırıcılık'), findsOneWidget);
   });
 
   testWidgets('people outside the moderation team see why the desk is closed', (tester) async {

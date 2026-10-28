@@ -15,15 +15,16 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 
 select is(
   (select array_agg(kind order by kind) from public.pending_legal_documents()),
-  array['explicit_consent', 'privacy_notice', 'terms'],
-  'new user has all three documents pending'
+  array['community_rules', 'explicit_consent', 'privacy_notice', 'terms'],
+  'new user has all four documents pending'
 );
 
 select lives_ok(
   $$ insert into public.consents (user_id, kind, version) values
        ('00000000-0000-0000-0000-0000000000b1', 'terms', 1),
        ('00000000-0000-0000-0000-0000000000b1', 'privacy_notice', 1),
-       ('00000000-0000-0000-0000-0000000000b1', 'explicit_consent', 1) $$,
+       ('00000000-0000-0000-0000-0000000000b1', 'explicit_consent', 1),
+       ('00000000-0000-0000-0000-0000000000b1', 'community_rules', 1) $$,
   'user can record their own consents'
 );
 
@@ -34,7 +35,7 @@ select is_empty(
 
 select is(
   (select count(*)::int from public.consents),
-  3,
+  4,
   'user sees only their own consents'
 );
 

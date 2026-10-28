@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using GrupX.Modules.Billing.Contracts;
 using GrupX.SharedKernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -37,6 +38,16 @@ internal sealed class PaytrClient(HttpClient http, IOptions<BillingOptions> opti
     /// <summary>Opens a payment session; returns the hosted payment page.</summary>
     public async Task<Result<(string Token, Uri PaymentUrl)>> StartAsync(PaytrCheckout checkout, CancellationToken ct)
     {
+        var body = await RequestTokenAsync(checkout, ct);
+        if (body is { Status: "success", Token.Length: > 0 })
+            return (body.Token, new Uri(new Uri(Options.BaseUrl), $"/odeme/guvenli/{body.Token}"));
+
+        log.LogWarning("PayTR rejected checkout {MerchantOid}: {Reason}", checkout.MerchantOid, body?.Reason);
+        return BillingErrors.ProviderFailed;
+    }
+
+    private async Task<TokenResponse?> RequestTokenAsync(PaytrCheckout checkout, CancellationToken ct)
+    {
         var o = Options;
         var amount = checkout.AmountMinor.ToString(CultureInfo.InvariantCulture);
         var basket = Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(
@@ -70,12 +81,29 @@ internal sealed class PaytrClient(HttpClient http, IOptions<BillingOptions> opti
         });
 
         using var response = await http.PostAsync(new Uri(new Uri(o.BaseUrl), "/odeme/api/get-token"), form, ct);
-        var body = await response.Content.ReadFromJsonAsync<TokenResponse>(JsonSerializerOptions.Web, ct);
-        if (body is { Status: "success", Token.Length: > 0 })
-            return (body.Token, new Uri(new Uri(o.BaseUrl), $"/odeme/guvenli/{body.Token}"));
+        return await response.Content.ReadFromJsonAsync<TokenResponse>(JsonSerializerOptions.Web, ct);
+    }
 
-        log.LogWarning("PayTR rejected checkout {MerchantOid}: {Reason}", checkout.MerchantOid, body?.Reason);
-        return BillingErrors.ProviderFailed;
+    /// <summary>
+    /// Asks PayTR for a payment token for a 1 TL test order nobody pays, so the store's id, key and salt are checked
+    /// exactly as a real checkout uses them. Returns PayTR's reason when it refuses.
+    /// </summary>
+    public async Task<ProviderCheck> CheckAsync(string userIp, CancellationToken ct)
+    {
+        if (!IsConfigured) return ProviderCheck.NotConfigured;
+        try
+        {
+            var body = await RequestTokenAsync(new PaytrCheckout(
+                $"GXCHECK{Guid.NewGuid():N}", userIp, "kontrol@grupx.app", 100, "GrupX baglanti kontrolu",
+                "GrupX Kontrol", "Kontrol", "05000000000", new Uri("https://grupx.app/")), ct);
+            return body is { Status: "success", Token.Length: > 0 }
+                ? ProviderCheck.Success
+                : new ProviderCheck(false, $"PayTR reddetti: {body?.Reason ?? "yanıt okunamadı"}");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            return new ProviderCheck(false, $"PayTR'a ulaşılamadı: {ex.Message}");
+        }
     }
 
     /// <summary>Checks the <c>hash</c> of a payment notification.</summary>

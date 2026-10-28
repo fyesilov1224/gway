@@ -113,6 +113,7 @@ class ModerationRepositoryImpl implements ModerationRepository {
                 openedBy: _person(c['opened_by']),
                 sanction: SanctionType.parse(c['sanction']),
                 durationDays: (c['duration_days'] as num?)?.toInt(),
+                illegalCategory: IllegalCategory.parse(c['illegal_category']),
                 reason: c['reason'] as String,
                 threshold: CaseThreshold.parse(c['threshold']),
                 status: CaseStatus.parse(c['status']),

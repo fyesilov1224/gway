@@ -150,7 +150,7 @@ class _CurrentPlan extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(top: GxSpacing.xs),
                 child: Text(
-                  '${names[s.planSlug] ?? s.planSlug} (${s.period.label.toLowerCase()}): '
+                  '${names[s.planSlug] ?? s.planSlug} (${s.period?.label.toLowerCase() ?? 'GrupX tanımladı'}): '
                   '${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
                   style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
                 ),

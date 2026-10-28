@@ -38,11 +38,21 @@ public sealed record CancelAdminEventRequest(string Reason);
 
 public sealed record AdminAppealDecision(bool Overturn, string? Note);
 
+/// <param name="BanDays">Null with <paramref name="Ban"/> closes the account for good.</param>
+public sealed record AdminReferralDecision(bool Ban, int? BanDays, bool LawEnforcement, string Note);
+
+public sealed record AdminReferralNote(string Note);
+
+/// <summary>A decided referral and, after a ban, how many paid slices ended and which groups were suspended.</summary>
+public sealed record AdminReferralOutcome(bool Banned, DateTimeOffset? Until, int CanceledPlans, IReadOnlyList<Guid> SuspendedGroups);
+
 public sealed record SuspendMatchProfileRequest(string Reason, DateTimeOffset? Until);
 
 public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
 
 public sealed record GrantUserPackageRequest(string Slug, int Days, string Reason);
+
+public sealed record GrantGroupPlanRequest(string Slug, int Days, string Reason);
 
 public static class AdminModule
 {
@@ -216,6 +226,17 @@ public static class AdminModule
                 (await admin.UnsuspendAsync(user.GetUserId(), id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        // The group's plan (docs/ARCHITECTURE.md §7, Yönetici işlemleri).
+        groups.MapPost("/{id:guid}/plan", async (
+                Guid id, GrantGroupPlanRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                (await billingAdmin.GrantGroupPlanAsync(user.GetUserId(), id, body.Slug, body.Days, body.Reason, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        groups.MapPost("/{id:guid}/plan/cancellation", async (
+                Guid id, CancelSubscriptionRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                (await billingAdmin.CancelGroupPlanAsync(user.GetUserId(), id, body.Reason, body.Refunded, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
         var billing = app.MapGroup("/admin/billing");
 
         billing.MapGet("/stats", async (AdminBilling admin, CancellationToken ct) =>
@@ -231,6 +252,16 @@ public static class AdminModule
         billing.MapGet("/subscriptions", async (string? q, int? page, AdminBilling admin, CancellationToken ct) =>
                 TypedResults.Ok(await admin.SubscriptionsAsync(q, page ?? 1, ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.Billing));
+
+        // Payment provider setup (docs/PAYMENTS.md). Never returns a key.
+        billing.MapGet("/providers", (IBillingAdministration billingAdmin) => TypedResults.Ok(billingAdmin.ProvidersStatus()))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        billing.MapPost("/providers/{provider}/check", async (
+                string provider, HttpContext http, IBillingAdministration billingAdmin, CancellationToken ct) =>
+                (await billingAdmin.CheckProviderAsync(provider, http.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1", ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly))
+            .RequireRateLimiting(RateLimitPolicies.Sensitive);
 
         app.MapGet("/admin/plans", async (AdminBilling admin, CancellationToken ct) =>
                 TypedResults.Ok(await admin.PlansAsync(ct)))
@@ -403,6 +434,35 @@ public static class AdminModule
                 Guid id, AdminAppealDecision body, ClaimsPrincipal user, IModerationAdministration moderation, CancellationToken ct) =>
                 (await moderation.DecideAppealAsync(user.GetUserId(), id, body.Overturn, body.Note, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        // Illegal-activity referrals (docs/ARCHITECTURE.md §3e): the team sees them, only an admin decides.
+        var referrals = app.MapGroup("/admin/referrals");
+
+        referrals.MapGet("", async (string? status, int? page, AdminModeration admin, CancellationToken ct) =>
+                TypedResults.Ok(await admin.ReferralsAsync(status, page ?? 1, ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        referrals.MapPost("/{id:guid}/decision", async (
+                Guid id, AdminReferralDecision body, ClaimsPrincipal user, IModerationAdministration moderation,
+                IBillingAdministration billingAdmin, IGroupAdministration groupAdmin, CancellationToken ct) =>
+            {
+                var actor = user.GetUserId();
+                var decided = await moderation.DecideReferralAsync(actor, id, body.Ban, body.BanDays, body.LawEnforcement, body.Note, ct);
+                if (!decided.IsSuccess) return ((Result<AdminReferralOutcome>)decided.Error).ToHttpResult();
+
+                var d = decided.Value;
+                if (!d.Banned) return Result<AdminReferralOutcome>.Success(new AdminReferralOutcome(false, null, 0, [])).ToHttpResult();
+                const string Reason = "Yasa dışı faaliyet nedeniyle platform banı";
+                var canceled = await billingAdmin.CancelForViolationAsync(actor, d.SubjectId, Reason, ct);
+                var groups = await groupAdmin.SuspendOwnedAsync(actor, d.SubjectId, Reason, ct);
+                return Result<AdminReferralOutcome>.Success(new AdminReferralOutcome(true, d.Until, canceled, groups)).ToHttpResult();
+            })
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        referrals.MapPost("/{id:guid}/authorities", async (
+                Guid id, AdminReferralNote body, ClaimsPrincipal user, IModerationAdministration moderation, CancellationToken ct) =>
+                (await moderation.MarkAuthoritiesNotifiedAsync(user.GetUserId(), id, body.Note, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
 
         return app;
     }

@@ -17,6 +17,13 @@ Widget groupPlanSection(BuildContext context, Group group, MyMembership me) {
   );
 }
 
+/// The package row of an owned group in the "Paketler" tab of the groups screen.
+Widget groupPackagesRow(BuildContext context, Group group) => GroupPlanCard(
+      groupId: group.id,
+      canManage: true,
+      onManage: () => context.push(BillingRoutes.plan(group.handle)),
+    );
+
 /// Resolves the group of a billing route (billing does not know the groups feature).
 class _GroupGate extends ConsumerWidget {
   const _GroupGate({required this.handle, required this.title, required this.builder});

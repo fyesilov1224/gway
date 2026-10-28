@@ -65,6 +65,27 @@ public interface IBillingAdministration
     /// <summary>Ends a slice now (a future slice never starts); <paramref name="refunded"/> marks its order refunded.</summary>
     Task<Result> CancelSubscriptionAsync(Guid actorId, Guid subscriptionId, string reason, bool refunded, CancellationToken ct);
 
+    /// <summary>
+    /// Gives the group <paramref name="slug"/> for <paramref name="days"/> by the timeline rules: a higher plan starts now and
+    /// carries the remaining time over, the same or a lower plan follows the time the group already has.
+    /// </summary>
+    Task<Result> GrantGroupPlanAsync(Guid actorId, Guid groupId, string slug, int days, string reason, CancellationToken ct);
+
+    /// <summary>Ends the group's running and upcoming slices now, so it is on the free plan; <paramref name="refunded"/> marks their orders refunded.</summary>
+    Task<Result> CancelGroupPlanAsync(Guid actorId, Guid groupId, string reason, bool refunded, CancellationToken ct);
+
+    /// <summary>
+    /// A platform ban for a violation (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet): ends the person's personal plans and the
+    /// plans of the groups they own now, without refund. Returns how many slices ended.
+    /// </summary>
+    Task<int> CancelForViolationAsync(Guid actorId, Guid userId, string reason, CancellationToken ct);
+
+    /// <summary>Each provider's setup: keys present, test mode, the addresses to enter in its panel and what is missing.</summary>
+    PaymentProvidersStatus ProvidersStatus();
+
+    /// <summary>Asks <paramref name="provider"/> whether the configured keys work; not found for an unknown provider.</summary>
+    Task<Result<ProviderCheck>> CheckProviderAsync(string provider, string userIp, CancellationToken ct);
+
     Task<PersonalPlanSummary> PersonalPlanAsync(string slug, CancellationToken ct);
 
     Task<Result> UpdatePersonalPlanAsync(Guid actorId, string slug, PersonalPlanUpdate update, CancellationToken ct);

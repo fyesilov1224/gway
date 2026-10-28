@@ -55,10 +55,12 @@ Fazlar sırayla yapılır. Bir faz `docs/ARCHITECTURE.md` §9'daki "bitti" tanı
 - [x] PayTR (iFrame API, token ve bildirim hash'i) ve iyzico (Checkout Form, IYZWSv2, ödeme detayı sorgusu, `X-IYZ-SIGNATURE-V3` webhook); ödeme yalnızca sunucu tarafında kesinleşir, idempotent, tutar/para birimi kontrolü
 - [x] Yükseltme, yenileme ve alt pakete geçiş kuralları; teklif ekranında tahmini tarihler ve aktarılan süre
 - [x] Web'den satın alma (paket ekranı, ödeme ekranı: fatura bilgileri, Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi onayı, sağlayıcıya yönlendirme, dönüşte durum takibi); mobilde yalnızca durum
-- [x] Grup sayfasında paket kartı (sahip), limit dolunca uyarı (onay yetkisi olanlar), bitişe 7 gün kala hatırlatma
+- [x] Grup sayfasında paket kartı (sahip), limit dolunca uyarı (onay yetkisi olanlar), bitişe 7 gün kala hatırlatma; web'de "Paket al" / "Paketi yükselt" butonu ve Gruplar ekranında sahibin gruplarını paketleriyle listeleyen "Paketler" sekmesi (kullanıcı isteği, 2026-10-28)
+- [x] Admin: grup sayfasından gruba istenen paketi gün sayısıyla tanımlama ve grubun bütün paketini iptal etme; açıklama zorunlu, tanımlama ve iptal gerekçeleri veritabanında (`grant_reason`, `cancel_note`, migration `0045`; pgTAP `35_group_plan_grants`, C# ve Flutter testleri; kullanıcı isteği, 2026-10-28)
 - [x] Limit koruması: üye limiti API'de (`IGroupPlanLimits`) ve `group_members` trigger'ında; organizasyon ve yayın dakikası limitleri Faz 5 ve 7'de bağlanacak
 - [x] Admin: Abonelikler (bu ayın geliri, son 12 ayın aylık geliri, bekleyen ödemeler, ödeme ve abonelik listeleri), Paketler (limit, fiyat, satış durumu düzenleme), grup detayında paket ve zaman çizelgesi, iade işaretli abonelik iptali
 - [x] Doğrulama (2026-10-19): `flutter analyze` temiz, Flutter 119/119, `dotnet build` 0 hata 0 uyarı, C# 105/105, pgTAP 207/207, uçtan uca senaryo 41/41 (gerçek veritabanı ve API, yerel sahte PayTR/iyzico, DB-IP Lite ile IP → ülke), iki uygulamanın web derlemesi ve ekran kontrolü
+- [x] Bağlantıya hazırlık (2026-10-28): admin panelinde "Ödeme sağlayıcıları" kartı (durum, panele girilecek bildirim adresleri, eksikler, "Bağlantıyı dene"), açılışta kurulum günlüğü, imzası tutmayan bildirim uyarısı, yerel anahtar betiği (`backend/scripts/payment-keys.ps1`), rehber `docs/PAYMENTS.md`
 - Açık: PayTR mağaza hesabı ve iyzico sandbox/canlı anahtarları; mesafeli satış ve aydınlatma metinlerinin hukuki incelemesi; e-Arşiv fatura (v1 kapsamı dışı)
 
 ## Faz 3.5 — Destek ve Geri Bildirim
@@ -126,6 +128,7 @@ Ayrıntılar: `ARCHITECTURE.md` §3e.
   - "Grup yaptırımlarım" (`/me/sanctions`) ve itiraz.
 - [x] Admin: Şikayetler sayfası (kapsam ve durum filtresi, şikayet eden ve hedef, reddet / işlem yapıldı) ve platformun itirazları.
 - [x] Doğrulama (2026-10-21): `flutter analyze` temiz, tüm Flutter testleri geçiyor (moderation 7, admin 41, groups 17), `dotnet build` 0 hata 0 uyarı, C# 141/141, pgTAP 485/485; gerçek API ve Supabase ile uçtan uca deneme (şikayet, gizli şikayet eden, dosya ve acil susturma, kurul oyu, yaptırım, itiraz, moderasyon ekranı ve Yaptırımlarım). Migration `0013` itiraz kuralını `SECURITY DEFINER` yapan düzeltmedir.
+- [x] Yasa dışı faaliyet ve platform bildirimi (kullanıcı kararı, 2026-10-28; `ARCHITECTURE.md` §3e): ban dosyası kategoriyle işaretlenir, onaylanınca hesap askıya alınır ve kanıtlı `platform_referrals` kaydı açılır. Admin panelinde Şikayetler → "Yasa dışı": banla (süreli ya da kalıcı; kişisel paketler ve sahibi olduğu grupların paketleri iadesiz iptal, gruplar askıya) ya da temize çıkar, kolluk durumu ve kaydı. Kayıtta ve mevcut kullanıcılara onaylatılan `community_rules` sözleşmesi; onay kutusu metin sonuna kadar okunmadan işaretlenmez. Migration `0046`; pgTAP `36_platform_referrals`, C# ve Flutter testleri. Doğrulama (2026-10-28): `flutter analyze` temiz, 17 Flutter paketinin testleri geçiyor, `dotnet build` 0 hata 0 uyarı, C# 210/210, pgTAP 869/869. Metin taslaktır, hukuki incelemeden geçmelidir.
 
 ## Faz 7 — Canlı Sesli Yayın
 

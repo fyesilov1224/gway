@@ -13,11 +13,14 @@ String _agreementLabel(LegalKind kind) => switch (kind) {
       LegalKind.privacyNotice => "KVKK Aydınlatma Metni'ni okudum.",
       LegalKind.explicitConsent =>
         'Kişisel verilerimin yurt dışındaki sunucularda işlenmesine açık rıza veriyorum.',
+      LegalKind.communityRules =>
+        "Topluluk Kuralları, Yaptırımlar ve Yasal İşlemler Sözleşmesi'ni okudum ve kabul ediyorum.",
       // Accepted at checkout, never pending here.
       LegalKind.distanceSales => "Mesafeli Satış Sözleşmesi'ni okudum ve kabul ediyorum.",
     };
 
-/// Asks for every pending legal document before the app can be used.
+/// Asks for every pending legal document before the app can be used. A box is checked only after its text was
+/// read to the end (docs/ARCHITECTURE.md §3a, KVKK).
 class ConsentScreen extends ConsumerStatefulWidget {
   const ConsentScreen({super.key});
 
@@ -27,6 +30,7 @@ class ConsentScreen extends ConsumerStatefulWidget {
 
 class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   final _accepted = <LegalKind>{};
+  final _read = <LegalKind>{};
   bool _saving = false;
   String? _error;
 
@@ -73,6 +77,8 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
           _ConsentTile(
             document: doc,
             accepted: _accepted.contains(doc.kind),
+            read: _read.contains(doc.kind),
+            onRead: () => setState(() => _read.add(doc.kind)),
             onChanged: (value) => setState(
               () => value ? _accepted.add(doc.kind) : _accepted.remove(doc.kind),
             ),
@@ -102,11 +108,15 @@ class _ConsentTile extends StatelessWidget {
   const _ConsentTile({
     required this.document,
     required this.accepted,
+    required this.read,
+    required this.onRead,
     required this.onChanged,
   });
 
   final LegalDocument document;
   final bool accepted;
+  final bool read;
+  final VoidCallback onRead;
   final ValueChanged<bool> onChanged;
 
   @override
@@ -125,19 +135,25 @@ class _ConsentTile extends StatelessWidget {
                 GxButton(
                   label: 'Metni oku',
                   variant: GxButtonVariant.text,
-                  onPressed: () => showLegalDocument(context, document),
+                  onPressed: () => showLegalDocument(context, document, onReadToEnd: onRead),
                 ),
               ],
             ),
             CheckboxListTile(
               value: accepted,
-              onChanged: (v) => onChanged(v ?? false),
+              onChanged: read ? (v) => onChanged(v ?? false) : null,
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               title: Text(
                 _agreementLabel(document.kind),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
+              subtitle: read
+                  ? null
+                  : Text(
+                      'Onaylamak için metni sonuna kadar oku.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                    ),
             ),
           ],
         ),

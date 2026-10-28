@@ -40,16 +40,19 @@ public sealed record AdminSubscription(
     string GroupHandle,
     string PlanSlug,
     string PlanName,
-    string Period,
+    string? Period,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     DateTimeOffset? CanceledAt,
     string? CancelReason,
-    Guid OrderId,
-    string OrderStatus,
-    string Provider,
-    string Currency,
-    int AmountMinor);
+    Guid? OrderId,
+    string? OrderStatus,
+    string? Provider,
+    string? Currency,
+    int? AmountMinor,
+    string? GrantReason,
+    string? GrantedByUsername,
+    string? CancelNote);
 
 public sealed record AdminPlanPrice(string Currency, string Period, int AmountMinor);
 
@@ -193,11 +196,13 @@ internal sealed class AdminBilling(NpgsqlDataSource db)
     private const string SubscriptionSelect =
         """
         select s.id, s.group_id, g.name, g.handle, s.plan_slug, pl.name, s.period, s.starts_at, s.ends_at,
-               s.canceled_at, s.cancel_reason, s.order_id, o.status, o.provider, o.currency, o.amount_minor
+               s.canceled_at, s.cancel_reason, s.order_id, o.status, o.provider, o.currency, o.amount_minor,
+               s.grant_reason, gb.username, s.cancel_note
         from public.group_subscriptions s
         join public.groups g on g.id = s.group_id
         join public.plans pl on pl.slug = s.plan_slug
-        join public.billing_orders o on o.id = s.order_id
+        left join public.billing_orders o on o.id = s.order_id
+        left join public.profiles gb on gb.id = s.granted_by
         """;
 
     /// <summary>Current and queued slices, the soonest to end first.</summary>
@@ -239,13 +244,15 @@ internal sealed class AdminBilling(NpgsqlDataSource db)
     {
         var items = new List<AdminSubscription>();
         await using var r = await cmd.ExecuteReaderAsync(ct);
+        string? Text(int i) => r.IsDBNull(i) ? null : r.GetString(i);
         while (await r.ReadAsync(ct))
         {
             items.Add(new AdminSubscription(
-                r.GetGuid(0), r.GetGuid(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5), r.GetString(6),
+                r.GetGuid(0), r.GetGuid(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetString(5), Text(6),
                 r.GetFieldValue<DateTimeOffset>(7), r.GetFieldValue<DateTimeOffset>(8),
-                r.IsDBNull(9) ? null : r.GetFieldValue<DateTimeOffset>(9), r.IsDBNull(10) ? null : r.GetString(10),
-                r.GetGuid(11), r.GetString(12), r.GetString(13), r.GetString(14), r.GetInt32(15)));
+                r.IsDBNull(9) ? null : r.GetFieldValue<DateTimeOffset>(9), Text(10),
+                r.IsDBNull(11) ? null : r.GetGuid(11), Text(12), Text(13), Text(14), r.IsDBNull(15) ? null : r.GetInt32(15),
+                Text(16), Text(17), Text(18)));
         }
         return items;
     }

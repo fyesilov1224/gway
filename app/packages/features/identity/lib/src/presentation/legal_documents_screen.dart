@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/legal.dart';
 import 'providers.dart';
 
-/// Full text of a legal document in a scrollable bottom sheet.
-Future<void> showLegalDocument(BuildContext context, LegalDocument document) {
+/// Full text of a legal document in a scrollable bottom sheet. [onReadToEnd] runs once the reader reaches the
+/// end of the text (at once when it fits without scrolling): consent needs it (docs/ARCHITECTURE.md §3a, KVKK).
+Future<void> showLegalDocument(BuildContext context, LegalDocument document, {VoidCallback? onReadToEnd}) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -20,22 +21,70 @@ Future<void> showLegalDocument(BuildContext context, LegalDocument document) {
       expand: false,
       initialChildSize: 0.8,
       maxChildSize: 0.95,
-      builder: (context, controller) => ListView(
+      builder: (context, controller) => _DocumentBody(
+        document: document,
         controller: controller,
-        padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.xl),
-        children: [
-          Text(document.title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: GxSpacing.xxs),
-          Text(
-            'Sürüm ${document.version}',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
-          ),
-          const SizedBox(height: GxSpacing.md),
-          SelectableText(document.body, style: Theme.of(context).textTheme.bodyLarge),
-        ],
+        onReadToEnd: onReadToEnd,
       ),
     ),
   );
+}
+
+class _DocumentBody extends StatefulWidget {
+  const _DocumentBody({required this.document, required this.controller, this.onReadToEnd});
+
+  final LegalDocument document;
+  final ScrollController controller;
+  final VoidCallback? onReadToEnd;
+
+  @override
+  State<_DocumentBody> createState() => _DocumentBodyState();
+}
+
+class _DocumentBodyState extends State<_DocumentBody> {
+  bool _reported = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.onReadToEnd == null) return;
+    widget.controller.addListener(_check);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _check());
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_check);
+    super.dispose();
+  }
+
+  void _check() {
+    if (_reported || !mounted || !widget.controller.hasClients) return;
+    final position = widget.controller.position;
+    if (position.pixels >= position.maxScrollExtent - GxSpacing.md) {
+      _reported = true;
+      widget.onReadToEnd!();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final document = widget.document;
+    return ListView(
+      controller: widget.controller,
+      padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.xl),
+      children: [
+        Text(document.title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: GxSpacing.xxs),
+        Text(
+          'Sürüm ${document.version}',
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+        ),
+        const SizedBox(height: GxSpacing.md),
+        SelectableText(document.body, style: Theme.of(context).textTheme.bodyLarge),
+      ],
+    );
+  }
 }
 
 /// The latest version of every legal document, readable at any time (KVKK).
