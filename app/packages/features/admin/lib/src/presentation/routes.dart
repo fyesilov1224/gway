@@ -31,6 +31,8 @@ abstract final class AdminRoutes {
 
   static const goals = '/goals';
 
+  static const leagues = '/leagues';
+
   static String post(String id) => '/content/$id';
 
   static String ticket(String id) => '/support/$id';

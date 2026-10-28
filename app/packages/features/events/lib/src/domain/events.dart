@@ -330,6 +330,95 @@ class GroupWelcome {
   final bool canGreet;
 }
 
+/// A group in a league table (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
+class LeagueGroup {
+  const LeagueGroup({required this.id, required this.handle, required this.name, this.logoUrl, this.memberCount = 0});
+
+  final String id;
+  final String handle;
+  final String name;
+  final String? logoUrl;
+  final int memberCount;
+}
+
+class LeagueRow {
+  const LeagueRow({
+    required this.rank,
+    required this.group,
+    required this.points,
+    this.attended = 0,
+    this.held = 0,
+    this.welcomes = 0,
+    this.goodReviews = 0,
+  });
+
+  final int rank;
+  final LeagueGroup group;
+  final int points;
+
+  /// People who came (at most 30 per event), events with three or more others, welcomes, 4–5 star reviews.
+  final int attended;
+  final int held;
+  final int welcomes;
+  final int goodReviews;
+}
+
+/// One league (a category in a province) in one month; frozen once the season closed.
+class LeagueTable {
+  const LeagueTable({required this.month, required this.category, required this.province, this.finalized = false, this.rows = const []});
+
+  /// The first day of the month.
+  final DateTime month;
+  final String category;
+  final int province;
+  final bool finalized;
+  final List<LeagueRow> rows;
+}
+
+/// A top-three finish of a closed season.
+class LeagueTitle {
+  const LeagueTitle({required this.month, required this.rank});
+
+  final DateTime month;
+  final int rank;
+}
+
+/// The group page's league card.
+class GroupLeague {
+  const GroupLeague({
+    required this.month,
+    required this.category,
+    required this.province,
+    this.rank,
+    this.points = 0,
+    this.groups = 0,
+    this.titles = const [],
+  });
+
+  final DateTime month;
+  final String category;
+  final int province;
+
+  /// Null while the group has no points this month.
+  final int? rank;
+  final int points;
+
+  /// Groups with points in the league this month.
+  final int groups;
+  final List<LeagueTitle> titles;
+}
+
+/// A category to pick a league by.
+class LeagueCategory {
+  const LeagueCategory({required this.slug, required this.name});
+
+  final String slug;
+  final String name;
+}
+
+/// The league key of a table page.
+typedef LeagueKey = ({String category, int province, DateTime month});
+
 class GroupEvents {
   const GroupEvents({this.events = const [], this.eventsLeft});
 
@@ -499,6 +588,14 @@ abstract interface class EventsRepository {
   Future<Result<void>> releaseWelcome(String eventId, String newcomerId);
 
   Future<Result<void>> thankGreeter(String eventId);
+
+  /// A league's table (Supabase): live for the running season, frozen for a closed one.
+  Future<Result<LeagueTable>> leagueTable(String category, int province, DateTime month);
+
+  /// The group's place this month and its top-three finishes; null without a province.
+  Future<Result<GroupLeague?>> groupLeague(String groupId);
+
+  Future<Result<List<LeagueCategory>>> leagueCategories();
 
   /// Other groups' live events on [day] in the group's province and category, as a number only;
   /// null when the group has no province (docs/ARCHITECTURE.md §3b).

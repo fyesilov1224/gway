@@ -21,6 +21,7 @@ class NotificationLinks {
     required this.openTeammates,
     required this.openMatches,
     required this.openMatching,
+    required this.openGroup,
   });
 
   final void Function(BuildContext context, String username) openProfile;
@@ -55,6 +56,9 @@ class NotificationLinks {
 
   /// The matching deck, for match_super_liked (the super liker comes first).
   final void Function(BuildContext context) openMatching;
+
+  /// The group page, for a league result (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
+  final void Function(BuildContext context, String handle) openGroup;
 }
 
 /// Today / this week / earlier, with pending follow requests gathered on top (docs/ARCHITECTURE.md §3c).
@@ -172,6 +176,7 @@ class _NotificationRow extends ConsumerWidget {
     if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
     if (n.type == NotificationType.matchCreated) return links.openMatches(context);
     if (n.type == NotificationType.matchSuperLiked) return links.openMatching(context);
+    if (n.type == NotificationType.leagueResult && n.group != null) return links.openGroup(context, n.group!.handle);
     if (n.type.fromGroup) return links.openSanctions(context);
     if (n.group != null) return links.openGroupModeration(context, n.group!.handle);
     if (n.liveId != null) return links.openLive(context, n.liveId!);

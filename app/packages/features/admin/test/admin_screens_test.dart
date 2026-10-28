@@ -431,6 +431,13 @@ final _adminEvent = AdminEvent(
 class _FakeEvents implements AdminEventsRepository {
   final canceled = <(String, String)>[];
   final canceledGoals = <String>[];
+  final excluded = <(String, String)>[];
+
+  @override
+  Future<Result<void>> excludeFromLeague(DateTime month, String groupId, {required String reason}) async {
+    excluded.add((groupId, reason));
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> cancelGoal(String id) async {
@@ -555,6 +562,31 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
               endsAt: DateTime.now().add(const Duration(days: 10)), completions: 7,
             ),
           ], total: 1, page: 1, pageSize: 20),
+        ),
+        adminLeaguesProvider.overrideWith(
+          (ref, month) async => AdminLeagueMonth(month: month, leagues: const [
+            AdminLeague(
+              category: 'hiking', categoryName: 'Yürüyüş', province: 6, groups: 2, leaderId: 'g1',
+              leaderName: 'Doğa Yürüyüşçüleri', leaderPoints: 42, excluded: 1,
+            ),
+          ]),
+        ),
+        adminLeagueTableProvider.overrideWith(
+          (ref, key) async => AdminLeagueTable(
+            finalized: false,
+            rows: const [
+              AdminLeagueRow(
+                rank: 1, groupId: 'g1', groupName: 'Doğa Yürüyüşçüleri', groupHandle: 'doga.yuruyus', points: 42,
+                attended: 22, held: 3, welcomes: 1, goodReviews: 2,
+              ),
+            ],
+            exclusions: [
+              AdminLeagueExclusion(
+                groupId: 'g9', groupName: 'Hızlı Adımlar', groupHandle: 'hizli', reason: 'Sahte katılım',
+                createdAt: DateTime(2026, 10, 20), by: 'moderator',
+              ),
+            ],
+          ),
         ),
         adminReportSearchProvider.overrideWith(
           (ref, search) async => AdminReportPage(items: [_report], total: 1, page: 1, pageSize: 20),
@@ -1318,5 +1350,31 @@ void main() {
     await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
     await tester.pumpAndSettle();
     expect(_events.canceledGoals, ['q1']);
+  });
+
+  testWidgets('moderators read a league and take a group out of it', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminLeaguesScreen(), role: StaffRole.moderator);
+    expect(find.text('Ankara · Yürüyüş'), findsOneWidget);
+    expect(find.textContaining('lider Doğa Yürüyüşçüleri (42 puan)'), findsOneWidget);
+
+    await tester.tap(find.text('Ankara · Yürüyüş'));
+    await tester.pumpAndSettle();
+    expect(find.text('22 katılım · 3 organizasyon · 1 karşılama · 2 memnuniyet'), findsOneWidget);
+    expect(find.textContaining('Sahte katılım'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(GxButton, 'Ligden çıkar'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Aynı kişiler her gün katılmış görünüyor');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(GxButton, 'Ligden çıkar').last);
+    await tester.pumpAndSettle();
+    expect(_events.excluded, [('g1', 'Aynı kişiler her gün katılmış görünüyor')]);
+  });
+
+  testWidgets('support reads leagues but cannot exclude', (tester) async {
+    await _pumpAt(tester, const Size(1280, 900), const AdminLeaguesScreen(), role: StaffRole.support);
+    await tester.tap(find.text('Ankara · Yürüyüş'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(GxButton, 'Ligden çıkar'), findsNothing);
   });
 }

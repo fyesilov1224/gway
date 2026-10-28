@@ -268,8 +268,9 @@ begin
      or private.is_blocked_between(recipient, actor) then
     return;
   end if;
-  insert into public.notifications (recipient_id, actor_id, type, event_id, group_id)
-  values (recipient, actor, kind, target_event, target_group);
+  -- No group_id: the app opens a notification with a group on the group's moderation desk.
+  insert into public.notifications (recipient_id, actor_id, type, event_id)
+  values (recipient, actor, kind, target_event);
 end;
 $$;
 

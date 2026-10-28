@@ -156,6 +156,14 @@ class _Sidebar extends ConsumerWidget {
               ),
               const SizedBox(height: GxSpacing.xxs),
               _NavItem(
+                icon: Icons.emoji_events_outlined,
+                selectedIcon: Icons.emoji_events,
+                label: 'Ligler',
+                selected: path.startsWith(AdminRoutes.leagues),
+                onTap: () => go(AdminRoutes.leagues),
+              ),
+              const SizedBox(height: GxSpacing.xxs),
+              _NavItem(
                 icon: Icons.podcasts_outlined,
                 selectedIcon: Icons.podcasts,
                 label: 'Canlı yayınlar',

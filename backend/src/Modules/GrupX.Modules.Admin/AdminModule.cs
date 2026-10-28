@@ -70,6 +70,7 @@ public static class AdminModule
         services.AddSingleton<AdminEvents>();
         services.AddSingleton<AdminModeration>();
         services.AddSingleton<AdminGoals>();
+        services.AddSingleton<AdminLeagues>();
         services.AddSingleton<AdminAnalytics>();
         services.AddSingleton<AdminLegal>();
         services.TryAddSingleton(TimeProvider.System);
@@ -391,6 +392,34 @@ public static class AdminModule
 
         content.MapDelete("/events/{id:guid}/meeting-point", async (Guid id, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
                 (await events.RemoveMeetingPointAsync(user.GetUserId(), id, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        // The groups league (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
+        content.MapGet("/leagues", async (string? month, AdminLeagues admin, TimeProvider time, CancellationToken ct) =>
+                AdminLeagues.ParseMonth(month, time.GetUtcNow()) is { } m
+                    ? Results.Ok(await admin.LeaguesAsync(m, ct))
+                    : Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "Ay YYYY-MM biçiminde olmalı."))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapGet("/leagues/table", async (string? month, string category, short province, AdminLeagues admin, TimeProvider time, CancellationToken ct) =>
+                AdminLeagues.ParseMonth(month, time.GetUtcNow()) is { } m
+                    ? Results.Ok(await admin.TableAsync(m, category, province, ct))
+                    : Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "Ay YYYY-MM biçiminde olmalı."))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapPut("/leagues/{month}/exclusions/{groupId:guid}", async (
+                string month, Guid groupId, AdminLeagueExclusionRequest body, ClaimsPrincipal user, IEventsAdministration events,
+                CancellationToken ct) =>
+                AdminLeagues.ParseMonth(month, DateTimeOffset.UtcNow) is { } m && !string.IsNullOrWhiteSpace(month)
+                    ? (await events.ExcludeFromLeagueAsync(user.GetUserId(), m, groupId, body.Reason, ct)).ToHttpResult()
+                    : Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "Ay YYYY-MM biçiminde olmalı."))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapDelete("/leagues/{month}/exclusions/{groupId:guid}", async (
+                string month, Guid groupId, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
+                AdminLeagues.ParseMonth(month, DateTimeOffset.UtcNow) is { } m && !string.IsNullOrWhiteSpace(month)
+                    ? (await events.RestoreToLeagueAsync(user.GetUserId(), m, groupId, ct)).ToHttpResult()
+                    : Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "Ay YYYY-MM biçiminde olmalı."))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapGet("/goals", async (string? status, int? page, AdminGoals admin, CancellationToken ct) =>

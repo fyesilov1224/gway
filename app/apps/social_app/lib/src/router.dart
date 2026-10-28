@@ -147,7 +147,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomePage()),
           GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
-          GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_mapButton], packages: groupPackagesRow)),
+          GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_leagueButton, _mapButton], packages: groupPackagesRow)),
           GoRoute(path: NotificationRoutes.list, builder: (_, _) => NotificationsScreen(links: notificationLinks)),
           GoRoute(
             path: '/p/:id',
@@ -170,6 +170,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: 'edit', builder: (_, state) => EventEditorScreen(eventId: state.pathParameters['id']))],
           ),
           GoRoute(path: EventRoutes.map, builder: (_, _) => const DiscoverMapScreen(onOpenGroup: _openGroup)),
+          GoRoute(
+            path: '/league',
+            builder: (_, state) => LeagueScreen(
+              openGroup: _openGroup,
+              category: state.uri.queryParameters['category'],
+              province: int.tryParse(state.uri.queryParameters['province'] ?? ''),
+              month: LeagueScreen.parseMonth(state.uri.queryParameters['month']),
+            ),
+          ),
           GoRoute(path: NotificationRoutes.preferences, builder: (_, _) => const NotificationPreferencesScreen()),
           GoRoute(path: '/goals/:id', builder: (_, state) => GoalScreen(goalId: state.pathParameters['id']!)),
           GoRoute(path: '/events/history', builder: (_, state) => EventHistoryScreen(groupId: state.uri.queryParameters['group'] ?? '')),
@@ -234,7 +243,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               handle: state.pathParameters['handle']!,
               onOpenProfile: _openProfile,
               sections: const [groupChatSection, groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
-              contentSections: const [groupWelcomeSection, groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
+              contentSections: const [groupWelcomeSection, groupLeagueSection, groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
             ),
             routes: [
               GoRoute(
@@ -328,6 +337,20 @@ class _MatchingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IconButton(
       tooltip: 'Eşleşme', icon: const Icon(Icons.favorite_border_rounded), onPressed: () => context.push(MatchingRoutes.home));
+}
+
+/// "Gruplar Ligi" from the groups page.
+const _leagueButton = _LeagueButton();
+
+class _LeagueButton extends StatelessWidget {
+  const _LeagueButton();
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+        tooltip: 'Gruplar Ligi',
+        icon: const Icon(Icons.emoji_events_outlined),
+        onPressed: () => context.push(EventRoutes.league()),
+      );
 }
 
 /// "Harita" from the groups page.

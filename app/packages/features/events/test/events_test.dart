@@ -301,6 +301,77 @@ void main() {
     });
   });
 
+  group('Gruplar Ligi', () {
+    const categories = [LeagueCategory(slug: 'hiking', name: 'Yürüyüş'), LeagueCategory(slug: 'running', name: 'Koşu')];
+
+    testWidgets('a league table ranks groups with their points and breakdown', (tester) async {
+      final opened = <String>[];
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          leagueCategoriesProvider.overrideWith((ref) async => categories),
+          leagueTableProvider.overrideWith(
+            (ref, key) async => LeagueTable(
+              month: key.month,
+              category: key.category,
+              province: key.province,
+              rows: const [
+                LeagueRow(rank: 1, group: LeagueGroup(id: 'g1', handle: 'doga', name: 'Doğa Yürüyüşçüleri'), points: 42, attended: 22, held: 3, welcomes: 1),
+                LeagueRow(rank: 2, group: LeagueGroup(id: 'g2', handle: 'eymir', name: 'Eymir Adımları'), points: 9, attended: 9),
+              ],
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: GxTheme.light(),
+          home: LeagueScreen(category: 'hiking', province: 6, openGroup: (_, handle) => opened.add(handle)),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('42 puan'), findsOneWidget);
+      expect(find.text('22 katılım · 3 organizasyon · 1 karşılama'), findsOneWidget);
+      expect(find.textContaining('Sezon sürüyor.'), findsOneWidget);
+      await tester.tap(find.text('Eymir Adımları'));
+      expect(opened, ['eymir']);
+
+      await tester.tap(find.byTooltip('Puanlar nasıl hesaplanır?'));
+      await tester.pumpAndSettle();
+      expect(find.text('Organizasyon: 5 puan'), findsOneWidget);
+    });
+
+    testWidgets('the group card shows the place and the titles', (tester) async {
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          leagueCategoriesProvider.overrideWith((ref) async => categories),
+          groupLeagueProvider.overrideWith(
+            (ref, id) async => GroupLeague(
+              month: DateTime(2026, 11),
+              category: 'hiking',
+              province: 6,
+              rank: 2,
+              points: 18,
+              groups: 5,
+              titles: [LeagueTitle(month: DateTime(2026, 10), rank: 1)],
+            ),
+          ),
+        ],
+        child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: GroupLeagueSection(groupId: 'g1'))),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ankara · Yürüyüş ligi'), findsOneWidget);
+      expect(find.textContaining('5 grup arasında 2. sırada, 18 puan.'), findsOneWidget);
+      expect(find.text('Ekim 2026 · Şampiyon'), findsOneWidget);
+    });
+
+    test('a month in the address is read back', () {
+      expect(LeagueScreen.parseMonth('2026-10'), DateTime(2026, 10));
+      expect(LeagueScreen.parseMonth('ekim'), isNull);
+      expect(EventRoutes.league(category: 'hiking', province: 6, month: DateTime(2026, 10)), '/league?category=hiking&province=6&month=2026-10');
+      expect(EventRoutes.league(), '/league');
+    });
+  });
+
   testWidgets('the fee is information only; outsiders are pointed to the group', (tester) async {
     final future = DateTime.now().add(const Duration(days: 3));
     final e = GroupEvent(

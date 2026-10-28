@@ -263,6 +263,68 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> thankGreeter(String eventId) => _api.post('/events/$eventId/welcome/thanks', decode: (_) {});
 
+  static String _day(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  @override
+  Future<Result<LeagueTable>> leagueTable(String category, int province, DateTime month) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>>('league_table', params: {
+          'target_category': category,
+          'target_province': province,
+          'target_month': _day(month),
+        });
+        return LeagueTable(
+          month: DateTime.parse(r['month'] as String),
+          category: r['category'] as String,
+          province: (r['province'] as num).toInt(),
+          finalized: r['finalized'] == true,
+          rows: [
+            for (final row in (r['rows'] as List? ?? const []).cast<Map<String, dynamic>>())
+              LeagueRow(
+                rank: (row['rank'] as num).toInt(),
+                points: (row['points'] as num).toInt(),
+                attended: (row['attended'] as num?)?.toInt() ?? 0,
+                held: (row['held'] as num?)?.toInt() ?? 0,
+                welcomes: (row['welcomes'] as num?)?.toInt() ?? 0,
+                goodReviews: (row['good_reviews'] as num?)?.toInt() ?? 0,
+                group: switch ((row['group'] as Map).cast<String, dynamic>()) {
+                  final g => LeagueGroup(
+                      id: g['id'] as String,
+                      handle: g['handle'] as String,
+                      name: g['name'] as String,
+                      logoUrl: _url('group-images', g['logo_path']),
+                      memberCount: (g['member_count'] as num?)?.toInt() ?? 0,
+                    ),
+                },
+              ),
+          ],
+        );
+      });
+
+  @override
+  Future<Result<GroupLeague?>> groupLeague(String groupId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('group_league', params: {'target_group': groupId});
+        if (r == null) return null;
+        return GroupLeague(
+          month: DateTime.parse(r['month'] as String),
+          category: r['category'] as String,
+          province: (r['province'] as num).toInt(),
+          rank: (r['rank'] as num?)?.toInt(),
+          points: (r['points'] as num?)?.toInt() ?? 0,
+          groups: (r['groups'] as num?)?.toInt() ?? 0,
+          titles: [
+            for (final t in (r['titles'] as List? ?? const []).cast<Map<String, dynamic>>())
+              LeagueTitle(month: DateTime.parse(t['month'] as String), rank: (t['rank'] as num).toInt()),
+          ],
+        );
+      });
+
+  @override
+  Future<Result<List<LeagueCategory>>> leagueCategories() => _run(() async {
+        final rows = await _client.from('categories').select('slug, name').order('sort_order');
+        return [for (final r in rows) LeagueCategory(slug: r['slug'] as String, name: r['name'] as String)];
+      });
+
   @override
   Future<Result<int?>> similarEventsCount(String groupId, DateTime day) => _run(() async {
         final start = DateTime(day.year, day.month, day.day);

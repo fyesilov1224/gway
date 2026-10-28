@@ -29,6 +29,10 @@ Widget profileContributionsSection(BuildContext context, Profile profile, bool i
 Widget groupWelcomeSection(BuildContext context, Group group, MyMembership me) =>
     group.isSuspended ? const SizedBox.shrink() : GroupWelcomeSection(groupId: group.id, isMember: me.isMember);
 
+/// The group's place in its league this month (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
+Widget groupLeagueSection(BuildContext context, Group group, MyMembership me) =>
+    group.isSuspended ? const SizedBox.shrink() : GroupLeagueSection(groupId: group.id);
+
 /// Upcoming events on the group page; events.manage holders (owner, Yönetici) create them.
 Widget groupEventsSection(BuildContext context, Group group, MyMembership me) =>
     GroupEventsSection(groupId: group.id, canManage: me.can(GroupPermission.manageEvents) && !group.isSuspended);

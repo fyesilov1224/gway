@@ -15,6 +15,16 @@ abstract final class EventRoutes {
   /// Groups and upcoming events on the map.
   static const map = '/map';
 
+  /// A league table (docs/ARCHITECTURE.md §3d, Gruplar Ligi); without arguments the screen picks the first league.
+  static String league({String? category, int? province, DateTime? month}) {
+    final query = {
+      'category': ?category,
+      'province': ?province?.toString(),
+      if (month != null) 'month': '${month.year}-${month.month.toString().padLeft(2, '0')}',
+    };
+    return query.isEmpty ? '/league' : Uri(path: '/league', queryParameters: query).toString();
+  }
+
   /// The group's past events.
   static String history(String groupId) => '/events/history?group=$groupId';
 }

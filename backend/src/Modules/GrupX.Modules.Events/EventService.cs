@@ -58,6 +58,7 @@ public static class EventsModule
         services.AddSingleton<EventService>();
         services.AddSingleton<GoalService>();
         services.AddSingleton<WelcomeService>();
+        services.AddSingleton<LeagueService>();
         services.AddSingleton<IEventsAdministration>(sp => sp.GetRequiredService<EventService>());
         services.AddHostedService<EventReminderService>();
         return services;
@@ -123,11 +124,17 @@ public static class EventsModule
 /// <summary>Event and poll writes; attendance order and the waitlist are decided by the database triggers.</summary>
 internal sealed partial class EventService(
     NpgsqlDataSource db, IGroupPlanLimits planLimits, ISupabaseStorage storage, TimeProvider time, IConfiguration configuration,
-    GoalService goals, ILogger<EventService> log)
+    GoalService goals, LeagueService leagues, ILogger<EventService> log)
     : IEventsAdministration
 {
     public Task<Result> CancelGoalAsync(Guid actorId, Guid goalId, CancellationToken ct) =>
         goals.CancelAsync(actorId, goalId, staff: true, ct);
+
+    public Task<Result> ExcludeFromLeagueAsync(Guid actorId, DateOnly month, Guid groupId, string reason, CancellationToken ct) =>
+        leagues.ExcludeAsync(actorId, month, groupId, reason, ct);
+
+    public Task<Result> RestoreToLeagueAsync(Guid actorId, DateOnly month, Guid groupId, CancellationToken ct) =>
+        leagues.RestoreAsync(actorId, month, groupId, ct);
 
     public const string Bucket = "event-images";
     private static readonly string[] Currencies = ["TRY", "USD", "EUR"];
@@ -522,8 +529,12 @@ internal sealed partial class EventService(
     private static partial void LogCoverCleanupFailed(ILogger logger, Exception ex, string path);
 }
 
-/// <summary>Runs the reminders every <c>Events:ReminderInterval</c> (default 5 minutes; zero turns it off).</summary>
-internal sealed partial class EventReminderService(EventService events, IConfiguration configuration, ILogger<EventReminderService> logger)
+/// <summary>
+/// Runs the reminders and closes finished league seasons every <c>Events:ReminderInterval</c> (default 5 minutes; zero
+/// turns it off).
+/// </summary>
+internal sealed partial class EventReminderService(
+    EventService events, LeagueService leagues, IConfiguration configuration, ILogger<EventReminderService> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -538,6 +549,7 @@ internal sealed partial class EventReminderService(EventService events, IConfigu
             try
             {
                 await events.SendRemindersAsync(stoppingToken);
+                await leagues.FinalizeAsync(stoppingToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

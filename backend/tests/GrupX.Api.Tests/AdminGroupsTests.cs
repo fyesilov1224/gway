@@ -1,6 +1,7 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using GrupX.Modules.Admin;
+using GrupX.Modules.Events;
 using GrupX.Modules.Groups;
 using GrupX.Modules.Groups.Contracts;
 
@@ -142,5 +143,45 @@ public sealed class AdminGroupsTests(ApiFactory factory) : IClassFixture<ApiFact
         var response = await factory.ClientFor(support).GetAsync(new Uri($"/admin/groups/{Guid.NewGuid()}", UriKind.Relative), Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Moderators_take_a_group_out_of_an_open_league_season()
+    {
+        var owner = await _db.CreateUserAsync(Unique("lig_"));
+        var member = await _db.CreateUserAsync(Unique("lig_"));
+        var created = await factory.ClientFor(owner).PostAsJsonAsync(
+            new Uri("/groups", UriKind.Relative), new CreateGroupRequest(Unique("lig_"), "Eymir Yürüyüş", "hiking", "open", null, 6), Ct);
+        var group = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
+        (await factory.ClientFor(member).PostAsync(new Uri($"/groups/{group}/join", UriKind.Relative), null, Ct)).EnsureSuccessStatusCode();
+        var form = new EventRequest("Eymir turu", "", DateTimeOffset.UtcNow.AddDays(2), null, "Eymir", null, null, null, null, null, null);
+        var ev = (await (await factory.ClientFor(owner).PostAsJsonAsync(new Uri($"/groups/{group}/events", UriKind.Relative), form, Ct))
+            .Content.ReadFromJsonAsync<CreatedEvent>(Ct))!.Id;
+        (await factory.ClientFor(member).PostAsync(new Uri($"/events/{ev}/attendance", UriKind.Relative), null, Ct)).EnsureSuccessStatusCode();
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '3 hours' where id = @e", ("e", ev));
+        var month = await _db.ScalarAsync<string>("select to_char(private.turkey_month(now() - interval '3 hours'), 'YYYY-MM')");
+        var (support, moderator) = (await StaffAsync("support"), await StaffAsync("moderator"));
+        var exclusion = new Uri($"/admin/leagues/{month}/exclusions/{group}", UriKind.Relative);
+        var tableUri = new Uri($"/admin/leagues/table?month={month}&category=hiking&province=6", UriKind.Relative);
+
+        var leagues = await factory.ClientFor(support).GetFromJsonAsync<AdminLeagueMonth>(new Uri($"/admin/leagues?month={month}", UriKind.Relative), Ct);
+        var bySupport = await factory.ClientFor(support).PutAsJsonAsync(exclusion, new AdminLeagueExclusionRequest("Sahte katılım"), Ct);
+        var excluded = await factory.ClientFor(moderator).PutAsJsonAsync(exclusion, new AdminLeagueExclusionRequest("Sahte katılım"), Ct);
+        var table = await factory.ClientFor(support).GetFromJsonAsync<AdminLeagueTable>(tableUri, Ct);
+        var restored = await factory.ClientFor(moderator).DeleteAsync(exclusion, Ct);
+        var restoredAgain = await factory.ClientFor(moderator).DeleteAsync(exclusion, Ct);
+        var badMonth = await factory.ClientFor(support).GetAsync(new Uri("/admin/leagues?month=ekim", UriKind.Relative), Ct);
+
+        Assert.Contains(leagues!.Leagues, l => l.Category == "hiking" && l.Province == 6 && l.Groups >= 1);
+        Assert.Equal(HttpStatusCode.Forbidden, bySupport.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, excluded.StatusCode);
+        Assert.Contains(table!.Exclusions, x => x.GroupId == group && x.Reason == "Sahte katılım");
+        Assert.DoesNotContain(table.Table.GetProperty("rows").EnumerateArray(),
+            r => r.GetProperty("group").GetProperty("id").GetString() == group.ToString());
+        Assert.Equal(HttpStatusCode.NoContent, restored.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restoredAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, badMonth.StatusCode);
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'league.group_excluded' and group_id = @g", ("g", group)));
     }
 }

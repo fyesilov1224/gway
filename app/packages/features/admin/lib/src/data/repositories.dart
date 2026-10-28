@@ -248,6 +248,28 @@ class ApiAdminEventsRepository implements AdminEventsRepository {
 
   @override
   Future<Result<void>> cancelGoal(String id) => _api.post('/admin/goals/$id/cancellation', decode: (_) {});
+
+  @override
+  Future<Result<AdminLeagueMonth>> leagues(DateTime month) => _api.get(
+        '/admin/leagues',
+        query: {'month': leagueMonthCode(month)},
+        decode: (json) => AdminLeagueMonth.fromJson((json! as Map).cast()),
+      );
+
+  @override
+  Future<Result<AdminLeagueTable>> leagueTable(AdminLeagueKey key) => _api.get(
+        '/admin/leagues/table',
+        query: {'month': leagueMonthCode(key.month), 'category': key.category, 'province': '${key.province}'},
+        decode: (json) => AdminLeagueTable.fromJson((json! as Map).cast()),
+      );
+
+  @override
+  Future<Result<void>> excludeFromLeague(DateTime month, String groupId, {required String reason}) =>
+      _api.put('/admin/leagues/${leagueMonthCode(month)}/exclusions/$groupId', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> restoreToLeague(DateTime month, String groupId) =>
+      _api.delete('/admin/leagues/${leagueMonthCode(month)}/exclusions/$groupId', decode: (_) {});
 }
 
 class ApiAdminModerationRepository implements AdminModerationRepository {

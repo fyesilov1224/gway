@@ -42,6 +42,7 @@ final notificationLinks = NotificationLinks(
   openTeammates: (context) => context.push(ProfileRoutes.teammates),
   openMatches: (context) => context.push(MatchingRoutes.matches),
   openMatching: (context) => context.push(MatchingRoutes.home),
+  openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
 );
 
 Widget peopleResults(BuildContext context, String query, VoidCallback onClear) =>

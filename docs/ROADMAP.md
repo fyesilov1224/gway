@@ -362,7 +362,12 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] pgTAP (915/915), C# (213/213) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
 - [ ] Bulut: `0048` migration'ı — kullanıcı onayıyla
 
-### 18b — Gruplar Ligi (aynı il ve kategorideki grupların aylık sezonu)
+### 18b — Gruplar Ligi (aynı il ve kategorideki grupların aylık sezonu; `docs/ARCHITECTURE.md` §3d)
+- [x] Kaynak kayıtlardan puan (katılım, organizasyon, karşılama, memnuniyet), sıralama sayfası, grup sayfasında lig kartı
+- [x] Sezon kapanışı, sabit sonuçlar, ilk üçe `league_result` bildirimi
+- [x] Yönetim paneli: ligler, tablo, ligden çıkarma ve geri alma (audit)
+- [x] pgTAP (932/932), C# (214/214) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
+- [ ] Bulut: `0049` migration'ı — kullanıcı onayıyla
 ### 18c — Yılın Özeti (paylaşılabilir hikâye kartları)
 ### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)

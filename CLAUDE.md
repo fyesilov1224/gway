@@ -171,7 +171,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 15.7 | Yönetim paneli: analiz ve denetim (kullanıcı isteği) | Duraklatıldı (dal `gelistirme/admin-analitik`): 15.7a genel bakış ve hukuki metin yönetimi bitti (2026-10-27); 15.7b modül analizleri, 15.7c denetim sırada |
 | 15.8 | Güvenlik doğrulaması: zorunlu konum, ülkeye kilitli telefon doğrulaması, ikinci adım, kademeli yaptırım (kullanıcı isteği) | ✅ Kod bitti (2026-10-27, dal `gelistirme/guvenlik-dogrulama`): 15.8a sunucu, 15.8b uygulama, 15.8c yönetim paneli. Bulutta açmak için migration + hook push, Twilio anahtarları ve aydınlatma metni güncellemesi bekleniyor |
 | 15.9 | Gruplar arası denge: üyelik gizliliği, davet sınırı, çakışan organizasyon önerileri (kullanıcı isteği) | ✅ Kod bitti (2026-10-28, dal `gelistirme/grup-dengesi`); bulutta `0047` migration'ı bekleniyor |
-| 18 | Topluluk büyümesi: karşılama, gruplar ligi, yılın özeti, keşif haritası, el sıkış, eve vardım, bu akşam boşum, sürpriz organizasyon, yoldan canlı, iyilik saatleri (kullanıcı isteği) | Sürüyor (dal `gelistirme/topluluk-buyumesi`): 18a karşılama kodu bitti (2026-10-28) |
+| 18 | Topluluk büyümesi: karşılama, gruplar ligi, yılın özeti, keşif haritası, el sıkış, eve vardım, bu akşam boşum, sürpriz organizasyon, yoldan canlı, iyilik saatleri (kullanıcı isteği) | Sürüyor (dal `gelistirme/topluluk-buyumesi`): 18a karşılama ve 18b gruplar ligi kodu bitti (2026-10-28) |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | Sürüyor (dal `gelistirme/play-yayin`): 17a Google Play hazırlığı (kullanıcı isteği, 2026-10-27) |
 

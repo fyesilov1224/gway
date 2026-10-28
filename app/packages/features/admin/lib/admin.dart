@@ -20,6 +20,7 @@ export 'src/presentation/events_screen.dart';
 export 'src/presentation/goals_screen.dart';
 export 'src/presentation/group_detail_screen.dart';
 export 'src/presentation/groups_screen.dart';
+export 'src/presentation/leagues_screen.dart';
 export 'src/presentation/legal_screen.dart';
 export 'src/presentation/live_screen.dart';
 export 'src/presentation/matching_screen.dart';

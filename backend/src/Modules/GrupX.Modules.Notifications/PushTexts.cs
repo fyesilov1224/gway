@@ -41,7 +41,7 @@ internal static class PushTexts
     /// <summary>The group for group notices, nobody for a match (who it is needs a package), otherwise the person.</summary>
     private static string Lead(PendingPush n) => n.Type switch
     {
-        "sanction_applied" or "appeal_decided" => n.GroupName ?? "",
+        "sanction_applied" or "appeal_decided" or "league_result" => n.GroupName ?? "",
         "match_created" => "Yeni bir eşleşmen var!",
         _ => n.ActorUsername,
     };
@@ -88,6 +88,7 @@ internal static class PushTexts
         "welcome_matched" => $"\"{n.EventTitle}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.",
         "welcome_released" => $"\"{n.EventTitle}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.",
         "welcome_withdrawn" => $"\"{n.EventTitle}\" için karşılama isteğini geri çekti.",
+        "league_result" => "geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.",
         "welcome_thanked" => $"\"{n.EventTitle}\" organizasyonunda onu karşıladığın için teşekkür etti.",
         _ => "yeni bir bildirim gönderdi.",
     };

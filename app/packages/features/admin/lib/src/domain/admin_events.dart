@@ -162,6 +162,146 @@ class AdminGoal {
 
 typedef AdminGoalPage = PagedList<AdminGoal>;
 
+/// `2026-10` for the admin API.
+String leagueMonthCode(DateTime m) => '${m.year}-${m.month.toString().padLeft(2, '0')}';
+
+/// One league of a month on the admin page (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
+class AdminLeague {
+  const AdminLeague({
+    required this.category,
+    required this.categoryName,
+    required this.province,
+    required this.groups,
+    required this.leaderId,
+    required this.leaderName,
+    required this.leaderPoints,
+    this.excluded = 0,
+  });
+
+  factory AdminLeague.fromJson(Map<String, Object?> j) => AdminLeague(
+        category: j['category']! as String,
+        categoryName: j['categoryName']! as String,
+        province: j['province']! as int,
+        groups: j['groups']! as int,
+        leaderId: j['leaderId']! as String,
+        leaderName: j['leaderName']! as String,
+        leaderPoints: j['leaderPoints']! as int,
+        excluded: j['excluded'] as int? ?? 0,
+      );
+
+  final String category;
+  final String categoryName;
+  final int province;
+  final int groups;
+  final String leaderId;
+  final String leaderName;
+  final int leaderPoints;
+  final int excluded;
+}
+
+class AdminLeagueMonth {
+  const AdminLeagueMonth({required this.month, this.finalized = false, this.leagues = const []});
+
+  factory AdminLeagueMonth.fromJson(Map<String, Object?> j) => AdminLeagueMonth(
+        month: DateTime.parse(j['month']! as String),
+        finalized: j['finalized'] == true,
+        leagues: [for (final l in (j['leagues']! as List).cast<Map<String, Object?>>()) AdminLeague.fromJson(l)],
+      );
+
+  final DateTime month;
+  final bool finalized;
+  final List<AdminLeague> leagues;
+}
+
+class AdminLeagueRow {
+  const AdminLeagueRow({
+    required this.rank,
+    required this.groupId,
+    required this.groupName,
+    required this.groupHandle,
+    required this.points,
+    this.attended = 0,
+    this.held = 0,
+    this.welcomes = 0,
+    this.goodReviews = 0,
+  });
+
+  factory AdminLeagueRow.fromJson(Map<String, Object?> j) {
+    final g = (j['group']! as Map).cast<String, Object?>();
+    return AdminLeagueRow(
+      rank: j['rank']! as int,
+      groupId: g['id']! as String,
+      groupName: g['name']! as String,
+      groupHandle: g['handle']! as String,
+      points: j['points']! as int,
+      attended: j['attended'] as int? ?? 0,
+      held: j['held'] as int? ?? 0,
+      welcomes: j['welcomes'] as int? ?? 0,
+      goodReviews: j['good_reviews'] as int? ?? 0,
+    );
+  }
+
+  final int rank;
+  final String groupId;
+  final String groupName;
+  final String groupHandle;
+  final int points;
+  final int attended;
+  final int held;
+  final int welcomes;
+  final int goodReviews;
+
+  String get breakdown => '$attended katılım · $held organizasyon · $welcomes karşılama · $goodReviews memnuniyet';
+}
+
+class AdminLeagueExclusion {
+  const AdminLeagueExclusion({
+    required this.groupId,
+    required this.groupName,
+    required this.groupHandle,
+    required this.reason,
+    required this.createdAt,
+    this.by,
+  });
+
+  factory AdminLeagueExclusion.fromJson(Map<String, Object?> j) => AdminLeagueExclusion(
+        groupId: j['groupId']! as String,
+        groupName: j['groupName']! as String,
+        groupHandle: j['groupHandle']! as String,
+        reason: j['reason']! as String,
+        createdAt: DateTime.parse(j['createdAt']! as String),
+        by: j['by'] as String?,
+      );
+
+  final String groupId;
+  final String groupName;
+  final String groupHandle;
+  final String reason;
+  final DateTime createdAt;
+
+  /// Username of the staff member; null when the account is gone.
+  final String? by;
+}
+
+class AdminLeagueTable {
+  const AdminLeagueTable({required this.finalized, this.rows = const [], this.exclusions = const []});
+
+  factory AdminLeagueTable.fromJson(Map<String, Object?> j) {
+    final t = (j['table']! as Map).cast<String, Object?>();
+    return AdminLeagueTable(
+      finalized: t['finalized'] == true,
+      rows: [for (final r in (t['rows']! as List).cast<Map<String, Object?>>()) AdminLeagueRow.fromJson(r)],
+      exclusions: [for (final x in (j['exclusions']! as List).cast<Map<String, Object?>>()) AdminLeagueExclusion.fromJson(x)],
+    );
+  }
+
+  final bool finalized;
+  final List<AdminLeagueRow> rows;
+  final List<AdminLeagueExclusion> exclusions;
+}
+
+typedef AdminLeagueKey = ({DateTime month, String category, int province});
+
 abstract interface class AdminEventsRepository {
   Future<Result<AdminEventPage>> search({String? query, AdminEventStatus? status, int page = 1});
 
@@ -173,4 +313,13 @@ abstract interface class AdminEventsRepository {
   Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1});
 
   Future<Result<void>> cancelGoal(String id);
+
+  Future<Result<AdminLeagueMonth>> leagues(DateTime month);
+
+  Future<Result<AdminLeagueTable>> leagueTable(AdminLeagueKey key);
+
+  /// Takes a group out of an open season; audited.
+  Future<Result<void>> excludeFromLeague(DateTime month, String groupId, {required String reason});
+
+  Future<Result<void>> restoreToLeague(DateTime month, String groupId);
 }

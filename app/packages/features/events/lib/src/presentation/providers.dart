@@ -62,6 +62,18 @@ final groupWelcomeProvider = FutureProvider.autoDispose.family<GroupWelcome?, St
   (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupWelcome(groupId)).getOrThrow(),
 );
 
+final leagueTableProvider = FutureProvider.autoDispose.family<LeagueTable, LeagueKey>(
+  (ref, key) async => (await ref.watch(eventsRepositoryProvider).leagueTable(key.category, key.province, key.month)).getOrThrow(),
+);
+
+final groupLeagueProvider = FutureProvider.autoDispose.family<GroupLeague?, String>(
+  (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupLeague(groupId)).getOrThrow(),
+);
+
+final leagueCategoriesProvider = FutureProvider<List<LeagueCategory>>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).leagueCategories()).getOrThrow(),
+);
+
 final eventDetailProvider = FutureProvider.autoDispose.family<EventDetail, String>(
   (ref, id) async => (await ref.watch(eventsRepositoryProvider).event(id)).getOrThrow(),
 );

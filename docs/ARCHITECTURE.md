@@ -422,7 +422,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Paylaşım:** Gönderi bağlantısı `/#/p/<id>`; bağlantıyı açan kişi gönderiyi görünürlük kuralına göre görür.
 
 ### Bildirimler (notifications)
-- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `welcome_requested`, `welcome_matched`, `welcome_released`, `welcome_withdrawn`, `welcome_thanked` (Faz 18a, §3d Karşılama), `live_scheduled`, `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
+- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `welcome_requested`, `welcome_matched`, `welcome_released`, `welcome_withdrawn`, `welcome_thanked` (Faz 18a, §3d Karşılama), `league_result` (Faz 18b, §3d Gruplar Ligi), `live_scheduled`, `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
 - **Oluşturma:** Bildirimleri ilgili tablolardaki trigger'lar oluşturur. Kişi kendi işlemi için bildirim almaz; engel varsa bildirim oluşmaz.
 - **Silme:** Beğeni geri alınınca, yorum silinince ya da takip bırakılınca ilgili bildirim de silinir.
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
@@ -584,6 +584,30 @@ Bir gruba ilk kez gitmenin önündeki en büyük engel yalnız gitmektir. Organi
 | `PUT /events/{id}/welcome/{newcomerId}/greeter` | Üstlenme ya da buluşma notunu değiştirme (`note`) |
 | `DELETE /events/{id}/welcome/{newcomerId}/greeter` | Üstlenmeyi bırakma |
 | `POST /events/{id}/welcome/thanks` | Teşekkür |
+
+### Gruplar Ligi (Faz 18b, kullanıcı kararı 2026-10-28)
+Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir yarışa çevirir: gruplar üye çekerek değil, iyi organizasyon yaparak öne geçer.
+
+- **Lig:** aynı kategori ve ildeki aktif gruplar (grubun ili seçili olmalı; askıdaki grup görünmez). **Sezon** Türkiye saatiyle takvim ayıdır.
+- **Puan** kaynak kayıtlardan hesaplanır, ayrı bir puan tablosu tutulmaz. Sayılan organizasyonlar: grubun o ayda başlayan, iptal edilmemiş ve bitmiş organizasyonları.
+  - **Katılım:** katılmış sayılan (Katkı tanımı) her kişi 1 puan; organizasyon başına en fazla 30.
+  - **Organizasyon:** düzenleyen dışında en az 3 kişinin katıldığı her organizasyon 5 puan.
+  - **Karşılama:** iki tarafın da katıldığı her karşılama (§3d Karşılama) 3 puan.
+  - **Memnuniyet:** 4 ya da 5 yıldızlı her değerlendirme 1 puan.
+  - Eşitlikte üye sayısı az olan önde (küçük gruplar için), sonra ad.
+- **Sıralama sayfası** (`/league`): kategori, il ve ay (son 12 ay) seçilir; en fazla 100 grup, her grubun puan dökümüyle. Oturum açmış herkes görür (gruplar ve organizasyonlar zaten herkese açık).
+- **Grup sayfası:** "Lig" kartı bu ayki sırayı ve puanı, kazanılan dereceleri (son 12 ayın ilk üçü) gösterir.
+- **Sezon kapanışı:** ay bittikten 8 gün sonra (yoklama 7 gün açık kalır) sonuç sabitlenir (`league_seasons`, `league_results`). Kaynak kayıtlar sonradan değişse de kapanan ay değişmez. İlk üçteki grupların üyelerine `league_result` bildirimi gider (dokununca grubun sayfası açılır). Kapanışı `EventReminderService` her çalışmasında yapar; ilk sezon Ekim 2026'dır.
+- **Ligden çıkarma:** platform ekibi kurala aykırı bir grubu (ör. sahte katılım) kapanmamış bir aydan gerekçeyle çıkarır ya da çıkarmayı geri alır (`league_exclusions`; `league.group_excluded`, `league.exclusion_removed`). Çıkarılan grup o ayın sıralamasında görünmez.
+- **Veri ve erişim:** `league_exclusions`, `league_seasons`, `league_results` backend'in yazdığı tablolardır; istemci doğrudan okumaz, sayfalar `public.league_table(category, province, month)` ve `public.group_league(group)` ile gelir.
+- **Admin** (`/leagues`): aya göre ligler (grup sayısı, lider ve puanı), bir ligin tablosu, ligden çıkarma ve geri alma. Rol: görmek tüm ekip; çıkarmak `admin`, `moderator`.
+
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /admin/leagues?month=YYYY-MM` | Ayın ligleri. Rol: `admin`, `moderator`, `support` |
+| `GET /admin/leagues/table?month=&category=&province=` | Bir ligin tablosu ve çıkarılan gruplar. Rol: `admin`, `moderator`, `support` |
+| `PUT /admin/leagues/{month}/exclusions/{groupId}` | Ligden çıkarma (`reason`). Rol: `admin`, `moderator` |
+| `DELETE /admin/leagues/{month}/exclusions/{groupId}` | Çıkarmayı geri alma. Rol: `admin`, `moderator` |
 
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.

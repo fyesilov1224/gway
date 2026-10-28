@@ -148,6 +148,14 @@ final adminReferralSearchProvider = FutureProvider.autoDispose.family<AdminRefer
 
 typedef AdminGoalSearch = ({AdminGoalStatus? status, int page});
 
+final adminLeaguesProvider = FutureProvider.autoDispose.family<AdminLeagueMonth, DateTime>(
+  (ref, month) async => (await ref.watch(adminEventsRepositoryProvider).leagues(month)).getOrThrow(),
+);
+
+final adminLeagueTableProvider = FutureProvider.autoDispose.family<AdminLeagueTable, AdminLeagueKey>(
+  (ref, key) async => (await ref.watch(adminEventsRepositoryProvider).leagueTable(key)).getOrThrow(),
+);
+
 final adminGoalSearchProvider = FutureProvider.autoDispose.family<AdminGoalPage, AdminGoalSearch>(
   (ref, search) async =>
       (await ref.watch(adminEventsRepositoryProvider).goals(status: search.status, page: search.page)).getOrThrow(),
