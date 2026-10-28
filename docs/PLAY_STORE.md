@@ -108,7 +108,7 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
   - Gizlilik politikası: `https://app.<alan adı>/#/gizlilik`.
   - Koşullar: `https://app.<alan adı>/#/kosullar`.
 - **Publish app** ile durumu "In production" yap. Şu an "Testing" durumunda; yalnızca test kullanıcıları girebiliyor. Yalnızca e-posta ve profil izinleri istendiği için Google incelemesi gerekmez.
-- Supabase → Authentication → URL Configuration'da `com.grupx.social://auth-callback` yönlendirmesi kayıtlı olmalı (`docs/DEPLOY.md` 7. adım).
+- Supabase → Authentication → URL Configuration'da `com.grupx.app://auth-callback` yönlendirmesi kayıtlı olmalı (`docs/DEPLOY.md` 7. adım).
 
 ## 7. Kapalı test → üretim
 1. *Test → Kapalı test* bölümünde bir kanal aç ve AAB'yi yükle.

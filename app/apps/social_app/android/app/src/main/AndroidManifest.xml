@@ -47,7 +47,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.grupx.social" android:host="auth-callback" />
+                <data android:scheme="com.grupx.app" android:host="auth-callback" />
             </intent-filter>
         </activity>
         <!-- No background location: the location check runs only while the app is open, so geolocator's

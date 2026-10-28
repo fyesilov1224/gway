@@ -58,7 +58,7 @@ curl https://api.<alan adı>/health   # Healthy
 
 ## 7. Supabase ayarları (panel: Authentication → URL Configuration)
 - **Site URL**: `https://app.<alan adı>`
-- **Redirect URLs**: `https://app.<alan adı>`, `https://panel.<alan adı>`, `com.grupx.social://auth-callback` (Android uygulaması)
+- **Redirect URLs**: `https://app.<alan adı>`, `https://panel.<alan adı>`, `com.grupx.app://auth-callback` (Android uygulaması)
 - Token hook açık olmalı (`supabase config push`, `docs/ARCHITECTURE.md` §3h).
 
 ## 8. Android uygulamasını sunucuya bağlama

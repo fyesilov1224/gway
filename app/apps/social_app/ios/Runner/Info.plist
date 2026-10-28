@@ -7,7 +7,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.grupx.social</string>
+				<string>com.grupx.app</string>
 			</array>
 		</dict>
 	</array>
