@@ -183,6 +183,17 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
           weekly: o.weekly,
           series: [series('Yeni grup', 'new_groups'), series('Canlı yayın', 'live_started')],
         ),
+        ChartPanel(
+          title: 'Karşılama',
+          subtitle: 'İlk kez gelenlerin karşılanma istekleri, bir karşılayıcının üstlendikleri ve organizasyondan sonra gelen teşekkürler.',
+          buckets: o.buckets,
+          weekly: o.weekly,
+          series: [
+            series('İstek', 'welcome_requests'),
+            series('Eşleşen', 'welcomes_matched'),
+            series('Teşekkür', 'welcomes_thanked'),
+          ],
+        ),
       ]),
     ];
   }

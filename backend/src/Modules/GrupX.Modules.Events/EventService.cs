@@ -57,6 +57,7 @@ public static class EventsModule
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<EventService>();
         services.AddSingleton<GoalService>();
+        services.AddSingleton<WelcomeService>();
         services.AddSingleton<IEventsAdministration>(sp => sp.GetRequiredService<EventService>());
         services.AddHostedService<EventReminderService>();
         return services;
@@ -97,6 +98,7 @@ public static class EventsModule
             (await events.SetNoShowAsync(user.GetUserId(), id, userId, noShow: false, ct)).ToHttpResult());
 
         app.MapGoalEndpoints();
+        app.MapWelcomeEndpoints();
 
         // "Takvime ekle": public like the event page itself.
         app.MapGet("/events/{id:guid}/calendar.ics", async (Guid id, EventService events, CancellationToken ct) =>

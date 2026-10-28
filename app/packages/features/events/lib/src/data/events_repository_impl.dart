@@ -13,6 +13,7 @@ const _rules = {
   'poll_single_choice': 'Bu ankette tek seçenek işaretlenebilir.',
   'poll_option_invalid': 'Bu seçenek artık yok. Sayfayı yenile.',
   'review_not_allowed': 'Değerlendirme, organizasyona katılanlar için bitişinden sonraki 30 gün açıktır.',
+  'greeter_not_allowed': 'Karşılayıcı olmak için grubun bir organizasyonuna katılmış olmalısın.',
 };
 
 Failure _failure(Object error) => switch (error) {
@@ -190,6 +191,78 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> leave(String id) => _api.delete('/events/$id/attendance', decode: (_) {});
 
+  WelcomeEntry _welcomeEntry(Map<String, dynamic> r) => WelcomeEntry(
+        person: _person((r['person'] as Map).cast()),
+        note: r['note'] as String?,
+        greeterNote: r['greeter_note'] as String?,
+        thanked: r['thanked'] == true,
+      );
+
+  @override
+  Future<Result<EventWelcome?>> eventWelcome(String eventId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('event_welcome', params: {'target_event': eventId});
+        if (r == null) return null;
+        final mine = r['mine'] as Map?;
+        final open = r['open'] as List?;
+        return EventWelcome(
+          greeters: (r['greeters'] as num?)?.toInt() ?? 0,
+          canRequest: r['can_request'] == true,
+          mine: mine == null
+              ? null
+              : MyWelcome(
+                  note: mine['note'] as String?,
+                  greeter: mine['greeter'] == null ? null : _person((mine['greeter'] as Map).cast()),
+                  greeterNote: mine['greeter_note'] as String?,
+                  thanked: mine['thanked'] == true,
+                  canThank: mine['can_thank'] == true,
+                ),
+          isGreeter: r['is_greeter'] == true,
+          greeting: r['greeting'] == true,
+          open: open == null ? null : [for (final w in open.cast<Map<String, dynamic>>()) _welcomeEntry(w)],
+          taken: [for (final w in (r['taken'] as List? ?? const []).cast<Map<String, dynamic>>()) _welcomeEntry(w)],
+          matched: (r['matched'] as num?)?.toInt(),
+        );
+      });
+
+  @override
+  Future<Result<GroupWelcome?>> groupWelcome(String groupId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('group_welcome', params: {'target_group': groupId});
+        if (r == null) return null;
+        return GroupWelcome(
+          greeters: (r['greeters'] as num?)?.toInt() ?? 0,
+          isGreeter: r['is_greeter'] == true,
+          canGreet: r['can_greet'] == true,
+        );
+      });
+
+  @override
+  Future<Result<void>> setGreeter(String groupId, {required bool greeter}) => _run(() async {
+        final me = _client.auth.currentUser?.id ?? (throw const UnauthorizedFailure());
+        if (greeter) {
+          await _client.from('group_greeters').insert({'group_id': groupId, 'user_id': me});
+        } else {
+          await _client.from('group_greeters').delete().eq('group_id', groupId).eq('user_id', me);
+        }
+      });
+
+  @override
+  Future<Result<void>> requestWelcome(String eventId, {String? note}) =>
+      _api.post('/events/$eventId/welcome', body: {'note': note}, decode: (_) {});
+
+  @override
+  Future<Result<void>> withdrawWelcome(String eventId) => _api.delete('/events/$eventId/welcome', decode: (_) {});
+
+  @override
+  Future<Result<void>> takeWelcome(String eventId, String newcomerId, String note) =>
+      _api.put('/events/$eventId/welcome/$newcomerId/greeter', body: {'note': note}, decode: (_) {});
+
+  @override
+  Future<Result<void>> releaseWelcome(String eventId, String newcomerId) =>
+      _api.delete('/events/$eventId/welcome/$newcomerId/greeter', decode: (_) {});
+
+  @override
+  Future<Result<void>> thankGreeter(String eventId) => _api.post('/events/$eventId/welcome/thanks', decode: (_) {});
+
   @override
   Future<Result<int?>> similarEventsCount(String groupId, DateTime day) => _run(() async {
         final start = DateTime(day.year, day.month, day.day);
@@ -244,6 +317,7 @@ class EventsRepositoryImpl implements EventsRepository {
           memories: n('memories'),
           reviews: n('reviews'),
           groups: n('groups'),
+          welcomed: n('welcomed'),
           badges: [for (final b in (r['badges'] as List? ?? const []).cast<Map<String, dynamic>>()) _badge(b)],
         );
       });

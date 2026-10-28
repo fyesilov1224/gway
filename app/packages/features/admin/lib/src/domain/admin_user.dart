@@ -218,7 +218,14 @@ class AdminTeammates {
 
 /// What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).
 class AdminContributions {
-  const AdminContributions({this.attended = 0, this.organized = 0, this.memories = 0, this.reviews = 0, this.noShows = 0});
+  const AdminContributions({
+    this.attended = 0,
+    this.organized = 0,
+    this.memories = 0,
+    this.reviews = 0,
+    this.noShows = 0,
+    this.welcomed = 0,
+  });
 
   factory AdminContributions.fromJson(Map<String, Object?> j) => AdminContributions(
         attended: j['attended']! as int,
@@ -226,6 +233,7 @@ class AdminContributions {
         memories: j['memories']! as int,
         reviews: j['reviews']! as int,
         noShows: j['noShows']! as int,
+        welcomed: j['welcomed'] as int? ?? 0,
       );
 
   final int attended;
@@ -233,6 +241,9 @@ class AdminContributions {
   final int memories;
   final int reviews;
   final int noShows;
+
+  /// First-timers this person greeted (docs/ARCHITECTURE.md §3d, Karşılama).
+  final int welcomed;
 }
 
 /// One page of a paged admin list.

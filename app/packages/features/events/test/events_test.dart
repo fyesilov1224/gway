@@ -40,6 +40,31 @@ class _FakeEvents implements EventsRepository {
   final reviews = <String>[];
   final noShows = <String>[];
   final left = <String>[];
+  final welcome = <String>[];
+
+  @override
+  Future<Result<void>> requestWelcome(String eventId, {String? note}) async {
+    welcome.add('request:$eventId:$note');
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> takeWelcome(String eventId, String newcomerId, String note) async {
+    welcome.add('take:$newcomerId:$note');
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> thankGreeter(String eventId) async {
+    welcome.add('thank:$eventId');
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> setGreeter(String groupId, {required bool greeter}) async {
+    welcome.add('greeter:$groupId:$greeter');
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> leave(String id) async {
@@ -166,6 +191,114 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Bu tarihte ilinde aynı kategoride 2 organizasyon daha var.'), findsOneWidget);
+  });
+
+  group('Karşılama', () {
+    final upcoming = GroupEvent(
+      id: 'e1', group: _group, title: 'Pazar yürüyüşü', startsAt: DateTime.now().add(const Duration(days: 2)), location: 'Belgrad',
+    );
+    const newcomer = EventPerson(id: 'u3', username: 'ayse', displayName: 'Ayşe Yeni');
+    const greeter = EventPerson(id: 'u2', username: 'elif', displayName: 'Elif Rehber');
+
+    Future<_FakeEvents> pumpWelcome(WidgetTester tester, EventWelcome w, {GroupEvent? event}) async {
+      final fake = _FakeEvents();
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          eventsRepositoryProvider.overrideWithValue(fake),
+          eventWelcomeProvider.overrideWith((ref, id) async => w),
+        ],
+        child: MaterialApp(
+          theme: GxTheme.light(),
+          home: Scaffold(body: SingleChildScrollView(child: EventWelcomeSection(event: event ?? upcoming, links: _links))),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      return fake;
+    }
+
+    testWidgets('a first-timer asks to be greeted, with a note to be recognized by', (tester) async {
+      final fake = await pumpWelcome(tester, const EventWelcome(greeters: 3, canRequest: true));
+
+      expect(find.text('İlk kez mi geliyorsun?'), findsOneWidget);
+      expect(find.textContaining('Bu grupta 3 karşılayıcı var.'), findsOneWidget);
+      await tester.tap(find.text('Karşılanmak istiyorum'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Kırmızı montluyum');
+      await tester.tap(find.text('İstek gönder'));
+      await tester.pumpAndSettle();
+      expect(fake.welcome, ['request:e1:Kırmızı montluyum']);
+    });
+
+    testWidgets('no greeters, no offer', (tester) async {
+      await pumpWelcome(tester, const EventWelcome(canRequest: true));
+      expect(find.text('Karşılanmak istiyorum'), findsNothing);
+    });
+
+    testWidgets('a greeted first-timer sees who and where, and thanks them afterwards', (tester) async {
+      final fake = await pumpWelcome(
+        tester,
+        const EventWelcome(greeters: 2, mine: MyWelcome(greeter: greeter, greeterNote: 'Girişteki kafe, 08:45', canThank: true)),
+      );
+
+      expect(find.text('Elif Rehber'), findsOneWidget);
+      expect(find.text('Buluşma: Girişteki kafe, 08:45'), findsOneWidget);
+      await tester.tap(find.text('Teşekkür et'));
+      await tester.pumpAndSettle();
+      expect(fake.welcome, ['thank:e1']);
+    });
+
+    testWidgets('a going greeter takes a first-timer with a meeting note', (tester) async {
+      final fake = await pumpWelcome(
+        tester,
+        const EventWelcome(greeters: 2, isGreeter: true, greeting: true, open: [WelcomeEntry(person: newcomer, note: 'Mavi çanta')]),
+      );
+
+      expect(find.text('Karşılanmayı bekleyenler (1)'), findsOneWidget);
+      expect(find.text('Mavi çanta'), findsOneWidget);
+      await tester.tap(find.widgetWithText(GxButton, 'Karşılarım'));
+      await tester.pumpAndSettle();
+      final take = find.widgetWithText(TextButton, 'Karşılarım');
+      expect(tester.widget<TextButton>(take).onPressed, isNull, reason: 'a meeting note is required');
+      await tester.enterText(find.byType(TextField), 'Otopark girişi');
+      await tester.pump();
+      await tester.tap(take);
+      await tester.pumpAndSettle();
+      expect(fake.welcome, ['take:u3:Otopark girişi']);
+    });
+
+    testWidgets('a member who went volunteers on the group page', (tester) async {
+      final fake = _FakeEvents();
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          eventsRepositoryProvider.overrideWithValue(fake),
+          groupWelcomeProvider.overrideWith((ref, id) async => const GroupWelcome(greeters: 4, canGreet: true)),
+        ],
+        child: MaterialApp(
+          theme: GxTheme.light(),
+          home: const Scaffold(body: GroupWelcomeSection(groupId: 'g1', isMember: true)),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('4 karşılayıcı'), findsOneWidget);
+      await tester.tap(find.text('Karşılayıcı ol'));
+      await tester.pumpAndSettle();
+      expect(fake.welcome, ['greeter:g1:true']);
+    });
+
+    testWidgets('visitors only learn that first-timers are greeted', (tester) async {
+      await tester.pumpWidget(ProviderScope(
+        overrides: [groupWelcomeProvider.overrideWith((ref, id) async => const GroupWelcome(greeters: 2))],
+        child: MaterialApp(
+          theme: GxTheme.light(),
+          home: const Scaffold(body: GroupWelcomeSection(groupId: 'g1', isMember: false)),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('ilk organizasyonuna yalnız gitmezsin'), findsOneWidget);
+      expect(find.text('Karşılayıcı ol'), findsNothing);
+    });
   });
 
   testWidgets('the fee is information only; outsiders are pointed to the group', (tester) async {

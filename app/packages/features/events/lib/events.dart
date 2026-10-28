@@ -13,3 +13,4 @@ export 'src/presentation/polls.dart' show PollCard, PollsSection, showPollEditor
 export 'src/presentation/providers.dart';
 export 'src/presentation/routes.dart';
 export 'src/presentation/upcoming.dart';
+export 'src/presentation/welcome.dart' show EventWelcomeSection, GroupWelcomeSection;

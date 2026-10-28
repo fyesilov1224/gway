@@ -234,7 +234,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               handle: state.pathParameters['handle']!,
               onOpenProfile: _openProfile,
               sections: const [groupChatSection, groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
-              contentSections: const [groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
+              contentSections: const [groupWelcomeSection, groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
             ),
             routes: [
               GoRoute(

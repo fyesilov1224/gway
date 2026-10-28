@@ -146,6 +146,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ('Anı', formatCount(d.contributions.memories)),
         ('Değerlendirme', formatCount(d.contributions.reviews)),
         ('Gelmedi işareti', formatCount(d.contributions.noShows)),
+        ('Karşıladığı ilk kez gelen', formatCount(d.contributions.welcomed)),
       ]),
       const SizedBox(height: GxSpacing.lg),
       InfoPanel(title: 'Ekip arkadaşı', rows: [

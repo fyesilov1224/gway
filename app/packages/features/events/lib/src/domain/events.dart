@@ -180,6 +180,7 @@ class Contributions {
     this.memories = 0,
     this.reviews = 0,
     this.groups = 0,
+    this.welcomed = 0,
     this.badges = const [],
   });
 
@@ -190,9 +191,12 @@ class Contributions {
 
   /// Different groups whose events the person attended.
   final int groups;
+
+  /// First-timers greeted (docs/ARCHITECTURE.md §3d, Karşılama).
+  final int welcomed;
   final List<ContributionBadge> badges;
 
-  bool get isEmpty => attended == 0 && organized == 0 && memories == 0 && reviews == 0;
+  bool get isEmpty => attended == 0 && organized == 0 && memories == 0 && reviews == 0 && welcomed == 0;
 }
 
 /// A going attendee in the roll call, and whether they were marked as not there.
@@ -252,6 +256,78 @@ class EventDetail {
 
   /// Going attendees while the roll call is open (7 days after the end); managers only.
   final List<RollEntry>? roll;
+}
+
+/// A first-timer at an event: waiting for a greeter, or taken by the viewer (docs/ARCHITECTURE.md §3d, Karşılama).
+class WelcomeEntry {
+  const WelcomeEntry({required this.person, this.note, this.greeterNote, this.thanked = false});
+
+  final EventPerson person;
+
+  /// How to recognize them, written by the first-timer.
+  final String? note;
+
+  /// Where to meet, written by the greeter.
+  final String? greeterNote;
+  final bool thanked;
+}
+
+/// The viewer's own request to be greeted.
+class MyWelcome {
+  const MyWelcome({this.note, this.greeter, this.greeterNote, this.thanked = false, this.canThank = false});
+
+  final String? note;
+
+  /// Null while a greeter is being looked for.
+  final EventPerson? greeter;
+  final String? greeterNote;
+  final bool thanked;
+  final bool canThank;
+}
+
+/// The welcome block of an event page.
+class EventWelcome {
+  const EventWelcome({
+    this.greeters = 0,
+    this.canRequest = false,
+    this.mine,
+    this.isGreeter = false,
+    this.greeting = false,
+    this.open,
+    this.taken = const [],
+    this.matched,
+  });
+
+  /// The group's greeters.
+  final int greeters;
+
+  /// Going, the event is ahead, and the viewer never attended the group's events.
+  final bool canRequest;
+  final MyWelcome? mine;
+  final bool isGreeter;
+
+  /// A greeter going to this event, so they can take requests.
+  final bool greeting;
+
+  /// Requests nobody took yet; greeters going and managers only.
+  final List<WelcomeEntry>? open;
+
+  /// The first-timers the viewer greets.
+  final List<WelcomeEntry> taken;
+
+  /// How many were taken; managers only.
+  final int? matched;
+}
+
+/// The welcome card of a group page.
+class GroupWelcome {
+  const GroupWelcome({this.greeters = 0, this.isGreeter = false, this.canGreet = false});
+
+  final int greeters;
+  final bool isGreeter;
+
+  /// A member who attended (or is on the team) may volunteer.
+  final bool canGreet;
 }
 
 class GroupEvents {
@@ -403,6 +479,26 @@ abstract interface class EventsRepository {
   Future<Result<AttendanceResult>> attend(String id);
 
   Future<Result<void>> leave(String id);
+
+  /// The event page's welcome block (Supabase); null when the event is not visible.
+  Future<Result<EventWelcome?>> eventWelcome(String eventId);
+
+  /// The group page's welcome card (Supabase).
+  Future<Result<GroupWelcome?>> groupWelcome(String groupId);
+
+  /// Volunteers as a greeter or stops (the user's own write, Supabase).
+  Future<Result<void>> setGreeter(String groupId, {required bool greeter});
+
+  Future<Result<void>> requestWelcome(String eventId, {String? note});
+
+  Future<Result<void>> withdrawWelcome(String eventId);
+
+  /// Takes a first-timer, or changes the meeting note.
+  Future<Result<void>> takeWelcome(String eventId, String newcomerId, String note);
+
+  Future<Result<void>> releaseWelcome(String eventId, String newcomerId);
+
+  Future<Result<void>> thankGreeter(String eventId);
 
   /// Other groups' live events on [day] in the group's province and category, as a number only;
   /// null when the group has no province (docs/ARCHITECTURE.md §3b).

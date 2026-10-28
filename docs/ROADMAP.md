@@ -349,6 +349,29 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [ ] Bulut: `0047` migration'ı — kullanıcı onayıyla
 - Sonraki adım önerisi (onay bekliyor): ortak organizasyon (iki grubun birlikte düzenlemesi), sadık üyelere özel organizasyonlar
 
+## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
+
+İnsanları uygulamaya çekecek, gerçek hayatta bir araya getiren özellikler. Sırayla, her biri mobil, web ve yönetim paneliyle birlikte yapılır. Ücretli servis gerektiren kısım onaysız açılmaz.
+
+### 18a — Karşılama (ilk kez gelene gönüllü eşlik; `docs/ARCHITECTURE.md` §3d)
+- [x] Karşılayıcı olma (grubun deneyimli üyesi), grup sayfasında karşılayıcı sayısı
+- [x] Organizasyona ilk kez gelenin karşılanma isteği, karşılayıcının üstlenmesi ve buluşma notu, vazgeçme, teşekkür
+- [x] Bildirimler ve push metinleri; "Kapı açan", "Ev sahibi", "Topluluğun kalbi" rozetleri
+- [x] Yönetim paneli: genel bakışta karşılama ölçüleri, kullanıcı sayfasında karşılama sayısı
+- [x] Gizlilik düzeltmesi: grup katkı listesi yalnızca üyelere, profildeki hedef rozetleri üyelik gizliliğine uyar
+- [x] pgTAP (915/915), C# (213/213) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
+- [ ] Bulut: `0048` migration'ı — kullanıcı onayıyla
+
+### 18b — Gruplar Ligi (aynı il ve kategorideki grupların aylık sezonu)
+### 18c — Yılın Özeti (paylaşılabilir hikâye kartları)
+### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
+### 18e — El Sıkış (organizasyonda QR ile tanışma)
+### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
+### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar)
+### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
+### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
+### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

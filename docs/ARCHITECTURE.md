@@ -422,7 +422,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Paylaşım:** Gönderi bağlantısı `/#/p/<id>`; bağlantıyı açan kişi gönderiyi görünürlük kuralına göre görür.
 
 ### Bildirimler (notifications)
-- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `live_scheduled`, `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
+- **Türler:** `like`, `comment`, `reply`, `comment_like`, `mention`, `follow`, `follow_request`, `follow_accepted`, `event_promoted`, `event_updated`, `event_canceled`, `event_reminder` (Faz 5, §3d), `welcome_requested`, `welcome_matched`, `welcome_released`, `welcome_withdrawn`, `welcome_thanked` (Faz 18a, §3d Karşılama), `live_scheduled`, `live_started` (Faz 7, §8), `case_vote`, `sanction_applied`, `appeal_submitted`, `appeal_decided` (Faz 6, §3e).
 - **Oluşturma:** Bildirimleri ilgili tablolardaki trigger'lar oluşturur. Kişi kendi işlemi için bildirim almaz; engel varsa bildirim oluşmaz.
 - **Silme:** Beğeni geri alınınca, yorum silinince ya da takip bırakılınca ilgili bildirim de silinir.
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
@@ -562,7 +562,28 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
   | `<Kategori>` tutkunu | Bir kategoride 5 katılım |
 
 - Beğeni, takipçi ve gönderi sayısı katkıya girmez. Gönüllülük ve yeni üyelere yardım gibi doğrulanamayan katkılar Faz 12'deki görevlerle gelir.
-- **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Sıralama ve "ayın en iyileri" listesi yoktur.
+- **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları; yalnızca grubun üyelerine ve platform ekibine, §3b Gruplar arası denge) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Profildeki hedef rozetleri yalnızca görüntüleyenin üyeliğini görebildiği grupların hedeflerini gösterir. Sıralama ve "ayın en iyileri" listesi yoktur.
+
+### Karşılama (Faz 18a, kullanıcı kararı 2026-10-28)
+Bir gruba ilk kez gitmenin önündeki en büyük engel yalnız gitmektir. Organizasyona ilk kez gelen kişi, grubun gönüllü bir üyesi tarafından karşılanmayı ister. (Ad: "Yol arkadaşı" bir katılım rozetinin adı olduğu için özellik "Karşılama"dır.)
+
+- **Karşılayıcı** (`group_greeters`): grubun üyesi olup ya yönetim ekibinde olan ya da grubun en az bir organizasyonuna katılmış sayılan (Katkı tanımı) kişi, grubun sayfasından karşılayıcı olur ya da bırakır. Kişinin kendi basit yazmasıdır (RLS); uygunluğu trigger denetler. Gruptan ayrılınca kaydı silinir. Grubun sayfası karşılayıcı **sayısını** herkese gösterir (`public.group_greeter_count`); kimlerin olduğunu kişinin kendisi, grubun `events.manage` yetkilileri ve platform ekibi görür.
+- **İstek** (`event_welcomes`): organizasyona `going` olan, organizasyon başlamamış ve iptal edilmemişken, **o grubun hiçbir organizasyonuna daha önce katılmamış** kişi karşılanmak ister; isteğe kendini tarif eden bir not ekleyebilir (en fazla 200, ör. "Kırmızı montluyum"). Bir kişinin bir grupta aynı anda tek açık isteği olur. Grubun karşılayıcılarına `welcome_requested` bildirimi gider.
+- **Üstlenme:** organizasyona `going` olan karşılayıcı açık bir isteği üstlenir ve buluşma notu yazar (3–200, ör. "Girişteki kafenin önü, 08:45"). Bir karşılayıcı bir organizasyonda en fazla 3 kişiyi karşılar; kendini karşılayamaz. Yeni gelen `welcome_matched` bildirimi alır. Not başlangıca kadar değiştirilebilir.
+- **Vazgeçme** (başlangıçtan önce): yeni gelen isteğini geri alır (karşılayıcısı varsa ona `welcome_withdrawn`); karşılayıcı üstlenmeyi bırakır, istek yeniden açılır ve yeni gelen `welcome_released` alır. Katılımdan vazgeçen yeni gelenin isteği silinir; katılımdan vazgeçen karşılayıcının üstlendikleri yeniden açılır (aynı bildirimlerle).
+- **Teşekkür:** organizasyon bittikten sonra 30 gün içinde, iki taraf da katılmış sayılıyorsa yeni gelen bir kez teşekkür eder; karşılayıcı `welcome_thanked` alır.
+- **Katkı ve rozet:** "Karşılama" (`welcomed`), karşılayıcının üstlendiği, iptal edilmemiş ve bitmiş organizasyonda iki tarafın da katılmış sayıldığı isteklerdir (teşekkür şart değil). Rozetler: Kapı açan (1), Ev sahibi (5), Topluluğun kalbi (20).
+- **Görünürlük:** Organizasyon sayfasının karşılama bölümü `public.event_welcome(event)` ile gelir: kişinin kendi isteği ve karşılayıcısı, karşılayıcıysa açık istekler (yeni gelenin adı, avatarı, notu) ve üstlendikleri. İstekleri yeni gelen, üstlenen, organizasyona katılan karşılayıcılar, grubun `events.manage` yetkilileri ve platform ekibi görür.
+- Yazmalar **C# API**'den geçer (başkasını etkiler, bildirim gönderir); trigger'lar kuralları ikinci kez uygular. Kişisel işlemdir, audit log'a yazılmaz.
+- **Admin:** genel bakışta karşılama istekleri, eşleşen ve teşekkür edilen karşılamalar; kullanıcı sayfasında karşıladığı kişi sayısı (katkı).
+
+| Uç nokta | Açıklama |
+|---|---|
+| `POST /events/{id}/welcome` | Karşılanma isteği (`note?`) |
+| `DELETE /events/{id}/welcome` | İsteği geri alma |
+| `PUT /events/{id}/welcome/{newcomerId}/greeter` | Üstlenme ya da buluşma notunu değiştirme (`note`) |
+| `DELETE /events/{id}/welcome/{newcomerId}/greeter` | Üstlenmeyi bırakma |
+| `POST /events/{id}/welcome/thanks` | Teşekkür |
 
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.

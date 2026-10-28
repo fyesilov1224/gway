@@ -39,7 +39,7 @@ public sealed record AdminUserDetail(
     AdminTeammates Teammates);
 
 /// <summary>What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).</summary>
-public sealed record AdminContributions(int Attended, int Organized, int Memories, int Reviews, int NoShows);
+public sealed record AdminContributions(int Attended, int Organized, int Memories, int Reviews, int NoShows, int Welcomed = 0);
 
 /// <summary>Teammate activity, for spotting request spam (docs/ARCHITECTURE.md §3c, Ekip arkadaşı); the province is never shown.</summary>
 public sealed record AdminTeammates(bool Looking, int Teammates, int RequestsSentToday, int RequestsPending);
@@ -195,14 +195,16 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
         await using (var cmd = new NpgsqlCommand(
             """
             select (c->>'attended')::int, (c->>'organized')::int, (c->>'memories')::int, (c->>'reviews')::int,
-                   (select count(*)::int from public.event_attendees where user_id = @id and no_show_at is not null)
+                   (select count(*)::int from public.event_attendees where user_id = @id and no_show_at is not null),
+                   (c->>'welcomed')::int
             from (select private.contribution_counts(@id, null) as c) x
             """, conn))
         {
             cmd.Parameters.AddWithValue("id", userId);
             await using var reader = await cmd.ExecuteReaderAsync(ct);
             await reader.ReadAsync(ct);
-            contributions = new AdminContributions(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4));
+            contributions = new AdminContributions(
+                reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5));
         }
 
         AdminTeammates teammates;

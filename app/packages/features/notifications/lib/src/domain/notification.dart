@@ -26,7 +26,12 @@ enum NotificationType {
   teammateRequest('teammate_request'),
   teammateAccepted('teammate_accepted'),
   matchCreated('match_created'),
-  matchSuperLiked('match_super_liked');
+  matchSuperLiked('match_super_liked'),
+  welcomeRequested('welcome_requested'),
+  welcomeMatched('welcome_matched'),
+  welcomeReleased('welcome_released'),
+  welcomeWithdrawn('welcome_withdrawn'),
+  welcomeThanked('welcome_thanked');
 
   const NotificationType(this.code);
 
@@ -177,6 +182,11 @@ class AppNotification {
         NotificationType.teammateAccepted => 'ekip arkadaşlığı isteğini kabul etti.',
         NotificationType.matchCreated => "Kim olduğunu Eşleşmelerim'de gör.",
         NotificationType.matchSuperLiked => 'seni süper beğendi! Destende ilk o görünüyor.',
+        NotificationType.welcomeRequested => '"${eventTitle ?? ''}" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.',
+        NotificationType.welcomeMatched => '"${eventTitle ?? ''}" organizasyonunda seni karşılayacak. Buluşma notunu gör.',
+        NotificationType.welcomeReleased => '"${eventTitle ?? ''}" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.',
+        NotificationType.welcomeWithdrawn => '"${eventTitle ?? ''}" için karşılama isteğini geri çekti.',
+        NotificationType.welcomeThanked => '"${eventTitle ?? ''}" organizasyonunda onu karşıladığın için teşekkür etti.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.

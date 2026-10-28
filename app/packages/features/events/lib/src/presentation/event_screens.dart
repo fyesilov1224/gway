@@ -14,6 +14,7 @@ import 'map_screens.dart';
 import 'polls.dart';
 import 'providers.dart';
 import 'routes.dart';
+import 'welcome.dart';
 
 void _snack(BuildContext context, String message) =>
     ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text(message)));
@@ -605,6 +606,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                       const SizedBox(height: GxSpacing.xs),
                       SelectableText(e.description, style: textTheme.bodyLarge),
                     ],
+                    if (d.isMember && !e.isCanceled) EventWelcomeSection(event: e, links: widget.links),
                     if (d.requests case final requests? when requests.isNotEmpty) ...[
                       const SizedBox(height: GxSpacing.lg),
                       Text('Katılım istekleri (${requests.length})', style: textTheme.titleMedium),

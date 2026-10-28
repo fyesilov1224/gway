@@ -53,6 +53,9 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
           union all select 'reports_opened', created_at, 1, null from public.reports where created_at >= (select at from since)
           union all select 'reports_reviewed', reviewed_at, 1, null from public.reports where reviewed_at >= (select at from since)
           union all select 'live_started', started_at, 1, null from public.live_broadcasts where started_at >= (select at from since)
+          union all select 'welcome_requests', created_at, 1, null from public.event_welcomes where created_at >= (select at from since)
+          union all select 'welcomes_matched', matched_at, 1, null from public.event_welcomes where matched_at >= (select at from since)
+          union all select 'welcomes_thanked', thanked_at, 1, null from public.event_welcomes where thanked_at >= (select at from since)
           union all select 'active_users', at, 0, uid from activity
           union all select 'revenue_' || lower(currency), paid_at, amount_minor::bigint, null from public.billing_orders
             where @revenue and status = 'paid' and paid_at >= (select at from since)
@@ -104,6 +107,7 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
     [
         "new_users", "active_users", "new_groups", "posts", "comments", "likes", "reactions", "messages",
         "match_likes", "super_likes", "matches", "reports_opened", "reports_reviewed", "live_started",
+        "welcome_requests", "welcomes_matched", "welcomes_thanked",
     ];
 
     private static readonly string[] RevenueKeys = ["revenue_try", "revenue_usd", "paid_orders"];

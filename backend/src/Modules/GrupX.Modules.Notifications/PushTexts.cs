@@ -84,6 +84,11 @@ internal static class PushTexts
         "teammate_accepted" => "ekip arkadaşlığı isteğini kabul etti.",
         "match_created" => "Kim olduğunu Eşleşmelerim'de gör.",
         "match_super_liked" => "seni süper beğendi! Destende ilk o görünüyor.",
+        "welcome_requested" => $"\"{n.EventTitle}\" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.",
+        "welcome_matched" => $"\"{n.EventTitle}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.",
+        "welcome_released" => $"\"{n.EventTitle}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.",
+        "welcome_withdrawn" => $"\"{n.EventTitle}\" için karşılama isteğini geri çekti.",
+        "welcome_thanked" => $"\"{n.EventTitle}\" organizasyonunda onu karşıladığın için teşekkür etti.",
         _ => "yeni bir bildirim gönderdi.",
     };
 

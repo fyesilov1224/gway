@@ -52,6 +52,16 @@ final similarEventsProvider = FutureProvider.autoDispose.family<int?, ({String g
   (ref, key) async => (await ref.watch(eventsRepositoryProvider).similarEventsCount(key.groupId, key.day)).getOrThrow(),
 );
 
+/// The welcome block; reloads with the event page, since going or leaving changes it.
+final eventWelcomeProvider = FutureProvider.autoDispose.family<EventWelcome?, String>((ref, id) async {
+  await ref.watch(eventDetailProvider(id).future);
+  return (await ref.watch(eventsRepositoryProvider).eventWelcome(id)).getOrThrow();
+});
+
+final groupWelcomeProvider = FutureProvider.autoDispose.family<GroupWelcome?, String>(
+  (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupWelcome(groupId)).getOrThrow(),
+);
+
 final eventDetailProvider = FutureProvider.autoDispose.family<EventDetail, String>(
   (ref, id) async => (await ref.watch(eventsRepositoryProvider).event(id)).getOrThrow(),
 );

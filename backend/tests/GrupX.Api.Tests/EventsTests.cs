@@ -364,4 +364,80 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
         Assert.Equal(3L, await CountAsync(
             "select count(*) from public.audit_log where action in ('poll.created', 'poll.closed', 'poll.deleted') and target_id = @p", ("p", id.ToString())));
     }
+
+    // Welcome ---------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task A_first_timer_is_greeted_and_thanks_the_greeter()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        await _db.ExecuteAsync(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @a)::text, true);
+            insert into public.group_greeters (group_id, user_id) values (@g, @a);
+            """, ("a", crew.Admin), ("g", crew.Group));
+        foreach (var user in new[] { crew.Admin, crew.Member, crew.Other })
+            Assert.NotNull(await AttendAsync(user, ev));
+        var newcomer = factory.ClientFor(crew.Member);
+        var greeter = factory.ClientFor(crew.Admin);
+
+        var asked = await newcomer.PostAsJsonAsync(Path($"/events/{ev}/welcome"), new WelcomeRequest("Mavi çantalıyım"), Ct);
+        var askedAgain = await newcomer.PostAsJsonAsync(Path($"/events/{ev}/welcome"), new WelcomeRequest(null), Ct);
+        var notGreeter = await factory.ClientFor(crew.Other).PutAsJsonAsync(
+            Path($"/events/{ev}/welcome/{crew.Member}/greeter"), new WelcomeTakeRequest("Girişte"), Ct);
+        var shortNote = await greeter.PutAsJsonAsync(Path($"/events/{ev}/welcome/{crew.Member}/greeter"), new WelcomeTakeRequest("A"), Ct);
+        var taken = await greeter.PutAsJsonAsync(
+            Path($"/events/{ev}/welcome/{crew.Member}/greeter"), new WelcomeTakeRequest("Girişteki kafe, 08:45"), Ct);
+        var earlyThanks = await newcomer.PostAsync(Path($"/events/{ev}/welcome/thanks"), null, Ct);
+
+        Assert.Equal(HttpStatusCode.NoContent, asked.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, askedAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, notGreeter.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, shortNote.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, taken.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, earlyThanks.StatusCode);
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.notifications where recipient_id = @u and type = 'welcome_matched'", ("u", crew.Member)));
+
+        await _db.ExecuteWithoutTriggersAsync("update public.events set starts_at = now() - interval '1 day' where id = @e", ("e", ev));
+        var thanks = await newcomer.PostAsync(Path($"/events/{ev}/welcome/thanks"), null, Ct);
+        var thanksAgain = await newcomer.PostAsync(Path($"/events/{ev}/welcome/thanks"), null, Ct);
+        var lateRelease = await greeter.DeleteAsync(Path($"/events/{ev}/welcome/{crew.Member}/greeter"), Ct);
+
+        Assert.Equal(HttpStatusCode.NoContent, thanks.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, thanksAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, lateRelease.StatusCode);
+        Assert.Equal(1L, await CountAsync(
+            "select (private.contribution_counts(@u, null)->>'welcomed')::bigint", ("u", crew.Admin)));
+    }
+
+    [Fact]
+    public async Task A_greeter_who_steps_back_reopens_the_request()
+    {
+        var crew = await CrewAsync();
+        var ev = await EventAsync(crew, Form());
+        await _db.ExecuteAsync(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @a)::text, true);
+            insert into public.group_greeters (group_id, user_id) values (@g, @a);
+            """, ("a", crew.Admin), ("g", crew.Group));
+        Assert.NotNull(await AttendAsync(crew.Admin, ev));
+        Assert.NotNull(await AttendAsync(crew.Member, ev));
+        var greeter = factory.ClientFor(crew.Admin);
+        (await factory.ClientFor(crew.Member).PostAsJsonAsync(Path($"/events/{ev}/welcome"), new WelcomeRequest(null), Ct)).EnsureSuccessStatusCode();
+        (await greeter.PutAsJsonAsync(Path($"/events/{ev}/welcome/{crew.Member}/greeter"), new WelcomeTakeRequest("Otoparkta"), Ct))
+            .EnsureSuccessStatusCode();
+
+        var released = await greeter.DeleteAsync(Path($"/events/{ev}/welcome/{crew.Member}/greeter"), Ct);
+        var releasedAgain = await greeter.DeleteAsync(Path($"/events/{ev}/welcome/{crew.Member}/greeter"), Ct);
+        var withdrawn = await factory.ClientFor(crew.Member).DeleteAsync(Path($"/events/{ev}/welcome"), Ct);
+
+        Assert.Equal(HttpStatusCode.NoContent, released.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, releasedAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, withdrawn.StatusCode);
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.notifications where recipient_id = @u and type = 'welcome_released'", ("u", crew.Member)));
+        Assert.Equal(0L, await CountAsync("select count(*) from public.event_welcomes where event_id = @e", ("e", ev)));
+    }
 }

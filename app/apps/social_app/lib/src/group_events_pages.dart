@@ -25,6 +25,10 @@ String? memberContributions(WidgetRef ref, Group group, GroupPerson person) =>
 Widget profileContributionsSection(BuildContext context, Profile profile, bool isOwn) =>
     ContributionsSection(userId: profile.id, isOwn: isOwn);
 
+/// How many greeters the group has, and "Karşılayıcı ol" for members who may (docs/ARCHITECTURE.md §3d, Karşılama).
+Widget groupWelcomeSection(BuildContext context, Group group, MyMembership me) =>
+    group.isSuspended ? const SizedBox.shrink() : GroupWelcomeSection(groupId: group.id, isMember: me.isMember);
+
 /// Upcoming events on the group page; events.manage holders (owner, Yönetici) create them.
 Widget groupEventsSection(BuildContext context, Group group, MyMembership me) =>
     GroupEventsSection(groupId: group.id, canManage: me.can(GroupPermission.manageEvents) && !group.isSuspended);
