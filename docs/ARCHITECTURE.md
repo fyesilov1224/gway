@@ -151,6 +151,7 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - İlgi alanları: `profile_interests` (en fazla 10), `categories` tablosundan seçilir. `categories` Faz 2'de gruplar için de kullanılır.
 - Görseller: `avatars` ve `covers` bucket'ları herkese açık okunur. Kullanıcı yalnızca `<uid>/` klasörüne yazar. En fazla 5 MB; JPEG, PNG veya WebP.
 - Görünürlük: Bir profil, hesap `active` (ya da süresi dolmuş `suspended`) ise herkese görünür. Sahibi kendi profilini her zaman görür, platform ekibi hepsini görür.
+- Profildeki "Gruplar" bölümü: kişinin `groups_public` ayarı kapalıysa (varsayılan) ziyaretçi yalnızca ortak gruplarını ve kişinin yönetim ekibinde olduğu grupları görür (§3b Gruplar arası denge). Ayar Ayarlar'dadır; kişinin kendi basit yazmasıdır.
 
 ### C# uç noktaları (Faz 1)
 | Uç nokta | Açıklama |
@@ -177,7 +178,7 @@ Admin kullanıcı listesi C#'tan gelir, çünkü e-posta `auth` şemasındadır 
 - Grup adresi (`handle`): benzersiz, kullanıcı adıyla aynı biçim kuralları (3–30 karakter, `a-z 0-9 _ .`, nokta ile başlayıp bitemez, `..` içeremez, ayrılmış adlar kullanılamaz). Oluşturulduktan sonra değişmez. Sayfa adresi `/g/<handle>`.
 - Profil alanları: ad (3–60), tanıtım (en fazla 1000), kurallar (en fazla 2000), bağlantılar (en fazla 5; etiket 1–40, `http(s)` adresi en fazla 300), logo, kapak.
 - Görseller `group-images` bucket'ında `<group_id>/` klasöründedir: herkese açık okunur, yalnızca `group.edit` yetkisi olan yazar. En fazla 5 MB; JPEG, PNG veya WebP. İstemci görseli yükler, yolu C# API'ye bildirir; API yolun grubun klasöründe olduğunu doğrular.
-- **Görünürlük:** Tüm aktif grupların sayfası, üye listesi ve yönetim ekibi herkese açıktır (gizli grup yok). Katılım tipi yalnızca katılma yolunu belirler.
+- **Görünürlük:** Tüm aktif grupların sayfası, üye sayısı ve yönetim ekibi herkese açıktır (gizli grup yok). Üye listesinin tamamını grubun üyeleri görür; diğerleri yönetim ekibini ve gruplarını herkese açan üyeleri görür (Gruplar arası denge, Faz 15.9). Katılım tipi yalnızca katılma yolunu belirler.
 - **Durum** (`groups.status`): `active` veya `suspended` (platform ekibi askıya aldı, süresiz). Askıdaki grup yalnızca üyelerine ve platform ekibine görünür; hiçbir yetki çalışmaz, katılım, istek ve davet kapanır, yalnızca gruptan ayrılmak mümkündür.
 - **Silme:** Yalnızca sahibi siler. Kalıcıdır: üyelikler, roller, istekler ve davetler `on delete cascade` ile, görseller backend tarafından silinir. `audit_log` kaydı (`group.deleted`) kalır.
 - Grup sahibi olan kullanıcı **hesap silme isteğinde bulunamaz**; önce sahipliği devretmeli ya da grubu silmelidir.
@@ -193,6 +194,16 @@ Admin kullanıcı listesi C#'tan gelir, çünkü e-posta `auth` şemasındadır 
 - Üye olunca o gruba ait bekleyen istek ve davet silinir.
 - Katılmak için hesabın aktif ve profilin (onboarding) tamamlanmış olması gerekir.
 - Grup sahibi gruptan ayrılamaz. Diğer üyeler istediği zaman ayrılır; rolleri de silinir. Üyeyi gruptan çıkarma ve banlama bir yaptırımdır; yalnızca disiplin dosyasının kararıyla olur (§3e). Banlı kişi ban süresince katılamaz, istek gönderemez, davet alamaz.
+
+### Gruplar arası denge (kullanıcı kararı, 2026-10-28, Faz 15.9)
+Aynı türdeki gruplar birbirinin üyesini "çalmaktan" şikâyet eder; üye ise istediği gruba katılmakta ve istediği organizasyona gitmekte serbesttir. Kural: **üyeye kısıt yok, gruplar arası görünürlüğe kısıt var.**
+
+- **Üyelik gizliliği:** Bir kişinin bir gruptaki üyeliğini (`group_members` satırı) kişinin kendisi, o grubun üyeleri ve platform ekibi görür. Grubun yönetim ekibi (sahip ve rol sahipleri) herkese açıktır. Kişi "Gruplarımı profilimde göster" ayarını (`profiles.groups_public`, varsayılan kapalı) açarsa üyelikleri herkese görünür. Böylece bir grubun yöneticisi, üyesinin başka hangi gruplarda olduğunu göremez; başkasının profilinde yalnızca ortak gruplarını görür. Ortak grup hesapları (eşleşme, ekip arkadaşı) zaten yalnızca ortak grupları döner.
+- Organizasyon katılımcı listesi yalnızca grubun üyelerine açıktır (§3d); başka grubun yöneticisi kimin nereye gittiğini görmez.
+- Grup sahibine "üyen başka gruba katıldı" türünde bildirim yoktur. Bir grup, üyesinin başka gruba katılmasını ya da başka grubun organizasyonuna gitmesini engelleyemez.
+- **Davet sınırı:** Bir grup 24 saatte en fazla 50 davet gönderir (geri alınanlar dahil; `group.invitation_sent` kayıtlarından sayılır). Kontrol hem C#'ta hem `group_invitations` trigger'ında yapılır; hata kodu `group.invitation_limit_reached`. Başka grubun üyelerine toplu ulaşma yolu yoktur: üye listesi gizlidir, birebir mesaj yalnızca eşleşmeler arasındadır (§3f).
+- **Aynı saatte organizasyon (üye):** Kişi bir organizasyona katıldığında o saatte başka organizasyonu varsa (§3d Takvim, `event_detail.conflicts`) uygulama diğerinden vazgeçip yerini boşaltmak isteyip istemediğini sorar. Seçim kişinindir; bir şey otomatik iptal edilmez.
+- **Aynı gün organizasyon (grup):** Organizasyon formu, seçilen günde (cihazın saat dilimi) grubun ilindeki aynı kategoriden **diğer grupların** iptal edilmemiş organizasyon sayısını isimsiz gösterir. Grubun ili yoksa gösterilmez. Organizasyonlar zaten herkese açık olduğu için yeni bir bilgi açmaz; sahip tarihi isterse değiştirir.
 
 ### Roller ve rütbe
 | Rol (`group_roles.slug`) | Ad | Rütbe | Nerede tutulur |
@@ -252,7 +263,7 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 | `DELETE /groups/{id}/invitation` | Kendine gelen daveti reddetme |
 | `POST /groups/{id}/join-requests/{userId}/approval` | İsteği onaylama (`members.approve`) |
 | `DELETE /groups/{id}/join-requests/{userId}` | İsteği reddetme (`members.approve`) |
-| `POST /groups/{id}/invitations` | Kullanıcı adıyla davet (`username`, `members.invite`) |
+| `POST /groups/{id}/invitations` | Kullanıcı adıyla davet (`username`, `members.invite`; grup başına 24 saatte 50) |
 | `DELETE /groups/{id}/invitations/{userId}` | Daveti geri alma (`members.invite`) |
 | `PUT /groups/{id}/members/{userId}/roles/{role}` | Rol atama (`roles.assign`, rütbe kuralı) |
 | `DELETE /groups/{id}/members/{userId}/roles/{role}` | Rol alma (`roles.assign`, rütbe kuralı) |

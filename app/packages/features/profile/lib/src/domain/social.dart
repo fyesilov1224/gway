@@ -100,4 +100,7 @@ abstract interface class SocialRepository {
   Future<Result<List<PersonSummary>>> suggestions();
 
   Future<Result<void>> setPrivate(bool isPrivate);
+
+  /// Shows every group on the profile, not only to fellow members.
+  Future<Result<void>> setGroupsPublic(bool value);
 }

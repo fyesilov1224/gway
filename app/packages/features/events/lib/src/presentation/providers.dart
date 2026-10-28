@@ -47,6 +47,11 @@ final groupContributionsProvider = FutureProvider.autoDispose.family<Map<String,
   (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupContributions(groupId)).getOrThrow(),
 );
 
+/// Other groups' events that day nearby, for the event form; [day] is a local midnight.
+final similarEventsProvider = FutureProvider.autoDispose.family<int?, ({String groupId, DateTime day})>(
+  (ref, key) async => (await ref.watch(eventsRepositoryProvider).similarEventsCount(key.groupId, key.day)).getOrThrow(),
+);
+
 final eventDetailProvider = FutureProvider.autoDispose.family<EventDetail, String>(
   (ref, id) async => (await ref.watch(eventsRepositoryProvider).event(id)).getOrThrow(),
 );

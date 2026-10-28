@@ -264,7 +264,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
     ref.invalidate(eventDetailProvider(widget.eventId));
   }
 
-  Future<void> _attend(GroupEvent e) async {
+  Future<void> _attend(EventDetail d) async {
+    final e = d.event;
     setState(() => _busy = true);
     final result = await ref.read(eventsRepositoryProvider).attend(e.id);
     if (!mounted) return;
@@ -279,12 +280,59 @@ class _EventScreenState extends ConsumerState<EventScreen> {
             AttendanceStatus.waitlisted => 'Bekleme listesine girdin (${value.place}. sıra). Yer açılınca haber vereceğiz.',
           },
         );
+        if (d.conflicts.isNotEmpty) await _offerToFreeConflicts(d.conflicts);
+        if (!mounted) return;
       case Err(:final failure):
         _snack(context, failure.userMessage);
     }
     ref
       ..invalidate(eventDetailProvider(widget.eventId))
       ..invalidate(groupEventsProvider(e.group.id));
+  }
+
+  /// The choice stays with the user; nothing is left automatically (docs/ARCHITECTURE.md §3b).
+  Future<void> _offerToFreeConflicts(List<EventConflict> conflicts) async {
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Aynı saatte başka organizasyonun var'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final c in conflicts) Text('• ${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}'),
+            const SizedBox(height: GxSpacing.sm),
+            Text(
+              conflicts.length == 1
+                  ? 'Gidemeyeceksen ondan vazgeçip yerini başkasına bırakabilirsin.'
+                  : 'Gidemeyeceksen onlardan vazgeçip yerini başkalarına bırakabilirsin.',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('İkisinde de kalsın')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(conflicts.length == 1 ? 'Diğerinden vazgeç' : 'Diğerlerinden vazgeç'),
+          ),
+        ],
+      ),
+    );
+    if (leave != true || !mounted) return;
+    final repo = ref.read(eventsRepositoryProvider);
+    final results = [for (final c in conflicts) await repo.leave(c.id)];
+    if (!mounted) return;
+    for (final c in conflicts) {
+      ref.invalidate(eventDetailProvider(c.id));
+    }
+    ref.invalidate(eventDetailProvider(widget.eventId));
+    _snack(
+      context,
+      switch (results.whereType<Err<void>>().firstOrNull) {
+        Err(:final failure) => failure.userMessage,
+        _ => conflicts.length == 1 ? 'Diğer organizasyondan vazgeçtin; yerin boşaldı.' : 'Diğer organizasyonlardan vazgeçtin.',
+      },
+    );
   }
 
   Future<void> _decide(GroupEvent e, EventPerson person, {required bool approve}) async {
@@ -367,14 +415,14 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           icon: Icons.how_to_reg_outlined,
           expand: true,
           isLoading: _busy,
-          onPressed: () => _attend(e),
+          onPressed: () => _attend(d),
         ),
       (true, true, null) => GxButton(
           label: e.isFull ? 'Bekleme listesine gir' : 'Katıl',
           icon: e.isFull ? Icons.hourglass_empty_rounded : Icons.event_available_outlined,
           expand: true,
           isLoading: _busy,
-          onPressed: () => _attend(e),
+          onPressed: () => _attend(d),
         ),
       (true, true, _) => GxButton(
           label: switch (e.myStatus) {
@@ -909,6 +957,7 @@ class _EditorState extends ConsumerState<_Editor> {
                   if (at != null) setState(() => _startsAt = at);
                 },
               ),
+              _SimilarEvents(groupId: widget.groupId, day: DateTime(_startsAt.year, _startsAt.month, _startsAt.day)),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.timelapse),
@@ -1152,6 +1201,31 @@ class _NextEvents extends ConsumerWidget {
 }
 
 /// The cancel reason; owns its controller so closing never touches a disposed one.
+/// How many other groups of the same kind nearby meet that day; names are never shown (docs/ARCHITECTURE.md §3b).
+class _SimilarEvents extends ConsumerWidget {
+  const _SimilarEvents({required this.groupId, required this.day});
+
+  final String groupId;
+  final DateTime day;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final n = ref.watch(similarEventsProvider((groupId: groupId, day: day))).value;
+    if (n == null || n == 0) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: GxSpacing.xs),
+      padding: const EdgeInsets.all(GxSpacing.sm),
+      decoration: const BoxDecoration(color: GxColors.secondarySoft, borderRadius: GxRadius.mdAll),
+      child: Text(
+        'Bu tarihte ilinde aynı kategoride $n organizasyon daha var. Üyelerin seçim yapmak zorunda kalmasın '
+        'istersen başka bir gün seçebilirsin.',
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    );
+  }
+}
+
 class _CancelDialog extends StatefulWidget {
   const _CancelDialog();
 

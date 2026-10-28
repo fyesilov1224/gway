@@ -404,6 +404,10 @@ abstract interface class EventsRepository {
 
   Future<Result<void>> leave(String id);
 
+  /// Other groups' live events on [day] in the group's province and category, as a number only;
+  /// null when the group has no province (docs/ARCHITECTURE.md §3b).
+  Future<Result<int?>> similarEventsCount(String groupId, DateTime day);
+
   /// A manager's answer to a join request.
   Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve});
 

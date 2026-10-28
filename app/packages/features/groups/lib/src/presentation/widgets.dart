@@ -146,10 +146,13 @@ class GroupListSkeleton extends StatelessWidget {
 
 /// "Gruplar" section of a profile page.
 class UserGroupsSection extends ConsumerWidget {
-  const UserGroupsSection({super.key, required this.userId, required this.isOwn});
+  const UserGroupsSection({super.key, required this.userId, required this.isOwn, this.groupsPublic = false});
 
   final String userId;
   final bool isOwn;
+
+  /// Visitors see every group; otherwise only shared ones and the person's teams (docs/ARCHITECTURE.md §3b).
+  final bool groupsPublic;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -164,13 +167,23 @@ class UserGroupsSection extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
           child: Text('Gruplar', style: textTheme.titleLarge),
         ),
+        if (!groupsPublic)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.xs),
+            child: Text(
+              isOwn
+                  ? 'Gruplarını yalnızca aynı gruptaki üyeler görür. Ayarlar\'dan herkese açabilirsin.'
+                  : 'Yalnızca ortak grupların ve yönetim ekibinde olduğu gruplar görünür.',
+              style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+            ),
+          ),
         switch (groups) {
           AsyncData(:final value) when value.isEmpty => Padding(
               padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(isOwn ? 'Henüz bir gruba katılmadın.' : 'Henüz bir gruba katılmamış.', style: secondary),
+                  Text(isOwn ? 'Henüz bir gruba katılmadın.' : 'Gösterilecek grup yok.', style: secondary),
                   if (isOwn)
                     TextButton(
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),

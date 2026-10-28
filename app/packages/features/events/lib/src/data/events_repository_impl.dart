@@ -191,6 +191,18 @@ class EventsRepositoryImpl implements EventsRepository {
   Future<Result<void>> leave(String id) => _api.delete('/events/$id/attendance', decode: (_) {});
 
   @override
+  Future<Result<int?>> similarEventsCount(String groupId, DateTime day) => _run(() async {
+        final start = DateTime(day.year, day.month, day.day);
+        final end = DateTime(day.year, day.month, day.day + 1);
+        final n = await _client.rpc<int?>('similar_events_count', params: {
+          'target_group': groupId,
+          'day_start': start.toUtc().toIso8601String(),
+          'day_end': end.toUtc().toIso8601String(),
+        });
+        return n;
+      });
+
+  @override
   Future<Result<void>> decideRequest(String eventId, String userId, {required bool approve}) => approve
       ? _api.post('/events/$eventId/requests/$userId/approval', decode: (_) {})
       : _api.delete('/events/$eventId/requests/$userId', decode: (_) {});

@@ -311,7 +311,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 Widget _groupsSection(BuildContext context, Profile profile, bool isOwn) =>
-    UserGroupsSection(userId: profile.id, isOwn: isOwn);
+    UserGroupsSection(userId: profile.id, isOwn: isOwn, groupsPublic: profile.groupsPublic);
 
 void _openProfile(BuildContext context, String username) => context.push(ProfileRoutes.user(username));
 

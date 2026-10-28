@@ -265,6 +265,30 @@ void main() {
   });
 
   group('GroupMembersScreen', () {
+    testWidgets('outsiders are told the full list is for members', (tester) async {
+      await tester.pumpWidget(_app(
+        const GroupMembersScreen(handle: 'istanbul.kosu', onOpenProfile: _onOpenProfile),
+        userId: 'u9',
+        group: _group(),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Üye listesinin tamamını grubun üyeleri görür.'), findsOneWidget);
+      expect(find.textContaining('grupta toplam 42 üye var'), findsOneWidget);
+    });
+
+    testWidgets('members get no such note', (tester) async {
+      await tester.pumpWidget(_app(
+        const GroupMembersScreen(handle: 'istanbul.kosu', onOpenProfile: _onOpenProfile),
+        userId: 'u3',
+        group: _group(),
+        me: const MyMembership(isMember: true, roles: [GroupRole.member]),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Üye listesinin tamamını'), findsNothing);
+    });
+
     testWidgets('owner gets request and invitation tabs and role controls', (tester) async {
       await tester.pumpWidget(_app(
         const GroupMembersScreen(handle: 'istanbul.kosu', onOpenProfile: _onOpenProfile),
@@ -350,5 +374,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('@demo · 12 katılım'), findsOneWidget);
     expect(find.text('@zeynep'), findsOneWidget);
+  });
+
+  group('UserGroupsSection', () {
+    testWidgets('own hidden groups say who sees them', (tester) async {
+      await tester.pumpWidget(_app(
+        const Scaffold(body: UserGroupsSection(userId: 'u3', isOwn: true)),
+        userId: 'u3',
+        myGroups: [_group()],
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Gruplarını yalnızca aynı gruptaki üyeler görür.'), findsOneWidget);
+      expect(find.text('İstanbul Koşu Kulübü'), findsOneWidget);
+    });
+
+    testWidgets('a visitor learns only shared groups are listed; public groups need no note', (tester) async {
+      await tester.pumpWidget(_app(
+        const Scaffold(body: UserGroupsSection(userId: 'u3', isOwn: false)),
+        userId: 'u9',
+      ));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Yalnızca ortak grupların'), findsOneWidget);
+      expect(find.text('Gösterilecek grup yok.'), findsOneWidget);
+
+      await tester.pumpWidget(_app(
+        const Scaffold(body: UserGroupsSection(userId: 'u4', isOwn: false, groupsPublic: true)),
+        userId: 'u9',
+      ));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Yalnızca ortak grupların'), findsNothing);
+    });
   });
 }

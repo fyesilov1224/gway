@@ -9,7 +9,7 @@ class SupabaseProfileRepository implements ProfileRepository {
   final SupabaseClient _client;
 
   static const _columns =
-      'id, username, display_name, bio, avatar_path, cover_path, created_at, username_changed_at, is_private';
+      'id, username, display_name, bio, avatar_path, cover_path, created_at, username_changed_at, is_private, groups_public';
 
   String? get _userId => _client.auth.currentUser?.id;
 
@@ -176,6 +176,7 @@ class SupabaseProfileRepository implements ProfileRepository {
       coverUrl: url(ProfileImage.cover, row['cover_path']),
       createdAt: DateTime.parse(row['created_at'] as String),
       isPrivate: row['is_private'] as bool? ?? false,
+      groupsPublic: row['groups_public'] as bool? ?? false,
       usernameChangedAt: row['username_changed_at'] == null
           ? null
           : DateTime.parse(row['username_changed_at'] as String),

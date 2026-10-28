@@ -181,6 +181,33 @@ public sealed class GroupsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
     }
 
     [Fact]
+    public async Task A_group_sends_at_most_fifty_invitations_a_day()
+    {
+        var owner = await UserAsync();
+        var group = await CreateAsync(owner, "invite");
+        var first = Unique("davetli_");
+        var second = Unique("davetli_");
+        await _db.CreateUserAsync(first);
+        await _db.CreateUserAsync(second);
+        // Yesterday's invitations do not count; revoked ones of the last 24 hours do.
+        await _db.ExecuteAsync(
+            """
+            insert into public.audit_log (actor_id, actor_kind, action, target_type, target_id, group_id, occurred_at)
+            select @o, 'user', 'group.invitation_sent', 'user', gen_random_uuid()::text, @g,
+                   now() - case when i <= 49 then interval '1 hour' else interval '25 hours' end
+            from generate_series(1, 60) i;
+            """, ("o", owner), ("g", group.Id));
+        var ownerClient = factory.ClientFor(owner);
+
+        var fiftieth = await ownerClient.PostAsJsonAsync(Path($"/groups/{group.Id}/invitations"), new InviteRequest(first), Ct);
+        var over = await ownerClient.PostAsJsonAsync(Path($"/groups/{group.Id}/invitations"), new InviteRequest(second), Ct);
+
+        Assert.Equal(HttpStatusCode.NoContent, fiftieth.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, over.StatusCode);
+        Assert.Contains("group.invitation_limit_reached", await over.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Invitation_can_be_declined_or_revoked()
     {
         var owner = await UserAsync();

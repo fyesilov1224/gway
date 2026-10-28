@@ -11,6 +11,7 @@ class Profile {
     this.coverUrl,
     this.usernameChangedAt,
     this.isPrivate = false,
+    this.groupsPublic = false,
   });
 
   static const usernameChangeInterval = Duration(days: 30);
@@ -26,6 +27,9 @@ class Profile {
 
   /// Content is shown to approved followers only (docs/ARCHITECTURE.md §3c).
   final bool isPrivate;
+
+  /// Every membership is shown on the profile; otherwise only to fellow members (docs/ARCHITECTURE.md §3b).
+  final bool groupsPublic;
 
   /// When the username may change again; null if it can change now.
   DateTime? usernameLockedUntil(DateTime now) {

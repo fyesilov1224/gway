@@ -116,6 +116,15 @@ class _MembersTab extends ConsumerWidget {
       AsyncData(:final value) => ListView(
           padding: const EdgeInsets.only(bottom: GxSpacing.xl),
           children: [
+            if (!me.isMember)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                child: Text(
+                  'Üye listesinin tamamını grubun üyeleri görür. Burada yönetim ekibi ve gruplarını herkese açan '
+                  '${value.length} kişi var; grupta toplam ${group.memberCount} üye var.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                ),
+              ),
             for (final p in value)
               PersonTile(
                 person: p,

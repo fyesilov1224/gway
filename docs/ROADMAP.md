@@ -338,6 +338,17 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] Telefon doğrulandıktan sonra "Parmak izi / Google Authenticator ekle" önerisi; kurulan yöntem varsayılan
 - [x] pgTAP, C# (yazılım doğrulayıcıyla gerçek imza, tekrar oynatma ve başka hesap reddi), Flutter testleri; Chrome sanal doğrulayıcısıyla uçtan uca deneme: telefon → öneri → parmak izi ekle → yeniden giriş → parmak iziyle doğrulama, token `authenticated` (2026-10-27)
 
+## Faz 15.9 — Gruplar Arası Denge (kullanıcı isteği, onaylandı 2026-10-28; `docs/ARCHITECTURE.md` §3b)
+
+Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlamadan gruplar arası görünürlük kısıtlanır.
+- [x] Üyelik gizliliği: üye listesinin tamamı yalnızca grubun üyelerine; yönetim ekibi herkese; "Gruplarımı profilimde göster" ayarı (varsayılan kapalı)
+- [x] Davet sınırı: grup başına 24 saatte 50 davet (C# ve trigger)
+- [x] Aynı saatte organizasyona katılınca diğerinden vazgeçme önerisi
+- [x] Organizasyon formunda aynı gün, aynı il ve kategorideki diğer organizasyon sayısı (isimsiz)
+- [x] pgTAP (887/887), C# (211/211) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
+- [ ] Bulut: `0047` migration'ı — kullanıcı onayıyla
+- Sonraki adım önerisi (onay bekliyor): ortak organizasyon (iki grubun birlikte düzenlemesi), sadık üyelere özel organizasyonlar
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

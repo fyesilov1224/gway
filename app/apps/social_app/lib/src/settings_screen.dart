@@ -43,6 +43,7 @@ class SettingsScreen extends ConsumerWidget {
               tile(Icons.person_outline, 'Profili düzenle', () => context.push(ProfileRoutes.edit)),
               const Divider(),
               const _PrivacyTile(),
+              const _GroupsVisibilityTile(),
               const Divider(),
               tile(Icons.diversity_3_outlined, 'Ekip arkadaşı tercihleri', () => context.push(ProfileRoutes.teammateSettings)),
               const Divider(),
@@ -121,6 +122,45 @@ class _PrivacyTileState extends ConsumerState<_PrivacyTile> {
       title: const Text('Gizli hesap'),
       subtitle: const Text('Açıkken yalnızca onayladığın takipçiler gönderilerini ve hikayelerini görür.'),
       value: isPrivate,
+      onChanged: _busy ? null : _set,
+    );
+  }
+}
+
+/// Memberships are shown to fellow members only unless the user opens them (docs/ARCHITECTURE.md §3b).
+class _GroupsVisibilityTile extends ConsumerStatefulWidget {
+  const _GroupsVisibilityTile();
+
+  @override
+  ConsumerState<_GroupsVisibilityTile> createState() => _GroupsVisibilityTileState();
+}
+
+class _GroupsVisibilityTileState extends ConsumerState<_GroupsVisibilityTile> {
+  bool _busy = false;
+
+  Future<void> _set(bool value) async {
+    setState(() => _busy = true);
+    final result = await ref.read(socialRepositoryProvider).setGroupsPublic(value);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    ref.invalidate(myProfileProvider);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(switch (result) {
+        Ok() => value ? 'Grupların artık profilinde herkese görünüyor.' : 'Grupların artık yalnızca aynı gruptaki üyelere görünüyor.',
+        Err(:final failure) => failure.userMessage,
+      }),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final groupsPublic = ref.watch(myProfileProvider).value?.groupsPublic ?? false;
+    return SwitchListTile(
+      minTileHeight: GxSpacing.xxl + GxSpacing.xs,
+      secondary: const Icon(Icons.groups_outlined),
+      title: const Text('Gruplarımı profilimde göster'),
+      subtitle: const Text('Kapalıyken bir gruptaki üyeliğini yalnızca o grubun üyeleri görür; başka grupların yöneticileri göremez.'),
+      value: groupsPublic,
       onChanged: _busy ? null : _set,
     );
   }

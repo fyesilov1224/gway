@@ -161,6 +161,14 @@ internal sealed class GroupAccess(NpgsqlDataSource db)
         return (group, actor);
     }
 
+    /// <summary>Invitations the group sent in the last 24 hours, revoked ones included (§3b, Gruplar arası denge).</summary>
+    public static async Task<int> InvitationsSentTodayAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid groupId, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand("select private.group_invitations_sent_today(@group)", conn, tx);
+        cmd.Parameters.AddWithValue("group", groupId);
+        return (int)(await cmd.ExecuteScalarAsync(ct))!;
+    }
+
     /// <summary>A running ban (docs/ARCHITECTURE.md §3e); the triggers check it again.</summary>
     public static async Task<bool> IsBannedAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid groupId, Guid userId, CancellationToken ct)
     {

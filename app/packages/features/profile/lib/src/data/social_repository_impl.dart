@@ -170,4 +170,10 @@ class SocialRepositoryImpl implements SocialRepository {
         final me = _me ?? (throw const UnauthorizedFailure());
         await _client.from('profiles').update({'is_private': isPrivate}).eq('id', me);
       });
+
+  @override
+  Future<Result<void>> setGroupsPublic(bool value) => _read(() async {
+        final me = _me ?? (throw const UnauthorizedFailure());
+        await _client.from('profiles').update({'groups_public': value}).eq('id', me);
+      });
 }

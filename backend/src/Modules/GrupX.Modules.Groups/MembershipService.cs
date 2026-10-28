@@ -20,6 +20,9 @@ internal sealed class MembershipService(GroupAccess access, IGroupPlanLimits pla
     private static readonly Error NoRequest = Error.NotFound("group.no_request", "Bekleyen bir katılım isteği bulunamadı.");
     private static readonly Error NoInvitation = Error.NotFound("group.no_invitation", "Bekleyen bir davet bulunamadı.");
 
+    /// <summary>Invitations a group may send in 24 hours; the trigger enforces it again.</summary>
+    public const int DailyInvitationLimit = 50;
+
     private const string DeleteRequestSql = "delete from public.group_join_requests where group_id = @group and user_id = @user";
     private const string DeleteInvitationSql = "delete from public.group_invitations where group_id = @group and user_id = @user";
     private const string InsertMemberSql = "insert into public.group_members (group_id, user_id) values (@group, @user)";
@@ -128,6 +131,9 @@ internal sealed class MembershipService(GroupAccess access, IGroupPlanLimits pla
                 return Error.Conflict("group.already_invited", "Bu kişiye zaten davet gönderildi.");
             if (await GroupAccess.IsBannedAsync(conn, tx, groupId, invitee, ct))
                 return Error.RuleViolation("group.user_banned", "Bu kişi gruptan uzaklaştırıldığı için şu anda davet edilemez.");
+            if (await GroupAccess.InvitationsSentTodayAsync(conn, tx, groupId, ct) >= DailyInvitationLimit)
+                return Error.RuleViolation("group.invitation_limit_reached",
+                    $"Bir grup 24 saatte en fazla {DailyInvitationLimit} davet gönderebilir. Yarın tekrar dene.");
 
             await GroupAccess.ExecuteAsync(conn, tx,
                 "insert into public.group_invitations (group_id, user_id) values (@group, @user)", groupId, invitee, ct);

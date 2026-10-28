@@ -39,6 +39,13 @@ class _FakeEvents implements EventsRepository {
   final decisions = <String>[];
   final reviews = <String>[];
   final noShows = <String>[];
+  final left = <String>[];
+
+  @override
+  Future<Result<void>> leave(String id) async {
+    left.add(id);
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> setNoShow(String eventId, String userId, {required bool noShow}) async {
@@ -119,6 +126,46 @@ void main() {
     await tester.pumpAndSettle();
     expect(fake.attended, ['e1']);
     expect(find.text('Bekleme listesine girdin (3. sıra). Yer açılınca haber vereceğiz.'), findsOneWidget);
+  });
+
+  testWidgets('joining at a busy hour offers to free the other seat; the user decides', (tester) async {
+    final future = DateTime.now().add(const Duration(days: 3));
+    final e = GroupEvent(id: 'e1', group: _group, title: 'Gece yürüyüşü', startsAt: future, location: 'Kadıköy');
+    final fake = await _pump(
+      tester,
+      EventScreen(eventId: 'e1', links: _links),
+      detail: EventDetail(
+        event: e,
+        isMember: true,
+        attendees: const [],
+        conflicts: [EventConflict(id: 'e2', title: 'Sahil koşusu', startsAt: future)],
+      ),
+    );
+
+    await tester.tap(find.text('Katıl'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aynı saatte başka organizasyonun var'), findsOneWidget);
+    expect(find.textContaining('Sahil koşusu'), findsWidgets);
+    await tester.tap(find.text('Diğerinden vazgeç'));
+    await tester.pumpAndSettle();
+    expect(fake.attended, ['e1']);
+    expect(fake.left, ['e2']);
+    expect(find.text('Diğer organizasyondan vazgeçtin; yerin boşaldı.'), findsOneWidget);
+  });
+
+  testWidgets('the event form shows how many similar groups meet that day, without names', (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        eventsRepositoryProvider.overrideWithValue(_FakeEvents()),
+        currentUserIdProvider.overrideWithValue('u1'),
+        groupEventsProvider.overrideWith((ref, id) async => const GroupEvents(eventsLeft: 3)),
+        similarEventsProvider.overrideWith((ref, key) async => key.groupId == 'g1' ? 2 : null),
+      ],
+      child: MaterialApp(theme: GxTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Bu tarihte ilinde aynı kategoride 2 organizasyon daha var.'), findsOneWidget);
   });
 
   testWidgets('the fee is information only; outsiders are pointed to the group', (tester) async {
