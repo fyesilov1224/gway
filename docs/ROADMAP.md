@@ -390,7 +390,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Organizatöre teyit edenler ve sayısı; hatırlatma metninde teyit çağrısı
 - [x] Yönetim paneli: organizasyon listesinde teyit sayısı
 - [x] pgTAP (998/998), C# (221/221) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
-- [ ] Bulut: `0053` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0053` migration'ı (2026-10-29)
 ### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
 ### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)
