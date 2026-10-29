@@ -30,6 +30,12 @@ public sealed class AnalyticsTests(ApiFactory factory) : IClassFixture<ApiFactor
         // Creating a group makes its owner a member: one new group and one active person today.
         (await factory.ClientFor(member).PostAsJsonAsync(
             Path("/groups"), new CreateGroupRequest(Unique("g_"), "Analiz Grubu", "music", "open", null), Ct)).EnsureSuccessStatusCode();
+        // A shared year card (the person's own write in the app).
+        await _db.ExecuteAsync(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @m::text, 'role', 'authenticated')::text, true);
+            select public.record_card_share('year');
+            """, ("m", member));
 
         var overview = await factory.ClientFor(admin).GetFromJsonAsync<AdminOverview>(Path("/admin/analytics/overview?days=7"), Ct);
         Assert.Equal("day", overview!.Bucket);
@@ -41,6 +47,7 @@ public sealed class AnalyticsTests(ApiFactory factory) : IClassFixture<ApiFactor
         Assert.Equal(users.Points.Sum(), users.Current);
         Assert.True(Metric(overview, "active_users").Current >= 1);
         Assert.True(Metric(overview, "new_groups").Points[^1] >= 1);
+        Assert.True(Metric(overview, "card_shares_year").Points[^1] >= 1);
         Assert.Contains(overview.Metrics, m => m.Key == "revenue_try");
         Assert.True(overview.Snapshot.Users >= 3);
 

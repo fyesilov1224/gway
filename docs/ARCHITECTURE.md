@@ -599,6 +599,14 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Beğeni, takipçi ve gönderi sayısı katkıya girmez. Gönüllülük ve yeni üyelere yardım gibi doğrulanamayan katkılar Faz 12'deki görevlerle gelir.
 - **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları; yalnızca grubun üyelerine ve platform ekibine, §3b Gruplar arası denge) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Profildeki hedef rozetleri yalnızca görüntüleyenin üyeliğini görebildiği grupların hedeflerini gösterir. Sıralama ve "ayın en iyileri" listesi yoktur.
 
+### Yılın özeti ve "Ben de oradaydım" (Faz 18c, kullanıcı kararı 2026-10-29)
+Gerçek hayatta yaşananı paylaşılabilir bir karta dönüştürmek; her paylaşım GrupX'i yeni insanlara gösterir.
+- **Yılın özeti** (`/year`, isteğe bağlı `?y=<yıl>`; kendi profilinden): `public.year_summary(year)` yalnızca kişinin kendi verisini döner. Sayımlar Katkı tanımıyla yapılır (katılmış sayılmak: `going`, gelmedi işaretlenmemiş, iptal edilmemiş ve bitmiş), yıl Türkiye saatiyle başlangıç tarihine göredir: katıldığı organizasyon sayısı, toplam saat (bitişi olmayan 2 saat), farklı grup ve il sayısı, en çok gittiği 3 kategori, en çok gittiği grup, ilk organizasyonu, düzenlediği (bitmiş, iptal edilmemiş), paylaştığı anı ve karşıladığı kişi sayısı. Yıl 2026 ile içinde bulunulan yıl arasındadır.
+- **"Ben de oradaydım"**: katılmış sayılan kişiye organizasyon sayfasında kart çıkar: organizasyon, grup, tarih, yer ve "bu grupla N. organizasyonun" (`event_detail.was_there`).
+- **Kart:** 9:16 hikâye boyutunda, sayfa zemini (`GxBackdrop`) üstünde beyaz kart; cihazda görsele (PNG) çevrilir ve paylaşım penceresiyle (Instagram hikâyesi, WhatsApp) paylaşılır. Kartta yalnızca kişinin kendi bilgisi ve herkese açık organizasyon ile grup bilgisi bulunur; başka katılımcının adı ya da yüzü yoktur. Sunucuya görsel gönderilmez.
+- **Ölçüm:** Paylaşım sayfası açılınca kişi kendi kaydını yazar (`public.record_card_share(kind)`, `story_card_shares`: `year` / `event`; günde en fazla 50). Kaydı yalnızca kişinin kendisi ve platform ekibi okur; hesap silinince silinir.
+- **Admin:** genel bakışta "Paylaşılan kart" (yıl özeti ve organizasyon kartı) eğilimi.
+
 ### Karşılama (Faz 18a, kullanıcı kararı 2026-10-28)
 Bir gruba ilk kez gitmenin önündeki en büyük engel yalnız gitmektir. Organizasyona ilk kez gelen kişi, grubun gönüllü bir üyesi tarafından karşılanmayı ister. (Ad: "Yol arkadaşı" bir katılım rozetinin adı olduğu için özellik "Karşılama"dır.)
 

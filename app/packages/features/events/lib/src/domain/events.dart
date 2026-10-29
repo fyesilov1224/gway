@@ -61,6 +61,43 @@ class EventSeries {
   String get label => weeks == 1 ? 'Her hafta tekrarlanır' : 'İki haftada bir tekrarlanır';
 }
 
+/// The person's own year (docs/ARCHITECTURE.md §3d, Yılın özeti).
+class YearSummary {
+  const YearSummary({
+    required this.year,
+    this.attended = 0,
+    this.hours = 0,
+    this.groups = 0,
+    this.provinces = 0,
+    this.organized = 0,
+    this.memories = 0,
+    this.welcomed = 0,
+    this.categories = const [],
+    this.topGroup,
+    this.topGroupCount = 0,
+    this.firstEvent,
+    this.firstEventAt,
+  });
+
+  final int year;
+  final int attended;
+  final int hours;
+  final int groups;
+  final int provinces;
+  final int organized;
+  final int memories;
+  final int welcomed;
+
+  /// The categories gone to most, at most three: (name, count).
+  final List<(String, int)> categories;
+  final String? topGroup;
+  final int topGroupCount;
+  final String? firstEvent;
+  final DateTime? firstEventAt;
+
+  bool get isEmpty => attended == 0 && organized == 0;
+}
+
 /// How a new event repeats; null on [EventForm.repeat] is a one-off.
 class EventRepeat {
   const EventRepeat({required this.weeks, this.until});
@@ -269,6 +306,7 @@ class EventDetail {
     this.roll,
     this.myConfirmed,
     this.confirmedCount,
+    this.wasThereCount,
   });
 
   final GroupEvent event;
@@ -280,6 +318,9 @@ class EventDetail {
 
   /// How many going attendees confirmed; managers only.
   final int? confirmedCount;
+
+  /// Set when the viewer was there: this was their N-th event with the group ("Ben de oradaydım").
+  final int? wasThereCount;
 
   /// "Geliyor musun?" is asked in the last day before the start.
   bool asksConfirmation(DateTime now) =>
@@ -629,6 +670,12 @@ abstract interface class EventsRepository {
 
   /// "Evet, geliyorum" (the attendee's own write).
   Future<Result<void>> confirmAttendance(String id);
+
+  /// The signed-in person's year; null outside 2026 and this year.
+  Future<Result<YearSummary?>> yearSummary(int year);
+
+  /// Counts that a story card's share sheet was opened (`year` or `event`); best effort.
+  Future<void> recordCardShare(String kind);
 
   /// The event page's welcome block (Supabase); null when the event is not visible.
   Future<Result<EventWelcome?>> eventWelcome(String eventId);

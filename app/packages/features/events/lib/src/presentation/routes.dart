@@ -8,6 +8,9 @@ abstract final class EventRoutes {
   /// "Takvimim".
   static const calendar = '/calendar';
 
+  /// The year in review; [year] defaults to this one.
+  static String year([int? year]) => year == null ? '/year' : '/year?y=$year';
+
   static String groupCalendar(String groupId) => '/calendar?group=$groupId';
 
   static String goal(String id) => '/goals/$id';

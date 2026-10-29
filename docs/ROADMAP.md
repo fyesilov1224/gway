@@ -395,7 +395,14 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
 ### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)
 
-### 18c — Yılın Özeti (paylaşılabilir hikâye kartları; organizasyon sonrası "Ben de oradaydım" kartı dahil)
+### 18c — Yılın Özeti (paylaşılabilir hikâye kartları; organizasyon sonrası "Ben de oradaydım" kartı dahil; `docs/ARCHITECTURE.md` §3d)
+- [x] Yılın özeti ekranı ve kartı (kendi profilinden)
+- [x] Organizasyon sayfasında "Ben de oradaydım" kartı (katılmış sayılana)
+- [x] Kartı görsel olarak paylaşma; paylaşım ölçümü
+- [x] Yönetim paneli: genel bakışta paylaşılan kart eğilimi
+- [x] pgTAP (1011/1011), C# (221/221) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
+- [ ] Gerçek telefonda paylaşım denemesi (Instagram hikâyesi, WhatsApp)
+- [ ] Bulut: `0054` migration'ı — kullanıcı onayıyla
 ### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)

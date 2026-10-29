@@ -712,7 +712,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
 AdminOverview _overview(int days) {
   const keys = [
     'new_users', 'active_users', 'new_groups', 'posts', 'comments', 'likes', 'reactions', 'messages', 'match_likes',
-    'super_likes', 'matches', 'reports_opened', 'reports_reviewed', 'live_started', 'welcome_requests', 'welcomes_matched', 'welcomes_thanked', 'revenue_try', 'revenue_usd', 'paid_orders',
+    'super_likes', 'matches', 'reports_opened', 'reports_reviewed', 'live_started', 'welcome_requests', 'welcomes_matched', 'welcomes_thanked', 'card_shares_year', 'card_shares_event', 'revenue_try', 'revenue_usd', 'paid_orders',
   ];
   final points = [for (var i = 0; i < 7; i++) (i + 1) * 3];
   final previous = [for (var i = 0; i < 7; i++) i + 1];

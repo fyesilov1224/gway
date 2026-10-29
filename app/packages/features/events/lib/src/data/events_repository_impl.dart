@@ -145,6 +145,7 @@ class EventsRepositoryImpl implements EventsRepository {
           ],
           canPost: r['can_post'] == true,
           myConfirmed: r['my_confirmed'] as bool?,
+          wasThereCount: ((r['was_there'] as Map?)?['count_in_group'] as num?)?.toInt(),
           confirmedCount: (r['confirmed_count'] as num?)?.toInt(),
           canReview: r['can_review'] == true,
           myReview: mine == null ? null : EventReview(rating: (mine['rating'] as num).toInt(), comment: mine['comment'] as String? ?? ''),
@@ -186,6 +187,42 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> cancel(String id, {required String reason}) =>
       _api.post('/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<YearSummary?>> yearSummary(int year) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('year_summary', params: {'target_year': year});
+        if (r == null) return null;
+        int n(String key) => (r[key] as num?)?.toInt() ?? 0;
+        final top = r['top_group'] as Map?;
+        final first = r['first_event'] as Map?;
+        return YearSummary(
+          year: year,
+          attended: n('attended'),
+          hours: n('hours'),
+          groups: n('groups'),
+          provinces: n('provinces'),
+          organized: n('organized'),
+          memories: n('memories'),
+          welcomed: n('welcomed'),
+          categories: [
+            for (final c in (r['categories'] as List? ?? const []).cast<Map<String, dynamic>>())
+              (c['name'] as String, (c['count'] as num).toInt()),
+          ],
+          topGroup: top?['name'] as String?,
+          topGroupCount: (top?['count'] as num?)?.toInt() ?? 0,
+          firstEvent: first?['title'] as String?,
+          firstEventAt: _time(first?['starts_at']),
+        );
+      });
+
+  @override
+  Future<void> recordCardShare(String kind) async {
+    try {
+      await _client.rpc<Object?>('record_card_share', params: {'card_kind': kind});
+    } on Object {
+      // Counting only; a failure must not spoil the share.
+    }
+  }
 
   @override
   Future<Result<void>> confirmAttendance(String id) =>

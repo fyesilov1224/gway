@@ -149,11 +149,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ProfileRoutes.mine,
             builder: (context, _) => ProfileScreen(
               onOpenSettings: () => context.push(AppRoutes.settings),
-              ownActions: const [_notificationsButton, _savedButton, _matchingButton, _teammatesButton],
+              ownActions: const [_notificationsButton, _savedButton, _matchingButton, _teammatesButton, _yearButton],
               sections: const [profileContributionsSection, profilePostsSection, _groupsSection],
             ),
           ),
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomePage()),
+          GoRoute(path: '/year', builder: (_, state) => YearSummaryScreen(year: int.tryParse(state.uri.queryParameters['y'] ?? ''))),
           GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_leagueButton, _mapButton], packages: groupPackagesRow)),
@@ -372,6 +373,17 @@ class _MapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       IconButton(tooltip: 'Haritada keşfet', icon: const Icon(Icons.map_outlined), onPressed: () => context.push(EventRoutes.map));
+}
+
+/// "Yılın özeti" on your own profile (docs/ARCHITECTURE.md §3d).
+const _yearButton = _YearButton();
+
+class _YearButton extends StatelessWidget {
+  const _YearButton();
+
+  @override
+  Widget build(BuildContext context) =>
+      IconButton(tooltip: 'Yılın özeti', icon: const Icon(Icons.auto_awesome_outlined), onPressed: () => context.push(EventRoutes.year()));
 }
 
 /// "Ekip arkadaşı bul" on your own profile.

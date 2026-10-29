@@ -88,3 +88,8 @@ final pollsProvider = FutureProvider.autoDispose.family<List<Poll>, PollScope>(
 final pollVotersProvider = FutureProvider.autoDispose.family<List<EventPerson>, int>(
   (ref, optionId) async => (await ref.watch(eventsRepositoryProvider).voters(optionId)).getOrThrow(),
 );
+
+/// The signed-in person's year in review.
+final yearSummaryProvider = FutureProvider.autoDispose.family<YearSummary?, int>(
+  (ref, year) async => (await ref.watch(eventsRepositoryProvider).yearSummary(year)).getOrThrow(),
+);

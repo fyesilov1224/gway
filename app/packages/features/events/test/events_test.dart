@@ -208,6 +208,65 @@ void main() {
     expect(find.textContaining('Bu tarihte ilinde aynı kategoride 2 organizasyon daha var.'), findsOneWidget);
   });
 
+  group('Yılın özeti', () {
+    const summary = YearSummary(
+      year: 2026,
+      attended: 14,
+      hours: 41,
+      groups: 3,
+      provinces: 2,
+      organized: 2,
+      memories: 5,
+      welcomed: 1,
+      categories: [('Koşu', 9), ('Doğa', 4), ('Müzik', 1)],
+      topGroup: 'Sahil Koşucuları',
+      topGroupCount: 9,
+    );
+
+    Widget app(YearSummary? value) => ProviderScope(
+          overrides: [
+            eventsRepositoryProvider.overrideWithValue(_FakeEvents()),
+            yearSummaryProvider.overrideWith((ref, year) async => value),
+          ],
+          child: MaterialApp(theme: GxTheme.light(), home: const YearSummaryScreen(year: 2026)),
+        );
+
+    testWidgets('the card fits a small phone at 130% text', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(app(summary));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('2026 yılım'), findsOneWidget);
+      expect(find.text('organizasyona katıldım'), findsOneWidget);
+      expect(find.text('Koşu · Doğa · Müzik'), findsOneWidget);
+      expect(find.text('Sahil Koşucuları · 9 buluşma'), findsOneWidget);
+      expect(find.text('Paylaş'), findsOneWidget);
+    });
+
+    testWidgets('an empty year says how it fills', (tester) async {
+      await tester.pumpWidget(app(const YearSummary(year: 2026)));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('İlk buluşmandan sonra özetin burada oluşur'), findsOneWidget);
+    });
+
+    testWidgets('someone who was there gets the card on the event page', (tester) async {
+      final e = GroupEvent(
+        id: 'e1', group: _group, title: 'Sabah koşusu', startsAt: DateTime.now().subtract(const Duration(days: 2)), location: 'Sahil',
+      );
+      await _pump(tester, EventScreen(eventId: 'e1', links: _links), detail: EventDetail(event: e, isMember: true, wasThereCount: 3));
+
+      await tester.scrollUntilVisible(find.text('Ben de oradaydım kartını paylaş'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Ben de oradaydım kartını paylaş'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bu grupla 3. organizasyonum.'), findsOneWidget);
+    });
+  });
+
   group('Geliyor musun?', () {
     GroupEvent soon({Duration inTime = const Duration(hours: 20)}) => GroupEvent(
           id: 'e1', group: _group, title: 'Sabah koşusu', startsAt: DateTime.now().add(inTime), location: 'Sahil',

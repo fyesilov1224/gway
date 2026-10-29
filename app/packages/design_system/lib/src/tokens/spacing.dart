@@ -32,6 +32,9 @@ abstract final class GxLayout {
   /// Dashboards and data tables (admin panel).
   static const double dashboardMaxWidth = 1200;
 
+  /// A story card's preview (9:16); the shared picture is three times this.
+  static const double storyCardWidth = 360;
+
   /// Side navigation of the admin panel.
   static const double sidebarWidth = 256;
 

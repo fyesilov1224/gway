@@ -33,3 +33,15 @@ Future<bool> shareLink(String url, {String? text}) async {
   await Clipboard.setData(ClipboardData(text: url));
   return false;
 }
+
+/// Shares a picture (a story card) through the share sheet; false where the device cannot.
+Future<bool> shareImage(Uint8List png, {required String name, String? text}) async {
+  try {
+    final result = await SharePlus.instance.share(
+      ShareParams(files: [XFile.fromData(png, mimeType: 'image/png', name: name)], fileNameOverrides: [name], text: text),
+    );
+    return result.status != ShareResultStatus.unavailable;
+  } on Object {
+    return false;
+  }
+}

@@ -14,6 +14,7 @@ import 'map_screens.dart';
 import 'polls.dart';
 import 'providers.dart';
 import 'routes.dart';
+import 'story_cards.dart';
 import 'welcome.dart';
 
 void _snack(BuildContext context, String message) =>
@@ -725,6 +726,16 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                   ],
                 ),
               ),
+              if (d.wasThereCount case final count?)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.md),
+                  child: GxButton(
+                    label: 'Ben de oradaydım kartını paylaş',
+                    icon: Icons.auto_awesome_outlined,
+                    variant: GxButtonVariant.secondary,
+                    onPressed: () => showWasThereCard(context, e, count),
+                  ),
+                ),
               if (e.hasEnded(now) && !e.isCanceled)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
