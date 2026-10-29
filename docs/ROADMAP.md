@@ -402,7 +402,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Yönetim paneli: genel bakışta paylaşılan kart eğilimi
 - [x] pgTAP (1011/1011), C# (221/221) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
 - [ ] Gerçek telefonda paylaşım denemesi (Instagram hikâyesi, WhatsApp)
-- [ ] Bulut: `0054` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0054` migration'ı (2026-10-29)
 ### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
