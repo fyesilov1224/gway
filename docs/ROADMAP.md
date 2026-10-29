@@ -360,14 +360,14 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] Yönetim paneli: genel bakışta karşılama ölçüleri, kullanıcı sayfasında karşılama sayısı
 - [x] Gizlilik düzeltmesi: grup katkı listesi yalnızca üyelere, profildeki hedef rozetleri üyelik gizliliğine uyar
 - [x] pgTAP (915/915), C# (213/213) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
-- [ ] Bulut: `0048` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0048` migration'ı
 
 ### 18b — Gruplar Ligi (aynı il ve kategorideki grupların aylık sezonu; `docs/ARCHITECTURE.md` §3d)
 - [x] Kaynak kayıtlardan puan (katılım, organizasyon, karşılama, memnuniyet), sıralama sayfası, grup sayfasında lig kartı
 - [x] Sezon kapanışı, sabit sonuçlar, ilk üçe `league_result` bildirimi
 - [x] Yönetim paneli: ligler, tablo, ligden çıkarma ve geri alma (audit)
 - [x] pgTAP (932/932), C# (214/214) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
-- [ ] Bulut: `0049` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0049` migration'ı
 Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j → 18k → 18l → 18c → 18m → 18g/18h → 18n → 18o.
 
 ### 18j — Davet bağlantısı ve paylaşım sayfaları (`docs/ARCHITECTURE.md` §3b)
@@ -375,7 +375,8 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] WhatsApp önizlemeli paylaşım sayfaları (grup, organizasyon, davet); giriş sonrası bağlantıya dönüş
 - [x] Yönetim paneli: grup sayfasında bağlantılar ve iptal
 - [x] pgTAP (968/968), C# (218/218) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
-- [ ] Bulut: `0050` (hoş geldin denemesi) ve `0051` migration'ları, Caddy `/s/*` yönlendirmesi ve `SHARE_URL` ile web derlemesi — kullanıcı onayıyla
+- [x] Bulut: `0050` (hoş geldin denemesi) ve `0051` migration'ları (2026-10-29)
+- [ ] Sunucu alınınca: Caddy `/s/*` yönlendirmesi ve `SHARE_URL` ile web derlemesi (`deploy/` hazır)
 - [ ] Alan adı belli olunca Android App Links / iOS Universal Links
 
 ### 18k — Tekrarlayan organizasyon (her tarih açıldığı ayın limitine sayılır, 4 hafta ileri açılır; `docs/ARCHITECTURE.md` §3d)
@@ -383,7 +384,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Seriyi durdurma, tek tarihi iptal; organizasyon sayfasında tekrar bilgisi
 - [x] Yönetim paneli: organizasyon listesinde tekrar bilgisi ve seriyi durdurma
 - [x] pgTAP (987/987), C# (220/220) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
-- [ ] Bulut: `0052` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0052` migration'ı (2026-10-29)
 ### 18l — "Geliyor musun?" teyidi (1 gün önce; yanıtsız kalan çıkarılmaz, işaretlenir)
 ### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
