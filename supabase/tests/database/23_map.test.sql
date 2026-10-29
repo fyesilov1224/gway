@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(23);
 
 -- m1 owner, m2 member, m3 platform moderator.
 insert into auth.users (id, email, aud, role)
@@ -91,6 +91,19 @@ select is(
    where i->>'id' like '00000000-0000-0000-0000-0000000cc%'), 0,
   'nothing outside the visible box'
 );
+-- Starting soon (Faz 18m): events before a time, and no groups.
+select is(
+  (select array_agg(i->>'title') from jsonb_array_elements(public.map_items(40.5, 28.0, 41.5, 30.0, null, now() + interval '60 hours')->'events') i
+   where i->>'id' like '00000000-0000-0000-0000-0000000cc%'),
+  array['Belgrad yürüyüşü'], 'only events starting before the time');
+select is(
+  (select count(*)::int from jsonb_array_elements(public.map_items(40.5, 28.0, 41.5, 30.0, null, now() + interval '60 hours')->'groups') i
+   where i->>'id' like '00000000-0000-0000-0000-0000000cc%'),
+  0, 'groups have no time, so they stay off');
+select is(
+  (select count(*)::int from jsonb_array_elements(public.map_items(40.5, 28.0, 41.5, 30.0, 'music', now() + interval '7 days')->'events') i
+   where i->>'id' like '00000000-0000-0000-0000-0000000cc%'),
+  1, 'the time and the category together');
 reset role;
 select pg_temp.act('00000000-0000-0000-0000-0000000cc103');
 update public.groups set status = 'suspended', suspension_reason = 'test', suspended_at = now() where id = pg_temp.grp(2);

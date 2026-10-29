@@ -22,7 +22,7 @@ class MapRepositoryImpl implements MapRepository {
   static String? _category(Map<String, dynamic> r) => (r['category'] as Map?)?['name'] as String?;
 
   @override
-  Future<Result<MapItems>> items(MapArea area, {String? category}) async {
+  Future<Result<MapItems>> items(MapArea area, {String? category, DateTime? startsBefore}) async {
     try {
       final r = await _client.rpc<Map<String, dynamic>>('map_items', params: {
         'south': area.south,
@@ -30,6 +30,7 @@ class MapRepositoryImpl implements MapRepository {
         'north': area.north,
         'east': area.east,
         'category': category,
+        'starts_before': startsBefore?.toUtc().toIso8601String(),
       });
       List<Map<String, dynamic>> rows(String key) => (r[key] as List).cast<Map<String, dynamic>>();
       return Ok(MapItems(

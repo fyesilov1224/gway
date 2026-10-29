@@ -19,10 +19,13 @@ final turkeyBounds = LatLngBounds(const LatLng(35.8, 25.6), const LatLng(42.2, 4
 
 final mapRepositoryProvider = Provider<MapRepository>((ref) => MapRepositoryImpl(ref.watch(supabaseClientProvider)));
 
-typedef MapQuery = ({MapArea area, String? category});
+typedef MapQuery = ({MapArea area, String? category, MapWhen when});
 
 final mapItemsProvider = FutureProvider.autoDispose.family<MapItems, MapQuery>(
-  (ref, q) async => (await ref.watch(mapRepositoryProvider).items(q.area, category: q.category)).getOrThrow(),
+  (ref, q) async => (await ref
+          .watch(mapRepositoryProvider)
+          .items(q.area, category: q.category, startsBefore: q.when.startsBefore(DateTime.now())))
+      .getOrThrow(),
 );
 
 typedef MapTiles = ({String url, String? token});
@@ -199,7 +202,20 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
   final _map = MapController();
   MapArea? _area;
   String? _category;
+  MapWhen _when = MapWhen.any;
+
+  /// Km around the map's center; null is the whole visible area.
+  int? _radius;
   bool _list = false;
+
+  bool get _filtered => _category != null || _when != MapWhen.any || _radius != null;
+
+  void _clearFilters() => setState(() {
+        _category = null;
+        _when = MapWhen.any;
+        _radius = null;
+        _selected = null;
+      });
 
   /// A [MappedEvent], or a province (plate number) whose groups are shown.
   Object? _selected;
@@ -219,9 +235,26 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
   @override
   Widget build(BuildContext context) {
     final area = _area;
-    final items = area == null ? null : ref.watch(mapItemsProvider((area: area, category: _category)));
+    final center = area == null ? null : LatLng((area.south + area.north) / 2, (area.west + area.east) / 2);
+    final radius = _radius;
+    final query = area == null ? null : (radius == null || center == null ? area : MapArea.around(center, radius));
+    final items = query == null ? null : ref.watch(mapItemsProvider((area: query, category: _category, when: _when)));
     final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
-    final loaded = items?.value;
+    final raw = items?.value;
+    final loaded = raw == null || radius == null || center == null ? raw : raw.within(center, radius);
+
+    Widget chip(String label, {required bool selected, required VoidCallback onSelected}) => Padding(
+          padding: const EdgeInsets.only(right: GxSpacing.xs),
+          child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected()),
+        );
+    Widget row(List<Widget> chips) => SizedBox(
+          height: GxSpacing.xxl + GxSpacing.xs,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+            child: Row(children: chips),
+          ),
+        );
 
     return Scaffold(
       appBar: AppBar(
@@ -234,27 +267,31 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(GxSpacing.xxl + GxSpacing.xs),
-          child: SizedBox(
-            height: GxSpacing.xxl + GxSpacing.xs,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
-              children: [
+          preferredSize: const Size.fromHeight((GxSpacing.xxl + GxSpacing.xs) * 2),
+          child: Column(
+            children: [
+              row([
                 for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)])
-                  Padding(
-                    padding: const EdgeInsets.only(right: GxSpacing.xs),
-                    child: ChoiceChip(
-                      label: Text(name),
-                      selected: _category == slug,
-                      onSelected: (_) => setState(() {
+                  chip(name, selected: _category == slug, onSelected: () => setState(() {
                         _category = slug;
                         _selected = null;
-                      }),
-                    ),
-                  ),
-              ],
-            ),
+                      })),
+              ]),
+              row([
+                for (final w in MapWhen.values)
+                  chip(w.label, selected: _when == w, onSelected: () => setState(() {
+                        _when = w;
+                        _selected = null;
+                      })),
+                const SizedBox(width: GxSpacing.md),
+                chip('Tüm alan', selected: _radius == null, onSelected: () => setState(() => _radius = null)),
+                for (final km in mapRadii)
+                  chip('$km km', selected: _radius == km, onSelected: () => setState(() {
+                        _radius = km;
+                        _selected = null;
+                      })),
+              ]),
+            ],
           ),
         ),
       ),
@@ -267,6 +304,17 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
               onMoved: (a) => setState(() => _area = a),
               onTap: (_) => setState(() => _selected = null),
               children: [
+                if (radius != null && center != null)
+                  CircleLayer(circles: [
+                    CircleMarker(
+                      point: center,
+                      radius: radius * 1000,
+                      useRadiusInMeter: true,
+                      color: GxColors.primary.withValues(alpha: 0.06),
+                      borderColor: GxColors.primary,
+                      borderStrokeWidth: GxBorders.hairline.width,
+                    ),
+                  ]),
                 if (loaded != null)
                   MarkerLayer(markers: [
                     for (final MapEntry(key: province, value: groups) in loaded.groupsByProvince.entries)
@@ -324,12 +372,19 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                 onAction: () => ref.invalidate(mapItemsProvider),
               )
             else if (loaded != null && loaded.isEmpty)
-              _MapNotice(
-                icon: Icons.travel_explore,
-                text: 'Bu bölgede yaklaşan organizasyon ya da grup yok.',
-                actionLabel: 'Uzaklaştır',
-                onAction: _zoomOut,
-              ),
+              _filtered
+                  ? _MapNotice(
+                      icon: Icons.filter_alt_off_outlined,
+                      text: 'Bu filtrelerle bir şey bulunamadı.',
+                      actionLabel: 'Filtreleri temizle',
+                      onAction: _clearFilters,
+                    )
+                  : _MapNotice(
+                      icon: Icons.travel_explore,
+                      text: 'Bu bölgede yaklaşan organizasyon ya da grup yok.',
+                      actionLabel: 'Uzaklaştır',
+                      onAction: _zoomOut,
+                    ),
             if (_selectedItem(loaded) case final selected?)
               Positioned(
                 left: GxSpacing.md,

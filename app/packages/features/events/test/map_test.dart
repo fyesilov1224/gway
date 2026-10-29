@@ -29,6 +29,8 @@ final _items = MapItems(
   ],
 );
 
+final _queries = <MapQuery>[];
+
 Future<List<String>> _pumpMap(WidgetTester tester, {MapItems? items}) async {
   tester.view.physicalSize = const Size(1170, 2400);
   tester.view.devicePixelRatio = 3;
@@ -38,7 +40,10 @@ Future<List<String>> _pumpMap(WidgetTester tester, {MapItems? items}) async {
     overrides: [
       mapTilesProvider.overrideWithValue(null),
       categoriesProvider.overrideWith((ref) async => const [Category(slug: 'hiking', name: 'Yürüyüş')]),
-      mapItemsProvider.overrideWith((ref, q) async => items ?? _items),
+      mapItemsProvider.overrideWith((ref, q) async {
+        _queries.add(q);
+        return items ?? _items;
+      }),
     ],
     child: MaterialApp(
       theme: GxTheme.light(),
@@ -59,6 +64,42 @@ void main() {
     const area = MapArea(south: 40.5, west: 28.0, north: 41.5, east: 30.0);
     expect(area.contains(const LatLng(41.0, 29.0)), isTrue);
     expect(area.contains(const LatLng(39.9, 32.8)), isFalse);
+  });
+
+  test('a time keeps events starting before it; a distance keeps what is near the center', () {
+    final now = DateTime(2026, 11, 3, 15);
+    expect(MapWhen.any.startsBefore(now), isNull);
+    expect(MapWhen.today.startsBefore(now), DateTime(2026, 11, 4));
+    expect(MapWhen.week.startsBefore(now), DateTime(2026, 11, 10, 15));
+
+    const istanbul = LatLng(41.0082, 28.9784);
+    final near = _items.within(istanbul, 5);
+    expect(near.groups, hasLength(2));
+    expect(near.events, isEmpty, reason: 'the event is in Ankara');
+
+    final box = MapArea.around(istanbul, 10);
+    expect(box.contains(const LatLng(41.05, 28.98)), isTrue);
+    expect(box.contains(const LatLng(41.2, 28.98)), isFalse);
+  });
+
+  testWidgets('time and distance filters; an empty result offers to clear them', (tester) async {
+    _queries.clear();
+    await _pumpMap(tester);
+
+    await tester.tap(find.text('Bugün'));
+    await tester.pumpAndSettle();
+    expect(_queries.last.when, MapWhen.today);
+
+    await tester.ensureVisible(find.text('5 km'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('5 km'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bu filtrelerle bir şey bulunamadı.'), findsOneWidget, reason: 'nothing within 5 km of the middle of Turkey');
+
+    await tester.tap(find.text('Filtreleri temizle'));
+    await tester.pumpAndSettle();
+    expect(_queries.last.when, MapWhen.any);
+    expect(find.text('Bu filtrelerle bir şey bulunamadı.'), findsNothing);
   });
 
   testWidgets('markers open a card: an event or the province\'s groups', (tester) async {
