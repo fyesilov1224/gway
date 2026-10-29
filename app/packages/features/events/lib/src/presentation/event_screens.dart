@@ -590,6 +590,41 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
                         ]),
                       ),
+                    if (d.asksConfirmation(now))
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: GxSpacing.sm),
+                        padding: const EdgeInsets.all(GxSpacing.md),
+                        decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.mdAll),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('Geliyor musun?', style: textTheme.titleMedium),
+                          const SizedBox(height: GxSpacing.xxs),
+                          Text('Gelemeyeceksen yerini bekleme listesindekilere bırak.', style: textTheme.bodyMedium),
+                          const SizedBox(height: GxSpacing.sm),
+                          Wrap(spacing: GxSpacing.xs, runSpacing: GxSpacing.xs, children: [
+                            GxButton(
+                              label: 'Evet, geliyorum',
+                              icon: Icons.check,
+                              isLoading: _busy,
+                              onPressed: () => _run((r) => r.confirmAttendance(e.id), done: 'Teşekkürler, geleceğini organizatöre bildirdik.'),
+                            ),
+                            GxButton(
+                              label: 'Gelemiyorum',
+                              variant: GxButtonVariant.secondary,
+                              onPressed: _busy ? null : () => _run((r) => r.leave(e.id), done: 'Katılımın kaldırıldı; yerin boşaldı.'),
+                            ),
+                          ]),
+                        ]),
+                      )
+                    else if (d.myConfirmed == true && e.isOpen(now))
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+                        child: Row(children: [
+                          const Icon(Icons.check_circle_outline, color: GxColors.success, size: GxSpacing.lg),
+                          const SizedBox(width: GxSpacing.xs),
+                          Expanded(child: Text('Geleceğini teyit ettin.', style: textTheme.bodyMedium)),
+                        ]),
+                      ),
                     if (d.conflicts.isNotEmpty && !e.isCanceled)
                       Container(
                         width: double.infinity,
@@ -659,6 +694,9 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     if (d.attendees case final people? when people.isNotEmpty) ...[
                       const SizedBox(height: GxSpacing.lg),
                       Text('Katılanlar', style: textTheme.titleMedium),
+                      if (d.confirmedCount case final confirmed?)
+                        Text('${e.goingCount} katılandan $confirmed kişi geleceğini teyit etti.',
+                            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
                       const SizedBox(height: GxSpacing.xs),
                       Wrap(
                         spacing: GxSpacing.xs,
@@ -666,11 +704,19 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         children: [
                           for (final p in people)
                             Tooltip(
-                              message: p.displayName,
+                              message: p.confirmed == true ? '${p.displayName} · teyit etti' : p.displayName,
                               child: InkWell(
                                 customBorder: const CircleBorder(),
                                 onTap: () => widget.links.openProfile(context, p.username),
-                                child: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user),
+                                child: Stack(clipBehavior: Clip.none, children: [
+                                  GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user),
+                                  if (p.confirmed == true)
+                                    const Positioned(
+                                      right: -GxSpacing.xxs,
+                                      bottom: -GxSpacing.xxs,
+                                      child: Icon(Icons.check_circle, color: GxColors.success, size: GxSpacing.md),
+                                    ),
+                                ]),
                               ),
                             ),
                         ],

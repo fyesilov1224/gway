@@ -528,6 +528,13 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Gruptan ayrılan kişinin gelecek organizasyonlardaki katılımı silinir (ve sıradaki yükselir).
 - Trigger ikinci katmandır: kapasiteyi aşan `going` reddedilir, sayaçlar (`going_count`, `waitlist_count`) trigger ile tutulur, katılım yalnızca üyeler için ve yalnızca başlamamış, iptal edilmemiş organizasyona yapılır.
 
+### "Geliyor musun?" teyidi (kullanıcı kararı, 2026-10-29, Faz 18l)
+- Başlangıca 24 saatten az kala katılan (`going`) kişiye "yarın" hatırlatması gider ve organizasyon sayfasında **"Geliyor musun?"** kartı çıkar: "Evet, geliyorum" ya da "Gelemiyorum".
+- "Evet" kişinin kendi basit yazmasıdır (`public.confirm_attendance(event)`; `event_attendees.confirmed_at`). Yalnızca katılan, kendi satırına, organizasyon başlamadan ve iptal edilmeden yazar; teyit geri alınmaz. Trigger kuralı yeniden denetler.
+- "Gelemiyorum" katılımdan vazgeçmektir (`DELETE /events/{id}/attendance`): yeri bekleme listesindeki ilk kişiye geçer.
+- **Yanıt vermeyen çıkarılmaz.** Organizatör katılımcı listesinde kimin teyit ettiğini ve kaç kişinin teyit ettiğini görür; bekleme listesine dokunmak onun kararıdır.
+- Teyit bilgisini katılımcının kendisi, grubun `events.manage` yetkilileri ve platform ekibi görür; diğer üyeler yalnızca katılımcıları görür.
+
 ### Aylık organizasyon limiti
 - Ay, Türkiye saatiyle takvim ayıdır. O ay **oluşturulan** organizasyonlar sayılır (iptal edilenler dahil; oluştur-iptal ile limit aşılmasın diye).
 - Limit grubun paketindeki `monthly_events` değeridir (§7). Kontrol hem C#'ta (`IGroupPlanLimits`) hem `events` ekleme trigger'ında yapılır. Hata kodu `event.monthly_limit_reached`. Oluşturma ekranı kalan hakkı gösterir.
@@ -709,7 +716,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `PUT /events/{id}/no-shows/{userId}`, `DELETE /events/{id}/no-shows/{userId}` | Yoklama: "gelmedi" işareti ve kaldırılması (`events.manage`, bitişten sonra 7 gün) |
 | `POST /groups/{id}/polls` | Anket açma (`question`, `options[]`, `allowsMultiple`, `isAnonymous`, `closesAt?`, `eventId?`) |
 | `POST /polls/{id}/close`, `DELETE /polls/{id}` | Anketi kapatma / silme (`events.manage`) |
-| `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`). Rol: `admin`, `moderator`, `support` |
+| `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`; teyit eden sayısı dahil). Rol: `admin`, `moderator`, `support` |
 | `POST /admin/events/{id}/cancellation` | Platform ekibinin iptali (`reason`). Rol: `admin`, `moderator` |
 | `DELETE /admin/events/{id}/meeting-point` | Buluşma noktasını kaldırma (Faz 14). Rol: `admin`, `moderator` |
 | `POST /admin/event-series/{id}/stop` | Tekrarlayan seriyi durdurma (Faz 18k). Rol: `admin`, `moderator` |

@@ -165,7 +165,7 @@ class AppNotification {
         NotificationType.eventUpdated => '"${eventTitle ?? ''}" organizasyonunun zamanını ya da yerini değiştirdi.',
         NotificationType.eventCanceled => '"${eventTitle ?? ''}" organizasyonunu iptal etti.',
         NotificationType.eventReminder => eventStartsAt != null && eventStartsAt!.difference(createdAt) > const Duration(hours: 1)
-            ? '"${eventTitle ?? ''}" yarın başlıyor.'
+            ? '"${eventTitle ?? ''}" yarın başlıyor. Geliyor musun? Teyit et.'
             : '"${eventTitle ?? ''}" 1 saat içinde başlıyor.',
         NotificationType.caseVote => '${group?.name ?? ''} grubunda bir disiplin dosyası açtı; oyunu bekliyor.',
         NotificationType.sanctionApplied => switch (sanctionType) {

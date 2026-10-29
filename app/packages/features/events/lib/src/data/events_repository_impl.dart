@@ -47,6 +47,7 @@ class EventsRepositoryImpl implements EventsRepository {
         username: r['username'] as String,
         displayName: r['display_name'] as String,
         avatarUrl: _url('avatars', r['avatar_path']),
+        confirmed: r['confirmed'] as bool?,
       );
 
   /// A `private.event_card` object.
@@ -143,6 +144,8 @@ class EventsRepositoryImpl implements EventsRepository {
               EventConflict(id: c['id'] as String, title: c['title'] as String, startsAt: DateTime.parse(c['starts_at'] as String)),
           ],
           canPost: r['can_post'] == true,
+          myConfirmed: r['my_confirmed'] as bool?,
+          confirmedCount: (r['confirmed_count'] as num?)?.toInt(),
           canReview: r['can_review'] == true,
           myReview: mine == null ? null : EventReview(rating: (mine['rating'] as num).toInt(), comment: mine['comment'] as String? ?? ''),
           reviews: reviews == null
@@ -183,6 +186,10 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> cancel(String id, {required String reason}) =>
       _api.post('/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> confirmAttendance(String id) =>
+      _run(() async => _client.rpc<Object?>('confirm_attendance', params: {'target_event': id}));
 
   @override
   Future<Result<void>> stopSeries(String seriesId) => _api.delete('/event-series/$seriesId', decode: (_) {});

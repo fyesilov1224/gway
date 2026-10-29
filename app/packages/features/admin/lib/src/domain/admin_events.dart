@@ -37,6 +37,7 @@ class AdminEvent {
     this.seriesId,
     this.seriesWeeks,
     this.seriesActive = false,
+    this.confirmedCount = 0,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -62,6 +63,7 @@ class AdminEvent {
         seriesId: j['seriesId'] as String?,
         seriesWeeks: j['seriesWeeks'] as int?,
         seriesActive: j['seriesActive'] == true,
+        confirmedCount: j['confirmedCount'] as int? ?? 0,
       );
 
   final String id;
@@ -94,6 +96,9 @@ class AdminEvent {
   final String? seriesId;
   final int? seriesWeeks;
   final bool seriesActive;
+
+  /// Going attendees who said "Evet, geliyorum" (Faz 18l).
+  final int confirmedCount;
 
   bool get isCanceled => canceledAt != null;
 

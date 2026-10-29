@@ -11,12 +11,15 @@ class EventGroup {
 }
 
 class EventPerson {
-  const EventPerson({required this.id, required this.username, required this.displayName, this.avatarUrl});
+  const EventPerson({required this.id, required this.username, required this.displayName, this.avatarUrl, this.confirmed});
 
   final String id;
   final String username;
   final String displayName;
   final String? avatarUrl;
+
+  /// Said "Evet, geliyorum"; known to managers only (docs/ARCHITECTURE.md §3d, Geliyor musun?).
+  final bool? confirmed;
 }
 
 enum AttendanceStatus {
@@ -264,11 +267,23 @@ class EventDetail {
     this.myReview,
     this.reviews,
     this.roll,
+    this.myConfirmed,
+    this.confirmedCount,
   });
 
   final GroupEvent event;
   final bool canManage;
   final bool isMember;
+
+  /// The viewer's own "Evet, geliyorum"; null unless they are going.
+  final bool? myConfirmed;
+
+  /// How many going attendees confirmed; managers only.
+  final int? confirmedCount;
+
+  /// "Geliyor musun?" is asked in the last day before the start.
+  bool asksConfirmation(DateTime now) =>
+      myConfirmed == false && event.isOpen(now) && event.startsAt.difference(now) <= const Duration(hours: 24);
 
   /// The first people going; members only.
   final List<EventPerson>? attendees;
@@ -611,6 +626,9 @@ abstract interface class EventsRepository {
   Future<Result<AttendanceResult>> attend(String id);
 
   Future<Result<void>> leave(String id);
+
+  /// "Evet, geliyorum" (the attendee's own write).
+  Future<Result<void>> confirmAttendance(String id);
 
   /// The event page's welcome block (Supabase); null when the event is not visible.
   Future<Result<EventWelcome?>> eventWelcome(String eventId);

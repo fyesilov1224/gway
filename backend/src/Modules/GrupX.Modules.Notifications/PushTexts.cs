@@ -65,7 +65,7 @@ internal static class PushTexts
         "event_updated" => $"\"{n.EventTitle}\" organizasyonunun zamanını ya da yerini değiştirdi.",
         "event_canceled" => $"\"{n.EventTitle}\" organizasyonunu iptal etti.",
         "event_reminder" => n.EventStartsAt is { } starts && starts - n.CreatedAt > TimeSpan.FromHours(1)
-            ? $"\"{n.EventTitle}\" yarın başlıyor."
+            ? $"\"{n.EventTitle}\" yarın başlıyor. Geliyor musun? Teyit et."
             : $"\"{n.EventTitle}\" 1 saat içinde başlıyor.",
         "case_vote" => $"{n.GroupName} grubunda bir disiplin dosyası açtı; oyunu bekliyor.",
         "sanction_applied" => n.SanctionType switch

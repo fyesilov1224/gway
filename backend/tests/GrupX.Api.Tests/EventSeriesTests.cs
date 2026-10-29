@@ -87,4 +87,23 @@ public sealed class EventSeriesTests(ApiFactory factory) : IClassFixture<ApiFact
         Assert.Equal("staff", await _db.ScalarAsync<string>(
             "select actor_kind from public.audit_log where action = 'event_series.stopped' and target_id = @s", ("s", otherSeries.ToString())));
     }
+
+    [Fact]
+    public async Task Staff_see_how_many_attendees_confirmed()
+    {
+        var (group, owner, member) = await GroupAsync();
+        var created = await CreateAsync(owner, group, Form(null));
+        var ev = (await created.Content.ReadFromJsonAsync<CreatedEvent>(Ct))!.Id;
+        (await factory.ClientFor(member).PostAsync(Path($"/events/{ev}/attendance"), null, Ct)).EnsureSuccessStatusCode();
+        Assert.True(await _db.ScalarAsync<bool>(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @m::text, 'role', 'authenticated')::text, true) is not null
+                   and public.confirm_attendance(@e)
+            """, ("m", member), ("e", ev)));
+
+        var support = await _db.CreateUserAsync(Unique("p_"));
+        await _db.MakeStaffAsync(support, "support");
+        var events = await factory.ClientFor(support).GetFromJsonAsync<PagedResult<AdminEvent>>("/admin/events?status=upcoming", Ct);
+        Assert.Equal(1, Assert.Single(events!.Items, e => e.Id == ev).ConfirmedCount);
+    }
 }

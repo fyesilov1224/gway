@@ -67,6 +67,13 @@ class _FakeEvents implements EventsRepository {
   }
 
   final stopped = <String>[];
+  final confirmed = <String>[];
+
+  @override
+  Future<Result<void>> confirmAttendance(String id) async {
+    confirmed.add(id);
+    return const Ok(null);
+  }
 
   @override
   Future<Result<void>> stopSeries(String seriesId) async {
@@ -199,6 +206,59 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Bu tarihte ilinde aynı kategoride 2 organizasyon daha var.'), findsOneWidget);
+  });
+
+  group('Geliyor musun?', () {
+    GroupEvent soon({Duration inTime = const Duration(hours: 20)}) => GroupEvent(
+          id: 'e1', group: _group, title: 'Sabah koşusu', startsAt: DateTime.now().add(inTime), location: 'Sahil',
+          myStatus: AttendanceStatus.going, goingCount: 5,
+        );
+
+    test('asked only of a going attendee in the last day', () {
+      final now = DateTime.now();
+      expect(EventDetail(event: soon(), myConfirmed: false).asksConfirmation(now), isTrue);
+      expect(EventDetail(event: soon(), myConfirmed: true).asksConfirmation(now), isFalse);
+      expect(EventDetail(event: soon()).asksConfirmation(now), isFalse, reason: 'not going');
+      expect(EventDetail(event: soon(inTime: const Duration(days: 3)), myConfirmed: false).asksConfirmation(now), isFalse);
+    });
+
+    testWidgets('a going attendee confirms the day before', (tester) async {
+      final fake = await _pump(tester, EventScreen(eventId: 'e1', links: _links),
+          detail: EventDetail(event: soon(), isMember: true, myConfirmed: false));
+
+      expect(find.text('Geliyor musun?'), findsOneWidget);
+      await tester.tap(find.text('Evet, geliyorum'));
+      await tester.pumpAndSettle();
+      expect(fake.confirmed, ['e1']);
+    });
+
+    testWidgets('"Gelemiyorum" gives the seat up', (tester) async {
+      final fake = await _pump(tester, EventScreen(eventId: 'e1', links: _links),
+          detail: EventDetail(event: soon(), isMember: true, myConfirmed: false));
+
+      await tester.tap(find.text('Gelemiyorum'));
+      await tester.pumpAndSettle();
+      expect(fake.left, ['e1']);
+    });
+
+    testWidgets('organizers see who confirmed', (tester) async {
+      await _pump(tester, EventScreen(eventId: 'e1', links: _links),
+          detail: EventDetail(
+            event: soon(),
+            isMember: true,
+            canManage: true,
+            confirmedCount: 1,
+            attendees: const [
+              EventPerson(id: 'u2', username: 'ayse', displayName: 'Ayşe', confirmed: true),
+              EventPerson(id: 'u3', username: 'can', displayName: 'Can', confirmed: false),
+            ],
+          ));
+
+      await tester.scrollUntilVisible(find.textContaining('kişi geleceğini teyit etti'), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.text('5 katılandan 1 kişi geleceğini teyit etti.'), findsOneWidget);
+      expect(find.byTooltip('Ayşe · teyit etti'), findsOneWidget);
+      expect(find.byTooltip('Can'), findsOneWidget);
+    });
   });
 
   group('Tekrarlayan organizasyon', () {

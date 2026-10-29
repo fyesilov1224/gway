@@ -385,7 +385,12 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Yönetim paneli: organizasyon listesinde tekrar bilgisi ve seriyi durdurma
 - [x] pgTAP (987/987), C# (220/220) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
 - [x] Bulut: `0052` migration'ı (2026-10-29)
-### 18l — "Geliyor musun?" teyidi (1 gün önce; yanıtsız kalan çıkarılmaz, işaretlenir)
+### 18l — "Geliyor musun?" teyidi (1 gün önce; yanıtsız kalan çıkarılmaz, işaretlenir; `docs/ARCHITECTURE.md` §3d)
+- [x] Son 24 saatte "Geliyor musun?" kartı; "Evet" teyit, "Gelemiyorum" yeri bekleme listesine bırakır
+- [x] Organizatöre teyit edenler ve sayısı; hatırlatma metninde teyit çağrısı
+- [x] Yönetim paneli: organizasyon listesinde teyit sayısı
+- [x] pgTAP (998/998), C# (221/221) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
+- [ ] Bulut: `0053` migration'ı — kullanıcı onayıyla
 ### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
 ### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)

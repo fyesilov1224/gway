@@ -236,6 +236,7 @@ class _EventRow extends StatelessWidget {
       formatDateTimeTr(e.startsAt),
       e.location,
       seats,
+      if (e.confirmedCount > 0) '${formatCount(e.confirmedCount)} teyit',
       if (e.waitlistCount > 0) '${formatCount(e.waitlistCount)} bekleyen',
       if (e.approvalRequired) 'Onaylı katılım${e.requestedCount > 0 ? ' · ${formatCount(e.requestedCount)} istek' : ''}',
       if (e.ratingAvg case final avg?) '${avg.toStringAsFixed(1).replaceAll('.', ',')} ★ (${formatCount(e.ratingCount)})',

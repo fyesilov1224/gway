@@ -210,7 +210,7 @@ void main() {
       );
     }
 
-    expect(reminder(const Duration(hours: 20)).action, '"Gece yürüyüşü" yarın başlıyor.');
+    expect(reminder(const Duration(hours: 20)).action, '"Gece yürüyüşü" yarın başlıyor. Geliyor musun? Teyit et.');
     expect(reminder(const Duration(minutes: 40)).action, '"Gece yürüyüşü" 1 saat içinde başlıyor.');
     expect(NotificationType.tryParse('event_promoted'), NotificationType.eventPromoted);
   });
