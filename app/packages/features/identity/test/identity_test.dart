@@ -36,6 +36,11 @@ class _FakeAuth implements AuthRepository {
   @override
   Future<Result<void>> signOut() async => const Ok(null);
 
+  Set<SocialProvider> social = {SocialProvider.google, SocialProvider.apple};
+
+  @override
+  Future<Set<SocialProvider>> socialProviders() async => social;
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -186,5 +191,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('only the providers the server serves get a button', (tester) async {
+    final auth = _FakeAuth()..social = {SocialProvider.google};
+    await tester.pumpWidget(_app(const SignInScreen(), [authRepositoryProvider.overrideWithValue(auth)]));
+    await tester.pumpAndSettle();
+    expect(find.text('Google ile devam et'), findsOneWidget);
+    expect(find.text('Apple ile devam et'), findsNothing);
+
+    final none = _FakeAuth()..social = {};
+    await tester.pumpWidget(_app(const SignInScreen(), [authRepositoryProvider.overrideWithValue(none)]));
+    await tester.pumpAndSettle();
+    expect(find.text('veya'), findsNothing);
   });
 }

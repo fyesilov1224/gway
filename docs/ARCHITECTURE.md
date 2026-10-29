@@ -117,7 +117,7 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 ## 3a. Kimlik ve Profil (Faz 1)
 
 ### Hesap yaşam döngüsü
-- Kayıt: e-posta + şifre (**e-posta doğrulaması zorunlu**), Google, Apple. Şifre sıfırlama e-postayla yapılır.
+- Kayıt: e-posta + şifre (**e-posta doğrulaması zorunlu**), Google, Apple. Şifre sıfırlama e-postayla yapılır. Giriş ekranı yalnızca kimlik sunucusunun açtığı sağlayıcıların düğmesini gösterir (`/auth/v1/settings`); anahtarı girilmemiş bir sağlayıcı (ör. yerel sunucuda Google, anahtarlar gelene kadar Apple) görünmez.
 - `auth.users` kaydı oluşunca trigger `account_status` satırını `active` olarak açar.
 - Giriş sonrası zorunlu sıra: **güvenlik doğrulaması (konum, telefon, ikinci adım; §3h) → KVKK onayları → onboarding → uygulama.** Router bu sırayı zorlar; güvenlik adımını ayrıca sunucu zorlar.
 - Durumlar (`account_status.status`):

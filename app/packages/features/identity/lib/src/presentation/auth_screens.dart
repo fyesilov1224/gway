@@ -139,6 +139,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
 
   @override
   Widget build(BuildContext context) {
+    // No button until the server says which providers it serves (a button that cannot work is worse than none).
+    final social = widget.allowSocial ? ref.watch(socialProvidersProvider).value ?? const <SocialProvider>{} : const <SocialProvider>{};
     return AuthLayout(
       title: widget.title,
       subtitle: widget.subtitle,
@@ -172,25 +174,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
         ),
         if (error != null) ...[GxFormMessage(error!), _gap],
         GxButton(label: 'Giriş yap', onPressed: _signIn, isLoading: loading, expand: true),
-        if (widget.allowSocial) ...[
+        if (widget.allowSocial && social.isNotEmpty) ...[
           const SizedBox(height: GxSpacing.lg),
           const LabeledDivider('veya'),
           const SizedBox(height: GxSpacing.lg),
-          GxButton(
-            label: 'Google ile devam et',
-            icon: Icons.g_mobiledata,
-            variant: GxButtonVariant.secondary,
-            expand: true,
-            onPressed: loading ? null : () => _social(SocialProvider.google),
-          ),
-          const SizedBox(height: GxSpacing.sm),
-          GxButton(
-            label: 'Apple ile devam et',
-            icon: Icons.apple,
-            variant: GxButtonVariant.secondary,
-            expand: true,
-            onPressed: loading ? null : () => _social(SocialProvider.apple),
-          ),
+          if (social.contains(SocialProvider.google))
+            GxButton(
+              label: 'Google ile devam et',
+              icon: Icons.g_mobiledata,
+              variant: GxButtonVariant.secondary,
+              expand: true,
+              onPressed: loading ? null : () => _social(SocialProvider.google),
+            ),
+          if (social.length == 2) const SizedBox(height: GxSpacing.sm),
+          if (social.contains(SocialProvider.apple))
+            GxButton(
+              label: 'Apple ile devam et',
+              icon: Icons.apple,
+              variant: GxButtonVariant.secondary,
+              expand: true,
+              onPressed: loading ? null : () => _social(SocialProvider.apple),
+            ),
         ],
         if (widget.allowSignUp) ...[
           const SizedBox(height: GxSpacing.lg),

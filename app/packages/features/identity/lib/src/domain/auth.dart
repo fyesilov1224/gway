@@ -13,6 +13,10 @@ abstract interface class AuthRepository {
   /// Opens the provider's sign-in page; the session arrives via deep link.
   Future<Result<void>> signInWith(SocialProvider provider);
 
+  /// The providers the auth server has switched on, so the screen offers no button that cannot work
+  /// (e.g. Apple before its keys exist, or Google on a local server).
+  Future<Set<SocialProvider>> socialProviders();
+
   Future<Result<void>> sendPasswordReset(String email);
 
   Future<Result<void>> updatePassword(String password);

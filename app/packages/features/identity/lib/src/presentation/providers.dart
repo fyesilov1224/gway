@@ -24,7 +24,14 @@ final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => SupabaseAuthRepository(
     ref.watch(supabaseClientProvider),
     redirectUrl: ref.watch(authRedirectUrlProvider),
+    supabaseUrl: ref.watch(appConfigProvider).supabaseUrl,
+    publishableKey: ref.watch(appConfigProvider).supabasePublishableKey,
   ),
+);
+
+/// Social sign-in buttons the server can serve.
+final socialProvidersProvider = FutureProvider<Set<SocialProvider>>(
+  (ref) => ref.watch(authRepositoryProvider).socialProviders(),
 );
 
 final consentRepositoryProvider = Provider<ConsentRepository>(

@@ -1,12 +1,19 @@
+import 'dart:convert';
+
 import 'package:core/core.dart';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/auth.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
-  SupabaseAuthRepository(this._client, {required this.redirectUrl});
+  SupabaseAuthRepository(this._client, {required this.redirectUrl, required this.supabaseUrl, required this.publishableKey});
 
   final SupabaseClient _client;
+
+  /// For the auth server's public settings (`/auth/v1/settings`).
+  final String supabaseUrl;
+  final String publishableKey;
 
   /// Where e-mail links and OAuth return (deep link on mobile, origin on web).
   final String redirectUrl;
@@ -46,6 +53,23 @@ class SupabaseAuthRepository implements AuthRepository {
           redirectTo: redirectUrl,
         ),
       );
+
+  @override
+  Future<Set<SocialProvider>> socialProviders() async {
+    try {
+      final response = await http
+          .get(Uri.parse('$supabaseUrl/auth/v1/settings'), headers: {'apikey': publishableKey})
+          .timeout(const Duration(seconds: 10));
+      final external = (jsonDecode(response.body) as Map)['external'] as Map;
+      return {
+        if (external['google'] == true) SocialProvider.google,
+        if (external['apple'] == true) SocialProvider.apple,
+      };
+    } on Object {
+      // Unknown: offer both rather than none; a closed one then explains itself.
+      return SocialProvider.values.toSet();
+    }
+  }
 
   @override
   Future<Result<void>> sendPasswordReset(String email) => _run(
