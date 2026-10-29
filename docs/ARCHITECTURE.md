@@ -188,12 +188,27 @@ Admin kullanıcı listesi C#'tan gelir, çünkü e-posta `auth` şemasındadır 
 |---|---|
 | `open` (serbest) | Kullanıcı doğrudan üye olur. |
 | `request` (istekle) | Kullanıcı istek gönderir, geri alabilir. `members.approve` yetkisi olan onaylar ya da reddeder. |
-| `invite` (davetle) | `members.invite` yetkisi olan, kullanıcıyı **kullanıcı adıyla uygulama içinde** davet eder. Davet edilen kabul eder ya da reddeder; davet eden geri alabilir. Davet bağlantısı yoktur. |
+| `invite` (davetle) | `members.invite` yetkisi olan, kullanıcıyı **kullanıcı adıyla uygulama içinde** davet eder ya da bir **davet bağlantısı** paylaşır (aşağıda). Davet edilen kabul eder ya da reddeder; davet eden geri alabilir. |
 
 - Davet her katılım tipinde gönderilebilir; bekleyen davet her zaman doğrudan katılım hakkı verir.
 - Üye olunca o gruba ait bekleyen istek ve davet silinir.
 - Katılmak için hesabın aktif ve profilin (onboarding) tamamlanmış olması gerekir.
 - Grup sahibi gruptan ayrılamaz. Diğer üyeler istediği zaman ayrılır; rolleri de silinir. Üyeyi gruptan çıkarma ve banlama bir yaptırımdır; yalnızca disiplin dosyasının kararıyla olur (§3e). Banlı kişi ban süresince katılamaz, istek gönderemez, davet alamaz.
+
+### Davet bağlantısı (kullanıcı kararı, 2026-10-29, Faz 18j)
+Grupları WhatsApp ve Instagram'dan taşımanın yolu: paylaşılan bir bağlantı.
+- **Üretme:** `members.invite` yetkilisi üretir. Süre 1, 7 ya da 30 gündür; isteğe bağlı kullanım sınırı 1–1000 kişidir. Bir grubun aynı anda en fazla 20 geçerli bağlantısı olur. Kod 12 karakterdir (`a-z` ve `2-9`, karışan harfler yok) ve tahmin edilemez.
+- **Katılma:** Bağlantıyı açan kişi grubu görür ve "Gruba katıl" der. Bağlantı geçerliyse (iptal edilmemiş, süresi ve kullanım sınırı dolmamış, grup aktif) **katılım tipi ne olursa olsun doğrudan üye olur**; bağlantı bir davettir. Ban, paket üye sınırı ve profil zorunluluğu aynen uygulanır. Her katılım `group_invite_link_uses`'a yazılır; kullanım sayısı oradan tutulur.
+- **İptal:** Üreten ya da `members.invite` yetkilisi iptal eder; platform ekibi (admin, moderatör) de iptal edebilir. İptal geri alınmaz, yeni bağlantı üretilir.
+- **Görünürlük:** Bağlantı listesini grubun `members.invite` yetkilileri ve platform ekibi görür. Kodla önizleme (`public.invite_link_preview(code)`) giriş yapmadan da çalışır ve yalnızca zaten herkese açık grup bilgisini (ad, adres, logo, kapak, kategori, üye sayısı) ve bağlantının geçerli olup olmadığını döner.
+- **SQL'de ikinci kontrol:** `group_members_guard`, kişinin kendisini eklemesine serbest grup ve bekleyen davetin yanında, aynı transaction'da yazılmış geçerli bir bağlantı kullanımıyla da izin verir. `group_invite_links` ve `group_invite_link_uses` trigger'ları yetkiyi, süreyi, sınırı ve sayacı yeniden denetler.
+- **Audit log:** `group.invite_link_created`, `group.invite_link_revoked` (yapan grup yetkilisi ya da platform ekibi). Bağlantıyla katılmak kişinin kendi işlemidir; kullanım tablosunda kalır.
+
+### Paylaşım sayfaları (Faz 18j)
+- Grup, organizasyon ve davet bağlantıları `<paylaşım adresi>/s/g/<handle>`, `/s/e/<id>`, `/s/i/<kod>` biçimindedir. Bu adresleri C# API sunar (`GET /s/...`, giriş gerekmez): başlık, açıklama ve görselle Open Graph etiketli küçük bir HTML sayfası döner (WhatsApp ve Instagram önizlemesi) ve kişiyi web uygulamasındaki sayfaya (`<uygulama adresi>/#/g/<handle>`, `/#/e/<id>`, `/#/i/<kod>`) yönlendirir. Bulunmayan ya da askıdaki kayıt için genel GrupX önizlemesi döner; gizli bilgi sayfaya girmez (organizasyonun katılımcıları, bağlantının sahibi).
+- Uygulamanın adresi `Share__AppUrl` ayarıdır. Yayında Caddy `app.<alan adı>/s/*` isteklerini API'ye geçirir; uygulama paylaşım adresini `SHARE_URL` dart-define'ından alır (yoksa `API_URL`).
+- Giriş yapmamış kişi bir bağlantıyı açarsa uygulama adresi hatırlar; giriş, doğrulama ve onboarding bitince oraya döner.
+- Uygulama yüklü telefonda `https` bağlantısını doğrudan uygulamada açmak (Android App Links, iOS Universal Links) alan adı belli olunca bağlanır; o zamana kadar bağlantı web uygulamasında açılır.
 
 ### Gruplar arası denge (kullanıcı kararı, 2026-10-28, Faz 15.9)
 Aynı türdeki gruplar birbirinin üyesini "çalmaktan" şikâyet eder; üye ise istediği gruba katılmakta ve istediği organizasyona gitmekte serbesttir. Kural: **üyeye kısıt yok, gruplar arası görünürlüğe kısıt var.**
@@ -265,12 +280,17 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 | `DELETE /groups/{id}/join-requests/{userId}` | İsteği reddetme (`members.approve`) |
 | `POST /groups/{id}/invitations` | Kullanıcı adıyla davet (`username`, `members.invite`; grup başına 24 saatte 50) |
 | `DELETE /groups/{id}/invitations/{userId}` | Daveti geri alma (`members.invite`) |
+| `POST /groups/{id}/invite-links` | Davet bağlantısı üretme (`days`: 1 / 7 / 30, `maxUses?`: 1–1000; `members.invite`). Yanıt: `id`, `code`, `expiresAt`, `maxUses` |
+| `DELETE /groups/{id}/invite-links/{linkId}` | Bağlantıyı iptal etme (`members.invite`) |
+| `POST /invites/{code}/acceptance` | Bağlantıyla gruba katılma. Yanıt: `groupId`, `handle`. Hata: `group.invite_link_invalid` |
+| `GET /s/g/{handle}`, `GET /s/e/{id}`, `GET /s/i/{code}` | Paylaşım sayfası (giriş gerekmez, Open Graph + yönlendirme) |
+| `POST /admin/groups/{id}/invite-links/{linkId}/revocation` | Bağlantıyı iptal etme (platform `admin`, `moderator`; audit log) |
 | `PUT /groups/{id}/members/{userId}/roles/{role}` | Rol atama (`roles.assign`, rütbe kuralı) |
 | `DELETE /groups/{id}/members/{userId}/roles/{role}` | Rol alma (`roles.assign`, rütbe kuralı) |
 | `PUT /groups/{id}/case-threshold` | Kurul karar eşiği (`threshold`: `majority` / `two_thirds` / `unanimous`; `roles.assign`, Faz 6 §3e) |
 | `GET /admin/groups?q=&status=&page=` | Grup arama (ad, adres), `status`: `active` / `suspended`. Rol: `admin`, `moderator`, `support` |
 | `GET /admin/groups/stats` | Toplam, aktif ve askıdaki grup sayıları |
-| `GET /admin/groups/{id}` | Grup detayı: sahip, yönetim ekibi, sayılar, işlem geçmişi |
+| `GET /admin/groups/{id}` | Grup detayı: sahip, yönetim ekibi, sayılar, işlem geçmişi, davet bağlantıları (üreten, süre, kullanım, durum) |
 | `POST /admin/groups/{id}/suspension` | Grubu askıya alma (`reason`). Rol: `admin`, `moderator` |
 | `DELETE /admin/groups/{id}/suspension` | Askıyı kaldırma. Rol: `admin`, `moderator` |
 
@@ -1052,6 +1072,7 @@ Her özellik ayrı bir paket olarak satılır; kişi yalnızca istediğini alır
 - **Hak sorgusu:** `private.has_matching_feature(uid, feature)`; `matching_premium` her özelliği açar, `matching_chat` `reveal`'ı da açar. Paketler billing'de (`personal_plans`, `user_subscriptions`) tutulur (§7, Kişisel ürünler).
 - **Satış:** her paket ayrı, aylık ve yıllık, ön ödemeli, otomatik yenileme yok, kalan sürenin ardına eklenir. Satın alma web'dendir; mobil durumu ve fiyatları gösterir.
 - **Tanımlama:** platform yöneticisi bir kullanıcıya gerekçeyle 1–365 gün istediği paketi verebilir; `audit_log`'a yazılır (`personal_plan.granted`).
+- **Hoş geldin denemesi (kullanıcı kararı, 2026-10-29):** kişi ilk gruba katıldığında (üye olarak ya da grubu kurarak) ona bir kez **30 gün Hepsi Bir Arada** (`matching_premium`) tanımlanır: eşleşme ve sevgili, beğeni paketleri, Ekip Arkadaşı ve diğer bütün kişisel paketler. Grup paketleri bu denemeye dahil değildir. Tanımlamayı `group_members` üzerindeki billing trigger'ı yazar (`private.grant_welcome_trial`); satır `welcome_trial = true`, `granted_by` boş, gerekçe "Hoş geldin denemesi" olur ve kişi başına tek satırdır (gruptan çıkıp yeniden girmek yenilemez). Kişinin süren Hepsi Bir Arada süresi varsa deneme onun ardına eklenir. Migration günü bir gruba üye olan mevcut kişilere de bir kez tanımlanır. `audit_log`: `personal_plan.welcome_trial`. **Deneme mesaj kuralını değiştirmez:** birebir mesaj yine yalnızca eşleşenler ve ekip arkadaşları arasındadır (§3f); deneme yalnızca paket şartını karşılar.
 - **Kullanıcının paketleri (admin):** kullanıcı sayfasında kişinin bütün paket dilimleri (satın alınan ve tanımlanan, süren, sıradaki, biten) görünür. Platform yöneticisi oradan paket tanımlar ya da bir paketi iptal eder: o paketin süren ve sıradaki bütün dilimleri hemen biter (`cancel_reason = 'admin'`); "ödeme iade edildi" seçilirse bu dilimlerin ödenmiş siparişleri `refunded` olur. İade, ödeme sağlayıcısının panelinden ayrıca yapılır. `audit_log`: `personal_plan.canceled`.
 - **Ekranlar:** deste, "Seni beğenenler" (`/matching/likes`), Paketler (`/matching/packages`: her paketin durumu; `/matching/packages/{slug}`: özellikler, fiyatlar, web'de satın alma), filtreler. Kilitli bir özelliğe dokununca o paketi ve Hepsi Bir Arada'yı öneren bir pencere açılır; sohbette yazma kutusunun yerinde paket çağrısı görünür.
 

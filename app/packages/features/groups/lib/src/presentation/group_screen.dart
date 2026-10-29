@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/group.dart';
+import 'invite_links.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -55,6 +56,13 @@ class GroupScreen extends ConsumerWidget {
                 ],
               ),
         actions: [
+          if (g != null && !g.isSuspended)
+            IconButton(
+              tooltip: 'Paylaş',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => shareWithMessage(context, ref.read(shareLinksProvider).group(g.handle),
+                  text: '${g.name} grubuna GrupX\'te göz at:'),
+            ),
           if (g != null && me != null && me.isMember && g.ownerId != userId)
             PopupMenuButton<void>(
               tooltip: 'Diğer seçenekler',

@@ -8,4 +8,6 @@ abstract final class GroupRoutes {
   static String members(String handle) => '/g/$handle/members';
 
   static String edit(String handle) => '/g/$handle/edit';
+
+  static String invite(String code) => '/i/$code';
 }

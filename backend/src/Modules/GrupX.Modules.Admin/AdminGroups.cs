@@ -21,6 +21,17 @@ public sealed record AdminGroupTeamMember(Guid UserId, string? Username, string?
 
 public sealed record AdminGroupPlan(string Slug, string Name, int MaxMembers);
 
+/// <summary>An invite link as staff see it (docs/ARCHITECTURE.md §3b); the code itself is not shown.</summary>
+public sealed record AdminInviteLink(
+    Guid Id,
+    string? CreatedByUsername,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset ExpiresAt,
+    int? MaxUses,
+    int UseCount,
+    DateTimeOffset? RevokedAt,
+    bool Valid);
+
 public sealed record AdminGroupDetail(
     AdminGroupSummary Group,
     AdminGroupPlan Plan,
@@ -32,7 +43,8 @@ public sealed record AdminGroupDetail(
     int PendingInvitations,
     IReadOnlyList<AdminGroupTeamMember> Team,
     IReadOnlyList<AdminAuditItem> History,
-    int? Province = null);
+    int? Province = null,
+    IReadOnlyList<AdminInviteLink>? InviteLinks = null);
 
 public sealed record AdminGroupStats(int Total, int Active, int Suspended);
 
@@ -198,8 +210,31 @@ internal sealed class AdminGroups(NpgsqlDataSource db)
             }
         }
 
+        var links = new List<AdminInviteLink>();
+        await using (var cmd = new NpgsqlCommand(
+            """
+            select l.id, p.username, l.created_at, l.expires_at, l.max_uses, l.use_count, l.revoked_at, private.invite_link_valid(l)
+            from public.group_invite_links l
+            left join public.profiles p on p.id = l.created_by
+            where l.group_id = @id
+            order by l.created_at desc
+            limit 50
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("id", groupId);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+            {
+                links.Add(new AdminInviteLink(
+                    reader.GetGuid(0), reader.IsDBNull(1) ? null : reader.GetString(1), reader.GetFieldValue<DateTimeOffset>(2),
+                    reader.GetFieldValue<DateTimeOffset>(3), reader.IsDBNull(4) ? null : reader.GetInt32(4), reader.GetInt32(5),
+                    reader.IsDBNull(6) ? null : reader.GetFieldValue<DateTimeOffset>(6), reader.GetBoolean(7)));
+            }
+        }
+
         var subscriptions = await AdminBilling.GroupSubscriptionsAsync(conn, groupId, ct);
-        return new AdminGroupDetail(summary, plan, subscriptions, about, reason, suspendedAt, requests, invitations, team, history, province);
+        return new AdminGroupDetail(
+            summary, plan, subscriptions, about, reason, suspendedAt, requests, invitations, team, history, province, links);
     }
 
     private static AdminGroupSummary ReadSummary(NpgsqlDataReader r) => new(

@@ -5,11 +5,17 @@
 
 # The social web app (Flutter web build in www/app). Also serves the public pages Google Play links to:
 # https://app.{$DOMAIN}/#/gizlilik, /#/kosullar, /#/hesap-silme
+# Share links (/s/g/<handle>, /s/e/<id>, /s/i/<code>) are preview pages the API renders (docs/ARCHITECTURE.md §3b).
 app.{$DOMAIN} {
-	root * /srv/app
 	encode zstd gzip
-	try_files {path} /index.html
-	file_server
+	handle /s/* {
+		reverse_proxy api:8080
+	}
+	handle {
+		root * /srv/app
+		try_files {path} /index.html
+		file_server
+	}
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options nosniff

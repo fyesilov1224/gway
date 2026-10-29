@@ -11,4 +11,5 @@ export 'src/provinces.dart';
 export 'src/reporting.dart';
 export 'src/result.dart';
 export 'src/session.dart';
+export 'src/sharing.dart';
 export 'src/supabase_errors.dart';

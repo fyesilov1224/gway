@@ -29,6 +29,9 @@ public sealed class MatchingTests(ApiFactory factory) : IClassFixture<ApiFactory
             Path("/groups"), new CreateGroupRequest(Unique("g_"), "Kamp Severler", "music", "open", null), Ct);
         var group = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
         (await factory.ClientFor(him).PostAsync(Path($"/groups/{group}/join"), null, Ct)).EnsureSuccessStatusCode();
+        // These tests start without packages; the first group gave both the welcome trial.
+        await _db.EndWelcomeTrialAsync(her);
+        await _db.EndWelcomeTrialAsync(him);
         await ProfileAsync(her, "woman", "{man}");
         await ProfileAsync(him, "man", "{woman}");
         return (her, him);

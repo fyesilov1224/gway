@@ -203,6 +203,60 @@ class GroupInvitation {
 
 enum JoinOutcome { member, requested }
 
+/// A shareable invite link (docs/ARCHITECTURE.md §3b, Davet bağlantısı).
+class InviteLink {
+  const InviteLink({
+    required this.id,
+    required this.code,
+    required this.createdAt,
+    required this.expiresAt,
+    required this.useCount,
+    this.maxUses,
+    this.revokedAt,
+  });
+
+  /// Lengths a link can last, in days.
+  static const durations = [1, 7, 30];
+
+  /// Use limits offered; null is no limit.
+  static const useLimits = <int?>[null, 10, 50, 100];
+
+  final String id;
+  final String code;
+  final DateTime createdAt;
+  final DateTime expiresAt;
+  final int useCount;
+  final int? maxUses;
+  final DateTime? revokedAt;
+
+  bool isValidAt(DateTime now) => revokedAt == null && expiresAt.isAfter(now) && (maxUses == null || useCount < maxUses!);
+}
+
+/// What anyone holding an invite code sees: the public group and whether the link still works.
+class InvitePreview {
+  const InvitePreview({
+    required this.valid,
+    required this.groupId,
+    required this.handle,
+    required this.name,
+    required this.categorySlug,
+    required this.about,
+    required this.memberCount,
+    this.logoUrl,
+    this.coverUrl,
+  });
+
+  final bool valid;
+  final String groupId;
+  final String handle;
+  final String name;
+  final String categorySlug;
+  final String about;
+  final int memberCount;
+  final String? logoUrl;
+  final String? coverUrl;
+}
+
 class GroupDraft {
   const GroupDraft({
     required this.handle,
@@ -355,6 +409,19 @@ abstract interface class GroupsRepository {
   Future<Result<void>> invite(String groupId, String username);
 
   Future<Result<void>> revokeInvitation(String groupId, String userId);
+
+  /// The group's links, newest first (visible to inviters).
+  Future<Result<List<InviteLink>>> inviteLinks(String groupId);
+
+  Future<Result<InviteLink>> createInviteLink(String groupId, {required int days, int? maxUses});
+
+  Future<Result<void>> revokeInviteLink(String groupId, String linkId);
+
+  /// Null when no active group has this code.
+  Future<Result<InvitePreview?>> invitePreview(String code);
+
+  /// Joins with the link; returns the group's handle.
+  Future<Result<String>> acceptInvite(String code);
 
   Future<Result<void>> assignRole(String groupId, String userId, GroupRole role);
 

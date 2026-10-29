@@ -368,11 +368,27 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] Yönetim paneli: ligler, tablo, ligden çıkarma ve geri alma (audit)
 - [x] pgTAP (932/932), C# (214/214) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-28)
 - [ ] Bulut: `0049` migration'ı — kullanıcı onayıyla
-### 18c — Yılın Özeti (paylaşılabilir hikâye kartları)
+Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j → 18k → 18l → 18c → 18m → 18g/18h → 18n → 18o.
+
+### 18j — Davet bağlantısı ve paylaşım sayfaları (`docs/ARCHITECTURE.md` §3b)
+- [x] Süreli, kullanım sınırlı, iptal edilebilir davet bağlantısı; bağlantıyla istekli ya da davetli gruba doğrudan katılım
+- [x] WhatsApp önizlemeli paylaşım sayfaları (grup, organizasyon, davet); giriş sonrası bağlantıya dönüş
+- [x] Yönetim paneli: grup sayfasında bağlantılar ve iptal
+- [x] pgTAP (968/968), C# (218/218) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
+- [ ] Bulut: `0050` (hoş geldin denemesi) ve `0051` migration'ları, Caddy `/s/*` yönlendirmesi ve `SHARE_URL` ile web derlemesi — kullanıcı onayıyla
+- [ ] Alan adı belli olunca Android App Links / iOS Universal Links
+
+### 18k — Tekrarlayan organizasyon (her tarih kendi ayının limitine sayılır, 4 hafta ileri açılır)
+### 18l — "Geliyor musun?" teyidi (1 gün önce; yanıtsız kalan çıkarılmaz, işaretlenir)
+### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi
+### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
+### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)
+
+### 18c — Yılın Özeti (paylaşılabilir hikâye kartları; organizasyon sonrası "Ben de oradaydım" kartı dahil)
 ### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
-### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar)
+### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar; ortak gruplardan 4–6 kişilik küçük masa önerisi)
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)

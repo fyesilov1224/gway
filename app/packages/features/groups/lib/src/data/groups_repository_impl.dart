@@ -247,6 +247,60 @@ class GroupsRepositoryImpl implements GroupsRepository {
       _api.delete('/groups/$groupId/invitations/$userId', decode: (_) {});
 
   @override
+  Future<Result<List<InviteLink>>> inviteLinks(String groupId) => _read(() async {
+        final rows = await _client
+            .from('group_invite_links')
+            .select('id, code, created_at, expires_at, max_uses, use_count, revoked_at')
+            .eq('group_id', groupId)
+            .order('created_at', ascending: false)
+            .limit(50);
+        return [for (final row in rows) _toLink(row)];
+      });
+
+  @override
+  Future<Result<InviteLink>> createInviteLink(String groupId, {required int days, int? maxUses}) => _api.post(
+        '/groups/$groupId/invite-links',
+        body: {'days': days, 'maxUses': ?maxUses},
+        decode: (json) {
+          final j = (json! as Map).cast<String, dynamic>();
+          return InviteLink(
+            id: j['id'] as String,
+            code: j['code'] as String,
+            createdAt: DateTime.now(),
+            expiresAt: DateTime.parse(j['expiresAt'] as String),
+            maxUses: (j['maxUses'] as num?)?.toInt(),
+            useCount: 0,
+          );
+        },
+      );
+
+  @override
+  Future<Result<void>> revokeInviteLink(String groupId, String linkId) =>
+      _api.delete('/groups/$groupId/invite-links/$linkId', decode: (_) {});
+
+  @override
+  Future<Result<InvitePreview?>> invitePreview(String code) => _read(() async {
+        final json = await _client.rpc<Object?>('invite_link_preview', params: {'link_code': code});
+        if (json is! Map) return null;
+        final g = (json['group'] as Map).cast<String, dynamic>();
+        return InvitePreview(
+          valid: json['valid'] == true,
+          groupId: g['id'] as String,
+          handle: g['handle'] as String,
+          name: g['name'] as String,
+          categorySlug: g['category_slug'] as String,
+          about: g['about'] as String? ?? '',
+          memberCount: (g['member_count'] as num).toInt(),
+          logoUrl: _url(g['logo_path']),
+          coverUrl: _url(g['cover_path']),
+        );
+      });
+
+  @override
+  Future<Result<String>> acceptInvite(String code) =>
+      _api.post('/invites/$code/acceptance', decode: (json) => (json! as Map)['handle'] as String);
+
+  @override
   Future<Result<void>> assignRole(String groupId, String userId, GroupRole role) =>
       _api.put('/groups/$groupId/members/$userId/roles/${role.code}', decode: (_) {});
 
@@ -305,6 +359,16 @@ class GroupsRepositoryImpl implements GroupsRepository {
         coverUrl: _url(row['cover_path']),
         isSuspended: row['status'] == 'suspended',
         province: (row['province'] as num?)?.toInt(),
+      );
+
+  static InviteLink _toLink(Map<String, dynamic> row) => InviteLink(
+        id: row['id'] as String,
+        code: row['code'] as String,
+        createdAt: DateTime.parse(row['created_at'] as String),
+        expiresAt: DateTime.parse(row['expires_at'] as String),
+        maxUses: (row['max_uses'] as num?)?.toInt(),
+        useCount: (row['use_count'] as num).toInt(),
+        revokedAt: row['revoked_at'] == null ? null : DateTime.parse(row['revoked_at'] as String),
       );
 
   GroupPerson _toPerson(Map<String, dynamic> row, {required List<GroupRole> roles, Object? since}) {

@@ -43,6 +43,7 @@ services:
       Billing__AppUrl: https://app.${DOMAIN}
       Billing__PublicApiUrl: https://api.${DOMAIN}
       Events__AppUrl: https://app.${DOMAIN}
+      Share__AppUrl: https://app.${DOMAIN}
       LiveKit__Url: wss://livekit.${DOMAIN}
       LiveKit__ApiUrl: http://livekit:7880
       Security__Passkeys__RelyingPartyId: ${DOMAIN}

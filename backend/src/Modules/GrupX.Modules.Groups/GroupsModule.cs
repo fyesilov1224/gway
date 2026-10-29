@@ -16,6 +16,8 @@ public static class GroupsModule
         services.AddSingleton<GroupService>();
         services.AddSingleton<IGroupAdministration>(sp => sp.GetRequiredService<GroupService>());
         services.AddSingleton<MembershipService>();
+        services.AddSingleton<InviteLinkService>();
+        services.AddSingleton<GroupSharePages>();
         services.AddSingleton<IGroupMembership>(sp => sp.GetRequiredService<MembershipService>());
         return services;
     }
@@ -71,6 +73,26 @@ public static class GroupsModule
         groups.MapDelete("/{id:guid}/invitations/{userId:guid}", async (
                 Guid id, Guid userId, ClaimsPrincipal user, MembershipService members, CancellationToken ct) =>
             (await members.RevokeInvitationAsync(user.GetUserId(), id, userId, ct)).ToHttpResult());
+
+        groups.MapPost("/{id:guid}/invite-links", async (
+                Guid id, CreateInviteLinkRequest body, ClaimsPrincipal user, InviteLinkService links, CancellationToken ct) =>
+            (await links.CreateAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
+
+        groups.MapDelete("/{id:guid}/invite-links/{linkId:guid}", async (
+                Guid id, Guid linkId, ClaimsPrincipal user, InviteLinkService links, CancellationToken ct) =>
+            (await links.RevokeAsync(user.GetUserId(), id, linkId, staff: false, ct)).ToHttpResult());
+
+        app.MapPost("/invites/{code}/acceptance", async (string code, ClaimsPrincipal user, InviteLinkService links, CancellationToken ct) =>
+            (await links.AcceptAsync(user.GetUserId(), code, ct)).ToHttpResult());
+
+        // Link previews for WhatsApp and Instagram; anyone may open them.
+        app.MapGet("/s/g/{handle}", async (string handle, GroupSharePages pages, CancellationToken ct) =>
+                await pages.GroupAsync(handle, ct))
+            .AllowAnonymous();
+
+        app.MapGet("/s/i/{code}", async (string code, GroupSharePages pages, CancellationToken ct) =>
+                await pages.InviteAsync(code, ct))
+            .AllowAnonymous();
 
         groups.MapPut("/{id:guid}/members/{userId:guid}/roles/{role}", async (
                 Guid id, Guid userId, string role, ClaimsPrincipal user, MembershipService members, CancellationToken ct) =>

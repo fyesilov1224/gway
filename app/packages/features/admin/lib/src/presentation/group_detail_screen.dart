@@ -26,6 +26,8 @@ const _actionLabels = {
   'group.invitation_revoked': ('Davet geri alındı', Icons.cancel_schedule_send_outlined),
   'group.suspended': ('Grup askıya alındı', Icons.block),
   'group.unsuspended': ('Askı kaldırıldı', Icons.lock_open_outlined),
+  'group.invite_link_created': ('Davet bağlantısı oluşturuldu', Icons.add_link),
+  'group.invite_link_revoked': ('Davet bağlantısı iptal edildi', Icons.link_off),
   'subscription.activated': ('Paket etkinleşti', Icons.workspace_premium_outlined),
   'subscription.canceled': ('Abonelik iptal edildi', Icons.event_busy_outlined),
   'billing.payment_mismatch': ('Ödeme tutarı uyuşmadı', Icons.report_gmailerrorred_outlined),
@@ -160,6 +162,13 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
       ],
       _TeamPanel(team: d.team),
       const SizedBox(height: GxSpacing.lg),
+      _InviteLinksPanel(
+        links: d.inviteLinks,
+        canRevoke: canSuspend,
+        busy: _saving,
+        onRevoke: (link) => _run((repo) => repo.revokeInviteLink(g.id, link.id)),
+      ),
+      const SizedBox(height: GxSpacing.lg),
       HistoryPanel(
         history: d.history,
         labels: _actionLabels,
@@ -263,6 +272,62 @@ class _HeaderPanel extends ConsumerWidget {
 }
 
 /// Owner and members with assigned roles; opens the user's admin page.
+class _InviteLinksPanel extends StatelessWidget {
+  const _InviteLinksPanel({required this.links, required this.canRevoke, required this.busy, required this.onRevoke});
+
+  final List<AdminInviteLink> links;
+  final bool canRevoke;
+  final bool busy;
+  final void Function(AdminInviteLink link) onRevoke;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return GxPanel(
+      title: 'Davet bağlantıları',
+      child: links.isEmpty
+          ? Text('Bu grubun davet bağlantısı yok.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, l) in links.indexed) ...[
+                  if (i > 0) const Divider(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${l.useCount}${l.maxUses == null ? '' : ' / ${l.maxUses}'} kişi katıldı',
+                              style: textTheme.labelLarge,
+                            ),
+                            Text(
+                              [
+                                if (l.createdByUsername != null) '@${l.createdByUsername}',
+                                formatDateTimeTr(l.createdAt),
+                                l.revokedAt != null
+                                    ? 'İptal edildi'
+                                    : l.valid
+                                        ? '${formatDateTimeTr(l.expiresAt)} tarihine kadar'
+                                        : 'Geçersiz',
+                              ].join('  ·  '),
+                              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (canRevoke && l.valid)
+                        GxButton(label: 'İptal et', variant: GxButtonVariant.text, isLoading: busy, onPressed: () => onRevoke(l)),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+    );
+  }
+}
+
 class _TeamPanel extends ConsumerWidget {
   const _TeamPanel({required this.team});
 

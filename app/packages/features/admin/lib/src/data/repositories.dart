@@ -103,6 +103,10 @@ class ApiAdminGroupsRepository implements AdminGroupsRepository {
 
   @override
   Future<Result<void>> unsuspend(String id) => _api.delete('/admin/groups/$id/suspension', decode: (_) {});
+
+  @override
+  Future<Result<void>> revokeInviteLink(String groupId, String linkId) =>
+      _api.post('/admin/groups/$groupId/invite-links/$linkId/revocation', decode: (_) {});
 }
 
 class ApiAdminBillingRepository implements AdminBillingRepository {

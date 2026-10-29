@@ -62,6 +62,8 @@ public sealed class TestDatabase : IAsyncLifetime
             create temporary table doomed_posts on commit drop as select id from public.posts where group_id in (select id from doomed);
             delete from public.sanction_appeals where sanction_id in (select id from public.sanctions where group_id in (select id from doomed));
             delete from public.sanctions where group_id in (select id from doomed);
+            delete from public.group_invite_link_uses where link_id in (select id from public.group_invite_links where group_id in (select id from doomed));
+            delete from public.group_invite_links where group_id in (select id from doomed);
             delete from public.case_votes where case_id in (select id from public.moderation_cases where group_id in (select id from doomed));
             delete from public.reports where group_id in (select id from doomed);
             delete from public.moderation_cases where group_id in (select id from doomed);
@@ -159,6 +161,19 @@ public sealed class TestDatabase : IAsyncLifetime
             insert into public.user_subscriptions (user_id, plan_slug, granted_by, grant_reason, starts_at, ends_at)
             values (@user, @slug, @admin, 'test', now() - interval '1 minute', now() + interval '1 day')
             """, ("admin", admin), ("user", userId), ("slug", slug));
+    }
+
+    /// <summary>Ends <paramref name="userId"/>'s welcome trial (0050) as a fresh platform admin, for tests of life without packages.</summary>
+    public async Task EndWelcomeTrialAsync(Guid userId)
+    {
+        var admin = await CreateUserAsync($"a_{Guid.NewGuid():N}"[..20]);
+        await MakeStaffAsync(admin, "admin");
+        await ExecuteAsync(
+            """
+            select set_config('request.jwt.claims', json_build_object('sub', @admin::text)::text, true);
+            update public.user_subscriptions set ends_at = now(), canceled_at = now(), cancel_reason = 'admin'
+            where user_id = @user and welcome_trial and canceled_at is null
+            """, ("admin", admin), ("user", userId));
     }
 
     public async Task ExecuteAsync(string sql, params (string Name, object Value)[] parameters)

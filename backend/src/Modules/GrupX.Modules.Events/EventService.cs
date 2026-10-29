@@ -108,6 +108,10 @@ public static class EventsModule
                     : Results.NotFound())
             .AllowAnonymous();
 
+        // The link preview (docs/ARCHITECTURE.md §3b, Paylaşım sayfaları).
+        app.MapGet("/s/e/{id:guid}", async (Guid id, EventService events, CancellationToken ct) => await events.SharePageAsync(id, ct))
+            .AllowAnonymous();
+
         app.MapPost("/groups/{id:guid}/polls", async (Guid id, CreatePollRequest body, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.CreatePollAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
 
@@ -460,6 +464,28 @@ internal sealed partial class EventService(
             id, r.GetString(0), r.GetString(1), r.GetString(2), r.GetFieldValue<DateTimeOffset>(3),
             r.IsDBNull(4) ? null : r.GetFieldValue<DateTimeOffset>(4), r.GetBoolean(5),
             string.IsNullOrEmpty(appUrl) ? null : $"{appUrl}/#/e/{id}", time.GetUtcNow());
+    }
+
+    /// <summary>Only what the public event page shows: title, time, place, group and cover.</summary>
+    public async Task<IResult> SharePageAsync(Guid id, CancellationToken ct)
+    {
+        var appUrl = configuration["Share:AppUrl"];
+        await using var cmd = db.CreateCommand(
+            """
+            select e.title, to_char(e.starts_at at time zone 'Europe/Istanbul', 'DD.MM.YYYY HH24:MI'), e.location, g.name,
+                   e.cover_path, e.canceled_at is not null
+            from public.events e join public.groups g on g.id = e.group_id
+            where e.id = @id and g.status = 'active'
+            """);
+        cmd.Parameters.AddWithValue("id", id);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        if (!await r.ReadAsync(ct))
+            return SharePage.Render(appUrl, "/groups", SharePage.FallbackTitle, SharePage.FallbackDescription, null);
+
+        var place = r.GetString(2).Trim();
+        var description = $"{(r.GetBoolean(5) ? "İptal edildi · " : "")}{r.GetString(1)}{(place.Length > 0 ? $" · {place}" : "")} · {r.GetString(3)}";
+        var image = SharePage.PublicImage(configuration["Supabase:Url"] ?? "", Bucket, r.IsDBNull(4) ? null : r.GetString(4));
+        return SharePage.Render(appUrl, $"/e/{id}", r.GetString(0), description, image);
     }
 
     // Polls ------------------------------------------------------------------------------------

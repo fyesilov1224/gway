@@ -137,6 +137,17 @@ void main() {
       expect(redirectFor(AppGate.ready, u(loading!)), '/u/ayse');
     });
 
+    test('a link opened before signing in is restored after onboarding', () {
+      final pending = PendingLink();
+      expect(redirectFor(AppGate.signedOut, u('/i/abcdefghjkmn'), pending), IdentityRoutes.signIn);
+      expect(redirectFor(AppGate.signedOut, u('/sign-up'), pending), isNull);
+      expect(redirectFor(AppGate.needsOnboarding, u('/sign-up'), pending), ProfileRoutes.onboarding);
+
+      expect(redirectFor(AppGate.ready, u('/onboarding'), pending), '/i/abcdefghjkmn');
+      expect(pending.location, isNull);
+      expect(redirectFor(AppGate.ready, u('/sign-in'), pending), FeedRoutes.home);
+    });
+
     test('ready users leave gate screens for their profile', () {
       expect(redirectFor(AppGate.ready, u('/sign-in')), FeedRoutes.home);
       expect(redirectFor(AppGate.ready, u('/consent')), FeedRoutes.home);

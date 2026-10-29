@@ -93,6 +93,40 @@ class AdminGroupPlan {
   final int maxMembers;
 }
 
+/// An invite link as staff see it (docs/ARCHITECTURE.md §3b); the code itself is not shown.
+class AdminInviteLink {
+  const AdminInviteLink({
+    required this.id,
+    required this.createdAt,
+    required this.expiresAt,
+    required this.useCount,
+    required this.valid,
+    this.createdByUsername,
+    this.maxUses,
+    this.revokedAt,
+  });
+
+  factory AdminInviteLink.fromJson(Map<String, Object?> j) => AdminInviteLink(
+        id: j['id']! as String,
+        createdByUsername: j['createdByUsername'] as String?,
+        createdAt: DateTime.parse(j['createdAt']! as String),
+        expiresAt: DateTime.parse(j['expiresAt']! as String),
+        maxUses: j['maxUses'] as int?,
+        useCount: j['useCount']! as int,
+        revokedAt: j['revokedAt'] is String ? DateTime.parse(j['revokedAt']! as String) : null,
+        valid: j['valid']! as bool,
+      );
+
+  final String id;
+  final String? createdByUsername;
+  final DateTime createdAt;
+  final DateTime expiresAt;
+  final int? maxUses;
+  final int useCount;
+  final DateTime? revokedAt;
+  final bool valid;
+}
+
 class AdminGroupDetail {
   const AdminGroupDetail({
     required this.group,
@@ -106,6 +140,7 @@ class AdminGroupDetail {
     this.suspensionReason,
     this.suspendedAt,
     this.province,
+    this.inviteLinks = const [],
   });
 
   factory AdminGroupDetail.fromJson(Map<String, Object?> j) => AdminGroupDetail(
@@ -122,6 +157,9 @@ class AdminGroupDetail {
         suspensionReason: j['suspensionReason'] as String?,
         suspendedAt: j['suspendedAt'] is String ? DateTime.parse(j['suspendedAt']! as String) : null,
         province: j['province'] as int?,
+        inviteLinks: [
+          for (final l in (j['inviteLinks'] as List? ?? const []).cast<Map<String, Object?>>()) AdminInviteLink.fromJson(l),
+        ],
       );
 
   final AdminGroupSummary group;
@@ -141,6 +179,9 @@ class AdminGroupDetail {
 
   /// Plate number; the group's place on the map (Faz 14).
   final int? province;
+
+  /// The latest 50 invite links, newest first.
+  final List<AdminInviteLink> inviteLinks;
 }
 
 class AdminGroupStats {
@@ -169,4 +210,6 @@ abstract interface class AdminGroupsRepository {
   Future<Result<void>> suspend(String id, {required String reason});
 
   Future<Result<void>> unsuspend(String id);
+
+  Future<Result<void>> revokeInviteLink(String groupId, String linkId);
 }

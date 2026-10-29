@@ -20,6 +20,9 @@ public interface IGroupAdministration
 
     /// <summary>Suspends every active group <paramref name="ownerId"/> owns (a platform ban); returns their ids.</summary>
     Task<IReadOnlyList<Guid>> SuspendOwnedAsync(Guid actorId, Guid ownerId, string reason, CancellationToken ct);
+
+    /// <summary>Revokes one of the group's invite links as platform staff.</summary>
+    Task<Result> RevokeInviteLinkAsync(Guid actorId, Guid groupId, Guid linkId, CancellationToken ct);
 }
 
 /// <summary>Membership changes other modules make inside their own transaction.</summary>

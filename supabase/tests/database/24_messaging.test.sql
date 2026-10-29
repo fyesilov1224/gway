@@ -3,6 +3,9 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(38);
 
+-- These tests check life without packages; the welcome trial (0050) would open every one.
+alter table public.group_members disable trigger group_members_welcome_trial;
+
 -- d1 owner of the group, d2 member, d3 member (muted later), d4 stranger, d5 private account, d6 outsider.
 insert into auth.users (id, email, aud, role)
 select ('00000000-0000-0000-0000-0000000dd10' || i)::uuid, 'd' || i || '@test.local', 'authenticated', 'authenticated'

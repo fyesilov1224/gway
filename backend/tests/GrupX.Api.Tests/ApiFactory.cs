@@ -59,6 +59,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("RateLimiting:PermitsPerMinute", PermitsPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
         builder.UseSetting("RateLimiting:SensitivePermitsPer10Minutes", "1000");
         builder.UseSetting("Billing:AppUrl", "http://localhost:3000");
+        builder.UseSetting("Share:AppUrl", "http://localhost:3000");
         builder.UseSetting("Billing:PublicApiUrl", "http://api.test");
         builder.UseSetting("Geo:CountryHeader", CountryHeader);
         builder.UseSetting("Billing:Paytr:MerchantId", "123456");

@@ -10,13 +10,15 @@ class AppConfig {
     required this.supabaseUrl,
     required this.supabasePublishableKey,
     required this.apiUrl,
-  });
+    String shareUrl = '',
+  }) : shareUrl = shareUrl == '' ? apiUrl : shareUrl;
 
   factory AppConfig.fromEnvironment() {
     const config = AppConfig(
       supabaseUrl: String.fromEnvironment('SUPABASE_URL'),
       supabasePublishableKey: String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
       apiUrl: String.fromEnvironment('API_URL'),
+      shareUrl: String.fromEnvironment('SHARE_URL'),
     );
     final missing = [
       if (config.supabaseUrl.isEmpty) 'SUPABASE_URL',
@@ -35,4 +37,8 @@ class AppConfig {
   final String supabaseUrl;
   final String supabasePublishableKey;
   final String apiUrl;
+
+  /// Where share links point (`<shareUrl>/s/...`): the web app's address in production, where the proxy hands
+  /// `/s/*` to the API; the API itself otherwise (docs/ARCHITECTURE.md §3b, Paylaşım sayfaları).
+  final String shareUrl;
 }

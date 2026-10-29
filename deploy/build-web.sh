@@ -5,7 +5,7 @@ set -euo pipefail
 domain="$1"; supabase_url="$2"; supabase_key="$3"
 here="$(cd "$(dirname "$0")" && pwd)"
 defines=(--dart-define=SUPABASE_URL="$supabase_url" --dart-define=SUPABASE_PUBLISHABLE_KEY="$supabase_key"
-         --dart-define=API_URL="https://api.$domain")
+         --dart-define=API_URL="https://api.$domain" --dart-define=SHARE_URL="https://app.$domain")
 
 for app in social_app:app admin_panel:panel; do
   src="${app%%:*}"; out="${app##*:}"

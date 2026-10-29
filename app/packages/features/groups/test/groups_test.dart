@@ -45,6 +45,8 @@ Widget _app(
   MyMembership me = const MyMembership(),
   List<GroupPerson> requests = const [],
   List<Group> myGroups = const [],
+  List<InviteLink> links = const [],
+  InvitePreview? preview,
 }) =>
     ProviderScope(
       overrides: [
@@ -58,6 +60,8 @@ Widget _app(
         discoverGroupsProvider.overrideWith((ref, search) async => [_group(), _group(policy: JoinPolicy.request)]),
         myInvitationsProvider.overrideWith((ref) async => const []),
         userGroupsProvider.overrideWith((ref, id) async => myGroups),
+        inviteLinksProvider.overrideWith((ref, id) async => links),
+        invitePreviewProvider.overrideWith((ref, code) async => preview),
       ],
       child: MaterialApp(theme: GxTheme.light(), home: child),
     );
@@ -74,7 +78,59 @@ Future<void> _pumpSmallPhone(WidgetTester tester, Widget app) async {
   await tester.pumpAndSettle();
 }
 
+InviteLink _link({String id = 'l1', int uses = 0, int? max, bool revoked = false, int days = 7}) => InviteLink(
+      id: id,
+      code: 'abcdefghjkmn',
+      createdAt: DateTime.now(),
+      expiresAt: DateTime.now().add(Duration(days: days)),
+      useCount: uses,
+      maxUses: max,
+      revokedAt: revoked ? DateTime.now() : null,
+    );
+
+InvitePreview _preview({bool valid = true}) => InvitePreview(
+      valid: valid,
+      groupId: 'g1',
+      handle: 'istanbul.kosu',
+      name: 'İstanbul Koşu Kulübü',
+      categorySlug: 'running',
+      about: 'Her pazar sabahı sahilde koşuyoruz.',
+      memberCount: 42,
+    );
+
 void main() {
+  group('InviteLink', () {
+    test('works until it expires, is revoked or is used up', () {
+      final now = DateTime.now();
+      expect(_link().isValidAt(now), isTrue);
+      expect(_link(days: -1).isValidAt(now), isFalse);
+      expect(_link(revoked: true).isValidAt(now), isFalse);
+      expect(_link(uses: 10, max: 10).isValidAt(now), isFalse);
+      expect(_link(uses: 9, max: 10).isValidAt(now), isTrue);
+    });
+  });
+
+  group('InviteScreen', () {
+    testWidgets('a valid link shows the group and a join button', (tester) async {
+      await _pumpSmallPhone(tester, _app(const InviteScreen(code: 'abcdefghjkmn'), userId: 'u9', preview: _preview()));
+
+      expect(find.text('İstanbul Koşu Kulübü'), findsOneWidget);
+      expect(find.text('Bu gruba davet edildin.'), findsOneWidget);
+      expect(find.text('Gruba katıl'), findsOneWidget);
+    });
+
+    testWidgets('a dead or unknown link says so and offers a way on', (tester) async {
+      await tester.pumpWidget(_app(const InviteScreen(code: 'abcdefghjkmn'), userId: 'u9', preview: _preview(valid: false)));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('artık geçerli değil'), findsOneWidget);
+      expect(find.text('Grubu gör'), findsOneWidget);
+
+      await tester.pumpWidget(_app(const InviteScreen(code: 'nosuchcode22'), userId: 'u9'));
+      await tester.pumpAndSettle();
+      expect(find.text('Grupları keşfet'), findsOneWidget);
+    });
+  });
+
   group('joinStateOf', () {
     test('follows membership, invitations, requests and join policy', () {
       JoinState of(Group g, MyMembership m, [String? user = 'me']) => joinStateOf(g, m, userId: user);
@@ -309,6 +365,30 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Sahipliği devret'), findsOneWidget);
       expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, 'Yönetici')).value, isTrue);
+    });
+
+    testWidgets('inviters see the live invite links only', (tester) async {
+      await tester.pumpWidget(_app(
+        const GroupMembersScreen(handle: 'istanbul.kosu', onOpenProfile: _onOpenProfile),
+        userId: 'owner',
+        group: _group(policy: JoinPolicy.invite),
+        me: const MyMembership(isMember: true, permissions: _ownerPermissions),
+        links: [_link(uses: 3, max: 50), _link(id: 'l2', revoked: true), _link(id: 'l3', days: -1)],
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Davetler'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Davet bağlantısı'), findsOneWidget);
+      expect(find.text('Bağlantı oluştur'), findsOneWidget);
+      expect(find.text('3 / 50 kişi katıldı'), findsOneWidget);
+      expect(find.byTooltip('İptal et'), findsOneWidget, reason: 'revoked and expired links are hidden');
+
+      await tester.tap(find.text('Bağlantı oluştur'));
+      await tester.pumpAndSettle();
+      expect(find.text('30 gün'), findsOneWidget);
+      expect(find.text('Sınırsız'), findsOneWidget);
     });
 
     testWidgets('plain member sees the member list and can only report', (tester) async {

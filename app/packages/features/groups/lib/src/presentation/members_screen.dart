@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/group.dart';
 import 'group_screen.dart';
+import 'invite_links.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -401,6 +402,8 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
     return ListView(
       padding: const EdgeInsets.only(bottom: GxSpacing.xl),
       children: [
+        InviteLinksSection(group: widget.group),
+        const Divider(),
         Padding(
           padding: const EdgeInsets.all(GxSpacing.md),
           child: Column(

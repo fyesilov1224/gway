@@ -62,8 +62,14 @@ final _gateOnly = {
   ProfileRoutes.onboarding,
 };
 
+/// A page someone opened before the app was ready for them, e.g. an invite link before signing in
+/// (docs/ARCHITECTURE.md §3b, Paylaşım sayfaları). They land there once sign-in and onboarding are done.
+class PendingLink {
+  String? location;
+}
+
 /// Pure redirect rule, tested without a router.
-String? redirectFor(AppGate gate, Uri location) {
+String? redirectFor(AppGate gate, Uri location, [PendingLink? pending]) {
   final path = location.path;
   final target = _gateLocation(gate);
 
@@ -72,10 +78,12 @@ String? redirectFor(AppGate gate, Uri location) {
 
   if (gate == AppGate.ready) {
     if (!_gateOnly.contains(path)) return null;
-    // Return to the deep link the user opened before loading finished.
-    final from = location.queryParameters['from'];
+    // Return to the deep link the user opened before loading finished, or before signing in.
+    final from = location.queryParameters['from'] ?? pending?.location;
+    pending?.location = null;
     return from != null && !_gateOnly.contains(Uri.parse(from).path) ? from : FeedRoutes.home;
   }
+  if (!_gateOnly.contains(path) && path != FeedRoutes.home) pending?.location = location.toString();
   if (gate == AppGate.signedOut && IdentityRoutes.public.contains(path)) return null;
   if (path == target) return null;
   if (gate == AppGate.loading && !_gateOnly.contains(path)) {
@@ -86,13 +94,14 @@ String? redirectFor(AppGate gate, Uri location) {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final gate = ValueNotifier(ref.read(gateProvider));
+  final pending = PendingLink();
   ref
     ..listen(gateProvider, (_, next) => gate.value = next)
     ..onDispose(gate.dispose);
 
   final router = GoRouter(
     refreshListenable: gate,
-    redirect: (context, state) => redirectFor(gate.value, state.uri),
+    redirect: (context, state) => redirectFor(gate.value, state.uri, pending),
     // An unknown or outdated link: a friendly page instead of the router's raw error.
     errorBuilder: (context, _) => Scaffold(
       appBar: AppBar(),
@@ -164,6 +173,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               eventId: state.uri.queryParameters['event'],
             ),
           ),
+          GoRoute(path: '/i/:code', builder: (_, state) => InviteScreen(code: state.pathParameters['code']!)),
           GoRoute(
             path: '/e/:id',
             builder: (_, state) => EventScreen(eventId: state.pathParameters['id']!, links: eventLinks),

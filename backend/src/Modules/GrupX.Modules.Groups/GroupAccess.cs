@@ -27,6 +27,10 @@ internal static class GroupErrors
         "group.banned", "Bu gruptan uzaklaştırıldığın için şu anda katılamazsın.");
     public static readonly Error MemberLimitReached = Error.RuleViolation(
         "group.member_limit_reached", "Grup, paketinin üye limitine ulaştı. Yeni üye alınabilmesi için grup sahibinin paketini yükseltmesi gerekiyor.");
+    public static readonly Error InviteLinkInvalid = Error.RuleViolation(
+        "group.invite_link_invalid", "Bu davet bağlantısı artık geçerli değil. Grubun yöneticisinden yeni bir bağlantı isteyebilirsin.");
+    public static readonly Error InviteLinkLimitReached = Error.RuleViolation(
+        "group.invite_link_limit_reached", $"Bir grubun aynı anda en fazla {InviteLinkService.MaxValidLinks} geçerli bağlantısı olabilir. Önce birini iptal et.");
 }
 
 /// <summary>Transactions and permission checks shared by the group services.</summary>
@@ -55,6 +59,8 @@ internal sealed class GroupAccess(NpgsqlDataSource db)
             {
                 "member_limit_reached" => GroupErrors.MemberLimitReached,
                 "banned" => GroupErrors.Banned,
+                "invite_link_invalid" => GroupErrors.InviteLinkInvalid,
+                "invite_link_limit_reached" => GroupErrors.InviteLinkLimitReached,
                 _ => Error.RuleViolation($"group.{ex.MessageText}", "Bu işlem grup kurallarına uygun değil."),
             };
         }

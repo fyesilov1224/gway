@@ -30,7 +30,8 @@ public sealed record TransferOwnershipRequest(Guid UserId);
 public sealed record CaseThresholdRequest(string Threshold);
 
 /// <summary>Group lifecycle: creation, profile edits, deletion, ownership and platform suspension.</summary>
-internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage storage, ILogger<GroupService> logger) : IGroupAdministration
+internal sealed partial class GroupService(
+    GroupAccess access, ISupabaseStorage storage, InviteLinkService inviteLinks, ILogger<GroupService> logger) : IGroupAdministration
 {
     public const string ImageBucket = "group-images";
 
@@ -237,6 +238,9 @@ internal sealed partial class GroupService(GroupAccess access, ISupabaseStorage 
             return state;
         }, ct);
     }
+
+    public Task<Result> RevokeInviteLinkAsync(Guid actorId, Guid groupId, Guid linkId, CancellationToken ct) =>
+        inviteLinks.RevokeAsync(actorId, groupId, linkId, staff: true, ct);
 
     public async Task<IReadOnlyList<Guid>> SuspendOwnedAsync(Guid actorId, Guid ownerId, string reason, CancellationToken ct)
     {

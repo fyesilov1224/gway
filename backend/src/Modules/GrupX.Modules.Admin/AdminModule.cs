@@ -227,6 +227,11 @@ public static class AdminModule
                 (await admin.UnsuspendAsync(user.GetUserId(), id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        groups.MapPost("/{id:guid}/invite-links/{linkId:guid}/revocation", async (
+                Guid id, Guid linkId, ClaimsPrincipal user, IGroupAdministration admin, CancellationToken ct) =>
+                (await admin.RevokeInviteLinkAsync(user.GetUserId(), id, linkId, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
         // The group's plan (docs/ARCHITECTURE.md §7, Yönetici işlemleri).
         groups.MapPost("/{id:guid}/plan", async (
                 Guid id, GrantGroupPlanRequest body, ClaimsPrincipal user, IBillingAdministration billingAdmin, CancellationToken ct) =>

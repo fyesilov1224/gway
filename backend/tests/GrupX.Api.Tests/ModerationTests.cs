@@ -280,7 +280,8 @@ public sealed class ModerationTests(ApiFactory factory) : IClassFixture<ApiFacto
         var outcome = (await decided.Content.ReadFromJsonAsync<AdminReferralOutcome>(Ct))!;
         Assert.True(outcome.Banned);
         Assert.Null(outcome.Until);
-        Assert.Equal(2, outcome.CanceledPlans);
+        // The two bought plans and the welcome trial of the first group.
+        Assert.Equal(3, outcome.CanceledPlans);
         Assert.Equal([owned], outcome.SuspendedGroups);
         Assert.Equal(HttpStatusCode.Conflict, (await factory.ClientFor(admin).PostAsJsonAsync(url, decision, Ct)).StatusCode);
 

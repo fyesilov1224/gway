@@ -47,6 +47,14 @@ final groupInvitationsProvider = FutureProvider.autoDispose.family<List<GroupPer
   (ref, groupId) async => (await ref.watch(groupsRepositoryProvider).invitations(groupId)).getOrThrow(),
 );
 
+final inviteLinksProvider = FutureProvider.autoDispose.family<List<InviteLink>, String>(
+  (ref, groupId) async => (await ref.watch(groupsRepositoryProvider).inviteLinks(groupId)).getOrThrow(),
+);
+
+final invitePreviewProvider = FutureProvider.autoDispose.family<InvitePreview?, String>(
+  (ref, code) async => (await ref.watch(groupsRepositoryProvider).invitePreview(code)).getOrThrow(),
+);
+
 final myInvitationsProvider = FutureProvider.autoDispose<List<GroupInvitation>>((ref) async {
   ref.watch(currentUserIdProvider);
   return (await ref.watch(groupsRepositoryProvider).myInvitations()).getOrThrow();

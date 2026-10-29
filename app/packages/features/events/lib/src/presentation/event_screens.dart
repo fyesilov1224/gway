@@ -446,11 +446,11 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         title: Text(e.group.name),
         actions: [
           IconButton(
-            tooltip: 'Bağlantıyı kopyala',
-            icon: const Icon(Icons.link),
+            tooltip: 'Paylaş',
+            icon: const Icon(Icons.share_outlined),
             onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: '${Uri.base.origin}/#${EventRoutes.event(e.id)}'));
-              if (mounted) _snack(context, 'Organizasyon bağlantısı kopyalandı.');
+              final shared = await shareLink(ref.read(shareLinksProvider).event(e.id), text: '${e.title} · GrupX\'te katıl:');
+              if (!shared && mounted) _snack(context, 'Organizasyon bağlantısı kopyalandı.');
             },
           ),
           if (!d.canManage && ref.watch(currentUserIdProvider) != null)
