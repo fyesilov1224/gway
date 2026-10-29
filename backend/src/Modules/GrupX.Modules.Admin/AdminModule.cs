@@ -395,6 +395,10 @@ public static class AdminModule
                 (await events.CancelAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        content.MapPost("/event-series/{id:guid}/stop", async (Guid id, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
+                (await events.StopSeriesAsync(user.GetUserId(), id, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
         content.MapDelete("/events/{id:guid}/meeting-point", async (Guid id, ClaimsPrincipal user, IEventsAdministration events, CancellationToken ct) =>
                 (await events.RemoveMeetingPointAsync(user.GetUserId(), id, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));

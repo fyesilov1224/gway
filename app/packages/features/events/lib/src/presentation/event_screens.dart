@@ -349,6 +349,23 @@ class _EventScreenState extends ConsumerState<EventScreen> {
     if (!opened && mounted) _snack(context, 'Takvim dosyası açılamadı. Tekrar dene.');
   }
 
+  Future<void> _stopSeries(GroupEvent e) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        title: const Text('Tekrar durdurulsun mu?'),
+        content: const Text('Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.'),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GxButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await _run((r) => r.stopSeries(e.series!.id), done: 'Tekrar durduruldu.');
+  }
+
   Future<void> _cancel(GroupEvent e) async {
     final text = await showDialog<String>(context: context, builder: (_) => const _CancelDialog());
     if (text == null) return;
@@ -462,10 +479,15 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           if (d.canManage && open)
             PopupMenuButton<String>(
               tooltip: 'Organizasyon seçenekleri',
-              onSelected: (a) => a == 'edit' ? context.push(EventRoutes.edit(e.id)) : _cancel(e),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'edit', child: Text('Düzenle')),
-                PopupMenuItem(value: 'cancel', child: Text('İptal et')),
+              onSelected: (a) => switch (a) {
+                'edit' => context.push(EventRoutes.edit(e.id)),
+                'stop' => _stopSeries(e),
+                _ => _cancel(e),
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(value: 'edit', child: Text('Düzenle')),
+                const PopupMenuItem(value: 'cancel', child: Text('Bu tarihi iptal et')),
+                if (e.series?.active ?? false) const PopupMenuItem(value: 'stop', child: Text('Tekrarı durdur')),
               ],
             ),
         ],
@@ -519,6 +541,11 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                       Icons.schedule,
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(eventWhen(e), style: textTheme.bodyLarge),
+                        if (e.series case EventSeries(active: true) && final series)
+                          Text(
+                            series.until == null ? series.label : '${series.label} · ${formatDateTr(series.until!)} tarihine kadar',
+                            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                          ),
                         if (!e.isCanceled && open)
                           TextButton.icon(
                             style: TextButton.styleFrom(padding: EdgeInsets.zero),
@@ -804,6 +831,8 @@ class _EditorState extends ConsumerState<_Editor> {
   late final _requirements = TextEditingController(text: widget.event?.requirements);
   late final _equipment = TextEditingController(text: widget.event?.equipment.join(', '));
   late bool _approval = widget.event?.approvalRequired ?? false;
+  int? _repeatWeeks;
+  DateTime? _repeatUntil;
   late LatLng? _meeting = widget.event?.meeting;
   late String _currency = widget.event?.fee?.currency ?? 'TRY';
   late DateTime _startsAt = widget.event?.startsAt.toLocal() ?? _nextMorning();
@@ -879,6 +908,7 @@ class _EditorState extends ConsumerState<_Editor> {
       equipment: equipmentItems(_equipment.text),
       approvalRequired: _approval,
       meeting: _meeting,
+      repeat: _repeatWeeks == null ? null : EventRepeat(weeks: _repeatWeeks!, until: _repeatUntil),
     );
     setState(() {
       _busy = true;
@@ -973,6 +1003,44 @@ class _EditorState extends ConsumerState<_Editor> {
                   if (at != null) setState(() => _endsAt = at);
                 },
               ),
+              if (widget.event == null) ...[
+                const SizedBox(height: GxSpacing.xs),
+                Text('Tekrar', style: textTheme.titleSmall),
+                const SizedBox(height: GxSpacing.xs),
+                Wrap(
+                  spacing: GxSpacing.xs,
+                  runSpacing: GxSpacing.xs,
+                  children: [
+                    for (final (weeks, label) in const [(null, 'Tekrar yok'), (1, 'Her hafta'), (2, 'İki haftada bir')])
+                      ChoiceChip(label: Text(label), selected: _repeatWeeks == weeks, onSelected: (_) => setState(() => _repeatWeeks = weeks)),
+                  ],
+                ),
+                if (_repeatWeeks != null) ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.event_repeat_outlined),
+                    title: const Text('Son tarih (isteğe bağlı)'),
+                    subtitle: Text(_repeatUntil == null ? 'Sen durdurana kadar' : formatDateTr(_repeatUntil!)),
+                    trailing: _repeatUntil == null
+                        ? const Icon(Icons.add)
+                        : IconButton(tooltip: 'Son tarihi kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _repeatUntil = null)),
+                    onTap: () async {
+                      final now = DateTime.now();
+                      final day = await showDatePicker(
+                        context: context,
+                        initialDate: _repeatUntil ?? _startsAt.add(const Duration(days: 56)),
+                        firstDate: _startsAt.add(const Duration(days: 1)),
+                        lastDate: now.add(const Duration(days: 365)),
+                      );
+                      if (day != null) setState(() => _repeatUntil = day);
+                    },
+                  ),
+                  Text(
+                    'Sonraki tarihler 4 hafta önceden kendiliğinden açılır ve her biri aylık organizasyon hakkından düşer.',
+                    style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  ),
+                ],
+              ],
               const SizedBox(height: GxSpacing.xs),
               TextFormField(
                 controller: _location,

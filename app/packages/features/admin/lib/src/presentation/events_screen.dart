@@ -88,9 +88,31 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
     if (confirmed != true || !mounted) return;
     final result = await ref.read(adminEventsRepositoryProvider).removeMeetingPoint(e.id);
     if (!mounted) return;
+    _show(result, 'Buluşma noktası kaldırıldı.');
+  }
+
+  Future<void> _stopSeries(AdminEvent e) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tekrarı durdur'),
+        content: Text('"${e.title}" için yeni tarih açılmaz; açılmış tarihler kalır. İşlem kayda geçer.'),
+        actions: [
+          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GxButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final result = await ref.read(adminEventsRepositoryProvider).stopSeries(e.seriesId!);
+    if (!mounted) return;
+    _show(result, 'Tekrar durduruldu.');
+  }
+
+  void _show(Result<void> result, String done) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() => 'Buluşma noktası kaldırıldı.',
+        Ok() => done,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -160,6 +182,7 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
                           event: e,
                           onCancel: canCancel && !e.isCanceled && e.startsAt.isAfter(DateTime.now()) ? () => _cancel(e) : null,
                           onRemovePoint: canCancel && e.meetingLat != null ? () => _removePoint(e) : null,
+                          onStopSeries: canCancel && e.seriesActive ? () => _stopSeries(e) : null,
                         ),
                         const Divider(),
                       ],
@@ -196,11 +219,12 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
 }
 
 class _EventRow extends StatelessWidget {
-  const _EventRow({required this.event, required this.onCancel, required this.onRemovePoint});
+  const _EventRow({required this.event, required this.onCancel, required this.onRemovePoint, required this.onStopSeries});
 
   final AdminEvent event;
   final VoidCallback? onCancel;
   final VoidCallback? onRemovePoint;
+  final VoidCallback? onStopSeries;
 
   @override
   Widget build(BuildContext context) {
@@ -217,6 +241,7 @@ class _EventRow extends StatelessWidget {
       if (e.ratingAvg case final avg?) '${avg.toStringAsFixed(1).replaceAll('.', ',')} ★ (${formatCount(e.ratingCount)})',
       if (e.postsCount > 0) '${formatCount(e.postsCount)} anı',
       if (e.meetingLabel case final point?) 'Buluşma noktası: $point',
+      if (e.seriesLabel case final series?) 'Tekrar: $series',
       if (e.cancelReason != null) 'İptal: ${e.cancelReason}',
     ].join(' · ');
     return InkWell(
@@ -238,6 +263,8 @@ class _EventRow extends StatelessWidget {
             if (e.isCanceled) ...[const SizedBox(width: GxSpacing.sm), const GxBadge('İptal edildi', dot: true, tone: GxBadgeTone.danger)],
             if (onRemovePoint != null)
               IconButton(tooltip: 'Buluşma noktasını kaldır', icon: const Icon(Icons.wrong_location_outlined), onPressed: onRemovePoint),
+            if (onStopSeries != null)
+              IconButton(tooltip: 'Tekrarı durdur', icon: const Icon(Icons.event_repeat_outlined), onPressed: onStopSeries),
             if (onCancel != null) ...[
               const SizedBox(width: GxSpacing.sm),
               GxButton(label: 'İptal et', icon: Icons.event_busy_outlined, variant: GxButtonVariant.secondary, onPressed: onCancel),

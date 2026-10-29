@@ -66,6 +66,14 @@ class _FakeEvents implements EventsRepository {
     return const Ok(null);
   }
 
+  final stopped = <String>[];
+
+  @override
+  Future<Result<void>> stopSeries(String seriesId) async {
+    stopped.add(seriesId);
+    return const Ok(null);
+  }
+
   @override
   Future<Result<void>> leave(String id) async {
     left.add(id);
@@ -191,6 +199,57 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Bu tarihte ilinde aynı kategoride 2 organizasyon daha var.'), findsOneWidget);
+  });
+
+  group('Tekrarlayan organizasyon', () {
+    test('a repeat goes with a new event, its last day as a date', () {
+      final form = EventForm(
+        title: 'Salı koşusu',
+        startsAt: DateTime(2026, 11, 3, 19),
+        location: 'Moda',
+        repeat: EventRepeat(weeks: 2, until: DateTime(2026, 12, 29)),
+      );
+      expect(form.toJson()['repeat'], {'weeks': 2, 'until': '2026-12-29'});
+      expect(EventForm(title: 'Tek', startsAt: DateTime(2026, 11, 3), location: 'Moda').toJson()['repeat'], isNull);
+    });
+
+    testWidgets('a new event can repeat; the last day is optional', (tester) async {
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          eventsRepositoryProvider.overrideWithValue(_FakeEvents()),
+          currentUserIdProvider.overrideWithValue('u1'),
+          groupEventsProvider.overrideWith((ref, id) async => const GroupEvents(eventsLeft: 3)),
+          similarEventsProvider.overrideWith((ref, key) async => null),
+        ],
+        child: MaterialApp(theme: GxTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Son tarih (isteğe bağlı)'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Her hafta'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Her hafta'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Sen durdurana kadar'), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Sen durdurana kadar'), findsOneWidget);
+      expect(find.textContaining('aylık organizasyon hakkından düşer'), findsOneWidget);
+    });
+
+    testWidgets('a repeating date says so and managers can stop the repeat', (tester) async {
+      final e = GroupEvent(
+        id: 'e1', group: _group, title: 'Salı koşusu', startsAt: DateTime.now().add(const Duration(days: 3)), location: 'Moda',
+        series: const EventSeries(id: 's1', weeks: 1, active: true),
+      );
+      final fake = await _pump(tester, EventScreen(eventId: 'e1', links: _links), detail: EventDetail(event: e, isMember: true, canManage: true));
+
+      expect(find.text('Her hafta tekrarlanır'), findsOneWidget);
+      await tester.tap(find.byTooltip('Organizasyon seçenekleri'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Tekrarı durdur'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(GxButton, 'Durdur'));
+      await tester.pumpAndSettle();
+      expect(fake.stopped, ['s1']);
+    });
   });
 
   group('Karşılama', () {

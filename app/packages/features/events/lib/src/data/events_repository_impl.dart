@@ -89,6 +89,11 @@ class EventsRepositoryImpl implements EventsRepository {
         {'lat': final num lat, 'lng': final num lng} => LatLng(lat.toDouble(), lng.toDouble()),
         _ => null,
       },
+      series: switch (r['series']) {
+        {'id': final String id, 'weeks': final num weeks, 'active': final bool active} =>
+          EventSeries(id: id, weeks: weeks.toInt(), active: active, until: _time((r['series'] as Map)['until'])),
+        _ => null,
+      },
     );
   }
 
@@ -178,6 +183,9 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<void>> cancel(String id, {required String reason}) =>
       _api.post('/events/$id/cancellation', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> stopSeries(String seriesId) => _api.delete('/event-series/$seriesId', decode: (_) {});
 
   @override
   Future<Result<AttendanceResult>> attend(String id) => _api.post(

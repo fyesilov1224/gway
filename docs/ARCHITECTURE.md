@@ -510,6 +510,14 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Takvime ekle:** `GET /events/{id}/calendar.ics` organizasyonu iCalendar dosyası olarak verir (başlık, zaman, yer, açıklama, sayfa bağlantısı). Oturum gerekmez; organizasyon kimin göreceğine açıksa dosyası da açıktır. Bitişi olmayan organizasyon 2 saat sürer sayılır. İptal edilen organizasyonun dosyası `STATUS:CANCELLED` taşır. Ek paket gerekmez: telefon dosyayı takvim uygulamasına verir.
 - **Görünürlük:** Grup görünürse organizasyon sayfası herkese (oturum açmamış ziyaretçi dahil) açıktır. Katılanların listesini grubun üyeleri görür; diğerleri yalnızca sayıyı görür.
 
+### Tekrarlayan organizasyon (kullanıcı kararı, 2026-10-29, Faz 18k)
+- Organizasyon oluşturulurken **tekrar** seçilebilir: her hafta ya da iki haftada bir, isteğe bağlı bitiş tarihiyle (en fazla 1 yıl). Seri `event_series`'te tutulur (grup, oluşturan, aralık, bitiş, durdurulma); her tarih ayrı bir `events` satırıdır (`series_id`) ve kendi katılımcıları, bekleme listesi, anketleri ve değerlendirmesi olur.
+- **Açılma:** Seri her zaman önümüzdeki **4 haftayı** açık tutar. Bir sonraki tarih, serinin en son tarihinin bir kopyasıdır (başlık, açıklama, yer, kapasite, ücret, kapak, koşullar, ekipman, onaylı katılım, buluşma noktası); başlangıç ve bitiş Türkiye saatiyle aralık kadar ileri kayar. Bu yüzden son tarihi düzenlemek sonraki tarihleri de değiştirir. Açma işini `EventReminderService` (`private.extend_event_series`) yapar; seri oluşturulunca ilk 4 hafta hemen açılır.
+- **Limit:** Seriden açılan her tarih, açıldığı ayın organizasyon limitine sayılır (kural aynıdır: o ay oluşturulan organizasyonlar). Limit doluysa tarih açılmaz, serinin sahibine bir kez `event_series_limit` bildirimi gider ve tarih, limit açılınca (yeni ay ya da üst paket) açılır.
+- **Durma:** `events.manage` yetkilisi seriyi durdurur (açılmış tarihler kalır, istenirse tek tek iptal edilir); platform ekibi (admin, moderatör) de durdurabilir. Bitiş tarihi geçince ya da serinin sahibi `events.manage` yetkisini kaybedince seri kendiliğinden durur. Askıdaki grubun serisi beklemeye alınır, durmaz.
+- **Tek tarih:** İptal ve düzenleme her tarih için ayrıdır (§3d Organizasyon).
+- **Audit log:** `event_series.created`, `event_series.stopped`. Seriden açılan tarihler `event.created` yazmaz (sistem açar).
+
 ### Katılım ve bekleme listesi
 `event_attendees`: organizasyon, kullanıcı, durum (`requested` / `going` / `waitlisted`), zaman.
 
@@ -536,7 +544,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - Anket kapanınca oy verilemez, sonuçlar kalır.
 
 ### Bildirimler
-`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review` (bildirim kaydında `event_id`), `goal_completed` (Faz 12, bildirim kaydında `goal_id`), `teammate_request`, `teammate_accepted` (Faz 13). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
+`event_promoted`, `event_updated`, `event_canceled`, `event_reminder`, `event_approved`, `event_declined`, `event_review`, `event_series_limit` (Faz 18k; bildirim kaydında `event_id`), `goal_completed` (Faz 12, bildirim kaydında `goal_id`), `teammate_request`, `teammate_accepted` (Faz 13). Organizasyon oluşturulduğunda toplu bildirim gönderilmez; organizasyon grup sayfasında ve grubu takip edenlerin ilgisine görünür.
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".
@@ -684,7 +692,8 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 ### C# uç noktaları
 | Uç nokta | Açıklama |
 |---|---|
-| `POST /groups/{id}/events` | Organizasyon oluşturma (`events.manage`, aylık limit) |
+| `POST /groups/{id}/events` | Organizasyon oluşturma (`events.manage`, aylık limit); isteğe bağlı `repeat: {weeks: 1 \| 2, until?}` seriyi başlatır (Faz 18k) |
+| `DELETE /event-series/{id}` | Seriyi durdurma (`events.manage`); açılmış tarihler kalır |
 | `PUT /events/{id}` | Düzenleme (`events.manage`); formun tamamı gönderilir (buluşma noktası `meeting: {lat, lng}` ya da boş) |
 | `POST /events/{id}/cancellation` | İptal (`reason`, `events.manage`) |
 | `POST /events/{id}/attendance` | Katılma; yanıt `going`, `waitlisted` (ve sıra) ya da onaylı katılımda `requested` |
@@ -703,6 +712,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `GET /admin/events?q=&status=&page=` | Organizasyonlar (`upcoming` / `past` / `canceled`). Rol: `admin`, `moderator`, `support` |
 | `POST /admin/events/{id}/cancellation` | Platform ekibinin iptali (`reason`). Rol: `admin`, `moderator` |
 | `DELETE /admin/events/{id}/meeting-point` | Buluşma noktasını kaldırma (Faz 14). Rol: `admin`, `moderator` |
+| `POST /admin/event-series/{id}/stop` | Tekrarlayan seriyi durdurma (Faz 18k). Rol: `admin`, `moderator` |
 | `GET /map/tiles/{z}/{x}/{y}.png` | Harita döşemesi (oturum gerekir; Faz 14) |
 
 ## 3e. Moderasyon ve Disiplin Kurulu (Faz 6)

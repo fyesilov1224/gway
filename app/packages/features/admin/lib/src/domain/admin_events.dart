@@ -34,6 +34,9 @@ class AdminEvent {
     this.postsCount = 0,
     this.meetingLat,
     this.meetingLng,
+    this.seriesId,
+    this.seriesWeeks,
+    this.seriesActive = false,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -56,6 +59,9 @@ class AdminEvent {
         postsCount: j['postsCount'] as int? ?? 0,
         meetingLat: (j['meetingLat'] as num?)?.toDouble(),
         meetingLng: (j['meetingLng'] as num?)?.toDouble(),
+        seriesId: j['seriesId'] as String?,
+        seriesWeeks: j['seriesWeeks'] as int?,
+        seriesActive: j['seriesActive'] == true,
       );
 
   final String id;
@@ -84,7 +90,16 @@ class AdminEvent {
   final double? meetingLat;
   final double? meetingLng;
 
+  /// The repeat the date belongs to (Faz 18k); staff may stop a running one.
+  final String? seriesId;
+  final int? seriesWeeks;
+  final bool seriesActive;
+
   bool get isCanceled => canceledAt != null;
+
+  String? get seriesLabel => seriesWeeks == null
+      ? null
+      : '${seriesWeeks == 1 ? 'Her hafta' : 'İki haftada bir'}${seriesActive ? '' : ' (durduruldu)'}';
 
   String? get meetingLabel =>
       meetingLat == null ? null : '${meetingLat!.toStringAsFixed(5)}, ${meetingLng!.toStringAsFixed(5)}';
@@ -309,6 +324,8 @@ abstract interface class AdminEventsRepository {
   Future<Result<void>> cancel(String id, {required String reason});
 
   Future<Result<void>> removeMeetingPoint(String id);
+
+  Future<Result<void>> stopSeries(String seriesId);
 
   Future<Result<AdminGoalPage>> goals({AdminGoalStatus? status, int page = 1});
 

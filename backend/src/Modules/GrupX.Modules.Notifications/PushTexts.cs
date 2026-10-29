@@ -43,6 +43,7 @@ internal static class PushTexts
     {
         "sanction_applied" or "appeal_decided" or "league_result" => n.GroupName ?? "",
         "match_created" => "Yeni bir eşleşmen var!",
+        "event_series_limit" => "Tekrarlayan organizasyon",
         _ => n.ActorUsername,
     };
 
@@ -90,6 +91,7 @@ internal static class PushTexts
         "welcome_withdrawn" => $"\"{n.EventTitle}\" için karşılama isteğini geri çekti.",
         "league_result" => "geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.",
         "welcome_thanked" => $"\"{n.EventTitle}\" organizasyonunda onu karşıladığın için teşekkür etti.",
+        "event_series_limit" => $"\"{n.EventTitle}\" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.",
         _ => "yeni bir bildirim gönderdi.",
     };
 

@@ -32,7 +32,8 @@ enum NotificationType {
   welcomeReleased('welcome_released'),
   welcomeWithdrawn('welcome_withdrawn'),
   welcomeThanked('welcome_thanked'),
-  leagueResult('league_result');
+  leagueResult('league_result'),
+  eventSeriesLimit('event_series_limit');
 
   const NotificationType(this.code);
 
@@ -189,12 +190,14 @@ class AppNotification {
         NotificationType.welcomeWithdrawn => '"${eventTitle ?? ''}" için karşılama isteğini geri çekti.',
         NotificationType.leagueResult => 'geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.',
         NotificationType.welcomeThanked => '"${eventTitle ?? ''}" organizasyonunda onu karşıladığın için teşekkür etti.',
+        NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
       };
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.
   String get lead => switch (type) {
         _ when type.fromGroup || type == NotificationType.leagueResult => group?.name ?? '',
         NotificationType.matchCreated => 'Yeni bir eşleşmen var!',
+        NotificationType.eventSeriesLimit => 'Tekrarlayan organizasyon',
         _ => actor.username,
       };
 

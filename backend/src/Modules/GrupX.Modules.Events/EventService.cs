@@ -34,7 +34,11 @@ public sealed record EventRequest(
     string? Requirements = null,
     IReadOnlyList<string>? Equipment = null,
     bool ApprovalRequired = false,
-    MeetingPoint? Meeting = null);
+    MeetingPoint? Meeting = null,
+    RepeatRequest? Repeat = null);
+
+/// <summary>Makes a new event repeat (docs/ARCHITECTURE.md §3d, Tekrarlayan organizasyon); ignored on edits.</summary>
+public sealed record RepeatRequest(int Weeks, DateOnly? Until);
 
 /// <summary>Where people meet, picked on the map (docs/ARCHITECTURE.md §3d, Harita ile keşif).</summary>
 public sealed record MeetingPoint(double Lat, double Lng);
@@ -69,6 +73,9 @@ public static class EventsModule
     {
         app.MapPost("/groups/{id:guid}/events", async (Guid id, EventRequest body, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.CreateAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
+
+        app.MapDelete("/event-series/{id:guid}", async (Guid id, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
+            (await events.StopSeriesAsync(user.GetUserId(), id, staff: false, ct)).ToHttpResult());
 
         app.MapPut("/events/{id:guid}", async (Guid id, EventRequest body, ClaimsPrincipal user, EventService events, CancellationToken ct) =>
             (await events.UpdateAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
@@ -163,6 +170,8 @@ internal sealed partial class EventService(
         "equipment_invalid" => Invalid("Ekipman en fazla 10 madde olabilir; her madde 1–60 karakter olmalı."),
         "roll_closed" => Error.RuleViolation("event.roll_closed", "Yoklama, organizasyon bittikten sonraki 7 gün içinde yapılabilir."),
         "event_forbidden" or "poll_forbidden" => Forbidden,
+        "event_series_stopped" => Error.Conflict("event.series_stopped", "Bu tekrar zaten durdurulmuş."),
+        "repeat_invalid" => Invalid("Tekrar her hafta ya da iki haftada bir olabilir; bitiş tarihi ilk tarihten sonra ve en fazla 1 yıl içinde olmalı."),
         _ => Error.RuleViolation($"event.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
 
@@ -248,6 +257,7 @@ internal sealed partial class EventService(
         ArgumentNullException.ThrowIfNull(request);
         var fields = Validate(request, groupId, checkStart: true);
         if (!fields.IsSuccess) return fields.Error;
+        if (request.Repeat is { } repeat && !RepeatIsValid(repeat, request.StartsAt)) return RuleError("repeat_invalid");
 
         return await ActingTransaction.RunAsync<CreatedEvent>(db, actor, async (conn, tx) =>
         {
@@ -264,16 +274,31 @@ internal sealed partial class EventService(
                 """, ct, ("g", groupId)))!;
             if (thisMonth >= limits.MonthlyEvents) return RuleError("monthly_limit_reached");
 
+            Guid? series = null;
+            if (request.Repeat is { } r)
+            {
+                series = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
+                    "insert into public.event_series (group_id, created_by, interval_weeks, until) values (@g, @actor, @weeks, @until) returning id",
+                    ct, ("g", groupId), ("actor", actor), ("weeks", (short)r.Weeks), ("until", r.Until)))!;
+            }
+
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
                 insert into public.events (group_id, created_by, title, description, starts_at, ends_at, location, link_url, capacity,
                                            fee_amount, fee_currency, fee_note, cover_path, requirements, equipment, approval_required,
-                                           meeting_lat, meeting_lng)
+                                           meeting_lat, meeting_lng, series_id)
                 values (@g, @actor, @title, @description, @starts, @ends, @location, @link, @capacity, @fee, @currency, @note, @cover,
-                        @requirements, @equipment, @approval, @lat, @lng)
+                        @requirements, @equipment, @approval, @lat, @lng, @series)
                 returning id
-                """, ct, [("g", groupId), ("actor", actor), .. Parameters(fields.Value)]))!;
+                """, ct, [("g", groupId), ("actor", actor), ("series", series), .. Parameters(fields.Value)]))!;
             await AuditAsync(conn, tx, actor, "event.created", "event", id, groupId, new { fields.Value.Title, fields.Value.StartsAt }, ct);
+            if (series is { } s)
+            {
+                await AuditAsync(conn, tx, actor, "event_series.created", "event_series", s, groupId,
+                    new { weeks = request.Repeat!.Weeks, until = request.Repeat.Until }, ct);
+                // The next weeks open right away, within the same monthly limit.
+                await ActingTransaction.ScalarAsync(conn, tx, "select private.extend_event_series(@s)", ct, ("s", s));
+            }
             return new CreatedEvent(id);
         }, RuleError, ct);
     }
@@ -322,6 +347,44 @@ internal sealed partial class EventService(
             LogCoverCleanupFailed(log, ex, path);
         }
     }
+
+    /// <summary>Whole weeks only; the end date falls after the first date and within a year (Turkey time).</summary>
+    private bool RepeatIsValid(RepeatRequest repeat, DateTimeOffset startsAt)
+    {
+        if (repeat.Weeks is not (1 or 2)) return false;
+        if (repeat.Until is not { } until) return true;
+        var first = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(startsAt, Istanbul).DateTime);
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(time.GetUtcNow(), Istanbul).DateTime);
+        return until > first && until <= today.AddDays(366);
+    }
+
+    private static readonly TimeZoneInfo Istanbul = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+
+    /// <summary>Stops a series; the dates already open stay (<paramref name="staff"/>: platform staff, role checked by the caller).</summary>
+    public Task<Result> StopSeriesAsync(Guid actor, Guid seriesId, bool staff, CancellationToken ct) =>
+        ActingTransaction.RunAsync(db, actor, async (conn, tx) =>
+        {
+            Guid groupId;
+            bool stopped;
+            await using (var cmd = new NpgsqlCommand(
+                "select group_id, stopped_at is not null from public.event_series where id = @id for update", conn, tx))
+            {
+                cmd.Parameters.AddWithValue("id", seriesId);
+                await using var r = await cmd.ExecuteReaderAsync(ct);
+                if (!await r.ReadAsync(ct)) return Error.NotFound("event.series_not_found", "Tekrar bulunamadı.");
+                (groupId, stopped) = (r.GetGuid(0), r.GetBoolean(1));
+            }
+            if (!staff && !await CanManageAsync(conn, tx, actor, groupId, ct)) return Forbidden;
+            if (stopped) return RuleError("event_series_stopped");
+
+            await ActingTransaction.ExecuteAsync(conn, tx,
+                "update public.event_series set stopped_at = now(), stopped_by = @actor where id = @id", ct, ("id", seriesId), ("actor", actor));
+            await AuditAsync(conn, tx, actor, "event_series.stopped", "event_series", seriesId, groupId, null, ct,
+                staff ? AuditActor.Staff : AuditActor.User);
+            return Result.Success();
+        }, RuleError, ct);
+
+    public Task<Result> StopSeriesAsync(Guid actorId, Guid seriesId, CancellationToken ct) => StopSeriesAsync(actorId, seriesId, staff: true, ct);
 
     public Task<Result> CancelByManagerAsync(Guid actor, Guid id, string reason, CancellationToken ct) =>
         CancelCoreAsync(actor, id, reason, staff: false, ct);
@@ -547,7 +610,7 @@ internal sealed partial class EventService(
     public async Task<int> SendRemindersAsync(CancellationToken ct)
     {
         await using var cmd = db.CreateCommand(
-            "select private.send_event_reminders() + private.send_review_requests() + private.record_goal_completions()");
+            "select private.send_event_reminders() + private.send_review_requests() + private.record_goal_completions() + private.extend_event_series()");
         return (int)(await cmd.ExecuteScalarAsync(ct))!;
     }
 

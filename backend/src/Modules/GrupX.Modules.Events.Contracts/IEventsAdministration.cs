@@ -8,6 +8,9 @@ public interface IEventsAdministration
     /// <summary>Cancels the event for everyone; attendees are notified.</summary>
     Task<Result> CancelAsync(Guid actorId, Guid eventId, string reason, CancellationToken ct);
 
+    /// <summary>Stops a recurring series (docs/ARCHITECTURE.md §3d, Tekrarlayan organizasyon); open dates stay.</summary>
+    Task<Result> StopSeriesAsync(Guid actorId, Guid seriesId, CancellationToken ct);
+
     /// <summary>Cancels an inappropriate goal of a group (docs/ARCHITECTURE.md §3d, Hedefler).</summary>
     Task<Result> CancelGoalAsync(Guid actorId, Guid goalId, CancellationToken ct);
 

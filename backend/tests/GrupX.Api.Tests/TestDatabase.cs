@@ -88,6 +88,7 @@ public sealed class TestDatabase : IAsyncLifetime
             delete from public.goals where group_id in (select id from doomed);
             update public.posts set event_id = null where event_id in (select id from public.events where group_id in (select id from doomed));
             delete from public.events where group_id in (select id from doomed);
+            delete from public.event_series where group_id in (select id from doomed);
             delete from public.comment_likes where comment_id in (select id from public.comments where post_id in (select id from doomed_posts));
             delete from public.comments where post_id in (select id from doomed_posts);
             delete from public.post_likes where post_id in (select id from doomed_posts);

@@ -378,7 +378,12 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [ ] Bulut: `0050` (hoş geldin denemesi) ve `0051` migration'ları, Caddy `/s/*` yönlendirmesi ve `SHARE_URL` ile web derlemesi — kullanıcı onayıyla
 - [ ] Alan adı belli olunca Android App Links / iOS Universal Links
 
-### 18k — Tekrarlayan organizasyon (her tarih kendi ayının limitine sayılır, 4 hafta ileri açılır)
+### 18k — Tekrarlayan organizasyon (her tarih açıldığı ayın limitine sayılır, 4 hafta ileri açılır; `docs/ARCHITECTURE.md` §3d)
+- [x] Her hafta / iki haftada bir, bitiş tarihi; 4 hafta ileri otomatik açılma, limit dolunca bildirim
+- [x] Seriyi durdurma, tek tarihi iptal; organizasyon sayfasında tekrar bilgisi
+- [x] Yönetim paneli: organizasyon listesinde tekrar bilgisi ve seriyi durdurma
+- [x] pgTAP (987/987), C# (220/220) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
+- [ ] Bulut: `0052` migration'ı — kullanıcı onayıyla
 ### 18l — "Geliyor musun?" teyidi (1 gün önce; yanıtsız kalan çıkarılmaz, işaretlenir)
 ### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)

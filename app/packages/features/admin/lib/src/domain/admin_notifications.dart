@@ -81,6 +81,7 @@ String notificationTypeLabel(String type) => switch (type) {
       'goal_completed' => 'Hedef tamamlandı',
       'teammate_request' => 'Ekip arkadaşlığı isteği',
       'teammate_accepted' => 'Ekip arkadaşlığı kabulü',
+      'event_series_limit' => 'Tekrar limiti',
       _ => type,
     };
 

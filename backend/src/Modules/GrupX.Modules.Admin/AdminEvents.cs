@@ -22,7 +22,10 @@ public sealed record AdminEvent(
     int RatingCount,
     int PostsCount,
     double? MeetingLat = null,
-    double? MeetingLng = null);
+    double? MeetingLng = null,
+    Guid? SeriesId = null,
+    int? SeriesWeeks = null,
+    bool SeriesActive = false);
 
 /// <summary>Read side of the admin events page (docs/ARCHITECTURE.md §3d).</summary>
 internal sealed class AdminEvents(NpgsqlDataSource db)
@@ -61,8 +64,9 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                    (select round(avg(r.rating), 1)::float8 from public.event_reviews r where r.event_id = e.id),
                    (select count(*)::int from public.event_reviews r where r.event_id = e.id),
                    (select count(*)::int from public.posts p where p.event_id = e.id and p.removed_at is null),
-                   e.meeting_lat, e.meeting_lng
+                   e.meeting_lat, e.meeting_lng, e.series_id, s.interval_weeks, coalesce(s.stopped_at is null, false)
             from public.events e join public.groups g on g.id = e.group_id
+            left join public.event_series s on s.id = e.series_id
             {where}
             order by e.starts_at {(status == "upcoming" ? "asc" : "desc")}, e.id
             limit {PageSize} offset @offset
@@ -79,7 +83,8 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                     r.IsDBNull(10) ? null : r.GetFieldValue<DateTimeOffset>(10), r.IsDBNull(11) ? null : r.GetString(11),
                     r.GetFieldValue<DateTimeOffset>(12), r.GetBoolean(13), r.GetInt32(14),
                     r.IsDBNull(15) ? null : r.GetDouble(15), r.GetInt32(16), r.GetInt32(17),
-                    r.IsDBNull(18) ? null : r.GetDouble(18), r.IsDBNull(19) ? null : r.GetDouble(19)));
+                    r.IsDBNull(18) ? null : r.GetDouble(18), r.IsDBNull(19) ? null : r.GetDouble(19),
+                    r.IsDBNull(20) ? null : r.GetGuid(20), r.IsDBNull(21) ? null : r.GetInt16(21), r.GetBoolean(22)));
             }
         }
         return new PagedResult<AdminEvent>(items, total, page, PageSize);

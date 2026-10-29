@@ -44,6 +44,37 @@ class EventFee {
   String get label => formatMoney(amountMinor, currency);
 }
 
+/// The repeat a date belongs to (docs/ARCHITECTURE.md §3d, Tekrarlayan organizasyon).
+class EventSeries {
+  const EventSeries({required this.id, required this.weeks, required this.active, this.until});
+
+  final String id;
+
+  /// 1: every week, 2: every other week.
+  final int weeks;
+  final bool active;
+  final DateTime? until;
+
+  String get label => weeks == 1 ? 'Her hafta tekrarlanır' : 'İki haftada bir tekrarlanır';
+}
+
+/// How a new event repeats; null on [EventForm.repeat] is a one-off.
+class EventRepeat {
+  const EventRepeat({required this.weeks, this.until});
+
+  final int weeks;
+
+  /// The last day a date may fall on.
+  final DateTime? until;
+
+  Map<String, Object?> toJson() => {
+        'weeks': weeks,
+        'until': until == null
+            ? null
+            : '${until!.year.toString().padLeft(4, '0')}-${until!.month.toString().padLeft(2, '0')}-${until!.day.toString().padLeft(2, '0')}',
+      };
+}
+
 class GroupEvent {
   const GroupEvent({
     required this.id,
@@ -73,10 +104,14 @@ class GroupEvent {
     this.ratingCount = 0,
     this.postsCount = 0,
     this.meeting,
+    this.series,
   });
 
   final String id;
   final EventGroup group;
+
+  /// Set when the date belongs to a repeat.
+  final EventSeries? series;
 
   /// The group's category (docs/ARCHITECTURE.md §3d, Faz 8).
   final String? categoryName;
@@ -445,6 +480,7 @@ class EventForm {
     this.equipment = const [],
     this.approvalRequired = false,
     this.meeting,
+    this.repeat,
   });
 
   final String title;
@@ -462,6 +498,9 @@ class EventForm {
   final bool approvalRequired;
   final LatLng? meeting;
 
+  /// Only on creation; an edit leaves the series as it is.
+  final EventRepeat? repeat;
+
   Map<String, Object?> toJson() => {
         'title': title.trim(),
         'description': description.trim(),
@@ -478,6 +517,7 @@ class EventForm {
         'equipment': [for (final e in equipment) e.trim()],
         'approvalRequired': approvalRequired,
         'meeting': meeting == null ? null : {'lat': meeting!.latitude, 'lng': meeting!.longitude},
+        'repeat': repeat?.toJson(),
       };
 }
 
@@ -564,6 +604,9 @@ abstract interface class EventsRepository {
   Future<Result<void>> update(String id, EventForm form);
 
   Future<Result<void>> cancel(String id, {required String reason});
+
+  /// Stops a repeat; dates already open stay.
+  Future<Result<void>> stopSeries(String seriesId);
 
   Future<Result<AttendanceResult>> attend(String id);
 
