@@ -394,7 +394,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 ### 18m — Haritada "Bugün / Bu hafta" ve mesafe filtresi (haritanın ortasından; `docs/ARCHITECTURE.md` §3d)
 - [x] "Her zaman / Bugün / 7 gün içinde" ve 5–50 km mesafe; daire çizimi, liste görünümü de aynı filtreyle
 - [x] pgTAP (1014/1014) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
-- [ ] Bulut: `0055` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0055` migration'ı (2026-10-29)
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
 ### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)
 
