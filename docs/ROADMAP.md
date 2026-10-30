@@ -424,6 +424,8 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Yönetim paneli: genel bakışta "Bu akşam" grafiği
 - [x] pgTAP (1055/1055), C# (225/225) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-30)
 - [x] Bulut: `0058` migration'ı (2026-10-30)
+- [x] Düzeltme: durum kaydedilemiyordu (uygulamanın upsert'i yazma izni olmayan sütuna yazıyordu); yazma artık `set_tonight` / `close_tonight` ile, kartta boş olanların yüzleri ve masa için gereken kişi sayısı, Bugün yenilenince bölümler de yenilenir (`0059`; pgTAP 1060/1060)
+- [x] Bulut: `0059` migration'ı (2026-10-30)
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)

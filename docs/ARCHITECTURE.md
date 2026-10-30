@@ -657,7 +657,8 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `DELETE /admin/leagues/{month}/exclusions/{groupId}` | Çıkarmayı geri alma. Rol: `admin`, `moderator` |
 
 ### Bu akşam boşum ve küçük masa (Faz 18g, kullanıcı kararı 2026-10-30)
-- **Durum** (`tonight_status`, events modülü; kişinin kendi basit yazması): Kişi "Bu akşam boşum" der, isteğe bağlı kısa bir not ekler (en çok 80 karakter, ör. "kahve, kısa yürüyüş"). Durum Türkiye saatiyle bir sonraki 04:00'te kendiliğinden biter; bitişi trigger hesaplar, istemci yazamaz. Kişi durumu istediği an kapatır. Askıdaki hesap durum açamaz.
+- **Durum** (`tonight_status`, events modülü; kişinin kendi verisi): Kişi "Bu akşam boşum" der, isteğe bağlı kısa bir not ekler (en çok 80 karakter, ör. "kahve, kısa yürüyüş"). Durum Türkiye saatiyle bir sonraki 04:00'te kendiliğinden biter. Kişi durumu istediği an kapatır; aynı akşam yeniden açabilir. Askıdaki hesap durum açamaz.
+  - Yazma yalnızca iki fonksiyonla olur: `public.set_tonight(note)` ve `public.close_tonight()`. Tabloya doğrudan yazma izni yoktur. Akşamı, bitişi ve satırı veritabanı belirler; istemci yalnızca notu gönderir.
 - **Kim görür:** Yalnızca kişiyle en az bir aktif grubu paylaşanlar (ikisi de üye). Engelleme iki yönde gizler. Liste (`public.tonight_people()`, en çok 50 kişi) ortak grupların adlarını gösterir. İki kişi de o grubun üyesi olduğu için üyelik gizliliği (§3b) aşılmaz.
 - **Küçük masa** (`tonight_tables`, `tonight_table_invites`): Durumu açık kişi "Küçük masa kur" der (`POST /tonight/tables`). Sunucu (`private.tonight_candidates`) en uygun 3–5 kişiyi seçer: durumu açık olan, ortak grubu bulunan, aralarında engel olmayan ve bu gece başka bir masaya katılmamış kişiler. Sıralama önce ortak grup sayısına, sonra ortak ilgi alanlarına göre yapılır; eşitlikte rastgele seçilir. En az 2 aday yoksa masa kurulmaz (`tonight.not_enough_people`).
   - Masadakiler yalnızca kurucuyu ve katılanları adıyla görür; bekleyen davetliler sayı olarak görünür. Böylece ortak grubu olmayan biri kimin boş olduğunu öğrenemez.
@@ -667,7 +668,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
   - Masa ertesi gün 12:00'de (Türkiye saati) kapanır. Sohbet okunur ama yazılamaz (`table_closed`). Davetler yanıtlanamaz.
   - Masa sohbetindeki mesajlar şikayet edilebilir; mesaj şikayeti platform ekibine gider.
 - **Yakında başlıyor** (`public.starting_soon()`): Önümüzdeki 6 saatte başlayan, iptal edilmemiş organizasyonlar, en çok 10 tane. Önce kişinin üyesi olduğu grupların organizasyonları gelir, sonra kişinin gruplarının bulunduğu illerdeki diğer aktif grupların organizasyonları. Cihaz konumu kullanılmaz.
-- **Arayüz:** Bugün ekranında "Yakında başlıyor" şeridi ve "Bu akşam" kartı bulunur. Kartta durum düğmesi ve not, boş olan ortak grup üyelerinin sayısı, "Küçük masa kur", gelen davet ve masanın sohbeti yer alır. "Bu akşam" sayfası (`/tonight`) boş olanları ve masayı gösterir.
+- **Arayüz:** Bugün ekranında "Yakında başlıyor" şeridi ve "Bu akşam" kartı bulunur. Kartta durum düğmesi ve not, boş olan ortak grup üyelerinin yüzleri ve sayısı, gelen davet ve masa yer alır. "Küçük masa kur" yalnızca masaya çağrılabilecek en az 2 kişi varken açıktır; yoksa kart kaç kişi daha gerektiğini yazar (`my_tonight.candidates`, masanın kendi kuralıyla, `private.tonight_pool`). Bugün ekranı aşağı çekilince bu bölümler de yenilenir. "Bu akşam" sayfası (`/tonight`) boş olanları ve masayı gösterir.
 - **Yönetim paneli:** Genel bakışta günlük "boşum" sayısı, kurulan masa sayısı ve sohbete dönen masa sayısı gösterilir.
 
 ### Hedefler ve görevler (Faz 12)

@@ -25,11 +25,14 @@ const postGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
 
 /// Post cards that load more near the end; [header] scrolls with them (e.g. the story bar).
 class PagedPostFeed extends ConsumerWidget {
-  const PagedPostFeed({super.key, required this.source, required this.empty, this.header});
+  const PagedPostFeed({super.key, required this.source, required this.empty, this.header, this.onRefresh});
 
   final PostSource source;
   final EmptyPosts empty;
   final Widget? header;
+
+  /// Also reloads what the [header] shows when the list is pulled down.
+  final void Function(WidgetRef ref)? onRefresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +41,10 @@ class PagedPostFeed extends ConsumerWidget {
     final posts = [for (final p in page.value?.posts ?? const <Post>[]) if (!edits.containsKey(p.id) || edits[p.id] != null) p];
 
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(postListProvider(source).future),
+      onRefresh: () {
+        onRefresh?.call(ref);
+        return ref.refresh(postListProvider(source).future);
+      },
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (_nearEnd(n)) ref.read(postListProvider(source).notifier).loadMore();

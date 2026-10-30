@@ -15,6 +15,7 @@ const _rules = {
   'poll_option_invalid': 'Bu seçenek artık yok. Sayfayı yenile.',
   'review_not_allowed': 'Değerlendirme, organizasyona katılanlar için bitişinden sonraki 30 gün açıktır.',
   'greeter_not_allowed': 'Karşılayıcı olmak için grubun bir organizasyonuna katılmış olmalısın.',
+  'tonight_note_too_long': 'Not en fazla 80 karakter olabilir.',
 };
 
 Failure _failure(Object error) => switch (error) {
@@ -149,7 +150,7 @@ class EventsRepositoryImpl implements EventsRepository {
         return Tonight(
           note: status?['note'] as String?,
           until: status == null ? null : DateTime.parse(status['until'] as String),
-          people: (r['people'] as num).toInt(),
+          candidates: (r['candidates'] as num).toInt(),
           table: table == null ? null : _table(table.cast()),
           invites: [for (final t in (r['invites'] as List).cast<Map<String, dynamic>>()) _table(t)],
         );
@@ -161,23 +162,12 @@ class EventsRepositoryImpl implements EventsRepository {
         return [for (final p in r.cast<Map<String, dynamic>>()) _tonightPerson(p)];
       });
 
+  // The database picks the evening, the end and the row; the app only sends the note.
   @override
-  Future<Result<void>> setFree(String note) => _run(() async {
-        // The evening and the end are set by the database; reopening clears closed_at.
-        await _client.from('tonight_status').upsert(
-          {'user_id': _client.auth.currentUser!.id, 'note': note.trim(), 'closed_at': null},
-          onConflict: 'user_id,evening',
-        );
-      });
+  Future<Result<void>> setFree(String note) => _run(() => _client.rpc<void>('set_tonight', params: {'note': note.trim()}));
 
   @override
-  Future<Result<void>> clearFree() => _run(() async {
-        await _client
-            .from('tonight_status')
-            .update({'closed_at': DateTime.now().toUtc().toIso8601String()})
-            .eq('user_id', _client.auth.currentUser!.id)
-            .isFilter('closed_at', null);
-      });
+  Future<Result<void>> clearFree() => _run(() => _client.rpc<void>('close_tonight'));
 
   @override
   Future<Result<int>> createTable() => _api.post('/tonight/tables', decode: (json) => ((json! as Map)['invited'] as num).toInt());

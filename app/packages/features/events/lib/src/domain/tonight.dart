@@ -59,16 +59,21 @@ class TonightTable {
 
 /// The viewer's evening.
 class Tonight {
-  const Tonight({this.note, this.until, this.people = 0, this.table, this.invites = const []});
+  const Tonight({this.note, this.until, this.candidates = 0, this.table, this.invites = const []});
 
   /// Null when the viewer has not said they are free.
   final String? note;
   final DateTime? until;
 
-  /// How many people sharing a group are free.
-  final int people;
+  /// Who a table could ask now; a table needs [minCandidates].
+  final int candidates;
   final TonightTable? table;
   final List<TonightTable> invites;
 
   bool get isFree => until != null;
+
+  /// A table asks at least two people besides its founder.
+  static const minCandidates = 2;
+
+  bool get canSetTable => isFree && table == null && candidates >= minCandidates;
 }

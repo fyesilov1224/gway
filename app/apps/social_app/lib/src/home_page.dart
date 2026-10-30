@@ -21,6 +21,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => HomeFeedScreen(
         title: const _Greeting(),
+        onRefresh: refreshToday,
         actions: [
           IconButton(tooltip: 'Ara', icon: const Icon(Icons.search_rounded), onPressed: () => context.go(FeedRoutes.explore)),
           IconButton(

@@ -96,14 +96,7 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                 t.note == null || t.note!.isEmpty ? 'Boşsun; 04:00\'e kadar görünürsün.' : '"${t.note}" · 04:00\'e kadar görünürsün.',
                 style: secondary,
               ),
-            if (widget.showPeopleLink && t.people > 0)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => context.push(EventRoutes.tonight),
-                  child: Text('Ortak gruplarından ${formatCount(t.people)} kişi bu akşam boş'),
-                ),
-              ),
+            _FreePeople(showLink: widget.showPeopleLink),
             if (t.table case final table?)
               _TableBlock(
                 table: table,
@@ -111,8 +104,8 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                 onOpenChat: (id) => widget.openChat(context, id),
                 onLeave: () => _run((r) => r.leaveTable(table.id), (_) => 'Masadan ayrıldın.'),
               )
-            else if (t.isFree) ...[
-              const SizedBox(height: GxSpacing.xs),
+            else if (t.canSetTable) ...[
+              const SizedBox(height: GxSpacing.sm),
               GxButton(
                 label: 'Küçük masa kur',
                 icon: Icons.table_restaurant_outlined,
@@ -124,6 +117,13 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                   (n) => '$n kişiye davet gönderildi. Üç kişi olunca masanın sohbeti açılır.',
                 ),
               ),
+            ] else if (t.isFree) ...[
+              const SizedBox(height: GxSpacing.sm),
+              Text(
+                'Küçük masa için ortak gruplarından en az ${Tonight.minCandidates} kişinin daha boş olması gerekiyor '
+                '(şu an ${t.candidates}). Biri boş olduğunu söyleyince burada masa kurabilirsin.',
+                style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+              ),
             ],
             for (final invite in t.invites)
               _InviteBlock(
@@ -134,6 +134,42 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                   (_) => accept ? 'Masaya katıldın.' : 'Daveti geri çevirdin.',
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Who else is free tonight among the people sharing a group: faces and a count, a link to the list.
+class _FreePeople extends ConsumerWidget {
+  const _FreePeople({required this.showLink});
+
+  static const _faces = 5;
+
+  final bool showLink;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final people = ref.watch(tonightPeopleProvider).value;
+    if (people == null || people.isEmpty) return const SizedBox.shrink();
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: GxSpacing.sm),
+      child: InkWell(
+        borderRadius: GxRadius.mdAll,
+        onTap: showLink ? () => context.push(EventRoutes.tonight) : null,
+        child: Row(
+          children: [
+            _Faces(people: people.take(_faces).toList()),
+            const SizedBox(width: GxSpacing.sm),
+            Expanded(
+              child: Text(
+                'Ortak gruplarından ${formatCount(people.length)} kişi bu akşam boş',
+                style: textTheme.labelLarge?.copyWith(color: GxColors.primary),
+              ),
+            ),
+            if (showLink) const Icon(Icons.chevron_right, color: GxColors.textSecondary),
           ],
         ),
       ),

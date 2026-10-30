@@ -15,7 +15,7 @@ import 'stories.dart';
 
 /// The home page: the app's sections ([top], e.g. live and upcoming), stories, then posts.
 class HomeFeedScreen extends StatelessWidget {
-  const HomeFeedScreen({super.key, this.title, this.actions = const [], this.top});
+  const HomeFeedScreen({super.key, this.title, this.actions = const [], this.top, this.onRefresh});
 
   /// Defaults to the logo; the app passes a greeting.
   final Widget? title;
@@ -25,6 +25,9 @@ class HomeFeedScreen extends StatelessWidget {
 
   /// Shown above the stories (supplied by the app).
   final Widget? top;
+
+  /// Reloads [top] when the page is pulled down.
+  final void Function(WidgetRef ref)? onRefresh;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -38,6 +41,7 @@ class HomeFeedScreen extends StatelessWidget {
           maxWidth: GxLayout.feedMaxWidth,
           child: PagedPostFeed(
             source: const HomeFeed(),
+            onRefresh: onRefresh,
             header: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,

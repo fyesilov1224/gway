@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(27);
 
 -- a, b, c, d share group 5801; x shares nothing; e is in the group but blocked by a.
 insert into auth.users (id, email, aud, role) values
@@ -40,12 +40,12 @@ insert into public.group_members (group_id, user_id) values ('00000000-0000-0000
 select pg_temp.act('00000000-0000-0000-0000-00000058a001');
 insert into public.blocks (blocker_id, blocked_id) values ('00000000-0000-0000-0000-00000058a001', '00000000-0000-0000-0000-00000058a005');
 
--- Everyone says they are free (their own write).
+-- Everyone says they are free, the way the app does it.
 create function pg_temp.free(uid text, note text) returns void language plpgsql as $$
 begin
   perform pg_temp.act(uid);
   set local role authenticated;
-  insert into public.tonight_status (user_id, note) values (uid::uuid, note);
+  perform public.set_tonight(note);
   reset role;
 end;
 $$;
@@ -75,8 +75,8 @@ select pg_temp.act('00000000-0000-0000-0000-00000058a009');
 set local role authenticated;
 select is((select count(*)::int from public.tonight_status where user_id <> '00000000-0000-0000-0000-00000058a009'), 0,
   'someone without a shared group sees nobody');
-select throws_ok($$ insert into public.tonight_status (user_id) values ('00000000-0000-0000-0000-00000058a001') $$,
-  '42501', null, 'nobody says it for someone else');
+select throws_ok($$ insert into public.tonight_status (user_id) values ('00000000-0000-0000-0000-00000058a009') $$,
+  '42501', null, 'the table is written only through set_tonight');
 reset role;
 
 select pg_temp.act('00000000-0000-0000-0000-00000058a001');
@@ -87,6 +87,24 @@ reset role;
 
 set local role anon;
 select throws_ok($$ select count(*) from public.tonight_status $$, '42501', null, 'anonymous visitors read nothing');
+reset role;
+
+-- Closing and reopening ---------------------------------------------------------------------------
+select pg_temp.act('00000000-0000-0000-0000-00000058a004');
+set local role authenticated;
+select lives_ok($$ select public.close_tonight() $$, 'closing is the person''s own');
+reset role;
+select pg_temp.act('00000000-0000-0000-0000-00000058a001');
+set local role authenticated;
+select is((public.my_tonight() ->> 'candidates')::int, 2, 'a closed status is not asked to a table');
+reset role;
+select pg_temp.free('00000000-0000-0000-0000-00000058a004', 'tekrar');
+select is((select note from public.tonight_status where user_id = '00000000-0000-0000-0000-00000058a004' and closed_at is null),
+  'tekrar', 'saying it again the same evening reopens it with the new note');
+select pg_temp.act('00000000-0000-0000-0000-00000058a001');
+set local role authenticated;
+select is((public.my_tonight() ->> 'candidates')::int, 3, 'the card counts who a table could ask');
+select throws_ok($$ select public.set_tonight(repeat('x', 81)) $$, 'P0001', 'tonight_note_too_long', 'the note has a limit');
 reset role;
 
 -- The table (the backend writes as the founder) ------------------------------------------------------

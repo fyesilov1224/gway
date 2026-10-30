@@ -30,6 +30,13 @@ final tonightPeopleProvider = FutureProvider.autoDispose<List<TonightPerson>>(
   (ref) async => (await ref.watch(eventsRepositoryProvider).tonightPeople()).getOrThrow(),
 );
 
+/// Reloads what Bugün shows from this feature (pull to refresh).
+void refreshToday(WidgetRef ref) => ref
+  ..invalidate(startingSoonProvider)
+  ..invalidate(tonightProvider)
+  ..invalidate(tonightPeopleProvider)
+  ..invalidate(calendarProvider);
+
 final goalsRepositoryProvider = Provider<GoalsRepository>(
   (ref) => GoalsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
 );

@@ -34,7 +34,13 @@ class _FakeEvents implements EventsRepository {
 const _ayse = TonightPerson(id: 'u2', username: 'ayse', displayName: 'Ayşe Kaya');
 const _can = TonightPerson(id: 'u3', username: 'can', displayName: 'Can Dağ');
 
-Future<_FakeEvents> _pump(WidgetTester tester, Tonight tonight, {void Function(String id)? onChat, double textScale = 1}) async {
+Future<_FakeEvents> _pump(
+  WidgetTester tester,
+  Tonight tonight, {
+  List<TonightPerson> people = const [],
+  void Function(String id)? onChat,
+  double textScale = 1,
+}) async {
   final fake = _FakeEvents();
   // A fresh ProviderScope each time, so overridden data is never reused.
   await tester.pumpWidget(const SizedBox());
@@ -42,6 +48,7 @@ Future<_FakeEvents> _pump(WidgetTester tester, Tonight tonight, {void Function(S
     overrides: [
       eventsRepositoryProvider.overrideWithValue(fake),
       tonightProvider.overrideWith((ref) async => tonight),
+      tonightPeopleProvider.overrideWith((ref) async => people),
     ],
     child: MaterialApp(
       theme: GxTheme.light(),
@@ -72,16 +79,29 @@ void main() {
     expect(fake.calls, ['free:kahve']);
   });
 
-  testWidgets('a free person sees how many are free and sets up a table', (tester) async {
-    final fake = await _pump(tester, Tonight(note: 'yürüyüş', until: DateTime(2026, 10, 31, 4), people: 6));
+  testWidgets('a free person sees who else is free and sets up a table', (tester) async {
+    final fake = await _pump(
+      tester,
+      Tonight(note: 'yürüyüş', until: DateTime(2026, 10, 31, 4), candidates: 3),
+      people: const [_ayse, _can, TonightPerson(id: 'u4', username: 'ece', displayName: 'Ece')],
+    );
 
-    expect(find.text('Ortak gruplarından 6 kişi bu akşam boş'), findsOneWidget);
+    expect(find.text('Ortak gruplarından 3 kişi bu akşam boş'), findsOneWidget);
+    expect(find.byType(GxAvatar), findsNWidgets(3));
     expect(find.textContaining('"yürüyüş"'), findsOneWidget);
     await tester.tap(find.text('Küçük masa kur'));
     await tester.pumpAndSettle();
 
     expect(fake.calls, ['table']);
     expect(find.textContaining('4 kişiye davet gönderildi'), findsOneWidget);
+  });
+
+  testWidgets('without two people to ask, the card says why instead of offering a table', (tester) async {
+    await _pump(tester, Tonight(until: DateTime(2026, 10, 31, 4), candidates: 1), people: const [_ayse]);
+
+    expect(find.text('Küçük masa kur'), findsNothing);
+    expect(find.textContaining('en az 2 kişinin daha boş olması gerekiyor (şu an 1)'), findsOneWidget);
+    expect(find.text('Ortak gruplarından 1 kişi bu akşam boş'), findsOneWidget);
   });
 
   testWidgets('an invitation names the founder and counts the rest; joining answers it', (tester) async {
