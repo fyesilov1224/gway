@@ -65,10 +65,45 @@ class UpcomingEventsSection extends ConsumerWidget {
   }
 }
 
+/// "Yakında başlıyor": events starting in the next 6 hours, the user's groups first, then nearby groups
+/// (docs/ARCHITECTURE.md §3d). Nothing is shown when nothing starts soon.
+class StartingSoonSection extends ConsumerWidget {
+  const StartingSoonSection({super.key});
+
+  static const double _cardWidth = GxSpacing.xxl * 5;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final soon = ref.watch(startingSoonProvider).value ?? const <GroupEvent>[];
+    if (soon.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const GxSectionHeader(title: 'Yakında başlıyor', subtitle: 'Önümüzdeki 6 saat'),
+        SizedBox(
+          height: GxDateTile.size + GxSpacing.lg,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+            itemCount: soon.length,
+            separatorBuilder: (_, _) => const SizedBox(width: GxSpacing.sm),
+            itemBuilder: (context, i) => SizedBox(width: _cardWidth, child: _EventCard(event: soon[i], showTime: true)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _time(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
 class _EventCard extends StatelessWidget {
-  const _EventCard({required this.event});
+  const _EventCard({required this.event, this.showTime = false});
 
   final GroupEvent event;
+
+  /// "19:30 · group" instead of the day, for what starts within hours.
+  final bool showTime;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +123,11 @@ class _EventCard extends StatelessWidget {
               children: [
                 Text(event.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                 Text(
-                  event.isMine ? 'Katılıyorsun · ${event.group.name}' : event.group.name,
+                  [
+                    if (showTime) _time(event.startsAt.toLocal()),
+                    if (event.isMine) 'Katılıyorsun',
+                    event.group.name,
+                  ].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.labelMedium?.copyWith(color: event.isMine ? GxColors.primary : GxColors.textSecondary),

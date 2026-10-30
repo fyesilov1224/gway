@@ -92,6 +92,8 @@ internal static class PushTexts
         "league_result" => "geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.",
         "welcome_thanked" => $"\"{n.EventTitle}\" organizasyonunda onu karşıladığın için teşekkür etti.",
         "event_series_limit" => $"\"{n.EventTitle}\" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.",
+        "tonight_table_invite" => "bu akşam küçük bir masa kurdu ve seni de çağırıyor.",
+        "tonight_table_ready" => "masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.",
         _ => "yeni bir bildirim gönderdi.",
     };
 

@@ -656,6 +656,20 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `PUT /admin/leagues/{month}/exclusions/{groupId}` | Ligden çıkarma (`reason`). Rol: `admin`, `moderator` |
 | `DELETE /admin/leagues/{month}/exclusions/{groupId}` | Çıkarmayı geri alma. Rol: `admin`, `moderator` |
 
+### Bu akşam boşum ve küçük masa (Faz 18g, kullanıcı kararı 2026-10-30)
+- **Durum** (`tonight_status`, events modülü; kişinin kendi basit yazması): Kişi "Bu akşam boşum" der, isteğe bağlı kısa bir not ekler (en çok 80 karakter, ör. "kahve, kısa yürüyüş"). Durum Türkiye saatiyle bir sonraki 04:00'te kendiliğinden biter; bitişi trigger hesaplar, istemci yazamaz. Kişi durumu istediği an kapatır. Askıdaki hesap durum açamaz.
+- **Kim görür:** Yalnızca kişiyle en az bir aktif grubu paylaşanlar (ikisi de üye). Engelleme iki yönde gizler. Liste (`public.tonight_people()`, en çok 50 kişi) ortak grupların adlarını gösterir. İki kişi de o grubun üyesi olduğu için üyelik gizliliği (§3b) aşılmaz.
+- **Küçük masa** (`tonight_tables`, `tonight_table_invites`): Durumu açık kişi "Küçük masa kur" der (`POST /tonight/tables`). Sunucu (`private.tonight_candidates`) en uygun 3–5 kişiyi seçer: durumu açık olan, ortak grubu bulunan, aralarında engel olmayan ve bu gece başka bir masaya katılmamış kişiler. Sıralama önce ortak grup sayısına, sonra ortak ilgi alanlarına göre yapılır; eşitlikte rastgele seçilir. En az 2 aday yoksa masa kurulmaz (`tonight.not_enough_people`).
+  - Masadakiler yalnızca kurucuyu ve katılanları adıyla görür; bekleyen davetliler sayı olarak görünür. Böylece ortak grubu olmayan biri kimin boş olduğunu öğrenemez.
+  - Kurucu masaya katılmış sayılır. Bir kişi bir gecede en çok bir masaya katılır (kurmak ya da kabul etmek). Masa açıkken yeni masa kurulamaz.
+  - Davet edilenlere `tonight_table_invite` bildirimi gider. Davet `POST /tonight/tables/{id}/answer` ile kabul ya da reddedilir. Masadan `DELETE /tonight/tables/{id}/membership` ile ayrılınır.
+  - Kabul eden 3 kişi olunca masanın sohbeti açılır (`conversations.kind = 'table'`, üyeleri katılanlar; messaging modülünün trigger'ı). Katılanlara `tonight_table_ready` bildirimi gider. Sonradan kabul eden sohbete eklenir, ayrılan çıkar. Yeri ve saati katılanlar sohbette konuşur. Sistem yer önermez, kimsenin konumu kullanılmaz.
+  - Masa ertesi gün 12:00'de (Türkiye saati) kapanır. Sohbet okunur ama yazılamaz (`table_closed`). Davetler yanıtlanamaz.
+  - Masa sohbetindeki mesajlar şikayet edilebilir; mesaj şikayeti platform ekibine gider.
+- **Yakında başlıyor** (`public.starting_soon()`): Önümüzdeki 6 saatte başlayan, iptal edilmemiş organizasyonlar, en çok 10 tane. Önce kişinin üyesi olduğu grupların organizasyonları gelir, sonra kişinin gruplarının bulunduğu illerdeki diğer aktif grupların organizasyonları. Cihaz konumu kullanılmaz.
+- **Arayüz:** Bugün ekranında "Yakında başlıyor" şeridi ve "Bu akşam" kartı bulunur. Kartta durum düğmesi ve not, boş olan ortak grup üyelerinin sayısı, "Küçük masa kur", gelen davet ve masanın sohbeti yer alır. "Bu akşam" sayfası (`/tonight`) boş olanları ve masayı gösterir.
+- **Yönetim paneli:** Genel bakışta günlük "boşum" sayısı, kurulan masa sayısı ve sohbete dönen masa sayısı gösterilir.
+
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.
 
@@ -733,6 +747,9 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `POST /admin/events/{id}/cancellation` | Platform ekibinin iptali (`reason`). Rol: `admin`, `moderator` |
 | `DELETE /admin/events/{id}/meeting-point` | Buluşma noktasını kaldırma (Faz 14). Rol: `admin`, `moderator` |
 | `POST /admin/event-series/{id}/stop` | Tekrarlayan seriyi durdurma (Faz 18k). Rol: `admin`, `moderator` |
+| `POST /tonight/tables` | Küçük masa kurma: adayları sunucu seçer (Faz 18g) |
+| `POST /tonight/tables/{id}/answer` | Masa davetini kabul ya da ret (`accept`) |
+| `DELETE /tonight/tables/{id}/membership` | Masadan ayrılma |
 | `GET /map/tiles/{z}/{x}/{y}.png` | Harita döşemesi (oturum gerekir; Faz 14) |
 
 ## 3e. Moderasyon ve Disiplin Kurulu (Faz 6)

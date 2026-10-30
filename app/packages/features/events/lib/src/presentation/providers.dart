@@ -5,6 +5,7 @@ import '../data/events_repository_impl.dart';
 import '../data/goals_repository_impl.dart';
 import '../domain/events.dart';
 import '../domain/goals.dart';
+import '../domain/tonight.dart';
 
 final eventsRepositoryProvider = Provider<EventsRepository>(
   (ref) => EventsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
@@ -12,6 +13,21 @@ final eventsRepositoryProvider = Provider<EventsRepository>(
 
 final groupEventsProvider = FutureProvider.autoDispose.family<GroupEvents, String>(
   (ref, groupId) async => (await ref.watch(eventsRepositoryProvider).groupEvents(groupId)).getOrThrow(),
+);
+
+/// Events starting in the next 6 hours (Bugün).
+final startingSoonProvider = FutureProvider.autoDispose<List<GroupEvent>>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).startingSoon()).getOrThrow(),
+);
+
+/// The user's evening (docs/ARCHITECTURE.md §3d, Bu akşam boşum ve küçük masa).
+final tonightProvider = FutureProvider.autoDispose<Tonight>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).tonight()).getOrThrow(),
+);
+
+/// People free tonight who share a group with the user.
+final tonightPeopleProvider = FutureProvider.autoDispose<List<TonightPerson>>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).tonightPeople()).getOrThrow(),
 );
 
 final goalsRepositoryProvider = Provider<GoalsRepository>(

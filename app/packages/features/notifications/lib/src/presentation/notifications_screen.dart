@@ -22,6 +22,7 @@ class NotificationLinks {
     required this.openMatches,
     required this.openMatching,
     required this.openGroup,
+    required this.openTonight,
   });
 
   final void Function(BuildContext context, String username) openProfile;
@@ -59,6 +60,9 @@ class NotificationLinks {
 
   /// The group page, for a league result (docs/ARCHITECTURE.md §3d, Gruplar Ligi).
   final void Function(BuildContext context, String handle) openGroup;
+
+  /// "Bu akşam", for small table invitations (docs/ARCHITECTURE.md §3d).
+  final void Function(BuildContext context) openTonight;
 }
 
 /// Today / this week / earlier, with pending follow requests gathered on top (docs/ARCHITECTURE.md §3c).
@@ -173,6 +177,9 @@ class _NotificationRow extends ConsumerWidget {
   void _open(BuildContext context) {
     final n = notification;
     if (n.goalId != null) return links.openGoal(context, n.goalId!);
+    if (n.type == NotificationType.tonightTableInvite || n.type == NotificationType.tonightTableReady) {
+      return links.openTonight(context);
+    }
     if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
     if (n.type == NotificationType.matchCreated) return links.openMatches(context);
     if (n.type == NotificationType.matchSuperLiked) return links.openMatching(context);

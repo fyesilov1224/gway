@@ -181,6 +181,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: 'edit', builder: (_, state) => EventEditorScreen(eventId: state.pathParameters['id']))],
           ),
           GoRoute(path: EventRoutes.map, builder: (_, _) => const DiscoverMapScreen(onOpenGroup: _openGroup)),
+          GoRoute(path: EventRoutes.tonight, builder: (_, _) => const TonightScreen(openChat: openTonightChat, openProfile: _openProfile)),
           GoRoute(
             path: '/league',
             builder: (_, state) => LeagueScreen(
@@ -335,6 +336,9 @@ Widget _groupsSection(BuildContext context, Profile profile, bool isOwn) =>
     UserGroupsSection(userId: profile.id, isOwn: isOwn, groupsPublic: profile.groupsPublic);
 
 void _openProfile(BuildContext context, String username) => context.push(ProfileRoutes.user(username));
+
+/// A small table's chat (events does not know the messaging feature).
+void openTonightChat(BuildContext context, String conversationId) => context.push(MessagingRoutes.chat(conversationId));
 
 void _openGroup(BuildContext context, String handle) => context.push(GroupRoutes.group(handle));
 

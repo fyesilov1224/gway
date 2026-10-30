@@ -105,6 +105,7 @@ class _Title extends StatelessWidget {
     final subtitle = switch (c) {
       Conversation(kind: ConversationKind.group, adminsOnly: true) => 'Grup sohbeti · yalnızca yöneticiler yazar',
       Conversation(kind: ConversationKind.group) => 'Grup sohbeti',
+      Conversation(kind: ConversationKind.table) => 'Küçük masa · ${c.tableMembers} kişi',
       Conversation(:final peer?) => '@${peer.username}',
       _ => '',
     };
@@ -192,7 +193,8 @@ class _Chat extends ConsumerWidget {
     final me = ref.watch(currentUserIdProvider);
     final c = thread.conversation;
     final messages = thread.messages;
-    final group = c.kind == ConversationKind.group;
+    // Several people write: names above their messages.
+    final group = c.kind != ConversationKind.direct;
     // "Görüldü" under the newest of my messages the other person has read.
     final readAt = c.peer?.readAt;
     final seenId = readAt == null

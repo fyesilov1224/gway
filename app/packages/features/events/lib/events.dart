@@ -3,6 +3,7 @@ library;
 export 'src/domain/events.dart';
 export 'src/domain/goals.dart';
 export 'src/domain/map.dart';
+export 'src/domain/tonight.dart';
 export 'src/presentation/calendar_screen.dart';
 export 'src/presentation/contributions.dart';
 export 'src/presentation/event_history_screen.dart';
@@ -14,5 +15,6 @@ export 'src/presentation/polls.dart' show PollCard, PollsSection, showPollEditor
 export 'src/presentation/providers.dart';
 export 'src/presentation/routes.dart';
 export 'src/presentation/story_cards.dart' show YearSummaryScreen;
+export 'src/presentation/tonight.dart' show OpenTonightChat, TonightCard, TonightScreen;
 export 'src/presentation/upcoming.dart';
 export 'src/presentation/welcome.dart' show EventWelcomeSection, GroupWelcomeSection;

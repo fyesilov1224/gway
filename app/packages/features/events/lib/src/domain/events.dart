@@ -1,6 +1,8 @@
 import 'package:core/core.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'tonight.dart';
+
 class EventGroup {
   const EventGroup({required this.id, required this.handle, required this.name, this.logoUrl});
 
@@ -656,6 +658,27 @@ typedef AttendanceResult = ({AttendanceStatus status, int? place});
 
 abstract interface class EventsRepository {
   Future<Result<GroupEvents>> groupEvents(String groupId);
+
+  /// Events starting in the next 6 hours: the user's groups first, then nearby groups (docs/ARCHITECTURE.md §3d).
+  Future<Result<List<GroupEvent>>> startingSoon();
+
+  /// The user's evening: "Bu akşam boşum", their table and invitations.
+  Future<Result<Tonight>> tonight();
+
+  /// People free tonight who share a group with the user.
+  Future<Result<List<TonightPerson>>> tonightPeople();
+
+  /// Says the user is free tonight (their own row; until 04:00).
+  Future<Result<void>> setFree(String note);
+
+  Future<Result<void>> clearFree();
+
+  /// The server picks the people; returns how many were asked.
+  Future<Result<int>> createTable();
+
+  Future<Result<void>> answerTable(String tableId, {required bool accept});
+
+  Future<Result<void>> leaveTable(String tableId);
 
   Future<Result<EventDetail>> event(String id);
 

@@ -201,6 +201,17 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
           weekly: o.weekly,
           series: [series('Yılın özeti', 'card_shares_year'), series('Ben de oradaydım', 'card_shares_event')],
         ),
+        ChartPanel(
+          title: 'Bu akşam',
+          subtitle: '"Bu akşam boşum" diyenler, kurulan küçük masalar ve üç kişiye ulaşıp sohbeti açılan masalar.',
+          buckets: o.buckets,
+          weekly: o.weekly,
+          series: [
+            series('Boşum', 'tonight_free'),
+            series('Kurulan masa', 'tonight_tables'),
+            series('Sohbeti açılan', 'tonight_tables_set'),
+          ],
+        ),
       ]),
     ];
   }

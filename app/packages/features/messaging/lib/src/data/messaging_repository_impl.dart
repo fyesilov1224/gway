@@ -40,7 +40,11 @@ class MessagingRepositoryImpl implements MessagingRepository {
     final last = r['last_message'] as Map?;
     return Conversation(
       id: r['id'] as String,
-      kind: r['kind'] == 'group' ? ConversationKind.group : ConversationKind.direct,
+      kind: switch (r['kind']) {
+        'group' => ConversationKind.group,
+        'table' => ConversationKind.table,
+        _ => ConversationKind.direct,
+      },
       myState: MemberState.parse(r['my_state']),
       peer: peer == null
           ? null
@@ -73,6 +77,7 @@ class MessagingRepositoryImpl implements MessagingRepository {
       adminsOnly: r['admins_only'] == true,
       blocker: r['blocker'] as String?,
       canManage: r['can_manage'] == true,
+      tableMembers: ((r['table'] as Map?)?['members'] as num?)?.toInt() ?? 0,
     );
   }
 

@@ -33,7 +33,9 @@ enum NotificationType {
   welcomeWithdrawn('welcome_withdrawn'),
   welcomeThanked('welcome_thanked'),
   leagueResult('league_result'),
-  eventSeriesLimit('event_series_limit');
+  eventSeriesLimit('event_series_limit'),
+  tonightTableInvite('tonight_table_invite'),
+  tonightTableReady('tonight_table_ready');
 
   const NotificationType(this.code);
 
@@ -190,6 +192,8 @@ class AppNotification {
         NotificationType.welcomeWithdrawn => '"${eventTitle ?? ''}" için karşılama isteğini geri çekti.',
         NotificationType.leagueResult => 'geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.',
         NotificationType.welcomeThanked => '"${eventTitle ?? ''}" organizasyonunda onu karşıladığın için teşekkür etti.',
+        NotificationType.tonightTableInvite => 'bu akşam küçük bir masa kurdu ve seni de çağırıyor.',
+        NotificationType.tonightTableReady => 'masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.',
         NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
       };
 

@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 
-enum ConversationKind { direct, group }
+/// A table is the chat of tonight's small table (docs/ARCHITECTURE.md §3d, Bu akşam boşum ve küçük masa).
+enum ConversationKind { direct, group, table }
 
 /// A person's side of a direct conversation (docs/ARCHITECTURE.md §3f).
 enum MemberState {
@@ -70,6 +71,7 @@ class Conversation {
     this.adminsOnly = false,
     this.blocker,
     this.canManage = false,
+    this.tableMembers = 0,
   });
 
   final String id;
@@ -89,8 +91,11 @@ class Conversation {
   /// May switch the group chat to admins-only.
   final bool canManage;
 
+  /// People at a small table.
+  final int tableMembers;
+
   bool get isRequest => myState == MemberState.request;
-  String get title => group?.name ?? peer?.displayName ?? '';
+  String get title => kind == ConversationKind.table ? 'Bu akşamın masası' : group?.name ?? peer?.displayName ?? '';
   String? get avatarUrl => group?.logoUrl ?? peer?.avatarUrl;
 
   /// What the composer shows instead of the text field, in Turkish.
@@ -100,6 +105,7 @@ class Conversation {
         'message_declined' => 'Bu kişi mesaj isteğini kabul etmedi.',
         'message_muted' => 'Bu grupta susturulduğun için şu anda yazamazsın.',
         'message_admins_only' => 'Bu sohbette yalnızca yöneticiler yazabilir.',
+        'table_closed' => 'Masa kapandı; mesajları okuyabilirsin ama yeni mesaj yazılamaz.',
         'blocked' => 'Engel olduğu için bu sohbete yazılamıyor.',
         'match_ended' => 'Eşleşme bittiği için bu sohbet kapandı.',
         'match_chat_locked' => 'Eşleştiğin kişiye yazmak için Eşleşme Sohbeti paketi gerekir. Mesajları okumak ücretsiz.',

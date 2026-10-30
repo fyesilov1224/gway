@@ -11,6 +11,8 @@ import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 
+import 'router.dart' show openTonightChat;
+
 /// "Bugün": live broadcasts and upcoming organizations of the user's groups
 /// come before the posts (docs/DESIGN.md §7, Bugün).
 class HomePage extends StatelessWidget {
@@ -32,6 +34,8 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const LiveNowTray(),
+            const StartingSoonSection(),
+            const TonightCard(openChat: openTonightChat),
             UpcomingEventsSection(onFindGroups: () => context.go(GroupRoutes.discover)),
           ],
         ),

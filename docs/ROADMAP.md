@@ -417,7 +417,13 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 ### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
-### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar; ortak gruplardan 4–6 kişilik küçük masa önerisi)
+### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar; ortak gruplardan küçük masa; `docs/ARCHITECTURE.md` §3d)
+- [x] "Bu akşam boşum" ve not (ortak grup üyeleri görür, 04:00'te kapanır), boş olanlar listesi
+- [x] Küçük masa: sunucu 3–5 kişi seçer, davet ve kabul, üç kişiyle masa sohbeti, ertesi gün 12:00'de kapanış; bildirim ve push metinleri
+- [x] "Yakında başlıyor" (önümüzdeki 6 saat; gruplarım, sonra gruplarımın illeri)
+- [x] Yönetim paneli: genel bakışta "Bu akşam" grafiği
+- [x] pgTAP (1055/1055), C# (225/225) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-30)
+- [x] Bulut: `0058` migration'ı (2026-10-30)
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)

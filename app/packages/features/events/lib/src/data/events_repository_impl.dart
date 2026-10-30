@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/events.dart';
+import '../domain/tonight.dart';
 
 const coverBucket = 'event-images';
 
@@ -112,6 +113,81 @@ class EventsRepositoryImpl implements EventsRepository {
             PollOption(id: (o['id'] as num).toInt(), label: o['label'] as String, votes: (o['votes'] as num).toInt(), mine: o['mine'] as bool),
         ],
       );
+
+  // Tonight (docs/ARCHITECTURE.md §3d, Bu akşam boşum ve küçük masa) -------------------------
+
+  TonightPerson _tonightPerson(Map<String, dynamic> r) => TonightPerson(
+        id: r['id'] as String,
+        username: r['username'] as String,
+        displayName: r['display_name'] as String,
+        avatarUrl: _url('avatars', r['avatar_path']),
+        note: r['note'] as String? ?? '',
+        groups: [for (final g in (r['groups'] as List?) ?? const []) g as String],
+      );
+
+  TonightTable _table(Map<String, dynamic> r) => TonightTable(
+        id: r['id'] as String,
+        closesAt: DateTime.parse(r['closes_at'] as String),
+        founder: _tonightPerson((r['founder'] as Map).cast()),
+        myState: TableInviteState.parse(r['my_state']),
+        joined: [for (final p in (r['joined'] as List).cast<Map<String, dynamic>>()) _tonightPerson(p)],
+        pending: (r['pending'] as num).toInt(),
+        conversationId: r['conversation_id'] as String?,
+      );
+
+  @override
+  Future<Result<List<GroupEvent>>> startingSoon() => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('starting_soon');
+        return [for (final e in r.cast<Map<String, dynamic>>()) _event(e)];
+      });
+
+  @override
+  Future<Result<Tonight>> tonight() => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>>('my_tonight');
+        final status = r['status'] as Map?;
+        final table = r['table'] as Map?;
+        return Tonight(
+          note: status?['note'] as String?,
+          until: status == null ? null : DateTime.parse(status['until'] as String),
+          people: (r['people'] as num).toInt(),
+          table: table == null ? null : _table(table.cast()),
+          invites: [for (final t in (r['invites'] as List).cast<Map<String, dynamic>>()) _table(t)],
+        );
+      });
+
+  @override
+  Future<Result<List<TonightPerson>>> tonightPeople() => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('tonight_people');
+        return [for (final p in r.cast<Map<String, dynamic>>()) _tonightPerson(p)];
+      });
+
+  @override
+  Future<Result<void>> setFree(String note) => _run(() async {
+        // The evening and the end are set by the database; reopening clears closed_at.
+        await _client.from('tonight_status').upsert(
+          {'user_id': _client.auth.currentUser!.id, 'note': note.trim(), 'closed_at': null},
+          onConflict: 'user_id,evening',
+        );
+      });
+
+  @override
+  Future<Result<void>> clearFree() => _run(() async {
+        await _client
+            .from('tonight_status')
+            .update({'closed_at': DateTime.now().toUtc().toIso8601String()})
+            .eq('user_id', _client.auth.currentUser!.id)
+            .isFilter('closed_at', null);
+      });
+
+  @override
+  Future<Result<int>> createTable() => _api.post('/tonight/tables', decode: (json) => ((json! as Map)['invited'] as num).toInt());
+
+  @override
+  Future<Result<void>> answerTable(String tableId, {required bool accept}) =>
+      _api.post('/tonight/tables/$tableId/answer', body: {'accept': accept}, decode: (_) {});
+
+  @override
+  Future<Result<void>> leaveTable(String tableId) => _api.delete('/tonight/tables/$tableId/membership', decode: (_) {});
 
   // Events --------------------------------------------------------------------------------
 

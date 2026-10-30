@@ -131,7 +131,7 @@ class ConversationAvatar extends StatelessWidget {
   Widget build(BuildContext context) => GxAvatar(
         name: conversation.title,
         imageUrl: conversation.avatarUrl,
-        shape: conversation.kind == ConversationKind.group ? GxAvatarShape.group : GxAvatarShape.user,
+        shape: conversation.kind == ConversationKind.direct ? GxAvatarShape.user : GxAvatarShape.group,
         size: size,
       );
 }

@@ -15,6 +15,9 @@ abstract final class EventRoutes {
 
   static String goal(String id) => '/goals/$id';
 
+  /// "Bu akşam": who is free and the small table.
+  static const tonight = '/tonight';
+
   /// Groups and upcoming events on the map.
   static const map = '/map';
 
