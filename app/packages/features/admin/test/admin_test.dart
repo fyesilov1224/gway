@@ -1,4 +1,5 @@
 import 'package:admin/admin.dart';
+import 'package:admin/src/presentation/status_chip.dart';
 import 'package:admin/src/presentation/suspend_dialog.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -72,5 +73,38 @@ void main() {
 
     expect(result?.reason, 'Spam paylaşımları');
     expect(result?.until, isNull);
+  });
+
+  testWidgets('a user suspension always ends; a ban is its own action and shows as Banlı', (tester) async {
+    SuspendRequest? result;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GxTheme.light(),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Column(children: [
+              TextButton(
+                onPressed: () async => result = await showSuspendDialog(
+                  context,
+                  durations: const [SuspendDuration.day, SuspendDuration.week, SuspendDuration.month],
+                ),
+                child: const Text('aç'),
+              ),
+              const StatusBadge(AdminAccountStatus.suspended, banned: true),
+            ]),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Banlı'), findsOneWidget);
+
+    await tester.tap(find.text('aç'));
+    await tester.pumpAndSettle();
+    expect(find.text('Süresiz'), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField), 'Spam');
+    await tester.tap(find.widgetWithText(FilledButton, 'Askıya al'));
+    await tester.pumpAndSettle();
+    expect(result?.until, isNotNull);
   });
 }

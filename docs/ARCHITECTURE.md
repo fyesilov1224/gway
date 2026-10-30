@@ -122,7 +122,10 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - Giriş sonrası zorunlu sıra: **güvenlik doğrulaması (konum, telefon, ikinci adım; §3h) → KVKK onayları → onboarding → uygulama.** Router bu sırayı zorlar; güvenlik adımını ayrıca sunucu zorlar.
 - Durumlar (`account_status.status`):
   - `active`: normal.
-  - `suspended`: platform ekibi askıya aldı. Supabase Auth'ta da ban uygulanır (giriş ve token yenileme kapanır). `suspended_until` geçince hesap kendiliğinden aktif sayılır. Profil başkalarına gizlenir, kullanıcı kendi verisine yazamaz.
+  - `suspended`: platform ekibi askıya aldı. `suspended_until` geçince hesap kendiliğinden aktif sayılır. Kullanıcı hiçbir yere yazamaz. **Bitiş tarihi olan askı "askı", bitiş tarihi olmayan askı "ban"dır** (kullanıcı kararı, 2026-10-30):
+    - **Askı:** Profil başkalarına açık kalır. Başında "Bu hesap <tarih> tarihine kadar askıya alındı." uyarısı vardır (`public.account_notice`). Gerekçe yalnızca hesabın sahibine ve platform ekibine görünür. Gönderileri ve diğer içeriği askı süresince gizlidir.
+    - **Ban:** Profil, arama, listeler ve içerik dahil hiçbir yerde görünmez (`private.is_account_visible`).
+  - **Askı ve ban kişiye anında gösterilir.** Supabase Auth banı **uygulanmaz**, oturumlar silinmez. Kişi giriş yapabilir ama token hook'u, askısı süren hesabın token'ına `role = unverified` verir (§3h). Bu rol hiçbir veriyi okuyamaz ve yazamaz; C# API yalnızca `GET /account`, `/me` ve `/security/*` uçlarına izin verir. Uygulama kişinin `account_status` satırını Realtime ile dinler. Satır değişince oturumu yeniler ve kilitli ekranı gösterir: gerekçe, bitiş tarihi (ban için "kalıcı olarak kapatıldı") ve çıkış. Askıdan önce alınmış token en geç 1 saat geçerlidir; bu sürede de yazmalar RLS'te (`is_account_active`) ve C#'ta reddedilir.
   - `pending_deletion`: kullanıcı silme istedi. Profil başkalarına **hemen gizlenir**. Kullanıcı giriş yapabilir ve yalnızca "silmeyi geri al" ekranını görür. 30 gün sonra backend kalıcı olarak siler.
 - Kalıcı silme (`AccountPurgeService`, saatlik): storage dosyaları (`avatars/<uid>/`, `covers/<uid>/`) ve `auth.users` kaydı silinir. Bağlı satırlar `on delete cascade` ile gider. `audit_log` kaydı (`account.purged`) kalır, yalnızca uuid içerir.
 
@@ -570,6 +573,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 ### Organizasyon sonrası (Faz 10)
 - **Anılar:** Gönderi bir organizasyona bağlanabilir (`posts.event_id`; feed modülü). Bağlayan, organizasyonun bir yöneticisi (`events.manage`) ya da organizasyona **katılmış** (`going`) kişidir. Organizasyon başlamış ve iptal edilmemiş olmalıdır. Kuralı C# ve `posts` trigger'ı birlikte uygular. Bağlantı sonradan değişmez. Anı, sıradan bir gönderidir: görünürlüğü, şikayeti ve kaldırılması gönderi kurallarına uyar. Kimsenin fotoğrafı otomatik paylaşılmaz; herkes yalnızca kendi gönderisini bağlar. Organizasyon sayfası, görüntüleyenin görebildiği anıları gösterir (`public.event_posts`).
 - **Değerlendirme** (`event_reviews`): organizasyona katılmış kişi, organizasyon bittikten sonra (bitişi yoksa başlangıçtan 2 saat sonra) 30 gün içinde 1–5 yıldız ve isteğe bağlı not (en fazla 500 karakter) verir. Kişi değerlendirmesini değiştirir ya da siler. Kendi basit yazmasıdır (RLS); uygunluğu trigger denetler. Herkes yalnızca ortalamayı ve sayıyı görür. Notları kişinin kendisi ve grubun `events.manage` yetkilileri görür (herkese açık yorum alanı yoktur).
+- **Grubun puanı** (kullanıcı isteği, 2026-10-30): Gruba ayrıca yıldız verilmez. Grup sayfası, grubun iptal edilmemiş organizasyonlarına verilen bütün değerlendirmelerin ortalamasını ve sayısını gösterir (`group_events.rating`; `private.group_rating`, grup görünürse). Organizasyonlar bölümü, görüntüleyenin şu an puan verebileceği ama henüz vermediği organizasyonları (en çok 3) "Nasıldı?" başlığıyla listeler (`group_events.to_review`). Kart, organizasyon sayfasındaki değerlendirme kutusuna açılır.
 - **Değerlendirme isteği:** Organizasyon bittikten sonra katılanlara bir kez `event_review` bildirimi gider (`EventReminderService`, `events.review_asked_at`). Bildirim tercihlerinden kapatılabilir (`event_review_requests`).
 - **Özet ve geçmiş:** Biten organizasyonun sayfası katılan sayısını, puan ortalamasını ve anı sayısını gösterir. Grubun sıradaki organizasyonlarını da önerir. Grubun geçmişi (`public.group_event_history`) biten organizasyonları özetleriyle, yeniden eskiye ve sayfalı listeler.
 
@@ -1179,7 +1183,7 @@ Kullanıcı isteği (2026-10-27): yabancı numara ve VPN ile konumunu farklı g�
   - son 24 saatte konum kontrolü.
 - `unverified` rolü Postgres'te yalnızca `legal_documents` okuyabilir. Diğer tüm RLS politikaları `authenticated` içindir, `SECURITY DEFINER` fonksiyonlar da yalnızca `authenticated`'e açıktır. Bu yüzden değiştirilmiş bir istemci bile veri okuyamaz, yazamaz, Storage ve Realtime'a erişemez.
 - C# API'nin varsayılan yetki politikası `role = authenticated` ister. Yalnızca `/security/*`, `GET /account` ve `/me` uçları `unverified` rolünü de kabul eder.
-- Yaptırım ve kısıtlama en geç bir token yenilemesinde (≤ 1 saat) etkili olur. Ban ise mevcut askı akışıyla oturumları hemen siler.
+- Yaptırım ve kısıtlama en geç bir token yenilemesinde (≤ 1 saat) etkili olur. Ban mevcut askı akışını kullanır: token hook'u askısı süren hesaba her zaman (zorlama kapalıyken de) `unverified` rolü verir ve uygulama kişiye kilitli ekranı anında gösterir (§3a).
 - Zorlama `security_settings.enforce` ile açılıp kapanır. Varsayılan **kapalı**: Twilio anahtarları gelene kadar kimse dışarıda kalmasın diye. Yalnızca `admin` değiştirir, işlem `audit_log`'a yazılır. API, SMS sağlayıcısı yapılandırılmamışsa zorlamayı açtırmaz (`security.sms_not_configured`). Yerelde Development ortamında sahte gönderici kodu API günlüğüne yazar.
 - Platform ekibi de aynı akıştan geçer. Admin paneli aynı ekranları kullanır.
 
@@ -1446,7 +1450,8 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
    - İstemcinin "ödedim" bildirimi hiçbir şeyi değiştirmez.
 5. Kullanıcı uygulamaya döner (`/#/g/<handle>/plan?order=<id>`). Ekran sipariş durumunu Supabase'den okuyarak kesinleşmeyi bekler.
 
-- **Mobil uygulama** yalnızca grubun paketini, limitlerini ve dönem sonunu gösterir. Fiyat, satın alma düğmesi ya da web'e yönlendirme göstermez; sebep Apple ve Google'ın uygulama içi ödeme kurallarıdır.
+- **Mobil uygulama** yalnızca grubun paketini, limitlerini ve dönem sonunu gösterir. Ayrıca sahibine diğer paketlerin **yalnızca adlarını ve limitlerini** gösterir. Fiyat, satın alma düğmesi ya da web'e yönlendirme göstermez; sebep Apple ve Google'ın uygulama içi ödeme kurallarıdır.
+- **Grup kurulunca paket adımı** (kullanıcı isteği, 2026-10-30): Grup her zaman Ücretsiz paketle başlar. Oluşturan, grup sayfası yerine paket ekranına gider (`/g/<handle>/plan?new=1`). Ekranın başında "Grubun hazır" kartı vardır. Web'de paketler fiyatlarıyla listelenir ve kart "Ücretsiz ile devam et" der. Mobilde paketlerin yalnızca adları ve limitleri görünür, kart "Gruba git" der. İki düğme de grup sayfasına gider.
 - Sağlayıcının anahtarları yapılandırılmamışsa o pazarda satın alma kapalıdır (`billing.provider_unavailable`, 503).
 - Sipariş oluşturma uç noktası kullanıcı başına ayrıca sıkı rate limit altındadır.
 

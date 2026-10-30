@@ -148,7 +148,8 @@ public sealed class SecurityTests(ApiFactory factory) : IClassFixture<ApiFactory
         Assert.Equal(foreign, await _db.ScalarAsync<string>("select phone from public.phone_bans where phone = @p", ("p", foreign)));
         Assert.Equal(1L, await _db.ScalarAsync<long>(
             "select count(*) from public.audit_log where action = 'security.banned' and target_id = @u", ("u", user.ToString())));
-        Assert.Equal(0L, await _db.ScalarAsync<long>("select count(*) from auth.sessions where user_id = @u", ("u", user)));
+        // The session stays; the token hook restricts its next token and the app shows why (docs/ARCHITECTURE.md §3a).
+        Assert.Equal(1L, await _db.ScalarAsync<long>("select count(*) from auth.sessions where user_id = @u", ("u", user)));
     }
 
     [Fact]

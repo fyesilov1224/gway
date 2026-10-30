@@ -262,7 +262,7 @@ public sealed class ModerationTests(ApiFactory factory) : IClassFixture<ApiFacto
 
         var referral = await ReferralAsync(crew);
         Assert.Equal("suspended", await _db.ScalarAsync<string>("select status from public.account_status where user_id = @u", ("u", crew.Offender)));
-        Assert.True(await _db.ScalarAsync<bool>("select banned_until is not null from auth.users where id = @u", ("u", crew.Offender)));
+        Assert.True(await _db.ScalarAsync<bool>("select banned_until is null from auth.users where id = @u", ("u", crew.Offender)));
 
         Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(support).GetAsync(Path("/admin/referrals"), Ct)).StatusCode);
         var page = await factory.ClientFor(moderator).GetFromJsonAsync<PagedResult<AdminReferral>>(Path("/admin/referrals?status=pending"), Ct);

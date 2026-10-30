@@ -91,6 +91,9 @@ class AdminUserSummary {
 
   /// Name to show; users who have not finished onboarding have no profile.
   String get title => displayName ?? email ?? id;
+
+  /// A suspension without an end date is a ban: the account is hidden everywhere (docs/ARCHITECTURE.md §3a).
+  bool get isBanned => status == AdminAccountStatus.suspended && suspendedUntil == null;
 }
 
 class AdminConsent {

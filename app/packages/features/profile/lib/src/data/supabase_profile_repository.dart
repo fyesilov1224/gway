@@ -101,6 +101,15 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<DateTime?>> suspendedUntil(String userId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('account_notice', params: {'target_user': userId});
+        return switch (r?['suspended_until']) {
+          final String at => DateTime.parse(at),
+          _ => null,
+        };
+      });
+
+  @override
   Future<Result<List<String>>> interests(String userId) => _run(() async {
         final rows = await _client
             .from('profile_interests')

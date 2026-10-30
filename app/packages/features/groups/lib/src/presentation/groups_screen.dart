@@ -96,11 +96,11 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                 padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
                 child: SegmentedButton<_Tab>(
                   showSelectedIcon: false,
+                  // Labels only, on one line: three segments with icons wrap on a phone at large text sizes.
                   segments: [
-                    const ButtonSegment(value: _Tab.discover, label: Text('Keşfet'), icon: Icon(Icons.explore_outlined)),
-                    const ButtonSegment(value: _Tab.mine, label: Text('Gruplarım'), icon: Icon(Icons.groups_outlined)),
-                    if (widget.packages != null)
-                      const ButtonSegment(value: _Tab.packages, label: Text('Paketler'), icon: Icon(Icons.workspace_premium_outlined)),
+                    ButtonSegment(value: _Tab.discover, label: _segmentLabel('Keşfet')),
+                    ButtonSegment(value: _Tab.mine, label: _segmentLabel('Gruplarım')),
+                    if (widget.packages != null) ButtonSegment(value: _Tab.packages, label: _segmentLabel('Paketler')),
                   ],
                   selected: {_tab},
                   onSelectionChanged: (s) => setState(() => _tab = s.first),
@@ -119,6 +119,9 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       ),
     );
   }
+
+  static Widget _segmentLabel(String text) =>
+      FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1, softWrap: false));
 
   List<Widget> _discover() {
     final key = (query: _query, category: _category, limit: _limit);

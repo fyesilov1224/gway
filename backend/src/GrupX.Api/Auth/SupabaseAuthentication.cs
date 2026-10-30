@@ -48,12 +48,15 @@ public static class SupabaseAuthentication
                 }
             });
 
-        // A session the token hook has not verified carries role `unverified` (docs/ARCHITECTURE.md §3h):
-        // it may only reach the endpoints that opt into AllowUnverified.
+        // A session the token hook has not verified, or a suspended account's, carries role `unverified`
+        // (docs/ARCHITECTURE.md §3a, §3h): it may only reach the endpoints that opt into AllowUnverified.
         var verified = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .RequireClaim("role", AuthPolicies.VerifiedRole)
+            .AddRequirements(new ActiveAccountRequirement())
             .Build();
+        services.AddMemoryCache();
+        services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, ActiveAccountHandler>();
         services.AddAuthorizationBuilder()
             .SetDefaultPolicy(verified)
             .SetFallbackPolicy(verified)

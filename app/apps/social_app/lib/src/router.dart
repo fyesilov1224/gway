@@ -247,7 +247,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               period: PlanPeriod.parse(state.uri.queryParameters['period']),
             ),
           ),
-          GoRoute(path: GroupRoutes.create, builder: (_, _) => const CreateGroupScreen()),
+          GoRoute(path: GroupRoutes.create, builder: (_, _) => const CreateGroupScreen(nextRoute: BillingRoutes.newGroupPlan)),
           GoRoute(
             path: '/g/:handle',
             builder: (_, state) => GroupScreen(
@@ -274,6 +274,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, state) => GroupPlanPage(
                   handle: state.pathParameters['handle']!,
                   orderId: state.uri.queryParameters['order'],
+                  isNewGroup: state.uri.queryParameters['new'] == '1',
                 ),
                 routes: [
                   GoRoute(

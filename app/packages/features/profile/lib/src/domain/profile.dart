@@ -87,4 +87,7 @@ abstract interface class ProfileRepository {
   Future<Result<List<String>>> interests(String userId);
 
   Future<Result<void>> setInterests(List<String> slugs);
+
+  /// The end of the user's suspension, or null when not suspended (docs/ARCHITECTURE.md §3a). The reason is not shown.
+  Future<Result<DateTime?>> suspendedUntil(String userId);
 }

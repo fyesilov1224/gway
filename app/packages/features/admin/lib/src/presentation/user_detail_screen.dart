@@ -65,10 +65,30 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       ..invalidate(userStatsProvider);
   }
 
+  /// With an end date: the profile stays visible with a notice; the reason goes only to the user (docs/ARCHITECTURE.md §3a).
   Future<void> _suspend() async {
-    final request = await showSuspendDialog(context);
+    final request = await showSuspendDialog(
+      context,
+      description: 'Kullanıcı askı süresince uygulamayı kullanamaz. Profilinde askıda olduğu ve bitiş tarihi görünür. '
+          'Gerekçeyi yalnızca kullanıcı görür; giriş yapınca ve uygulama açıksa hemen.',
+      durations: const [SuspendDuration.day, SuspendDuration.week, SuspendDuration.month],
+    );
     if (request == null) return;
     await _run((repo) => repo.suspend(widget.userId, reason: request.reason, until: request.until));
+  }
+
+  /// Without an end date: the account is hidden everywhere; the user sees the reason when signing in.
+  Future<void> _ban() async {
+    final request = await showSuspendDialog(
+      context,
+      title: 'Kullanıcıyı kalıcı banla',
+      description: 'Hesap kalıcı olarak kapanır; profili ve içerikleri hiçbir yerde görünmez. '
+          'Kullanıcı giriş yapınca gerekçeyi görür. Ban sonradan kaldırılabilir.',
+      withDuration: false,
+      confirmLabel: 'Kalıcı banla',
+    );
+    if (request == null) return;
+    await _run((repo) => repo.suspend(widget.userId, reason: request.reason, until: null));
   }
 
   @override
@@ -127,14 +147,16 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
     final actions = <Widget>[
       if (canModerate && u.status == AdminAccountStatus.suspended)
         GxButton(
-          label: 'Askıyı kaldır',
+          label: u.isBanned ? 'Banı kaldır' : 'Askıyı kaldır',
           icon: Icons.lock_open_outlined,
           variant: GxButtonVariant.secondary,
           isLoading: _saving,
           onPressed: () => _run((repo) => repo.unsuspend(u.id)),
         ),
-      if (canModerate && u.status == AdminAccountStatus.active)
-        GxButton(label: 'Askıya al', icon: Icons.block, isLoading: _saving, onPressed: _suspend),
+      if (canModerate && u.status == AdminAccountStatus.active) ...[
+        GxButton(label: 'Askıya al', icon: Icons.pause_circle_outline, variant: GxButtonVariant.secondary, isLoading: _saving, onPressed: _suspend),
+        GxButton(label: 'Kalıcı banla', icon: Icons.block, isLoading: _saving, onPressed: _ban),
+      ],
     ];
 
     final left = [
@@ -184,8 +206,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
           tone: GxBadgeTone.danger,
           icon: Icons.block,
           title: u.suspendedUntil == null
-              ? 'Hesap süresiz olarak askıda'
-              : 'Hesap ${formatDateTimeTr(u.suspendedUntil!)} tarihine kadar askıda',
+              ? 'Hesap kalıcı olarak banlı; hiçbir yerde görünmüyor'
+              : 'Hesap ${formatDateTimeTr(u.suspendedUntil!)} tarihine kadar askıda; profilinde uyarı görünüyor',
           body: d.suspensionReason == null ? null : 'Gerekçe: ${d.suspensionReason}',
         ),
       ],
@@ -245,7 +267,7 @@ class _HeaderPanel extends ConsumerWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(user.title, style: textTheme.headlineMedium),
-                  StatusBadge(user.status),
+                  StatusBadge(user.status, banned: user.isBanned),
                   if (user.staffRole != null) RoleBadge(user.staffRole!),
                 ],
               ),

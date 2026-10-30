@@ -511,12 +511,19 @@ class LeagueCategory {
 typedef LeagueKey = ({String category, int province, DateTime month});
 
 class GroupEvents {
-  const GroupEvents({this.events = const [], this.eventsLeft});
+  const GroupEvents({this.events = const [], this.eventsLeft, this.ratingAvg, this.ratingCount = 0, this.toReview = const []});
 
   final List<GroupEvent> events;
 
   /// Events the group may still create this month; managers only.
   final int? eventsLeft;
+
+  /// The average of all reviews of the group's events; null before the first (docs/ARCHITECTURE.md §3b, Grubun puanı).
+  final double? ratingAvg;
+  final int ratingCount;
+
+  /// The viewer's ended events that still await their review.
+  final List<GroupEvent> toReview;
 }
 
 /// The create / edit form; an edit sends every field.

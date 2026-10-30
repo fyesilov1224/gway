@@ -121,6 +121,9 @@ class EventsRepositoryImpl implements EventsRepository {
         return GroupEvents(
           events: [for (final e in (r['events'] as List).cast<Map<String, dynamic>>()) _event(e)],
           eventsLeft: (r['events_left'] as num?)?.toInt(),
+          ratingAvg: ((r['rating'] as Map?)?['avg'] as num?)?.toDouble(),
+          ratingCount: ((r['rating'] as Map?)?['count'] as num?)?.toInt() ?? 0,
+          toReview: [for (final e in ((r['to_review'] as List?) ?? const []).cast<Map<String, dynamic>>()) _event(e)],
         );
       });
 

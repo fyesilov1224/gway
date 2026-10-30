@@ -274,7 +274,7 @@ class _UserRow extends ConsumerWidget {
                     flex: _columns[1],
                     child: Text(user.email ?? '—', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium),
                   ),
-                  Expanded(flex: _columns[2], child: Align(alignment: Alignment.centerLeft, child: StatusBadge(user.status))),
+                  Expanded(flex: _columns[2], child: Align(alignment: Alignment.centerLeft, child: StatusBadge(user.status, banned: user.isBanned))),
                   Expanded(
                     flex: _columns[3],
                     child: Align(
@@ -293,7 +293,7 @@ class _UserRow extends ConsumerWidget {
                 children: [
                   Expanded(child: identity),
                   const SizedBox(width: GxSpacing.sm),
-                  StatusBadge(user.status),
+                  StatusBadge(user.status, banned: user.isBanned),
                 ],
               ),
       ),

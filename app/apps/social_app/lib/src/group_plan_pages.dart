@@ -51,10 +51,13 @@ class _GroupGate extends ConsumerWidget {
 }
 
 class GroupPlanPage extends StatelessWidget {
-  const GroupPlanPage({super.key, required this.handle, this.orderId});
+  const GroupPlanPage({super.key, required this.handle, this.orderId, this.isNewGroup = false});
 
   final String handle;
   final String? orderId;
+
+  /// The step right after creating the group (`?new=1`).
+  final bool isNewGroup;
 
   @override
   Widget build(BuildContext context) => _GroupGate(
@@ -66,6 +69,7 @@ class GroupPlanPage extends StatelessWidget {
           groupName: group.name,
           canManage: me.can(GroupPermission.manageBilling),
           orderId: orderId,
+          onContinue: isNewGroup ? () => context.pushReplacement(GroupRoutes.group(group.handle)) : null,
         ),
       );
 }

@@ -130,7 +130,7 @@ public sealed class AdminTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
     }
 
     [Fact]
-    public async Task Moderator_suspends_and_unsuspends_with_auth_ban_and_audit()
+    public async Task Moderator_suspends_and_unsuspends_with_audit()
     {
         var moderator = await StaffAsync("moderator");
         var target = await _db.CreateUserAsync();
@@ -143,7 +143,8 @@ public sealed class AdminTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
         var state = await suspend.Content.ReadFromJsonAsync<AccountState>(Ct);
         Assert.Equal(AccountStatuses.Suspended, state?.Status);
         Assert.Equal("Taciz", state?.SuspensionReason);
-        Assert.True(await _db.ScalarAsync<bool>("select banned_until is not null from auth.users where id = @id", ("id", target)));
+        // No Supabase Auth ban: the person signs in to the locked screen with the reason (docs/ARCHITECTURE.md §3a).
+        Assert.True(await _db.ScalarAsync<bool>("select banned_until is null from auth.users where id = @id", ("id", target)));
 
         var detail = await client.GetFromJsonAsync<AdminUserDetail>($"/admin/users/{target}", Ct);
         Assert.Contains(detail!.History, h => h.Action == "user.suspended" && h.ActorId == moderator);
@@ -157,6 +158,21 @@ public sealed class AdminTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
         Assert.Equal(1L, await _db.ScalarAsync<long>(
             "select count(*) from public.audit_log where action = 'user.unsuspended' and target_id = @id",
             ("id", target.ToString())));
+    }
+
+    [Fact]
+    public async Task A_suspended_person_reads_the_reason_but_an_earlier_token_does_nothing_else()
+    {
+        var moderator = await StaffAsync("moderator");
+        var target = await _db.CreateUserAsync();
+        (await factory.ClientFor(moderator).PostAsJsonAsync(
+            Suspension(target), new SuspendUserRequest("Spam", DateTimeOffset.UtcNow.AddDays(3)), Ct)).EnsureSuccessStatusCode();
+
+        // This token predates the suspension and still says `authenticated` (docs/ARCHITECTURE.md §3a).
+        var own = factory.ClientFor(target);
+        Assert.Equal(HttpStatusCode.Forbidden, (await own.PostAsync(new Uri("/account/deletion", UriKind.Relative), null, Ct)).StatusCode);
+        var state = await own.GetFromJsonAsync<AccountState>(new Uri("/account", UriKind.Relative), Ct);
+        Assert.Equal("Spam", state?.SuspensionReason);
     }
 
     [Fact]

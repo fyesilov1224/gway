@@ -192,7 +192,9 @@ class GroupEventsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(groupEventsProvider(groupId)).value;
-    if (data == null || (data.events.isEmpty && !canManage)) return const SizedBox.shrink();
+    if (data == null || (data.events.isEmpty && data.toReview.isEmpty && data.ratingAvg == null && !canManage)) {
+      return const SizedBox.shrink();
+    }
     final textTheme = Theme.of(context).textTheme;
     final left = data.eventsLeft;
     return Padding(
@@ -226,6 +228,30 @@ class GroupEventsSection extends ConsumerWidget {
               left > 0 ? 'Bu ay ${formatCount(left)} organizasyon hakkın kaldı.' : 'Bu ayın organizasyon hakkı doldu. Paketi yükselterek artırabilirsin.',
               style: textTheme.bodySmall?.copyWith(color: left > 0 ? GxColors.textSecondary : GxColors.error),
             ),
+          if (data.ratingAvg case final avg?)
+            Row(
+              children: [
+                const Icon(Icons.star_rounded, color: GxColors.primary, size: GxSpacing.md + GxSpacing.xxs),
+                const SizedBox(width: GxSpacing.xxs),
+                Expanded(
+                  child: Text(
+                    '${ratingLabel(avg)} · organizasyonlarına ${formatCount(data.ratingCount)} değerlendirme',
+                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          if (data.toReview.isNotEmpty) ...[
+            const SizedBox(height: GxSpacing.sm),
+            Text('Nasıldı?', style: textTheme.titleSmall),
+            Text('Katıldığın organizasyonu puanla; herkes yalnızca ortalamayı görür.',
+                style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+            for (final e in data.toReview) ...[
+              const SizedBox(height: GxSpacing.xs),
+              _ReviewBox(key: ValueKey(e.id), event: e, mine: null, title: '${e.title} · ${formatDateTr(e.startsAt.toLocal())}'),
+            ],
+            const SizedBox(height: GxSpacing.sm),
+          ],
           const SizedBox(height: GxSpacing.xs),
           if (data.events.isEmpty)
             Text('Yürüyüş, konser ya da buluşma; ilk organizasyonu oluştur.',
@@ -1210,10 +1236,13 @@ class _EditorState extends ConsumerState<_Editor> {
 
 /// The attendee's stars and a note for the organizers; saved straight to Supabase (own row).
 class _ReviewBox extends ConsumerStatefulWidget {
-  const _ReviewBox({required this.event, required this.mine});
+  const _ReviewBox({super.key, required this.event, required this.mine, this.title});
 
   final GroupEvent event;
   final EventReview? mine;
+
+  /// Replaces the heading where the event is not on screen (the group page).
+  final String? title;
 
   @override
   ConsumerState<_ReviewBox> createState() => _ReviewBoxState();
@@ -1253,7 +1282,7 @@ class _ReviewBoxState extends ConsumerState<_ReviewBox> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.mine == null ? 'Organizasyonu değerlendir' : 'Değerlendirmen', style: textTheme.labelLarge),
+          Text(widget.title ?? (widget.mine == null ? 'Organizasyonu değerlendir' : 'Değerlendirmen'), style: textTheme.labelLarge),
           Row(
             children: [
               for (var star = 1; star <= 5; star++)

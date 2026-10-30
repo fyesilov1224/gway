@@ -10,12 +10,15 @@ GxBadgeTone statusTone(AdminAccountStatus status) => switch (status) {
     };
 
 class StatusBadge extends StatelessWidget {
-  const StatusBadge(this.status, {super.key});
+  const StatusBadge(this.status, {super.key, this.banned = false});
 
   final AdminAccountStatus status;
 
+  /// Suspended without an end date (docs/ARCHITECTURE.md §3a).
+  final bool banned;
+
   @override
-  Widget build(BuildContext context) => GxBadge(status.label, tone: statusTone(status), dot: true);
+  Widget build(BuildContext context) => GxBadge(banned ? 'Banlı' : status.label, tone: statusTone(status), dot: true);
 }
 
 class RoleBadge extends StatelessWidget {

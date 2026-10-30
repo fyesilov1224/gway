@@ -19,6 +19,11 @@ final profileByUsernameProvider = FutureProvider.family<Profile, String>(
       (await ref.watch(profileRepositoryProvider).byUsername(username)).getOrThrow(),
 );
 
+/// The end of a visited user's suspension (a notice on the profile); null when not suspended.
+final profileSuspensionProvider = FutureProvider.autoDispose.family<DateTime?, String>(
+  (ref, userId) async => (await ref.watch(profileRepositoryProvider).suspendedUntil(userId)).getOrThrow(),
+);
+
 final interestsProvider = FutureProvider.family<List<String>, String>(
   (ref, userId) async =>
       (await ref.watch(profileRepositoryProvider).interests(userId)).getOrThrow(),

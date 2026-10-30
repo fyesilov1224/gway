@@ -5,9 +5,16 @@ using GrupX.Api.Endpoints;
 
 namespace GrupX.Api.Tests;
 
-public sealed class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private static readonly Guid UserId = Guid.Parse("00000000-0000-0000-0000-0000000000b1");
+
+    // Signed-in endpoints need an active account (docs/ARCHITECTURE.md §3a).
+    private readonly TestDatabase _db = new();
+
+    public ValueTask InitializeAsync() => _db.InitializeAsync();
+
+    public ValueTask DisposeAsync() => _db.DisposeAsync();
 
     private HttpClient ClientWithToken(string token)
     {
@@ -36,11 +43,12 @@ public sealed class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Me_with_valid_token_returns_user_id()
     {
-        var client = ClientWithToken(ApiFactory.CreateToken(UserId));
+        var user = await _db.CreateUserAsync();
+        var client = ClientWithToken(ApiFactory.CreateToken(user));
 
         var me = await client.GetFromJsonAsync<MeEndpoints.MeResponse>(new Uri("/me", UriKind.Relative), TestContext.Current.CancellationToken);
 
-        Assert.Equal(UserId, me?.UserId);
+        Assert.Equal(user, me?.UserId);
     }
 
     public static TheoryData<string, string> InvalidTokens() => new()
@@ -79,7 +87,7 @@ public sealed class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     public async Task Requests_over_the_limit_get_429()
     {
         // A dedicated user id gives this test its own rate limit partition.
-        var client = ClientWithToken(ApiFactory.CreateToken(Guid.NewGuid()));
+        var client = ClientWithToken(ApiFactory.CreateToken(await _db.CreateUserAsync()));
         var uri = new Uri("/me", UriKind.Relative);
 
         for (var i = 0; i < ApiFactory.PermitsPerMinute; i++)

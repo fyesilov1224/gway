@@ -395,6 +395,14 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] "Her zaman / Bugün / 7 gün içinde" ve 5–50 km mesafe; daire çizimi, liste görünümü de aynı filtreyle
 - [x] pgTAP (1014/1014) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
 - [x] Bulut: `0055` migration'ı (2026-10-29)
+### Düzeltmeler (kullanıcı geri bildirimi, 2026-10-30)
+- [x] Gruplar ekranında sekme yazıları dar telefonda kaymıyor (ikonsuz, tek satır)
+- [x] Grup kurulunca paket adımı: web'de paketler ve "Ücretsiz ile devam et", mobilde yalnızca limitler (`docs/ARCHITECTURE.md` §7)
+- [x] Grup sayfasında organizasyonlardan gelen ortalama puan ve "Nasıldı?" ile yerinde yıldız verme (`0056`; `docs/ARCHITECTURE.md` §3b)
+- [x] Askı ve ban ayrımı: süreli askıda profil uyarıyla görünür (gerekçe yalnız kişiye), ban (süresiz) hesabı her yerden gizler; kişi giriş yapıp kilitli ekranda gerekçeyi görür, uygulama açıksa uyarı anında düşer; panelde "Askıya al" ve "Kalıcı banla" (`0057`; `docs/ARCHITECTURE.md` §3a)
+- [x] pgTAP (1033/1033), C# (222/222) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-30)
+- [x] Bulut: `0056` ve `0057` migration'ları (2026-10-30)
+- [ ] Bulut: token hook'u açık olmalı (`supabase config push`), yoksa askıdaki hesabın token'ı kısıtlanmaz
 ### 18n — Strava bağlantısı (API izni ve marka kuralları; onayla)
 ### 18o — Organizasyon ücretini uygulamadan toplama (kural değişikliği, PayTR pazaryeri ve hukuki inceleme; onayla)
 

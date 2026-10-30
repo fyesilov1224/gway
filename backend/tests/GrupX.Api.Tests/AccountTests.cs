@@ -73,7 +73,8 @@ public sealed class AccountTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var response = await factory.ClientFor(user).PostAsync(new Uri("/account/deletion", UriKind.Relative), null, Ct);
 
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        // A suspended account reaches only its account state (docs/ARCHITECTURE.md §3a).
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]

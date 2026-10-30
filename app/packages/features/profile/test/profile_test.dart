@@ -111,6 +111,23 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('a suspended profile warns visitors until when, without the reason', (tester) async {
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          currentUserIdProvider.overrideWithValue('u2'),
+          myProfileProvider.overrideWith((ref) async => _profile),
+          interestsProvider.overrideWith((ref, id) async => const []),
+          categoriesProvider.overrideWith((ref) async => const []),
+          profileSuspensionProvider.overrideWith((ref, id) async => DateTime(2026, 11, 2, 9)),
+        ],
+        child: MaterialApp(theme: GxTheme.light(), home: const ProfileScreen()),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('tarihine kadar askıya alındı.'), findsOneWidget);
+      expect(find.textContaining('gerekçe', findRichText: true), findsNothing);
+    });
+
     testWidgets('missing profile shows an empty state with an action', (tester) async {
       await tester.pumpWidget(
         ProviderScope(

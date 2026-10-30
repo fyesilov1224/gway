@@ -12,7 +12,10 @@ import 'widgets.dart';
 /// Name, address, category, join policy and a short introduction. Images,
 /// rules and links are added on the edit screen afterwards.
 class CreateGroupScreen extends ConsumerStatefulWidget {
-  const CreateGroupScreen({super.key});
+  const CreateGroupScreen({super.key, this.nextRoute});
+
+  /// Where the owner goes once the group exists (the plan step in the app); the group page if null.
+  final String Function(String handle)? nextRoute;
 
   @override
   ConsumerState<CreateGroupScreen> createState() => _CreateGroupScreenState();
@@ -66,7 +69,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
         ref
           ..invalidate(userGroupsProvider)
           ..invalidate(discoverGroupsProvider);
-        context.pushReplacement(GroupRoutes.group(value));
+        context.pushReplacement(widget.nextRoute?.call(value) ?? GroupRoutes.group(value));
       case Err(:final failure):
         setState(() {
           _saving = false;

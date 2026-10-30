@@ -212,13 +212,44 @@ void main() {
       expect(_price('6.990 ₺'), findsOneWidget);
     });
 
-    testWidgets('mobile apps show the plan status without prices', (tester) async {
+    testWidgets('mobile apps show the plan status and the other plans\' limits, without prices (Play rule)', (tester) async {
       await _pump(tester, _app(screen, plan: _onStarter(), web: false), size: const Size(390, 844));
 
       expect(find.text('Mevcut paket'), findsOneWidget);
       expect(find.text('12 / 250'), findsOneWidget);
+      expect(find.text('Paketler'), findsOneWidget);
+      expect(find.text('Pro'), findsOneWidget);
+      expect(find.text('1.000 üye'), findsOneWidget);
       expect(find.textContaining('₺'), findsNothing);
-      expect(find.text('Paketler'), findsNothing);
+      expect(find.textContaining('web'), findsNothing);
+      expect(find.byType(GxButton), findsNothing);
+    });
+
+    testWidgets('a new group starts free: the web offers plans, mobile only their limits', (tester) async {
+      const free = GroupPlan(plan: _free, memberCount: 1, paidUntil: null);
+      var continued = 0;
+      final step = PlanScreen(
+        groupId: 'g1',
+        handle: 'doga',
+        groupName: 'Doğa Yürüyüşçüleri',
+        canManage: true,
+        onContinue: () => continued++,
+      );
+
+      await _pump(tester, _app(step, plan: free));
+      expect(find.text('Grubun hazır'), findsOneWidget);
+      expect(_price('249 ₺'), findsOneWidget);
+      await tester.tap(find.text('Ücretsiz ile devam et'));
+      expect(continued, 1);
+
+      await _pump(tester, _app(step, plan: free, web: false, textScale: 1.3), size: const Size(390, 844));
+      expect(tester.takeException(), isNull);
+      expect(find.text('Grubun hazır'), findsOneWidget);
+      expect(find.text('Başlangıç'), findsOneWidget);
+      expect(find.textContaining('₺'), findsNothing);
+      expect(find.textContaining('web'), findsNothing);
+      await tester.tap(find.text('Gruba git'));
+      expect(continued, 2);
     });
 
     testWidgets('phone layout survives 130% text', (tester) async {

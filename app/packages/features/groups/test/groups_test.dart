@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groups/groups.dart';
@@ -299,6 +300,14 @@ void main() {
         tester,
         _app(GroupsScreen(packages: (_, g) => Text('paket ${g.handle}')), userId: 'me', myGroups: [owned, joined]),
       );
+
+      // The three tab labels stay on one line on a small phone.
+      for (final label in ['Keşfet', 'Gruplarım', 'Paketler']) {
+        final boxes = tester
+            .renderObject<RenderParagraph>(find.text(label))
+            .getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: label.length));
+        expect({for (final b in boxes) b.top}, hasLength(1), reason: label);
+      }
 
       await tester.tap(find.text('Paketler'));
       await tester.pumpAndSettle();

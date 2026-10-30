@@ -23,12 +23,18 @@ Future<SuspendRequest?> showSuspendDialog(
   String title = 'Kullanıcıyı askıya al',
   String description = 'Kullanıcı askı süresince giriş yapamaz ve profili gizlenir. Gerekçe kullanıcıya gösterilir.',
   bool withDuration = true,
+  List<SuspendDuration> durations = SuspendDuration.values,
   String confirmLabel = 'Askıya al',
 }) =>
     showDialog<SuspendRequest>(
       context: context,
-      builder: (_) =>
-          SuspendDialog(title: title, description: description, withDuration: withDuration, confirmLabel: confirmLabel),
+      builder: (_) => SuspendDialog(
+        title: title,
+        description: description,
+        withDuration: withDuration,
+        durations: durations,
+        confirmLabel: confirmLabel,
+      ),
     );
 
 class SuspendDialog extends StatefulWidget {
@@ -37,12 +43,16 @@ class SuspendDialog extends StatefulWidget {
     required this.title,
     required this.description,
     this.withDuration = true,
+    this.durations = SuspendDuration.values,
     this.confirmLabel = 'Askıya al',
   });
 
   final String title;
   final String description;
   final bool withDuration;
+
+  /// The choices offered; a user's suspension has an end date (no end date is a ban, its own action).
+  final List<SuspendDuration> durations;
   final String confirmLabel;
 
   static const maxReasonLength = 500;
@@ -98,7 +108,7 @@ class _SuspendDialogState extends State<SuspendDialog> {
                   spacing: GxSpacing.xs,
                   runSpacing: GxSpacing.xs,
                   children: [
-                    for (final d in SuspendDuration.values)
+                    for (final d in widget.durations)
                       ChoiceChip(
                         label: Text(d.label),
                         selected: _duration == d,

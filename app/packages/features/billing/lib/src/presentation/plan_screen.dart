@@ -21,6 +21,7 @@ class PlanScreen extends ConsumerWidget {
     required this.groupName,
     required this.canManage,
     this.orderId,
+    this.onContinue,
   });
 
   final String groupId;
@@ -32,6 +33,9 @@ class PlanScreen extends ConsumerWidget {
 
   /// Set when returning from the payment page.
   final String? orderId;
+
+  /// Set right after the group is created: "Grubun hazır" with a way on to the group page.
+  final VoidCallback? onContinue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,6 +66,31 @@ class PlanScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (onContinue case final go?) ...[
+                      GxPanel(
+                        title: 'Grubun hazır',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              purchases
+                                  ? 'Grubun Ücretsiz paketle başladı. Daha fazla üye, organizasyon ya da yayın dakikası gerekiyorsa '
+                                      'aşağıdan bir paket seçebilirsin.'
+                                  : 'Grubun Ücretsiz paketle başladı. Paketlerin limitleri aşağıda.',
+                              style: textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: GxSpacing.md),
+                            GxButton(
+                              label: purchases ? 'Ücretsiz ile devam et' : 'Gruba git',
+                              variant: purchases ? GxButtonVariant.secondary : GxButtonVariant.primary,
+                              expand: true,
+                              onPressed: go,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: GxSpacing.md),
+                    ],
                     if (orderId != null && canManage) ...[
                       OrderResult(orderId: orderId!, paidText: 'Ödeme alındı. Paketin etkin.', onPaid: () => refreshGroupPlan(ref, groupId)),
                       const SizedBox(height: GxSpacing.md),
@@ -83,6 +112,9 @@ class PlanScreen extends ConsumerWidget {
                     if (purchases && plan.value != null) ...[
                       const SizedBox(height: GxSpacing.xl),
                       _PlanChoices(groupId: groupId, handle: handle),
+                    ] else if (canManage && plan.value != null) ...[
+                      const SizedBox(height: GxSpacing.md),
+                      _OtherPlans(current: plan.value!.plan.slug),
                     ],
                   ],
                 ),
@@ -155,6 +187,35 @@ class _CurrentPlan extends ConsumerWidget {
                   style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
                 ),
               ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Where purchases are off (Android): the other plans' names and limits only; no price, no purchase, no way to the web
+/// (docs/ARCHITECTURE.md §10, Ödeme).
+class _OtherPlans extends ConsumerWidget {
+  const _OtherPlans({required this.current});
+
+  final String current;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final others = [for (final p in ref.watch(plansProvider).value ?? const <Plan>[]) if (p.slug != current) p];
+    if (others.isEmpty) return const SizedBox.shrink();
+    return GxPanel(
+      title: 'Paketler',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, p) in others.indexed) ...[
+            if (i > 0) const Divider(height: GxSpacing.lg),
+            Text(p.name, style: textTheme.titleMedium),
+            const SizedBox(height: GxSpacing.xs),
+            PlanLimits(plan: p),
           ],
         ],
       ),

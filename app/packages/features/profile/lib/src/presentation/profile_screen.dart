@@ -113,6 +113,7 @@ class _ProfileBody extends ConsumerWidget {
     final social = ref.watch(profileSocialProvider(profile.id)).value;
     final requests = isOwn && profile.isPrivate ? ref.watch(followRequestsProvider).value?.length ?? 0 : 0;
     final hidden = social != null && (social.blockedByMe || !social.canView);
+    final suspendedUntil = isOwn ? null : ref.watch(profileSuspensionProvider(profile.id)).value;
     final teammate = ref.watch(teammateStatusProvider(profile.id)).value;
     final teammateRequests = isOwn ? ref.watch(myTeammatesProvider).value?.incoming.length ?? 0 : 0;
 
@@ -132,6 +133,8 @@ class _ProfileBody extends ConsumerWidget {
                 ? const Icon(Icons.lock_outline, size: GxSpacing.md, color: GxColors.textSecondary)
                 : null,
             children: [
+              if (suspendedUntil != null)
+                GxFormMessage('Bu hesap ${formatDateTimeTr(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
               if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
                   (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates)))
                 Wrap(

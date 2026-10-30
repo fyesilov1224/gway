@@ -59,7 +59,8 @@ class _DeletionPendingScreenState extends ConsumerState<DeletionPendingScreen> {
   }
 }
 
-/// Shown when a still-valid session belongs to a suspended account.
+/// The locked screen of a suspended or banned account: the reason, the end date and a way out
+/// (docs/ARCHITECTURE.md §3a). It appears at once when the platform team acts.
 class SuspendedScreen extends ConsumerWidget {
   const SuspendedScreen({super.key});
 
@@ -67,15 +68,29 @@ class SuspendedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountStateProvider).value;
     final until = account?.suspendedUntil;
+    final banned = account?.isBanned ?? false;
     return AuthLayout(
-      title: 'Hesabın askıya alındı',
+      title: banned ? 'Hesabın kalıcı olarak kapatıldı' : 'Hesabın askıya alındı',
       subtitle: until == null
-          ? 'Hesabın platform ekibi tarafından süresiz olarak askıya alındı.'
-          : 'Hesabın ${formatDateTimeTr(until)} tarihine kadar askıya alındı.',
+          ? 'Hesabın platform ekibi tarafından kalıcı olarak kapatıldı. Profilin artık kimseye görünmüyor.'
+          : 'Hesabın ${formatDateTimeTr(until)} tarihine kadar askıya alındı. Bu süre boyunca uygulamayı kullanamazsın; '
+              'profilinde askıda olduğun görünür.',
       children: [
         if (account?.suspensionReason case final reason?) ...[
-          GxFormMessage('Gerekçe: $reason', kind: GxFormMessageKind.info),
+          GxFormMessage(banned ? 'Ban gerekçesi: $reason' : 'Askı gerekçesi: $reason'),
           const SizedBox(height: GxSpacing.md),
+        ],
+        if (!banned) ...[
+          GxButton(
+            label: 'Tekrar dene',
+            variant: GxButtonVariant.secondary,
+            onPressed: () async {
+              await refreshAccountSession(() => ref.read(supabaseClientProvider));
+              ref.invalidate(accountStateProvider);
+            },
+            expand: true,
+          ),
+          const SizedBox(height: GxSpacing.sm),
         ],
         GxButton(
           label: 'Çıkış yap',

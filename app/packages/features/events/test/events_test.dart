@@ -644,6 +644,23 @@ void main() {
     expect(find.textContaining('organizasyon hakkı doldu'), findsOneWidget);
     expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Oluştur')).onPressed, isNull);
   });
+
+  testWidgets('the group page shows its rating and lets an attendee rate an ended event', (tester) async {
+    final fake = await _pump(
+      tester,
+      const Scaffold(body: SingleChildScrollView(child: GroupEventsSection(groupId: 'g1', canManage: false))),
+      events: GroupEvents(ratingAvg: 4.5, ratingCount: 12, toReview: [_event()]),
+    );
+    expect(find.text('4,5 · organizasyonlarına 12 değerlendirme'), findsOneWidget);
+    expect(find.text('Nasıldı?'), findsOneWidget);
+    expect(find.textContaining('Belgrad Ormanı yürüyüşü ·'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('5 yıldız'));
+    await tester.pump();
+    await tester.tap(find.text('Kaydet'));
+    await tester.pumpAndSettle();
+    expect(fake.reviews, ['e1:5:']);
+  });
   test('equipment is typed comma separated', () {
     expect(equipmentItems(' Kask, Su ,, Mont '), ['Kask', 'Su', 'Mont']);
     expect(equipmentItems(''), isEmpty);

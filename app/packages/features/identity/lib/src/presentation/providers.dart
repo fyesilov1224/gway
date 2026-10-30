@@ -49,7 +49,7 @@ final birthDateProvider = FutureProvider<DateTime?>((ref) async {
 });
 
 final accountRepositoryProvider = Provider<AccountRepository>(
-  (ref) => ApiAccountRepository(ref.watch(apiClientProvider)),
+  (ref) => ApiAccountRepository(ref.watch(apiClientProvider), ref.watch(supabaseClientProvider)),
 );
 
 /// Documents the signed-in user still has to accept. Empty when signed out.
@@ -64,10 +64,29 @@ final latestLegalDocumentsProvider = FutureProvider<List<LegalDocument>>(
 );
 
 /// Account lifecycle state of the signed-in user. Null when signed out.
+///
+/// A suspension reaches the open app at once (docs/ARCHITECTURE.md §3a): the session is refreshed so the next token
+/// carries the restricted role, and the gate moves to the locked screen with the reason.
 final accountStateProvider = FutureProvider<AccountState?>((ref) async {
-  if (ref.watch(currentUserIdProvider) == null) return null;
-  return (await ref.watch(accountRepositoryProvider).get()).getOrThrow();
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) return null;
+  final repo = ref.watch(accountRepositoryProvider);
+  final changes = repo.changes(userId).listen((_) async {
+    await refreshAccountSession(() => ref.read(supabaseClientProvider));
+    ref.invalidateSelf();
+  });
+  ref.onDispose(changes.cancel);
+  return (await repo.get()).getOrThrow();
 });
+
+/// A new token, so its role follows the account (restricted while suspended). Failing to refresh changes nothing.
+Future<void> refreshAccountSession(SupabaseClient Function() client) async {
+  try {
+    await client().auth.refreshSession();
+  } on Object {
+    // Offline or signed out; the gate still reads the account state.
+  }
+}
 
 final securityRepositoryProvider = Provider<SecurityRepository>(
   (ref) => ApiSecurityRepository(ref.watch(apiClientProvider)),
