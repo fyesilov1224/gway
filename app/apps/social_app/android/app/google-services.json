@@ -42,6 +42,25 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981517510131:android:32fd644cc31f6f154a5e86",
+        "android_client_info": {
+          "package_name": "com.gway.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI0G4aC_TTztfliV_GDpxsXeNt36stZW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

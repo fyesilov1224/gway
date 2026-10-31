@@ -436,7 +436,8 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Arayüz metinleri, paylaşım sayfaları, takvim, ödeme açıklamaları, 2FA ve passkey adı GWAY; C# `Gway.*`, Flutter `Gw*` önekleri
 - [x] Paket kimlikleri `com.gway.app` ve `com.gway.admin.admin_panel`, giriş dönüş adresleri `com.gway.app://` ve `com.gway.admin://`
 - [x] Hukuki metinlerin GWAY adlı yeni sürümleri ve ayrılmış `gway` adı (`0061`, pgTAP)
-- [ ] Kullanıcıda: Firebase'de `com.gway.app` Android uygulaması ve yeni `google-services.json` (`flutterfire configure`), bulutta `0061` migration'ı, Supabase'te `com.gway.app://auth-callback` ve `com.gway.admin://auth-callback` yönlendirmeleri, Google OAuth istemcisinde yeni paket adı
+- [x] Firebase: `com.gway.app` Android uygulaması (`1:981517510131:android:32fd644cc31f6f154a5e86`), yeni `google-services.json`; ev ağı APK'sı derlendi (2026-10-31)
+- [ ] Kullanıcıda: bulutta `0061` migration'ı, Supabase'te `com.gway.app://auth-callback` ve `com.gway.admin://auth-callback` yönlendirmeleri, Google OAuth istemcisinde yeni paket adı
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
