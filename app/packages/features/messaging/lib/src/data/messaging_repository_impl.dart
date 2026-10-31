@@ -25,7 +25,7 @@ class MessagingRepositoryImpl implements MessagingRepository {
   static const _bucket = 'message-images';
 
   static const _messageColumns =
-      'id, body, image_path, created_at, deleted_at, removed_reason, sender:profiles!messages_sender_id_fkey(id, username, display_name, avatar_path)';
+      'id, sender_id, body, image_path, created_at, deleted_at, removed_reason, sender:profiles!messages_sender_id_fkey(id, username, display_name, avatar_path)';
 
   String get _me => _client.auth.currentUser?.id ?? (throw const UnauthorizedFailure());
 
@@ -118,7 +118,11 @@ class MessagingRepositoryImpl implements MessagingRepository {
           for (final r in rows.reversed)
             ChatMessage(
               id: r['id'] as String,
-              sender: _sender((r['sender'] as Map).cast()),
+              // RLS hides the profile of a suspended, banned or departing member; one such message must not break the chat.
+              sender: switch (r['sender']) {
+                final Map<String, dynamic> s => _sender(s),
+                _ => MessageSender.hidden(r['sender_id'] as String),
+              },
               createdAt: DateTime.parse(r['created_at'] as String),
               body: r['body'] as String,
               imagePath: r['image_path'] as String?,

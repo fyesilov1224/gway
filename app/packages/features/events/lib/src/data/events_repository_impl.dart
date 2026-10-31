@@ -665,6 +665,10 @@ class EventsRepositoryImpl implements EventsRepository {
             .eq('option_id', optionId)
             .order('created_at', ascending: true)
             .limit(100);
-        return [for (final r in rows) _person((r['person'] as Map).cast())];
+        // People whose profile is hidden (suspended, banned or being deleted) are left out of the list.
+        return [
+          for (final r in rows)
+            if (r['person'] case final Map<String, dynamic> person) _person(person),
+        ];
       });
 }

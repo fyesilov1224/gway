@@ -67,12 +67,16 @@ class LiveRepositoryImpl implements LiveRepository {
     );
   }
 
-  LiveComment _comment(Map<String, dynamic> r) => LiveComment(
-        id: (r['id'] as num).toInt(),
-        author: _person((r['author'] as Map).cast()),
-        body: r['body'] as String,
-        createdAt: DateTime.parse(r['created_at'] as String),
-      );
+  /// Null when RLS hides the author (suspended, banned or being deleted); such comments are left out.
+  LiveComment? _comment(Map<String, dynamic> r) => switch (r['author']) {
+        final Map<String, dynamic> author => LiveComment(
+            id: (r['id'] as num).toInt(),
+            author: _person(author),
+            body: r['body'] as String,
+            createdAt: DateTime.parse(r['created_at'] as String),
+          ),
+        _ => null,
+      };
 
   /// A Realtime channel as a stream; leaving the stream leaves the channel.
   Stream<T> _changes<T>(String name, String table, String column, String value, void Function(PostgresChangePayload, StreamController<T>) onChange) {
@@ -135,7 +139,7 @@ class LiveRepositoryImpl implements LiveRepository {
             .eq('broadcast_id', id)
             .order('id', ascending: false)
             .limit(100);
-        return [for (final r in rows.reversed) _comment(r)];
+        return [for (final r in rows.reversed) ?_comment(r)];
       });
 
   @override
@@ -145,7 +149,9 @@ class LiveRepositoryImpl implements LiveRepository {
           case PostgresChangeEvent.insert:
             // The change carries no profile; read the row with its author.
             final row = await _client.from('live_comments').select(_commentColumns).eq('id', payload.newRecord['id'] as Object).maybeSingle();
-            if (row != null && !out.isClosed) out.add(LiveCommentAdded(_comment(row)));
+            if (row case final r? when !out.isClosed) {
+              if (_comment(r) case final comment?) out.add(LiveCommentAdded(comment));
+            }
           case PostgresChangeEvent.delete:
             if (payload.oldRecord['id'] case final num commentId) out.add(LiveCommentRemoved(commentId.toInt()));
           default:

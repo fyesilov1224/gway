@@ -241,7 +241,7 @@ class _Chat extends ConsumerWidget {
                                   (next == null ||
                                       next.sender.id != m.sender.id ||
                                       !DateUtils.isSameDay(next.createdAt.toLocal(), m.createdAt.toLocal())),
-                              onOpenSender: () => onOpenProfile(m.sender.username),
+                              onOpenSender: m.sender.isHidden ? null : () => onOpenProfile(m.sender.username),
                               status: m.id == seenId
                                   ? 'Görüldü'
                                   : m.id == lastMine && !group && !m.isDeleted
@@ -307,7 +307,8 @@ class _Bubble extends ConsumerStatefulWidget {
 
   /// The sender's photo beside the bubble; others' messages without it keep its room so the bubbles line up.
   final bool showAvatar;
-  final VoidCallback onOpenSender;
+  /// Null for a sender whose profile is hidden.
+  final VoidCallback? onOpenSender;
 
   /// "Görüldü" or "Gönderildi" under the user's latest message.
   final String? status;

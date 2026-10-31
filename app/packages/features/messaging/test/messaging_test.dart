@@ -124,6 +124,31 @@ void main() {
     expect(opened, 'deniz');
   });
 
+  testWidgets('a member whose profile is hidden keeps their messages, unnamed and without a profile link', (tester) async {
+    final day = DateTime(2026, 10, 22, 9);
+    final thread = ChatThread(
+      conversation: const Conversation(
+        id: 'g1',
+        kind: ConversationKind.group,
+        myState: MemberState.active,
+        group: ChatGroup(id: 'grp', handle: 'doga', name: 'Doğa'),
+      ),
+      messages: [
+        _message('m1', const MessageSender.hidden('gone'), day, body: 'İlk kez geliyorum'),
+        _message('m2', _deniz, day.add(const Duration(minutes: 1))),
+      ],
+    );
+    String? opened;
+    await _pumpChat(tester, thread, onOpenProfile: (username) => opened = username);
+
+    expect(find.text('GWAY kullanıcısı'), findsOneWidget);
+    expect(find.text('İlk kez geliyorum'), findsOneWidget);
+    final photo = find.byWidgetPredicate((w) => w is GwAvatar && w.name == 'GWAY kullanıcısı');
+    expect(photo, findsOneWidget);
+    await tester.tap(photo);
+    expect(opened, isNull);
+  });
+
   testWidgets('a locked match chat offers the package instead of the composer', (tester) async {
     final thread = ChatThread(conversation: _direct(blocker: 'match_chat_locked'), messages: const []);
     String? opened;

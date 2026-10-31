@@ -1067,6 +1067,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 - **Anlık güncelleme:** Supabase Realtime ile gelir (`messages`, RLS korur).
 - **Bildirim tablosuna yazılmaz.** Okunmamış mesaj sayısı mesaj ikonunda gösterilir; push bildirimi Firebase bilgileri gelince bağlanır.
 - **Hesap silme:** kişinin mesajlarını da siler (KVKK).
+- **Profili gizlenen gönderen:** RLS, banlanan ya da silinme sürecindeki kişinin profilini gizler. Onun mesajları sohbette kalır, "GWAY kullanıcısı" olarak ve profil bağlantısı olmadan görünür; tek bir böyle mesaj sohbetin açılmasını engellemez. Canlı yayın yorumlarında ve anket oy verenler listesinde böyle kişiler gösterilmez (gönderi yorumlarındaki gibi).
 
 ### Şikayet ve moderasyon
 - Mesaj şikayet edilebilir (`reports.target_type = 'message'`; kanıt olarak metin saklanır).

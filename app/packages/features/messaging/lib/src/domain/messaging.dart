@@ -118,10 +118,15 @@ class Conversation {
 class MessageSender {
   const MessageSender({required this.id, required this.username, required this.displayName, this.avatarUrl});
 
+  /// Someone whose profile the reader may not see (suspended, banned or being deleted): their messages stay, unnamed.
+  const MessageSender.hidden(this.id) : username = '', displayName = 'GWAY kullanıcısı', avatarUrl = null;
+
   final String id;
   final String username;
   final String displayName;
   final String? avatarUrl;
+
+  bool get isHidden => username.isEmpty;
 }
 
 class ChatMessage {
