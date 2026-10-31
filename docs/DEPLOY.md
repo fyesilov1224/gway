@@ -9,6 +9,8 @@ api.<alan adı>      → C# API
 livekit.<alan adı>  → LiveKit sinyal (WebSocket); ses 7881/tcp ve 7882/udp
 ```
 
+**Durum (2026-10-31):** Yayında. Alan adı `gwayapp.com` (Cloudflare, DNS kayıtları proxy'siz), sunucu Hetzner CX23 Helsinki `gway-1` (CX tipi Almanya'da tükenmişti), dosyalar sunucuda `/opt/gway/deploy`. Supabase Frankfurt'taki `GWAY` projesine taşındı (`ivrfovtlwwffmtlcmqmy`); eski Sidney projesi yedek olarak duruyor. Twilio, Stadia ve ödeme anahtarları boş (ilgili özellikler 503 ile kapalı).
+
 ## 1. Satın alınacaklar
 - **Alan adı**, ör. `gway.app` (yıllık).
 - **Sunucu**: Ubuntu 24.04, en az 2 vCPU ve 4 GB RAM. Örnek: Hetzner CX22, Almanya, aylık yaklaşık 5–7 €.
