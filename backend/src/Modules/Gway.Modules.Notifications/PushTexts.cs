@@ -44,6 +44,7 @@ internal static class PushTexts
         "sanction_applied" or "appeal_decided" or "league_result" => n.GroupName ?? "",
         "match_created" => "Yeni bir eşleşmen var!",
         "event_series_limit" => "Tekrarlayan organizasyon",
+        "event_venue_revealed" => "Sürpriz mekan açıklandı",
         _ => n.ActorUsername,
     };
 
@@ -64,6 +65,7 @@ internal static class PushTexts
         "event_promoted" => $"\"{n.EventTitle}\" için yer açıldı, artık katılıyorsun.",
         "event_updated" => $"\"{n.EventTitle}\" organizasyonunun zamanını ya da yerini değiştirdi.",
         "event_canceled" => $"\"{n.EventTitle}\" organizasyonunu iptal etti.",
+        "event_venue_revealed" => $"\"{n.EventTitle}\": nereye gideceğini görmek için dokun.",
         "event_reminder" => n.EventStartsAt is { } starts && starts - n.CreatedAt > TimeSpan.FromHours(1)
             ? $"\"{n.EventTitle}\" yarın başlıyor. Geliyor musun? Teyit et."
             : $"\"{n.EventTitle}\" 1 saat içinde başlıyor.",

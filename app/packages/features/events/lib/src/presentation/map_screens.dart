@@ -450,7 +450,8 @@ class _SelectedCard extends StatelessWidget {
           children: [
             Text(e.title, style: textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: GwSpacing.xxs),
-            Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}', style: textTheme.bodyMedium, maxLines: 2),
+            Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}',
+                style: textTheme.bodyMedium, maxLines: 2),
             Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.sm),
             GwButton(label: 'Organizasyonu aç', expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
@@ -550,7 +551,8 @@ class _MapList extends StatelessWidget {
               child: Icon(Icons.event, color: GwColors.primary),
             ),
             title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}\n${e.group.name} · ${_seats(e)}'),
+            subtitle: Text(
+                '${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}\n${e.group.name} · ${_seats(e)}'),
             isThreeLine: true,
             onTap: () => context.push(EventRoutes.event(e.id)),
           ),

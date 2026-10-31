@@ -117,6 +117,26 @@ class EventRepeat {
       };
 }
 
+/// A surprise event's reveal (docs/ARCHITECTURE.md §3d, Sürpriz organizasyon). [GroupEvent.location] is the hint.
+class EventSurprise {
+  const EventSurprise({required this.revealHours, required this.revealAt, this.province, this.venue, this.venueMeeting});
+
+  /// The reveal choices offered when creating an event.
+  static const hourChoices = [1, 3, 6, 12, 24];
+
+  final int revealHours;
+  final DateTime revealAt;
+
+  /// The group's province, shown before the reveal.
+  final String? province;
+
+  /// The real venue; set only for those allowed to see it (managers always, those going from [revealAt]).
+  final String? venue;
+  final LatLng? venueMeeting;
+
+  bool isRevealed(DateTime now) => !revealAt.isAfter(now);
+}
+
 class GroupEvent {
   const GroupEvent({
     required this.id,
@@ -147,10 +167,17 @@ class GroupEvent {
     this.postsCount = 0,
     this.meeting,
     this.series,
+    this.surprise,
   });
 
   final String id;
   final EventGroup group;
+
+  /// Set for a surprise event.
+  final EventSurprise? surprise;
+
+  /// The place for one line: the venue when the viewer may see it, otherwise the hint, marked as a surprise.
+  String get place => surprise == null ? location : 'Sürpriz mekan · ${surprise!.venue ?? location}';
 
   /// Set when the date belongs to a repeat.
   final EventSeries? series;
@@ -546,6 +573,7 @@ class EventForm {
     this.approvalRequired = false,
     this.meeting,
     this.repeat,
+    this.surprise,
   });
 
   final String title;
@@ -566,6 +594,9 @@ class EventForm {
   /// Only on creation; an edit leaves the series as it is.
   final EventRepeat? repeat;
 
+  /// A surprise: [location] is the public hint, [meeting] belongs to the hidden venue.
+  final EventSurpriseForm? surprise;
+
   Map<String, Object?> toJson() => {
         'title': title.trim(),
         'description': description.trim(),
@@ -583,7 +614,17 @@ class EventForm {
         'approvalRequired': approvalRequired,
         'meeting': meeting == null ? null : {'lat': meeting!.latitude, 'lng': meeting!.longitude},
         'repeat': repeat?.toJson(),
+        'surprise': surprise?.toJson(),
       };
+}
+
+class EventSurpriseForm {
+  const EventSurpriseForm({required this.revealHours, required this.venue});
+
+  final int revealHours;
+  final String venue;
+
+  Map<String, Object?> toJson() => {'revealHours': revealHours, 'venue': venue.trim()};
 }
 
 class PollOption {

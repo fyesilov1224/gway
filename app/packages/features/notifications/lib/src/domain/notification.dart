@@ -35,7 +35,8 @@ enum NotificationType {
   leagueResult('league_result'),
   eventSeriesLimit('event_series_limit'),
   tonightTableInvite('tonight_table_invite'),
-  tonightTableReady('tonight_table_ready');
+  tonightTableReady('tonight_table_ready'),
+  eventVenueRevealed('event_venue_revealed');
 
   const NotificationType(this.code);
 
@@ -194,6 +195,7 @@ class AppNotification {
         NotificationType.welcomeThanked => '"${eventTitle ?? ''}" organizasyonunda onu karşıladığın için teşekkür etti.',
         NotificationType.tonightTableInvite => 'bu akşam küçük bir masa kurdu ve seni de çağırıyor.',
         NotificationType.tonightTableReady => 'masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.',
+        NotificationType.eventVenueRevealed => '"${eventTitle ?? ''}": nereye gideceğini görmek için dokun.',
         NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
       };
 
@@ -202,6 +204,7 @@ class AppNotification {
         _ when type.fromGroup || type == NotificationType.leagueResult => group?.name ?? '',
         NotificationType.matchCreated => 'Yeni bir eşleşmen var!',
         NotificationType.eventSeriesLimit => 'Tekrarlayan organizasyon',
+        NotificationType.eventVenueRevealed => 'Sürpriz mekan açıklandı',
         _ => actor.username,
       };
 

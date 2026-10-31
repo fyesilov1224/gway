@@ -38,6 +38,9 @@ class AdminEvent {
     this.seriesWeeks,
     this.seriesActive = false,
     this.confirmedCount = 0,
+    this.surpriseRevealHours,
+    this.surpriseVenue,
+    this.venueRevealedAt,
   });
 
   factory AdminEvent.fromJson(Map<String, Object?> j) => AdminEvent(
@@ -64,6 +67,9 @@ class AdminEvent {
         seriesWeeks: j['seriesWeeks'] as int?,
         seriesActive: j['seriesActive'] == true,
         confirmedCount: j['confirmedCount'] as int? ?? 0,
+        surpriseRevealHours: j['surpriseRevealHours'] as int?,
+        surpriseVenue: j['surpriseVenue'] as String?,
+        venueRevealedAt: j['venueRevealedAt'] == null ? null : DateTime.parse(j['venueRevealedAt']! as String),
       );
 
   final String id;
@@ -99,6 +105,15 @@ class AdminEvent {
 
   /// Going attendees who said "Evet, geliyorum" (Faz 18l).
   final int confirmedCount;
+
+  /// Set for a surprise: [location] is the public hint, [surpriseVenue] the hidden venue staff always see.
+  final int? surpriseRevealHours;
+  final String? surpriseVenue;
+  final DateTime? venueRevealedAt;
+
+  String? get surpriseLabel => surpriseRevealHours == null
+      ? null
+      : 'Sürpriz: ${surpriseVenue ?? '—'} · $surpriseRevealHours saat önce ${venueRevealedAt == null ? 'açıklanacak' : 'açıklandı'}';
 
   bool get isCanceled => canceledAt != null;
 

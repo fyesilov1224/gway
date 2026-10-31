@@ -673,6 +673,15 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 - **Arayüz:** Bugün ekranında "Yakında başlıyor" şeridi ve "Bu akşam" kartı bulunur. Kartta durum düğmesi ve not, boş olan ortak grup üyelerinin yüzleri ve sayısı, gelen davet ve masa yer alır. "Küçük masa kur" yalnızca masaya çağrılabilecek en az 2 kişi varken açıktır; yoksa kart kaç kişi daha gerektiğini yazar (`my_tonight.candidates`, masanın kendi kuralıyla, `private.tonight_pool`). Bugün ekranı aşağı çekilince bu bölümler de yenilenir. "Bu akşam" sayfası (`/tonight`) boş olanları ve masayı gösterir.
 - **Yönetim paneli:** Genel bakışta günlük "boşum" sayısı, kurulan masa sayısı ve sohbete dönen masa sayısı gösterilir.
 
+### Sürpriz organizasyon (Faz 18h, kullanıcı kararı 2026-10-31)
+- **Kurulum:** organizasyon formunda "Sürpriz mekan" açılır. Herkese açık "Yer" alanı **ipucu** olur (ör. "Kadıköy'de, deniz kenarında"); gerçek mekan ve haritadaki buluşma noktası ayrı, gizli `event_venues` tablosunda tutulur. Organizatör açıklanma zamanını seçer: başlangıçtan 1, 3, 6, 12 ya da 24 saat önce.
+- **Kim görür:** grubun `events.manage` yetkilileri ve platform ekibi her zaman; "Geliyorum" diyenler (onaylı katılımda onaylananlar) açıklanma zamanından itibaren. Bekleme listesindekiler, istek bekleyenler ve katılmayanlar görmez; onlara "Mekan katılanlara açıklandı. Katılırsan görürsün." yazar. Sonradan katılan, açıklanma zamanı geçtiyse mekanı hemen görür.
+- **Açıklanmadan önce:** grubun ili ve ipucu, "Mekan {zaman} katılanlara açıklanacak." Haritada organizasyon gerçek noktada değil grubun il merkezinde görünür (ili yoksa haritada görünmez). Paylaşım sayfası ve takvim dosyası yalnızca "Sürpriz mekan: {ipucu}" gösterir.
+- **Gizlilik kuralları:** sürpriz organizasyonun herkese açık buluşma noktası ve bağlantısı olamaz (mekanı ele verir) ve tekrarlanamaz (`events_surprise_hidden` kısıtı ve C#). `event_venues` istemciye kapalıdır (RLS, politika yok); mekan yalnızca `private.event_card` içinde, yetkili okuyana döner.
+- **Açıklanma:** organizasyon işi (dakikada bir, hatırlatmalarla birlikte) zamanı gelen sürprizlerin "Geliyorum" diyenlerine `event_venue_revealed` bildirimi ve push'u gönderir ("Sürpriz mekan açıklandı"), bir kez (`venue_revealed_at`). Açıklandıktan sonra mekan değişirse katılanlara `event_updated` gider.
+- **Kapatma:** organizatör sürprizi kapatırsa gizli mekan silinir, "Yer" yeniden normal yer olur ve açıklanma işareti sıfırlanır.
+- **Yönetim paneli:** organizasyon listesinde ipucu, gerçek mekan ve açıklanma durumu ("3 saat önce açıklanacak / açıklandı").
+
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.
 
@@ -716,6 +725,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 |---|---|---|
 | `events` | Herkes (grup görünürse) | Backend |
 | `event_attendees` | Grubun üyeleri ve kişinin kendisi | Backend |
+| `event_venues` | Kimse doğrudan; `private.event_card` yetkiliye döner (yöneticiler ve platform ekibi her zaman, katılanlar açıklanma zamanından itibaren) | Backend (`events.manage`, trigger) |
 | `polls`, `poll_options` | Grubun üyeleri | Backend |
 | `poll_votes` | Kendi oyları; açık anketlerde grubun üyeleri | Kendi oyu (RLS) |
 | `event_reviews` | Kişinin kendisi ve grubun `events.manage` yetkilileri; ortalama herkese | Kendi değerlendirmesi (RLS) |

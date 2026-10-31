@@ -92,6 +92,19 @@ class EventsRepositoryImpl implements EventsRepository {
         {'lat': final num lat, 'lng': final num lng} => LatLng(lat.toDouble(), lng.toDouble()),
         _ => null,
       },
+      surprise: switch (r['surprise']) {
+        {'reveal_hours': final num hours, 'reveal_at': final String at} => EventSurprise(
+            revealHours: hours.toInt(),
+            revealAt: DateTime.parse(at),
+            province: (r['surprise'] as Map)['province'] as String?,
+            venue: ((r['surprise'] as Map)['venue'] as Map?)?['location'] as String?,
+            venueMeeting: switch (((r['surprise'] as Map)['venue'] as Map?)?['meeting']) {
+              {'lat': final num lat, 'lng': final num lng} => LatLng(lat.toDouble(), lng.toDouble()),
+              _ => null,
+            },
+          ),
+        _ => null,
+      },
       series: switch (r['series']) {
         {'id': final String id, 'weeks': final num weeks, 'active': final bool active} =>
           EventSeries(id: id, weeks: weeks.toInt(), active: active, until: _time((r['series'] as Map)['until'])),

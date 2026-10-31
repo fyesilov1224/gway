@@ -234,7 +234,8 @@ class _EventRow extends StatelessWidget {
     final meta = [
       '${e.groupName} (@${e.groupHandle})',
       formatDateTimeTr(e.startsAt),
-      e.location,
+      if (e.surpriseRevealHours == null) e.location else 'İpucu: ${e.location}',
+      ?e.surpriseLabel,
       seats,
       if (e.confirmedCount > 0) '${formatCount(e.confirmedCount)} teyit',
       if (e.waitlistCount > 0) '${formatCount(e.waitlistCount)} bekleyen',

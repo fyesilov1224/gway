@@ -84,12 +84,16 @@ class MappedEvent {
     this.goingCount = 0,
     this.capacity,
     this.categoryName,
+    this.surprise = false,
   });
 
   final String id;
   final String title;
   final DateTime startsAt;
   final String location;
+
+  /// A surprise: [location] is the hint and [point] the province center (docs/ARCHITECTURE.md §3d, Sürpriz organizasyon).
+  final bool surprise;
   final LatLng point;
   final EventGroup group;
   final int goingCount;

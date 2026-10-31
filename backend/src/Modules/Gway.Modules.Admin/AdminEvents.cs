@@ -26,7 +26,10 @@ public sealed record AdminEvent(
     Guid? SeriesId = null,
     int? SeriesWeeks = null,
     bool SeriesActive = false,
-    int ConfirmedCount = 0);
+    int ConfirmedCount = 0,
+    int? SurpriseRevealHours = null,
+    string? SurpriseVenue = null,
+    DateTimeOffset? VenueRevealedAt = null);
 
 /// <summary>Read side of the admin events page (docs/ARCHITECTURE.md §3d).</summary>
 internal sealed class AdminEvents(NpgsqlDataSource db)
@@ -66,9 +69,11 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                    (select count(*)::int from public.event_reviews r where r.event_id = e.id),
                    (select count(*)::int from public.posts p where p.event_id = e.id and p.removed_at is null),
                    e.meeting_lat, e.meeting_lng, e.series_id, s.interval_weeks, coalesce(s.stopped_at is null, false),
-                   (select count(*)::int from public.event_attendees a where a.event_id = e.id and a.status = 'going' and a.confirmed_at is not null)
+                   (select count(*)::int from public.event_attendees a where a.event_id = e.id and a.status = 'going' and a.confirmed_at is not null),
+                   e.surprise_reveal_hours, v.location, e.venue_revealed_at
             from public.events e join public.groups g on g.id = e.group_id
             left join public.event_series s on s.id = e.series_id
+            left join public.event_venues v on v.event_id = e.id
             {where}
             order by e.starts_at {(status == "upcoming" ? "asc" : "desc")}, e.id
             limit {PageSize} offset @offset
@@ -86,7 +91,9 @@ internal sealed class AdminEvents(NpgsqlDataSource db)
                     r.GetFieldValue<DateTimeOffset>(12), r.GetBoolean(13), r.GetInt32(14),
                     r.IsDBNull(15) ? null : r.GetDouble(15), r.GetInt32(16), r.GetInt32(17),
                     r.IsDBNull(18) ? null : r.GetDouble(18), r.IsDBNull(19) ? null : r.GetDouble(19),
-                    r.IsDBNull(20) ? null : r.GetGuid(20), r.IsDBNull(21) ? null : r.GetInt16(21), r.GetBoolean(22), r.GetInt32(23)));
+                    r.IsDBNull(20) ? null : r.GetGuid(20), r.IsDBNull(21) ? null : r.GetInt16(21), r.GetBoolean(22), r.GetInt32(23),
+                    r.IsDBNull(24) ? null : r.GetInt16(24), r.IsDBNull(25) ? null : r.GetString(25),
+                    r.IsDBNull(26) ? null : r.GetFieldValue<DateTimeOffset>(26)));
             }
         }
         return new PagedResult<AdminEvent>(items, total, page, PageSize);

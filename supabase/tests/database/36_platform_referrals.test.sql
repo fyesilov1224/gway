@@ -3,6 +3,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(21);
 
+-- Referrals outlive accounts, so other suites leave rows behind; the checks below count and update every row.
+-- The transaction is rolled back.
+alter table public.platform_referrals disable trigger user;
+delete from public.platform_referrals;
+alter table public.platform_referrals enable trigger user;
+
 -- r1 owner, r2 r3 discipline board, r4 subject, r5 member, r6 platform admin, r7 platform support.
 insert into auth.users (id, email, aud, role)
 select ('00000000-0000-0000-0000-0000004600a' || i)::uuid, 'ref' || i || '@test.local', 'authenticated', 'authenticated'

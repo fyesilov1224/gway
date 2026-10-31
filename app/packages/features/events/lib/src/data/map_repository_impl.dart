@@ -56,6 +56,7 @@ class MapRepositoryImpl implements MapRepository {
               goingCount: (e['going_count'] as num).toInt(),
               capacity: (e['capacity'] as num?)?.toInt(),
               categoryName: _category(e),
+              surprise: e['surprise'] == true,
             ),
         ],
       ));

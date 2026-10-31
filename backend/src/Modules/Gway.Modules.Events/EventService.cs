@@ -35,7 +35,14 @@ public sealed record EventRequest(
     IReadOnlyList<string>? Equipment = null,
     bool ApprovalRequired = false,
     MeetingPoint? Meeting = null,
-    RepeatRequest? Repeat = null);
+    RepeatRequest? Repeat = null,
+    SurpriseRequest? Surprise = null);
+
+/// <summary>
+/// A surprise event (docs/ARCHITECTURE.md §3d, Sürpriz organizasyon): <see cref="EventRequest.Location"/> is the public hint,
+/// <paramref name="Venue"/> and <see cref="EventRequest.Meeting"/> stay hidden until <paramref name="RevealHours"/> before the start.
+/// </summary>
+public sealed record SurpriseRequest(int RevealHours, string? Venue);
 
 /// <summary>Makes a new event repeat (docs/ARCHITECTURE.md §3d, Tekrarlayan organizasyon); ignored on edits.</summary>
 public sealed record RepeatRequest(int Weeks, DateOnly? Until);
@@ -201,7 +208,9 @@ internal sealed partial class EventService(
     private sealed record EventFields(
         string Title, string Description, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string Location, string? LinkUrl,
         int? Capacity, int? FeeAmount, string? FeeCurrency, string? FeeNote, string? CoverPath,
-        string Requirements, string[] Equipment, bool ApprovalRequired, MeetingPoint? Meeting);
+        string Requirements, string[] Equipment, bool ApprovalRequired, MeetingPoint? Meeting, int? RevealHours, string? Venue);
+
+    private static readonly int[] RevealHourChoices = [1, 3, 6, 12, 24];
 
     /// <summary>Shape checks; the start window is checked when the start changes (an edit may keep a near start).</summary>
     private Result<EventFields> Validate(EventRequest r, Guid groupId, bool checkStart)
@@ -235,8 +244,19 @@ internal sealed partial class EventService(
                 || !ImageExtensions.Contains(Path.GetExtension(cover).ToLowerInvariant())))
             return Invalid("Kapak görseli bulunamadı. Yeniden yüklemeyi dene.");
 
+        string? venue = null;
+        if (r.Surprise is { } surprise)
+        {
+            venue = surprise.Venue?.Trim() ?? "";
+            if (!RevealHourChoices.Contains(surprise.RevealHours)) return Invalid("Mekanın açıklanma zamanı 1, 3, 6, 12 ya da 24 saat önce olmalı.");
+            if (venue.Length is < 2 or > 200) return Invalid("Gerçek mekan 2–200 karakter olmalı.");
+            if (link is not null) return Invalid("Sürpriz organizasyonda herkese açık bağlantı olamaz; mekanı ele verir.");
+            if (r.Repeat is not null) return Invalid("Sürpriz organizasyon tekrarlanamaz.");
+        }
+
         return new EventFields(title, description, r.StartsAt, r.EndsAt, location, link, r.Capacity, r.FeeAmount,
-            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath, requirements, equipment, r.ApprovalRequired, r.Meeting);
+            r.FeeAmount is null ? null : r.FeeCurrency, note, r.CoverPath, requirements, equipment, r.ApprovalRequired, r.Meeting,
+            r.Surprise?.RevealHours, venue);
     }
 
     private static async Task<bool> CoverStoredAsync(NpgsqlConnection conn, NpgsqlTransaction tx, string path, CancellationToken ct) =>
@@ -249,8 +269,26 @@ internal sealed partial class EventService(
         ("title", f.Title), ("description", f.Description), ("starts", f.StartsAt), ("ends", f.EndsAt), ("location", f.Location),
         ("link", f.LinkUrl), ("capacity", f.Capacity), ("fee", f.FeeAmount), ("currency", f.FeeCurrency), ("note", f.FeeNote),
         ("cover", f.CoverPath), ("requirements", f.Requirements), ("equipment", f.Equipment), ("approval", f.ApprovalRequired),
-        ("lat", f.Meeting?.Lat), ("lng", f.Meeting?.Lng),
+        // A surprise keeps its point with the hidden venue.
+        ("lat", f.RevealHours is null ? f.Meeting?.Lat : null), ("lng", f.RevealHours is null ? f.Meeting?.Lng : null),
+        ("reveal", f.RevealHours is { } h ? (short)h : null),
     ];
+
+    /// <summary>Stores or clears the hidden venue after the event row is written (the trigger checks the same rules).</summary>
+    private static async Task SaveVenueAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid eventId, EventFields f, CancellationToken ct)
+    {
+        if (f.RevealHours is null)
+        {
+            await ActingTransaction.ExecuteAsync(conn, tx, "delete from public.event_venues where event_id = @e", ct, ("e", eventId));
+            return;
+        }
+        await ActingTransaction.ExecuteAsync(conn, tx,
+            """
+            insert into public.event_venues (event_id, location, meeting_lat, meeting_lng) values (@e, @venue, @lat, @lng)
+            on conflict (event_id) do update set location = excluded.location, meeting_lat = excluded.meeting_lat,
+                                                 meeting_lng = excluded.meeting_lng
+            """, ct, ("e", eventId), ("venue", f.Venue), ("lat", f.Meeting?.Lat), ("lng", f.Meeting?.Lng));
+    }
 
     // Events -----------------------------------------------------------------------------------
 
@@ -288,11 +326,12 @@ internal sealed partial class EventService(
                 """
                 insert into public.events (group_id, created_by, title, description, starts_at, ends_at, location, link_url, capacity,
                                            fee_amount, fee_currency, fee_note, cover_path, requirements, equipment, approval_required,
-                                           meeting_lat, meeting_lng, series_id)
+                                           meeting_lat, meeting_lng, series_id, surprise_reveal_hours)
                 values (@g, @actor, @title, @description, @starts, @ends, @location, @link, @capacity, @fee, @currency, @note, @cover,
-                        @requirements, @equipment, @approval, @lat, @lng, @series)
+                        @requirements, @equipment, @approval, @lat, @lng, @series, @reveal)
                 returning id
                 """, ct, [("g", groupId), ("actor", actor), ("series", series), .. Parameters(fields.Value)]))!;
+            if (fields.Value.RevealHours is not null) await SaveVenueAsync(conn, tx, id, fields.Value, ct);
             await AuditAsync(conn, tx, actor, "event.created", "event", id, groupId, new { fields.Value.Title, fields.Value.StartsAt }, ct);
             if (series is { } s)
             {
@@ -325,9 +364,10 @@ internal sealed partial class EventService(
                 update public.events set title = @title, description = @description, starts_at = @starts, ends_at = @ends,
                        location = @location, link_url = @link, capacity = @capacity, fee_amount = @fee, fee_currency = @currency,
                        fee_note = @note, cover_path = @cover, requirements = @requirements, equipment = @equipment,
-                       approval_required = @approval, meeting_lat = @lat, meeting_lng = @lng
+                       approval_required = @approval, meeting_lat = @lat, meeting_lng = @lng, surprise_reveal_hours = @reveal
                 where id = @id
                 """, ct, [("id", id), .. Parameters(fields.Value)]);
+            await SaveVenueAsync(conn, tx, id, fields.Value, ct);
             await AuditAsync(conn, tx, actor, "event.updated", "event", id, e.GroupId, null, ct);
             if (e.CoverPath is not null && e.CoverPath != fields.Value.CoverPath) replacedCover = e.CoverPath;
             return Result.Success();
@@ -517,7 +557,9 @@ internal sealed partial class EventService(
     {
         await using var cmd = db.CreateCommand(
             """
-            select e.title, e.description, e.location, e.starts_at, e.ends_at, e.canceled_at is not null
+            select e.title, e.description,
+                   case when e.surprise_reveal_hours is null then e.location else 'Sürpriz mekan: ' || e.location end,
+                   e.starts_at, e.ends_at, e.canceled_at is not null
             from public.events e join public.groups g on g.id = e.group_id
             where e.id = @id and g.status = 'active'
             """);
@@ -537,7 +579,8 @@ internal sealed partial class EventService(
         var appUrl = configuration["Share:AppUrl"];
         await using var cmd = db.CreateCommand(
             """
-            select e.title, to_char(e.starts_at at time zone 'Europe/Istanbul', 'DD.MM.YYYY HH24:MI'), e.location, g.name,
+            select e.title, to_char(e.starts_at at time zone 'Europe/Istanbul', 'DD.MM.YYYY HH24:MI'),
+                   case when e.surprise_reveal_hours is null then e.location else 'Sürpriz mekan: ' || e.location end, g.name,
                    e.cover_path, e.canceled_at is not null
             from public.events e join public.groups g on g.id = e.group_id
             where e.id = @id and g.status = 'active'
@@ -612,7 +655,7 @@ internal sealed partial class EventService(
     public async Task<int> SendRemindersAsync(CancellationToken ct)
     {
         await using var cmd = db.CreateCommand(
-            "select private.send_event_reminders() + private.send_review_requests() + private.record_goal_completions() + private.extend_event_series()");
+            "select private.send_event_reminders() + private.reveal_event_venues() + private.send_review_requests() + private.record_goal_completions() + private.extend_event_series()");
         return (int)(await cmd.ExecuteScalarAsync(ct))!;
     }
 

@@ -449,8 +449,16 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Paket kimlikleri `com.gway.app` ve `com.gway.admin.admin_panel`, giriş dönüş adresleri `com.gway.app://` ve `com.gway.admin://`
 - [x] Hukuki metinlerin GWAY adlı yeni sürümleri ve ayrılmış `gway` adı (`0061`, pgTAP)
 - [x] Firebase: `com.gway.app` Android uygulaması (`1:981517510131:android:32fd644cc31f6f154a5e86`), yeni `google-services.json`; ev ağı APK'sı derlendi (2026-10-31)
-- [ ] Kullanıcıda: bulutta `0061` migration'ı, Supabase'te `com.gway.app://auth-callback` ve `com.gway.admin://auth-callback` yönlendirmeleri, Google OAuth istemcisinde yeni paket adı
-### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
+- [x] Bulutta `0061` migration'ı ve `com.gway.app://auth-callback`, `com.gway.admin://auth-callback` yönlendirmeleri; mobilde Google girişi denendi (2026-10-31). Google OAuth istemcisinde değişiklik gerekmedi (giriş tarayıcıdan, Supabase üzerinden)
+- [x] Firebase: `com.gway.socialApp` iOS uygulaması, `firebase_options.dart` güncel (2026-10-31)
+### 18h — Sürpriz Organizasyon (kullanıcı kararı, 2026-10-31; `docs/ARCHITECTURE.md` §3d)
+- [x] Formda "Sürpriz mekan": herkese açık ipucu, gizli gerçek mekan ve buluşma noktası, 1/3/6/12/24 saat önce açıklanma
+- [x] Mekanı yalnızca katılanlar açıklanma zamanından itibaren görür; yöneticiler ve platform ekibi her zaman; önce il ve ipucu
+- [x] Haritada il merkezi, paylaşım sayfası ve takvimde yalnızca ipucu; herkese açık bağlantı ve tekrar yok
+- [x] Açıklanma bildirimi ve push'u; açıklandıktan sonra mekan değişirse güncelleme bildirimi
+- [x] Yönetim paneli: organizasyon listesinde ipucu, gerçek mekan ve açıklanma durumu
+- [x] pgTAP (1119/1119; `51_surprise_events` 20 test, `36_platform_referrals` başka testlerin bıraktığı kayıtlardan bağımsız), C# (229/229) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-31)
+- [ ] Bulut: `0063` migration'ı — kullanıcı onayıyla
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
 

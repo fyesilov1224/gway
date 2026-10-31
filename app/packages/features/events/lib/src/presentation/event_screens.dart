@@ -144,7 +144,7 @@ class EventCard extends StatelessWidget {
                       style: textTheme.titleSmall?.copyWith(decoration: e.isCanceled ? TextDecoration.lineThrough : null)),
                   const SizedBox(height: GwSpacing.xxs),
                   Text(eventWhen(e), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
-                  Text(e.location, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  Text(e.place, maxLines: 1, overflow: TextOverflow.ellipsis,
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                   const SizedBox(height: GwSpacing.xs),
                   Wrap(
@@ -585,7 +585,10 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     row(
                       Icons.place_outlined,
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(e.location, style: textTheme.bodyLarge),
+                        if (e.surprise case final surprise?)
+                          SurprisePlace(event: e, surprise: surprise, now: now)
+                        else
+                          Text(e.location, style: textTheme.bodyLarge),
                         if (e.linkUrl != null)
                           SelectableText(e.linkUrl!, style: textTheme.bodyMedium?.copyWith(color: GwColors.secondary)),
                         if (e.meeting case final point?) ...[
@@ -916,7 +919,10 @@ class _EditorState extends ConsumerState<_Editor> {
   late bool _approval = widget.event?.approvalRequired ?? false;
   int? _repeatWeeks;
   DateTime? _repeatUntil;
-  late LatLng? _meeting = widget.event?.meeting;
+  late LatLng? _meeting = widget.event?.surprise?.venueMeeting ?? widget.event?.meeting;
+  late bool _surprise = widget.event?.surprise != null;
+  late int _revealHours = widget.event?.surprise?.revealHours ?? 3;
+  late final _venue = TextEditingController(text: widget.event?.surprise?.venue);
   late String _currency = widget.event?.fee?.currency ?? 'TRY';
   late DateTime _startsAt = widget.event?.startsAt.toLocal() ?? _nextMorning();
   late DateTime? _endsAt = widget.event?.endsAt?.toLocal();
@@ -932,7 +938,7 @@ class _EditorState extends ConsumerState<_Editor> {
 
   @override
   void dispose() {
-    for (final c in [_title, _description, _location, _link, _capacity, _fee, _feeNote, _requirements, _equipment]) {
+    for (final c in [_title, _description, _location, _venue, _link, _capacity, _fee, _feeNote, _requirements, _equipment]) {
       c.dispose();
     }
     super.dispose();
@@ -982,7 +988,7 @@ class _EditorState extends ConsumerState<_Editor> {
       startsAt: _startsAt,
       endsAt: _endsAt,
       location: _location.text,
-      linkUrl: _link.text.trim().isEmpty ? null : _link.text.trim(),
+      linkUrl: _surprise || _link.text.trim().isEmpty ? null : _link.text.trim(),
       capacity: int.tryParse(_capacity.text.trim()),
       fee: fee == null || fee <= 0 ? null : EventFee(amountMinor: fee, currency: _currency),
       feeNote: _feeNote.text.trim().isEmpty ? null : _feeNote.text.trim(),
@@ -991,7 +997,8 @@ class _EditorState extends ConsumerState<_Editor> {
       equipment: equipmentItems(_equipment.text),
       approvalRequired: _approval,
       meeting: _meeting,
-      repeat: _repeatWeeks == null ? null : EventRepeat(weeks: _repeatWeeks!, until: _repeatUntil),
+      repeat: _surprise || _repeatWeeks == null ? null : EventRepeat(weeks: _repeatWeeks!, until: _repeatUntil),
+      surprise: _surprise ? EventSurpriseForm(revealHours: _revealHours, venue: _venue.text) : null,
     );
     setState(() {
       _busy = true;
@@ -1086,7 +1093,7 @@ class _EditorState extends ConsumerState<_Editor> {
                   if (at != null) setState(() => _endsAt = at);
                 },
               ),
-              if (widget.event == null) ...[
+              if (widget.event == null && !_surprise) ...[
                 const SizedBox(height: GwSpacing.xs),
                 Text('Tekrar', style: textTheme.titleSmall),
                 const SizedBox(height: GwSpacing.xs),
@@ -1125,12 +1132,48 @@ class _EditorState extends ConsumerState<_Editor> {
                 ],
               ],
               const SizedBox(height: GwSpacing.xs),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _surprise,
+                onChanged: (v) => setState(() => _surprise = v),
+                title: const Text('Sürpriz mekan'),
+                subtitle: const Text('Mekan, başlamadan önce seçtiğin saatte yalnızca katılanlara açıklanır.'),
+              ),
               TextFormField(
                 controller: _location,
                 maxLength: 200,
-                decoration: const InputDecoration(labelText: 'Yer', hintText: 'Ör. Bahçeköy girişi ya da Çevrim içi'),
-                validator: (v) => (v ?? '').trim().length < 2 ? 'Yeri yaz.' : null,
+                decoration: InputDecoration(
+                  labelText: _surprise ? 'İpucu (herkes görür)' : 'Yer',
+                  hintText: _surprise ? "Ör. Kadıköy'de, deniz kenarında" : 'Ör. Bahçeköy girişi ya da Çevrim içi',
+                ),
+                validator: (v) => (v ?? '').trim().length < 2 ? (_surprise ? 'Bir ipucu yaz.' : 'Yeri yaz.') : null,
               ),
+              if (_surprise) ...[
+                TextFormField(
+                  controller: _venue,
+                  maxLength: 200,
+                  decoration: const InputDecoration(
+                    labelText: 'Gerçek mekan (yalnızca katılanlar görür)',
+                    hintText: 'Ör. Moda Sahnesi önü',
+                  ),
+                  validator: (v) => (v ?? '').trim().length < 2 ? 'Gerçek mekanı yaz.' : null,
+                ),
+                Text('Ne zaman açıklansın?', style: textTheme.titleSmall),
+                const SizedBox(height: GwSpacing.xs),
+                Wrap(
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
+                  children: [
+                    for (final hours in EventSurprise.hourChoices)
+                      ChoiceChip(
+                        label: Text('$hours saat önce'),
+                        selected: _revealHours == hours,
+                        onSelected: (_) => setState(() => _revealHours = hours),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: GwSpacing.sm),
+              ] else
               TextFormField(
                 controller: _link,
                 keyboardType: TextInputType.url,
@@ -1416,4 +1459,42 @@ class _CancelDialogState extends State<_CancelDialog> {
           GwButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(_reason.text)),
         ],
       );
+}
+
+/// The place of a surprise event: the venue for those who may see it, otherwise the province, the hint and when it opens.
+class SurprisePlace extends StatelessWidget {
+  const SurprisePlace({super.key, required this.event, required this.surprise, required this.now});
+
+  final GroupEvent event;
+  final EventSurprise surprise;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
+    final revealed = surprise.isRevealed(now);
+    final when = formatDateTimeTr(surprise.revealAt.toLocal());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const GwBadge('Sürpriz mekan', tone: GwBadgeTone.primary),
+        const SizedBox(height: GwSpacing.xxs),
+        if (surprise.venue case final venue?) ...[
+          Text(venue, style: textTheme.bodyLarge),
+          Text(revealed ? 'İpucu: ${event.location}' : 'İpucu: ${event.location} · Katılanlara $when açıklanacak.', style: secondary),
+          if (surprise.venueMeeting case final point?) ...[
+            const SizedBox(height: GwSpacing.xs),
+            EventMeetingMap(point: point),
+          ],
+        ] else ...[
+          Text([?surprise.province, event.location].join(' · '), style: textTheme.bodyLarge),
+          Text(
+            revealed ? 'Mekan katılanlara açıklandı. Katılırsan görürsün.' : 'Mekan $when katılanlara açıklanacak.',
+            style: secondary,
+          ),
+        ],
+      ],
+    );
+  }
 }
