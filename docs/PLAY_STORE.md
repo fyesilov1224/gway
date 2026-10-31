@@ -85,11 +85,14 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
   > GWAY, ilgi alanına göre kurulmuş toplulukları tek çatı altında toplar. Doğa yürüyüşü, koşu, bisiklet, müzik, sanat, spor… Grubunu bul, organizasyonlara katıl, yeni insanlarla tanış.
   >
   > • Gruplar: katıl, paylaş, duyuruları kaçırma
-  > • Organizasyonlar: tarih, yer, kontenjan; takvimine ekle
+  > • Organizasyonlar: tarih, yer, kontenjan ve haritada buluşma noktası; takvimine ekle
+  > • Sürpriz mekan: yer, başlamadan önce yalnızca katılanlara açıklanır
+  > • Grup sohbeti ve mesajlaşma, ekip arkadaşı bulma
   > • Canlı sesli yayın: grubunla anlık sohbet et
+  > • Keşif haritam: katıldığın organizasyonların illeri haritanda renklenir
+  > • El sıkış: organizasyonda tanıştığın kişiyle QR kodla tanış, rozet kazan
   > • Anketler, görevler ve ortak hedefler
-  > • Mesajlaşma ve ekip arkadaşı bulma
-  > • Haritada yakınındaki grupları keşfet
+  > • Haritada yakınındaki grupları ve organizasyonları keşfet
   > • Güvenli topluluk: telefon doğrulaması, iki adımlı giriş, şikayet ve disiplin kurulu
   >
   > GWAY 18 yaş ve üstü içindir.
@@ -100,6 +103,9 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
   - Öne çıkan grafik 1024×500.
   - En az 2 telefon ekran görüntüsü (1080×1920 ya da benzeri, 9:16). Önerilenler: Bugün sayfası, grup sayfası, organizasyon, canlı yayın, harita.
   - Mevcut simge geçici; yayından önce tasarımcıdan son hali alınmalı.
+  - Hazır dosyalar masaüstünde `GWAY-Play` klasöründe (2026-10-31): simge, öne çıkan grafik, 8 yazılı ve 8 yazısız ekran görüntüsü, `magaza-metinleri.txt`.
+  - **Durum (2026-10-31):** Play Console'da (geliştirici hesabı `dumplacation`, kişisel hesap) uygulama oluşturuldu: "GWAY: Gruplar ve Etkinlikler", paket `com.gway.app`, varsayılan dil Türkçe, ücretsiz; Play Uygulama İmzalama şartları kabul edildi. Varsayılan mağaza girişi (metinler, simge, öne çıkan grafik, 8 yazılı ekran görüntüsü) taslak olarak kaydedildi. Kişisel hesapta üretime çıkmadan önce kapalı test ve üretim erişimi başvurusu gerekir (Kontrol paneli).
+  - **Uygulama içeriği durumu (2026-10-31):** Reklam (yok), Reklam kimliği (kullanılmıyor), Resmi kurum (hayır), Finans ve Sağlık özellikleri (yok), İçerik derecelendirmesi (IARC) ve Gizlilik politikası kaydedildi. Mağaza ayarları: kategori Sosyal, iletişim e-postası ve web sitesi `https://gway-app.web.app`. Alan adı gelene kadar gizlilik ve hesap silme sayfaları Firebase Hosting'de (`grupx-08706` projesi, site `gway-app`): `https://gway-app.web.app/gizlilik/` ve `https://gway-app.web.app/hesap-silme/`; metin uygulamadaki güncel aydınlatma metninden üretilir, metin değişince yeniden yayınlanır. Veri güvenliği formu taslak (toplanan türler ve kullanımları dolduruldu, paylaşım yok); Play göndermeden önce Hedef kitle'yi istiyor. Hedef kitle de Uygulama erişimi'ni (inceleme hesabı) bekliyor.
 
 ## 6. Google girişi (Google Cloud Console → APIs & Services → OAuth consent screen)
 - Uygulama Android'de Google ile tarayıcı üzerinden (Supabase) giriş yapar, ayrı bir Android OAuth istemcisi ve SHA-1 gerekmez.
