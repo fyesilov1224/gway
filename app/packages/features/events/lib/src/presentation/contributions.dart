@@ -36,7 +36,7 @@ class ContributionsSection extends ConsumerWidget {
     if (c == null || (c.isEmpty && !isOwn)) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, GxSpacing.xs),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,16 +48,16 @@ class ContributionsSection extends ConsumerWidget {
           ),
           Text(
             c.isEmpty ? 'Bir organizasyona katıldığında katkın ve ilk rozetin burada görünür.' : contributionLine(c),
-            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+            style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
           if (c.badges.isNotEmpty) ...[
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final b in c.badges)
-                  Tooltip(message: b.description, child: GxBadge(b.name, tone: GxBadgeTone.primary, dot: true)),
+                  Tooltip(message: b.description, child: GwBadge(b.name, tone: GwBadgeTone.primary, dot: true)),
               ],
             ),
           ],
@@ -85,29 +85,29 @@ class _BadgeGuide extends ConsumerWidget {
     final catalog = ref.watch(badgeCatalogProvider);
     return ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg),
       children: [
         Text('Rozetler nasıl kazanılır?', style: textTheme.titleLarge),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         Text(
           'Rozetler yalnızca gerçekten yaptıklarından hesaplanır: katıldığın ve düzenlediğin organizasyonlar, '
           'paylaştığın anılar ve değerlendirmelerin. Beğeni ve takipçi sayısı sayılmaz. Düzenleyenin "gelmedi" '
           'olarak işaretlediği katılımlar sayılmaz. Kimse sıralanmaz.',
-          style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+          style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
         ),
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         ...switch (catalog) {
           AsyncData(:final value) => [
               for (final b in value)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.workspace_premium_outlined, color: GxColors.primary),
+                  leading: const Icon(Icons.workspace_premium_outlined, color: GwColors.primary),
                   title: Text(b.slug == 'category' ? 'Kategori tutkunu' : b.name),
                   subtitle: Text(b.description),
                 ),
             ],
           AsyncError(:final error) => [Text(userMessageOf(error))],
-          _ => const [GxSkeleton(height: GxSpacing.xxl * 3)],
+          _ => const [GwSkeleton(height: GwSpacing.xxl * 3)],
         },
       ],
     );

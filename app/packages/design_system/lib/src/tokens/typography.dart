@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 
 /// Typography tokens, Plus Jakarta Sans. See docs/DESIGN.md §2.
-abstract final class GxTypography {
+abstract final class GwTypography {
   static const String fontFamily = 'PlusJakartaSans';
   static const String fontPackage = 'design_system';
 
@@ -22,12 +22,12 @@ abstract final class GxTypography {
 class _Style extends TextStyle {
   const _Style(double size, double lineHeight, FontWeight weight, {double tracking = 0})
       : super(
-          fontFamily: GxTypography.fontFamily,
-          package: GxTypography.fontPackage,
+          fontFamily: GwTypography.fontFamily,
+          package: GwTypography.fontPackage,
           fontSize: size,
           height: lineHeight / size,
           fontWeight: weight,
-          color: GxColors.textPrimary,
+          color: GwColors.textPrimary,
           letterSpacing: tracking,
         );
 }

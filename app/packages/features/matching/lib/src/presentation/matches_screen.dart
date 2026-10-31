@@ -21,8 +21,8 @@ class _ModeTags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(
-        spacing: GxSpacing.xxs,
-        children: [for (final m in modes) GxTag(label: m.label, tone: m == MatchMode.dating ? GxTone.lilac : GxTone.sky)],
+        spacing: GwSpacing.xxs,
+        children: [for (final m in modes) GwTag(label: m.label, tone: m == MatchMode.dating ? GwTone.lilac : GwTone.sky)],
       );
 }
 
@@ -36,21 +36,21 @@ class _LockedMatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GxCard(
+    return GwCard(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
       child: Row(
         children: [
           Container(
-            width: GxAvatarSize.lg.dimension,
-            height: GxAvatarSize.lg.dimension,
+            width: GwAvatarSize.lg.dimension,
+            height: GwAvatarSize.lg.dimension,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(colors: [GxColors.backdropLilac, GxColors.backdropPink]),
+              gradient: LinearGradient(colors: [GwColors.backdropLilac, GwColors.backdropPink]),
             ),
-            child: const Icon(Icons.lock_outline_rounded, color: GxColors.primary),
+            child: const Icon(Icons.lock_outline_rounded, color: GwColors.primary),
           ),
-          const SizedBox(width: GxSpacing.md),
+          const SizedBox(width: GwSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,14 +58,14 @@ class _LockedMatch extends StatelessWidget {
                 Text('Biriyle eşleştin!', style: textTheme.titleMedium),
                 Text(
                   'Kim olduğunu görmek için dokun · ${formatDateTr(match.matchedAt)}',
-                  style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
-                const SizedBox(height: GxSpacing.xxs),
+                const SizedBox(height: GwSpacing.xxs),
                 _ModeTags(modes: match.modes.keys),
               ],
             ),
           ),
-          const Icon(Icons.workspace_premium_outlined, color: GxColors.primary),
+          const Icon(Icons.workspace_premium_outlined, color: GwColors.primary),
         ],
       ),
     );
@@ -153,12 +153,12 @@ class MatchesScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Eşleşmelerim')),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: switch (matches) {
           AsyncData(:final value) when value.isEmpty => Padding(
-              padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-              child: GxEmptyState(
+              padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+              child: GwEmptyState(
                 icon: Icons.favorite_border_rounded,
                 message: 'Henüz eşleşmen yok. Birbirinizi beğendiğiniz kişiler burada görünür.',
                 actionLabel: 'Keşfetmeye dön',
@@ -168,25 +168,25 @@ class MatchesScreen extends ConsumerWidget {
           AsyncData(:final value) => RefreshIndicator(
               onRefresh: () => ref.refresh(matchListProvider.future),
               child: ListView.separated(
-                padding: const EdgeInsets.all(GxSpacing.page),
+                padding: const EdgeInsets.all(GwSpacing.page),
                 itemCount: value.length,
-                separatorBuilder: (_, _) => const SizedBox(height: GxSpacing.sm),
+                separatorBuilder: (_, _) => const SizedBox(height: GwSpacing.sm),
                 itemBuilder: (context, i) {
                   final m = value[i];
                   final card = m.card;
                   if (card == null) return _LockedMatch(match: m, onTap: () => _act(context, ref, m, _MatchAction.message));
-                  return GxCard(
+                  return GwCard(
                     onTap: () => _act(context, ref, m, _MatchAction.message),
-                    padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+                    padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
                     child: Row(
                       children: [
-                        GxAvatar(
+                        GwAvatar(
                           name: card.displayName,
-                          shape: GxAvatarShape.user,
-                          size: GxAvatarSize.lg,
+                          shape: GwAvatarShape.user,
+                          size: GwAvatarSize.lg,
                           imageUrl: card.photoUrls.isEmpty ? null : card.photoUrls.first,
                         ),
-                        const SizedBox(width: GxSpacing.md),
+                        const SizedBox(width: GwSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,9 +194,9 @@ class MatchesScreen extends ConsumerWidget {
                               Text('${card.displayName}, ${card.age}', style: textTheme.titleMedium),
                               Text(
                                 '@${m.username} · ${formatDateTr(m.matchedAt)}',
-                                style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                                style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                               ),
-                              const SizedBox(height: GxSpacing.xxs),
+                              const SizedBox(height: GwSpacing.xxs),
                               _ModeTags(modes: m.modes.keys),
                             ],
                           ),
@@ -222,10 +222,10 @@ class MatchesScreen extends ConsumerWidget {
                 },
               ),
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(matchListProvider)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(matchListProvider)),
           _ => const Padding(
-              padding: EdgeInsets.all(GxSpacing.page),
-              child: Column(children: [GxSkeleton(height: GxSpacing.xxl), SizedBox(height: GxSpacing.sm), GxSkeleton(height: GxSpacing.xxl)]),
+              padding: EdgeInsets.all(GwSpacing.page),
+              child: Column(children: [GwSkeleton(height: GwSpacing.xxl), SizedBox(height: GwSpacing.sm), GwSkeleton(height: GwSpacing.xxl)]),
             ),
         },
       ),

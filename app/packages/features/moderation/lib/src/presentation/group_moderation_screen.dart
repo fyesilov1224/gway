@@ -156,7 +156,7 @@ class GroupModerationScreen extends ConsumerWidget {
           ),
         ),
         body: switch (desk) {
-          AsyncData(value: null) => GxEmptyState(
+          AsyncData(value: null) => GwEmptyState(
             icon: Icons.lock_outline,
             message: 'Bu grubun moderasyonunu yalnızca grup sahibi ve moderasyon ekibi görür.',
             actionLabel: 'Geri dön',
@@ -172,7 +172,7 @@ class GroupModerationScreen extends ConsumerWidget {
               ],
             ),
           ),
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(groupModerationProvider(groupId)),
           ),
@@ -188,11 +188,11 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(GxSpacing.page),
+    padding: const EdgeInsets.all(GwSpacing.page),
     children: const [
-      GxSkeleton(height: GxSpacing.xxl * 3),
-      SizedBox(height: GxSpacing.md),
-      GxSkeleton(height: GxSpacing.xxl * 3),
+      GwSkeleton(height: GwSpacing.xxl * 3),
+      SizedBox(height: GwSpacing.md),
+      GwSkeleton(height: GwSpacing.xxl * 3),
     ],
   );
 }
@@ -206,9 +206,9 @@ class _TabList extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
     physics: const AlwaysScrollableScrollPhysics(),
-    padding: const EdgeInsets.all(GxSpacing.page),
+    padding: const EdgeInsets.all(GwSpacing.page),
     children: [
-      for (final (i, child) in children.indexed) ...[if (i > 0) const SizedBox(height: GxSpacing.sm), child],
+      for (final (i, child) in children.indexed) ...[if (i > 0) const SizedBox(height: GwSpacing.sm), child],
     ],
   );
 }
@@ -221,12 +221,12 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      color: GxColors.background,
-      borderRadius: GxRadius.lgAll,
-      border: Border.all(color: GxColors.border),
+      color: GwColors.background,
+      borderRadius: GwRadius.lgAll,
+      border: Border.all(color: GwColors.border),
     ),
     child: Padding(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
     ),
   );
@@ -244,18 +244,18 @@ class _PersonRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return InkWell(
       onTap: person.username.isEmpty ? null : onTap,
-      borderRadius: GxRadius.smAll,
+      borderRadius: GwRadius.smAll,
       child: Row(
         children: [
-          GxAvatar(name: person.displayName, imageUrl: person.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
-          const SizedBox(width: GxSpacing.sm),
+          GwAvatar(name: person.displayName, imageUrl: person.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(person.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
                 if (person.username.isNotEmpty)
-                  Text('@${person.username}', style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                  Text('@${person.username}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
@@ -274,8 +274,8 @@ class _Quote extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(GxSpacing.sm),
-    decoration: const BoxDecoration(color: GxColors.surfaceMuted, borderRadius: GxRadius.mdAll),
+    padding: const EdgeInsets.all(GwSpacing.sm),
+    decoration: const BoxDecoration(color: GwColors.surfaceMuted, borderRadius: GwRadius.mdAll),
     child: Text(text, maxLines: 6, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium),
   );
 }
@@ -294,7 +294,7 @@ class _ReportsTab extends ConsumerWidget {
     if (desk.reports.isEmpty) {
       return _TabList(
         children: [
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.verified_user_outlined,
             message: 'Açık şikayet yok. Üyelerin şikayetleri burada toplanır.',
             actionLabel: 'Yenile',
@@ -366,31 +366,31 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
       children: [
         Row(
           children: [
-            GxBadge(r.targetLabel, tone: GxBadgeTone.info),
-            const SizedBox(width: GxSpacing.xs),
-            GxBadge(r.count == 1 ? '1 şikayet' : '${r.count} şikayet', tone: r.count > 2 ? GxBadgeTone.danger : GxBadgeTone.warning),
+            GwBadge(r.targetLabel, tone: GwBadgeTone.info),
+            const SizedBox(width: GwSpacing.xs),
+            GwBadge(r.count == 1 ? '1 şikayet' : '${r.count} şikayet', tone: r.count > 2 ? GwBadgeTone.danger : GwBadgeTone.warning),
             const Spacer(),
-            Text(formatDateTimeTr(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+            Text(formatDateTimeTr(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
         if (r.subject case final subject?) ...[
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           _PersonRow(person: subject, onTap: () => widget.links.openProfile(context, subject.username)),
         ],
-        if (r.excerpt.isNotEmpty) ...[const SizedBox(height: GxSpacing.sm), _Quote(r.excerpt)],
-        const SizedBox(height: GxSpacing.sm),
-        Wrap(spacing: GxSpacing.xs, runSpacing: GxSpacing.xs, children: [for (final reason in r.reasons) GxBadge(reason.label)]),
+        if (r.excerpt.isNotEmpty) ...[const SizedBox(height: GwSpacing.sm), _Quote(r.excerpt)],
+        const SizedBox(height: GwSpacing.sm),
+        Wrap(spacing: GwSpacing.xs, runSpacing: GwSpacing.xs, children: [for (final reason in r.reasons) GwBadge(reason.label)]),
         for (final note in r.notes.take(3)) ...[
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           Text(
             '“$note”',
-            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary, fontStyle: FontStyle.italic),
+            style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary, fontStyle: FontStyle.italic),
           ),
         ],
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           children: [
             if (canOpen) TextButton(onPressed: _open, child: const Text('Görüntüle')),
             TextButton(
@@ -398,14 +398,14 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
               child: const Text('Reddet'),
             ),
             if (r.removable && outranks)
-              GxButton(
+              GwButton(
                 label: 'İçeriği kaldır',
                 icon: Icons.delete_outline,
-                variant: GxButtonVariant.secondary,
+                variant: GwButtonVariant.secondary,
                 onPressed: _busy ? null : _remove,
               ),
             if (outranks)
-              GxButton(
+              GwButton(
                 label: 'Dosya aç',
                 icon: Icons.gavel_outlined,
                 onPressed: _busy
@@ -424,7 +424,7 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
         if (r.subject != null && !outranks)
           Text(
             'Bu kişinin rütbesi seninkinden düşük olmadığı için yalnızca reddedebilirsin.',
-            style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
       ],
     );
@@ -444,7 +444,7 @@ class _CasesTab extends ConsumerWidget {
     if (desk.cases.isEmpty) {
       return _TabList(
         children: [
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.gavel_outlined,
             message: 'Henüz disiplin dosyası yok. Dosyalar bir şikayetten ya da üyeler sayfasından açılır.',
             actionLabel: 'Yenile',
@@ -491,27 +491,27 @@ class _CaseCardState extends ConsumerState<CaseCard> {
   Widget build(BuildContext context) {
     final c = widget.item;
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodySmall?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     final (statusLabel, tone) = switch (c.status) {
-      CaseStatus.voting => ('Oylamada', GxBadgeTone.info),
-      CaseStatus.approved => ('Onaylandı', GxBadgeTone.danger),
-      CaseStatus.rejected => ('Reddedildi', GxBadgeTone.neutral),
+      CaseStatus.voting => ('Oylamada', GwBadgeTone.info),
+      CaseStatus.approved => ('Onaylandı', GwBadgeTone.danger),
+      CaseStatus.rejected => ('Reddedildi', GwBadgeTone.neutral),
     };
     return _Card(
       children: [
         _PersonRow(
           person: c.subject,
-          trailing: GxBadge(statusLabel, tone: tone, dot: c.isOpen),
+          trailing: GwBadge(statusLabel, tone: tone, dot: c.isOpen),
         ),
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         Text('Önerilen: ${c.proposal}', style: textTheme.titleSmall),
         if (c.illegalCategory case final illegal?) ...[
-          const SizedBox(height: GxSpacing.xxs),
-          GxBadge('Yasa dışı faaliyet: ${illegal.label}', tone: GxBadgeTone.danger),
+          const SizedBox(height: GwSpacing.xxs),
+          GwBadge('Yasa dışı faaliyet: ${illegal.label}', tone: GwBadgeTone.danger),
         ],
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         Text(c.reason, style: textTheme.bodyMedium),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         Text(
           [
             '${c.approvals} onay · ${c.rejections} ret · ${c.voters} oy hakkı',
@@ -522,25 +522,25 @@ class _CaseCardState extends ConsumerState<CaseCard> {
         ),
         if (c.openedBy case final opener?) Text('Dosyayı açan: ${opener.displayName}', style: secondary),
         if (c.isOpen && c.isVoter) ...[
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           if (c.myVote != null) Text(c.myVote! ? 'Oyun: Onay' : 'Oyun: Ret', style: textTheme.labelLarge),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           Row(
             children: [
               Expanded(
-                child: GxButton(
+                child: GwButton(
                   label: 'Onayla',
                   icon: Icons.check,
-                  variant: c.myVote == true ? GxButtonVariant.primary : GxButtonVariant.secondary,
+                  variant: c.myVote == true ? GwButtonVariant.primary : GwButtonVariant.secondary,
                   onPressed: _busy || c.myVote == true ? null : () => _vote(true),
                 ),
               ),
-              const SizedBox(width: GxSpacing.xs),
+              const SizedBox(width: GwSpacing.xs),
               Expanded(
-                child: GxButton(
+                child: GwButton(
                   label: 'Reddet',
                   icon: Icons.close,
-                  variant: c.myVote == false ? GxButtonVariant.primary : GxButtonVariant.secondary,
+                  variant: c.myVote == false ? GwButtonVariant.primary : GwButtonVariant.secondary,
                   onPressed: _busy || c.myVote == false ? null : () => _vote(false),
                 ),
               ),
@@ -565,7 +565,7 @@ class _SanctionsTab extends ConsumerWidget {
     if (desk.sanctions.isEmpty) {
       return _TabList(
         children: [
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.shield_outlined,
             message: 'Henüz yaptırım yok. Kurulun onayladığı yaptırımlar ve itirazlar burada görünür.',
             actionLabel: 'Yenile',
@@ -624,20 +624,20 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
   Widget build(BuildContext context) {
     final s = widget.sanction;
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodySmall?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     final appeal = s.appeal;
     final (status, tone) = s.liftedAt != null
-        ? ('Kaldırıldı', GxBadgeTone.neutral)
+        ? ('Kaldırıldı', GwBadgeTone.neutral)
         : s.isRunning
-        ? (s.interim ? 'Acil susturma' : 'Sürüyor', GxBadgeTone.danger)
-        : ('Uygulandı', GxBadgeTone.neutral);
+        ? (s.interim ? 'Acil susturma' : 'Sürüyor', GwBadgeTone.danger)
+        : ('Uygulandı', GwBadgeTone.neutral);
     return _Card(
       children: [
         _PersonRow(
           person: s.user,
-          trailing: GxBadge(status, tone: tone),
+          trailing: GwBadge(status, tone: tone),
         ),
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         Text(
           s.interim
               ? 'Acil susturma · kurul kararına kadar'
@@ -646,33 +646,33 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
               : s.type.label,
           style: textTheme.titleSmall,
         ),
-        if (s.reason.isNotEmpty) ...[const SizedBox(height: GxSpacing.xxs), Text(s.reason, style: textTheme.bodyMedium)],
+        if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xxs), Text(s.reason, style: textTheme.bodyMedium)],
         Text(formatDateTimeTr(s.startsAt), style: secondary),
         if (appeal != null) ...[
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Text('İtiraz · ${appeal.status.label}', style: textTheme.labelLarge),
-          const SizedBox(height: GxSpacing.xxs),
+          const SizedBox(height: GwSpacing.xxs),
           _Quote(appeal.body),
-          if (appeal.decisionNote case final note?) ...[const SizedBox(height: GxSpacing.xxs), Text('Not: $note', style: secondary)],
+          if (appeal.decisionNote case final note?) ...[const SizedBox(height: GwSpacing.xxs), Text('Not: $note', style: secondary)],
           if (appeal.status == AppealStatus.pending && appeal.byPlatform)
             Padding(
-              padding: const EdgeInsets.only(top: GxSpacing.xs),
+              padding: const EdgeInsets.only(top: GwSpacing.xs),
               child: Text('Sahip bu dosyada taraf olduğu için itirazı platform ekibi inceliyor.', style: secondary),
             ),
           if (widget.desk.pendingAppeals.contains(s)) ...[
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Row(
               children: [
                 Expanded(
-                  child: GxButton(
+                  child: GwButton(
                     label: 'Yaptırımı kaldır',
-                    variant: GxButtonVariant.secondary,
+                    variant: GwButtonVariant.secondary,
                     onPressed: _busy ? null : () => _decide(appeal, overturn: true),
                   ),
                 ),
-                const SizedBox(width: GxSpacing.xs),
+                const SizedBox(width: GwSpacing.xs),
                 Expanded(
-                  child: GxButton(label: 'Sürsün', onPressed: _busy ? null : () => _decide(appeal, overturn: false)),
+                  child: GwButton(label: 'Sürsün', onPressed: _busy ? null : () => _decide(appeal, overturn: false)),
                 ),
               ],
             ),

@@ -87,8 +87,8 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
           breadcrumbs: crumbs,
           title: 'Bulunamadı',
           children: [
-            GxPanel(
-              child: GxEmptyState(
+            GwPanel(
+              child: GwEmptyState(
                 icon: Icons.group_off_outlined,
                 message: 'Bu grup bulunamadı. Sahibi tarafından silinmiş olabilir.',
                 actionLabel: 'Gruplara dön',
@@ -100,17 +100,17 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
       AsyncError(:final error) => AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxPanel(
-              child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupDetailProvider(widget.groupId))),
+            GwPanel(
+              child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupDetailProvider(widget.groupId))),
             ),
           ],
         ),
       _ => const AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
-            SizedBox(height: GxSpacing.lg),
-            GxSkeleton(height: GxSpacing.xxl * 5, borderRadius: GxRadius.lgAll),
+            GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
+            SizedBox(height: GwSpacing.lg),
+            GwSkeleton(height: GwSpacing.xxl * 5, borderRadius: GwRadius.lgAll),
           ],
         ),
     };
@@ -119,20 +119,20 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
   List<Widget> _content(AdminGroupDetail d, StaffRole? myRole) {
     final g = d.group;
     final canSuspend = myRole?.canSuspend ?? false;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final categories = {for (final c in ref.watch(categoriesProvider).value ?? const <Category>[]) c.slug: c.name};
 
     final actions = <Widget>[
       if (canSuspend && g.status == AdminGroupStatus.suspended)
-        GxButton(
+        GwButton(
           label: 'Askıyı kaldır',
           icon: Icons.lock_open_outlined,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           isLoading: _saving,
           onPressed: () => _run((repo) => repo.unsuspend(g.id)),
         ),
       if (canSuspend && g.status == AdminGroupStatus.active)
-        GxButton(label: 'Askıya al', icon: Icons.block, isLoading: _saving, onPressed: _suspend),
+        GwButton(label: 'Askıya al', icon: Icons.block, isLoading: _saving, onPressed: _suspend),
     ];
 
     final left = [
@@ -151,24 +151,24 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
         ],
       ),
       if (d.about.isNotEmpty) ...[
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(title: 'Tanıtım', child: Text(d.about, style: Theme.of(context).textTheme.bodyLarge)),
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(title: 'Tanıtım', child: Text(d.about, style: Theme.of(context).textTheme.bodyLarge)),
       ],
     ];
     final right = [
       if (myRole?.canSeeBilling ?? false) ...[
         GroupPlanPanel(detail: d),
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
       ],
       _TeamPanel(team: d.team),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       _InviteLinksPanel(
         links: d.inviteLinks,
         canRevoke: canSuspend,
         busy: _saving,
         onRevoke: (link) => _run((repo) => repo.revokeInviteLink(g.id, link.id)),
       ),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       HistoryPanel(
         history: d.history,
         labels: _actionLabels,
@@ -179,29 +179,29 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
 
     return [
       _HeaderPanel(group: g, actions: actions),
-      if (_error != null) ...[const SizedBox(height: GxSpacing.md), GxFormMessage(_error!)],
+      if (_error != null) ...[const SizedBox(height: GwSpacing.md), GwFormMessage(_error!)],
       if (g.status == AdminGroupStatus.suspended) ...[
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         DetailBanner(
-          tone: GxBadgeTone.danger,
+          tone: GwBadgeTone.danger,
           icon: Icons.block,
           title: d.suspendedAt == null ? 'Grup askıda' : 'Grup ${formatDateTimeTr(d.suspendedAt!)} tarihinden beri askıda',
           body: d.suspensionReason == null ? null : 'Gerekçe: ${d.suspensionReason}',
         ),
       ],
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       if (wide)
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(flex: 3, child: Column(children: left)),
-            const SizedBox(width: GxSpacing.lg),
+            const SizedBox(width: GwSpacing.lg),
             Expanded(flex: 2, child: Column(children: right)),
           ],
         )
       else ...[
         ...left,
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
         ...right,
       ],
     ];
@@ -219,27 +219,27 @@ class _HeaderPanel extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final identity = Row(
       children: [
-        GxAvatar(
+        GwAvatar(
           name: group.name,
-          shape: GxAvatarShape.group,
-          size: GxAvatarSize.lg,
+          shape: GwAvatarShape.group,
+          size: GwAvatarSize.lg,
           imageUrl: ref.watch(groupLogoUrlProvider(group.logoPath)),
         ),
-        const SizedBox(width: GxSpacing.md),
+        const SizedBox(width: GwSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Wrap(
-                spacing: GxSpacing.xs,
-                runSpacing: GxSpacing.xxs,
+                spacing: GwSpacing.xs,
+                runSpacing: GwSpacing.xxs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [Text(group.name, style: textTheme.headlineMedium), GroupStatusBadge(group.status)],
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               Text(
                 ['@${group.handle}', if (group.ownerUsername != null) 'Sahibi: @${group.ownerUsername}'].join('  ·  '),
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
             ],
           ),
@@ -247,13 +247,13 @@ class _HeaderPanel extends ConsumerWidget {
       ],
     );
 
-    return GxPanel(
+    return GwPanel(
       child: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth >= GxLayout.contentMaxWidth
+        builder: (context, constraints) => constraints.maxWidth >= GwLayout.contentMaxWidth
             ? Row(
                 children: [
                   Expanded(child: identity),
-                  if (actions.isNotEmpty) Wrap(spacing: GxSpacing.sm, children: actions),
+                  if (actions.isNotEmpty) Wrap(spacing: GwSpacing.sm, children: actions),
                 ],
               )
             : Column(
@@ -261,8 +261,8 @@ class _HeaderPanel extends ConsumerWidget {
                 children: [
                   identity,
                   if (actions.isNotEmpty) ...[
-                    const SizedBox(height: GxSpacing.md),
-                    Wrap(spacing: GxSpacing.sm, runSpacing: GxSpacing.sm, children: actions),
+                    const SizedBox(height: GwSpacing.md),
+                    Wrap(spacing: GwSpacing.sm, runSpacing: GwSpacing.sm, children: actions),
                   ],
                 ],
               ),
@@ -283,10 +283,10 @@ class _InviteLinksPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GxPanel(
+    return GwPanel(
       title: 'Davet bağlantıları',
       child: links.isEmpty
-          ? Text('Bu grubun davet bağlantısı yok.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+          ? Text('Bu grubun davet bağlantısı yok.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -312,13 +312,13 @@ class _InviteLinksPanel extends StatelessWidget {
                                         ? '${formatDateTimeTr(l.expiresAt)} tarihine kadar'
                                         : 'Geçersiz',
                               ].join('  ·  '),
-                              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                             ),
                           ],
                         ),
                       ),
                       if (canRevoke && l.valid)
-                        GxButton(label: 'İptal et', variant: GxButtonVariant.text, isLoading: busy, onPressed: () => onRevoke(l)),
+                        GwButton(label: 'İptal et', variant: GwButtonVariant.text, isLoading: busy, onPressed: () => onRevoke(l)),
                     ],
                   ),
                 ],
@@ -336,7 +336,7 @@ class _TeamPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    return GxPanel(
+    return GwPanel(
       title: 'Yönetim ekibi',
       padding: EdgeInsets.zero,
       child: Column(
@@ -347,29 +347,29 @@ class _TeamPanel extends ConsumerWidget {
             InkWell(
               onTap: () => context.go(AdminRoutes.user(m.userId)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
                 child: Row(
                   children: [
-                    GxAvatar(
+                    GwAvatar(
                       name: m.displayName ?? '?',
-                      shape: GxAvatarShape.user,
+                      shape: GwAvatarShape.user,
                       imageUrl: ref.watch(avatarUrlProvider(m.avatarPath)),
                     ),
-                    const SizedBox(width: GxSpacing.sm),
+                    const SizedBox(width: GwSpacing.sm),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(m.displayName ?? 'Gizli hesap', style: textTheme.labelLarge),
                           if (m.username != null)
-                            Text('@${m.username}', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-                          const SizedBox(height: GxSpacing.xxs),
+                            Text('@${m.username}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                          const SizedBox(height: GwSpacing.xxs),
                           Wrap(
-                            spacing: GxSpacing.xxs,
-                            runSpacing: GxSpacing.xxs,
+                            spacing: GwSpacing.xxs,
+                            runSpacing: GwSpacing.xxs,
                             children: [
                               for (final r in m.roles)
-                                GxBadge(groupRoleLabels[r] ?? r, tone: r == 'owner' ? GxBadgeTone.primary : GxBadgeTone.info),
+                                GwBadge(groupRoleLabels[r] ?? r, tone: r == 'owner' ? GwBadgeTone.primary : GwBadgeTone.info),
                             ],
                           ),
                         ],

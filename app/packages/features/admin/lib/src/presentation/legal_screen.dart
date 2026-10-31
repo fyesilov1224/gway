@@ -23,20 +23,20 @@ class AdminLegalScreen extends ConsumerWidget {
           'değiştirilemez; metni güncellemek için yeni sürüm yayınlarsın. Yayından önce metinlerin hukuki incelemeden '
           'geçmesi gerekir.',
       actions: [
-        GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: refresh),
+        GwButton(label: 'Yenile', icon: Icons.refresh, variant: GwButtonVariant.secondary, onPressed: refresh),
       ],
       children: switch (kinds) {
         AsyncData(:final value) => [
             for (final kind in value) ...[
               _KindPanel(kind: kind, onChanged: refresh),
-              const SizedBox(height: GxSpacing.lg),
+              const SizedBox(height: GwSpacing.lg),
             ],
           ],
-        AsyncError(:final error) => [GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: refresh))],
+        AsyncError(:final error) => [GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: refresh))],
         _ => [
             for (var i = 0; i < 4; i++) ...[
-              const GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
-              const SizedBox(height: GxSpacing.lg),
+              const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
+              const SizedBox(height: GwSpacing.lg),
             ],
           ],
       },
@@ -55,21 +55,21 @@ class _KindPanel extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final audience = kind.audience == 'purchase' ? 'Satın alırken onaylanır' : 'Kayıtta onaylanır';
 
-    return GxPanel(
+    return GwPanel(
       title: legalKindLabel(kind.kind),
       subtitle: audience,
-      trailing: GxButton(
+      trailing: GwButton(
         label: 'Yeni sürüm',
         icon: Icons.add,
-        variant: GxButtonVariant.secondary,
+        variant: GwButtonVariant.secondary,
         onPressed: () => _openEditor(context, ref, kind: kind.kind),
       ),
       padding: EdgeInsets.zero,
       child: kind.versions.isEmpty
           ? Padding(
-              padding: const EdgeInsets.all(GxSpacing.lg),
+              padding: const EdgeInsets.all(GwSpacing.lg),
               child: Text('Bu tür için henüz bir metin yayınlanmadı.',
-                  style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,12 +101,12 @@ class _VersionRow extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Sürümü sil'),
         content: Text('${legalKindLabel(kind)} v${version.version} silinsin mi? Bu işlem geri alınamaz.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: 'Sil', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: 'Sil', onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -131,34 +131,34 @@ class _VersionRow extends ConsumerWidget {
     return InkWell(
       onTap: edit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
             SizedBox(
-              width: GxSpacing.xxl,
-              child: Text('v${version.version}', style: textTheme.titleMedium?.copyWith(color: GxColors.textSecondary)),
+              width: GwSpacing.xxl,
+              child: Text('v${version.version}', style: textTheme.titleMedium?.copyWith(color: GwColors.textSecondary)),
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(version.title, style: textTheme.labelLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: GxSpacing.xxs),
+                  const SizedBox(height: GwSpacing.xxs),
                   Wrap(
-                    spacing: GxSpacing.xs,
-                    runSpacing: GxSpacing.xxs,
+                    spacing: GwSpacing.xs,
+                    runSpacing: GwSpacing.xxs,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (version.isCurrent) const GxBadge('Yürürlükte', tone: GxBadgeTone.success, dot: true),
+                      if (version.isCurrent) const GwBadge('Yürürlükte', tone: GwBadgeTone.success, dot: true),
                       if (version.isDraft)
-                        const GxBadge('Taslak · ileri tarihli', tone: GxBadgeTone.warning, dot: true),
+                        const GwBadge('Taslak · ileri tarihli', tone: GwBadgeTone.warning, dot: true),
                       if (version.isFrozen)
-                        GxBadge('${formatCount(version.consentCount)} onay · kilitli', tone: GxBadgeTone.info),
+                        GwBadge('${formatCount(version.consentCount)} onay · kilitli', tone: GwBadgeTone.info),
                       Text(
                         version.isDraft
                             ? 'Yürürlük: ${formatDateTimeTr(version.publishedAt)}'
                             : 'Yayın: ${formatDateTimeTr(version.publishedAt)}',
-                        style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                        style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                       ),
                     ],
                   ),
@@ -173,7 +173,7 @@ class _VersionRow extends ConsumerWidget {
             if (!version.isFrozen)
               IconButton(
                 tooltip: 'Sil',
-                icon: const Icon(Icons.delete_outline, color: GxColors.error),
+                icon: const Icon(Icons.delete_outline, color: GwColors.error),
                 onPressed: () => _delete(context, ref),
               ),
           ],
@@ -273,14 +273,14 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
     final title = '${legalKindLabel(widget.kind)}${_creating ? ' · yeni sürüm' : ' · v${widget.version}'}';
 
     return Scaffold(
-      backgroundColor: GxColors.surface,
+      backgroundColor: GwColors.surface,
       appBar: AppBar(
         title: Text(title),
         actions: [
           if (!widget.readOnly)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.md),
-              child: GxButton(
+              padding: const EdgeInsets.only(right: GwSpacing.md),
+              child: GwButton(
                 label: _creating ? 'Yayınla' : 'Kaydet',
                 icon: Icons.check,
                 isLoading: _saving,
@@ -291,7 +291,7 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
       ),
       body: switch (doc) {
         AsyncError(:final error) => Center(
-            child: GxErrorState(
+            child: GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(legalDocumentProvider((kind: widget.kind, version: widget.version!))),
             ),
@@ -299,9 +299,9 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
         AsyncLoading() => const Center(child: CircularProgressIndicator()),
         _ => Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(GxSpacing.lg),
+              padding: const EdgeInsets.all(GwSpacing.lg),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+                constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
                 child: Form(
                   key: _form,
                   child: Column(
@@ -309,12 +309,12 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                     children: [
                       if (widget.readOnly)
                         const DetailBanner(
-                          tone: GxBadgeTone.info,
+                          tone: GwBadgeTone.info,
                           icon: Icons.lock_outline,
                           title: 'Bu sürüm kilitli',
                           body: 'En az bir kullanıcı onayladığı için değiştirilemez. Güncellemek için yeni bir sürüm yayınla.',
                         ),
-                      if (widget.readOnly) const SizedBox(height: GxSpacing.md),
+                      if (widget.readOnly) const SizedBox(height: GwSpacing.md),
                       TextFormField(
                         controller: _title,
                         readOnly: widget.readOnly,
@@ -322,7 +322,7 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                         decoration: const InputDecoration(labelText: 'Başlık', border: OutlineInputBorder()),
                         validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
                       ),
-                      const SizedBox(height: GxSpacing.md),
+                      const SizedBox(height: GwSpacing.md),
                       TextFormField(
                         controller: _body,
                         readOnly: widget.readOnly,
@@ -335,7 +335,7 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                         ),
                         validator: (v) => (v ?? '').trim().length < 20 ? 'Metin en az 20 karakter olmalı.' : null,
                       ),
-                      const SizedBox(height: GxSpacing.md),
+                      const SizedBox(height: GwSpacing.md),
                       if (!widget.readOnly) ...[
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
@@ -351,14 +351,14 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.event_outlined),
                             title: Text('Yürürlük: ${formatDateTimeTr(_publishedAt)}'),
-                            trailing: GxButton(label: 'Değiştir', variant: GxButtonVariant.text, onPressed: _pickDate),
+                            trailing: GwButton(label: 'Değiştir', variant: GwButtonVariant.text, onPressed: _pickDate),
                           ),
                       ],
-                      if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-                      const SizedBox(height: GxSpacing.sm),
+                      if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+                      const SizedBox(height: GwSpacing.sm),
                       Text(
                         'Metinler hukuki bağlayıcılığı olan belgelerdir; yayınlamadan önce hukuk danışmanının onayından geçmelidir.',
-                        style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                        style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                       ),
                     ],
                   ),

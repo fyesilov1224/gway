@@ -32,13 +32,13 @@ class ConversationsScreen extends ConsumerWidget {
             ],
           ),
         ),
-        body: GxReadingColumn(
+        body: GwReadingColumn(
           child: switch (conversations) {
             AsyncData(:final value) => TabBarView(
                 children: [
                   _List(
                     items: [for (final c in value) if (!c.isRequest) c],
-                    empty: GxEmptyState(
+                    empty: GwEmptyState(
                       icon: Icons.chat_bubble_outline_rounded,
                       message: 'Henüz bir sohbetin yok. Eşleştiğin kişilere ve ekip arkadaşlarına yazabilirsin.',
                       actionLabel: 'Kişi bul',
@@ -49,7 +49,7 @@ class ConversationsScreen extends ConsumerWidget {
                     items: [for (final c in value) if (c.isRequest) c],
                     header: 'Eski mesaj istekleri burada durur. Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir; yeni istek gelmez.',
                     empty: Builder(
-                      builder: (context) => GxEmptyState(
+                      builder: (context) => GwEmptyState(
                         icon: Icons.mark_email_unread_outlined,
                         message: 'Bekleyen mesaj isteğin yok.',
                         actionLabel: 'Sohbetlere dön',
@@ -59,7 +59,7 @@ class ConversationsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            AsyncError(:final error) => GxErrorState(
+            AsyncError(:final error) => GwErrorState(
                 message: userMessageOf(error),
                 onRetry: () => ref.invalidate(conversationsProvider),
               ),
@@ -89,8 +89,8 @@ class _List extends ConsumerWidget {
         children: [
           if (header case final text?)
             Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
-              child: Text(text, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
+              child: Text(text, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ),
           for (final c in items) _Tile(conversation: c, mine: c.lastMessage?.senderId == me),
         ],
@@ -112,8 +112,8 @@ class _Tile extends StatelessWidget {
     final last = c.lastMessage;
     final unread = c.unread > 0;
     return ListTile(
-      minTileHeight: GxSpacing.xxl + GxSpacing.md,
-      contentPadding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+      minTileHeight: GwSpacing.xxl + GwSpacing.md,
+      contentPadding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
       leading: ConversationAvatar(conversation: c),
       title: Text(
         c.title,
@@ -128,7 +128,7 @@ class _Tile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: textTheme.bodyMedium?.copyWith(
-                color: unread ? GxColors.textPrimary : GxColors.textSecondary,
+                color: unread ? GwColors.textPrimary : GwColors.textSecondary,
                 fontStyle: last.deleted ? FontStyle.italic : null,
               ),
             ),
@@ -137,13 +137,13 @@ class _Tile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (last != null)
-            Text(formatChatTime(last.createdAt), style: textTheme.labelSmall?.copyWith(color: GxColors.textSecondary)),
+            Text(formatChatTime(last.createdAt), style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
           if (unread) ...[
-            const SizedBox(height: GxSpacing.xxs),
+            const SizedBox(height: GwSpacing.xxs),
             Badge(
               label: Text(c.unread > 99 ? '99+' : '${c.unread}'),
-              backgroundColor: GxColors.primary,
-              textColor: GxColors.onPrimary,
+              backgroundColor: GwColors.primary,
+              textColor: GwColors.onPrimary,
             ),
           ],
         ],
@@ -158,16 +158,16 @@ class _Skeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         children: [
           for (var i = 0; i < 6; i++)
             Padding(
-              padding: const EdgeInsets.only(bottom: GxSpacing.md),
+              padding: const EdgeInsets.only(bottom: GwSpacing.md),
               child: Row(
                 children: [
-                  GxSkeleton.circle(size: GxAvatarSize.md.dimension),
-                  const SizedBox(width: GxSpacing.sm),
-                  const Expanded(child: GxSkeleton(height: GxSpacing.xl)),
+                  GwSkeleton.circle(size: GwAvatarSize.md.dimension),
+                  const SizedBox(width: GwSpacing.sm),
+                  const Expanded(child: GwSkeleton(height: GwSpacing.xl)),
                 ],
               ),
             ),

@@ -30,7 +30,7 @@ void main() {
     final repo = _FakeBirthDates();
     await tester.pumpWidget(ProviderScope(
       overrides: [birthDateRepositoryProvider.overrideWithValue(repo)],
-      child: MaterialApp(theme: GxTheme.light(), home: const BirthDateScreen()),
+      child: MaterialApp(theme: GwTheme.light(), home: const BirthDateScreen()),
     ));
     await tester.pumpAndSettle();
 

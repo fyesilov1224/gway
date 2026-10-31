@@ -85,7 +85,7 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
               child: Text(
                 requested
                     ? '@${widget.username} için gönderdiğin takip isteğini geri almak istiyor musun?'
@@ -97,7 +97,7 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
             ),
             ListTile(
               title: Text(requested ? 'İsteği geri al' : 'Takibi bırak', textAlign: TextAlign.center,
-                  style: const TextStyle(color: GxColors.error)),
+                  style: const TextStyle(color: GwColors.error)),
               onTap: () => Navigator.of(context).pop(true),
             ),
             ListTile(title: const Text('Vazgeç', textAlign: TextAlign.center), onTap: () => Navigator.of(context).pop(false)),
@@ -111,13 +111,13 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
   @override
   Widget build(BuildContext context) {
     final (label, variant) = switch (_state) {
-      FollowState.none => (widget.followsMe ? 'Geri takip et' : 'Takip et', GxButtonVariant.primary),
-      FollowState.requested => ('İstek gönderildi', GxButtonVariant.secondary),
-      FollowState.following => ('Takiptesin', GxButtonVariant.secondary),
+      FollowState.none => (widget.followsMe ? 'Geri takip et' : 'Takip et', GwButtonVariant.primary),
+      FollowState.requested => ('İstek gönderildi', GwButtonVariant.secondary),
+      FollowState.following => ('Takiptesin', GwButtonVariant.secondary),
     };
-    final button = GxButton(label: label, variant: variant, isLoading: _busy, onPressed: _toggle);
+    final button = GwButton(label: label, variant: variant, isLoading: _busy, onPressed: _toggle);
     return widget.compact
-        ? ConstrainedBox(constraints: const BoxConstraints(minWidth: GxSpacing.xxl * 2 + GxSpacing.lg), child: button)
+        ? ConstrainedBox(constraints: const BoxConstraints(minWidth: GwSpacing.xxl * 2 + GwSpacing.lg), child: button)
         : button;
   }
 }
@@ -137,11 +137,11 @@ class PersonRow extends StatelessWidget {
     return InkWell(
       onTap: onTap ?? () => context.push(ProfileRoutes.user(person.username)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
         child: Row(
           children: [
-            GxAvatar(name: person.displayName, shape: GxAvatarShape.user, imageUrl: person.avatarUrl),
-            const SizedBox(width: GxSpacing.sm),
+            GwAvatar(name: person.displayName, shape: GwAvatarShape.user, imageUrl: person.avatarUrl),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,8 +152,8 @@ class PersonRow extends StatelessWidget {
                         child: Text(person.username, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                       ),
                       if (person.isPrivate) ...[
-                        const SizedBox(width: GxSpacing.xxs),
-                        const Icon(Icons.lock_outline, size: GxSpacing.sm + GxSpacing.xxs, color: GxColors.textSecondary),
+                        const SizedBox(width: GwSpacing.xxs),
+                        const Icon(Icons.lock_outline, size: GwSpacing.sm + GwSpacing.xxs, color: GwColors.textSecondary),
                       ],
                     ],
                   ),
@@ -161,12 +161,12 @@ class PersonRow extends StatelessWidget {
                     subtitle ?? person.displayName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                    style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
                 ],
               ),
             ),
-            if (trailing != null) ...[const SizedBox(width: GxSpacing.sm), trailing!],
+            if (trailing != null) ...[const SizedBox(width: GwSpacing.sm), trailing!],
           ],
         ),
       ),
@@ -213,14 +213,14 @@ class PeopleSearchResults extends ConsumerWidget {
     if (query.trim().isEmpty) return const SuggestedPeople();
     final results = ref.watch(peopleSearchProvider(query.trim()));
     return switch (results) {
-      AsyncData(:final value) when value.isEmpty => GxEmptyState(
+      AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.person_search_outlined,
           message: '"${query.trim()}" ile eşleşen bir hesap bulunamadı.',
           actionLabel: 'Aramayı temizle',
           onAction: onClear,
         ),
       AsyncData(:final value) => ListView(children: [for (final p in value) PersonFollowRow(person: p)]),
-      AsyncError(:final error) => GxErrorState(
+      AsyncError(:final error) => GwErrorState(
           message: userMessageOf(error), onRetry: () => ref.invalidate(peopleSearchProvider(query.trim()))),
       _ => const ListSkeleton(),
     };
@@ -235,7 +235,7 @@ class SuggestedPeople extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final people = ref.watch(suggestedPeopleProvider).value ?? const <PersonSummary>[];
     if (people.isEmpty) {
-      return GxEmptyState(
+      return GwEmptyState(
         icon: Icons.person_search_outlined,
         message: 'Kişi ya da etiket aramak için yazmaya başla.',
         actionLabel: 'Önerileri yenile',
@@ -245,7 +245,7 @@ class SuggestedPeople extends ConsumerWidget {
     return ListView(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
           child: Text('Senin için öneriler', style: Theme.of(context).textTheme.titleMedium),
         ),
         for (final p in people)
@@ -263,13 +263,13 @@ class ListSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.all(GxSpacing.md),
+        padding: EdgeInsets.all(GwSpacing.md),
         child: Column(children: [
-          GxSkeleton(height: GxSpacing.xxl),
-          SizedBox(height: GxSpacing.sm),
-          GxSkeleton(height: GxSpacing.xxl),
-          SizedBox(height: GxSpacing.sm),
-          GxSkeleton(height: GxSpacing.xxl),
+          GwSkeleton(height: GwSpacing.xxl),
+          SizedBox(height: GwSpacing.sm),
+          GwSkeleton(height: GwSpacing.xxl),
+          SizedBox(height: GwSpacing.sm),
+          GwSkeleton(height: GwSpacing.xxl),
         ]),
       );
 }

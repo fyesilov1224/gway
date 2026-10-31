@@ -48,14 +48,14 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
       children: switch (overview) {
         AsyncData(:final value) => _content(value),
         AsyncError(:final error) => [
-            GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(overviewProvider(_days)))),
+            GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(overviewProvider(_days)))),
           ],
         _ => [
-            const GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
-            const SizedBox(height: GxSpacing.lg),
-            const GxSkeleton(height: GxSpacing.xxl * 4, borderRadius: GxRadius.lgAll),
-            const SizedBox(height: GxSpacing.lg),
-            const GxSkeleton(height: GxSpacing.xxl * 6, borderRadius: GxRadius.lgAll),
+            const GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
+            const SizedBox(height: GwSpacing.lg),
+            const GwSkeleton(height: GwSpacing.xxl * 4, borderRadius: GwRadius.lgAll),
+            const SizedBox(height: GwSpacing.lg),
+            const GwSkeleton(height: GwSpacing.xxl * 6, borderRadius: GwRadius.lgAll),
           ],
       },
     );
@@ -87,11 +87,11 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
 
     Widget grid(List<Widget> panels) => LayoutBuilder(
           builder: (context, size) {
-            final columns = size.maxWidth >= GxLayout.wideBreakpoint - GxLayout.sidebarWidth ? 2 : 1;
-            final width = (size.maxWidth - GxSpacing.lg * (columns - 1)) / columns;
+            final columns = size.maxWidth >= GwLayout.wideBreakpoint - GwLayout.sidebarWidth ? 2 : 1;
+            final width = (size.maxWidth - GwSpacing.lg * (columns - 1)) / columns;
             return Wrap(
-              spacing: GxSpacing.lg,
-              runSpacing: GxSpacing.lg,
+              spacing: GwSpacing.lg,
+              runSpacing: GwSpacing.lg,
               children: [for (final p in panels) SizedBox(width: width, child: p)],
             );
           },
@@ -102,24 +102,24 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
       StatCardRow(
         wideColumns: 3,
         cards: [
-          StatCard(label: 'Toplam kullanıcı', value: s.users, icon: Icons.group_outlined, tone: GxBadgeTone.primary,
+          StatCard(label: 'Toplam kullanıcı', value: s.users, icon: Icons.group_outlined, tone: GwBadgeTone.primary,
               onTap: () => context.go(AdminRoutes.users)),
-          StatCard(label: 'Aktif grup', value: s.groups, icon: Icons.groups_2_outlined, tone: GxBadgeTone.info,
+          StatCard(label: 'Aktif grup', value: s.groups, icon: Icons.groups_2_outlined, tone: GwBadgeTone.info,
               onTap: () => context.go(AdminRoutes.groups)),
           StatCard(label: 'Açık şikayet', value: s.openReports, icon: Icons.flag_outlined,
-              tone: s.openReports > 0 ? GxBadgeTone.danger : GxBadgeTone.neutral, onTap: () => context.go(AdminRoutes.reports)),
+              tone: s.openReports > 0 ? GwBadgeTone.danger : GwBadgeTone.neutral, onTap: () => context.go(AdminRoutes.reports)),
           StatCard(label: 'Bekleyen destek', value: s.openTickets, icon: Icons.support_agent_outlined,
-              tone: s.openTickets > 0 ? GxBadgeTone.warning : GxBadgeTone.neutral, onTap: () => context.go(AdminRoutes.support)),
-          StatCard(label: 'Şu an canlı', value: s.liveNow, icon: Icons.podcasts_outlined, tone: GxBadgeTone.neutral,
+              tone: s.openTickets > 0 ? GwBadgeTone.warning : GwBadgeTone.neutral, onTap: () => context.go(AdminRoutes.support)),
+          StatCard(label: 'Şu an canlı', value: s.liveNow, icon: Icons.podcasts_outlined, tone: GwBadgeTone.neutral,
               onTap: () => context.go(AdminRoutes.live)),
-          StatCard(label: 'Eşleşme profili', value: s.matchProfiles, icon: Icons.favorite_border_rounded, tone: GxBadgeTone.neutral,
+          StatCard(label: 'Eşleşme profili', value: s.matchProfiles, icon: Icons.favorite_border_rounded, tone: GwBadgeTone.neutral,
               onTap: () => context.go(AdminRoutes.matching)),
         ],
       ),
-      const SizedBox(height: GxSpacing.xl),
+      const SizedBox(height: GwSpacing.xl),
       const _SectionTitle('Dönem özeti'),
       KpiGrid(cards: kpis),
-      const SizedBox(height: GxSpacing.xl),
+      const SizedBox(height: GwSpacing.xl),
       const _SectionTitle('Eğilimler'),
       grid([
         ChartPanel(
@@ -224,7 +224,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+        padding: const EdgeInsets.only(bottom: GwSpacing.sm),
         child: Text(text, style: Theme.of(context).textTheme.titleMedium),
       );
 }
@@ -256,13 +256,13 @@ class KpiCard extends StatelessWidget {
     final value = (format ?? formatCount)(metric.current);
     final change = metric.change;
     final (IconData? icon, String text, Color color) = switch (change) {
-      null when metric.current == 0 => (null, 'Değişim yok', GxColors.textSecondary),
-      null => (null, 'Önceki dönemde yoktu', GxColors.textSecondary),
-      0 => (Icons.trending_flat_rounded, '%0', GxColors.textSecondary),
+      null when metric.current == 0 => (null, 'Değişim yok', GwColors.textSecondary),
+      null => (null, 'Önceki dönemde yoktu', GwColors.textSecondary),
+      0 => (Icons.trending_flat_rounded, '%0', GwColors.textSecondary),
       final c => (
           c > 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
           '%${(c.abs() * 100).toStringAsFixed(c.abs() < 0.1 ? 1 : 0).replaceAll('.', ',')}',
-          (c > 0) != lowerIsBetter ? GxColors.success : GxColors.error,
+          (c > 0) != lowerIsBetter ? GwColors.success : GwColors.error,
         ),
     };
     final direction = switch (change) {
@@ -273,32 +273,32 @@ class KpiCard extends StatelessWidget {
     };
 
     final card = Material(
-      color: GxColors.background,
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll, side: GxBorders.hairline),
+      color: GwColors.background,
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll, side: GwBorders.hairline),
       child: InkWell(
-        borderRadius: GxRadius.lgAll,
+        borderRadius: GwRadius.lgAll,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: GxSpacing.xxs),
+              Text(label, style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: GwSpacing.xxs),
               FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: textTheme.headlineMedium)),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               Row(
                 children: [
-                  if (icon != null) ...[Icon(icon, size: GxSpacing.md, color: color), const SizedBox(width: GxSpacing.xxs)],
+                  if (icon != null) ...[Icon(icon, size: GwSpacing.md, color: color), const SizedBox(width: GwSpacing.xxs)],
                   Text(text, style: textTheme.labelMedium?.copyWith(color: color)),
                   if (direction.isNotEmpty)
                     Flexible(
-                      child: Text(' $direction', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                      child: Text(' $direction', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                           overflow: TextOverflow.ellipsis),
                     ),
                 ],
               ),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Sparkline(points: metric.points, previous: metric.previousPoints),
             ],
           ),
@@ -323,11 +323,11 @@ class KpiGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, size) {
-          final columns = size.maxWidth >= GxLayout.contentMaxWidth ? 4 : 2;
-          final width = (size.maxWidth - GxSpacing.md * (columns - 1)) / columns;
+          final columns = size.maxWidth >= GwLayout.contentMaxWidth ? 4 : 2;
+          final width = (size.maxWidth - GwSpacing.md * (columns - 1)) / columns;
           return Wrap(
-            spacing: GxSpacing.md,
-            runSpacing: GxSpacing.md,
+            spacing: GwSpacing.md,
+            runSpacing: GwSpacing.md,
             children: [for (final c in cards) SizedBox(width: width, child: c)],
           );
         },

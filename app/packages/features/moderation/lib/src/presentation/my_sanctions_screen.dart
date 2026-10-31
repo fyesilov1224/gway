@@ -19,7 +19,7 @@ class MySanctionsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Yaptırımlarım')),
       body: switch (sanctions) {
-        AsyncData(:final value) when value.isEmpty => GxEmptyState(
+        AsyncData(:final value) when value.isEmpty => GwEmptyState(
             icon: Icons.verified_outlined,
             message: 'Hiçbir grupta yaptırımın yok. Topluluk kurallarına uyduğun için teşekkürler.',
             actionLabel: 'Yenile',
@@ -28,16 +28,16 @@ class MySanctionsScreen extends ConsumerWidget {
         AsyncData(:final value) => RefreshIndicator(
             onRefresh: () => ref.refresh(mySanctionsProvider.future),
             child: ListView.separated(
-              padding: const EdgeInsets.all(GxSpacing.page),
+              padding: const EdgeInsets.all(GwSpacing.page),
               itemCount: value.length,
-              separatorBuilder: (_, _) => const SizedBox(height: GxSpacing.sm),
+              separatorBuilder: (_, _) => const SizedBox(height: GwSpacing.sm),
               itemBuilder: (context, i) => _SanctionTile(sanction: value[i], openGroup: openGroup),
             ),
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(mySanctionsProvider)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(mySanctionsProvider)),
         _ => ListView(
-            padding: const EdgeInsets.all(GxSpacing.page),
-            children: const [GxSkeleton(height: GxSpacing.xxl * 2), SizedBox(height: GxSpacing.sm), GxSkeleton(height: GxSpacing.xxl * 2)],
+            padding: const EdgeInsets.all(GwSpacing.page),
+            children: const [GwSkeleton(height: GwSpacing.xxl * 2), SizedBox(height: GwSpacing.sm), GwSkeleton(height: GwSpacing.xxl * 2)],
           ),
       },
     );
@@ -87,39 +87,39 @@ class _SanctionTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = sanction;
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final appeal = s.appeal;
     return DecoratedBox(
-      decoration: BoxDecoration(borderRadius: GxRadius.lgAll, border: Border.all(color: GxColors.border)),
+      decoration: BoxDecoration(borderRadius: GwRadius.lgAll, border: Border.all(color: GwColors.border)),
       child: Padding(
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InkWell(
               onTap: () => openGroup(context, s.group.handle),
-              borderRadius: GxRadius.smAll,
+              borderRadius: GwRadius.smAll,
               child: Row(
                 children: [
-                  GxAvatar(name: s.group.name, imageUrl: s.group.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.sm),
-                  const SizedBox(width: GxSpacing.sm),
+                  GwAvatar(name: s.group.name, imageUrl: s.group.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   Expanded(child: Text(s.group.name, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis)),
                 ],
               ),
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Text(s.interim ? 'Acil susturma' : s.type.label, style: textTheme.titleSmall),
             Text(mySanctionStatus(s), style: secondary),
-            if (s.reason.isNotEmpty) ...[const SizedBox(height: GxSpacing.xs), Text('Gerekçe: ${s.reason}', style: textTheme.bodyMedium)],
+            if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xs), Text('Gerekçe: ${s.reason}', style: textTheme.bodyMedium)],
             if (appeal != null) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Text('İtirazın · ${appeal.status.label}', style: textTheme.labelLarge),
               if (appeal.decisionNote case final note?) Text('Not: $note', style: secondary),
             ] else if (s.canAppeal) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Text('Bu karara 7 gün içinde bir kez itiraz edebilirsin.', style: secondary),
-              const SizedBox(height: GxSpacing.xs),
-              GxButton(label: 'İtiraz et', icon: Icons.record_voice_over_outlined, variant: GxButtonVariant.secondary, onPressed: () => _appeal(context, ref)),
+              const SizedBox(height: GwSpacing.xs),
+              GwButton(label: 'İtiraz et', icon: Icons.record_voice_over_outlined, variant: GwButtonVariant.secondary, onPressed: () => _appeal(context, ref)),
             ],
           ],
         ),

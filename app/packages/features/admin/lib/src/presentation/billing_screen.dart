@@ -23,15 +23,15 @@ class OrderStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => abandoned
-      ? const GxBadge('Yarım kaldı', dot: true)
-      : GxBadge(
+      ? const GwBadge('Yarım kaldı', dot: true)
+      : GwBadge(
           status.label,
           dot: true,
           tone: switch (status) {
-            AdminOrderStatus.paid => GxBadgeTone.primary,
-            AdminOrderStatus.pending => GxBadgeTone.info,
-            AdminOrderStatus.failed => GxBadgeTone.danger,
-            AdminOrderStatus.refunded => GxBadgeTone.neutral,
+            AdminOrderStatus.paid => GwBadgeTone.primary,
+            AdminOrderStatus.pending => GwBadgeTone.info,
+            AdminOrderStatus.failed => GwBadgeTone.danger,
+            AdminOrderStatus.refunded => GwBadgeTone.neutral,
           },
         );
 }
@@ -61,10 +61,10 @@ class _AdminBillingScreenState extends ConsumerState<AdminBillingScreen> {
       title: 'Abonelikler',
       subtitle: 'Grupların paket ödemeleri ve süren abonelikleri.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref
             ..invalidate(billingStatsProvider)
             ..invalidate(paymentProvidersProvider)
@@ -75,9 +75,9 @@ class _AdminBillingScreenState extends ConsumerState<AdminBillingScreen> {
       children: [
         if (canManage) ...[
           const PaymentProvidersPanel(),
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           const _Revenue(),
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
         ],
         Align(
           alignment: Alignment.centerLeft,
@@ -91,7 +91,7 @@ class _AdminBillingScreenState extends ConsumerState<AdminBillingScreen> {
             onSelectionChanged: (s) => setState(() => _tab = s.first),
           ),
         ),
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         switch (_tab) {
           _Tab.orders => const _Orders(),
           _Tab.subscriptions => const _Subscriptions(),
@@ -117,24 +117,24 @@ class _Revenue extends ConsumerWidget {
       children: [
         StatCardRow(
           cards: [
-            StatCard(label: 'Bu ay gelir (TL)', value: null, valueText: revenue('TRY'), icon: Icons.payments_outlined, tone: GxBadgeTone.primary),
-            StatCard(label: 'Bu ay gelir (USD)', value: null, valueText: revenue('USD'), icon: Icons.attach_money, tone: GxBadgeTone.info),
-            StatCard(label: 'Aktif abonelik', value: s?.activeSubscriptions, icon: Icons.workspace_premium_outlined, tone: GxBadgeTone.primary),
-            StatCard(label: 'Bekleyen ödeme', value: s?.pendingOrders, icon: Icons.hourglass_top, tone: GxBadgeTone.neutral),
+            StatCard(label: 'Bu ay gelir (TL)', value: null, valueText: revenue('TRY'), icon: Icons.payments_outlined, tone: GwBadgeTone.primary),
+            StatCard(label: 'Bu ay gelir (USD)', value: null, valueText: revenue('USD'), icon: Icons.attach_money, tone: GwBadgeTone.info),
+            StatCard(label: 'Aktif abonelik', value: s?.activeSubscriptions, icon: Icons.workspace_premium_outlined, tone: GwBadgeTone.primary),
+            StatCard(label: 'Bekleyen ödeme', value: s?.pendingOrders, icon: Icons.hourglass_top, tone: GwBadgeTone.neutral),
           ],
         ),
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(
           title: 'Aylık gelir',
           subtitle: 'Son 12 ay, ödenen siparişler (iadeler hariç). Ay, Türkiye saatine göredir.',
           padding: EdgeInsets.zero,
           child: switch (stats) {
             AsyncData(:final value) => _RevenueTable(months: value.months),
             AsyncError(:final error) => Padding(
-                padding: const EdgeInsets.all(GxSpacing.lg),
-                child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(billingStatsProvider)),
+                padding: const EdgeInsets.all(GwSpacing.lg),
+                child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(billingStatsProvider)),
               ),
-            _ => const Padding(padding: EdgeInsets.all(GxSpacing.lg), child: GxSkeleton(height: GxSpacing.xxl * 3)),
+            _ => const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: GwSkeleton(height: GwSpacing.xxl * 3)),
           },
         ),
       ],
@@ -150,10 +150,10 @@ class _RevenueTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final header = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.6);
+    final header = textTheme.labelMedium?.copyWith(color: GwColors.textSecondary, letterSpacing: 0.6);
     Widget row(List<Widget> cells, {Color? color}) => Container(
           color: color,
-          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
           child: Row(children: [for (final c in cells) Expanded(child: c)]),
         );
 
@@ -161,7 +161,7 @@ class _RevenueTable extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         row([Text('AY', style: header), Text('TL', style: header), Text('USD', style: header), Text('ÖDEME', style: header)],
-            color: GxColors.surface),
+            color: GwColors.surface),
         for (final m in months) ...[
           const Divider(),
           row([
@@ -229,7 +229,7 @@ class _OrdersState extends ConsumerState<_Orders> with _Search {
     final result = ref.watch(orderSearchProvider(key));
     final filtered = query.isNotEmpty || _status != null;
 
-    return GxPanel(
+    return GwPanel(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -251,13 +251,13 @@ class _OrdersState extends ConsumerState<_Orders> with _Search {
           _paged(
             result,
             empty: filtered
-                ? GxEmptyState(
+                ? GwEmptyState(
                     icon: Icons.search_off,
                     message: 'Aramana ve filtrene uygun ödeme bulunamadı.',
                     actionLabel: 'Filtreleri temizle',
                     onAction: _clear,
                   )
-                : GxEmptyState(
+                : GwEmptyState(
                     icon: Icons.receipt_long_outlined,
                     message: 'Henüz paket ödemesi yapılmadı.',
                     actionLabel: 'Yenile',
@@ -287,7 +287,7 @@ class _SubscriptionsState extends ConsumerState<_Subscriptions> with _Search {
     final key = (query: query, page: page);
     final result = ref.watch(subscriptionSearchProvider(key));
 
-    return GxPanel(
+    return GwPanel(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -306,13 +306,13 @@ class _SubscriptionsState extends ConsumerState<_Subscriptions> with _Search {
           _paged(
             result,
             empty: query.isNotEmpty
-                ? GxEmptyState(
+                ? GwEmptyState(
                     icon: Icons.search_off,
                     message: 'Aramana uygun abonelik bulunamadı.',
                     actionLabel: 'Aramayı temizle',
                     onAction: clearSearch,
                   )
-                : GxEmptyState(
+                : GwEmptyState(
                     icon: Icons.event_repeat_outlined,
                     message: 'Şu anda süren ya da sırada bekleyen abonelik yok.',
                     actionLabel: 'Yenile',
@@ -339,7 +339,7 @@ Widget _paged<T>(
 }) =>
     switch (result) {
       AsyncData(:final value) when value.items.isEmpty =>
-        Padding(padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl), child: empty),
+        Padding(padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl), child: empty),
       AsyncData(:final value) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -356,18 +356,18 @@ Widget _paged<T>(
           ],
         ),
       AsyncError(:final error) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-          child: GxErrorState(message: userMessageOf(error), onRetry: onRetry),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+          child: GwErrorState(message: userMessageOf(error), onRetry: onRetry),
         ),
       _ => const Padding(
-          padding: EdgeInsets.all(GxSpacing.lg),
+          padding: EdgeInsets.all(GwSpacing.lg),
           child: Column(
             children: [
-              GxSkeleton(height: GxSpacing.xl),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.xl),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.xl),
+              GwSkeleton(height: GwSpacing.xl),
+              SizedBox(height: GwSpacing.md),
+              GwSkeleton(height: GwSpacing.xl),
+              SizedBox(height: GwSpacing.md),
+              GwSkeleton(height: GwSpacing.xl),
             ],
           ),
         ),
@@ -388,9 +388,9 @@ class _ListRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return InkWell(
       onTap: onTap,
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
             Expanded(
@@ -399,22 +399,22 @@ class _ListRow extends StatelessWidget {
                 children: [
                   Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                   Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(amount, style: textTheme.labelLarge),
-                const SizedBox(height: GxSpacing.xxs),
+                const SizedBox(height: GwSpacing.xxs),
                 badge,
               ],
             ),
             if (onTap != null) ...[
-              const SizedBox(width: GxSpacing.xs),
-              const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+              const SizedBox(width: GwSpacing.xs),
+              const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
             ],
           ],
         ),
@@ -459,8 +459,8 @@ class _SubscriptionRow extends StatelessWidget {
         _ => 'Tanımlandı',
       },
       badge: s.isCurrent(DateTime.now())
-          ? const GxBadge('Aktif', tone: GxBadgeTone.primary, dot: true)
-          : const GxBadge('Sırada', tone: GxBadgeTone.info, dot: true),
+          ? const GwBadge('Aktif', tone: GwBadgeTone.primary, dot: true)
+          : const GwBadge('Sırada', tone: GwBadgeTone.info, dot: true),
       onTap: () => context.go(AdminRoutes.group(s.groupId)),
     );
   }

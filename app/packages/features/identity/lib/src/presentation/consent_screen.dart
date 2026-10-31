@@ -58,7 +58,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
     return switch (pending) {
       AsyncData(:final value) => _form(value),
       AsyncError(:final error) => Scaffold(
-          body: GxErrorState(
+          body: GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(pendingConsentsProvider),
           ),
@@ -71,7 +71,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
     final allAccepted = docs.every((d) => _accepted.contains(d.kind));
     return AuthLayout(
       title: 'Devam etmeden önce',
-      subtitle: 'GrupX\'i kullanabilmek için aşağıdaki metinleri okuyup onaylaman gerekiyor.',
+      subtitle: 'GWAY\'i kullanabilmek için aşağıdaki metinleri okuyup onaylaman gerekiyor.',
       children: [
         for (final doc in docs) ...[
           _ConsentTile(
@@ -83,20 +83,20 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
               () => value ? _accepted.add(doc.kind) : _accepted.remove(doc.kind),
             ),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
         ],
-        const SizedBox(height: GxSpacing.sm),
-        if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
-        GxButton(
+        const SizedBox(height: GwSpacing.sm),
+        if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
+        GwButton(
           label: 'Devam et',
           onPressed: allAccepted ? () => _continue(docs) : null,
           isLoading: _saving,
           expand: true,
         ),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Çıkış yap',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),
       ],
@@ -123,7 +123,7 @@ class _ConsentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(GxSpacing.sm),
+        padding: const EdgeInsets.all(GwSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -132,9 +132,9 @@ class _ConsentTile extends StatelessWidget {
                 Expanded(
                   child: Text(document.title, style: Theme.of(context).textTheme.titleMedium),
                 ),
-                GxButton(
+                GwButton(
                   label: 'Metni oku',
-                  variant: GxButtonVariant.text,
+                  variant: GwButtonVariant.text,
                   onPressed: () => showLegalDocument(context, document, onReadToEnd: onRead),
                 ),
               ],
@@ -152,7 +152,7 @@ class _ConsentTile extends StatelessWidget {
                   ? null
                   : Text(
                       'Onaylamak için metni sonuna kadar oku.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
             ),
           ],

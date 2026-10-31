@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../tokens/colors.dart';
 
 /// The page background: white melting into soft lilac and pink
-/// (docs/DESIGN.md §1, Zemin). [GxTheme] puts it behind every page route,
+/// (docs/DESIGN.md §1, Zemin). [GwTheme] puts it behind every page route,
 /// so screens never set a background color of their own.
-class GxBackdrop extends StatelessWidget {
-  const GxBackdrop({super.key, required this.child});
+class GwBackdrop extends StatelessWidget {
+  const GwBackdrop({super.key, required this.child});
 
   final Widget child;
 
@@ -29,21 +29,21 @@ class _Gradient extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [GxColors.backdropLilac, GxColors.background, GxColors.backdropPink],
+            colors: [GwColors.backdropLilac, GwColors.background, GwColors.backdropPink],
             stops: [0, 0.55, 1],
           ),
         ),
         child: DecoratedBox(
-          decoration: _glow(Alignment.topRight, 1.1, GxColors.backdropPink),
-          child: DecoratedBox(decoration: _glow(const Alignment(-1, 0.9), 0.8, GxColors.backdropLilac)),
+          decoration: _glow(Alignment.topRight, 1.1, GwColors.backdropPink),
+          child: DecoratedBox(decoration: _glow(const Alignment(-1, 0.9), 0.8, GwColors.backdropLilac)),
         ),
       );
 }
 
 /// Wraps a platform's page transition so each page carries the backdrop
 /// (pages stay opaque while they slide or fade over each other).
-class GxBackdropTransitions extends PageTransitionsBuilder {
-  const GxBackdropTransitions(this.inner);
+class GwBackdropTransitions extends PageTransitionsBuilder {
+  const GwBackdropTransitions(this.inner);
 
   final PageTransitionsBuilder inner;
 
@@ -55,5 +55,5 @@ class GxBackdropTransitions extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) =>
-      inner.buildTransitions(route, context, animation, secondaryAnimation, GxBackdrop(child: child));
+      inner.buildTransitions(route, context, animation, secondaryAnimation, GwBackdrop(child: child));
 }

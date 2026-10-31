@@ -1,5 +1,5 @@
 /// Media sizes and ratios. See docs/DESIGN.md §7, Medya ölçüleri.
-abstract final class GxMedia {
+abstract final class GwMedia {
   static const double square = 1;
   static const double portrait = 4 / 5;
   static const double landscape = 1.91;
@@ -29,5 +29,5 @@ abstract final class GxMedia {
 
 /// Pixels to decode an image shown [logicalWidth] wide (`cacheWidth`), so a grid
 /// tile never decodes a full-size photo; null when the width is unbounded.
-int? gxCacheWidth(double logicalWidth, double devicePixelRatio) =>
+int? gwCacheWidth(double logicalWidth, double devicePixelRatio) =>
     logicalWidth.isFinite && logicalWidth > 0 ? (logicalWidth * devicePixelRatio).round() : null;

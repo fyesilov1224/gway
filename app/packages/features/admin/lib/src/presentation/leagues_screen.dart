@@ -59,7 +59,7 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final canExclude = ref.watch(myStaffRoleProvider).value?.canSuspend ?? false;
     final leagues = ref.watch(adminLeaguesProvider(_month));
     final selected = _league;
@@ -68,11 +68,11 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
       title: 'Ligler',
       subtitle: 'Aynı il ve kategorideki grupların aylık sıralaması. Kurala aykırı bir grubu (ör. sahte katılım) '
           'sezon kapanmadan ligden çıkarabilirsin.',
-      actions: [GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: _refresh)],
+      actions: [GwButton(label: 'Yenile', icon: Icons.refresh, variant: GwButtonVariant.secondary, onPressed: _refresh)],
       children: [
         Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           children: [
             for (final m in _months)
               ChoiceChip(
@@ -85,8 +85,8 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
               ),
           ],
         ),
-        const SizedBox(height: GxSpacing.md),
-        GxPanel(
+        const SizedBox(height: GwSpacing.md),
+        GwPanel(
           title: 'Ligler',
           subtitle: switch (leagues.value) {
             final v? when v.finalized => '${formatMonthYearTr(v.month)} sezonu kapandı; sonuçlar kesin.',
@@ -95,8 +95,8 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
           padding: EdgeInsets.zero,
           child: switch (leagues) {
             AsyncData(:final value) when value.leagues.isEmpty => Padding(
-                padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                child: GxEmptyState(
+                padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                child: GwEmptyState(
                   icon: Icons.emoji_events_outlined,
                   message: 'Bu ay puan alan grup yok.',
                   actionLabel: 'Yenile',
@@ -111,22 +111,22 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
                       leading: const Icon(Icons.emoji_events_outlined),
                       title: Text(_name(l)),
                       subtitle: Text('${formatCount(l.groups)} grup · lider ${l.leaderName} (${formatCount(l.leaderPoints)} puan)'),
-                      trailing: l.excluded > 0 ? GxBadge('${l.excluded} çıkarılan', tone: GxBadgeTone.danger) : null,
+                      trailing: l.excluded > 0 ? GwBadge('${l.excluded} çıkarılan', tone: GwBadgeTone.danger) : null,
                       onTap: () => setState(() => _league = l),
                     ),
                 ],
               ),
             AsyncError(:final error) => Padding(
-                padding: const EdgeInsets.all(GxSpacing.lg),
-                child: GxErrorState(message: userMessageOf(error), onRetry: _refresh),
+                padding: const EdgeInsets.all(GwSpacing.lg),
+                child: GwErrorState(message: userMessageOf(error), onRetry: _refresh),
               ),
-            _ => const Padding(padding: EdgeInsets.all(GxSpacing.lg), child: GxSkeleton(height: GxSpacing.xl)),
+            _ => const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: GwSkeleton(height: GwSpacing.xl)),
           },
         ),
         if (selected != null) ...[
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           switch (ref.watch(adminLeagueTableProvider((month: _month, category: selected.category, province: selected.province)))) {
-            AsyncData(:final value) => GxPanel(
+            AsyncData(:final value) => GwPanel(
                 title: _name(selected),
                 subtitle: '${formatMonthYearTr(_month)} sıralaması',
                 padding: EdgeInsets.zero,
@@ -144,8 +144,8 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
                           children: [
                             Text('${formatCount(r.points)} puan', style: textTheme.labelLarge),
                             if (canExclude && !value.finalized) ...[
-                              const SizedBox(width: GxSpacing.sm),
-                              GxButton(label: 'Ligden çıkar', variant: GxButtonVariant.secondary, onPressed: () => _exclude(r)),
+                              const SizedBox(width: GwSpacing.sm),
+                              GwButton(label: 'Ligden çıkar', variant: GwButtonVariant.secondary, onPressed: () => _exclude(r)),
                             ],
                           ],
                         ),
@@ -153,27 +153,27 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
                     if (value.exclusions.isNotEmpty) ...[
                       const Divider(),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(GxSpacing.lg, GxSpacing.sm, GxSpacing.lg, 0),
+                        padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.sm, GwSpacing.lg, 0),
                         child: Text('Ligden çıkarılanlar', style: textTheme.titleSmall),
                       ),
                       for (final x in value.exclusions)
                         ListTile(
-                          leading: const Icon(Icons.block, color: GxColors.error),
+                          leading: const Icon(Icons.block, color: GwColors.error),
                           title: Text('${x.groupName} (@${x.groupHandle})'),
                           subtitle: Text(
                             '${x.reason} · ${x.by == null ? '' : '@${x.by} · '}${formatDateTimeTr(x.createdAt.toLocal())}',
                             style: secondary,
                           ),
                           trailing: canExclude && !value.finalized
-                              ? GxButton(label: 'Geri al', variant: GxButtonVariant.text, onPressed: () => _restore(x))
+                              ? GwButton(label: 'Geri al', variant: GwButtonVariant.text, onPressed: () => _restore(x))
                               : null,
                         ),
                     ],
                   ],
                 ),
               ),
-            AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: _refresh),
-            _ => const GxSkeleton(height: GxSpacing.xxl * 2),
+            AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: _refresh),
+            _ => const GwSkeleton(height: GwSpacing.xxl * 2),
           },
         ],
       ],
@@ -209,7 +209,7 @@ class _ReasonDialogState extends State<_ReasonDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Grup bu ayın sıralamasında görünmez. Sezon kapanana kadar geri alınabilir; işlem kayda geçer.'),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           TextField(
             controller: _reason,
             autofocus: true,
@@ -220,8 +220,8 @@ class _ReasonDialogState extends State<_ReasonDialog> {
         ],
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: 'Ligden çıkar', onPressed: ok ? () => Navigator.of(context).pop(_reason.text.trim()) : null),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: 'Ligden çıkar', onPressed: ok ? () => Navigator.of(context).pop(_reason.text.trim()) : null),
       ],
     );
   }

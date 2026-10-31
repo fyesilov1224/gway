@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Gway.Api/Gway.Api.csproj" />
+    <Project Path="src/Gway.SharedKernel/Gway.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Gway.Modules.Admin/Gway.Modules.Admin.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Billing/Gway.Modules.Billing.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Billing.Contracts/Gway.Modules.Billing.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Events/Gway.Modules.Events.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Events.Contracts/Gway.Modules.Events.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Feed/Gway.Modules.Feed.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Feed.Contracts/Gway.Modules.Feed.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Groups/Gway.Modules.Groups.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Groups.Contracts/Gway.Modules.Groups.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Identity/Gway.Modules.Identity.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Identity.Contracts/Gway.Modules.Identity.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Live/Gway.Modules.Live.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Live.Contracts/Gway.Modules.Live.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Matching/Gway.Modules.Matching.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Matching.Contracts/Gway.Modules.Matching.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Messaging/Gway.Modules.Messaging.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Messaging.Contracts/Gway.Modules.Messaging.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Moderation/Gway.Modules.Moderation.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Moderation.Contracts/Gway.Modules.Moderation.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Notifications/Gway.Modules.Notifications.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Notifications.Contracts/Gway.Modules.Notifications.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Profile/Gway.Modules.Profile.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Support/Gway.Modules.Support.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Support.Contracts/Gway.Modules.Support.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Gway.Api.Tests/Gway.Api.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -25,12 +25,12 @@ class InterestPicker extends ConsumerWidget {
     final categories = ref.watch(categoriesProvider);
     return switch (categories) {
       AsyncData(:final value) => Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           children: [
             for (final c in value)
               FilterChip(
-                avatar: Icon(categoryIcon(c.slug), size: GxSpacing.md + GxSpacing.xxs),
+                avatar: Icon(categoryIcon(c.slug), size: GwSpacing.md + GwSpacing.xxs),
                 label: Text(c.name),
                 selected: selected.contains(c.slug),
                 showCheckmark: false,
@@ -41,15 +41,15 @@ class InterestPicker extends ConsumerWidget {
               ),
           ],
         ),
-      AsyncError(:final error) => GxFormMessage(userMessageOf(error)),
+      AsyncError(:final error) => GwFormMessage(userMessageOf(error)),
       _ => const Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           children: [
-            GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.xl),
-            GxSkeleton(width: GxSpacing.xxl + GxSpacing.xl, height: GxSpacing.xl),
-            GxSkeleton(width: GxSpacing.xxl * 2 + GxSpacing.md, height: GxSpacing.xl),
-            GxSkeleton(width: GxSpacing.xxl + GxSpacing.lg, height: GxSpacing.xl),
+            GwSkeleton(width: GwSpacing.xxl * 2, height: GwSpacing.xl),
+            GwSkeleton(width: GwSpacing.xxl + GwSpacing.xl, height: GwSpacing.xl),
+            GwSkeleton(width: GwSpacing.xxl * 2 + GwSpacing.md, height: GwSpacing.xl),
+            GwSkeleton(width: GwSpacing.xxl + GwSpacing.lg, height: GwSpacing.xl),
           ],
         ),
     };
@@ -141,15 +141,15 @@ class _UsernameFieldState extends ConsumerState<UsernameField> {
         counterText: '',
         suffixIcon: _checking
             ? const Padding(
-                padding: EdgeInsets.all(GxSpacing.sm),
+                padding: EdgeInsets.all(GwSpacing.sm),
                 child: SizedBox.square(
-                  dimension: GxSpacing.md,
+                  dimension: GwSpacing.md,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               )
             : switch (_available) {
-                true => const Icon(Icons.check_circle, color: GxColors.primary, semanticLabel: 'Kullanılabilir'),
-                false => const Icon(Icons.cancel, color: GxColors.error, semanticLabel: 'Alınmış'),
+                true => const Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: 'Kullanılabilir'),
+                false => const Icon(Icons.cancel, color: GwColors.error, semanticLabel: 'Alınmış'),
                 null => null,
               },
       ),

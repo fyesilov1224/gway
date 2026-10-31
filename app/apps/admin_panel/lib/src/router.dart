@@ -55,7 +55,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     // An unknown or outdated link: a friendly page instead of the router's raw error.
     errorBuilder: (context, _) => Scaffold(
       appBar: AppBar(),
-      body: GxEmptyState(
+      body: GwEmptyState(
         icon: Icons.link_off,
         message: 'Aradığın sayfa bulunamadı. Bağlantı eski ya da hatalı olabilir.',
         actionLabel: 'Kullanıcılara dön',
@@ -63,11 +63,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
-      GoRoute(path: PanelRoutes.loading, builder: (_, _) => const GxSplash(caption: 'Yönetim')),
+      GoRoute(path: PanelRoutes.loading, builder: (_, _) => const GwSplash(caption: 'Yönetim')),
       GoRoute(
         path: PanelRoutes.error,
         builder: (_, _) => Scaffold(
-          body: GxErrorState(
+          body: GwErrorState(
             message: 'Yetki bilgin yüklenemedi. Bağlantını kontrol edip tekrar dene.',
             onRetry: () => ref.invalidate(myStaffRoleProvider),
           ),
@@ -76,7 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: IdentityRoutes.signIn,
         builder: (_, _) => const SignInScreen(
-          title: 'GrupX Yönetim',
+          title: 'GWAY Yönetim',
           subtitle: 'Platform ekibi hesabınla giriş yap.',
           allowSignUp: false,
           allowSocial: false,

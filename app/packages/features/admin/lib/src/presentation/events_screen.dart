@@ -80,8 +80,8 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
         title: const Text('Buluşma noktasını kaldır'),
         content: Text('"${e.title}" haritadan kalkar; yer metni kalır. İşlem kayda geçer.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'Kaldır', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'Kaldır', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -98,8 +98,8 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
         title: const Text('Tekrarı durdur'),
         content: Text('"${e.title}" için yeni tarih açılmaz; açılmış tarihler kalır. İşlem kayda geçer.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -130,15 +130,15 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
       title: 'Organizasyonlar',
       subtitle: 'Grupların organizasyonları. Kurallara aykırı bir organizasyonu iptal edebilirsin.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref.invalidate(adminEventSearchProvider),
         ),
       ],
       children: [
-        GxPanel(
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,15 +159,15 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
                     child: filtered
-                        ? GxEmptyState(
+                        ? GwEmptyState(
                             icon: Icons.search_off,
                             message: 'Aramana ve filtrene uygun organizasyon bulunamadı.',
                             actionLabel: 'Filtreleri temizle',
                             onAction: _clear,
                           )
-                        : GxEmptyState(
+                        : GwEmptyState(
                             icon: Icons.event_outlined,
                             message: 'Henüz organizasyon yok.',
                             actionLabel: 'Yenile',
@@ -198,15 +198,15 @@ class _AdminEventsScreenState extends ConsumerState<AdminEventsScreen> {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminEventSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminEventSearchProvider(key))),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.lg),
+                    padding: EdgeInsets.all(GwSpacing.lg),
                     child: Column(children: [
-                      GxSkeleton(height: GxSpacing.xl),
-                      SizedBox(height: GxSpacing.md),
-                      GxSkeleton(height: GxSpacing.xl),
+                      GwSkeleton(height: GwSpacing.xl),
+                      SizedBox(height: GwSpacing.md),
+                      GwSkeleton(height: GwSpacing.xl),
                     ]),
                   ),
               },
@@ -247,9 +247,9 @@ class _EventRow extends StatelessWidget {
     ].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.group(e.groupId)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
             Expanded(
@@ -257,18 +257,18 @@ class _EventRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
-                  Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
-            if (e.isCanceled) ...[const SizedBox(width: GxSpacing.sm), const GxBadge('İptal edildi', dot: true, tone: GxBadgeTone.danger)],
+            if (e.isCanceled) ...[const SizedBox(width: GwSpacing.sm), const GwBadge('İptal edildi', dot: true, tone: GwBadgeTone.danger)],
             if (onRemovePoint != null)
               IconButton(tooltip: 'Buluşma noktasını kaldır', icon: const Icon(Icons.wrong_location_outlined), onPressed: onRemovePoint),
             if (onStopSeries != null)
               IconButton(tooltip: 'Tekrarı durdur', icon: const Icon(Icons.event_repeat_outlined), onPressed: onStopSeries),
             if (onCancel != null) ...[
-              const SizedBox(width: GxSpacing.sm),
-              GxButton(label: 'İptal et', icon: Icons.event_busy_outlined, variant: GxButtonVariant.secondary, onPressed: onCancel),
+              const SizedBox(width: GwSpacing.sm),
+              GwButton(label: 'İptal et', icon: Icons.event_busy_outlined, variant: GwButtonVariant.secondary, onPressed: onCancel),
             ],
           ],
         ),

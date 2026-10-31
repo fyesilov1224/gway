@@ -1,14 +1,14 @@
-# GrupX — Tasarım Sistemi
+# GWAY — Tasarım Sistemi
 
 Hedef: ferah, sakin, profesyonel bir arayüz (AAA). Ekranın büyük kısmı beyazdır, içerik öne çıkar, kullanıcı yorulmaz.
 
-**Kimlik (Faz 15.5):** GrupX bir akış uygulaması değil, toplulukların buluştuğu yerdir. Bu yüzden X ve Instagram kalıpları (taşan avatarlı kapak, kenardan kenara akış, bitişik kare ızgara, hikâye halkası şeridi, beş ikonlu alt çubuk) kullanılmaz. Ana sayfa "Bugün"dür: önce canlı yayınlar ve yaklaşan organizasyonlar, sonra akış. İçerik, mor–pembe–beyaz geçişli zemin (`GxBackdrop`) üzerinde beyaz kartlarda durur; kişi, grup ve kategoriler kendi yumuşak tonlarını taşır.
+**Kimlik (Faz 15.5):** GWAY bir akış uygulaması değil, toplulukların buluştuğu yerdir. Bu yüzden X ve Instagram kalıpları (taşan avatarlı kapak, kenardan kenara akış, bitişik kare ızgara, hikâye halkası şeridi, beş ikonlu alt çubuk) kullanılmaz. Ana sayfa "Bugün"dür: önce canlı yayınlar ve yaklaşan organizasyonlar, sonra akış. İçerik, mor–pembe–beyaz geçişli zemin (`GwBackdrop`) üzerinde beyaz kartlarda durur; kişi, grup ve kategoriler kendi yumuşak tonlarını taşır.
 
 Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygulama kodunda doğrudan renk, boşluk, yarıçap veya yazı boyutu yazılmaz.**
 
 ---
 
-## 1. Renkler — `GxColors`
+## 1. Renkler — `GwColors`
 
 | Token | Değer | Kullanım |
 |---|---|---|
@@ -34,22 +34,22 @@ Tüm değerler `app/packages/design_system` içindeki tokenlardan gelir. **Uygul
 | `onMedia` | `#FFFFFF` | `media` zemini ya da fotoğraf üzerindeki metin ve ikon |
 | `mediaScrim` | `#111118` %45 | Fotoğraf üzerindeki metnin okunması için üst/alt geçiş |
 
-- **Kırmızı, sarı, yeşil** yalnızca durum ve tür anlatır (ör. destek mesajı türleri: Sorun kırmızı, Talep sarı, İstek yeşil). Ana arayüz rengi değildir; büyük alanlarda yalnızca soft tonları kullanılır, metin ve ikon koyu tondadır. `GxBadgeTone.warning` ve `GxBadgeTone.success` bu çiftleri kullanır.
+- **Kırmızı, sarı, yeşil** yalnızca durum ve tür anlatır (ör. destek mesajı türleri: Sorun kırmızı, Talep sarı, İstek yeşil). Ana arayüz rengi değildir; büyük alanlarda yalnızca soft tonları kullanılır, metin ve ikon koyu tondadır. `GwBadgeTone.warning` ve `GwBadgeTone.success` bu çiftleri kullanır.
 - **Medya zemini** (`media`) yalnızca medya tam ekran gösterilirken (hikaye, tam ekran video) kullanılır; uygulamanın geri kalanı beyazdır. Fotoğraf üzerindeki metin her zaman `mediaScrim` geçişinin üzerinde durur.
 - **Hikaye halkası:** görülmemiş hikaye `primary` renkli 2 px halka, görülmüş hikaye `border` halka. Gradyan kullanılmaz. Halka yalnızca hikâye ve öne çıkan çiplerindeki küçük avatarda görünür.
 - **Konuşma halkası:** yayın odasında konuşan kişinin avatarında `primary` renkli 2 px halka. Gradyan kullanılmaz.
-- **Mor→mavi gradyan** (`GxColors.liveGradient`) **yalnızca** canlı yayın rozeti ve "yayın başlat" butonunda kullanılır.
+- **Mor→mavi gradyan** (`GwColors.liveGradient`) **yalnızca** canlı yayın rozeti ve "yayın başlat" butonunda kullanılır.
 - Kontrast: Metin / zemin çiftleri WCAG AA'yı (normal metin ≥ 4.5:1) sağlar. Bu, `design_system` testleriyle doğrulanır.
 - Mavi metin soft mavi zemin üzerinde kullanılmaz (≈4.2:1, AA altı). Soft zeminlerin üzerindeki metin `textPrimary` olur. İstisna: mor metin `primarySoft` üzerinde kullanılabilir (≈4.8:1).
 
-### Grafikler — `GxColors.chartSeries` (Faz 15.7, yalnızca yönetim paneli)
+### Grafikler — `GwColors.chartSeries` (Faz 15.7, yalnızca yönetim paneli)
 - Seri renkleri **sabit sırayla** verilir, asla döngüye girmez: mor `#6E56CF`, turuncu `#EB6834`, mavi `#2F6FE0`, yeşil `#138A5F`. Mor ve mavi renk körlüğünde karışır, bu yüzden yan yana gelmez. Sıra beyaz zeminde renk körlüğü, normal görme ve 3:1 kontrast için betikle doğrulandı (bitişik çiftler).
 - Bir grafikte en fazla 4 seri; fazlası ayrı grafiğe bölünür. İki seri ve üstünde açıklama (legend) her zaman bulunur, seri adı ayrıca doğrudan çizginin ucuna yazılır; kimlik yalnızca renge bırakılmaz.
 - Önceki dönem, güncel serinin altında açık gri (`chartCompare`) kesik çizgidir. Izgara çizgileri kenar rengindedir, eksenler sakindir.
 - Tek eksen: farklı ölçekteki iki ölçü (ör. gelir ve sipariş sayısı) aynı grafikte iki eksene konmaz, ayrı grafik olur.
 - Çizgi 2 px, sütun uçları 4 yuvarlak, sütunlar arası 2 px boşluk. Üzerine gelince / dokununca değer kutusu çıkar. Yazılar seri renginde değil, metin renklerindedir.
 
-### Zemin — `GxBackdrop`
+### Zemin — `GwBackdrop`
 
 Her sayfanın arkasında beyazdan açık mora ve açık pembeye geçen, sabit ve yumuşak bir zemin vardır (kullanıcı isteği, 2026-10-22). Sol üstten açık mor, sağ üstte pembe bir ışıltı, ortası beyaza yakın, sol altta yine açık mor.
 
@@ -58,14 +58,14 @@ Her sayfanın arkasında beyazdan açık mora ve açık pembeye geçen, sabit ve
 | `backdropLilac` | `#EEE8FF` | Zeminin mor ucu |
 | `backdropPink` | `#FFE6F3` | Zeminin pembe ucu |
 
-- Zemin tema üzerinden her sayfa geçişine eklenir (`GxTheme` → `pageTransitionsTheme`); `Scaffold` ve `AppBar` saydamdır. Sayfa kodu zemin rengi vermez.
+- Zemin tema üzerinden her sayfa geçişine eklenir (`GwTheme` → `pageTransitionsTheme`); `Scaffold` ve `AppBar` saydamdır. Sayfa kodu zemin rengi vermez.
 - Pembe **yalnızca zeminde** kullanılır; buton, metin ya da ikon rengi değildir.
 - Zemin renkleri açıktır; `textPrimary` ve `textSecondary` üzerlerinde AA'yı sağlar (`design_system` kontrast testi).
 - Tam ekran medya (hikâye, video) ve yayın odası kendi koyu zeminini kullanır.
 
-### Tonlar — `GxTone`
+### Tonlar — `GwTone`
 
-Paletten türeyen yumuşak kimlik tonları. Bir kişi, grup ya da kategori her yerde aynı tonu taşır (`GxTone.of(id ya da ad)`): avatarın görselsiz hali, kapak yer tutucusu, tarih karosu, etiketler.
+Paletten türeyen yumuşak kimlik tonları. Bir kişi, grup ya da kategori her yerde aynı tonu taşır (`GwTone.of(id ya da ad)`): avatarın görselsiz hali, kapak yer tutucusu, tarih karosu, etiketler.
 
 | Ton | Zemin (`soft`) | Vurgu (`strong`) |
 |---|---|---|
@@ -75,7 +75,7 @@ Paletten türeyen yumuşak kimlik tonları. Bir kişi, grup ya da kategori her y
 
 `strong` yalnızca ikon ve büyük yazıda (baş harfler, gün numarası) kullanılır; zemin üzerindeki küçük metin `textPrimary` olur.
 
-## 2. Tipografi — `GxTypography`
+## 2. Tipografi — `GwTypography`
 
 Yazı tipi **Plus Jakarta Sans**'tır (OFL). 400, 500, 600 ve 700 ağırlıkları pakete gömülüdür, çalışma anında indirilmez.
 
@@ -90,45 +90,45 @@ Yazı tipi **Plus Jakarta Sans**'tır (OFL). 400, 500, 600 ve 700 ağırlıklar�
 | `labelLarge` | 14 / 20 | 600 |
 | `labelMedium` | 12 / 16 | 500 |
 
-## 3. Boşluk — `GxSpacing`
+## 3. Boşluk — `GwSpacing`
 
 Boşluklar 4'ün katlarıdır: `xxs 4`, `xs 8`, `sm 12`, `md 16`, `lg 24`, `xl 32`, `xxl 48`. Sayfa yatay iç boşluğu `md` (16) olur.
 
-## 4. Yarıçap — `GxRadius`
+## 4. Yarıçap — `GwRadius`
 
 `sm 8` (çip, küçük öğe), `md 12` (buton, girdi), `lg 16` (kart, grup avatarı), `xl 24` (alt sayfa, büyük kart).
 
 ## 5. Yükselti
 
-Gölge kullanılmaz. Sayfa zemini `GxBackdrop`'tur (§1), içerik beyaz kartlardadır (`GxCard`: `xl` ya da `lg` yarıçap, `border` renginde 1 px çizgi). Ayrım kenar çizgisiyle (`GxBorders.hairline`) ve kartlar arası boşlukla yapılır; bölümler arasında tam genişlik ayraç kullanılmaz. Hikaye halkası ve seçili medya çerçevesi `GxBorders.ringWidth` (2 px) kalınlığındadır.
+Gölge kullanılmaz. Sayfa zemini `GwBackdrop`'tur (§1), içerik beyaz kartlardadır (`GwCard`: `xl` ya da `lg` yarıçap, `border` renginde 1 px çizgi). Ayrım kenar çizgisiyle (`GwBorders.hairline`) ve kartlar arası boşlukla yapılır; bölümler arasında tam genişlik ayraç kullanılmaz. Hikaye halkası ve seçili medya çerçevesi `GwBorders.ringWidth` (2 px) kalınlığındadır.
 
 ## 6. Bileşenler
 
 | Bileşen | Kural |
 |---|---|
-| `GxButton` | `primary` (dolu mor, beyaz metin), `secondary` (beyaz zemin, `border` çizgisi, mavi metin), `text` (zeminsiz, mor metin). Yüksekliği 48, en az 44×44 dokunma alanı. Yüklenme durumu vardır. |
-| `GxAvatar` | Kullanıcı: **daire**. Grup: **yuvarlatılmış kare** (`GxRadius.lg` orantılı). Görsel yoksa baş harf, adın tonunda (`GxTone`) gösterilir. |
-| `GxSkeleton` | Yüklenirken içerik yerine gösterilir. Spinner yerine iskelet tercih edilir. |
-| `GxEmptyState` | Her boş listede **ikon + tek cümle açıklama + bir aksiyon** bulunur. |
-| `GxErrorState` | Yükleme hatasında ikon + güvenli mesaj + "Tekrar dene". |
-| `GxFormMessage` | Formun altında satır içi hata veya bilgi mesajı. |
-| `GxPanel` | Beyaz, ince çerçeveli içerik kartı; isteğe bağlı başlık / alt başlık / sağ aksiyon. Her zaman tam genişlik kaplar. |
-| `GxCard` | Sayfaların yapı taşı: beyaz, ince çizgili, yuvarlatılmış kart; isteğe bağlı dokunma. |
-| `GxSectionHeader` | Bölüm başlığı (`titleLarge`), isteğe bağlı alt başlık ve sağda "Tümü ›" türü bağlantı. |
-| `GxDateTile` | Organizasyonların takvim yaprağı: kısa ay (EKİ) üstte, gün büyük; grubun tonunda. |
-| `GxTag` | Yumuşak tonlu, ikonlu hap etiket: kategori, ilgi alanı. |
-| `GxBadge` | Durum ve rol etiketi (`neutral`, `primary`, `info`, `danger`), durumlar için noktalı. Sığmayan metin üç noktayla kısalır. |
-| `GxLiveBadge` | Mor→mavi gradyanlı "CANLI" rozeti (canlı yayın kartı, yayın odası, ana sayfa şeridi, admin listesi). |
-| `GxLiveButton` | Gradyanlı "Yayın başlat" düğmesi; dakika bitmişse gri ve pasif. |
-| `GxReadingColumn` | Profil ve grup sayfalarının orta sütunu (720; ana sayfada `feedMaxWidth`). Yan çizgi yoktur. |
-| `GxHeroCard` | Profil ve grubun kimlik kartı: kapak (telefonda 2:1, geniş ekranda 2,5:1; yoksa tonun zemini ve soluk kategori ikonu) kartın içindedir; avatar kapağın altında, adın solunda durur, kapağa taşmaz. Altında sayfanın kendi içeriği (biyografi, meta, istatistik, aksiyonlar). Yüklenirken `GxHeroCardSkeleton`. |
+| `GwButton` | `primary` (dolu mor, beyaz metin), `secondary` (beyaz zemin, `border` çizgisi, mavi metin), `text` (zeminsiz, mor metin). Yüksekliği 48, en az 44×44 dokunma alanı. Yüklenme durumu vardır. |
+| `GwAvatar` | Kullanıcı: **daire**. Grup: **yuvarlatılmış kare** (`GwRadius.lg` orantılı). Görsel yoksa baş harf, adın tonunda (`GwTone`) gösterilir. |
+| `GwSkeleton` | Yüklenirken içerik yerine gösterilir. Spinner yerine iskelet tercih edilir. |
+| `GwEmptyState` | Her boş listede **ikon + tek cümle açıklama + bir aksiyon** bulunur. |
+| `GwErrorState` | Yükleme hatasında ikon + güvenli mesaj + "Tekrar dene". |
+| `GwFormMessage` | Formun altında satır içi hata veya bilgi mesajı. |
+| `GwPanel` | Beyaz, ince çerçeveli içerik kartı; isteğe bağlı başlık / alt başlık / sağ aksiyon. Her zaman tam genişlik kaplar. |
+| `GwCard` | Sayfaların yapı taşı: beyaz, ince çizgili, yuvarlatılmış kart; isteğe bağlı dokunma. |
+| `GwSectionHeader` | Bölüm başlığı (`titleLarge`), isteğe bağlı alt başlık ve sağda "Tümü ›" türü bağlantı. |
+| `GwDateTile` | Organizasyonların takvim yaprağı: kısa ay (EKİ) üstte, gün büyük; grubun tonunda. |
+| `GwTag` | Yumuşak tonlu, ikonlu hap etiket: kategori, ilgi alanı. |
+| `GwBadge` | Durum ve rol etiketi (`neutral`, `primary`, `info`, `danger`), durumlar için noktalı. Sığmayan metin üç noktayla kısalır. |
+| `GwLiveBadge` | Mor→mavi gradyanlı "CANLI" rozeti (canlı yayın kartı, yayın odası, ana sayfa şeridi, admin listesi). |
+| `GwLiveButton` | Gradyanlı "Yayın başlat" düğmesi; dakika bitmişse gri ve pasif. |
+| `GwReadingColumn` | Profil ve grup sayfalarının orta sütunu (720; ana sayfada `feedMaxWidth`). Yan çizgi yoktur. |
+| `GwHeroCard` | Profil ve grubun kimlik kartı: kapak (telefonda 2:1, geniş ekranda 2,5:1; yoksa tonun zemini ve soluk kategori ikonu) kartın içindedir; avatar kapağın altında, adın solunda durur, kapağa taşmaz. Altında sayfanın kendi içeriği (biyografi, meta, istatistik, aksiyonlar). Yüklenirken `GwHeroCardSkeleton`. |
 | `categoryIcon` | Ortak kategorilerin ikonları (profil ilgi alanları ve grup kategorileri aynı ikonu kullanır). |
-| `GxLogo` | Marka sembolü, isteğe bağlı "GrupX" yazısıyla. Tonlar: `color`, `onPrimary`, `onDark`. Ayrıntılar: `docs/brand/README.md`. |
-| `GxSplash` | Uygulama açılırken logo ve yükleme göstergesi. Web'de Flutter yüklenene kadar `index.html` içindeki aynı tasarımlı ön yükleyici görünür. |
+| `GwLogo` | Marka sembolü, isteğe bağlı "GWAY" yazısıyla. Tonlar: `color`, `onPrimary`, `onDark`. Ayrıntılar: `docs/brand/README.md`. |
+| `GwSplash` | Uygulama açılırken logo ve yükleme göstergesi. Web'de Flutter yüklenene kadar `index.html` içindeki aynı tasarımlı ön yükleyici görünür. |
 
 ## 7. Sayfa düzenleri
 
-| Token (`GxLayout`) | Değer | Kullanım |
+| Token (`GwLayout`) | Değer | Kullanım |
 |---|---|---|
 | `formMaxWidth` | 440 | Giriş, kayıt gibi formlar |
 | `contentMaxWidth` | 720 | Profil, okuma içerikleri, düzenleme sayfaları |
@@ -139,7 +139,7 @@ Gölge kullanılmaz. Sayfa zemini `GxBackdrop`'tur (§1), içerik beyaz kartlard
 
 - **Bugün (ana sayfa):** Üst çubukta tarih ve selamlama ("İyi akşamlar, Demo"), sağda Ara, Bildirimler, Mesajlar. Sırasıyla: "Şimdi canlı" (canlı yayın kartları, yalnızca yayın varsa), "Yaklaşanlar" (gruplarının 60 gün içindeki organizasyonları, tarih karolu kartlar; "Takvim ›"; boşsa "Grup bul"), "Hikâyeler" (küçük çipler, ilki "Hikâye ekle"), "Akış" (gönderi kartları).
 - **Gönderi kartı:** `lg` yarıçaplı beyaz kart. Başlıkta avatar, ad ve "@kullanıcı · 3 dk" satırı; medya kartın içinde `md` yarıçapla; altında sayılı beğeni, yorum ve paylaş, sağda kaydet; sonra açıklama ve "Anı" etiketi.
-- **Profil:** Kimlik kartı (`GxHeroCard`): avatar mobilde 64, geniş ekranda 96. İçinde rozetler, biyografi, katılım tarihi, ilgi alanı etiketleri (`GxTag`, kendi tonunda), üç istatistik kutusu (Gönderi / Takipçi / Takip; `surface` zeminli) ve aksiyonlar (kendi profilinde tam genişlik "Profili düzenle"; başkasında Mesaj, Takip et, ⋯). Profil fotoğrafı ve kapak yalnızca "Profili düzenle" ekranından değişir (profil sayfasında kalıcı düzenleme düğmesi yok). Kendi profilinin üst çubuğunda Kaydedilenler ve Ekip arkadaşı bul kısayolları. Öne çıkanlar çip rafı olarak gönderilerin üstündedir.
+- **Profil:** Kimlik kartı (`GwHeroCard`): avatar mobilde 64, geniş ekranda 96. İçinde rozetler, biyografi, katılım tarihi, ilgi alanı etiketleri (`GwTag`, kendi tonunda), üç istatistik kutusu (Gönderi / Takipçi / Takip; `surface` zeminli) ve aksiyonlar (kendi profilinde tam genişlik "Profili düzenle"; başkasında Mesaj, Takip et, ⋯). Profil fotoğrafı ve kapak yalnızca "Profili düzenle" ekranından değişir (profil sayfasında kalıcı düzenleme düğmesi yok). Kendi profilinin üst çubuğunda Kaydedilenler ve Ekip arkadaşı bul kısayolları. Öne çıkanlar çip rafı olarak gönderilerin üstündedir.
 - **Grup sayfası:** Kimlik kartında logo (yuvarlatılmış kare), ad, @adres, tanıtım, kategori etiketi ve meta, altında aksiyonlar: Katıl / Katılma isteği gönder / İstek gönderildi / Daveti kabul et + Reddet / Üyesin (dokununca ayrılma onayı) / Grubu düzenle. Üyelik bilgisi yüklenmeden aksiyon gösterilmez. Askıdaki grupta hata tonunda bir uyarı bandı görünür. Grup araçları (sohbet, moderasyon, yayın, paket, destek) kimlik kartının altında ayrı bir kartta; Kurallar, Bağlantılar ve Yönetim ekibi kendi kartlarında; organizasyonlar, hedefler, anketler ve gönderiler zemin üzerinde bölüm başlıklarıyla.
 - **Gruplar ekranı:** Üstte bekleyen davetler paneli, altında "Keşfet / Gruplarım" seçimi. Keşfet: arama, yatay kaydırılan kategori çipleri, grup kartları (logo, ad, kategori · üye sayısı, serbest değilse katılım tipi).
 - **Sosyal uygulama gezinmesi:** Telefonda yüzen dok (`xl` yarıçaplı beyaz kart): Bugün, Gruplar, ortada mor "Paylaş" (Gönderi, Hikâye, Grup), Takvim, Ben; seçili hedef `primarySoft` hap ve mor etiketle. Dok yalnızca üst düzey sayfalarda görünür. Geniş ekranda (`wideBreakpoint`) 256 genişliğinde etiketli yan menü: logo, hedefler, Bildirimler, Mesajlar, "Paylaş" butonu ve "Gruplarım" (en çok 8 grup). Yan menü tam ekran medya ve yayın odası dışında her sayfada kalır; üst düzey sayfalar ortalı sütunda açılır.
@@ -148,10 +148,10 @@ Gölge kullanılmaz. Sayfa zemini `GxBackdrop`'tur (§1), içerik beyaz kartlard
 - **Paket kartı (grup sayfası):** Tanıtımın altında, `surface` zeminli ince çizgili kart: paket ikonu, "Başlangıç paketi · 9 Kasım 2026 tarihine kadar", üye kullanımı ve "Paket" bağlantısı. Limit dolunca hata tonunda, bitişe 7 gün kala `primarySoft` tonunda tek satırlık uyarı. Yalnızca sahip görür; onay yetkisi olanlar yalnızca "limit doldu" uyarısını görür.
 - **Paket ekranı:** Üstte "Mevcut paket" paneli (paket rozeti, dönem sonu, üye kullanım çubuğu, limitler, sıradaki dönemler). Web'de sahip için altında "Paketler" başlığı, Aylık / Yıllık · 2 ay bedava seçimi, sağlayıcı ve para birimi notu ve paket kartları: geniş ekranda eşit yükseklikte dört sütun, telefonda alt alta. Mevcut paket mor kenarlıkla ve rozetle işaretlenir. Kartın altında satın alma türüne göre ne zaman başlayacağı ve aktarılan süre yazar. Ana aksiyon (Seç / Yükselt) dolu, yenileme ve alt pakete geçiş çerçeveli butondur. Ödemeden dönüşte üstte durum bandı görünür (onaylanıyor / alındı / tamamlanamadı).
 - **Ödeme ekranı:** Geniş ekranda solda "Fatura bilgileri" formu, sağda "Sipariş özeti"; telefonda özet üstte. Özette paket, limitler, başlangıç, tahmini bitiş, aktarılan süre ve toplam; altında sağlayıcı güvencesi notu. Sözleşme onay kutusundaki başlık bağlantıdır, metni alttan açılan sayfada gösterir. Buton "Ödemeye geç · 699 ₺", kilit ikonlu.
-- **Destek (sosyal uygulama):** Ayarlar'da "Destek ve geri bildirim" satırı, okunmamış yanıt varsa mor rozetle sayısı. Liste satırında türün ikonu kendi soft renginde yuvarlatılmış karede, konu, "Tür · grup · tarih", sağda durum rozeti (nötr) ve gerekirse "Yeni yanıt". Yeni mesaj: üç seçilebilir tür kartı (seçilince kendi soft zemini ve renkli kenarlığı), ardından tek panelde grup seçimi (yalnızca yönetilen grup varsa), konu, açıklama, ekran görüntüleri (küçük önizleme + kaldır). Yazışma: kullanıcının mesajları sağda `primarySoft`, ekibin mesajları solda beyaz ve ince çizgili, "GrupX Ekibi" etiketiyle; altta yanıt kutusu. Grup yöneticileri grup sayfasında "Bu grupla ilgili platform ekibine yaz" bağlantısını görür.
-- **Admin paneli:** Solda marka ve menü, altta oturum açan ekip üyesi ve çıkış. İçerik `surface` zemin üzerinde `GxPanel` kartlarından oluşur. Sayfa başlığı `headlineMedium` ve alt başlık; detay sayfalarında breadcrumb. Liste sayfaları: özet sayaç kartları (tıklayınca filtreler), arama + durum filtresi, geniş ekranda sütunlu tablo, dar ekranda kompakt satır. Menüde "Gelir" başlığı altında Abonelikler ve Paketler (yönetici ve destek) bulunur. Abonelikler: para tutarlı sayaç kartları ve aylık gelir tablosu (yalnızca yönetici), Ödemeler / Abonelikler seçimi ile listeler; bir saatten eski ödenmemiş sipariş "Yarım kaldı" rozetiyle görünür. Paketler: her paket bir panel, limitler ve fiyatlar etiket–değer çiftleri, "Düzenle" diyaloğu. Destek: türe göre renkli sayaç kartları (Açık sorunlar kırmızı, Açık talepler sarı, Açık istekler yeşil; tıklayınca o türe süzer) ve "Yanıt bekleyen"; listede tür ikonu, konu, gönderen, grup, mesaj sayısı, durum ve "Yanıt bekliyor" rozeti. Detayda solda yazışma ve yanıt kutusu, sağda tür, durum seçimi, gönderen ve grup bağlantıları.
+- **Destek (sosyal uygulama):** Ayarlar'da "Destek ve geri bildirim" satırı, okunmamış yanıt varsa mor rozetle sayısı. Liste satırında türün ikonu kendi soft renginde yuvarlatılmış karede, konu, "Tür · grup · tarih", sağda durum rozeti (nötr) ve gerekirse "Yeni yanıt". Yeni mesaj: üç seçilebilir tür kartı (seçilince kendi soft zemini ve renkli kenarlığı), ardından tek panelde grup seçimi (yalnızca yönetilen grup varsa), konu, açıklama, ekran görüntüleri (küçük önizleme + kaldır). Yazışma: kullanıcının mesajları sağda `primarySoft`, ekibin mesajları solda beyaz ve ince çizgili, "GWAY Ekibi" etiketiyle; altta yanıt kutusu. Grup yöneticileri grup sayfasında "Bu grupla ilgili platform ekibine yaz" bağlantısını görür.
+- **Admin paneli:** Solda marka ve menü, altta oturum açan ekip üyesi ve çıkış. İçerik `surface` zemin üzerinde `GwPanel` kartlarından oluşur. Sayfa başlığı `headlineMedium` ve alt başlık; detay sayfalarında breadcrumb. Liste sayfaları: özet sayaç kartları (tıklayınca filtreler), arama + durum filtresi, geniş ekranda sütunlu tablo, dar ekranda kompakt satır. Menüde "Gelir" başlığı altında Abonelikler ve Paketler (yönetici ve destek) bulunur. Abonelikler: para tutarlı sayaç kartları ve aylık gelir tablosu (yalnızca yönetici), Ödemeler / Abonelikler seçimi ile listeler; bir saatten eski ödenmemiş sipariş "Yarım kaldı" rozetiyle görünür. Paketler: her paket bir panel, limitler ve fiyatlar etiket–değer çiftleri, "Düzenle" diyaloğu. Destek: türe göre renkli sayaç kartları (Açık sorunlar kırmızı, Açık talepler sarı, Açık istekler yeşil; tıklayınca o türe süzer) ve "Yanıt bekleyen"; listede tür ikonu, konu, gönderen, grup, mesaj sayısı, durum ve "Yanıt bekliyor" rozeti. Detayda solda yazışma ve yanıt kutusu, sağda tür, durum seçimi, gönderen ve grup bağlantıları.
 
-### Medya ölçüleri — `GxMedia`
+### Medya ölçüleri — `GwMedia`
 
 Tüm medya sayıları bu sınıftadır; feed kodunda oran, piksel veya kalite değeri yazılmaz.
 

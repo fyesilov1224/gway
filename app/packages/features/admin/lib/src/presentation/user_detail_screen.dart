@@ -107,8 +107,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
           breadcrumbs: crumbs,
           title: 'Bulunamadı',
           children: [
-            GxPanel(
-              child: GxEmptyState(
+            GwPanel(
+              child: GwEmptyState(
                 icon: Icons.person_off_outlined,
                 message: 'Bu kullanıcı bulunamadı. Hesap kalıcı olarak silinmiş olabilir.',
                 actionLabel: 'Kullanıcılara dön',
@@ -120,8 +120,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       AsyncError(:final error) => AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxPanel(
-              child: GxErrorState(
+            GwPanel(
+              child: GwErrorState(
                 message: userMessageOf(error),
                 onRetry: () => ref.invalidate(userDetailProvider(widget.userId)),
               ),
@@ -131,9 +131,9 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       _ => const AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
-            SizedBox(height: GxSpacing.lg),
-            GxSkeleton(height: GxSpacing.xxl * 5, borderRadius: GxRadius.lgAll),
+            GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
+            SizedBox(height: GwSpacing.lg),
+            GwSkeleton(height: GwSpacing.xxl * 5, borderRadius: GwRadius.lgAll),
           ],
         ),
     };
@@ -142,26 +142,26 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
   List<Widget> _content(AdminUserDetail d, StaffRole? myRole) {
     final u = d.user;
     final canModerate = (myRole?.canSuspend ?? false) && u.staffRole == null;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
 
     final actions = <Widget>[
       if (canModerate && u.status == AdminAccountStatus.suspended)
-        GxButton(
+        GwButton(
           label: u.isBanned ? 'Banı kaldır' : 'Askıyı kaldır',
           icon: Icons.lock_open_outlined,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           isLoading: _saving,
           onPressed: () => _run((repo) => repo.unsuspend(u.id)),
         ),
       if (canModerate && u.status == AdminAccountStatus.active) ...[
-        GxButton(label: 'Askıya al', icon: Icons.pause_circle_outline, variant: GxButtonVariant.secondary, isLoading: _saving, onPressed: _suspend),
-        GxButton(label: 'Kalıcı banla', icon: Icons.block, isLoading: _saving, onPressed: _ban),
+        GwButton(label: 'Askıya al', icon: Icons.pause_circle_outline, variant: GwButtonVariant.secondary, isLoading: _saving, onPressed: _suspend),
+        GwButton(label: 'Kalıcı banla', icon: Icons.block, isLoading: _saving, onPressed: _ban),
       ],
     ];
 
     final left = [
       _AccountPanel(detail: d),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       InfoPanel(title: 'Topluluk katkısı', rows: [
         ('Katıldığı organizasyon', formatCount(d.contributions.attended)),
         ('Düzenlediği organizasyon', formatCount(d.contributions.organized)),
@@ -170,7 +170,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ('Gelmedi işareti', formatCount(d.contributions.noShows)),
         ('Karşıladığı ilk kez gelen', formatCount(d.contributions.welcomed)),
       ]),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       InfoPanel(title: 'Ekip arkadaşı', rows: [
         ('Ekip arıyor', d.teammates.looking ? 'Evet' : 'Hayır'),
         ('Ekip arkadaşı', formatCount(d.teammates.teammates)),
@@ -178,17 +178,17 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ('Yanıt bekleyen istekleri', formatCount(d.teammates.requestsPending)),
       ]),
       if (d.bio case final bio? when bio.isNotEmpty) ...[
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(title: 'Hakkında', child: Text(bio, style: Theme.of(context).textTheme.bodyLarge)),
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(title: 'Hakkında', child: Text(bio, style: Theme.of(context).textTheme.bodyLarge)),
       ],
     ];
     final right = [
       UserSecurityPanel(userId: u.id),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       UserPackagesPanel(userId: u.id, title: u.title),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       _ConsentsPanel(consents: d.consents),
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       HistoryPanel(
         history: d.history,
         labels: _actionLabels,
@@ -199,11 +199,11 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
 
     return [
       _HeaderPanel(user: u, actions: actions),
-      if (_error != null) ...[const SizedBox(height: GxSpacing.md), GxFormMessage(_error!)],
+      if (_error != null) ...[const SizedBox(height: GwSpacing.md), GwFormMessage(_error!)],
       if (u.status == AdminAccountStatus.suspended) ...[
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         DetailBanner(
-          tone: GxBadgeTone.danger,
+          tone: GwBadgeTone.danger,
           icon: Icons.block,
           title: u.suspendedUntil == null
               ? 'Hesap kalıcı olarak banlı; hiçbir yerde görünmüyor'
@@ -212,27 +212,27 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ),
       ],
       if (u.status == AdminAccountStatus.pendingDeletion && u.deletionScheduledFor != null) ...[
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         DetailBanner(
-          tone: GxBadgeTone.neutral,
+          tone: GwBadgeTone.neutral,
           icon: Icons.schedule,
           title: 'Hesap ${formatDateTr(u.deletionScheduledFor!)} tarihinde kalıcı olarak silinecek',
           body: 'Kullanıcı bu tarihe kadar giriş yapıp silmeyi geri alabilir.',
         ),
       ],
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       if (wide)
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(flex: 3, child: Column(children: left)),
-            const SizedBox(width: GxSpacing.lg),
+            const SizedBox(width: GwSpacing.lg),
             Expanded(flex: 2, child: Column(children: right)),
           ],
         )
       else ...[
         ...left,
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
         ...right,
       ],
     ];
@@ -250,20 +250,20 @@ class _HeaderPanel extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final identity = Row(
       children: [
-        GxAvatar(
+        GwAvatar(
           name: user.title,
-          shape: GxAvatarShape.user,
-          size: GxAvatarSize.lg,
+          shape: GwAvatarShape.user,
+          size: GwAvatarSize.lg,
           imageUrl: ref.watch(avatarUrlProvider(user.avatarPath)),
         ),
-        const SizedBox(width: GxSpacing.md),
+        const SizedBox(width: GwSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Wrap(
-                spacing: GxSpacing.xs,
-                runSpacing: GxSpacing.xxs,
+                spacing: GwSpacing.xs,
+                runSpacing: GwSpacing.xxs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(user.title, style: textTheme.headlineMedium),
@@ -271,10 +271,10 @@ class _HeaderPanel extends ConsumerWidget {
                   if (user.staffRole != null) RoleBadge(user.staffRole!),
                 ],
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               Text(
                 [if (user.username != null) '@${user.username}', ?user.email].join('  ·  '),
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
             ],
           ),
@@ -282,13 +282,13 @@ class _HeaderPanel extends ConsumerWidget {
       ],
     );
 
-    return GxPanel(
+    return GwPanel(
       child: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth >= GxLayout.contentMaxWidth
+        builder: (context, constraints) => constraints.maxWidth >= GwLayout.contentMaxWidth
             ? Row(
                 children: [
                   Expanded(child: identity),
-                  if (actions.isNotEmpty) Wrap(spacing: GxSpacing.sm, children: actions),
+                  if (actions.isNotEmpty) Wrap(spacing: GwSpacing.sm, children: actions),
                 ],
               )
             : Column(
@@ -296,8 +296,8 @@ class _HeaderPanel extends ConsumerWidget {
                 children: [
                   identity,
                   if (actions.isNotEmpty) ...[
-                    const SizedBox(height: GxSpacing.md),
-                    Wrap(spacing: GxSpacing.sm, runSpacing: GxSpacing.sm, children: actions),
+                    const SizedBox(height: GwSpacing.md),
+                    Wrap(spacing: GwSpacing.sm, runSpacing: GwSpacing.sm, children: actions),
                   ],
                 ],
               ),
@@ -335,19 +335,19 @@ class _ConsentsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GxPanel(
+    return GwPanel(
       title: 'KVKK onayları',
       child: consents.isEmpty
-          ? Text('Kullanıcı henüz hiçbir metni onaylamadı.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+          ? Text('Kullanıcı henüz hiçbir metni onaylamadı.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           : Column(
               children: [
                 for (final (i, c) in consents.indexed) ...[
-                  if (i > 0) const SizedBox(height: GxSpacing.sm),
+                  if (i > 0) const SizedBox(height: GwSpacing.sm),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.check_circle, color: GxColors.primary, size: GxSpacing.md + GxSpacing.xxs),
-                      const SizedBox(width: GxSpacing.sm),
+                      const Icon(Icons.check_circle, color: GwColors.primary, size: GwSpacing.md + GwSpacing.xxs),
+                      const SizedBox(width: GwSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,7 +355,7 @@ class _ConsentsPanel extends StatelessWidget {
                             Text(_consentLabels[c.kind] ?? c.kind, style: textTheme.labelLarge),
                             Text(
                               'Sürüm ${c.version} · ${formatDateTimeTr(c.acceptedAt)}',
-                              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                             ),
                           ],
                         ),

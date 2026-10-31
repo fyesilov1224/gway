@@ -1,4 +1,4 @@
-# GrupX — Yol Haritası
+# GWAY — Yol Haritası
 
 Fazlar sırayla yapılır. Bir faz `docs/ARCHITECTURE.md` §9'daki "bitti" tanımını karşılamadan sonrakine geçilmez. Her fazın admin paneli karşılığı o fazın içindedir.
 
@@ -13,7 +13,7 @@ Fazlar sırayla yapılır. Bir faz `docs/ARCHITECTURE.md` §9'daki "bitti" tanı
 - [x] İki uygulamanın açılış ekranı, Riverpod + go_router kurulumu
 - [x] Migration `0001_foundation.sql`: `private` şeması, `audit_log` (değiştirilemez), `platform_staff`, `private.is_platform_staff`
 - [x] pgTAP testleri: RLS genel kontrolü, `audit_log` ve `platform_staff` erişim testleri
-- [x] C# iskeleti: `GrupX.Api` (Supabase JWT, ProblemDetails, rate limit, `/health`), `GrupX.SharedKernel` (`Result`, `Error`), testler
+- [x] C# iskeleti: `Gway.Api` (Supabase JWT, ProblemDetails, rate limit, `/health`), `Gway.SharedKernel` (`Result`, `Error`), testler
 - [x] Admin karşılığı: `admin_panel` uygulaması ve `platform_staff` tablosu
 - [x] Yerel doğrulama (2026-10-18): `flutter analyze` temiz, Flutter 34/34 test, `dotnet build` 0 hata 0 uyarı, C# 19/19 test, pgTAP 28/28 test, gerçek Supabase token'ıyla `/me` uçtan uca doğrulandı
 
@@ -252,7 +252,7 @@ Kararlar (2026-10-22): ekip arkadaşları ve karşılıklı takipleşenler doğr
 
 Karar (2026-10-22): arayüz X ve Instagram kalıbından çıkarılır, **topluluk merkezli** bir düzene geçer. Palet (mor, mavi, siyah, beyaz) ve Plus Jakarta Sans korunur; özgünlük düzenden, kartlardan, tonlardan ve hiyerarşiden gelir. Veri, API ve modül sınırları değişmez.
 
-- [x] Tasarım sistemi: hafif tonlu zemin ve beyaz kartlar (`GxCard`), kimlik tonları (`GxTone`), `GxHeroCard` (kapak kartın içinde, avatar adın yanında; X tarzı taşan avatar yok), `GxSectionHeader`, `GxDateTile`, `GxTag`; hap seçici sekmeler, yuvarlak köşeli ızgara (3 sütun, 8 boşluk)
+- [x] Tasarım sistemi: hafif tonlu zemin ve beyaz kartlar (`GwCard`), kimlik tonları (`GwTone`), `GwHeroCard` (kapak kartın içinde, avatar adın yanında; X tarzı taşan avatar yok), `GwSectionHeader`, `GwDateTile`, `GwTag`; hap seçici sekmeler, yuvarlak köşeli ızgara (3 sütun, 8 boşluk)
 - [x] Gezinme: telefonda yüzen dok (Bugün, Gruplar, ortada Paylaş, Takvim, Ben), geniş ekranda etiketli yan menü (Bildirimler, Mesajlar, Paylaş ve "Gruplarım"); yan menü tam ekran medya ve yayın odası dışında her sayfada kalır
 - [x] "Bugün" ana sayfası: selamlama, Şimdi canlı, Yaklaşanlar (gruplarının organizasyonları), Hikâyeler (küçük çipler), Akış; bildirimler, mesajlar ve arama üst çubukta
 - [x] Gönderi kartı: kart içinde medya, başlıkta zaman, sayılı beğeni / yorum / paylaş
@@ -299,7 +299,7 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §8b. Her aşama bitince kullanıcıya gös
 ### 15.7a — Genel bakış
 - [x] Panelin açılış sayfası: tarih aralığı (7 / 30 / 90 / 365 gün), "Şu an" özeti, önceki dönemle karşılaştırmalı KPI kartları ve mini grafikleri, zaman grafikleri (kullanıcı büyümesi ve aktif kullanıcı, etkileşim, mesajlar, eşleşme, gelir, moderasyon, gruplar ve canlı yayın); her grafikte açıklama, değer kutusu ve tablo görünümü
 - [x] `GET /admin/analytics/overview`; günler Türkiye saatine göre, yıl 52 hafta; gelir yalnızca faturalamayı gören rollere
-- [x] Grafikler `fl_chart` ile, yalnızca admin paketinde; seri renkleri tasarım sisteminde (`GxColors.chartSeries`, renk körlüğü için doğrulandı)
+- [x] Grafikler `fl_chart` ile, yalnızca admin paketinde; seri renkleri tasarım sisteminde (`GwColors.chartSeries`, renk körlüğü için doğrulandı)
 - [x] C# (1), Flutter (genel bakış masaüstü ve telefon, biçimlendirme) testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-27)
 
 ### 15.7b — Modül analizleri
@@ -322,7 +322,7 @@ Ayrıntılar: `docs/ARCHITECTURE.md` §3h. Kararlar: kademeli yaptırım, Twilio
 - [x] pgTAP (`33_security_verification`) ve C# (`SecurityTests`, `SecurityRulesTests`) testleri; `dotnet build` temiz (2026-10-27)
 
 ### 15.8b — Uygulama
-- [x] Konum izni ekranı (izinsiz uygulama açılmaz, aydınlatma metni okunabilir), sinyal gönderimi (açılış ve 30 dakikada bir öne geliş), Android SIM ülkesi (`grupx/device` kanalı)
+- [x] Konum izni ekranı (izinsiz uygulama açılmaz, aydınlatma metni okunabilir), sinyal gönderimi (açılış ve 30 dakikada bir öne geliş), Android SIM ülkesi (`gway/device` kanalı)
 - [x] Telefon doğrulama (ülke kodu kilitli), ikinci adım ekranı (SMS ya da uygulama), kısıtlı hesap ekranı; ayarlarda "İki adımlı doğrulama" ve QR'lı uygulama kurulumu
 - [x] Router sırası: güvenlik → KVKK → onboarding; push kaydı token rolü `authenticated` olunca yapılır
 - [x] Flutter testleri (güvenlik ekranları, %130 yazı, gate, push); yerel uçtan uca deneme: giriş → konum → telefon → SMS → ana sayfa ve ikinci girişte SMS ile ikinci adım; token rolü `authenticated` (2026-10-27)
@@ -431,6 +431,12 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Kişisel gönderiye gönderiyi gören herkes yorum yazar (sahibi kapatabilir); grubun akışına her üye paylaşır (susturulan hariç); ücretsiz paket 100 üye ve ayda 4 organizasyon (`0060`)
 - [x] pgTAP (1070/1070), C# (225/225) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz
 - [x] Bulut: `0060` migration'ı (2026-10-30)
+### Ad değişikliği: GrupX → GWAY (kullanıcı isteği, 2026-10-31; dal `gelistirme/gway-isim`)
+- [x] Yeni logo (yol G'yi çizer, üye yola adım atar; `docs/brand/`), `GwLogo` ve bütün platform ikonları
+- [x] Arayüz metinleri, paylaşım sayfaları, takvim, ödeme açıklamaları, 2FA ve passkey adı GWAY; C# `Gway.*`, Flutter `Gw*` önekleri
+- [x] Paket kimlikleri `com.gway.app` ve `com.gway.admin.admin_panel`, giriş dönüş adresleri `com.gway.app://` ve `com.gway.admin://`
+- [x] Hukuki metinlerin GWAY adlı yeni sürümleri ve ayrılmış `gway` adı (`0061`, pgTAP)
+- [ ] Kullanıcıda: Firebase'de `com.gway.app` Android uygulaması ve yeni `google-services.json` (`flutterfire configure`), bulutta `0061` migration'ı, Supabase'te `com.gway.app://auth-callback` ve `com.gway.admin://auth-callback` yönlendirmeleri, Google OAuth istemcisinde yeni paket adı
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
@@ -442,7 +448,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 ## Faz 17 — Yayına Hazırlık
 
 ### 17a — Google Play (kullanıcı isteği, onaylandı 2026-10-27; ayrıntılar `docs/ARCHITECTURE.md` §10)
-- [x] Paket adı `com.grupx.app`, Firebase Android uygulaması, yükleme anahtarı ve imza (Play App Signing için yükleme anahtarı), App Bundle, sürüm `1.0.0+1`; AAB derlendi ve yükleme anahtarıyla imzalı (2026-10-27)
+- [x] Paket adı `com.gway.app`, Firebase Android uygulaması, yükleme anahtarı ve imza (Play App Signing için yükleme anahtarı), App Bundle, sürüm `1.0.0+1`; AAB derlendi ve yükleme anahtarıyla imzalı (2026-10-27)
 - [x] Sürümde şifresiz trafik kapalı; ev ağı APK'sı yalnızca `lanHttp=true` ile
 - [x] geolocator'ın konum ön plan servisi manifest'ten çıkarıldı (arka planda konum yok, Play ön plan servisi beyanı gerekmez)
 - [x] Android'de satış ve web'e yönlendirme yok; yalnızca paket durumu

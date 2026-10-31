@@ -7,14 +7,14 @@ import '../tokens/spacing.dart';
 
 /// White, hairline-bordered content block with an optional header.
 /// Always fills the available width.
-class GxPanel extends StatelessWidget {
-  const GxPanel({
+class GwPanel extends StatelessWidget {
+  const GwPanel({
     super.key,
     this.title,
     this.subtitle,
     this.trailing,
     required this.child,
-    this.padding = const EdgeInsets.all(GxSpacing.lg),
+    this.padding = const EdgeInsets.all(GwSpacing.lg),
   });
 
   final String? title;
@@ -29,17 +29,17 @@ class GxPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: GxColors.background,
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(GxBorders.hairline),
+        color: GwColors.background,
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(GwBorders.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (title != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.md),
-              decoration: const BoxDecoration(border: Border(bottom: GxBorders.hairline)),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.md),
+              decoration: const BoxDecoration(border: Border(bottom: GwBorders.hairline)),
               child: Row(
                 children: [
                   Expanded(
@@ -48,7 +48,7 @@ class GxPanel extends StatelessWidget {
                       children: [
                         Text(title!, style: textTheme.titleMedium),
                         if (subtitle != null)
-                          Text(subtitle!, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                          Text(subtitle!, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                       ],
                     ),
                   ),

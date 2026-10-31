@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'failure.dart';
 import 'result.dart';
 
-/// Client for the GrupX C# API.
+/// Client for the GWAY C# API.
 ///
 /// Attaches the Supabase access token and maps RFC 9457 ProblemDetails to
 /// [Failure]. Problem titles are curated Turkish messages written by the

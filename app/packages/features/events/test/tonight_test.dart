@@ -51,7 +51,7 @@ Future<_FakeEvents> _pump(
       tonightPeopleProvider.overrideWith((ref) async => people),
     ],
     child: MaterialApp(
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       home: MediaQuery.withClampedTextScaling(
         minScaleFactor: textScale,
         maxScaleFactor: textScale,
@@ -87,7 +87,7 @@ void main() {
     );
 
     expect(find.text('Ortak gruplarından 3 kişi bu akşam boş'), findsOneWidget);
-    expect(find.byType(GxAvatar), findsNWidgets(3));
+    expect(find.byType(GwAvatar), findsNWidgets(3));
     expect(find.textContaining('"yürüyüş"'), findsOneWidget);
     await tester.tap(find.text('Küçük masa kur'));
     await tester.pumpAndSettle();

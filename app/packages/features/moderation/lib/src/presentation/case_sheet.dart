@@ -98,36 +98,36 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
     final textTheme = Theme.of(context).textTheme;
     final durations = _sanction.durations;
     return Padding(
-      padding: EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: Form(
         key: _form,
         child: ListView(
           shrinkWrap: true,
           children: [
             Text('Disiplin dosyası aç', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.xxs),
+            const SizedBox(height: GwSpacing.xxs),
             Text(
               '${widget.subjectName} hakkında. Önerdiğin yaptırımı disiplin kurulu 72 saat içinde oylar.',
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text('Önerilen yaptırım', style: textTheme.labelLarge),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final s in SanctionType.values)
                   ChoiceChip(label: Text(s.label), selected: _sanction == s, onSelected: (_) => _pick(s)),
               ],
             ),
             if (durations.isNotEmpty) ...[
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               Text('Süre', style: textTheme.labelLarge),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Wrap(
-                spacing: GxSpacing.xs,
-                runSpacing: GxSpacing.xs,
+                spacing: GwSpacing.xs,
+                runSpacing: GwSpacing.xs,
                 children: [
                   for (final d in durations)
                     ChoiceChip(
@@ -150,15 +150,15 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
               ),
               if (_illegal != null)
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final c in IllegalCategory.values)
                       ChoiceChip(label: Text(c.label), selected: _illegal == c, onSelected: (_) => setState(() => _illegal = c)),
                   ],
                 ),
             ],
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             TextFormField(
               controller: _reason,
               maxLength: 1000,
@@ -175,9 +175,9 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
                 title: const Text('Hemen sustur (24 saat)'),
                 subtitle: const Text('Kurul karar verene kadar yorum yazamaz, canlı yayında konuşamaz.'),
               ),
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.md),
-            GxButton(label: 'Dosyayı aç', icon: Icons.gavel_outlined, isLoading: _busy, expand: true, onPressed: _submit),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.md),
+            GwButton(label: 'Dosyayı aç', icon: Icons.gavel_outlined, isLoading: _busy, expand: true, onPressed: _submit),
           ],
         ),
       ),

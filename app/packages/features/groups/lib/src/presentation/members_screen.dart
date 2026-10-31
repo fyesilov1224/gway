@@ -36,7 +36,7 @@ class GroupMembersScreen extends ConsumerWidget {
       return Scaffold(
         appBar: AppBar(title: const Text('Üyeler')),
         body: switch (group) {
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(groupByHandleProvider(handle)),
             ),
@@ -60,7 +60,7 @@ class GroupMembersScreen extends ConsumerWidget {
               ? null
               : TabBar(isScrollable: false, tabs: [for (final (tab, _) in tabs) tab]),
         ),
-        body: GxReadingColumn(
+        body: GwReadingColumn(
           child: tabs.length == 1 ? tabs.first.$2 : TabBarView(children: [for (final (_, view) in tabs) view]),
         ),
       ),
@@ -115,15 +115,15 @@ class _MembersTab extends ConsumerWidget {
 
     return switch (ref.watch(groupMembersProvider(key))) {
       AsyncData(:final value) => ListView(
-          padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+          padding: const EdgeInsets.only(bottom: GwSpacing.xl),
           children: [
             if (!me.isMember)
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                 child: Text(
                   'Üye listesinin tamamını grubun üyeleri görür. Burada yönetim ekibi ve gruplarını herkese açan '
                   '${value.length} kişi var; grupta toplam ${group.memberCount} üye var.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
             for (final p in value)
@@ -144,7 +144,7 @@ class _MembersTab extends ConsumerWidget {
               ),
           ],
         ),
-      AsyncError(:final error) => GxErrorState(
+      AsyncError(:final error) => GwErrorState(
           message: userMessageOf(error),
           onRetry: () => ref.invalidate(groupMembersProvider(key)),
         ),
@@ -226,14 +226,14 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
     final busy = _busy != null || _transferring;
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(widget.person.displayName, style: textTheme.titleLarge),
-            Text('@${widget.person.username}', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-            const SizedBox(height: GxSpacing.md),
+            Text('@${widget.person.username}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            const SizedBox(height: GwSpacing.md),
             Text('Roller', style: textTheme.titleMedium),
             for (final role in GroupRole.assignable)
               SwitchListTile(
@@ -243,17 +243,17 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
                 value: _roles.contains(role),
                 onChanged: busy ? null : (on) => _toggle(role, on),
                 secondary: _busy == role
-                    ? const SizedBox.square(dimension: GxSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox.square(dimension: GwSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2))
                     : null,
               ),
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.md),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.md),
             const Divider(),
-            const SizedBox(height: GxSpacing.md),
-            GxButton(
+            const SizedBox(height: GwSpacing.md),
+            GwButton(
               label: 'Sahipliği devret',
               icon: Icons.swap_horiz,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               isLoading: _transferring,
               onPressed: busy ? null : _transfer,
             ),
@@ -304,7 +304,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
   Widget build(BuildContext context) {
     final id = widget.group.id;
     return switch (ref.watch(joinRequestsProvider(id))) {
-      AsyncData(:final value) when value.isEmpty => GxEmptyState(
+      AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.how_to_reg_outlined,
           message: 'Bekleyen katılım isteği yok.',
           actionLabel: 'Yenile',
@@ -317,7 +317,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                 person: p,
                 subtitle: p.since == null ? null : '@${p.username} · ${formatDateTr(p.since!)}',
                 trailing: Wrap(
-                  spacing: GxSpacing.xxs,
+                  spacing: GwSpacing.xxs,
                   children: [
                     IconButton(
                       tooltip: 'Reddet',
@@ -328,8 +328,8 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                       tooltip: 'Onayla',
                       icon: _busy == p.userId
                           ? const SizedBox.square(
-                              dimension: GxSpacing.md,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: GxColors.onPrimary),
+                              dimension: GwSpacing.md,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: GwColors.onPrimary),
                             )
                           : const Icon(Icons.check),
                       onPressed: _busy == null ? () => _answer(p, approve: true) : null,
@@ -339,7 +339,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
               ),
           ],
         ),
-      AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(joinRequestsProvider(id))),
+      AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(joinRequestsProvider(id))),
       _ => const GroupListSkeleton(),
     };
   }
@@ -400,17 +400,17 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
     final id = widget.group.id;
     final textTheme = Theme.of(context).textTheme;
     return ListView(
-      padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+      padding: const EdgeInsets.only(bottom: GwSpacing.xl),
       children: [
         InviteLinksSection(group: widget.group),
         const Divider(),
         Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text('Kullanıcı adıyla davet et', style: textTheme.titleMedium),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -423,19 +423,19 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                       decoration: const InputDecoration(hintText: 'kullanici_adi', prefixText: '@'),
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.xs),
-                  GxButton(label: 'Davet et', isLoading: _sending, onPressed: _invite),
+                  const SizedBox(width: GwSpacing.xs),
+                  GwButton(label: 'Davet et', isLoading: _sending, onPressed: _invite),
                 ],
               ),
-              if (_error != null) ...[const SizedBox(height: GxSpacing.xs), GxFormMessage(_error!)],
+              if (_error != null) ...[const SizedBox(height: GwSpacing.xs), GwFormMessage(_error!)],
             ],
           ),
         ),
         const Divider(),
         switch (ref.watch(groupInvitationsProvider(id))) {
           AsyncData(:final value) when value.isEmpty => Padding(
-              padding: const EdgeInsets.all(GxSpacing.md),
-              child: Text('Bekleyen davet yok.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+              padding: const EdgeInsets.all(GwSpacing.md),
+              child: Text('Bekleyen davet yok.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             ),
           AsyncData(:final value) => Column(
               children: [
@@ -443,9 +443,9 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                   PersonTile(
                     person: p,
                     subtitle: p.since == null ? null : '@${p.username} · ${formatDateTr(p.since!)}',
-                    trailing: GxButton(
+                    trailing: GwButton(
                       label: 'Geri al',
-                      variant: GxButtonVariant.text,
+                      variant: GwButtonVariant.text,
                       isLoading: _revoking == p.userId,
                       onPressed: _revoking == null ? () => _revoke(p) : null,
                     ),
@@ -453,8 +453,8 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
               ],
             ),
           AsyncError(:final error) => Padding(
-              padding: const EdgeInsets.all(GxSpacing.md),
-              child: GxFormMessage(userMessageOf(error)),
+              padding: const EdgeInsets.all(GwSpacing.md),
+              child: GwFormMessage(userMessageOf(error)),
             ),
           _ => const GroupListSkeleton(count: 2),
         },

@@ -14,9 +14,9 @@ class SocialApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
-      title: 'GrupX',
+      title: 'GWAY',
       debugShowCheckedModeBanner: false,
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       routerConfig: router,
       builder: (_, child) => PushNotifications(
         openLive: (liveId) => router.push(LiveRoutes.room(liveId)),

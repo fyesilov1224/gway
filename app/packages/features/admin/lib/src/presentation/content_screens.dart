@@ -63,15 +63,15 @@ class _AdminContentScreenState extends ConsumerState<AdminContentScreen> {
       title: 'İçerik',
       subtitle: 'Kullanıcı ve grup gönderileri. Kaldırılan içerik kullanıcılara görünmez, kanıt olarak saklanır.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref.invalidate(contentSearchProvider),
         ),
       ],
       children: [
-        GxPanel(
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,15 +92,15 @@ class _AdminContentScreenState extends ConsumerState<AdminContentScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
                     child: filtered
-                        ? GxEmptyState(
+                        ? GwEmptyState(
                             icon: Icons.search_off,
                             message: 'Aramana ve filtrene uygun gönderi bulunamadı.',
                             actionLabel: 'Filtreleri temizle',
                             onAction: _clear,
                           )
-                        : GxEmptyState(
+                        : GwEmptyState(
                             icon: Icons.photo_library_outlined,
                             message: 'Henüz gönderi yok.',
                             actionLabel: 'Yenile',
@@ -123,15 +123,15 @@ class _AdminContentScreenState extends ConsumerState<AdminContentScreen> {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(contentSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(contentSearchProvider(key))),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.lg),
+                    padding: EdgeInsets.all(GwSpacing.lg),
                     child: Column(children: [
-                      GxSkeleton(height: GxSpacing.xl),
-                      SizedBox(height: GxSpacing.md),
-                      GxSkeleton(height: GxSpacing.xl),
+                      GwSkeleton(height: GwSpacing.xl),
+                      SizedBox(height: GwSpacing.md),
+                      GwSkeleton(height: GwSpacing.xl),
                     ]),
                   ),
               },
@@ -154,13 +154,13 @@ class _MediaThumb extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final m = media;
     final path = m == null ? null : (m.isVideo ? m.posterPath : m.path);
-    final placeholder = Icon(m?.isVideo ?? false ? Icons.videocam_outlined : Icons.image_outlined, color: GxColors.textSecondary);
+    final placeholder = Icon(m?.isVideo ?? false ? Icons.videocam_outlined : Icons.image_outlined, color: GwColors.textSecondary);
     return ClipRRect(
-      borderRadius: GxRadius.mdAll,
+      borderRadius: GwRadius.mdAll,
       child: SizedBox.square(
         dimension: size,
         child: ColoredBox(
-          color: GxColors.surfaceMuted,
+          color: GwColors.surfaceMuted,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -172,8 +172,8 @@ class _MediaThumb extends ConsumerWidget {
                 const Align(
                   alignment: Alignment.topRight,
                   child: Padding(
-                    padding: EdgeInsets.all(GxSpacing.xxs),
-                    child: Icon(Icons.play_circle_fill, color: GxColors.background, size: GxSpacing.md),
+                    padding: EdgeInsets.all(GwSpacing.xxs),
+                    child: Icon(Icons.play_circle_fill, color: GwColors.background, size: GwSpacing.md),
                   ),
                 ),
             ],
@@ -201,13 +201,13 @@ class _PostRow extends StatelessWidget {
     ].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.post(p.id)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
-            _MediaThumb(media: p.cover, size: GxSpacing.xxl + GxSpacing.sm),
-            const SizedBox(width: GxSpacing.sm),
+            _MediaThumb(media: p.cover, size: GwSpacing.xxl + GwSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,13 +219,13 @@ class _PostRow extends StatelessWidget {
                     style: textTheme.labelLarge,
                   ),
                   Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
-            if (p.isRemoved) ...[const SizedBox(width: GxSpacing.sm), const GxBadge('Kaldırıldı', dot: true, tone: GxBadgeTone.danger)],
-            const SizedBox(width: GxSpacing.xs),
-            const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+            if (p.isRemoved) ...[const SizedBox(width: GwSpacing.sm), const GwBadge('Kaldırıldı', dot: true, tone: GwBadgeTone.danger)],
+            const SizedBox(width: GwSpacing.xs),
+            const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
           ],
         ),
       ),
@@ -295,8 +295,8 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
           breadcrumbs: crumbs,
           title: 'Bulunamadı',
           children: [
-            GxPanel(
-              child: GxEmptyState(
+            GwPanel(
+              child: GwEmptyState(
                 icon: Icons.search_off,
                 message: 'Bu gönderi bulunamadı. Yazarı silmiş olabilir.',
                 actionLabel: 'İçerik listesine dön',
@@ -308,25 +308,25 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
       AsyncError(:final error) => AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postDetailProvider(widget.postId)))),
+            GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postDetailProvider(widget.postId)))),
           ],
         ),
       _ => const AdminPage(
           breadcrumbs: crumbs,
-          children: [GxSkeleton(height: GxSpacing.xxl * 5, borderRadius: GxRadius.lgAll)],
+          children: [GwSkeleton(height: GwSpacing.xxl * 5, borderRadius: GwRadius.lgAll)],
         ),
     };
   }
 
   List<Widget> _content(AdminPostDetail d, bool canModerate) {
     final p = d.post;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final textTheme = Theme.of(context).textTheme;
 
-    final header = GxPanel(
+    final header = GwPanel(
       child: Wrap(
-        spacing: GxSpacing.md,
-        runSpacing: GxSpacing.sm,
+        spacing: GwSpacing.md,
+        runSpacing: GwSpacing.sm,
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
@@ -334,30 +334,30 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(p.owner, style: textTheme.titleMedium),
-              Text(formatDateTimeTr(p.createdAt), style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+              Text(formatDateTimeTr(p.createdAt), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
           if (canModerate && p.isRemoved)
-            GxButton(
+            GwButton(
               label: 'Geri al',
               icon: Icons.restore,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               isLoading: _saving,
               onPressed: () => _run((repo) => repo.restorePost(widget.postId)),
             ),
           if (canModerate && !p.isRemoved)
-            GxButton(label: 'Kaldır', icon: Icons.remove_circle_outline, isLoading: _saving, onPressed: _removePost),
+            GwButton(label: 'Kaldır', icon: Icons.remove_circle_outline, isLoading: _saving, onPressed: _removePost),
         ],
       ),
     );
 
-    final media = GxPanel(
+    final media = GwPanel(
       title: 'Medya',
       subtitle: '${d.media.length} dosya',
       child: Wrap(
-        spacing: GxSpacing.xs,
-        runSpacing: GxSpacing.xs,
-        children: [for (final m in d.media) _MediaThumb(media: m, size: GxSpacing.xxl * 3)],
+        spacing: GwSpacing.xs,
+        runSpacing: GwSpacing.xs,
+        children: [for (final m in d.media) _MediaThumb(media: m, size: GwSpacing.xxl * 3)],
       ),
     );
 
@@ -373,11 +373,11 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
       ],
     );
 
-    final comments = GxPanel(
+    final comments = GwPanel(
       title: 'Yorumlar',
       subtitle: '${d.comments.length} yorum',
       child: d.comments.isEmpty
-          ? Text('Bu gönderide yorum yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+          ? Text('Bu gönderide yorum yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -392,30 +392,30 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
 
     return [
       header,
-      const SizedBox(height: GxSpacing.lg),
+      const SizedBox(height: GwSpacing.lg),
       if (p.isRemoved) ...[
         DetailBanner(
-          tone: GxBadgeTone.danger,
+          tone: GwBadgeTone.danger,
           icon: Icons.remove_circle_outline,
           title: 'Kaldırıldı · ${formatDateTimeTr(p.removedAt!)}',
           body: p.removedReason,
         ),
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
       ],
       if (wide)
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 3, child: Column(children: [media, const SizedBox(height: GxSpacing.lg), comments])),
-            const SizedBox(width: GxSpacing.lg),
+            Expanded(flex: 3, child: Column(children: [media, const SizedBox(height: GwSpacing.lg), comments])),
+            const SizedBox(width: GwSpacing.lg),
             Expanded(flex: 2, child: info),
           ],
         )
       else ...[
         info,
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
         media,
-        const SizedBox(height: GxSpacing.lg),
+        const SizedBox(height: GwSpacing.lg),
         comments,
       ],
     ];
@@ -434,7 +434,7 @@ class _CommentTile extends StatelessWidget {
     final c = comment;
     final removed = c.removedAt != null;
     return Padding(
-      padding: EdgeInsets.only(left: c.parentId == null ? 0 : GxSpacing.xl, bottom: GxSpacing.sm),
+      padding: EdgeInsets.only(left: c.parentId == null ? 0 : GwSpacing.xl, bottom: GwSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -444,14 +444,14 @@ class _CommentTile extends StatelessWidget {
               children: [
                 Text(
                   [c.authorUsername == null ? 'Silinmiş hesap' : '@${c.authorUsername}', formatDateTimeTr(c.createdAt)].join(' · '),
-                  style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                 ),
                 SelectableText(
                   c.body,
-                  style: textTheme.bodyMedium?.copyWith(color: removed ? GxColors.textSecondary : null),
+                  style: textTheme.bodyMedium?.copyWith(color: removed ? GwColors.textSecondary : null),
                 ),
                 if (removed)
-                  Text('Kaldırıldı: ${c.removedReason ?? ''}', style: textTheme.bodySmall?.copyWith(color: GxColors.error)),
+                  Text('Kaldırıldı: ${c.removedReason ?? ''}', style: textTheme.bodySmall?.copyWith(color: GwColors.error)),
               ],
             ),
           ),

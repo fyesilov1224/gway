@@ -26,7 +26,7 @@ class FollowListsScreen extends ConsumerWidget {
           title: Text(username),
           bottom: const TabBar(tabs: [Tab(text: 'Takipçiler'), Tab(text: 'Takip edilenler')]),
         ),
-        body: GxReadingColumn(
+        body: GwReadingColumn(
           child: switch (profile) {
             AsyncData(:final value) => TabBarView(
                 children: [
@@ -34,7 +34,7 @@ class FollowListsScreen extends ConsumerWidget {
                   _FollowList(userId: value.id, list: FollowList.following),
                 ],
               ),
-            AsyncError(:final error) => GxErrorState(
+            AsyncError(:final error) => GwErrorState(
                 message: userMessageOf(error), onRetry: () => ref.invalidate(profileByUsernameProvider(username))),
             _ => const ListSkeleton(),
           },
@@ -55,7 +55,7 @@ class _FollowList extends ConsumerWidget {
     final social = ref.watch(profileSocialProvider(userId)).value;
     final isOwn = ref.watch(currentUserIdProvider) == userId;
     if (social != null && !social.canView) {
-      return GxEmptyState(
+      return GwEmptyState(
         icon: Icons.lock_outline,
         message: 'Bu hesap gizli. Listelerini görmek için hesabı takip etmelisin.',
         actionLabel: 'Profile dön',
@@ -67,8 +67,8 @@ class _FollowList extends ConsumerWidget {
       onRefresh: () async => ref.invalidate(followListProvider((userId: userId, list: list))),
       child: switch (people) {
         AsyncData(:final value) when value.isEmpty => ListView(children: [
-            const SizedBox(height: GxSpacing.xxl),
-            GxEmptyState(
+            const SizedBox(height: GwSpacing.xxl),
+            GwEmptyState(
               icon: Icons.people_outline,
               message: list == FollowList.followers ? 'Henüz takipçi yok.' : 'Henüz kimse takip edilmiyor.',
               actionLabel: 'Yenile',
@@ -81,7 +81,7 @@ class _FollowList extends ConsumerWidget {
                 isOwn && list == FollowList.followers ? _OwnFollowerRow(person: p) : PersonFollowRow(person: p),
             ],
           ),
-        AsyncError(:final error) => GxErrorState(
+        AsyncError(:final error) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(followListProvider((userId: userId, list: list))),
           ),
@@ -101,12 +101,12 @@ class _OwnFollowerRow extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Takipçiyi çıkar'),
         content: Text('@${person.username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -121,7 +121,7 @@ class _OwnFollowerRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => PersonRow(
         person: person,
         subtitle: person.follow == FollowState.following ? 'Arkadaşsınız' : null,
-        trailing: GxButton(label: 'Çıkar', variant: GxButtonVariant.secondary, onPressed: () => _remove(context, ref)),
+        trailing: GwButton(label: 'Çıkar', variant: GwButtonVariant.secondary, onPressed: () => _remove(context, ref)),
       );
 }
 
@@ -134,16 +134,16 @@ class FollowRequestsScreen extends ConsumerWidget {
     final requests = ref.watch(followRequestsProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Takip istekleri')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (requests) {
-          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+          AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.person_add_alt,
               message: 'Bekleyen takip isteğin yok. Gizli hesaplar istekleri burada onaylar.',
               actionLabel: 'Yenile',
               onAction: () => ref.invalidate(followRequestsProvider),
             ),
           AsyncData(:final value) => ListView(children: [for (final p in value) _RequestRow(person: p)]),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(followRequestsProvider)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(followRequestsProvider)),
           _ => const ListSkeleton(),
         },
       ),
@@ -179,9 +179,9 @@ class _RequestRowState extends ConsumerState<_RequestRow> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            GxButton(label: 'Onayla', isLoading: _busy, onPressed: () => _answer(true)),
-            const SizedBox(width: GxSpacing.xs),
-            GxButton(label: 'Sil', variant: GxButtonVariant.secondary, onPressed: _busy ? null : () => _answer(false)),
+            GwButton(label: 'Onayla', isLoading: _busy, onPressed: () => _answer(true)),
+            const SizedBox(width: GwSpacing.xs),
+            GwButton(label: 'Sil', variant: GwButtonVariant.secondary, onPressed: _busy ? null : () => _answer(false)),
           ],
         ),
       );
@@ -196,9 +196,9 @@ class BlockedAccountsScreen extends ConsumerWidget {
     final blocked = ref.watch(blockedAccountsProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Engellenen hesaplar')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (blocked) {
-          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+          AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.block,
               message: 'Engellediğin bir hesap yok. Bir profilin menüsünden engelleyebilirsin.',
               actionLabel: 'Yenile',
@@ -210,9 +210,9 @@ class BlockedAccountsScreen extends ConsumerWidget {
                   PersonRow(
                     person: p,
                     onTap: () {},
-                    trailing: GxButton(
+                    trailing: GwButton(
                       label: 'Engeli kaldır',
-                      variant: GxButtonVariant.secondary,
+                      variant: GwButtonVariant.secondary,
                       onPressed: () async {
                         final result = await ref.read(socialRepositoryProvider).unblock(p.id);
                         if (!context.mounted) return;
@@ -225,7 +225,7 @@ class BlockedAccountsScreen extends ConsumerWidget {
                   ),
               ],
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(blockedAccountsProvider)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(blockedAccountsProvider)),
           _ => const ListSkeleton(),
         },
       ),

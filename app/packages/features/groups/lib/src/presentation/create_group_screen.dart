@@ -83,16 +83,16 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Grup oluştur')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+            constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
             child: Form(
               key: _form,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  GxPanel(
+                  GwPanel(
                     title: 'Grup bilgileri',
                     subtitle: 'Logo, kapak, kurallar ve bağlantıları grubu oluşturduktan sonra ekleyebilirsin.',
                     child: Column(
@@ -106,18 +106,18 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                           validator: GroupRules.validateName,
                           decoration: const InputDecoration(labelText: 'Grup adı', counterText: ''),
                         ),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         HandleField(
                           key: _handleField,
                           controller: _handle,
                           onEdited: () => _handleEdited = true,
                           onAvailabilityChanged: (v) => setState(() => _handleAvailable = v),
                         ),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         CategoryField(value: _category, onChanged: (v) => setState(() => _category = v)),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         ProvinceField(value: _province, onChanged: (v) => setState(() => _province = v)),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         TextFormField(
                           controller: _about,
                           maxLength: GroupRules.aboutMaxLength,
@@ -132,17 +132,17 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: GxSpacing.lg),
-                  GxPanel(
+                  const SizedBox(height: GwSpacing.lg),
+                  GwPanel(
                     title: 'Katılım',
                     subtitle: 'Bunu daha sonra değiştirebilirsin.',
                     child: JoinPolicyPicker(value: _policy, onChanged: (p) => setState(() => _policy = p)),
                   ),
-                  const SizedBox(height: GxSpacing.lg),
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
+                  const SizedBox(height: GwSpacing.lg),
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
                     alignment: Alignment.centerRight,
-                    child: GxButton(label: 'Grubu oluştur', onPressed: _create, isLoading: _saving),
+                    child: GwButton(label: 'Grubu oluştur', onPressed: _create, isLoading: _saving),
                   ),
                 ],
               ),

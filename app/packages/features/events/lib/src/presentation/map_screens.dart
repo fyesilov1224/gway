@@ -40,7 +40,7 @@ final mapTilesProvider = Provider<MapTiles?>((ref) {
   );
 });
 
-/// The map with GrupX tiles and the required attribution; [children] go on top (markers).
+/// The map with GWAY tiles and the required attribution; [children] go on top (markers).
 class AppMap extends ConsumerStatefulWidget {
   const AppMap({
     super.key,
@@ -104,7 +104,7 @@ class _AppMapState extends ConsumerState<AppMap> {
         initialCameraFit: widget.center == null ? CameraFit.bounds(bounds: turkeyBounds) : null,
         minZoom: 4,
         maxZoom: 18,
-        backgroundColor: GxColors.surfaceMuted,
+        backgroundColor: GwColors.surfaceMuted,
         interactionOptions: InteractionOptions(
           flags: widget.interactive ? InteractiveFlag.all & ~InteractiveFlag.rotate : InteractiveFlag.none,
         ),
@@ -113,14 +113,14 @@ class _AppMapState extends ConsumerState<AppMap> {
         onPositionChanged: (camera, _) => _moved(camera),
       ),
       children: [
-        if (tiles != null) TileLayer(urlTemplate: tiles.url, tileProvider: _tiles, userAgentPackageName: 'app.grupx'),
+        if (tiles != null) TileLayer(urlTemplate: tiles.url, tileProvider: _tiles, userAgentPackageName: 'app.gway'),
         ...widget.children,
         // Required by the tile licence; wraps instead of overflowing on narrow screens.
         Align(
           alignment: Alignment.bottomRight,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs, vertical: 2),
-            color: GxColors.surface,
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
+            color: GwColors.surface,
             child: Text('© Stadia Maps © OpenMapTiles © OpenStreetMap katkıcıları',
                 textAlign: TextAlign.right, style: Theme.of(context).textTheme.labelSmall),
           ),
@@ -138,14 +138,14 @@ class _EventPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
         child: Container(
-          width: GxSpacing.xl,
-          height: GxSpacing.xl,
+          width: GwSpacing.xl,
+          height: GwSpacing.xl,
           decoration: BoxDecoration(
-            color: selected ? GxColors.secondary : GxColors.primary,
+            color: selected ? GwColors.secondary : GwColors.primary,
             shape: BoxShape.circle,
-            border: Border.all(color: GxColors.background, width: 2),
+            border: Border.all(color: GwColors.background, width: 2),
           ),
-          child: const Icon(Icons.event, size: GxSpacing.md, color: GxColors.onPrimary),
+          child: const Icon(Icons.event, size: GwSpacing.md, color: GwColors.onPrimary),
         ),
       );
 }
@@ -164,25 +164,25 @@ class _GroupPin extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: selected ? GxColors.secondary : GxColors.background,
-            borderRadius: GxRadius.mdAll,
+            color: selected ? GwColors.secondary : GwColors.background,
+            borderRadius: GwRadius.mdAll,
           ),
-          child: GxAvatar(name: g.name, imageUrl: g.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.sm),
+          child: GwAvatar(name: g.name, imageUrl: g.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.sm),
         ),
       );
     }
     return Center(
       child: Container(
-        width: GxSpacing.xxl - GxSpacing.xxs,
-        height: GxSpacing.xxl - GxSpacing.xxs,
+        width: GwSpacing.xxl - GwSpacing.xxs,
+        height: GwSpacing.xxl - GwSpacing.xxs,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? GxColors.secondary : GxColors.secondarySoft,
-          borderRadius: GxRadius.mdAll,
-          border: Border.all(color: GxColors.background, width: 2),
+          color: selected ? GwColors.secondary : GwColors.secondarySoft,
+          borderRadius: GwRadius.mdAll,
+          border: Border.all(color: GwColors.background, width: 2),
         ),
         child: Text('${groups.length}',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: selected ? GxColors.onPrimary : GxColors.secondary)),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: selected ? GwColors.onPrimary : GwColors.secondary)),
       ),
     );
   }
@@ -244,14 +244,14 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
     final loaded = raw == null || radius == null || center == null ? raw : raw.within(center, radius);
 
     Widget chip(String label, {required bool selected, required VoidCallback onSelected}) => Padding(
-          padding: const EdgeInsets.only(right: GxSpacing.xs),
+          padding: const EdgeInsets.only(right: GwSpacing.xs),
           child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected()),
         );
     Widget row(List<Widget> chips) => SizedBox(
-          height: GxSpacing.xxl + GxSpacing.xs,
+          height: GwSpacing.xxl + GwSpacing.xs,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
             child: Row(children: chips),
           ),
         );
@@ -267,7 +267,7 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight((GxSpacing.xxl + GxSpacing.xs) * 2),
+          preferredSize: const Size.fromHeight((GwSpacing.xxl + GwSpacing.xs) * 2),
           child: Column(
             children: [
               row([
@@ -283,7 +283,7 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                         _when = w;
                         _selected = null;
                       })),
-                const SizedBox(width: GxSpacing.md),
+                const SizedBox(width: GwSpacing.md),
                 chip('Tüm alan', selected: _radius == null, onSelected: () => setState(() => _radius = null)),
                 for (final km in mapRadii)
                   chip('$km km', selected: _radius == km, onSelected: () => setState(() {
@@ -310,9 +310,9 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                       point: center,
                       radius: radius * 1000,
                       useRadiusInMeter: true,
-                      color: GxColors.primary.withValues(alpha: 0.06),
-                      borderColor: GxColors.primary,
-                      borderStrokeWidth: GxBorders.hairline.width,
+                      color: GwColors.primary.withValues(alpha: 0.06),
+                      borderColor: GwColors.primary,
+                      borderStrokeWidth: GwBorders.hairline.width,
                     ),
                   ]),
                 if (loaded != null)
@@ -320,8 +320,8 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                     for (final MapEntry(key: province, value: groups) in loaded.groupsByProvince.entries)
                       Marker(
                         point: groups.first.point,
-                        width: GxSpacing.xxl,
-                        height: GxSpacing.xxl,
+                        width: GwSpacing.xxl,
+                        height: GwSpacing.xxl,
                         child: GestureDetector(
                           onTap: () => setState(() => _selected = province),
                           child: Semantics(
@@ -336,8 +336,8 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                     for (final e in loaded.events)
                       Marker(
                         point: e.point,
-                        width: GxSpacing.xxl,
-                        height: GxSpacing.xxl,
+                        width: GwSpacing.xxl,
+                        height: GwSpacing.xxl,
                         child: GestureDetector(
                           onTap: () => setState(() => _selected = e.id),
                           child: Semantics(button: true, label: e.title, child: _EventPin(selected: _selected == e.id)),
@@ -350,8 +350,8 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
           if (_list)
             Positioned.fill(
               child: ColoredBox(
-                color: GxColors.background,
-                child: GxReadingColumn(
+                color: GwColors.background,
+                child: GwReadingColumn(
                   child: _MapList(
                     items: loaded,
                     failed: items?.hasError ?? false,
@@ -387,9 +387,9 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                     ),
             if (_selectedItem(loaded) case final selected?)
               Positioned(
-                left: GxSpacing.md,
-                right: GxSpacing.md,
-                bottom: GxSpacing.xl,
+                left: GwSpacing.md,
+                right: GwSpacing.md,
+                bottom: GwSpacing.xl,
                 child: _SelectedCard(selected: selected, onOpenGroup: widget.onOpenGroup),
               ),
           ],
@@ -410,20 +410,20 @@ class _MapNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Positioned(
-        top: GxSpacing.md,
-        left: GxSpacing.md,
-        right: GxSpacing.md,
+        top: GwSpacing.md,
+        left: GwSpacing.md,
+        right: GwSpacing.md,
         child: Container(
-          padding: const EdgeInsets.only(left: GxSpacing.md),
+          padding: const EdgeInsets.only(left: GwSpacing.md),
           decoration: const BoxDecoration(
-            color: GxColors.background,
-            borderRadius: GxRadius.lgAll,
-            border: Border.fromBorderSide(BorderSide(color: GxColors.border)),
+            color: GwColors.background,
+            borderRadius: GwRadius.lgAll,
+            border: Border.fromBorderSide(BorderSide(color: GwColors.border)),
           ),
           child: Row(
             children: [
-              Icon(icon, color: GxColors.textSecondary),
-              const SizedBox(width: GxSpacing.sm),
+              Icon(icon, color: GwColors.textSecondary),
+              const SizedBox(width: GwSpacing.sm),
               Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
               TextButton(onPressed: onAction, child: Text(actionLabel)),
             ],
@@ -449,20 +449,20 @@ class _SelectedCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(e.title, style: textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: GxSpacing.xxs),
+            const SizedBox(height: GwSpacing.xxs),
             Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}', style: textTheme.bodyMedium, maxLines: 2),
-            Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
-            const SizedBox(height: GxSpacing.sm),
-            GxButton(label: 'Organizasyonu aç', expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
+            Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+            const SizedBox(height: GwSpacing.sm),
+            GwButton(label: 'Organizasyonu aç', expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
           ],
         ),
       final List<MappedGroup> groups => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(groups.length == 1 ? groups.first.provinceName : '${groups.first.provinceName} · ${groups.length} grup',
-                style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+                style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: GxSpacing.xxl * 5),
+              constraints: const BoxConstraints(maxHeight: GwSpacing.xxl * 5),
               child: ListView(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
@@ -474,11 +474,11 @@ class _SelectedCard extends StatelessWidget {
       _ => const SizedBox.shrink(),
     };
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       decoration: const BoxDecoration(
-        color: GxColors.background,
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(BorderSide(color: GxColors.border)),
+        color: GwColors.background,
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(BorderSide(color: GwColors.border)),
       ),
       child: child,
     );
@@ -494,7 +494,7 @@ class _GroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: GxAvatar(name: group.group.name, imageUrl: group.group.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.md),
+        leading: GwAvatar(name: group.group.name, imageUrl: group.group.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.md),
         title: Text(group.group.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text([group.categoryName, '${formatCount(group.memberCount)} üye', group.provinceName].nonNulls.join(' · ')),
         trailing: const Icon(Icons.chevron_right),
@@ -521,15 +521,15 @@ class _MapList extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final loaded = items;
-    if (failed) return GxErrorState(message: 'Harita bilgileri yüklenemedi.', onRetry: onRetry);
+    if (failed) return GwErrorState(message: 'Harita bilgileri yüklenemedi.', onRetry: onRetry);
     if (loaded == null) {
       return const Padding(
-        padding: EdgeInsets.all(GxSpacing.md),
-        child: Column(children: [GxSkeleton(height: GxSpacing.xxl), SizedBox(height: GxSpacing.sm), GxSkeleton(height: GxSpacing.xxl)]),
+        padding: EdgeInsets.all(GwSpacing.md),
+        child: Column(children: [GwSkeleton(height: GwSpacing.xxl), SizedBox(height: GwSpacing.sm), GwSkeleton(height: GwSpacing.xxl)]),
       );
     }
     if (loaded.isEmpty) {
-      return GxEmptyState(
+      return GwEmptyState(
         icon: Icons.travel_explore,
         message: 'Görünen bölgede yaklaşan organizasyon ya da grup yok.',
         actionLabel: 'Haritaya dön',
@@ -537,7 +537,7 @@ class _MapList extends StatelessWidget {
       );
     }
     Widget heading(String text) => Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
           child: Text(text, style: textTheme.titleSmall),
         );
     return ListView(
@@ -546,8 +546,8 @@ class _MapList extends StatelessWidget {
         for (final e in loaded.events)
           ListTile(
             leading: const CircleAvatar(
-              backgroundColor: GxColors.primarySoft,
-              child: Icon(Icons.event, color: GxColors.primary),
+              backgroundColor: GwColors.primarySoft,
+              child: Icon(Icons.event, color: GwColors.primary),
             ),
             title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.location}\n${e.group.name} · ${_seats(e)}'),
@@ -557,7 +557,7 @@ class _MapList extends StatelessWidget {
         if (loaded.groups.isNotEmpty) heading('Gruplar (${loaded.groups.length})'),
         for (final g in loaded.groups)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
             child: _GroupTile(group: g, onOpenGroup: onOpenGroup),
           ),
       ],
@@ -579,16 +579,16 @@ class EventMeetingMap extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: GxRadius.mdAll,
+            borderRadius: GwRadius.mdAll,
             child: SizedBox(
-              height: GxSpacing.xxl * 4,
+              height: GwSpacing.xxl * 4,
               child: AppMap(
                 center: point,
                 zoom: 14,
                 interactive: false,
                 children: [
                   MarkerLayer(markers: [
-                    Marker(point: point, width: GxSpacing.xxl, height: GxSpacing.xxl, child: const _EventPin(selected: false)),
+                    Marker(point: point, width: GwSpacing.xxl, height: GwSpacing.xxl, child: const _EventPin(selected: false)),
                   ]),
                 ],
               ),
@@ -658,13 +658,13 @@ class _MeetingPointPickerState extends State<MeetingPointPicker> {
         children: [
           if (point != null)
             MarkerLayer(markers: [
-              Marker(point: point, width: GxSpacing.xxl, height: GxSpacing.xxl, child: const _EventPin(selected: false)),
+              Marker(point: point, width: GwSpacing.xxl, height: GwSpacing.xxl, child: const _EventPin(selected: false)),
             ]),
         ],
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -673,8 +673,8 @@ class _MeetingPointPickerState extends State<MeetingPointPicker> {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: GxSpacing.sm),
-              GxButton(
+              const SizedBox(height: GwSpacing.sm),
+              GwButton(
                 label: 'Bu noktayı seç',
                 expand: true,
                 onPressed: point == null ? null : () => Navigator.of(context).pop(point),

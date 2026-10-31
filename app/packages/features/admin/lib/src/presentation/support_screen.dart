@@ -20,16 +20,16 @@ extension AdminSupportKindStyle on AdminSupportKind {
         AdminSupportKind.suggestion => Icons.lightbulb_outline,
       };
 
-  GxBadgeTone get tone => switch (this) {
-        AdminSupportKind.problem => GxBadgeTone.danger,
-        AdminSupportKind.request => GxBadgeTone.warning,
-        AdminSupportKind.suggestion => GxBadgeTone.success,
+  GwBadgeTone get tone => switch (this) {
+        AdminSupportKind.problem => GwBadgeTone.danger,
+        AdminSupportKind.request => GwBadgeTone.warning,
+        AdminSupportKind.suggestion => GwBadgeTone.success,
       };
 
   (Color, Color) get colors => switch (this) {
-        AdminSupportKind.problem => (GxColors.errorSoft, GxColors.error),
-        AdminSupportKind.request => (GxColors.warningSoft, GxColors.warning),
-        AdminSupportKind.suggestion => (GxColors.successSoft, GxColors.success),
+        AdminSupportKind.problem => (GwColors.errorSoft, GwColors.error),
+        AdminSupportKind.request => (GwColors.warningSoft, GwColors.warning),
+        AdminSupportKind.suggestion => (GwColors.successSoft, GwColors.success),
       };
 }
 
@@ -45,9 +45,9 @@ class SupportKindIcon extends StatelessWidget {
     return Semantics(
       label: kind.label,
       child: Container(
-        padding: const EdgeInsets.all(GxSpacing.xs),
-        decoration: BoxDecoration(color: background, borderRadius: GxRadius.mdAll),
-        child: Icon(kind.icon, color: foreground, size: GxSpacing.md + GxSpacing.xxs),
+        padding: const EdgeInsets.all(GwSpacing.xs),
+        decoration: BoxDecoration(color: background, borderRadius: GwRadius.mdAll),
+        child: Icon(kind.icon, color: foreground, size: GwSpacing.md + GwSpacing.xxs),
       ),
     );
   }
@@ -60,7 +60,7 @@ class TicketStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      GxBadge(status.label, dot: true, tone: status == AdminSupportStatus.inProgress ? GxBadgeTone.info : GxBadgeTone.neutral);
+      GwBadge(status.label, dot: true, tone: status == AdminSupportStatus.inProgress ? GwBadgeTone.info : GwBadgeTone.neutral);
 }
 
 /// Colored counters by kind, then every message; those waiting for the team come first.
@@ -116,10 +116,10 @@ class _AdminSupportScreenState extends ConsumerState<AdminSupportScreen> {
       title: 'Destek',
       subtitle: 'Kullanıcıların ve grup yöneticilerinin sorunları, talepleri ve istekleri.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref
             ..invalidate(supportStatsProvider)
             ..invalidate(ticketSearchProvider),
@@ -144,12 +144,12 @@ class _AdminSupportScreenState extends ConsumerState<AdminSupportScreen> {
               label: 'Yanıt bekleyen',
               value: stats?.awaitingReply,
               icon: Icons.mark_chat_unread_outlined,
-              tone: GxBadgeTone.primary,
+              tone: GwBadgeTone.primary,
             ),
           ],
         ),
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -170,15 +170,15 @@ class _AdminSupportScreenState extends ConsumerState<AdminSupportScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
                     child: filtered
-                        ? GxEmptyState(
+                        ? GwEmptyState(
                             icon: Icons.search_off,
                             message: 'Aramana ve filtrene uygun mesaj bulunamadı.',
                             actionLabel: 'Filtreleri temizle',
                             onAction: _clear,
                           )
-                        : GxEmptyState(
+                        : GwEmptyState(
                             icon: Icons.support_agent_outlined,
                             message: 'Henüz destek mesajı yok.',
                             actionLabel: 'Yenile',
@@ -201,15 +201,15 @@ class _AdminSupportScreenState extends ConsumerState<AdminSupportScreen> {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(ticketSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(ticketSearchProvider(key))),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.lg),
+                    padding: EdgeInsets.all(GwSpacing.lg),
                     child: Column(children: [
-                      GxSkeleton(height: GxSpacing.xl),
-                      SizedBox(height: GxSpacing.md),
-                      GxSkeleton(height: GxSpacing.xl),
+                      GwSkeleton(height: GwSpacing.xl),
+                      SizedBox(height: GwSpacing.md),
+                      GwSkeleton(height: GwSpacing.xl),
                     ]),
                   ),
               },
@@ -234,36 +234,36 @@ class _TicketRow extends StatelessWidget {
     final meta = [t.kind.label, who, ?t.groupName, '${t.messageCount} mesaj', formatDateTimeTr(t.lastMessageAt)].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.ticket(t.id)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
             SupportKindIcon(t.kind),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.subject, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                   Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 TicketStatusBadge(t.status),
                 if (t.awaitingReply) ...[
-                  const SizedBox(height: GxSpacing.xxs),
-                  const GxBadge('Yanıt bekliyor', tone: GxBadgeTone.primary),
+                  const SizedBox(height: GwSpacing.xxs),
+                  const GwBadge('Yanıt bekliyor', tone: GwBadgeTone.primary),
                 ],
               ],
             ),
-            const SizedBox(width: GxSpacing.xs),
-            const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+            const SizedBox(width: GwSpacing.xs),
+            const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
           ],
         ),
       ),

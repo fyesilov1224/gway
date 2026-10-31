@@ -80,7 +80,7 @@ Future<_FakeModeration> _pump(WidgetTester tester, Widget child, {GroupModeratio
       groupModerationProvider.overrideWith((ref, id) async => desk),
       mySanctionsProvider.overrideWith((ref) async => mine),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: child),
+    child: MaterialApp(theme: GwTheme.light(), home: child),
   ));
   await tester.pumpAndSettle();
   return fake;
@@ -134,13 +134,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Yorumu şikayet et'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'Şikayet et'));
+    await tester.tap(find.widgetWithText(GwButton, 'Şikayet et'));
     await tester.pumpAndSettle();
     expect(fake.calls, isEmpty, reason: 'nothing is sent without a reason');
 
     await tester.tap(find.text('Taciz ya da zorbalık'));
     await tester.enterText(find.byType(TextField), 'Sürekli hakaret ediyor');
-    await tester.tap(find.widgetWithText(GxButton, 'Şikayet et'));
+    await tester.tap(find.widgetWithText(GwButton, 'Şikayet et'));
     await tester.pumpAndSettle();
     expect(fake.calls, ['report:comment:c9:harassment:Sürekli hakaret ediyor']);
     expect(find.textContaining('Şikayetin alındı'), findsOneWidget);
@@ -175,7 +175,7 @@ void main() {
 
     expect(find.text('Önerilen: 7 gün ban'), findsOneWidget);
     expect(find.textContaining('Oylama 2 gün'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'Onayla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Onayla'));
     await tester.pumpAndSettle();
     expect(fake.calls, ['vote:c1:true']);
   });
@@ -205,8 +205,8 @@ void main() {
     await tester.tap(find.text('Yasa dışı faaliyet'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ChoiceChip, 'Tehdit'));
-    await tester.scrollUntilVisible(find.widgetWithText(GxButton, 'Dosyayı aç'), 200, scrollable: find.byType(Scrollable).last);
-    await tester.tap(find.widgetWithText(GxButton, 'Dosyayı aç'));
+    await tester.scrollUntilVisible(find.widgetWithText(GwButton, 'Dosyayı aç'), 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(find.widgetWithText(GwButton, 'Dosyayı aç'));
     await tester.pumpAndSettle();
     expect(fake.calls, ['case:g1:ban:7:threat']);
   });
@@ -264,7 +264,7 @@ void main() {
       ],
     );
     expect(find.text('Gerekçe: Yorumlarda hakaret etti.'), findsOneWidget);
-    expect(find.widgetWithText(GxButton, 'İtiraz et'), findsOneWidget);
+    expect(find.widgetWithText(GwButton, 'İtiraz et'), findsOneWidget);
     expect(find.text('İtirazın · Yaptırım sürüyor'), findsOneWidget);
   });
 }

@@ -46,10 +46,10 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
               widget.onPaid();
             },
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
         ],
         switch (offer) {
-          AsyncData(:final value) when !onWeb => GxPanel(
+          AsyncData(:final value) when !onWeb => GwPanel(
               title: 'Paket durumu',
               child: Text(
                 value.activeUntil == null
@@ -58,7 +58,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
                 style: textTheme.bodyLarge,
               ),
             ),
-          AsyncData(:final value) => GxPanel(
+          AsyncData(:final value) => GwPanel(
               title: value.activeUntil == null ? 'Satın al' : 'Süreni uzat',
               subtitle: value.activeUntil == null
                   ? 'Tek seferlik ödeme; otomatik yenilenmez.'
@@ -74,35 +74,35 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
                       selected: o.period == _period,
                       onTap: () => setState(() => _period = o.period),
                     ),
-                    const SizedBox(height: GxSpacing.xs),
+                    const SizedBox(height: GwSpacing.xs),
                   ],
-                  const SizedBox(height: GxSpacing.xs),
+                  const SizedBox(height: GwSpacing.xs),
                   if (!value.purchasesEnabled)
                     const PlanNotice(icon: Icons.schedule_rounded, text: 'Bu paketin satışı şu anda kapalı. Lütfen daha sonra tekrar dene.')
                   else ...[
-                    GxButton(
+                    GwButton(
                       label: 'Devam et · ${formatMoney(value.option(_period)?.amountMinor ?? 0, value.market.currency)}',
                       icon: Icons.lock_outline,
                       expand: true,
                       onPressed: () => context.push(BillingRoutes.personalCheckout(widget.slug, _period)),
                     ),
-                    const SizedBox(height: GxSpacing.sm),
+                    const SizedBox(height: GwSpacing.sm),
                     PaymentAssurance(market: value.market),
                   ],
                 ],
               ),
             ),
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(personalOfferProvider(widget.slug)),
             ),
-          _ => const GxSkeleton(height: GxSpacing.xxl * 4),
+          _ => const GwSkeleton(height: GwSpacing.xxl * 4),
         },
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         Text(
           'Bu paket yalnızca seni kapsar; grubunun paketini etkilemez.',
           textAlign: TextAlign.center,
-          style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+          style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
         ),
       ],
     );
@@ -125,20 +125,20 @@ class _PeriodOption extends StatelessWidget {
     // Yearly against twelve months, in whole percent.
     final saving = yearly && monthly != null ? 100 - (option.amountMinor * 100 / (monthly!.amountMinor * 12)).round() : 0;
     return Material(
-      color: selected ? GxColors.primarySoft : GxColors.background,
+      color: selected ? GwColors.primarySoft : GwColors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: GxRadius.lgAll,
-        side: BorderSide(color: selected ? GxColors.primary : GxColors.border, width: selected ? GxBorders.ringWidth : 1),
+        borderRadius: GwRadius.lgAll,
+        side: BorderSide(color: selected ? GwColors.primary : GwColors.border, width: selected ? GwBorders.ringWidth : 1),
       ),
       child: InkWell(
-        borderRadius: GxRadius.lgAll,
+        borderRadius: GwRadius.lgAll,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Row(
             children: [
-              Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: GxColors.primary),
-              const SizedBox(width: GxSpacing.sm),
+              Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: GwColors.primary),
+              const SizedBox(width: GwSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,14 +147,14 @@ class _PeriodOption extends StatelessWidget {
                       children: [
                         Text(option.period.label, style: textTheme.titleMedium),
                         if (saving > 0) ...[
-                          const SizedBox(width: GxSpacing.xs),
-                          GxBadge('%$saving avantajlı', tone: GxBadgeTone.success),
+                          const SizedBox(width: GwSpacing.xs),
+                          GwBadge('%$saving avantajlı', tone: GwBadgeTone.success),
                         ],
                       ],
                     ),
                     Text(
                       '${formatDateTr(option.endsAt)} tarihine kadar',
-                      style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                      style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ],
                 ),
@@ -184,7 +184,7 @@ class PersonalCheckoutScreen extends ConsumerWidget {
 
     final Widget body;
     if (!ref.watch(purchasesOnThisPlatformProvider)) {
-      body = GxEmptyState(
+      body = GwEmptyState(
         icon: planIcon,
         message: 'Bu işlem bu cihazda kullanılamıyor.',
         actionLabel: 'Geri dön',
@@ -206,21 +206,21 @@ class PersonalCheckoutScreen extends ConsumerWidget {
                 ),
                 onStale: (ref) => ref.invalidate(personalOfferProvider(slug)),
               ),
-            _ => GxEmptyState(
+            _ => GwEmptyState(
                 icon: planIcon,
                 message: 'Bu ürün şu anda satın alınamıyor.',
                 actionLabel: 'Geri dön',
                 onAction: () => Navigator.of(context).maybePop(),
               ),
           },
-        (AsyncError(:final error), _, _) || (_, AsyncError(:final error), _) || (_, _, AsyncError(:final error)) => GxErrorState(
+        (AsyncError(:final error), _, _) || (_, AsyncError(:final error), _) || (_, _, AsyncError(:final error)) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref
               ..invalidate(personalOfferProvider(slug))
               ..invalidate(salesTermsProvider)
               ..invalidate(lastBillingDetailsProvider),
           ),
-        _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 5)),
+        _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 5)),
       };
     }
     return Scaffold(appBar: AppBar(title: const Text('Ödeme')), body: body);
@@ -236,31 +236,31 @@ class _PersonalSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     Widget row(String label, String value) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
           child: Row(children: [Expanded(child: Text(label, style: secondary)), Text(value, style: textTheme.bodyMedium)]),
         );
-    return GxPanel(
+    return GwPanel(
       title: 'Sipariş özeti',
       subtitle: 'Kişisel ürün',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('${offer.planName} · ${option.period.label}', style: textTheme.titleMedium),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           const Divider(),
           row('Başlangıç', offer.activeUntil == null ? 'Ödeme onaylanınca' : formatDateTr(option.startsAt)),
           row('Bitiş (tahmini)', formatDateTr(option.endsAt)),
           const Divider(),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Row(
             children: [
               Expanded(child: Text('Toplam', style: textTheme.titleMedium)),
               Text(formatMoney(option.amountMinor, offer.market.currency), style: textTheme.titleLarge),
             ],
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           PaymentAssurance(market: offer.market),
         ],
       ),

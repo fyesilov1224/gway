@@ -17,7 +17,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget tile(IconData icon, String title, VoidCallback onTap, {Color? color, String? badge}) => ListTile(
-          minTileHeight: GxSpacing.xxl + GxSpacing.xs,
+          minTileHeight: GwSpacing.xxl + GwSpacing.xs,
           leading: Icon(icon, color: color),
           title: Text(title, style: color == null ? null : TextStyle(color: color)),
           trailing: color != null
@@ -25,7 +25,7 @@ class SettingsScreen extends ConsumerWidget {
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (badge != null) GxBadge(badge, tone: GxBadgeTone.primary),
+                    if (badge != null) GwBadge(badge, tone: GwBadgeTone.primary),
                     const Icon(Icons.chevron_right),
                   ],
                 ),
@@ -37,7 +37,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Ayarlar')),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+          constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
           child: ListView(
             children: [
               tile(Icons.person_outline, 'Profili düzenle', () => context.push(ProfileRoutes.edit)),
@@ -76,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
                 Icons.logout,
                 'Çıkış yap',
                 () => ref.read(authRepositoryProvider).signOut(),
-                color: GxColors.error,
+                color: GwColors.error,
               ),
             ],
           ),
@@ -117,7 +117,7 @@ class _PrivacyTileState extends ConsumerState<_PrivacyTile> {
   Widget build(BuildContext context) {
     final isPrivate = ref.watch(myProfileProvider).value?.isPrivate ?? false;
     return SwitchListTile(
-      minTileHeight: GxSpacing.xxl + GxSpacing.xs,
+      minTileHeight: GwSpacing.xxl + GwSpacing.xs,
       secondary: const Icon(Icons.lock_outline),
       title: const Text('Gizli hesap'),
       subtitle: const Text('Açıkken yalnızca onayladığın takipçiler gönderilerini ve hikayelerini görür.'),
@@ -156,7 +156,7 @@ class _GroupsVisibilityTileState extends ConsumerState<_GroupsVisibilityTile> {
   Widget build(BuildContext context) {
     final groupsPublic = ref.watch(myProfileProvider).value?.groupsPublic ?? false;
     return SwitchListTile(
-      minTileHeight: GxSpacing.xxl + GxSpacing.xs,
+      minTileHeight: GwSpacing.xxl + GwSpacing.xs,
       secondary: const Icon(Icons.groups_outlined),
       title: const Text('Gruplarımı profilimde göster'),
       subtitle: const Text('Kapalıyken bir gruptaki üyeliğini yalnızca o grubun üyeleri görür; başka grupların yöneticileri göremez.'),

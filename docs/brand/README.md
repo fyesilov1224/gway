@@ -1,26 +1,24 @@
-# GrupX Logo
+# GWAY Logo
 
-**Fikir:** Dört üye ortada buluşur; başları ve gövdeleri birlikte bir **X** oluşturur. Bu hem "GrupX"in X'i, hem bir araya gelen topluluktur.
+**Fikir:** Bir yol kıvrılıp **G** harfini oluşturur; bir üye (baş ve gövde) bu yola adım atar. Bu hem "GWAY"in G'si, hem topluluğuna giden yoldur. Ad 2026-10-31'de GrupX'ten GWAY'e değişti (kullanıcı isteği).
 
 | Dosya | Kullanım |
 |---|---|
-| `grupx-mark.svg` | Sembol, açık zemin (mor + mavi) |
-| `grupx-app-icon.svg` | Sosyal uygulama ikonu: mor zemin, beyaz + açık mavi |
-| `grupx-admin-icon.svg` | Admin paneli ikonu: koyu zemin, yumuşak mor + mavi |
+| `gway-mark.svg` | Sembol, açık zemin (mor + mavi) |
+| `gway-app-icon.svg` | Sosyal uygulama ikonu: mor zemin, beyaz + açık mavi |
+| `gway-admin-icon.svg` | Admin paneli ikonu: koyu zemin, yumuşak mor + mavi |
 
-Uygulama içinde logo `GxLogo` bileşeniyle çizilir (`design_system`, ek paket gerektirmez). `wordmark: true` "GrupX" yazısını ekler: "Grup" ana metin renginde, "X" mor.
+Uygulama içinde logo `GwLogo` bileşeniyle çizilir (`design_system`, ek paket gerektirmez). `wordmark: true` "GWAY" yazısını ekler: "G" ana metin renginde, "WAY" mor.
 
 ## Geometri (120 × 120 ızgara)
 
-Tek bir üye sol üst çeyrekte çizilir, sonra merkez (60, 60) etrafında 90° adımlarla döndürülür:
-
-- Baş: daire, merkez (22, 22), yarıçap 12
-- Gövde: (39, 39) → (50, 50), kalınlık 16, yuvarlak uçlar
-- Renk sırası: 0° birinci renk, 90° ikinci, 180° birinci, 270° ikinci
+- Yol (birinci renk): merkez (60, 60), yarıçap 40 olan yay; 0°'den (sağ) saat yönünde 290°'ye, kalınlık 16, yuvarlak uçlar
+- Gövde (ikinci renk): (62, 60) → (100, 60), kalınlık 16, yuvarlak uçlar
+- Baş (ikinci renk): daire, merkez (92, 35), yarıçap 11
 
 ## Renkler
 
-| Ton | Birinci üye | İkinci üye | Zemin |
+| Ton | Yol | Üye | Zemin |
 |---|---|---|---|
 | `color` | `#6E56CF` | `#2F6FE0` | açık |
 | `onPrimary` | `#FFFFFF` | `#C9DAFF` | `#6E56CF` |
@@ -36,4 +34,4 @@ Logo **gradyan kullanmaz**. Mor→mavi gradyan yalnızca canlı yayın rozeti ve
 
 ## İkonları yeniden üretmek
 
-Platform ikonları (web, Android, iOS) bu geometriden üretilmiştir. Geometri değişirse iki uygulamanın şu dosyaları birlikte yenilenir: `web/icons/*`, `web/favicon.png`, `android/app/src/main/res/mipmap-*/ic_launcher.png`, `ios/Runner/Assets.xcassets/AppIcon.appiconset/*`. iOS ikonları opak olmalıdır (alfa kanalı yok).
+Platform ikonları (web, Android, iOS) bu geometriden üretilmiştir: sembol ikonda 0,66 ölçekle ortalanır (maskable web ikonlarında 0,54); Android ve web ikonlarının köşe yarıçapı kenarın %22'sidir. Geometri değişirse iki uygulamanın şu dosyaları birlikte yenilenir: `web/icons/*`, `web/favicon.png`, `android/app/src/main/res/mipmap-*/ic_launcher.png`, `ios/Runner/Assets.xcassets/AppIcon.appiconset/*`. iOS ikonları ve maskable web ikonları opak olmalıdır (alfa kanalı yok).

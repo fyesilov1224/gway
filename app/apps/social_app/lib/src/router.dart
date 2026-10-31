@@ -105,7 +105,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     // An unknown or outdated link: a friendly page instead of the router's raw error.
     errorBuilder: (context, _) => Scaffold(
       appBar: AppBar(),
-      body: GxEmptyState(
+      body: GwEmptyState(
         icon: Icons.link_off,
         message: 'Aradığın sayfa bulunamadı. Bağlantı eski ya da hatalı olabilir.',
         actionLabel: 'Ana sayfaya dön',
@@ -113,7 +113,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
-      GoRoute(path: AppRoutes.loading, builder: (_, _) => const GxSplash()),
+      GoRoute(path: AppRoutes.loading, builder: (_, _) => const GwSplash()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const _GateErrorScreen()),
       GoRoute(path: IdentityRoutes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: IdentityRoutes.signUp, builder: (_, _) => const SignUpScreen()),
@@ -430,7 +430,7 @@ class _GateErrorScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: GxErrorState(
+      body: GwErrorState(
         message: 'Bilgilerin yüklenemedi. Bağlantını kontrol edip tekrar dene.',
         onRetry: () => refreshGate(ref),
       ),

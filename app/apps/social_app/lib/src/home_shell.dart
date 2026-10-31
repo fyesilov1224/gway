@@ -37,7 +37,7 @@ class HomeShell extends StatelessWidget {
     final path = GoRouterState.of(context).uri.path;
     final selected = _destinations.indexWhere((d) => d.path == path);
     final topLevel = _topLevel.contains(path);
-    if (MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint) {
+    if (MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint) {
       return Scaffold(
         body: Row(
           children: [
@@ -48,7 +48,7 @@ class HomeShell extends StatelessWidget {
                       alignment: Alignment.topCenter,
                       child: ConstrainedBox(
                         // The home column is narrower so photos stay a comfortable size.
-                        constraints: BoxConstraints(maxWidth: path == FeedRoutes.home ? GxLayout.feedMaxWidth : GxLayout.contentMaxWidth),
+                        constraints: BoxConstraints(maxWidth: path == FeedRoutes.home ? GwLayout.feedMaxWidth : GwLayout.contentMaxWidth),
                         child: child,
                       ),
                     )
@@ -72,12 +72,12 @@ Future<void> showCreateSheet(BuildContext context) => showModalBottomSheet<void>
           context.push(location);
         }
 
-        Widget option(IconData icon, GxTone tone, String title, String subtitle, String location) => ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg),
+        Widget option(IconData icon, GwTone tone, String title, String subtitle, String location) => ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
               leading: Container(
-                width: GxAvatarSize.md.dimension,
-                height: GxAvatarSize.md.dimension,
-                decoration: BoxDecoration(color: tone.soft, borderRadius: GxRadius.mdAll),
+                width: GwAvatarSize.md.dimension,
+                height: GwAvatarSize.md.dimension,
+                decoration: BoxDecoration(color: tone.soft, borderRadius: GwRadius.mdAll),
                 child: Icon(icon, color: tone.strong),
               ),
               title: Text(title),
@@ -91,13 +91,13 @@ Future<void> showCreateSheet(BuildContext context) => showModalBottomSheet<void>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.xs),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xs),
                 child: Text('Paylaş', style: Theme.of(sheet).textTheme.titleLarge),
               ),
-              option(Icons.photo_library_outlined, GxTone.lilac, 'Gönderi', '10 fotoğraf ya da videoya kadar', FeedRoutes.create),
-              option(Icons.auto_awesome_outlined, GxTone.sky, 'Hikâye', '24 saat görünür', FeedRoutes.newStory),
-              option(Icons.group_add_outlined, GxTone.mist, 'Grup', 'Kendi topluluğunu kur', GroupRoutes.create),
-              const SizedBox(height: GxSpacing.md),
+              option(Icons.photo_library_outlined, GwTone.lilac, 'Gönderi', '10 fotoğraf ya da videoya kadar', FeedRoutes.create),
+              option(Icons.auto_awesome_outlined, GwTone.sky, 'Hikâye', '24 saat görünür', FeedRoutes.newStory),
+              option(Icons.group_add_outlined, GwTone.mist, 'Grup', 'Kendi topluluğunu kur', GroupRoutes.create),
+              const SizedBox(height: GwSpacing.md),
             ],
           ),
         );
@@ -116,27 +116,27 @@ class _Dock extends StatelessWidget {
     ];
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.sm, 0, GxSpacing.sm, GxSpacing.sm),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.sm, 0, GwSpacing.sm, GwSpacing.sm),
         child: Container(
-          height: GxSpacing.xxl + GxSpacing.md,
-          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+          height: GwSpacing.xxl + GwSpacing.md,
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
           decoration: const BoxDecoration(
-            color: GxColors.background,
-            borderRadius: GxRadius.xlAll,
-            border: Border.fromBorderSide(GxBorders.hairline),
+            color: GwColors.background,
+            borderRadius: GwRadius.xlAll,
+            border: Border.fromBorderSide(GwBorders.hairline),
           ),
           child: Row(
             children: [
               ...items.take(2),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
                 child: IconButton.filled(
                   tooltip: 'Paylaş',
                   onPressed: () => showCreateSheet(context),
                   icon: const Icon(Icons.add_rounded),
                   style: IconButton.styleFrom(
-                    fixedSize: const Size.square(GxSpacing.xxl),
-                    shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll),
+                    fixedSize: const Size.square(GwSpacing.xxl),
+                    shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll),
                   ),
                 ),
               ),
@@ -157,7 +157,7 @@ class _DockItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? GxColors.primary : GxColors.textSecondary;
+    final color = selected ? GwColors.primary : GwColors.textSecondary;
     return Expanded(
       child: Semantics(
         selected: selected,
@@ -165,18 +165,18 @@ class _DockItem extends StatelessWidget {
         label: destination.label,
         excludeSemantics: true,
         child: InkWell(
-          borderRadius: GxRadius.lgAll,
+          borderRadius: GwRadius.lgAll,
           onTap: () => context.go(destination.path),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xxs),
-                decoration: BoxDecoration(color: selected ? GxColors.primarySoft : null, borderRadius: GxRadius.xlAll),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xxs),
+                decoration: BoxDecoration(color: selected ? GwColors.primarySoft : null, borderRadius: GwRadius.xlAll),
                 child: Icon(selected ? destination.selectedIcon : destination.icon, color: color),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               Text(
                 destination.label,
                 maxLines: 1,
@@ -203,15 +203,15 @@ class _Sidebar extends ConsumerWidget {
     final groups = me == null ? const <Group>[] : ref.watch(userGroupsProvider(me)).value ?? const <Group>[];
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      width: GxLayout.sidebarWidth,
-      decoration: const BoxDecoration(color: GxColors.background, border: Border(right: GxBorders.hairline)),
+      width: GwLayout.sidebarWidth,
+      decoration: const BoxDecoration(color: GwColors.background, border: Border(right: GwBorders.hairline)),
       child: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.xs, 0, GxSpacing.lg),
-              child: Align(alignment: Alignment.centerLeft, child: GxLogo(size: GxSpacing.lg + GxSpacing.xxs, wordmark: true)),
+              padding: EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xs, 0, GwSpacing.lg),
+              child: Align(alignment: Alignment.centerLeft, child: GwLogo(size: GwSpacing.lg + GwSpacing.xxs, wordmark: true)),
             ),
             for (final (i, d) in HomeShell._destinations.indexed)
               _SideItem(
@@ -238,16 +238,16 @@ class _Sidebar extends ConsumerWidget {
               selected: path.startsWith(MatchingRoutes.home),
               onTap: () => context.push(MatchingRoutes.home),
             ),
-            const SizedBox(height: GxSpacing.md),
-            GxButton(label: 'Paylaş', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
+            const SizedBox(height: GwSpacing.md),
+            GwButton(label: 'Paylaş', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
             if (groups.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.lg, GxSpacing.xs, GxSpacing.xs),
-                child: Text('Gruplarım', style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),
+                child: Text('Gruplarım', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
               ),
               for (final g in groups.take(8))
                 _SideItem(
-                  icon: GxAvatar(name: g.name, shape: GxAvatarShape.group, imageUrl: g.logoUrl, size: GxAvatarSize.sm),
+                  icon: GwAvatar(name: g.name, shape: GwAvatarShape.group, imageUrl: g.logoUrl, size: GwAvatarSize.sm),
                   label: g.name,
                   selected: path == GroupRoutes.group(g.handle),
                   onTap: () => context.push(GroupRoutes.group(g.handle)),
@@ -270,19 +270,19 @@ class _SideItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: GxSpacing.xxs),
+        padding: const EdgeInsets.only(bottom: GwSpacing.xxs),
         child: Material(
-          color: selected ? GxColors.primarySoft : Colors.transparent,
-          borderRadius: GxRadius.mdAll,
+          color: selected ? GwColors.primarySoft : Colors.transparent,
+          borderRadius: GwRadius.mdAll,
           child: InkWell(
-            borderRadius: GxRadius.mdAll,
+            borderRadius: GwRadius.mdAll,
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
               child: Row(
                 children: [
-                  IconTheme.merge(data: IconThemeData(color: selected ? GxColors.primary : GxColors.textPrimary), child: icon),
-                  const SizedBox(width: GxSpacing.sm),
+                  IconTheme.merge(data: IconThemeData(color: selected ? GwColors.primary : GwColors.textPrimary), child: icon),
+                  const SizedBox(width: GwSpacing.sm),
                   Expanded(
                     child: Text(
                       label,

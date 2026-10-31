@@ -22,13 +22,13 @@ class _StoryFrame extends StatelessWidget {
   Widget build(BuildContext context) => AspectRatio(
         aspectRatio: 9 / 16,
         child: ClipRRect(
-          borderRadius: GxRadius.xlAll,
-          child: GxBackdrop(
+          borderRadius: GwRadius.xlAll,
+          child: GwBackdrop(
             child: Padding(
-              padding: const EdgeInsets.all(GxSpacing.lg),
+              padding: const EdgeInsets.all(GwSpacing.lg),
               child: Column(
                 children: [
-                  const Align(alignment: Alignment.centerLeft, child: GxLogo(size: GxSpacing.xl, wordmark: true)),
+                  const Align(alignment: Alignment.centerLeft, child: GwLogo(size: GwSpacing.xl, wordmark: true)),
                   // A long year or a large text size shrinks the card instead of cutting it off.
                   Expanded(
                     child: LayoutBuilder(
@@ -39,12 +39,12 @@ class _StoryFrame extends StatelessWidget {
                             width: size.maxWidth,
                             child: DecoratedBox(
                               decoration: const BoxDecoration(
-                                color: GxColors.background,
-                                borderRadius: GxRadius.xlAll,
-                                border: Border.fromBorderSide(GxBorders.hairline),
+                                color: GwColors.background,
+                                borderRadius: GwRadius.xlAll,
+                                border: Border.fromBorderSide(GwBorders.hairline),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(GxSpacing.lg),
+                                padding: const EdgeInsets.all(GwSpacing.lg),
                                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
                               ),
                             ),
@@ -53,7 +53,7 @@ class _StoryFrame extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text('grupx · topluluğunu bul', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                  Text('gway · topluluğunu bul', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
@@ -72,13 +72,13 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+      padding: const EdgeInsets.only(bottom: GwSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          Text(value, style: textTheme.headlineMedium?.copyWith(color: GxColors.primary)),
-          const SizedBox(width: GxSpacing.xs),
+          Text(value, style: textTheme.headlineMedium?.copyWith(color: GwColors.primary)),
+          const SizedBox(width: GwSpacing.xs),
           Expanded(child: Text(label, style: textTheme.bodyLarge)),
         ],
       ),
@@ -98,7 +98,7 @@ class YearSummaryCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return _StoryFrame(children: [
       Text('${s.year} yılım', style: textTheme.headlineSmall),
-      const SizedBox(height: GxSpacing.md),
+      const SizedBox(height: GwSpacing.md),
       _Stat('${s.attended}', 'organizasyona katıldım'),
       if (s.hours > 0) _Stat('${s.hours}', 'saat birlikteydik'),
       if (s.groups > 0) _Stat('${s.groups}', s.groups == 1 ? 'grupla buluştum' : 'farklı grupla buluştum'),
@@ -107,12 +107,12 @@ class YearSummaryCard extends StatelessWidget {
       if (s.welcomed > 0) _Stat('${s.welcomed}', 'kişiyi ilk gelişinde karşıladım'),
       if (s.memories > 0) _Stat('${s.memories}', 'anı paylaştım'),
       if (s.categories.isNotEmpty) ...[
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         Text('En sevdiklerim', style: textTheme.titleSmall),
         Text(s.categories.map((c) => c.$1).join(' · '), style: textTheme.bodyLarge),
       ],
       if (s.topGroup case final group?) ...[
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         Text('En çok birlikte olduğum grup', style: textTheme.titleSmall),
         Text('$group · ${s.topGroupCount} buluşma', style: textTheme.bodyLarge),
       ],
@@ -132,27 +132,27 @@ class WasThereCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final e = event;
     return _StoryFrame(children: [
-      Text('Ben de oradaydım', style: textTheme.labelLarge?.copyWith(color: GxColors.primary)),
-      const SizedBox(height: GxSpacing.xs),
+      Text('Ben de oradaydım', style: textTheme.labelLarge?.copyWith(color: GwColors.primary)),
+      const SizedBox(height: GwSpacing.xs),
       Text(e.title, style: textTheme.headlineSmall),
-      const SizedBox(height: GxSpacing.sm),
+      const SizedBox(height: GwSpacing.sm),
       Text(e.group.name, style: textTheme.titleMedium),
-      const SizedBox(height: GxSpacing.md),
+      const SizedBox(height: GwSpacing.md),
       Row(children: [
-        const Icon(Icons.event_outlined, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-        const SizedBox(width: GxSpacing.xs),
+        const Icon(Icons.event_outlined, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+        const SizedBox(width: GwSpacing.xs),
         Expanded(child: Text(formatDateTr(e.startsAt.toLocal()), style: textTheme.bodyLarge)),
       ]),
-      const SizedBox(height: GxSpacing.xxs),
+      const SizedBox(height: GwSpacing.xxs),
       Row(children: [
-        const Icon(Icons.place_outlined, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-        const SizedBox(width: GxSpacing.xs),
+        const Icon(Icons.place_outlined, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+        const SizedBox(width: GwSpacing.xs),
         Expanded(child: Text(e.location, style: textTheme.bodyLarge)),
       ]),
-      const SizedBox(height: GxSpacing.md),
+      const SizedBox(height: GwSpacing.md),
       Text(
         countInGroup == 1 ? 'Bu grupla ilk organizasyonum.' : 'Bu grupla $countInGroup. organizasyonum.',
-        style: textTheme.titleSmall?.copyWith(color: GxColors.primary),
+        style: textTheme.titleSmall?.copyWith(color: GwColors.primary),
       ),
     ]);
   }
@@ -199,12 +199,12 @@ class _SharePreviewState extends ConsumerState<_SharePreview> {
         children: [
           Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.storyCardWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.storyCardWidth),
               child: RepaintBoundary(key: _boundary, child: widget.card),
             ),
           ),
-          const SizedBox(height: GxSpacing.md),
-          GxButton(label: 'Paylaş', icon: Icons.ios_share, isLoading: _busy, onPressed: _share),
+          const SizedBox(height: GwSpacing.md),
+          GwButton(label: 'Paylaş', icon: Icons.ios_share, isLoading: _busy, onPressed: _share),
         ],
       );
 }
@@ -216,11 +216,11 @@ Future<void> showWasThereCard(BuildContext context, GroupEvent event, int countI
       isScrollControlled: true,
       builder: (_) => SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.md),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.md),
           child: _SharePreview(
             card: WasThereCard(event: event, countInGroup: countInGroup),
             kind: 'event',
-            fileName: 'grupx-ben-de-oradaydim.png',
+            fileName: 'gway-ben-de-oradaydim.png',
             text: '${event.title} · ${event.group.name}',
           ),
         ),
@@ -240,34 +240,34 @@ class YearSummaryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text('$y özetim')),
       body: switch (ref.watch(yearSummaryProvider(y))) {
-        AsyncData(:final value) when value == null || value.isEmpty => GxEmptyState(
+        AsyncData(:final value) when value == null || value.isEmpty => GwEmptyState(
             icon: Icons.auto_awesome_outlined,
             message: 'Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.',
             actionLabel: 'Takvimime git',
             onAction: () => context.go(EventRoutes.calendar),
           ),
         AsyncData(value: final summary?) => ListView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             children: [
               _SharePreview(
                 card: YearSummaryCard(summary: summary),
                 kind: 'year',
-                fileName: 'grupx-$y-ozetim.png',
-                text: '$y yılım GrupX\'te',
+                fileName: 'gway-$y-ozetim.png',
+                text: '$y yılım GWAY\'de',
               ),
               if (summary.firstEvent case final first?) ...[
-                const SizedBox(height: GxSpacing.lg),
+                const SizedBox(height: GwSpacing.lg),
                 Text(
                   'Yılın ilk organizasyonu: $first${summary.firstEventAt == null ? '' : ' · ${formatDateTr(summary.firstEventAt!.toLocal())}'}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
             ],
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(yearSummaryProvider(y))),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(yearSummaryProvider(y))),
         _ => const Padding(
-            padding: EdgeInsets.all(GxSpacing.page),
-            child: GxSkeleton(height: GxSpacing.xxl * 8, borderRadius: GxRadius.xlAll),
+            padding: EdgeInsets.all(GwSpacing.page),
+            child: GwSkeleton(height: GwSpacing.xxl * 8, borderRadius: GwRadius.xlAll),
           ),
       },
     );

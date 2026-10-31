@@ -5,8 +5,8 @@ import '../tokens/spacing.dart';
 import 'button.dart';
 
 /// Shown when content fails to load: an icon, a safe message and a retry.
-class GxErrorState extends StatelessWidget {
-  const GxErrorState({
+class GwErrorState extends StatelessWidget {
+  const GwErrorState({
     super.key,
     required this.message,
     required this.onRetry,
@@ -20,35 +20,35 @@ class GxErrorState extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(GxSpacing.lg),
+        padding: const EdgeInsets.all(GwSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(GxSpacing.md),
+              padding: const EdgeInsets.all(GwSpacing.md),
               decoration: const ShapeDecoration(
-                color: GxColors.errorSoft,
+                color: GwColors.errorSoft,
                 shape: CircleBorder(),
               ),
               child: const Icon(
                 Icons.cloud_off_outlined,
-                size: GxSpacing.xl,
-                color: GxColors.error,
+                size: GwSpacing.xl,
+                color: GwColors.error,
               ),
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text(
               message,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
-                color: GxColors.textSecondary,
+                color: GwColors.textSecondary,
               ),
             ),
-            const SizedBox(height: GxSpacing.lg),
-            GxButton(
+            const SizedBox(height: GwSpacing.lg),
+            GwButton(
               label: 'Tekrar dene',
               onPressed: onRetry,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
             ),
           ],
         ),

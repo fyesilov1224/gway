@@ -109,45 +109,45 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             : null,
         title: Text('Adım ${_step + 1} / $_steps'),
         actions: [
-          GxButton(label: 'Çıkış yap', variant: GxButtonVariant.text, onPressed: _saving ? null : widget.onSignOut),
+          GwButton(label: 'Çıkış yap', variant: GwButtonVariant.text, onPressed: _saving ? null : widget.onSignOut),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(GxSpacing.xxs),
+          preferredSize: const Size.fromHeight(GwSpacing.xxs),
           child: LinearProgressIndicator(
             value: (_step + 1) / _steps,
-            minHeight: GxSpacing.xxs,
-            backgroundColor: GxColors.surfaceMuted,
+            minHeight: GwSpacing.xxs,
+            backgroundColor: GwColors.surfaceMuted,
           ),
         ),
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(title, style: textTheme.titleLarge),
-                  const SizedBox(height: GxSpacing.xs),
-                  Text(subtitle, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-                  const SizedBox(height: GxSpacing.lg),
+                  const SizedBox(height: GwSpacing.xs),
+                  Text(subtitle, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                  const SizedBox(height: GwSpacing.lg),
                   switch (_step) {
                     0 => _identityStep(),
                     1 => _photoStep(),
                     _ => InterestPicker(selected: _interests, onChanged: (v) => setState(() => _interests = v)),
                   },
-                  const SizedBox(height: GxSpacing.lg),
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
+                  const SizedBox(height: GwSpacing.lg),
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   if (_step < _steps - 1)
-                    GxButton(
+                    GwButton(
                       label: _step == 1 && _avatar == null ? 'Şimdilik atla' : 'Devam et',
                       onPressed: _next,
                       expand: true,
                     )
                   else
-                    GxButton(label: 'Bitir', onPressed: _finish, isLoading: _saving, expand: true),
+                    GwButton(label: 'Bitir', onPressed: _finish, isLoading: _saving, expand: true),
                 ],
               ),
             ),
@@ -171,7 +171,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             validator: ProfileRules.validateDisplayName,
             decoration: const InputDecoration(labelText: 'Adın', counterText: ''),
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           UsernameField(
             controller: _username,
             helperText: 'Küçük harf, rakam, _ ve . kullanabilirsin.',
@@ -184,7 +184,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _photoStep() {
     final avatar = _avatar;
-    final size = GxAvatarSize.xl.dimension;
+    final size = GwAvatarSize.xl.dimension;
     return Column(
       children: [
         Semantics(
@@ -194,17 +194,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             width: size,
             height: size,
             clipBehavior: Clip.antiAlias,
-            decoration: const ShapeDecoration(color: GxColors.primarySoft, shape: CircleBorder()),
+            decoration: const ShapeDecoration(color: GwColors.primarySoft, shape: CircleBorder()),
             child: avatar == null
-                ? Icon(Icons.person_outline, size: size / 2, color: GxColors.primary)
+                ? Icon(Icons.person_outline, size: size / 2, color: GwColors.primary)
                 : Image.memory(avatar.bytes, fit: BoxFit.cover),
           ),
         ),
-        const SizedBox(height: GxSpacing.md),
-        GxButton(
+        const SizedBox(height: GwSpacing.md),
+        GwButton(
           label: avatar == null ? 'Fotoğraf seç' : 'Başka fotoğraf seç',
           icon: Icons.photo_library_outlined,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: _pickAvatar,
         ),
       ],

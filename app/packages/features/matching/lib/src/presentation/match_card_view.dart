@@ -43,12 +43,12 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
     final textTheme = Theme.of(context).textTheme;
     final names = categoryNames(ref);
     final interests = sortedInterests(c);
-    final onMedia = textTheme.bodyMedium?.copyWith(color: GxColors.onMedia);
+    final onMedia = textTheme.bodyMedium?.copyWith(color: GwColors.onMedia);
 
     return ClipRRect(
-      borderRadius: GxRadius.xlAll,
+      borderRadius: GwRadius.xlAll,
       child: ColoredBox(
-        color: GxColors.media,
+        color: GwColors.media,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -59,7 +59,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
                 semanticLabel: '${c.displayName}, fotoğraf ${_photo + 1}',
-                errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted),
+                errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted),
               ),
             // Left and right halves step through the photos.
             Row(
@@ -70,19 +70,19 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
             ),
             if (c.photoUrls.length > 1)
               Positioned(
-                top: GxSpacing.xs,
-                left: GxSpacing.xs,
-                right: GxSpacing.xs,
+                top: GwSpacing.xs,
+                left: GwSpacing.xs,
+                right: GwSpacing.xs,
                 child: Row(
                   children: [
                     for (var i = 0; i < c.photoUrls.length; i++)
                       Expanded(
                         child: Container(
-                          height: GxSpacing.xxs,
-                          margin: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs / 2),
+                          height: GwSpacing.xxs,
+                          margin: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs / 2),
                           decoration: BoxDecoration(
-                            color: i == _photo ? GxColors.onMedia : GxColors.onMedia.withValues(alpha: 0.4),
-                            borderRadius: GxRadius.smAll,
+                            color: i == _photo ? GwColors.onMedia : GwColors.onMedia.withValues(alpha: 0.4),
+                            borderRadius: GwRadius.smAll,
                           ),
                         ),
                       ),
@@ -91,17 +91,17 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
               ),
             if (c.superLikedMe)
               const Positioned(
-                top: GxSpacing.lg,
-                left: GxSpacing.sm,
-                child: _Pill(icon: Icons.star_rounded, label: 'Seni süper beğendi', color: GxColors.secondary),
+                top: GwSpacing.lg,
+                left: GwSpacing.sm,
+                child: _Pill(icon: Icons.star_rounded, label: 'Seni süper beğendi', color: GwColors.secondary),
               ),
             if (widget.onMenu != null)
               Positioned(
-                top: GxSpacing.sm,
-                right: GxSpacing.xxs,
+                top: GwSpacing.sm,
+                right: GwSpacing.xxs,
                 child: IconButton(
                   tooltip: 'Seçenekler',
-                  color: GxColors.onMedia,
+                  color: GwColors.onMedia,
                   icon: const Icon(Icons.more_horiz),
                   onPressed: () => widget.onMenu!(context, _photo),
                 ),
@@ -115,11 +115,11 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, GxColors.mediaScrim, GxColors.media],
+                    colors: [Colors.transparent, GwColors.mediaScrim, GwColors.media],
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xxl, GxSpacing.xs, GxSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xxl, GwSpacing.xs, GwSpacing.md),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -136,17 +136,17 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                                 ]),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: textTheme.headlineMedium?.copyWith(color: GxColors.onMedia),
+                                style: textTheme.headlineMedium?.copyWith(color: GwColors.onMedia),
                               ),
-                              const SizedBox(height: GxSpacing.xxs),
+                              const SizedBox(height: GwSpacing.xxs),
                               if (c.job.isNotEmpty) _Line(icon: Icons.work_outline, text: c.job, style: onMedia),
                               if (c.provinceLabel.isNotEmpty) _Line(icon: Icons.location_on_outlined, text: c.provinceLabel, style: onMedia),
                               if (c.sharedGroups.isNotEmpty) _Line(icon: Icons.groups_2_outlined, text: c.sharedGroupsLine, style: onMedia),
                               if (interests.isNotEmpty) ...[
-                                const SizedBox(height: GxSpacing.xs),
+                                const SizedBox(height: GwSpacing.xs),
                                 Wrap(
-                                  spacing: GxSpacing.xxs,
-                                  runSpacing: GxSpacing.xxs,
+                                  spacing: GwSpacing.xxs,
+                                  runSpacing: GwSpacing.xxs,
                                   children: [
                                     for (final slug in interests.take(3))
                                       _Pill(
@@ -163,7 +163,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                       if (widget.onInfo != null)
                         IconButton(
                           tooltip: 'Profilin tamamı',
-                          color: GxColors.onMedia,
+                          color: GwColors.onMedia,
                           icon: const Icon(Icons.info_outline_rounded),
                           onPressed: widget.onInfo,
                         ),
@@ -191,9 +191,9 @@ List<String> sortedInterests(MatchCard c) =>
 
 /// The colour each swipe stands for, everywhere in the deck.
 Color swipeColor(SwipeKind kind) => switch (kind) {
-      SwipeKind.pass => GxColors.error,
-      SwipeKind.like => GxColors.success,
-      SwipeKind.superLike => GxColors.secondary,
+      SwipeKind.pass => GwColors.error,
+      SwipeKind.like => GwColors.success,
+      SwipeKind.superLike => GwColors.secondary,
     };
 
 class _Stamp extends StatelessWidget {
@@ -218,10 +218,10 @@ class _Stamp extends StatelessWidget {
           child: Transform.rotate(
             angle: angle,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xxs),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xxs),
               decoration: BoxDecoration(
-                border: Border.all(color: color, width: GxSpacing.xxs),
-                borderRadius: GxRadius.mdAll,
+                border: Border.all(color: color, width: GwSpacing.xxs),
+                borderRadius: GwRadius.mdAll,
               ),
               child: Text(
                 label,
@@ -244,11 +244,11 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: GxSpacing.xxs / 2),
+        padding: const EdgeInsets.only(top: GwSpacing.xxs / 2),
         child: Row(
           children: [
-            Icon(icon, size: GxSpacing.md, color: GxColors.onMedia),
-            const SizedBox(width: GxSpacing.xxs),
+            Icon(icon, size: GwSpacing.md, color: GwColors.onMedia),
+            const SizedBox(width: GwSpacing.xxs),
             Expanded(child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style)),
           ],
         ),
@@ -266,19 +266,19 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
         decoration: BoxDecoration(
-          color: color ?? GxColors.onMedia.withValues(alpha: 0.2),
-          borderRadius: GxRadius.lgAll,
+          color: color ?? GwColors.onMedia.withValues(alpha: 0.2),
+          borderRadius: GwRadius.lgAll,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: GxSpacing.sm + GxSpacing.xxs / 2, color: GxColors.onMedia),
-              const SizedBox(width: GxSpacing.xxs),
+              Icon(icon, size: GwSpacing.sm + GwSpacing.xxs / 2, color: GwColors.onMedia),
+              const SizedBox(width: GwSpacing.xxs),
             ],
-            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.onMedia)),
+            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia)),
           ],
         ),
       );
@@ -301,7 +301,7 @@ Future<void> showMatchDetails(BuildContext context, MatchCard card, {List<Widget
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.all(GxSpacing.md),
+                  padding: const EdgeInsets.all(GwSpacing.md),
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: actions),
                 ),
               ),
@@ -321,43 +321,43 @@ class _Details extends ConsumerWidget {
     final c = card;
     final textTheme = Theme.of(context).textTheme;
     final names = categoryNames(ref);
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
     Widget section(String title, Widget child) => Padding(
-          padding: const EdgeInsets.only(top: GxSpacing.lg),
+          padding: const EdgeInsets.only(top: GwSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Text(title, style: textTheme.titleSmall), const SizedBox(height: GxSpacing.xs), child],
+            children: [Text(title, style: textTheme.titleSmall), const SizedBox(height: GwSpacing.xs), child],
           ),
         );
 
     return ListView(
       controller: controller,
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg),
       children: [
         for (final url in c.photoUrls)
           Padding(
-            padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+            padding: const EdgeInsets.only(bottom: GwSpacing.xs),
             child: ClipRRect(
-              borderRadius: GxRadius.lgAll,
+              borderRadius: GwRadius.lgAll,
               child: AspectRatio(
-                aspectRatio: GxMedia.portrait,
-                child: Image.network(url, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted)),
+                aspectRatio: GwMedia.portrait,
+                child: Image.network(url, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
               ),
             ),
           ),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         Text('${c.displayName}, ${c.age}', style: textTheme.headlineSmall),
         if (c.superLikedMe)
           Padding(
-            padding: const EdgeInsets.only(top: GxSpacing.xxs),
+            padding: const EdgeInsets.only(top: GwSpacing.xxs),
             child: Row(children: [
-              const Icon(Icons.star_rounded, size: GxSpacing.md, color: GxColors.secondary),
-              const SizedBox(width: GxSpacing.xxs),
-              Text('Seni süper beğendi', style: textTheme.labelLarge?.copyWith(color: GxColors.secondary)),
+              const Icon(Icons.star_rounded, size: GwSpacing.md, color: GwColors.secondary),
+              const SizedBox(width: GwSpacing.xxs),
+              Text('Seni süper beğendi', style: textTheme.labelLarge?.copyWith(color: GwColors.secondary)),
             ]),
           ),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         for (final (icon, text) in [
           if (c.job.isNotEmpty) (Icons.work_outline, c.job),
           if (c.education.isNotEmpty) (Icons.school_outlined, c.education),
@@ -365,10 +365,10 @@ class _Details extends ConsumerWidget {
           (Icons.person_outline, c.gender.label),
         ])
           Padding(
-            padding: const EdgeInsets.only(bottom: GxSpacing.xxs),
+            padding: const EdgeInsets.only(bottom: GwSpacing.xxs),
             child: Row(children: [
-              Icon(icon, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-              const SizedBox(width: GxSpacing.xs),
+              Icon(icon, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+              const SizedBox(width: GwSpacing.xs),
               Expanded(child: Text(text, style: secondary)),
             ]),
           ),
@@ -377,14 +377,14 @@ class _Details extends ConsumerWidget {
           section(
             'İlgi alanları',
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final slug in sortedInterests(c))
-                  GxTag(
+                  GwTag(
                     label: names[slug] ?? slug,
                     icon: c.sharedInterests.contains(slug) ? Icons.favorite_rounded : null,
-                    tone: c.sharedInterests.contains(slug) ? GxTone.lilac : GxTone.mist,
+                    tone: c.sharedInterests.contains(slug) ? GwTone.lilac : GwTone.mist,
                   ),
               ],
             ),
@@ -397,7 +397,7 @@ class _Details extends ConsumerWidget {
                 for (final g in c.sharedGroups)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: GxAvatar(name: g.name, shape: GxAvatarShape.group),
+                    leading: GwAvatar(name: g.name, shape: GwAvatarShape.group),
                     title: Text(g.name),
                     subtitle: Text('@${g.handle}'),
                   ),

@@ -17,13 +17,13 @@ enum MediaAspect {
   /// Width / height of the frame; the original is kept between 4:5 and 1.91:1.
   double ratioFor(Size source) => switch (this) {
         original => clampFeedRatio(source.width / source.height),
-        square => GxMedia.square,
-        portrait => GxMedia.portrait,
-        landscape => GxMedia.landscape,
+        square => GwMedia.square,
+        portrait => GwMedia.portrait,
+        landscape => GwMedia.landscape,
       };
 }
 
-double clampFeedRatio(double ratio) => ratio.clamp(GxMedia.portrait, GxMedia.landscape);
+double clampFeedRatio(double ratio) => ratio.clamp(GwMedia.portrait, GwMedia.landscape);
 
 /// How a picture sits in its frame: [zoom] ≥ 1 over "cover", [center] in 0..1 of the picture.
 class CropFrame {
@@ -34,7 +34,7 @@ class CropFrame {
 
   /// The part of a [source] picture inside a frame of [ratio], in source pixels.
   Rect rectIn(Size source, double ratio) {
-    final z = zoom.clamp(1.0, GxMedia.maxZoom);
+    final z = zoom.clamp(1.0, GwMedia.maxZoom);
     // Largest frame-shaped area that fits ("cover" at zoom 1), shrunk by zoom.
     final coverWidth = math.min(source.width, source.height * ratio);
     final width = coverWidth / z;
@@ -53,7 +53,7 @@ class CropFrame {
   }
 
   CropFrame zoomed(double factor, Size source, double ratio) =>
-      _settled(source, ratio, (zoom * factor).clamp(1.0, GxMedia.maxZoom), center);
+      _settled(source, ratio, (zoom * factor).clamp(1.0, GwMedia.maxZoom), center);
 
   /// Keeps the center where the frame still lies inside the picture.
   static CropFrame _settled(Size source, double ratio, double zoom, Offset center) {

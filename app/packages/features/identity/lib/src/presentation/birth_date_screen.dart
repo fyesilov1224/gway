@@ -40,7 +40,7 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
       return;
     }
     if (ageOn(date, DateTime.now()) < minimumAge) {
-      setState(() => _error = 'GrupX\'i kullanmak için en az $minimumAge yaşında olmalısın.');
+      setState(() => _error = 'GWAY\'i kullanmak için en az $minimumAge yaşında olmalısın.');
       return;
     }
     setState(() {
@@ -64,21 +64,21 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
   Widget build(BuildContext context) {
     return AuthLayout(
       title: 'Doğum tarihin',
-      subtitle: 'GrupX $minimumAge yaş ve üstündekiler içindir. Doğum tarihin kimseye gösterilmez ve sonradan değiştirilemez.',
+      subtitle: 'GWAY $minimumAge yaş ve üstündekiler içindir. Doğum tarihin kimseye gösterilmez ve sonradan değiştirilemez.',
       children: [
         OutlinedButton.icon(
           onPressed: _saving ? null : _pick,
           icon: const Icon(Icons.cake_outlined),
           label: Text(_date == null ? 'Tarih seç' : formatDateTr(_date!)),
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(GxSpacing.buttonHeight)),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(GwSpacing.buttonHeight)),
         ),
-        const SizedBox(height: GxSpacing.md),
-        if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
-        GxButton(label: 'Devam et', onPressed: _save, isLoading: _saving, expand: true),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+        const SizedBox(height: GwSpacing.md),
+        if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
+        GwButton(label: 'Devam et', onPressed: _save, isLoading: _saving, expand: true),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Çıkış yap',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),
       ],

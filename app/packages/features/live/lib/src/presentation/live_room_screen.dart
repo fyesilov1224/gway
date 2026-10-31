@@ -39,7 +39,7 @@ class LiveRoomScreen extends ConsumerWidget {
       AsyncError(error: NotFoundFailure()) => const _Closed(message: 'Bu yayın bulunamadı. Grubun üyesi olman gerekiyor olabilir.'),
       AsyncError(:final error) => Scaffold(
           appBar: AppBar(),
-          body: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(liveBroadcastProvider(broadcastId))),
+          body: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(liveBroadcastProvider(broadcastId))),
         ),
       _ => const Scaffold(body: Center(child: CircularProgressIndicator())),
     };
@@ -55,7 +55,7 @@ class _Closed extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(),
-        body: GxEmptyState(
+        body: GwEmptyState(
           icon: icon,
           message: message,
           actionLabel: 'Geri dön',
@@ -155,12 +155,12 @@ class _RoomState extends ConsumerState<_Room> {
       final end = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+          shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
           title: const Text('Yayından çık'),
           content: const Text('Yayını herkes için bitirebilirsin. Yalnızca ayrılırsan yayın 2 dakika sonra kendiliğinden biter.'),
           actions: [
-            GxButton(label: 'Yalnızca ayrıl', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-            GxButton(label: 'Yayını bitir', onPressed: () => Navigator.of(context).pop(true)),
+            GwButton(label: 'Yalnızca ayrıl', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+            GwButton(label: 'Yayını bitir', onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
       );
@@ -190,7 +190,7 @@ class _RoomState extends ConsumerState<_Room> {
                   LiveAction.mute => Icons.mic_off_outlined,
                   LiveAction.unmute => Icons.mic_none_outlined,
                   LiveAction.kick => Icons.person_remove_outlined,
-                }, color: a == LiveAction.kick ? GxColors.error : null),
+                }, color: a == LiveAction.kick ? GwColors.error : null),
                 title: Text(
                   switch (a) {
                     LiveAction.inviteToStage => 'Sahneye al',
@@ -199,7 +199,7 @@ class _RoomState extends ConsumerState<_Room> {
                     LiveAction.unmute => 'Mikrofonunu aç',
                     LiveAction.kick => 'Yayından çıkar',
                   },
-                  style: a == LiveAction.kick ? const TextStyle(color: GxColors.error) : null,
+                  style: a == LiveAction.kick ? const TextStyle(color: GwColors.error) : null,
                 ),
                 onTap: () => Navigator.of(context).pop(a),
               ),
@@ -212,12 +212,12 @@ class _RoomState extends ConsumerState<_Room> {
       final sure = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+          shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
           title: const Text('Yayından çıkar'),
           content: Text('${seat.name} bu yayına bir daha giremez.'),
           actions: [
-            GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-            GxButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
+            GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+            GwButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
       );
@@ -242,7 +242,7 @@ class _RoomState extends ConsumerState<_Room> {
               ListTile(title: Text('El kaldıranlar', style: Theme.of(context).textTheme.titleMedium)),
               for (final s in hands)
                 ListTile(
-                  leading: GxAvatar(name: s.name, imageUrl: s.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+                  leading: GwAvatar(name: s.name, imageUrl: s.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
                   title: Text(s.name),
                   trailing: TextButton(
                     onPressed: () {
@@ -280,7 +280,7 @@ class _RoomState extends ConsumerState<_Room> {
   Widget build(BuildContext context) {
     final b = widget.broadcast;
     final manager = ref.watch(isLiveManagerProvider(b)).value ?? false;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final textTheme = Theme.of(context).textTheme;
 
     return ListenableBuilder(
@@ -294,7 +294,7 @@ class _RoomState extends ConsumerState<_Room> {
           case LiveSessionState.failed:
             return Scaffold(
               appBar: AppBar(),
-              body: GxErrorState(message: _session.errorMessage ?? 'Yayına bağlanılamadı.', onRetry: _session.connect),
+              body: GwErrorState(message: _session.errorMessage ?? 'Yayına bağlanılamadı.', onRetry: _session.connect),
             );
           case LiveSessionState.connecting:
             return Scaffold(
@@ -302,7 +302,7 @@ class _RoomState extends ConsumerState<_Room> {
               body: Center(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const CircularProgressIndicator(),
-                  const SizedBox(height: GxSpacing.md),
+                  const SizedBox(height: GwSpacing.md),
                   Text('Yayına bağlanılıyor…', style: textTheme.bodyLarge),
                 ]),
               ),
@@ -319,17 +319,17 @@ class _RoomState extends ConsumerState<_Room> {
         final myRank = me?.rank ?? 0;
 
         final room = ListView(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, GxSpacing.xl),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, GwSpacing.xl),
           children: [
             if (manager && hands.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: GxSpacing.md),
+                padding: const EdgeInsets.only(bottom: GwSpacing.md),
                 child: Material(
-                  color: GxColors.secondarySoft,
-                  borderRadius: GxRadius.lgAll,
+                  color: GwColors.secondarySoft,
+                  borderRadius: GwRadius.lgAll,
                   child: ListTile(
-                    shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll),
-                    leading: const Text('✋', style: TextStyle(fontSize: GxSpacing.lg)),
+                    shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll),
+                    leading: const Text('✋', style: TextStyle(fontSize: GwSpacing.lg)),
                     title: Text('${hands.length} kişi el kaldırdı', style: textTheme.labelLarge),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => _showHands(hands),
@@ -337,24 +337,24 @@ class _RoomState extends ConsumerState<_Room> {
                 ),
               ),
             Text('Sahnede', style: textTheme.titleSmall),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Wrap(
-              spacing: GxSpacing.md,
-              runSpacing: GxSpacing.md,
+              spacing: GwSpacing.md,
+              runSpacing: GwSpacing.md,
               children: [
                 for (final s in stage)
                   _SeatTile(seat: s, large: true, onTap: () => _openSeat(s, manager: manager, myRank: myRank)),
               ],
             ),
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
             Text('Dinleyiciler · ${formatCount(listeners.length)}', style: textTheme.titleSmall),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             if (listeners.isEmpty)
-              Text('Henüz dinleyici yok.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+              Text('Henüz dinleyici yok.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
             else
               Wrap(
-                spacing: GxSpacing.sm,
-                runSpacing: GxSpacing.sm,
+                spacing: GwSpacing.sm,
+                runSpacing: GwSpacing.sm,
                 children: [
                   for (final s in listeners) _SeatTile(seat: s, onTap: () => _openSeat(s, manager: manager, myRank: myRank)),
                 ],
@@ -369,17 +369,17 @@ class _RoomState extends ConsumerState<_Room> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(b.group.name, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                Text(b.group.name, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleMedium),
               ],
             ),
             actions: [
-              const GxLiveBadge(),
-              const SizedBox(width: GxSpacing.xs),
+              const GwLiveBadge(),
+              const SizedBox(width: GwSpacing.xs),
               _Elapsed(since: b.startedAt ?? DateTime.now()),
-              const SizedBox(width: GxSpacing.sm),
-              Icon(Icons.headphones_rounded, size: GxSpacing.md, color: GxColors.textSecondary, semanticLabel: '${seats.length} kişi'),
-              const SizedBox(width: GxSpacing.xxs),
+              const SizedBox(width: GwSpacing.sm),
+              Icon(Icons.headphones_rounded, size: GwSpacing.md, color: GwColors.textSecondary, semanticLabel: '${seats.length} kişi'),
+              const SizedBox(width: GwSpacing.xxs),
               Text(formatCount(seats.length), style: textTheme.labelMedium),
               if (manager)
                 PopupMenuButton<void>(
@@ -389,7 +389,7 @@ class _RoomState extends ConsumerState<_Room> {
                   ],
                 )
               else
-                const SizedBox(width: GxSpacing.sm),
+                const SizedBox(width: GwSpacing.sm),
             ],
           ),
           body: Row(
@@ -398,14 +398,14 @@ class _RoomState extends ConsumerState<_Room> {
                 child: Stack(
                   children: [
                     room,
-                    Positioned(right: GxSpacing.md, bottom: 0, top: 0, width: GxSpacing.xxl, child: _Reactions(stream: _session.reactions)),
+                    Positioned(right: GwSpacing.md, bottom: 0, top: 0, width: GwSpacing.xxl, child: _Reactions(stream: _session.reactions)),
                   ],
                 ),
               ),
               if (wide)
                 Container(
-                  width: GxLayout.formMaxWidth - GxSpacing.xxl * 2,
-                  decoration: const BoxDecoration(border: Border(left: GxBorders.hairline)),
+                  width: GwLayout.formMaxWidth - GwSpacing.xxl * 2,
+                  decoration: const BoxDecoration(border: Border(left: GwBorders.hairline)),
                   child: _CommentsPanel(comments: _comments, manager: manager, onSend: _send, onDelete: _deleteComment),
                 ),
             ],
@@ -455,8 +455,8 @@ class _SeatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final size = large ? GxAvatarSize.lg : GxAvatarSize.md;
-    final width = size.dimension + GxSpacing.lg;
+    final size = large ? GwAvatarSize.lg : GwAvatarSize.md;
+    final width = size.dimension + GwSpacing.lg;
     final micOff = seat.role.onStage && (!seat.micOn || seat.mutedByModerator);
     final status = [
       if (seat.isMe) 'Sen' else seat.name,
@@ -471,7 +471,7 @@ class _SeatTile extends StatelessWidget {
       label: status,
       excludeSemantics: true,
       child: InkWell(
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         onTap: onTap,
         child: SizedBox(
           width: width,
@@ -482,40 +482,40 @@ class _SeatTile extends StatelessWidget {
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.all(GxSpacing.xxs / 2),
+                    padding: const EdgeInsets.all(GwSpacing.xxs / 2),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: seat.speaking ? GxColors.primary : GxColors.background,
-                        width: GxSpacing.xxs / 2,
+                        color: seat.speaking ? GwColors.primary : GwColors.background,
+                        width: GwSpacing.xxs / 2,
                       ),
                     ),
-                    child: GxAvatar(name: seat.name, imageUrl: seat.avatarUrl, shape: GxAvatarShape.user, size: size),
+                    child: GwAvatar(name: seat.name, imageUrl: seat.avatarUrl, shape: GwAvatarShape.user, size: size),
                   ),
                   if (micOff || seat.handRaisedAt != null)
                     Positioned(
-                      right: -GxSpacing.xxs,
-                      bottom: -GxSpacing.xxs,
+                      right: -GwSpacing.xxs,
+                      bottom: -GwSpacing.xxs,
                       child: Container(
-                        padding: const EdgeInsets.all(GxSpacing.xxs),
+                        padding: const EdgeInsets.all(GwSpacing.xxs),
                         decoration: const BoxDecoration(
-                          color: GxColors.background,
+                          color: GwColors.background,
                           shape: BoxShape.circle,
-                          border: Border.fromBorderSide(GxBorders.hairline),
+                          border: Border.fromBorderSide(GwBorders.hairline),
                         ),
                         child: seat.handRaisedAt != null
-                            ? const Text('✋', style: TextStyle(fontSize: GxSpacing.sm))
+                            ? const Text('✋', style: TextStyle(fontSize: GwSpacing.sm))
                             : Icon(Icons.mic_off_rounded,
-                                size: GxSpacing.sm + GxSpacing.xxs,
-                                color: seat.mutedByModerator ? GxColors.error : GxColors.textSecondary),
+                                size: GwSpacing.sm + GwSpacing.xxs,
+                                color: seat.mutedByModerator ? GwColors.error : GwColors.textSecondary),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               Text(seat.isMe ? 'Sen' : seat.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
               if (seat.role != LiveRole.listener)
-                Text(seat.role.label, style: textTheme.labelSmall?.copyWith(color: seat.role == LiveRole.host ? GxColors.primary : GxColors.textSecondary)),
+                Text(seat.role.label, style: textTheme.labelSmall?.copyWith(color: seat.role == LiveRole.host ? GwColors.primary : GwColors.textSecondary)),
             ],
           ),
         ),
@@ -552,17 +552,17 @@ class _ControlBar extends StatelessWidget {
     final me = this.me;
     final onStage = me?.role.onStage ?? false;
     return DecoratedBox(
-      decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+      decoration: const BoxDecoration(color: GwColors.background, border: Border(top: GwBorders.hairline)),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (showEmojis)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+                  padding: const EdgeInsets.only(bottom: GwSpacing.xs),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -570,14 +570,14 @@ class _ControlBar extends StatelessWidget {
                         IconButton(
                           tooltip: 'Tepki gönder',
                           onPressed: () => onReaction(e),
-                          icon: Text(e, style: const TextStyle(fontSize: GxSpacing.lg)),
+                          icon: Text(e, style: const TextStyle(fontSize: GwSpacing.lg)),
                         ),
                     ],
                   ),
                 ),
               Row(
                 children: [
-                  GxButton(label: 'Ayrıl', variant: GxButtonVariant.secondary, onPressed: onLeave),
+                  GwButton(label: 'Ayrıl', variant: GwButtonVariant.secondary, onPressed: onLeave),
                   const Spacer(),
                   if (onStage && me!.role == LiveRole.speaker)
                     IconButton(tooltip: 'Sahneden in', icon: const Icon(Icons.voice_over_off_outlined), onPressed: onLeaveStage),
@@ -590,7 +590,7 @@ class _ControlBar extends StatelessWidget {
                   ),
                   if (onComments != null)
                     IconButton(tooltip: 'Yorumlar', icon: const Icon(Icons.chat_bubble_outline_rounded), onPressed: onComments),
-                  const SizedBox(width: GxSpacing.xs),
+                  const SizedBox(width: GwSpacing.xs),
                   if (onStage)
                     IconButton.filled(
                       tooltip: me!.mutedByModerator
@@ -599,9 +599,9 @@ class _ControlBar extends StatelessWidget {
                               ? 'Mikrofonu kapat'
                               : 'Mikrofonu aç',
                       style: IconButton.styleFrom(
-                        backgroundColor: me.micOn ? GxColors.primary : GxColors.surfaceMuted,
-                        foregroundColor: me.micOn ? GxColors.onPrimary : GxColors.textPrimary,
-                        minimumSize: const Size.square(GxSpacing.buttonHeight),
+                        backgroundColor: me.micOn ? GwColors.primary : GwColors.surfaceMuted,
+                        foregroundColor: me.micOn ? GwColors.onPrimary : GwColors.textPrimary,
+                        minimumSize: const Size.square(GwSpacing.buttonHeight),
                       ),
                       onPressed: me.mutedByModerator ? null : () => onMic(!me.micOn),
                       icon: Icon(me.micOn ? Icons.mic_rounded : Icons.mic_off_rounded),
@@ -609,9 +609,9 @@ class _ControlBar extends StatelessWidget {
                   else
                     IconButton.filledTonal(
                       tooltip: me?.handRaisedAt == null ? 'El kaldır' : 'Elini indir',
-                      style: IconButton.styleFrom(minimumSize: const Size.square(GxSpacing.buttonHeight)),
+                      style: IconButton.styleFrom(minimumSize: const Size.square(GwSpacing.buttonHeight)),
                       onPressed: me == null ? null : () => onHand(me.handRaisedAt == null),
-                      icon: Text(me?.handRaisedAt == null ? '✋' : '👇', style: const TextStyle(fontSize: GxSpacing.lg)),
+                      icon: Text(me?.handRaisedAt == null ? '✋' : '👇', style: const TextStyle(fontSize: GwSpacing.lg)),
                     ),
                 ],
               ),
@@ -671,10 +671,10 @@ class _ReactionsState extends State<_Reactions> {
                   curve: Curves.easeOut,
                   builder: (context, t, child) => Positioned(
                     bottom: t * box.maxHeight * 0.7,
-                    left: drift * (box.maxWidth - GxSpacing.xl) + sin(t * pi * 3) * GxSpacing.xs,
+                    left: drift * (box.maxWidth - GwSpacing.xl) + sin(t * pi * 3) * GwSpacing.xs,
                     child: Opacity(opacity: (1 - t).clamp(0, 1), child: child),
                   ),
-                  child: Text(emoji, style: const TextStyle(fontSize: GxSpacing.xl)),
+                  child: Text(emoji, style: const TextStyle(fontSize: GwSpacing.xl)),
                 ),
             ],
           ),
@@ -728,8 +728,8 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
               ),
             if (mine || widget.manager)
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: GxColors.error),
-                title: const Text('Yorumu sil', style: TextStyle(color: GxColors.error)),
+                leading: const Icon(Icons.delete_outline, color: GwColors.error),
+                title: const Text('Yorumu sil', style: TextStyle(color: GwColors.error)),
                 onTap: () => Navigator.of(context).pop(true),
               ),
           ],
@@ -747,7 +747,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xs),
           child: Row(children: [Text('Yorumlar', style: textTheme.titleSmall)]),
         ),
         Expanded(
@@ -756,25 +756,25 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
             builder: (context, comments, _) => comments.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(GxSpacing.lg),
-                      child: Text('İlk yorumu sen yaz.', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      padding: const EdgeInsets.all(GwSpacing.lg),
+                      child: Text('İlk yorumu sen yaz.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                     ),
                   )
                 : ListView.builder(
                     reverse: true,
-                    padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+                    padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
                     itemCount: comments.length,
                     itemBuilder: (context, i) {
                       final c = comments[comments.length - 1 - i];
                       return InkWell(
                         onLongPress: () => _menu(c),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+                          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              GxAvatar(name: c.author.displayName, imageUrl: c.author.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
-                              const SizedBox(width: GxSpacing.xs),
+                              GwAvatar(name: c.author.displayName, imageUrl: c.author.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
+                              const SizedBox(width: GwSpacing.xs),
                               Expanded(
                                 child: Text.rich(
                                   TextSpan(children: [
@@ -794,7 +794,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
         ),
         const Divider(height: 1),
         Padding(
-          padding: EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xs, GxSpacing.xs + MediaQuery.viewInsetsOf(context).bottom),
+          padding: EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs + MediaQuery.viewInsetsOf(context).bottom),
           child: Row(
             children: [
               Expanded(
@@ -808,7 +808,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
                   decoration: const InputDecoration(hintText: 'Yorum yaz…', counterText: ''),
                 ),
               ),
-              IconButton(tooltip: 'Gönder', onPressed: _sending ? null : _send, icon: const Icon(Icons.send_rounded, color: GxColors.primary)),
+              IconButton(tooltip: 'Gönder', onPressed: _sending ? null : _send, icon: const Icon(Icons.send_rounded, color: GwColors.primary)),
             ],
           ),
         ),

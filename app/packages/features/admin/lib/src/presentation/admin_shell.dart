@@ -15,14 +15,14 @@ class AdminShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final sidebar = _Sidebar(onSignOut: onSignOut, inDrawer: !wide);
 
     if (wide) {
       return Scaffold(
         body: Row(
           children: [
-            SizedBox(width: GxLayout.sidebarWidth, child: sidebar),
+            SizedBox(width: GwLayout.sidebarWidth, child: sidebar),
             const VerticalDivider(width: 1, thickness: 1),
             Expanded(child: child),
           ],
@@ -32,9 +32,9 @@ class AdminShell extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const _Brand(compact: true)),
       drawer: Drawer(
-        width: GxLayout.sidebarWidth,
+        width: GwLayout.sidebarWidth,
         shape: const RoundedRectangleBorder(),
-        backgroundColor: GxColors.background,
+        backgroundColor: GwColors.background,
         child: sidebar,
       ),
       body: child,
@@ -52,9 +52,9 @@ class _Brand extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GxLogo(size: compact ? GxSpacing.lg : GxSpacing.lg + GxSpacing.xxs, wordmark: true),
-        const SizedBox(width: GxSpacing.xs),
-        const GxBadge('Yönetim', tone: GxBadgeTone.primary),
+        GwLogo(size: compact ? GwSpacing.lg : GwSpacing.lg + GwSpacing.xxs, wordmark: true),
+        const SizedBox(width: GwSpacing.xs),
+        const GwBadge('Yönetim', tone: GwBadgeTone.primary),
       ],
     );
   }
@@ -79,26 +79,26 @@ class _Sidebar extends ConsumerWidget {
     }
 
     return ColoredBox(
-      color: GxColors.background,
+      color: GwColors.background,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xs),
+                padding: EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xs),
                 child: _Brand(),
               ),
-              const SizedBox(height: GxSpacing.lg),
+              const SizedBox(height: GwSpacing.lg),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm),
                 child: Text(
                   'YÖNETİM',
-                  style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.8),
+                  style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary, letterSpacing: 0.8),
                 ),
               ),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               _NavItem(
                 icon: Icons.insights_outlined,
                 selectedIcon: Icons.insights,
@@ -106,7 +106,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path == AdminRoutes.overview,
                 onTap: () => go(AdminRoutes.overview),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.group_outlined,
                 selectedIcon: Icons.group,
@@ -114,7 +114,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.users),
                 onTap: () => go(AdminRoutes.users),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.groups_2_outlined,
                 selectedIcon: Icons.groups_2,
@@ -122,7 +122,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.groups),
                 onTap: () => go(AdminRoutes.groups),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.photo_library_outlined,
                 selectedIcon: Icons.photo_library,
@@ -130,7 +130,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.content),
                 onTap: () => go(AdminRoutes.content),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.flag_outlined,
                 selectedIcon: Icons.flag,
@@ -138,7 +138,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.reports),
                 onTap: () => go(AdminRoutes.reports),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.event_outlined,
                 selectedIcon: Icons.event,
@@ -146,7 +146,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.events),
                 onTap: () => go(AdminRoutes.events),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.flag_circle_outlined,
                 selectedIcon: Icons.flag_circle,
@@ -154,7 +154,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.goals),
                 onTap: () => go(AdminRoutes.goals),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.emoji_events_outlined,
                 selectedIcon: Icons.emoji_events,
@@ -162,7 +162,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.leagues),
                 onTap: () => go(AdminRoutes.leagues),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.podcasts_outlined,
                 selectedIcon: Icons.podcasts,
@@ -170,7 +170,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.live),
                 onTap: () => go(AdminRoutes.live),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.notifications_outlined,
                 selectedIcon: Icons.notifications,
@@ -179,7 +179,7 @@ class _Sidebar extends ConsumerWidget {
                 onTap: () => go(AdminRoutes.notifications),
               ),
               if (role?.canSuspend ?? false) ...[
-                const SizedBox(height: GxSpacing.xxs),
+                const SizedBox(height: GwSpacing.xxs),
                 _NavItem(
                   icon: Icons.shield_outlined,
                   selectedIcon: Icons.shield,
@@ -189,7 +189,7 @@ class _Sidebar extends ConsumerWidget {
                 ),
               ],
               if (role?.code == 'admin') ...[
-                const SizedBox(height: GxSpacing.xxs),
+                const SizedBox(height: GwSpacing.xxs),
                 _NavItem(
                   icon: Icons.gavel_outlined,
                   selectedIcon: Icons.gavel,
@@ -198,7 +198,7 @@ class _Sidebar extends ConsumerWidget {
                   onTap: () => go(AdminRoutes.legal),
                 ),
               ],
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.favorite_border_rounded,
                 selectedIcon: Icons.favorite_rounded,
@@ -206,7 +206,7 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.matching),
                 onTap: () => go(AdminRoutes.matching),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.support_agent_outlined,
                 selectedIcon: Icons.support_agent,
@@ -215,15 +215,15 @@ class _Sidebar extends ConsumerWidget {
                 onTap: () => go(AdminRoutes.support),
               ),
               if (role?.canSeeBilling ?? false) ...[
-                const SizedBox(height: GxSpacing.lg),
+                const SizedBox(height: GwSpacing.lg),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+                  padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm),
                   child: Text(
                     'GELİR',
-                    style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.8),
+                    style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary, letterSpacing: 0.8),
                   ),
                 ),
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
                 _NavItem(
                   icon: Icons.receipt_long_outlined,
                   selectedIcon: Icons.receipt_long,
@@ -231,7 +231,7 @@ class _Sidebar extends ConsumerWidget {
                   selected: path.startsWith(AdminRoutes.billing),
                   onTap: () => go(AdminRoutes.billing),
                 ),
-                const SizedBox(height: GxSpacing.xxs),
+                const SizedBox(height: GwSpacing.xxs),
                 _NavItem(
                   icon: Icons.workspace_premium_outlined,
                   selectedIcon: Icons.workspace_premium,
@@ -242,18 +242,18 @@ class _Sidebar extends ConsumerWidget {
               ],
               const Spacer(),
               const Divider(),
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Row(
                 children: [
-                  GxAvatar(name: email.isEmpty ? '?' : email, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
-                  const SizedBox(width: GxSpacing.sm),
+                  GwAvatar(name: email.isEmpty ? '?' : email, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                         if (role != null)
-                          Text(role.label, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                          Text(role.label, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -285,28 +285,28 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? GxColors.primary : GxColors.textSecondary;
+    final color = selected ? GwColors.primary : GwColors.textSecondary;
     return Semantics(
       selected: selected,
       button: true,
       child: Material(
-        color: selected ? GxColors.primarySoft : Colors.transparent,
-        borderRadius: GxRadius.mdAll,
+        color: selected ? GwColors.primarySoft : Colors.transparent,
+        borderRadius: GwRadius.mdAll,
         child: InkWell(
-          borderRadius: GxRadius.mdAll,
+          borderRadius: GwRadius.mdAll,
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget),
+            constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm),
               child: Row(
                 children: [
-                  Icon(selected ? selectedIcon : icon, color: color, size: GxSpacing.md + GxSpacing.xxs),
-                  const SizedBox(width: GxSpacing.sm),
+                  Icon(selected ? selectedIcon : icon, color: color, size: GwSpacing.md + GwSpacing.xxs),
+                  const SizedBox(width: GwSpacing.sm),
                   Text(
                     label,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: selected ? GxColors.primary : GxColors.textPrimary,
+                          color: selected ? GwColors.primary : GwColors.textPrimary,
                         ),
                   ),
                 ],
@@ -340,12 +340,12 @@ class AdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(wide ? GxSpacing.xl : GxSpacing.md),
+      padding: EdgeInsets.all(wide ? GwSpacing.xl : GwSpacing.md),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: GxLayout.dashboardMaxWidth),
+          constraints: const BoxConstraints(maxWidth: GwLayout.dashboardMaxWidth),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -355,24 +355,24 @@ class AdminPage extends StatelessWidget {
                   children: [
                     for (final (label, location) in breadcrumbs) ...[
                       InkWell(
-                        borderRadius: GxRadius.smAll,
+                        borderRadius: GwRadius.smAll,
                         onTap: () => context.go(location),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
-                          child: Text(label, style: textTheme.labelLarge?.copyWith(color: GxColors.primary)),
+                          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
+                          child: Text(label, style: textTheme.labelLarge?.copyWith(color: GwColors.primary)),
                         ),
                       ),
-                      const Icon(Icons.chevron_right, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
+                      const Icon(Icons.chevron_right, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
                     ],
                     if (title != null)
-                      Text(title!, style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+                      Text(title!, style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
                   ],
                 ),
-                const SizedBox(height: GxSpacing.md),
+                const SizedBox(height: GwSpacing.md),
               ] else if (title != null) ...[
                 Wrap(
-                  spacing: GxSpacing.md,
-                  runSpacing: GxSpacing.md,
+                  spacing: GwSpacing.md,
+                  runSpacing: GwSpacing.md,
                   alignment: WrapAlignment.spaceBetween,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
@@ -381,15 +381,15 @@ class AdminPage extends StatelessWidget {
                       children: [
                         Text(title!, style: textTheme.headlineMedium),
                         if (subtitle != null) ...[
-                          const SizedBox(height: GxSpacing.xxs),
-                          Text(subtitle!, style: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary)),
+                          const SizedBox(height: GwSpacing.xxs),
+                          Text(subtitle!, style: textTheme.bodyLarge?.copyWith(color: GwColors.textSecondary)),
                         ],
                       ],
                     ),
-                    if (actions.isNotEmpty) Wrap(spacing: GxSpacing.sm, children: actions),
+                    if (actions.isNotEmpty) Wrap(spacing: GwSpacing.sm, children: actions),
                   ],
                 ),
-                const SizedBox(height: GxSpacing.lg),
+                const SizedBox(height: GwSpacing.lg),
               ],
               ...children,
             ],

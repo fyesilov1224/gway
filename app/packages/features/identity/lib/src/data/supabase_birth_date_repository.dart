@@ -29,7 +29,7 @@ class SupabaseBirthDateRepository implements BirthDateRepository {
       // Already given (e.g. a double tap): the goal is reached.
       if (e.code == '23505') return const Ok(null);
       if (e.message.contains('birth_date_under_18')) {
-        return const Err(RuleFailure('birth_date_under_18', 'GrupX\'i kullanmak için en az 18 yaşında olmalısın.'));
+        return const Err(RuleFailure('birth_date_under_18', 'GWAY\'i kullanmak için en az 18 yaşında olmalısın.'));
       }
       return Err(failureFromSupabase(e));
     } on Object catch (e) {

@@ -55,13 +55,13 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         // Opened from a link there is no back button, so the title keeps its padding.
-        titleSpacing: name != null && Navigator.canPop(context) ? 0 : GxSpacing.md,
+        titleSpacing: name != null && Navigator.canPop(context) ? 0 : GwSpacing.md,
         title: switch (profile.value) {
           final p? => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(p.displayName, style: textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('@${p.username}', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                Text('@${p.username}', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           null => const Text('Profil'),
@@ -70,21 +70,21 @@ class ProfileScreen extends ConsumerWidget {
           if (isOwn) ...ownActions,
           if (isOwn && onOpenSettings != null)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.xs),
+              padding: const EdgeInsets.only(right: GwSpacing.xs),
               child: IconButton(tooltip: 'Ayarlar', icon: const Icon(Icons.settings_outlined), onPressed: onOpenSettings),
             ),
         ],
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (profile) {
           AsyncData(:final value) => _ProfileBody(profile: value, isOwn: isOwn, sections: sections, visitorActions: visitorActions),
-          AsyncError(error: NotFoundFailure()) => GxEmptyState(
+          AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.person_off_outlined,
               message: 'Bu profil bulunamadı ya da artık görünür değil.',
               actionLabel: 'Profilime dön',
               onAction: () => context.go(ProfileRoutes.mine),
             ),
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
               onRetry: () => name == null
                   ? ref.invalidate(myProfileProvider)
@@ -120,43 +120,43 @@ class _ProfileBody extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async => refreshRelationship(ref, profile.id),
       child: ListView(
-        padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+        padding: const EdgeInsets.only(bottom: GwSpacing.xl),
         children: [
-          GxHeroCard(
+          GwHeroCard(
             name: profile.displayName,
             subtitle: '@${profile.username}',
-            shape: GxAvatarShape.user,
+            shape: GwAvatarShape.user,
             coverUrl: profile.coverUrl,
             avatarUrl: profile.avatarUrl,
             coverIcon: interests.isEmpty ? Icons.diversity_3_outlined : categoryIcon(interests.first),
             subtitleTrailing: (social?.isPrivate ?? profile.isPrivate)
-                ? const Icon(Icons.lock_outline, size: GxSpacing.md, color: GxColors.textSecondary)
+                ? const Icon(Icons.lock_outline, size: GwSpacing.md, color: GwColors.textSecondary)
                 : null,
             children: [
               if (suspendedUntil != null)
-                GxFormMessage('Bu hesap ${formatDateTimeTr(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
+                GwFormMessage('Bu hesap ${formatDateTimeTr(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
               if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
                   (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates)))
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xxs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xxs,
                   children: [
                     if (social != null && !isOwn && (social.isFriend || social.followsMe))
-                      GxBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GxBadgeTone.primary),
+                      GwBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GwBadgeTone.primary),
                     if (teammate?.relation == TeammateRelation.teammates)
-                      const GxBadge('Ekip arkadaşın', tone: GxBadgeTone.success)
+                      const GwBadge('Ekip arkadaşın', tone: GwBadgeTone.success)
                     else if (teammate?.looking ?? false)
-                      GxBadge(teammate!.label, tone: GxBadgeTone.info),
+                      GwBadge(teammate!.label, tone: GwBadgeTone.info),
                   ],
                 ),
               if (profile.bio.isNotEmpty) Text(profile.bio, style: textTheme.bodyLarge),
               _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYearTr(profile.createdAt)}'),
               if (!hidden && interests.isNotEmpty)
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
-                    for (final slug in interests) GxTag(icon: categoryIcon(slug), label: names[slug] ?? slug, tone: GxTone.of(slug)),
+                    for (final slug in interests) GwTag(icon: categoryIcon(slug), label: names[slug] ?? slug, tone: GwTone.of(slug)),
                   ],
                 ),
               _Stats(profile: profile, social: social),
@@ -168,7 +168,7 @@ class _ProfileBody extends ConsumerWidget {
           ),
           if (requests > 0)
             Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
               child: _Notice(
                 icon: Icons.person_add_alt,
                 text: requests == 1 ? '1 takip isteği onay bekliyor.' : '$requests takip isteği onay bekliyor.',
@@ -178,7 +178,7 @@ class _ProfileBody extends ConsumerWidget {
             ),
           if (teammateRequests > 0)
             Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
               child: _Notice(
                 icon: Icons.diversity_3_outlined,
                 text: teammateRequests == 1
@@ -211,7 +211,7 @@ class _ProfileBody extends ConsumerWidget {
           else ...[
             if (isOwn && interests.isEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
                 child: _Notice(
                   icon: Icons.interests_outlined,
                   text: 'İlgi alanlarını ekle, sana uygun grupları ve ekip arkadaşlarını bulalım.',
@@ -232,10 +232,10 @@ class _OwnActions extends StatelessWidget {
   const _OwnActions();
 
   @override
-  Widget build(BuildContext context) => GxButton(
+  Widget build(BuildContext context) => GwButton(
         label: 'Profili düzenle',
         icon: Icons.edit_outlined,
-        variant: GxButtonVariant.secondary,
+        variant: GwButtonVariant.secondary,
         expand: true,
         onPressed: () => context.push(ProfileRoutes.edit),
       );
@@ -264,13 +264,13 @@ class _VisitorActions extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: Text('@${profile.username} engellensin mi?'),
         content: const Text('Profilini, gönderilerini ve hikayelerini göremez, seni bulamaz ve sana yazamaz. '
             'Takipleşmeniz sona erer. Engellediğin bildirilmez.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'Engelle', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'Engelle', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -315,7 +315,7 @@ class _VisitorActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Wrap(
-      spacing: GxSpacing.xs,
+      spacing: GwSpacing.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (!social.blockedByMe) ...[for (final action in extra) action(context, profile, false)],
@@ -357,7 +357,7 @@ class _VisitorActions extends ConsumerWidget {
             else
               PopupMenuItem(
                 onTap: () => _block(context, ref),
-                child: const Text('Engelle', style: TextStyle(color: GxColors.error)),
+                child: const Text('Engelle', style: TextStyle(color: GwColors.error)),
               ),
           ],
         ),
@@ -379,18 +379,18 @@ class _Stats extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     Widget stat(String label, int? value, VoidCallback? onTap) => Expanded(
           child: Material(
-            color: GxColors.surface,
-            borderRadius: GxRadius.mdAll,
+            color: GwColors.surface,
+            borderRadius: GwRadius.mdAll,
             child: InkWell(
-              borderRadius: GxRadius.mdAll,
+              borderRadius: GwRadius.mdAll,
               onTap: onTap,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.sm),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.sm),
                 child: Column(
                   children: [
                     Text(value == null ? '–' : formatCount(value), style: textTheme.titleLarge),
                     Text(label,
-                        maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                        maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                   ],
                 ),
               ),
@@ -401,9 +401,9 @@ class _Stats extends StatelessWidget {
     return Row(
       children: [
         stat('Gönderi', s?.postCount, null),
-        const SizedBox(width: GxSpacing.xs),
+        const SizedBox(width: GwSpacing.xs),
         stat('Takipçi', s?.followerCount, open ? () => context.push(ProfileRoutes.followers(profile.username)) : null),
-        const SizedBox(width: GxSpacing.xs),
+        const SizedBox(width: GwSpacing.xs),
         stat('Takip', s?.followingCount, open ? () => context.push(ProfileRoutes.following(profile.username)) : null),
       ],
     );
@@ -423,21 +423,21 @@ class _Locked extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.xl),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.xl),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(GxSpacing.md),
-            decoration: const BoxDecoration(shape: BoxShape.circle, border: Border.fromBorderSide(BorderSide(color: GxColors.textPrimary, width: 1.5))),
-            child: Icon(icon, size: GxSpacing.xl),
+            padding: const EdgeInsets.all(GwSpacing.md),
+            decoration: const BoxDecoration(shape: BoxShape.circle, border: Border.fromBorderSide(BorderSide(color: GwColors.textPrimary, width: 1.5))),
+            child: Icon(icon, size: GwSpacing.xl),
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           Text(title, style: textTheme.titleMedium),
-          const SizedBox(height: GxSpacing.xs),
-          Text(text, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+          const SizedBox(height: GwSpacing.xs),
+          Text(text, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
           if (actionLabel != null) ...[
-            const SizedBox(height: GxSpacing.md),
-            GxButton(label: actionLabel!, variant: GxButtonVariant.secondary, onPressed: onAction),
+            const SizedBox(height: GwSpacing.md),
+            GwButton(label: actionLabel!, variant: GwButtonVariant.secondary, onPressed: onAction),
           ],
         ],
       ),
@@ -455,12 +455,12 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
-        decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.mdAll),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
+        decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.mdAll),
         child: Row(
           children: [
-            Icon(icon, color: GxColors.primary, size: GxSpacing.md + GxSpacing.xxs),
-            const SizedBox(width: GxSpacing.xs),
+            Icon(icon, color: GwColors.primary, size: GwSpacing.md + GwSpacing.xxs),
+            const SizedBox(width: GwSpacing.xs),
             Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
             TextButton(onPressed: onAction, child: Text(actionLabel)),
           ],
@@ -478,12 +478,12 @@ class _Meta extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-        const SizedBox(width: GxSpacing.xxs + 2),
+        Icon(icon, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+        const SizedBox(width: GwSpacing.xxs + 2),
         Flexible(
           child: Text(
             text,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
         ),
       ],
@@ -498,7 +498,7 @@ class _ProfileSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: EdgeInsets.zero,
-      children: const [GxHeroCardSkeleton(shape: GxAvatarShape.user)],
+      children: const [GwHeroCardSkeleton(shape: GwAvatarShape.user)],
     );
   }
 }

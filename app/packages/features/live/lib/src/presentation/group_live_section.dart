@@ -30,18 +30,18 @@ class GroupLiveSection extends ConsumerWidget {
     final me = ref.watch(currentUserIdProvider);
 
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.md),
+      padding: const EdgeInsets.only(top: GwSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (data.live case final live?) _LiveNowCard(broadcast: live),
           for (final b in data.scheduled) ...[
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             _ScheduledTile(broadcast: b, isHost: b.host?.id == me, groupId: groupId),
           ],
           if (canStart && data.live == null) ...[
-            const SizedBox(height: GxSpacing.sm),
-            GxLiveButton(
+            const SizedBox(height: GwSpacing.sm),
+            GwLiveButton(
               label: 'Yayın başlat',
               expand: true,
               onPressed: () => showStartLiveSheet(context, groupId: groupId, minutesLeft: data.minutesLeft),
@@ -63,31 +63,31 @@ class _LiveNowCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final host = broadcast.host;
     return Material(
-      color: GxColors.primarySoft,
-      borderRadius: GxRadius.lgAll,
+      color: GwColors.primarySoft,
+      borderRadius: GwRadius.lgAll,
       child: InkWell(
-        borderRadius: GxRadius.lgAll,
+        borderRadius: GwRadius.lgAll,
         onTap: () => context.push(LiveRoutes.room(broadcast.id)),
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Row(
             children: [
-              GxAvatar(name: host?.displayName ?? '?', imageUrl: host?.avatarUrl, shape: GxAvatarShape.user),
-              const SizedBox(width: GxSpacing.sm),
+              GwAvatar(name: host?.displayName ?? '?', imageUrl: host?.avatarUrl, shape: GwAvatarShape.user),
+              const SizedBox(width: GwSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const GxLiveBadge(),
-                    const SizedBox(height: GxSpacing.xxs),
+                    const GwLiveBadge(),
+                    const SizedBox(height: GwSpacing.xxs),
                     Text(broadcast.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.titleSmall),
                     if (host != null)
-                      Text('${host.displayName} sunuyor', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      Text('${host.displayName} sunuyor', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                   ],
                 ),
               ),
-              const SizedBox(width: GxSpacing.sm),
-              GxButton(label: 'Katıl', icon: Icons.headphones_rounded, onPressed: () => context.push(LiveRoutes.room(broadcast.id))),
+              const SizedBox(width: GwSpacing.sm),
+              GwButton(label: 'Katıl', icon: Icons.headphones_rounded, onPressed: () => context.push(LiveRoutes.room(broadcast.id))),
             ],
           ),
         ),
@@ -131,27 +131,27 @@ class _ScheduledTileState extends ConsumerState<_ScheduledTile> {
     final b = widget.broadcast;
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.sm),
+      padding: const EdgeInsets.all(GwSpacing.sm),
       decoration: const BoxDecoration(
-        color: GxColors.surface,
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(GxBorders.hairline),
+        color: GwColors.surface,
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(GwBorders.hairline),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(GxSpacing.xs),
-            decoration: const BoxDecoration(color: GxColors.secondarySoft, borderRadius: GxRadius.mdAll),
-            child: const Icon(Icons.event_outlined, color: GxColors.secondary),
+            padding: const EdgeInsets.all(GwSpacing.xs),
+            decoration: const BoxDecoration(color: GwColors.secondarySoft, borderRadius: GwRadius.mdAll),
+            child: const Icon(Icons.event_outlined, color: GwColors.secondary),
           ),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                 Text('Yaklaşan · ${formatDateTimeTr(b.scheduledAt!)}',
-                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                    style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
@@ -271,7 +271,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
     final noMinutes = minutes != null && minutes <= 0 && !_later;
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+          GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: Form(
         key: _form,
         child: Column(
@@ -279,10 +279,10 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Canlı yayın', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.xxs),
+            const SizedBox(height: GwSpacing.xxs),
             Text('Grup üyeleri sesli odaya katılır; sahneye aldıkların konuşur.',
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-            const SizedBox(height: GxSpacing.md),
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            const SizedBox(height: GwSpacing.md),
             TextFormField(
               controller: _title,
               maxLength: 80,
@@ -290,7 +290,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
               decoration: const InputDecoration(labelText: 'Başlık', hintText: 'Ör. Pazar yürüyüşü planı'),
               validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             SegmentedButton<bool>(
               segments: const [
                 ButtonSegment(value: false, label: Text('Şimdi'), icon: Icon(Icons.podcasts)),
@@ -300,7 +300,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
               onSelectionChanged: (s) => setState(() => _later = s.first),
             ),
             if (_later) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               OutlinedButton.icon(
                 onPressed: _pickTime,
                 icon: const Icon(Icons.schedule),
@@ -308,20 +308,20 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
               ),
             ],
             if (minutes != null) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Text(
                 minutes > 0
                     ? 'Bu ay kalan canlı yayın süren: ${formatCount(minutes)} dakika.'
                     : 'Bu ayın canlı yayın süresi doldu. Daha fazlası için paketini yükseltebilirsin.',
-                style: textTheme.bodyMedium?.copyWith(color: minutes > 0 ? GxColors.textSecondary : GxColors.error),
+                style: textTheme.bodyMedium?.copyWith(color: minutes > 0 ? GwColors.textSecondary : GwColors.error),
               ),
             ],
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.md),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.md),
             if (_later)
-              GxButton(label: 'Planla', icon: Icons.event_available_outlined, isLoading: _busy, expand: true, onPressed: _submit)
+              GwButton(label: 'Planla', icon: Icons.event_available_outlined, isLoading: _busy, expand: true, onPressed: _submit)
             else
-              GxLiveButton(label: 'Yayını başlat', expand: true, onPressed: _busy || noMinutes ? null : _submit),
+              GwLiveButton(label: 'Yayını başlat', expand: true, onPressed: _busy || noMinutes ? null : _submit),
           ],
         ),
       ),

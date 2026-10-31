@@ -12,7 +12,7 @@ create() {
   rm -f "$dir/test/widget_test.dart"
 }
 
-create apps/social_app com.grupx social_app
-create apps/admin_panel com.grupx.admin admin_panel
+create apps/social_app com.gway social_app
+create apps/admin_panel com.gway.admin admin_panel
 
 flutter pub get

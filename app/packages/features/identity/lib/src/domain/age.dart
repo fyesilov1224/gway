@@ -1,6 +1,6 @@
 import 'package:core/core.dart';
 
-/// GrupX is for adults only (docs/ARCHITECTURE.md §3a, Yaş sınırı).
+/// GWAY is for adults only (docs/ARCHITECTURE.md §3a, Yaş sınırı).
 const minimumAge = 18;
 
 /// Full years between [birth] and [today] (dates only).

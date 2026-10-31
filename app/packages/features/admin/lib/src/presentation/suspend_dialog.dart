@@ -83,7 +83,7 @@ class _SuspendDialogState extends State<SuspendDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: Text(widget.title),
       content: Form(
         key: _form,
@@ -93,7 +93,7 @@ class _SuspendDialogState extends State<SuspendDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.description),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               TextFormField(
                 controller: _reason,
                 maxLength: SuspendDialog.maxReasonLength,
@@ -103,10 +103,10 @@ class _SuspendDialogState extends State<SuspendDialog> {
                 decoration: const InputDecoration(labelText: 'Gerekçe', alignLabelWithHint: true),
               ),
               if (widget.withDuration) ...[
-                const SizedBox(height: GxSpacing.sm),
+                const SizedBox(height: GwSpacing.sm),
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final d in widget.durations)
                       ChoiceChip(
@@ -122,8 +122,8 @@ class _SuspendDialogState extends State<SuspendDialog> {
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: widget.confirmLabel, onPressed: _confirm),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: widget.confirmLabel, onPressed: _confirm),
       ],
     );
   }

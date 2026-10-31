@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\GrupX.Modules.Messaging.Contracts\GrupX.Modules.Messaging.Contracts.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="GrupX.Api.Tests" />
-  </ItemGroup>
-</Project>

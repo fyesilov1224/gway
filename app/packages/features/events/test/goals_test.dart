@@ -58,7 +58,7 @@ Future<_FakeGoals> _pump(WidgetTester tester, GoalDetail detail) async {
       goalsRepositoryProvider.overrideWithValue(fake),
       goalDetailProvider.overrideWith((ref, id) async => detail),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: const GoalScreen(goalId: 'q1')),
+    child: MaterialApp(theme: GwTheme.light(), home: const GoalScreen(goalId: 'q1')),
   ));
   await tester.pumpAndSettle();
   return fake;
@@ -73,7 +73,7 @@ void main() {
 
   testWidgets('a member reports a task with a note', (tester) async {
     final fake = await _pump(tester, GoalDetail(goal: _goal(kind: GoalKind.task, progress: 0)));
-    await tester.tap(find.widgetWithText(GxButton, 'Yaptım'));
+    await tester.tap(find.widgetWithText(GwButton, 'Yaptım'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Yeni üyeye rotayı anlattım');
     await tester.tap(find.text('Gönder'));
@@ -92,7 +92,7 @@ void main() {
       ),
     );
     expect(find.textContaining('2 / 4 katılım · Elif'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'Onayla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Onayla'));
     await tester.pumpAndSettle();
     expect(fake.calls, ['decide:u5:true']);
 
@@ -101,7 +101,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Takım adı'), 'Güney');
     await tester.tap(find.text('Ayşe'));
     await tester.pump();
-    await tester.tap(find.widgetWithText(GxButton, 'Takımı kur (1 kişi)'));
+    await tester.tap(find.widgetWithText(GwButton, 'Takımı kur (1 kişi)'));
     await tester.pumpAndSettle();
     expect(fake.calls.last, 'team:Güney:u3');
   });
@@ -109,7 +109,7 @@ void main() {
   testWidgets('the group page lists goals; managers can open one', (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [groupGoalsProvider.overrideWith((ref, id) async => [_goal(kind: GoalKind.team, progress: 0)])],
-      child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: GroupGoalsSection(groupId: 'g1', canManage: true))),
+      child: MaterialApp(theme: GwTheme.light(), home: const Scaffold(body: GroupGoalsSection(groupId: 'g1', canManage: true))),
     ));
     await tester.pumpAndSettle();
     expect(find.text('Ekim koşuları'), findsOneWidget);

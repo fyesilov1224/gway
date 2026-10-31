@@ -1,5 +1,5 @@
 /// Spacing tokens, multiples of 4. See docs/DESIGN.md §3.
-abstract final class GxSpacing {
+abstract final class GwSpacing {
   static const double xxs = 4;
   static const double xs = 8;
   static const double sm = 12;
@@ -19,7 +19,7 @@ abstract final class GxSpacing {
 }
 
 /// Maximum content widths so wide (web, tablet) screens stay readable.
-abstract final class GxLayout {
+abstract final class GwLayout {
   /// Forms such as sign-in.
   static const double formMaxWidth = 440;
 

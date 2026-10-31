@@ -34,7 +34,7 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Bildirim tercihleri')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (saved) {
           AsyncData(:final value) => () {
               final p = _shown ?? value;
@@ -45,10 +45,10 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                     subtitle: Text(subtitle),
                   );
               return ListView(
-                padding: const EdgeInsets.symmetric(vertical: GxSpacing.sm),
+                padding: const EdgeInsets.symmetric(vertical: GwSpacing.sm),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, GxSpacing.xs),
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xs),
                     child: Text('Organizasyonlar', style: textTheme.titleSmall),
                   ),
                   toggle('1 gün önce hatırlat', 'Katıldığın organizasyon yarın başlıyorsa', p.reminderDay,
@@ -60,33 +60,33 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                   toggle('Değerlendirme istekleri', 'Katıldığın organizasyon bitince "Nasıldı?" diye sor', p.reviewRequests,
                       (v) => p.copyWith(reviewRequests: v)),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                     child: Text('Canlı yayınlar', style: textTheme.titleSmall),
                   ),
                   toggle('Planlanan ve başlayan yayınlar', 'Grubunda yayın planlanınca ve başlayınca, uygulama açıksa sesli uyarıyla',
                       p.liveBroadcasts, (v) => p.copyWith(liveBroadcasts: v)),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.md, GxSpacing.page, GxSpacing.xs),
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                     child: Text('Eşleşme', style: textTheme.titleSmall),
                   ),
                   toggle('Yeni eşleşmeler', 'Biriyle karşılıklı beğenince', p.matchAlerts, (v) => p.copyWith(matchAlerts: v)),
                   Padding(
-                    padding: const EdgeInsets.all(GxSpacing.page),
+                    padding: const EdgeInsets.all(GwSpacing.page),
                     child: Text(
                       'Katılım isteğinin sonucu, bekleme listesinden yükselmen ve grup yaptırımları seni doğrudan ilgilendirdiği için her zaman bildirilir.',
-                      style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                      style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ),
                 ],
               );
             }(),
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(notificationPreferencesProvider),
             ),
           _ => const Padding(
-              padding: EdgeInsets.all(GxSpacing.page),
-              child: Column(children: [GxSkeleton(height: GxSpacing.xxl), SizedBox(height: GxSpacing.sm), GxSkeleton(height: GxSpacing.xxl)]),
+              padding: EdgeInsets.all(GwSpacing.page),
+              child: Column(children: [GwSkeleton(height: GwSpacing.xxl), SizedBox(height: GwSpacing.sm), GwSkeleton(height: GwSpacing.xxl)]),
             ),
         },
       ),

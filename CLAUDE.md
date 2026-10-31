@@ -1,4 +1,4 @@
-# GrupX — Proje Talimatı (Claude için)
+# GWAY — Proje Talimatı (Claude için)
 
 Bu dosya her oturumda otomatik okunur. Projenin ne olduğunu, nasıl çalışılacağını ve hangi kuralların asla çiğnenmeyeceğini anlatır. Ayrıntılar `docs/` altındadır; çelişki olursa `docs/ARCHITECTURE.md` geçerlidir.
 
@@ -6,7 +6,7 @@ Bu dosya her oturumda otomatik okunur. Projenin ne olduğunu, nasıl çalışıl
 
 ## 1. Ürün
 
-GrupX; müzik grupları, yürüyüş, koşu, bisiklet, doğa, spor, sanat gibi **her türden sosyal grubu tek çatı altında toplayan**, X ve Instagram kalitesinde, profesyonel bir sosyal platformdur. Mobil (iOS, Android) ve web'de çalışır. Ayrıca mobil ve web'de çalışan ayrı bir **admin paneli** vardır.
+GWAY; müzik grupları, yürüyüş, koşu, bisiklet, doğa, spor, sanat gibi **her türden sosyal grubu tek çatı altında toplayan**, X ve Instagram kalitesinde, profesyonel bir sosyal platformdur. Mobil (iOS, Android) ve web'de çalışır. Ayrıca mobil ve web'de çalışan ayrı bir **admin paneli** vardır.
 
 ### Kullanıcılar
 - Kayıt olur, kendi **profil sayfasını** oluşturur (avatar, kapak, biyografi, katıldığı gruplar, gönderiler).
@@ -66,7 +66,7 @@ Platform ekibi (admin, moderatör, destek) için. Kullanıcı ve grup yönetimi,
 ## 2. Tasarım (AAA)
 
 - **Ferah, sakin, profesyonel.** Kullanıcıyı boğmayan, kullanım keyfini artıran, içeriği öne çıkaran bir arayüz.
-- **Zemin:** her ekranın arkasında beyazdan açık mora ve açık pembeye yumuşak geçen bir zemin (`GxBackdrop`) vardır; içerik bu zeminin üstünde **beyaz kartlarda** durur. Kullanıcı isteğiyle 2026-10-22'de eklendi.
+- **Zemin:** her ekranın arkasında beyazdan açık mora ve açık pembeye yumuşak geçen bir zemin (`GwBackdrop`) vardır; içerik bu zeminin üstünde **beyaz kartlarda** durur. Kullanıcı isteğiyle 2026-10-22'de eklendi.
 - **Topluluk merkezli, X/Instagram kalıbı değil:** ana sayfa "Bugün" (canlı, yaklaşan organizasyonlar, sonra akış); içerik hafif tonlu zemin üzerinde beyaz kartlarda; profil ve grup başında kimlik kartı (taşan avatar yok).
 - Renkler **hafif tonlarda** mor, mavi, siyah ve beyaz:
   - Mor `#6E56CF`: ana aksiyon, soft zemin `#F3F0FF`
@@ -107,7 +107,7 @@ Platform ekibi (admin, moderatör, destek) için. Kullanıcı ve grup yönetimi,
 ```
 docs/        ARCHITECTURE.md (kurallar), ROADMAP.md (fazlar), DESIGN.md
 app/         apps/social_app, apps/admin_panel, packages/core, packages/design_system, packages/features/<modül>
-backend/     src/GrupX.Api, src/GrupX.SharedKernel, src/Modules/GrupX.Modules.<Ad>
+backend/     src/Gway.Api, src/Gway.SharedKernel, src/Modules/Gway.Modules.<Ad>
 supabase/    migrations/ (numaralı SQL), tests/database/ (pgTAP)
 ```
 
@@ -185,14 +185,14 @@ Fazların maddeleri ve ayrıntıları: `docs/ROADMAP.md`
 
 Yerel çalıştırma:
 - Repo kökü: `supabase start` (Docker gerekir), `supabase db reset`, `supabase test db`. Anahtarlar: `supabase status -o env`.
-- `backend/`: `dotnet build`, `dotnet test` (DB testleri için Supabase açık olmalı). API: `Supabase__ServiceRoleKey=<SERVICE_ROLE_KEY> ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5089 dotnet run --project src/GrupX.Api`
+- `backend/`: `dotnet build`, `dotnet test` (DB testleri için Supabase açık olmalı). API: `Supabase__ServiceRoleKey=<SERVICE_ROLE_KEY> ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5089 dotnet run --project src/Gway.Api`
 - `app/`: `dart run melos run analyze`, `dart run melos run test`. Uygulama: `flutter run -d chrome --web-port 3000 --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_PUBLISHABLE_KEY=<ANON_KEY> --dart-define=API_URL=http://localhost:5089` (admin paneli için `--web-port 3001`).
 - Doğrulama e-postaları yerelde Mailpit'e düşer: http://127.0.0.1:54324
 - Push: API'ye `Push__CredentialsPath=<Firebase servis hesabı JSON yolu>` verilir (yerelde `C:\Users\Fırat\.grupx\firebase-adminsdk.json`; repoya girmez). Yoksa push kapalıdır, bildirimler yalnızca uygulama içinde kalır. Uygulamanın Firebase yapılandırması `app/apps/social_app/lib/firebase_options.dart` ve `android/app/google-services.json`'dadır (`flutterfire configure` ile üretilir).
 - Moderasyon: süresi dolan dosyaları `ModerationMonitor` dakikada bir kapatır (`Moderation__MonitorInterval`, sıfır kapatır).
-- Canlı yayın: `docker run --rm -d --name grupx-livekit -p 7880:7880 -p 7881:7881 -p 7882:7882/udp livekit/livekit-server:v1.9.1 --dev --bind 0.0.0.0 --node-ip 127.0.0.1`. API'ye `LiveKit__ApiKey=devkey LiveKit__ApiSecret=secret` ortam değişkenleri verilir (adres `appsettings.Development.json`'da). Anahtarlar yoksa yayın 503 ile kapalıdır. Telefonda `adb reverse tcp:7880 tcp:7880` ve `tcp:7881` gerekir (ses TCP üzerinden akar).
+- Canlı yayın: `docker run --rm -d --name gway-livekit -p 7880:7880 -p 7881:7881 -p 7882:7882/udp livekit/livekit-server:v1.9.1 --dev --bind 0.0.0.0 --node-ip 127.0.0.1`. API'ye `LiveKit__ApiKey=devkey LiveKit__ApiSecret=secret` ortam değişkenleri verilir (adres `appsettings.Development.json`'da). Anahtarlar yoksa yayın 503 ile kapalıdır. Telefonda `adb reverse tcp:7880 tcp:7880` ve `tcp:7881` gerekir (ses TCP üzerinden akar).
 - Demo verisi: `supabase/seed.sql` (`supabase db reset` ile yüklenir; yalnızca yerel). Demo kullanıcı, platform yöneticisi, örnek hesaplar, gruplar (sahiplik, roller, bekleyen istek ve davet, askıdaki grup), paket ödemeleri ve destek mesajları içerir; giriş bilgileri dosyanın başında. pgTAP testleri seed verisinden bağımsızdır.
-- Telefona kurulan ev ağı APK'sı (kablo gerekmez, aynı Wi-Fi ve açık bilgisayar): sunucular bilgisayarın Wi-Fi adresiyle açılır (`ASPNETCORE_URLS=http://0.0.0.0:5089`, `LiveKit__Url=ws://<IP>:7880`, LiveKit `--node-ip <IP>`), APK `SUPABASE_URL=http://<IP>:54321` ve `API_URL=http://<IP>:5089` ile derlenir; şifresiz trafik yalnızca `--android-project-arg=lanHttp=true` ile derlenen APK'da açıktır (`network_security_config_lan.xml`, şu an `192.168.10.200`); Play sürümü yalnızca https kullanır. Kullanıcı adındaki `ı` yüzünden APK `subst G:` ile ASCII yoldan ve `--no-tree-shake-icons` ile derlenir. Paket adı 2026-10-27'den beri `com.grupx.app`, giriş dönüş adresi `com.grupx.app://auth-callback` (eski `com.grupx.social_app` telefonda ayrı uygulama olarak kalır; telefondan kaldırılmalı). Play yayını: `docs/PLAY_STORE.md`, sunucu: `docs/DEPLOY.md`.
+- Telefona kurulan ev ağı APK'sı (kablo gerekmez, aynı Wi-Fi ve açık bilgisayar): sunucular bilgisayarın Wi-Fi adresiyle açılır (`ASPNETCORE_URLS=http://0.0.0.0:5089`, `LiveKit__Url=ws://<IP>:7880`, LiveKit `--node-ip <IP>`), APK `SUPABASE_URL=http://<IP>:54321` ve `API_URL=http://<IP>:5089` ile derlenir; şifresiz trafik yalnızca `--android-project-arg=lanHttp=true` ile derlenen APK'da açıktır (`network_security_config_lan.xml`, şu an `192.168.10.200`); Play sürümü yalnızca https kullanır. Kullanıcı adındaki `ı` yüzünden APK `subst G:` ile ASCII yoldan ve `--no-tree-shake-icons` ile derlenir. Paket adı 2026-10-31'den beri `com.gway.app` (ad değişikliği; önce `com.grupx.app`, ondan önce `com.grupx.social_app`), giriş dönüş adresi `com.gway.app://auth-callback` (eski paketler telefonda ayrı uygulama olarak kalır; telefondan kaldırılmalı). Play yayını: `docs/PLAY_STORE.md`, sunucu: `docs/DEPLOY.md`.
 - Web'de rotalar hash ile açılır: `http://localhost:3000/#/g/doga.yuruyus`.
 - `db reset` veritabanı konteynerini yeniden başlatır; çalışan API'nin ilk isteği eski bağlantı yüzünden 500 dönebilir, sonrakiler normaldir.
 - Güvenlik doğrulaması (Faz 15.8, `docs/ARCHITECTURE.md` §3h): `security_settings.enforce` varsayılan kapalı, admin panelinden açılır. Twilio için `Security__Twilio__AccountSid/AuthToken/VerifyServiceSid` (isteğe bağlı `Security__Twilio__LookupLineType=true`). Anahtar yoksa Development ortamında SMS kodu API günlüğüne yazılır (`DEVELOPMENT SMS code`). Token hook'u `supabase/config.toml`'da açık; bulutta `supabase config push` ile ayrıca açılmalıdır.

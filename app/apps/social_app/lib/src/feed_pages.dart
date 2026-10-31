@@ -66,7 +66,7 @@ class _ProfilePosts extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GxSectionHeader(title: 'Gönderiler', actionLabel: isOwn ? 'Yeni gönderi' : null, onAction: create),
+        GwSectionHeader(title: 'Gönderiler', actionLabel: isOwn ? 'Yeni gönderi' : null, onAction: create),
         HighlightsRow(userId: profile.id, isOwn: isOwn),
         PostsSection(
           source: UserPosts(profile.id),
@@ -85,7 +85,7 @@ Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      GxSectionHeader(title: 'Gönderiler', actionLabel: canPublish ? 'Yeni gönderi' : null, onAction: create),
+      GwSectionHeader(title: 'Gönderiler', actionLabel: canPublish ? 'Yeni gönderi' : null, onAction: create),
       PostsSection(
         source: GroupPosts(group.id),
         emptyMessage: canPublish ? 'Grubun akışına ilk gönderiyi sen paylaş.' : 'Bu grupta henüz gönderi yok.',

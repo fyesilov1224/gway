@@ -20,7 +20,7 @@ class StatCard extends StatelessWidget {
   final String label;
   final int? value;
   final IconData icon;
-  final GxBadgeTone tone;
+  final GwBadgeTone tone;
   final bool selected;
 
   /// Null for a card that only shows a number.
@@ -33,12 +33,12 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final (background, foreground) = switch (tone) {
-      GxBadgeTone.primary => (GxColors.primarySoft, GxColors.primary),
-      GxBadgeTone.danger => (GxColors.errorSoft, GxColors.error),
-      GxBadgeTone.info => (GxColors.secondarySoft, GxColors.secondary),
-      GxBadgeTone.neutral => (GxColors.surfaceMuted, GxColors.textSecondary),
-      GxBadgeTone.warning => (GxColors.warningSoft, GxColors.warning),
-      GxBadgeTone.success => (GxColors.successSoft, GxColors.success),
+      GwBadgeTone.primary => (GwColors.primarySoft, GwColors.primary),
+      GwBadgeTone.danger => (GwColors.errorSoft, GwColors.error),
+      GwBadgeTone.info => (GwColors.secondarySoft, GwColors.secondary),
+      GwBadgeTone.neutral => (GwColors.surfaceMuted, GwColors.textSecondary),
+      GwBadgeTone.warning => (GwColors.warningSoft, GwColors.warning),
+      GwBadgeTone.success => (GwColors.successSoft, GwColors.success),
     };
     return Semantics(
       button: onTap != null,
@@ -46,36 +46,36 @@ class StatCard extends StatelessWidget {
       label: '$label: ${valueText ?? (value == null ? '-' : formatCount(value!))}',
       excludeSemantics: true,
       child: Material(
-        color: GxColors.background,
+        color: GwColors.background,
         shape: RoundedRectangleBorder(
-          borderRadius: GxRadius.lgAll,
-          side: selected ? const BorderSide(color: GxColors.primary, width: 1.5) : GxBorders.hairline,
+          borderRadius: GwRadius.lgAll,
+          side: selected ? const BorderSide(color: GwColors.primary, width: 1.5) : GwBorders.hairline,
         ),
         child: InkWell(
-          borderRadius: GxRadius.lgAll,
+          borderRadius: GwRadius.lgAll,
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(GxSpacing.md),
+            padding: const EdgeInsets.all(GwSpacing.md),
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label, style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
-                      const SizedBox(height: GxSpacing.xxs),
+                      Text(label, style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
+                      const SizedBox(height: GwSpacing.xxs),
                       switch ((valueText, value)) {
                         (final String text, _) => Text(text, style: textTheme.headlineMedium),
                         (_, final int v) => Text(formatCount(v), style: textTheme.headlineMedium),
-                        _ => const GxSkeleton(width: GxSpacing.xxl, height: GxSpacing.xl),
+                        _ => const GwSkeleton(width: GwSpacing.xxl, height: GwSpacing.xl),
                       },
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(GxSpacing.xs),
-                  decoration: BoxDecoration(color: background, borderRadius: GxRadius.mdAll),
-                  child: Icon(icon, color: foreground, size: GxSpacing.lg),
+                  padding: const EdgeInsets.all(GwSpacing.xs),
+                  decoration: BoxDecoration(color: background, borderRadius: GwRadius.mdAll),
+                  child: Icon(icon, color: foreground, size: GwSpacing.lg),
                 ),
               ],
             ),
@@ -97,11 +97,11 @@ class StatCardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= GxLayout.contentMaxWidth ? wideColumns : 2;
-        final width = (constraints.maxWidth - GxSpacing.md * (columns - 1)) / columns;
+        final columns = constraints.maxWidth >= GwLayout.contentMaxWidth ? wideColumns : 2;
+        final width = (constraints.maxWidth - GwSpacing.md * (columns - 1)) / columns;
         return Wrap(
-          spacing: GxSpacing.md,
-          runSpacing: GxSpacing.md,
+          spacing: GwSpacing.md,
+          runSpacing: GwSpacing.md,
           children: [for (final card in cards) SizedBox(width: width, child: card)],
         );
       },
@@ -146,10 +146,10 @@ class ListToolbar<T> extends StatelessWidget {
             : IconButton(tooltip: 'Aramayı temizle', icon: const Icon(Icons.close), onPressed: onClear),
       ),
     );
-    if (filters.isEmpty) return Padding(padding: const EdgeInsets.all(GxSpacing.md), child: search);
+    if (filters.isEmpty) return Padding(padding: const EdgeInsets.all(GwSpacing.md), child: search);
     final chips = Wrap(
-      spacing: GxSpacing.xs,
-      runSpacing: GxSpacing.xs,
+      spacing: GwSpacing.xs,
+      runSpacing: GwSpacing.xs,
       children: [
         for (final (value, label) in <(T?, String)>[(null, 'Tümü'), ...filters])
           ChoiceChip(
@@ -162,19 +162,19 @@ class ListToolbar<T> extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       child: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth >= GxLayout.contentMaxWidth
+        builder: (context, constraints) => constraints.maxWidth >= GwLayout.contentMaxWidth
             ? Row(
                 children: [
                   Expanded(child: search),
-                  const SizedBox(width: GxSpacing.md),
+                  const SizedBox(width: GwSpacing.md),
                   chips,
                 ],
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [search, const SizedBox(height: GxSpacing.sm), chips],
+                children: [search, const SizedBox(height: GwSpacing.sm), chips],
               ),
       ),
     );
@@ -205,13 +205,13 @@ class PageFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
       child: Row(
         children: [
           Expanded(
             child: Text(
               '$from–$to / $total $noun',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
           ),
           IconButton.outlined(
@@ -219,7 +219,7 @@ class PageFooter extends StatelessWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: page > 1 ? () => onPage(page - 1) : null,
           ),
-          const SizedBox(width: GxSpacing.xs),
+          const SizedBox(width: GwSpacing.xs),
           IconButton.outlined(
             tooltip: 'Sonraki sayfa',
             icon: const Icon(Icons.chevron_right),
@@ -235,7 +235,7 @@ class PageFooter extends StatelessWidget {
 class DetailBanner extends StatelessWidget {
   const DetailBanner({super.key, required this.tone, required this.icon, required this.title, this.body});
 
-  final GxBadgeTone tone;
+  final GwBadgeTone tone;
   final IconData icon;
   final String title;
   final String? body;
@@ -243,23 +243,23 @@ class DetailBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final (background, foreground) = tone == GxBadgeTone.danger
-        ? (GxColors.errorSoft, GxColors.error)
-        : (GxColors.surfaceMuted, GxColors.textPrimary);
+    final (background, foreground) = tone == GwBadgeTone.danger
+        ? (GwColors.errorSoft, GwColors.error)
+        : (GwColors.surfaceMuted, GwColors.textPrimary);
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.md),
-      decoration: BoxDecoration(color: background, borderRadius: GxRadius.lgAll),
+      padding: const EdgeInsets.all(GwSpacing.md),
+      decoration: BoxDecoration(color: background, borderRadius: GwRadius.lgAll),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: foreground),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: textTheme.titleMedium?.copyWith(color: foreground)),
-                if (body != null) Text(body!, style: textTheme.bodyMedium?.copyWith(color: GxColors.textPrimary)),
+                if (body != null) Text(body!, style: textTheme.bodyMedium?.copyWith(color: GwColors.textPrimary)),
               ],
             ),
           ),
@@ -279,16 +279,16 @@ class InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final labelText = Text(label, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary));
+    final labelText = Text(label, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary));
     final valueText = SelectableText(value, style: textTheme.bodyMedium);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
       child: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth >= GxLayout.formMaxWidth
+        builder: (context, constraints) => constraints.maxWidth >= GwLayout.formMaxWidth
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(width: GxSpacing.xxl * 3, child: labelText),
+                  SizedBox(width: GwSpacing.xxl * 3, child: labelText),
                   Expanded(child: valueText),
                 ],
               )
@@ -307,7 +307,7 @@ class InfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GxPanel(
+    return GwPanel(
       title: title,
       padding: EdgeInsets.zero,
       child: Column(
@@ -349,8 +349,8 @@ class HistoryPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
-    return GxPanel(
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
+    return GwPanel(
       title: 'İşlem geçmişi',
       child: history.isEmpty
           ? Text(emptyText, style: secondary)
@@ -364,18 +364,18 @@ class HistoryPanel extends StatelessWidget {
                         Column(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(GxSpacing.xxs + 2),
-                              decoration: const BoxDecoration(color: GxColors.primarySoft, shape: BoxShape.circle),
-                              child: Icon(labels[h.action]?.$2 ?? Icons.history, size: GxSpacing.md, color: GxColors.primary),
+                              padding: const EdgeInsets.all(GwSpacing.xxs + 2),
+                              decoration: const BoxDecoration(color: GwColors.primarySoft, shape: BoxShape.circle),
+                              child: Icon(labels[h.action]?.$2 ?? Icons.history, size: GwSpacing.md, color: GwColors.primary),
                             ),
                             if (i < history.length - 1)
-                              const Expanded(child: VerticalDivider(width: GxSpacing.md, thickness: 1)),
+                              const Expanded(child: VerticalDivider(width: GwSpacing.md, thickness: 1)),
                           ],
                         ),
-                        const SizedBox(width: GxSpacing.sm),
+                        const SizedBox(width: GwSpacing.sm),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(bottom: GxSpacing.md),
+                            padding: const EdgeInsets.only(bottom: GwSpacing.md),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

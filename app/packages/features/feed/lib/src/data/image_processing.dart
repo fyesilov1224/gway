@@ -11,7 +11,7 @@ typedef _Job = ({Uint8List bytes, Rect crop, int maxSide, int? thumbSide});
 typedef _Result = ({Uint8List bytes, int width, int height, Uint8List? thumb});
 
 /// Crops and resizes a picked photo on the device: EXIF rotation applied, other EXIF
-/// (location) dropped, JPEG at [GxMedia.jpegQuality]. With [thumbSide] also a small copy.
+/// (location) dropped, JPEG at [GwMedia.jpegQuality]. With [thumbSide] also a small copy.
 Future<NewMedia> renderPhoto(NewMedia source, Rect crop, {required int maxSide, int? thumbSide}) async {
   final r = await compute(_render, (bytes: source.bytes, crop: crop, maxSide: maxSide, thumbSide: thumbSide));
   return NewMedia(
@@ -45,9 +45,9 @@ _Result _render(_Job job) {
 
   final main = resized(job.maxSide);
   return (
-    bytes: img.encodeJpg(main, quality: GxMedia.jpegQuality),
+    bytes: img.encodeJpg(main, quality: GwMedia.jpegQuality),
     width: main.width,
     height: main.height,
-    thumb: job.thumbSide == null ? null : img.encodeJpg(resized(job.thumbSide!), quality: GxMedia.jpegQuality),
+    thumb: job.thumbSide == null ? null : img.encodeJpg(resized(job.thumbSide!), quality: GwMedia.jpegQuality),
   );
 }

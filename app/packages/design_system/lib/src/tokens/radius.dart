@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 
 /// Corner radius tokens. See docs/DESIGN.md §4.
-abstract final class GxRadius {
+abstract final class GwRadius {
   static const double sm = 8;
   static const double md = 12;
   static const double lg = 16;

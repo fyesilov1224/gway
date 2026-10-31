@@ -45,29 +45,29 @@ class PlanScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: Navigator.canPop(context) ? 0 : GxSpacing.md,
+        titleSpacing: Navigator.canPop(context) ? 0 : GwSpacing.md,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Paket', style: textTheme.titleMedium),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
       ),
       body: RefreshIndicator(
         onRefresh: () async => refreshGroupPlan(ref, groupId),
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
           children: [
             Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: purchases ? GxLayout.dashboardMaxWidth : GxLayout.contentMaxWidth),
+                constraints: BoxConstraints(maxWidth: purchases ? GwLayout.dashboardMaxWidth : GwLayout.contentMaxWidth),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (onContinue case final go?) ...[
-                      GxPanel(
+                      GwPanel(
                         title: 'Grubun hazır',
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,41 +79,41 @@ class PlanScreen extends ConsumerWidget {
                                   : 'Grubun Ücretsiz paketle başladı. Paketlerin limitleri aşağıda.',
                               style: textTheme.bodyLarge,
                             ),
-                            const SizedBox(height: GxSpacing.md),
-                            GxButton(
+                            const SizedBox(height: GwSpacing.md),
+                            GwButton(
                               label: purchases ? 'Ücretsiz ile devam et' : 'Gruba git',
-                              variant: purchases ? GxButtonVariant.secondary : GxButtonVariant.primary,
+                              variant: purchases ? GwButtonVariant.secondary : GwButtonVariant.primary,
                               expand: true,
                               onPressed: go,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: GxSpacing.md),
+                      const SizedBox(height: GwSpacing.md),
                     ],
                     if (orderId != null && canManage) ...[
                       OrderResult(orderId: orderId!, paidText: 'Ödeme alındı. Paketin etkin.', onPaid: () => refreshGroupPlan(ref, groupId)),
-                      const SizedBox(height: GxSpacing.md),
+                      const SizedBox(height: GwSpacing.md),
                     ],
                     switch (plan) {
                       AsyncData(value: final p?) => _CurrentPlan(plan: p, groupId: groupId, showTimeline: canManage),
-                      AsyncData() => GxEmptyState(
+                      AsyncData() => GwEmptyState(
                           icon: planIcon,
                           message: 'Grubun paketini yalnızca grubun üyeleri görebilir.',
                           actionLabel: 'Geri dön',
                           onAction: () => Navigator.of(context).maybePop(),
                         ),
-                      AsyncError(:final error) => GxErrorState(
+                      AsyncError(:final error) => GwErrorState(
                           message: userMessageOf(error),
                           onRetry: () => ref.invalidate(groupPlanProvider(groupId)),
                         ),
-                      _ => const GxSkeleton(height: GxSpacing.xxl * 4),
+                      _ => const GwSkeleton(height: GwSpacing.xxl * 4),
                     },
                     if (purchases && plan.value != null) ...[
-                      const SizedBox(height: GxSpacing.xl),
+                      const SizedBox(height: GwSpacing.xl),
                       _PlanChoices(groupId: groupId, handle: handle),
                     ] else if (canManage && plan.value != null) ...[
-                      const SizedBox(height: GxSpacing.md),
+                      const SizedBox(height: GwSpacing.md),
                       _OtherPlans(current: plan.value!.plan.slug),
                     ],
                   ],
@@ -141,9 +141,9 @@ class _CurrentPlan extends ConsumerWidget {
     final names = {for (final p in ref.watch(plansProvider).value ?? const <Plan>[]) p.slug: p.name};
     final upcoming = timeline.where((s) => s.startsAt.isAfter(DateTime.now())).toList();
 
-    return GxPanel(
+    return GwPanel(
       title: 'Mevcut paket',
-      trailing: GxBadge(plan.plan.name, tone: plan.plan.isFree ? GxBadgeTone.neutral : GxBadgeTone.primary),
+      trailing: GwBadge(plan.plan.name, tone: plan.plan.isFree ? GwBadgeTone.neutral : GwBadgeTone.primary),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -153,12 +153,12 @@ class _CurrentPlan extends ConsumerWidget {
                 : 'Bu dönem ${formatDateTr(plan.currentPeriodEndsAt!)} tarihinde bitiyor.',
             style: textTheme.bodyLarge,
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           MemberUsage(plan: plan),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           PlanLimits(plan: plan.plan),
           if (plan.isOverLimit || plan.isFull) ...[
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             PlanNotice(
               icon: Icons.group_off_outlined,
               danger: true,
@@ -167,24 +167,24 @@ class _CurrentPlan extends ConsumerWidget {
                   : 'Grup üye limitine ulaştı. Yeni üye almak için daha büyük bir pakete geçebilirsin.',
             ),
           ] else if (showTimeline && plan.renewalDue(DateTime.now())) ...[
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             PlanNotice(
               icon: Icons.schedule,
               text: 'Paketin ${formatDateTr(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
             ),
           ],
           if (upcoming.isNotEmpty) ...[
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             const Divider(),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Text('Sıradaki dönemler', style: textTheme.titleSmall),
             for (final s in upcoming)
               Padding(
-                padding: const EdgeInsets.only(top: GxSpacing.xs),
+                padding: const EdgeInsets.only(top: GwSpacing.xs),
                 child: Text(
-                  '${names[s.planSlug] ?? s.planSlug} (${s.period?.label.toLowerCase() ?? 'GrupX tanımladı'}): '
+                  '${names[s.planSlug] ?? s.planSlug} (${s.period?.label.toLowerCase() ?? 'GWAY tanımladı'}): '
                   '${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
-                  style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
           ],
@@ -206,15 +206,15 @@ class _OtherPlans extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final others = [for (final p in ref.watch(plansProvider).value ?? const <Plan>[]) if (p.slug != current) p];
     if (others.isEmpty) return const SizedBox.shrink();
-    return GxPanel(
+    return GwPanel(
       title: 'Paketler',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final (i, p) in others.indexed) ...[
-            if (i > 0) const Divider(height: GxSpacing.lg),
+            if (i > 0) const Divider(height: GwSpacing.lg),
             Text(p.name, style: textTheme.titleMedium),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             PlanLimits(plan: p),
           ],
         ],
@@ -248,8 +248,8 @@ class _PlanChoicesState extends ConsumerState<_PlanChoices> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Wrap(
-              spacing: GxSpacing.md,
-              runSpacing: GxSpacing.sm,
+              spacing: GwSpacing.md,
+              runSpacing: GwSpacing.sm,
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
@@ -265,17 +265,17 @@ class _PlanChoicesState extends ConsumerState<_PlanChoices> {
                 ),
               ],
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Text(
               'Ödeme ${o.market.provider.label} ile ${o.market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır; '
               'bulunduğun ülkeye göre belirlenir. Otomatik yenileme yoktur.',
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             if (!o.purchasesEnabled) ...[
-              const SizedBox(height: GxSpacing.md),
-              const GxFormMessage('Ödeme şu anda alınamıyor. Lütfen daha sonra tekrar dene.', kind: GxFormMessageKind.info),
+              const SizedBox(height: GwSpacing.md),
+              const GwFormMessage('Ödeme şu anda alınamıyor. Lütfen daha sonra tekrar dene.', kind: GwFormMessageKind.info),
             ],
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             _PlanGrid(
               cards: [
                 for (final plan in p)
@@ -294,13 +294,13 @@ class _PlanChoicesState extends ConsumerState<_PlanChoices> {
             ),
           ],
         ),
-      (AsyncError(:final error), _) || (_, AsyncError(:final error)) => GxErrorState(
+      (AsyncError(:final error), _) || (_, AsyncError(:final error)) => GwErrorState(
           message: userMessageOf(error),
           onRetry: () => ref
             ..invalidate(offerProvider(widget.groupId))
             ..invalidate(plansProvider),
         ),
-      _ => const GxSkeleton(height: GxSpacing.xxl * 6),
+      _ => const GwSkeleton(height: GwSpacing.xxl * 6),
     };
   }
 }
@@ -316,11 +316,11 @@ class _PlanGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < GxLayout.wideBreakpoint) {
+        if (constraints.maxWidth < GwLayout.wideBreakpoint) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final c in cards) Padding(padding: const EdgeInsets.only(bottom: GxSpacing.md), child: c(false)),
+              for (final c in cards) Padding(padding: const EdgeInsets.only(bottom: GwSpacing.md), child: c(false)),
             ],
           );
         }
@@ -329,7 +329,7 @@ class _PlanGrid extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (var i = 0; i < cards.length; i++) ...[
-                if (i > 0) const SizedBox(width: GxSpacing.md),
+                if (i > 0) const SizedBox(width: GwSpacing.md),
                 Expanded(child: cards[i](true)),
               ],
             ],
@@ -369,11 +369,11 @@ class _PlanCard extends StatelessWidget {
     final o = option;
 
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.lg),
+      padding: const EdgeInsets.all(GwSpacing.lg),
       decoration: BoxDecoration(
-        color: GxColors.background,
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(isCurrent ? const BorderSide(color: GxColors.primary) : GxBorders.hairline),
+        color: GwColors.background,
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(isCurrent ? const BorderSide(color: GwColors.primary) : GwBorders.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -381,26 +381,26 @@ class _PlanCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text(plan.name, style: textTheme.titleLarge)),
-              if (isCurrent) const GxBadge('Mevcut paket', tone: GxBadgeTone.primary),
+              if (isCurrent) const GwBadge('Mevcut paket', tone: GwBadgeTone.primary),
             ],
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Text.rich(
             TextSpan(children: [
               TextSpan(text: formatMoney(o?.amountMinor ?? 0, currency), style: textTheme.headlineMedium),
-              TextSpan(text: ' / ${(o?.period ?? PlanPeriod.month).unit}', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+              TextSpan(text: ' / ${(o?.period ?? PlanPeriod.month).unit}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             ]),
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           PlanLimits(plan: plan),
           if (o != null) ...[
-            const SizedBox(height: GxSpacing.md),
-            Text(_when(o), style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+            const SizedBox(height: GwSpacing.md),
+            Text(_when(o), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             if (fillHeight) const Spacer(),
-            const SizedBox(height: GxSpacing.md),
-            GxButton(
+            const SizedBox(height: GwSpacing.md),
+            GwButton(
               label: o.available ? _action(o) : 'Şimdilik alınamaz',
-              variant: o.change == PlanChange.upgrade ? GxButtonVariant.primary : GxButtonVariant.secondary,
+              variant: o.change == PlanChange.upgrade ? GwButtonVariant.primary : GwButtonVariant.secondary,
               expand: true,
               onPressed: enabled && o.available ? onSelect : null,
             ),
@@ -481,15 +481,15 @@ class _OrderResultState extends ConsumerState<OrderResult> {
     final waitedLong = _polls >= _maxPolls;
 
     return switch (order.status) {
-      OrderStatus.pending => GxFormMessage(
+      OrderStatus.pending => GwFormMessage(
           waitedLong
               ? 'Ödeme onayı henüz gelmedi. Ödemen alındıysa paketin birkaç dakika içinde etkinleşir; bu sayfayı sonra yenileyebilirsin.'
               : 'Ödemen onaylanıyor. Bu birkaç saniye sürebilir.',
-          kind: GxFormMessageKind.info,
+          kind: GwFormMessageKind.info,
         ),
       OrderStatus.paid => PlanNotice(icon: Icons.check_circle_outline, text: widget.paidText),
-      OrderStatus.failed => const GxFormMessage('Ödeme tamamlanamadı. Tekrar deneyebilir ya da başka bir kart kullanabilirsin.'),
-      OrderStatus.refunded => const GxFormMessage('Bu ödeme iade edildi.', kind: GxFormMessageKind.info),
+      OrderStatus.failed => const GwFormMessage('Ödeme tamamlanamadı. Tekrar deneyebilir ya da başka bir kart kullanabilirsin.'),
+      OrderStatus.refunded => const GwFormMessage('Bu ödeme iade edildi.', kind: GwFormMessageKind.info),
     };
   }
 }

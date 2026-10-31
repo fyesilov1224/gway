@@ -70,13 +70,13 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Yorumlar')),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.feedMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.feedMaxWidth,
         child: Column(
           children: [
             Expanded(
               child: switch (comments) {
-                AsyncData(:final value) when value.isEmpty => GxEmptyState(
+                AsyncData(:final value) when value.isEmpty => GwEmptyState(
                     icon: Icons.mode_comment_outlined,
                     message: switch (post) {
                       Post(commentsDisabled: true) => 'Bu gönderide yorumlar kapalı.',
@@ -91,7 +91,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 AsyncData(:final value) => RefreshIndicator(
                     onRefresh: () => ref.refresh(commentsProvider(widget.postId).future),
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(vertical: GxSpacing.xs),
+                      padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
                       children: [
                         if (post != null && post.caption.isNotEmpty) ...[
                           _CaptionRow(post: post),
@@ -106,7 +106,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           ),
                           for (final r in c.replies)
                             Padding(
-                              padding: const EdgeInsets.only(left: GxSpacing.xxl),
+                              padding: const EdgeInsets.only(left: GwSpacing.xxl),
                               child: _CommentRow(
                                 comment: r,
                                 canDelete: r.author.id == me || (post?.canManage ?? false),
@@ -119,7 +119,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                     ),
                   ),
                 AsyncError(:final error) =>
-                  GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(commentsProvider(widget.postId))),
+                  GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(commentsProvider(widget.postId))),
                 _ => const Center(child: CircularProgressIndicator()),
               },
             ),
@@ -134,11 +134,11 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
   Widget _composer(Post post) {
     final textTheme = Theme.of(context).textTheme;
     return DecoratedBox(
-      decoration: const BoxDecoration(border: Border(top: GxBorders.hairline), color: GxColors.background),
+      decoration: const BoxDecoration(border: Border(top: GwBorders.hairline), color: GwColors.background),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xs, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -147,11 +147,11 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                   children: [
                     Expanded(
                       child: Text('@${reply.author.username} kullanıcısına yanıt veriyorsun',
-                          style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                          style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                     ),
                     IconButton(
                       tooltip: 'Yanıtı iptal et',
-                      icon: const Icon(Icons.close, size: GxSpacing.md),
+                      icon: const Icon(Icons.close, size: GwSpacing.md),
                       onPressed: () => setState(() {
                         _replyTo = null;
                         _text.clear();
@@ -173,7 +173,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                       onSubmitted: (_) => _send(post),
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.xs),
+                  const SizedBox(width: GwSpacing.xs),
                   TextButton(onPressed: _sending ? null : () => _send(post), child: const Text('Paylaş')),
                 ],
               ),
@@ -195,17 +195,17 @@ class _CaptionRow extends ConsumerWidget {
     final links = ref.read(feedLinksProvider);
     final group = post.group;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GxAvatar(
+          GwAvatar(
             name: group?.name ?? post.author?.displayName ?? '?',
-            shape: group == null ? GxAvatarShape.user : GxAvatarShape.group,
+            shape: group == null ? GwAvatarShape.user : GwAvatarShape.group,
             imageUrl: group?.logoUrl ?? post.author?.avatarUrl,
-            size: GxAvatarSize.sm,
+            size: GwAvatarSize.sm,
           ),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: FeedRichText(
               text: post.caption,
@@ -269,12 +269,12 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Yorum silinsin mi?'),
         content: const Text('Yorum ve yanıtları kalıcı olarak silinir.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -297,28 +297,28 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
   Widget build(BuildContext context) {
     final c = widget.comment;
     final textTheme = Theme.of(context).textTheme;
-    final muted = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary);
+    final muted = textTheme.labelMedium?.copyWith(color: GwColors.textSecondary);
     final links = ref.read(feedLinksProvider);
     return InkWell(
       onLongPress: widget.canDelete ? _delete : null,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.xxs, GxSpacing.xs),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xxs, GwSpacing.xs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InkWell(
               onTap: () => links.openProfile(context, c.author.username),
               customBorder: const CircleBorder(),
-              child: GxAvatar(name: c.author.displayName, shape: GxAvatarShape.user, imageUrl: c.author.avatarUrl, size: GxAvatarSize.sm),
+              child: GwAvatar(name: c.author.displayName, shape: GwAvatarShape.user, imageUrl: c.author.avatarUrl, size: GwAvatarSize.sm),
             ),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FeedRichText(text: c.body, lead: c.author.username, onLeadTap: () => links.openProfile(context, c.author.username)),
                   Wrap(
-                    spacing: GxSpacing.sm,
+                    spacing: GwSpacing.sm,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(formatAgoTr(c.createdAt), style: muted),
@@ -326,19 +326,19 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
                       if (widget.onReply != null)
                         TextButton(
                           onPressed: widget.onReply,
-                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
                           child: const Text('Yanıtla'),
                         ),
                       if (widget.canDelete)
                         TextButton(
                           onPressed: _delete,
-                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
                           child: const Text('Sil'),
                         ),
                       if (c.author.id != ref.read(currentUserIdProvider))
                         TextButton(
                           onPressed: () => ref.read(reportLauncherProvider)(context, ReportTarget.comment(c.id)),
-                          style: TextButton.styleFrom(foregroundColor: GxColors.textSecondary, textStyle: textTheme.labelMedium),
+                          style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
                           child: const Text('Şikayet et'),
                         ),
                     ],
@@ -351,8 +351,8 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
               onPressed: _toggleLike,
               icon: Icon(
                 _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                size: GxSpacing.md,
-                color: _liked ? GxColors.like : GxColors.textSecondary,
+                size: GwSpacing.md,
+                color: _liked ? GwColors.like : GwColors.textSecondary,
               ),
             ),
           ],
@@ -370,23 +370,23 @@ class _ReactOnly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-        decoration: const BoxDecoration(color: GxColors.surface, border: Border(top: GxBorders.hairline)),
+        decoration: const BoxDecoration(color: GwColors.surface, border: Border(top: GwBorders.hairline)),
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.only(top: GxSpacing.sm),
+            padding: const EdgeInsets.only(top: GwSpacing.sm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+                  padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
                   child: Text(
                     'Bu paylaşıma şu anda yorum yazamazsın. Emojiyle tepki bırakabilirsin.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                   ),
                 ),
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
                 PostReactions(post: post),
               ],
             ),

@@ -4,9 +4,9 @@ import '../tokens/colors.dart';
 import '../tokens/radius.dart';
 import '../tokens/spacing.dart';
 
-/// "CANLI" on the purple→blue gradient; the gradient is reserved for this and [GxLiveButton].
-class GxLiveBadge extends StatelessWidget {
-  const GxLiveBadge({super.key, this.label = 'CANLI'});
+/// "CANLI" on the purple→blue gradient; the gradient is reserved for this and [GwLiveButton].
+class GwLiveBadge extends StatelessWidget {
+  const GwLiveBadge({super.key, this.label = 'CANLI'});
 
   final String label;
 
@@ -15,12 +15,12 @@ class GxLiveBadge extends StatelessWidget {
         label: 'Canlı yayın',
         excludeSemantics: true,
         child: DecoratedBox(
-          decoration: const BoxDecoration(gradient: GxColors.liveGradient, borderRadius: GxRadius.smAll),
+          decoration: const BoxDecoration(gradient: GwColors.liveGradient, borderRadius: GwRadius.smAll),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs / 2),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs / 2),
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GxColors.onPrimary, fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GwColors.onPrimary, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -28,8 +28,8 @@ class GxLiveBadge extends StatelessWidget {
 }
 
 /// The "start live" action on the live gradient.
-class GxLiveButton extends StatelessWidget {
-  const GxLiveButton({super.key, required this.label, required this.onPressed, this.icon = Icons.mic_rounded, this.expand = false});
+class GwLiveButton extends StatelessWidget {
+  const GwLiveButton({super.key, required this.label, required this.onPressed, this.icon = Icons.mic_rounded, this.expand = false});
 
   final String label;
   final VoidCallback? onPressed;
@@ -43,30 +43,30 @@ class GxLiveButton extends StatelessWidget {
       type: MaterialType.transparency,
       child: Ink(
         decoration: BoxDecoration(
-          gradient: enabled ? GxColors.liveGradient : null,
-          color: enabled ? null : GxColors.surfaceMuted,
-          borderRadius: GxRadius.mdAll,
+          gradient: enabled ? GwColors.liveGradient : null,
+          color: enabled ? null : GwColors.surfaceMuted,
+          borderRadius: GwRadius.mdAll,
         ),
         child: InkWell(
-          borderRadius: GxRadius.mdAll,
+          borderRadius: GwRadius.mdAll,
           onTap: onPressed,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: GxSpacing.buttonHeight),
+            constraints: const BoxConstraints(minHeight: GwSpacing.buttonHeight),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
               child: Row(
                 mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, color: enabled ? GxColors.onPrimary : GxColors.textSecondary, size: GxSpacing.md + GxSpacing.xxs),
-                  const SizedBox(width: GxSpacing.xs),
+                  Icon(icon, color: enabled ? GwColors.onPrimary : GwColors.textSecondary, size: GwSpacing.md + GwSpacing.xxs),
+                  const SizedBox(width: GwSpacing.xs),
                   Flexible(
                     child: Text(
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: enabled ? GxColors.onPrimary : GxColors.textSecondary,
+                            color: enabled ? GwColors.onPrimary : GwColors.textSecondary,
                           ),
                     ),
                   ),

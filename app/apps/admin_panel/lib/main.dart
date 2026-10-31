@@ -19,7 +19,7 @@ Future<void> main() async {
       overrides: [
         appConfigProvider.overrideWithValue(config),
         authRedirectUrlProvider.overrideWithValue(
-          kIsWeb ? Uri.base.origin : 'com.grupx.admin://auth-callback',
+          kIsWeb ? Uri.base.origin : 'com.gway.admin://auth-callback',
         ),
       ],
       child: const AdminPanelApp(),

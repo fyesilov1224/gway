@@ -46,7 +46,7 @@ Future<List<String>> _pumpMap(WidgetTester tester, {MapItems? items}) async {
       }),
     ],
     child: MaterialApp(
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       home: DiscoverMapScreen(onOpenGroup: (_, handle) => opened.add(handle)),
     ),
   ));
@@ -136,7 +136,7 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [mapTilesProvider.overrideWithValue(null)],
       child: MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: MeetingPointField(value: picked, onChanged: (p) => picked = p),
@@ -147,8 +147,8 @@ void main() {
     await tester.tap(find.text('Buluşma noktası (isteğe bağlı)'));
     await tester.pumpAndSettle();
 
-    final choose = find.widgetWithText(GxButton, 'Bu noktayı seç');
-    expect(tester.widget<GxButton>(choose).onPressed, isNull);
+    final choose = find.widgetWithText(GwButton, 'Bu noktayı seç');
+    expect(tester.widget<GwButton>(choose).onPressed, isNull);
     await tester.tap(find.byType(FlutterMap));
     // A single tap is told apart from a double tap after a short wait.
     await tester.pump(const Duration(milliseconds: 500));

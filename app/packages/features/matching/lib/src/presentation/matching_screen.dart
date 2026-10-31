@@ -59,13 +59,13 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
             ),
             IconButton(
               tooltip: 'Paketler',
-              color: GxColors.primary,
+              color: GwColors.primary,
               icon: Icon(status?.hasAnyPackage ?? false ? Icons.workspace_premium_rounded : Icons.workspace_premium_outlined),
               onPressed: () => context.push(MatchingRoutes.packages),
             ),
             PopupMenuButton<void>(
               tooltip: 'Diğer',
-              icon: Badge(isLabelVisible: !filters.isEmpty, smallSize: GxSpacing.xs, child: const Icon(Icons.more_vert)),
+              icon: Badge(isLabelVisible: !filters.isEmpty, smallSize: GwSpacing.xs, child: const Icon(Icons.more_vert)),
               itemBuilder: (_) => [
                 PopupMenuItem(
                   onTap: () => status?.has(MatchFeature.unlimited) ?? false
@@ -86,13 +86,13 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
           ],
         ],
       ),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: switch (profile) {
           AsyncData(value: null) => const _Intro(),
           AsyncData(:final value?) => _body(value),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myMatchProfileProvider)),
-          _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 8)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myMatchProfileProvider)),
+          _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 8)),
         },
       ),
     );
@@ -131,7 +131,7 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
     final modes = profile.modes;
     final mode = _mode != null && modes.contains(_mode) ? _mode! : modes.first;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, GxSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.sm),
       child: Column(
         children: [
           if (modes.length > 1) ...[
@@ -147,7 +147,7 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
               selected: {mode},
               onSelectionChanged: (s) => setState(() => _mode = s.first),
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
           ],
           Expanded(child: _Deck(key: ValueKey(mode), mode: mode, openChat: widget.openChat)),
         ],
@@ -232,8 +232,8 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
     _busy = true;
     final width = MediaQuery.sizeOf(context).width;
     await _animateTo(switch (kind) {
-      SwipeKind.like => Offset(width * 1.5, _drag.dy + GxSpacing.xl),
-      SwipeKind.pass => Offset(-width * 1.5, _drag.dy + GxSpacing.xl),
+      SwipeKind.like => Offset(width * 1.5, _drag.dy + GwSpacing.xl),
+      SwipeKind.pass => Offset(-width * 1.5, _drag.dy + GwSpacing.xl),
       SwipeKind.superLike => Offset(_drag.dx, -MediaQuery.sizeOf(context).height),
     }, curve: Curves.easeIn);
     final pending = ref.read(deckProvider(widget.mode).notifier).swipe(card, kind);
@@ -325,7 +325,7 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
     final Widget stack = switch (deck) {
       AsyncData() when top == null => Center(
           child: SingleChildScrollView(
-            child: GxEmptyState(
+            child: GwEmptyState(
               icon: Icons.travel_explore_outlined,
               message: filters.isEmpty
                   ? 'Şimdilik gösterecek kimse kalmadı. Yeni gruplara katıldıkça ve insanlar eşleşmeyi açtıkça burası dolar.'
@@ -337,15 +337,15 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
             ),
           ),
         ),
-      AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(deckProvider(widget.mode))),
+      AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(deckProvider(widget.mode))),
       AsyncData() => LayoutBuilder(builder: (context, size) => _cards(cards, size)),
-      _ => const GxSkeleton(height: double.infinity),
+      _ => const GwSkeleton(height: double.infinity),
     };
 
     return Column(
       children: [
         Expanded(child: stack),
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         _ActionBar(
           status: status,
           enabled: top != null && !_busy,
@@ -356,7 +356,7 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
           onBoost: () => _boost(status),
         ),
         if (status != null) ...[
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           Text(
             switch (status.likesLeft) {
               null => 'Sınırsız beğeni · ${status.superLikesLeft} süper beğeni hakkın var.',
@@ -364,7 +364,7 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
               final n => 'Bugün $n beğeni ve ${status.superLikesLeft} süper beğeni hakkın var.',
             },
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
         ],
       ],
@@ -443,7 +443,7 @@ class _ActionBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        RoundAction(icon: Icons.replay_rounded, color: GxColors.warning, tooltip: 'Geri al', onPressed: onRewind),
+        RoundAction(icon: Icons.replay_rounded, color: GwColors.warning, tooltip: 'Geri al', onPressed: onRewind),
         RoundAction(
           icon: Icons.close_rounded,
           color: swipeColor(SwipeKind.pass),
@@ -467,7 +467,7 @@ class _ActionBar extends StatelessWidget {
         ),
         RoundAction(
           icon: Icons.bolt_rounded,
-          color: GxColors.primary,
+          color: GwColors.primary,
           tooltip: 'Öne çık',
           filled: boosting,
           onPressed: onBoost,
@@ -500,18 +500,18 @@ class RoundAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = large ? GxSpacing.xxl + GxSpacing.md : GxSpacing.xxl;
+    final size = large ? GwSpacing.xxl + GwSpacing.md : GwSpacing.xxl;
     final button = SizedBox.square(
       dimension: size,
       child: IconButton(
         tooltip: tooltip,
         onPressed: onPressed,
-        iconSize: large ? GxSpacing.xl : GxSpacing.lg,
+        iconSize: large ? GwSpacing.xl : GwSpacing.lg,
         style: IconButton.styleFrom(
-          backgroundColor: filled ? color : GxColors.background,
-          foregroundColor: filled ? GxColors.onPrimary : color,
+          backgroundColor: filled ? color : GwColors.background,
+          foregroundColor: filled ? GwColors.onPrimary : color,
           disabledForegroundColor: color.withValues(alpha: 0.35),
-          side: const BorderSide(color: GxColors.border),
+          side: const BorderSide(color: GwColors.border),
           shape: const CircleBorder(),
         ),
         icon: Icon(icon),
@@ -529,35 +529,35 @@ class _Intro extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     Widget point(IconData icon, String text) => Padding(
-          padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+          padding: const EdgeInsets.only(bottom: GwSpacing.sm),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: GxColors.primary),
-              const SizedBox(width: GxSpacing.sm),
+              Icon(icon, color: GwColors.primary),
+              const SizedBox(width: GwSpacing.sm),
               Expanded(child: Text(text, style: textTheme.bodyMedium)),
             ],
           ),
         );
     return ListView(
-      padding: const EdgeInsets.all(GxSpacing.page),
+      padding: const EdgeInsets.all(GwSpacing.page),
       children: [
-        GxCard(
-          padding: const EdgeInsets.all(GxSpacing.lg),
+        GwCard(
+          padding: const EdgeInsets.all(GwSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Ortak gruplarından yeni insanlarla tanış', style: textTheme.headlineSmall),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               point(Icons.groups_2_outlined, 'Yalnızca üye olduğun ya da takip ettiğin gruplardaki, eşleşmeyi açmış kişileri görürsün.'),
               point(Icons.swipe_rounded, 'Kartı sağa kaydır beğen, sola kaydır geç, yukarı kaydır süper beğen.'),
               point(Icons.favorite_border_rounded, 'İkiniz de birbirinizi beğenince eşleşirsiniz. Eşleştiğin kişiye Eşleşme Sohbeti paketiyle yazarsın.'),
               point(Icons.people_outline, 'Arkadaş ve Sevgili ayrı modlardır; istediğini ya da ikisini seçersin.'),
               point(Icons.lock_outline, 'Profilin yalnızca eşleşmeyi açanlara görünür. İstediğin an duraklatır ya da tamamen silersin.'),
-              const SizedBox(height: GxSpacing.md),
-              GxButton(label: 'Eşleşme profilimi oluştur', expand: true, onPressed: () => context.push(MatchingRoutes.setup)),
-              const SizedBox(height: GxSpacing.sm),
-              Text('Eşleşme 18 yaşından büyükler içindir.', style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              const SizedBox(height: GwSpacing.md),
+              GwButton(label: 'Eşleşme profilimi oluştur', expand: true, onPressed: () => context.push(MatchingRoutes.setup)),
+              const SizedBox(height: GwSpacing.sm),
+              Text('Eşleşme 18 yaşından büyükler içindir.', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
         ),
@@ -576,17 +576,17 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(GxSpacing.page),
-        child: GxCard(
-          padding: const EdgeInsets.all(GxSpacing.lg),
+        padding: const EdgeInsets.all(GwSpacing.page),
+        child: GwCard(
+          padding: const EdgeInsets.all(GwSpacing.lg),
           child: Column(
             children: [
-              Icon(icon, size: GxSpacing.xxl, color: GxColors.primary),
-              const SizedBox(height: GxSpacing.md),
+              Icon(icon, size: GwSpacing.xxl, color: GwColors.primary),
+              const SizedBox(height: GwSpacing.md),
               Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
               if (actionLabel != null) ...[
-                const SizedBox(height: GxSpacing.md),
-                GxButton(label: actionLabel!, onPressed: onAction),
+                const SizedBox(height: GwSpacing.md),
+                GwButton(label: actionLabel!, onPressed: onAction),
               ],
             ],
           ),

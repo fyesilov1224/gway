@@ -75,12 +75,12 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         actions: [
           ...widget.actions,
           Padding(
-            padding: const EdgeInsets.only(right: GxSpacing.sm),
-            child: GxButton(label: 'Grup oluştur', icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),
+            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            child: GwButton(label: 'Grup oluştur', icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),
           ),
         ],
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () async {
             ref
@@ -89,11 +89,11 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               ..invalidate(myInvitationsProvider);
           },
           child: ListView(
-            padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+            padding: const EdgeInsets.only(bottom: GwSpacing.xl),
             children: [
               const _InvitationsPanel(),
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
                 child: SegmentedButton<_Tab>(
                   showSelectedIcon: false,
                   // Labels only, on one line: three segments with icons wrap on a phone at large text sizes.
@@ -131,7 +131,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
 
     return [
       Padding(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, GxSpacing.xs),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xs),
         child: TextField(
           controller: _search,
           onChanged: _onSearchChanged,
@@ -146,15 +146,15 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         ),
       ),
       SizedBox(
-        height: GxSpacing.minTouchTarget + GxSpacing.xs,
+        height: GwSpacing.minTouchTarget + GwSpacing.xs,
         child: ListView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
           children: [
             for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)]) ...[
               Center(
                 child: ChoiceChip(
-                  avatar: slug == null ? null : Icon(categoryIcon(slug), size: GxSpacing.md + GxSpacing.xxs),
+                  avatar: slug == null ? null : Icon(categoryIcon(slug), size: GwSpacing.md + GwSpacing.xxs),
                   label: Text(name),
                   selected: _category == slug,
                   showCheckmark: false,
@@ -164,23 +164,23 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                   }),
                 ),
               ),
-              const SizedBox(width: GxSpacing.xs),
+              const SizedBox(width: GwSpacing.xs),
             ],
           ],
         ),
       ),
-      const SizedBox(height: GxSpacing.xs),
+      const SizedBox(height: GwSpacing.xs),
       switch (result) {
         AsyncData(:final value) when value.isEmpty => Padding(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
             child: filtered
-                ? GxEmptyState(
+                ? GwEmptyState(
                     icon: Icons.search_off,
                     message: 'Aramana uygun grup bulunamadı.',
                     actionLabel: 'Filtreleri temizle',
                     onAction: _clearFilters,
                   )
-                : GxEmptyState(
+                : GwEmptyState(
                     icon: Icons.groups_2_outlined,
                     message: 'Henüz hiç grup yok. İlk grubu sen kur.',
                     actionLabel: 'Grup oluştur',
@@ -192,18 +192,18 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               for (final g in value) GroupTile(group: g),
               if (value.length >= _limit)
                 Padding(
-                  padding: const EdgeInsets.all(GxSpacing.md),
-                  child: GxButton(
+                  padding: const EdgeInsets.all(GwSpacing.md),
+                  child: GwButton(
                     label: 'Daha fazla göster',
-                    variant: GxButtonVariant.secondary,
+                    variant: GwButtonVariant.secondary,
                     onPressed: () => setState(() => _limit += GroupsScreen.pageSize),
                   ),
                 ),
             ],
           ),
         AsyncError(:final error) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-            child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(discoverGroupsProvider(key))),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+            child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(discoverGroupsProvider(key))),
           ),
         _ => const GroupListSkeleton(),
       },
@@ -221,8 +221,8 @@ class _MyGroups extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return switch (ref.watch(userGroupsProvider(userId))) {
       AsyncData(:final value) when value.isEmpty => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-          child: GxEmptyState(
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+          child: GwEmptyState(
             icon: Icons.groups_outlined,
             message: 'Henüz bir gruba katılmadın.',
             actionLabel: 'Grupları keşfet',
@@ -239,8 +239,8 @@ class _MyGroups extends ConsumerWidget {
           ],
         ),
       AsyncError(:final error) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-          child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+          child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),
         ),
       _ => const GroupListSkeleton(),
     };
@@ -259,8 +259,8 @@ class _OwnedPackages extends ConsumerWidget {
     return switch (ref.watch(userGroupsProvider(userId))) {
       AsyncData(:final value) => switch ([for (final g in value) if (g.ownerId == userId) g]) {
           [] => Padding(
-              padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-              child: GxEmptyState(
+              padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+              child: GwEmptyState(
                 icon: Icons.workspace_premium_outlined,
                 message: 'Paketleri grup sahipleri alır. Grubunu kurup paketini seçebilirsin.',
                 actionLabel: 'Grup oluştur',
@@ -272,7 +272,7 @@ class _OwnedPackages extends ConsumerWidget {
                 for (final g in owned) ...[
                   GroupTile(group: g),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.md),
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.md),
                     child: packages(context, g),
                   ),
                 ],
@@ -280,8 +280,8 @@ class _OwnedPackages extends ConsumerWidget {
             ),
         },
       AsyncError(:final error) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-          child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+          child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userGroupsProvider(userId))),
         ),
       _ => const GroupListSkeleton(),
     };
@@ -325,8 +325,8 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
     final textTheme = Theme.of(context).textTheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, 0),
-      child: GxPanel(
+      padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, 0),
+      child: GwPanel(
         title: 'Davetlerin',
         subtitle: 'Bu gruplar seni üye olmaya davet etti.',
         padding: EdgeInsets.zero,
@@ -336,10 +336,10 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
             for (final (i, inv) in invitations.indexed) ...[
               if (i > 0) const Divider(),
               Padding(
-                padding: const EdgeInsets.all(GxSpacing.md),
+                padding: const EdgeInsets.all(GwSpacing.md),
                 child: Wrap(
-                  spacing: GxSpacing.sm,
-                  runSpacing: GxSpacing.sm,
+                  spacing: GwSpacing.sm,
+                  runSpacing: GwSpacing.sm,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   alignment: WrapAlignment.spaceBetween,
                   children: [
@@ -348,8 +348,8 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          GxAvatar(name: inv.group.name, shape: GxAvatarShape.group, imageUrl: inv.group.logoUrl),
-                          const SizedBox(width: GxSpacing.sm),
+                          GwAvatar(name: inv.group.name, shape: GwAvatarShape.group, imageUrl: inv.group.logoUrl),
+                          const SizedBox(width: GwSpacing.sm),
                           Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,7 +357,7 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                                 Text(inv.group.name, style: textTheme.labelLarge),
                                 Text(
                                   inv.invitedBy == null ? formatDateTr(inv.createdAt) : '${inv.invitedBy} davet etti',
-                                  style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                                  style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                                 ),
                               ],
                             ),
@@ -366,14 +366,14 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                       ),
                     ),
                     Wrap(
-                      spacing: GxSpacing.xs,
+                      spacing: GwSpacing.xs,
                       children: [
-                        GxButton(
+                        GwButton(
                           label: 'Reddet',
-                          variant: GxButtonVariant.text,
+                          variant: GwButtonVariant.text,
                           onPressed: _busy == null ? () => _answer(inv, accept: false) : null,
                         ),
-                        GxButton(
+                        GwButton(
                           label: 'Katıl',
                           isLoading: _busy == inv.group.id,
                           onPressed: _busy == null ? () => _answer(inv, accept: true) : null,
@@ -385,7 +385,7 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
               ),
             ],
             if (_error != null)
-              Padding(padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md), child: GxFormMessage(_error!)),
+              Padding(padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md), child: GwFormMessage(_error!)),
           ],
         ),
       ),

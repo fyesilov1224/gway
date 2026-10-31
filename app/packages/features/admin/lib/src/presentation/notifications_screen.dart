@@ -22,25 +22,25 @@ class AdminNotificationsScreen extends ConsumerWidget {
       title: 'Bildirimler',
       subtitle: 'Telefonlara giden push bildirimleri. Yalnızca sayılar gösterilir; bildirim içerikleri görünmez.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref.invalidate(pushStatsProvider),
         ),
       ],
       children: [
         if (result case AsyncError(:final error))
-          GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(pushStatsProvider))
+          GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(pushStatsProvider))
         else ...[
           if (stats != null && !stats.configured) ...[
             const DetailBanner(
-              tone: GxBadgeTone.danger,
+              tone: GwBadgeTone.danger,
               icon: Icons.notifications_off_outlined,
               title: 'Push kapalı',
               body: 'Sunucuda Firebase anahtarı tanımlı değil. Bildirimler yalnızca uygulama içinde görünür.',
             ),
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
           ],
           StatCardRow(
             cards: [
@@ -48,31 +48,31 @@ class AdminNotificationsScreen extends ConsumerWidget {
                 label: 'Kayıtlı cihaz',
                 value: stats?.devices,
                 icon: Icons.smartphone_outlined,
-                tone: GxBadgeTone.primary,
+                tone: GwBadgeTone.primary,
               ),
               StatCard(
                 label: 'Son 24 saatte bildirim',
                 value: stats?.created24h,
                 icon: Icons.notifications_outlined,
-                tone: GxBadgeTone.info,
+                tone: GwBadgeTone.info,
               ),
               StatCard(
                 label: 'Telefona ulaşan',
                 value: stats?.delivered24h,
                 icon: Icons.mark_email_read_outlined,
-                tone: GxBadgeTone.success,
+                tone: GwBadgeTone.success,
               ),
               StatCard(
                 label: 'Kuyrukta bekleyen',
                 value: stats?.waiting,
                 icon: Icons.hourglass_empty,
-                tone: (stats?.waiting ?? 0) > 0 ? GxBadgeTone.warning : GxBadgeTone.neutral,
+                tone: (stats?.waiting ?? 0) > 0 ? GwBadgeTone.warning : GwBadgeTone.neutral,
               ),
             ],
           ),
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           if (stats == null)
-            const GxSkeleton(height: GxSpacing.xxl * 2)
+            const GwSkeleton(height: GwSpacing.xxl * 2)
           else ...[
             InfoPanel(
               title: 'Cihazlar',
@@ -85,14 +85,14 @@ class AdminNotificationsScreen extends ConsumerWidget {
                 ('Son 24 saatte teslim', '${formatCount(stats.deliveries24h)} cihaz'),
               ],
             ),
-            const SizedBox(height: GxSpacing.lg),
-            GxPanel(
+            const SizedBox(height: GwSpacing.lg),
+            GwPanel(
               title: 'Son 24 saat, türlere göre',
               padding: EdgeInsets.zero,
               child: stats.byType24h.isEmpty
                   ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                      child: GxEmptyState(
+                      padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                      child: GwEmptyState(
                         icon: Icons.notifications_none_outlined,
                         message: 'Son 24 saatte bildirim oluşmadı.',
                         actionLabel: 'Yenile',
@@ -105,7 +105,7 @@ class AdminNotificationsScreen extends ConsumerWidget {
                         for (final (i, t) in stats.byType24h.indexed) ...[
                           if (i > 0) const Divider(),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+                            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
                             child: Row(
                               children: [
                                 Expanded(child: Text(notificationTypeLabel(t.type), style: textTheme.bodyMedium)),

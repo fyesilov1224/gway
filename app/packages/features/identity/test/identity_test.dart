@@ -54,7 +54,7 @@ const _docs = [
 
 Widget _app(Widget child, List<dynamic> overrides) => ProviderScope(
       overrides: overrides.cast(),
-      child: MaterialApp(theme: GxTheme.light(), home: child),
+      child: MaterialApp(theme: GwTheme.light(), home: child),
     );
 
 void main() {
@@ -62,7 +62,7 @@ void main() {
     test('email', () {
       expect(validateEmail(''), isNotNull);
       expect(validateEmail('ayse@'), isNotNull);
-      expect(validateEmail(' ayse@grupx.app '), isNull);
+      expect(validateEmail(' ayse@gway.app '), isNull);
     });
 
     test('new password mirrors Supabase rules', () {
@@ -171,7 +171,7 @@ void main() {
     expect(auth.signInCalls, 0);
     expect(find.text('E-posta adresini gir.'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextFormField).at(0), 'ayse@grupx.app');
+    await tester.enterText(find.byType(TextFormField).at(0), 'ayse@gway.app');
     await tester.enterText(find.byType(TextFormField).at(1), 'yanlis');
     await tester.tap(find.widgetWithText(FilledButton, 'Giriş yap'));
     await tester.pumpAndSettle();

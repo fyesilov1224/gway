@@ -81,7 +81,7 @@ Future<_FakeTeammates> _pump(
             ),
           ]),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: home),
+    child: MaterialApp(theme: GwTheme.light(), home: home),
   ));
   await tester.pumpAndSettle();
   return fake;
@@ -116,10 +116,10 @@ void main() {
     expect(find.text('"Hafta sonu yürüyüşü"'), findsOneWidget);
     expect(find.text('Sen de görün'), findsNothing);
 
-    await tester.tap(find.widgetWithText(GxButton, 'İstek gönder'));
+    await tester.tap(find.widgetWithText(GwButton, 'İstek gönder'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Cumartesi Belgrad?');
-    await tester.tap(find.widgetWithText(GxButton, 'İstek gönder').last);
+    await tester.tap(find.widgetWithText(GwButton, 'İstek gönder').last);
     await tester.pumpAndSettle();
     expect(fake.calls, ['request:u2:Cumartesi Belgrad?']);
   });
@@ -127,9 +127,9 @@ void main() {
   testWidgets('without the package a request offers the Ekip Arkadaşı package', (tester) async {
     await _pump(tester, const TeammatesScreen(), prefs: const TeammatePreferences(looking: true), needsPackage: true);
 
-    await tester.tap(find.widgetWithText(GxButton, 'İstek gönder'));
+    await tester.tap(find.widgetWithText(GwButton, 'İstek gönder'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'İstek gönder').last);
+    await tester.tap(find.widgetWithText(GwButton, 'İstek gönder').last);
     await tester.pumpAndSettle();
     expect(find.textContaining('Ekip Arkadaşı paketi gerekir'), findsOneWidget);
     await tester.tap(find.text('Paketi incele'));
@@ -161,7 +161,7 @@ void main() {
     );
     expect(find.text('İstekler (2)'), findsOneWidget);
     expect(find.text('"Pazar koşusu?"'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'Kabul et').first);
+    await tester.tap(find.widgetWithText(GwButton, 'Kabul et').first);
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Reddet').last);
     await tester.pumpAndSettle();
@@ -193,7 +193,7 @@ void main() {
     await tester.enterText(find.byType(TextField), ' Sabah yürüyüşü ');
     await tester.pumpAndSettle();
     expect(find.text('Tercihlerin %100 tamam'), findsNothing); // the bar stays at the top
-    await tester.tap(find.widgetWithText(GxButton, 'Kaydet'));
+    await tester.tap(find.widgetWithText(GwButton, 'Kaydet'));
     await tester.pumpAndSettle();
 
     final saved = fake.saved!;

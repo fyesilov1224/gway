@@ -10,9 +10,9 @@ class NotAuthorizedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GxEmptyState(
+      body: GwEmptyState(
         icon: Icons.lock_outline,
-        message: 'Bu panel yalnızca GrupX platform ekibi içindir. Hesabının yetkisi yok.',
+        message: 'Bu panel yalnızca GWAY platform ekibi içindir. Hesabının yetkisi yok.',
         actionLabel: 'Çıkış yap',
         onAction: onSignOut,
       ),

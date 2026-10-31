@@ -1,5 +1,5 @@
 name: admin_panel
-description: GrupX admin panel for the platform team (iOS, Android, Web).
+description: GWAY admin panel for the platform team (iOS, Android, Web).
 publish_to: none
 version: 0.1.0+1
 resolution: workspace

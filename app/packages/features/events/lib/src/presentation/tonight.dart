@@ -59,25 +59,25 @@ class _TonightCardState extends ConsumerState<TonightCard> {
     if (t == null) {
       return tonight.isLoading
           ? const Padding(
-              padding: EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
-              child: GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
+              padding: EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
+              child: GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
             )
           : const SizedBox.shrink();
     }
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
-      child: GxCard(
-        radius: GxRadius.lgAll,
-        padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
+      child: GwCard(
+        radius: GwRadius.lgAll,
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                const Icon(Icons.nights_stay_outlined, color: GxColors.primary),
-                const SizedBox(width: GxSpacing.xs),
+                const Icon(Icons.nights_stay_outlined, color: GwColors.primary),
+                const SizedBox(width: GwSpacing.xs),
                 Expanded(child: Text('Bu akşam', style: textTheme.titleMedium)),
                 if (t.isFree && t.table == null)
                   TextButton(
@@ -86,11 +86,11 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                   ),
               ],
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             if (!t.isFree) ...[
               Text('Boşsan ortak gruplarındakiler görsün; birlikte küçük bir masa kurabilirsiniz.', style: secondary),
-              const SizedBox(height: GxSpacing.sm),
-              GxButton(label: 'Bu akşam boşum', icon: Icons.local_cafe_outlined, isLoading: _busy, expand: true, onPressed: _setFree),
+              const SizedBox(height: GwSpacing.sm),
+              GwButton(label: 'Bu akşam boşum', icon: Icons.local_cafe_outlined, isLoading: _busy, expand: true, onPressed: _setFree),
             ] else
               Text(
                 t.note == null || t.note!.isEmpty ? 'Boşsun; 04:00\'e kadar görünürsün.' : '"${t.note}" · 04:00\'e kadar görünürsün.',
@@ -105,11 +105,11 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                 onLeave: () => _run((r) => r.leaveTable(table.id), (_) => 'Masadan ayrıldın.'),
               )
             else if (t.canSetTable) ...[
-              const SizedBox(height: GxSpacing.sm),
-              GxButton(
+              const SizedBox(height: GwSpacing.sm),
+              GwButton(
                 label: 'Küçük masa kur',
                 icon: Icons.table_restaurant_outlined,
-                variant: GxButtonVariant.secondary,
+                variant: GwButtonVariant.secondary,
                 isLoading: _busy,
                 expand: true,
                 onPressed: () => _run(
@@ -118,11 +118,11 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                 ),
               ),
             ] else if (t.isFree) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Text(
                 'Küçük masa için ortak gruplarından en az ${Tonight.minCandidates} kişinin daha boş olması gerekiyor '
                 '(şu an ${t.candidates}). Biri boş olduğunu söyleyince burada masa kurabilirsin.',
-                style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
               ),
             ],
             for (final invite in t.invites)
@@ -155,21 +155,21 @@ class _FreePeople extends ConsumerWidget {
     if (people == null || people.isEmpty) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.sm),
+      padding: const EdgeInsets.only(top: GwSpacing.sm),
       child: InkWell(
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         onTap: showLink ? () => context.push(EventRoutes.tonight) : null,
         child: Row(
           children: [
             _Faces(people: people.take(_faces).toList()),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Text(
                 'Ortak gruplarından ${formatCount(people.length)} kişi bu akşam boş',
-                style: textTheme.labelLarge?.copyWith(color: GxColors.primary),
+                style: textTheme.labelLarge?.copyWith(color: GwColors.primary),
               ),
             ),
-            if (showLink) const Icon(Icons.chevron_right, color: GxColors.textSecondary),
+            if (showLink) const Icon(Icons.chevron_right, color: GwColors.textSecondary),
           ],
         ),
       ),
@@ -196,14 +196,14 @@ class _FreeDialogState extends State<_FreeDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Bu akşam boşum'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Yalnızca ortak gruplarındaki kişiler görür. Durumun 04:00\'te kendiliğinden kapanır.'),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             TextField(
               controller: _note,
               maxLength: 80,
@@ -212,8 +212,8 @@ class _FreeDialogState extends State<_FreeDialog> {
           ],
         ),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-          GxButton(label: 'Boşum', onPressed: () => Navigator.of(context).pop(_note.text.trim())),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: 'Boşum', onPressed: () => Navigator.of(context).pop(_note.text.trim())),
         ],
       );
 }
@@ -225,13 +225,13 @@ class _Faces extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(
-        spacing: GxSpacing.xs,
-        runSpacing: GxSpacing.xs,
+        spacing: GwSpacing.xs,
+        runSpacing: GwSpacing.xs,
         children: [
           for (final p in people)
             Tooltip(
               message: p.displayName,
-              child: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+              child: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
             ),
         ],
       );
@@ -250,24 +250,24 @@ class _TableBlock extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final chat = table.conversationId;
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.sm),
+      padding: const EdgeInsets.only(top: GwSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('Masan', style: textTheme.titleSmall),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           _Faces(people: table.joined),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           Text(
             [
               '${table.joined.length} kişi katıldı',
               if (table.pending > 0) '${table.pending} kişi bekleniyor',
             ].join(' · '),
-            style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           if (chat != null)
-            GxButton(label: 'Masanın sohbeti', icon: Icons.forum_outlined, expand: true, onPressed: () => onOpenChat(chat))
+            GwButton(label: 'Masanın sohbeti', icon: Icons.forum_outlined, expand: true, onPressed: () => onOpenChat(chat))
           else
             Text('Sohbet, ${table.missing} kişi daha katılınca açılır. Yeri ve saati orada birlikte seçersiniz.',
                 style: textTheme.bodyMedium),
@@ -292,25 +292,25 @@ class _InviteBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      margin: const EdgeInsets.only(top: GxSpacing.sm),
-      padding: const EdgeInsets.all(GxSpacing.sm),
-      decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.mdAll),
+      margin: const EdgeInsets.only(top: GwSpacing.sm),
+      padding: const EdgeInsets.all(GwSpacing.sm),
+      decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.mdAll),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${invite.founder.displayName} küçük bir masa kurdu ve seni de çağırıyor.', style: textTheme.bodyLarge),
-          const SizedBox(height: GxSpacing.xxs),
+          const SizedBox(height: GwSpacing.xxs),
           Text(
             '${invite.joined.length} kişi katıldı · ${invite.pending} kişi bekleniyor. Üç kişi olunca sohbet açılır.',
-            style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Wrap(
-            spacing: GxSpacing.xs,
-            runSpacing: GxSpacing.xs,
+            spacing: GwSpacing.xs,
+            runSpacing: GwSpacing.xs,
             children: [
-              GxButton(label: 'Katıl', icon: Icons.check, isLoading: busy, onPressed: () => onAnswer(true)),
-              GxButton(label: 'Bu akşam olmaz', variant: GxButtonVariant.secondary, onPressed: busy ? null : () => onAnswer(false)),
+              GwButton(label: 'Katıl', icon: Icons.check, isLoading: busy, onPressed: () => onAnswer(true)),
+              GwButton(label: 'Bu akşam olmaz', variant: GwButtonVariant.secondary, onPressed: busy ? null : () => onAnswer(false)),
             ],
           ),
         ],
@@ -333,20 +333,20 @@ class TonightScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bu akşam')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () async => ref
             ..invalidate(tonightProvider)
             ..invalidate(tonightPeopleProvider),
           child: ListView(
-            padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+            padding: const EdgeInsets.only(bottom: GwSpacing.xl),
             children: [
               TonightCard(openChat: openChat, showPeopleLink: false),
-              const GxSectionHeader(title: 'Bu akşam boş olanlar', subtitle: 'Yalnızca ortak gruplarındaki kişiler'),
+              const GwSectionHeader(title: 'Bu akşam boş olanlar', subtitle: 'Yalnızca ortak gruplarındaki kişiler'),
               switch (people) {
                 AsyncData(:final value) when value.isEmpty => Padding(
-                    padding: const EdgeInsets.all(GxSpacing.page),
-                    child: GxEmptyState(
+                    padding: const EdgeInsets.all(GwSpacing.page),
+                    child: GwEmptyState(
                       icon: Icons.nights_stay_outlined,
                       message: 'Ortak gruplarından şu an boş olan yok.',
                       actionLabel: 'Yenile',
@@ -357,8 +357,8 @@ class TonightScreen extends ConsumerWidget {
                     children: [
                       for (final p in value)
                         ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
-                          leading: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
+                          leading: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user),
                           title: Text(p.displayName, style: textTheme.titleSmall),
                           subtitle: Text(
                             [if (p.note.isNotEmpty) '"${p.note}"', p.groups.join(', ')].join(' · '),
@@ -370,12 +370,12 @@ class TonightScreen extends ConsumerWidget {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.all(GxSpacing.page),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(tonightPeopleProvider)),
+                    padding: const EdgeInsets.all(GwSpacing.page),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(tonightPeopleProvider)),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.page),
-                    child: GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
+                    padding: EdgeInsets.all(GwSpacing.page),
+                    child: GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
                   ),
               },
             ],

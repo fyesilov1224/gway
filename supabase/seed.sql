@@ -1,8 +1,8 @@
 -- Local demo data. Applied by `supabase db reset` (never in production).
 -- Every account below uses the password: Demo1234
 --
---   demo@grupx.test   regular user with a finished profile
---   admin@grupx.test  platform admin (use in the admin panel)
+--   demo@gway.test   regular user with a finished profile
+--   admin@gway.test  platform admin (use in the admin panel)
 --   + a few extra users so the admin list has suspended / pending-deletion rows
 --   + groups: demo owns "Doğa Yürüyüşçüleri" (request) with a pending request,
 --     is a member of two others and has an invitation waiting; one group is suspended
@@ -15,14 +15,14 @@
 create temporary table seed_users (id uuid, email text, username text, display_name text, bio text) on commit drop;
 
 insert into seed_users values
-  ('10000000-0000-0000-0000-000000000001', 'demo@grupx.test',   'demo',          'Demo Kullanıcı', 'Hafta sonları doğa yürüyüşü, akşamları gitar.'),
-  ('10000000-0000-0000-0000-000000000002', 'admin@grupx.test',  'grupx_ekip',    'GrupX Ekibi',    ''),
-  ('10000000-0000-0000-0000-000000000003', 'elif@grupx.test',   'elif.kosar',    'Elif Koşar',     'Maraton hazırlığındayım.'),
-  ('10000000-0000-0000-0000-000000000004', 'mert@grupx.test',   'mert_pedal',    'Mert Pedal',     'Bisikletle şehir turları.'),
-  ('10000000-0000-0000-0000-000000000005', 'zeynep@grupx.test', 'zeynep.sanat',  'Zeynep Sanat',   'Suluboya ve seramik.'),
-  ('10000000-0000-0000-0000-000000000006', 'can@grupx.test',    'can_dag',       'Can Dağ',        ''),
-  ('10000000-0000-0000-0000-000000000007', 'ayse@grupx.test',   'ayse.yildiz',   'Ayşe Yıldız',    'Fotoğraf ve kamp.'),
-  ('10000000-0000-0000-0000-000000000008', 'burak@grupx.test',  'burak.muzik',   'Burak Akor',     'Akustik gitar, açık mikrofon geceleri.');
+  ('10000000-0000-0000-0000-000000000001', 'demo@gway.test',   'demo',          'Demo Kullanıcı', 'Hafta sonları doğa yürüyüşü, akşamları gitar.'),
+  ('10000000-0000-0000-0000-000000000002', 'admin@gway.test',  'gway_ekip',    'GWAY Ekibi',    ''),
+  ('10000000-0000-0000-0000-000000000003', 'elif@gway.test',   'elif.kosar',    'Elif Koşar',     'Maraton hazırlığındayım.'),
+  ('10000000-0000-0000-0000-000000000004', 'mert@gway.test',   'mert_pedal',    'Mert Pedal',     'Bisikletle şehir turları.'),
+  ('10000000-0000-0000-0000-000000000005', 'zeynep@gway.test', 'zeynep.sanat',  'Zeynep Sanat',   'Suluboya ve seramik.'),
+  ('10000000-0000-0000-0000-000000000006', 'can@gway.test',    'can_dag',       'Can Dağ',        ''),
+  ('10000000-0000-0000-0000-000000000007', 'ayse@gway.test',   'ayse.yildiz',   'Ayşe Yıldız',    'Fotoğraf ve kamp.'),
+  ('10000000-0000-0000-0000-000000000008', 'burak@gway.test',  'burak.muzik',   'Burak Akor',     'Akustik gitar, açık mikrofon geceleri.');
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,

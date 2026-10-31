@@ -15,25 +15,25 @@ extension SupportKindStyle on SupportKind {
       };
 
   Color get color => switch (this) {
-        SupportKind.problem => GxColors.error,
-        SupportKind.request => GxColors.warning,
-        SupportKind.suggestion => GxColors.success,
+        SupportKind.problem => GwColors.error,
+        SupportKind.request => GwColors.warning,
+        SupportKind.suggestion => GwColors.success,
       };
 
   Color get softColor => switch (this) {
-        SupportKind.problem => GxColors.errorSoft,
-        SupportKind.request => GxColors.warningSoft,
-        SupportKind.suggestion => GxColors.successSoft,
+        SupportKind.problem => GwColors.errorSoft,
+        SupportKind.request => GwColors.warningSoft,
+        SupportKind.suggestion => GwColors.successSoft,
       };
 
-  GxBadgeTone get tone => switch (this) {
-        SupportKind.problem => GxBadgeTone.danger,
-        SupportKind.request => GxBadgeTone.warning,
-        SupportKind.suggestion => GxBadgeTone.success,
+  GwBadgeTone get tone => switch (this) {
+        SupportKind.problem => GwBadgeTone.danger,
+        SupportKind.request => GwBadgeTone.warning,
+        SupportKind.suggestion => GwBadgeTone.success,
       };
 }
 
-const _iconSize = GxSpacing.md + GxSpacing.xxs;
+const _iconSize = GwSpacing.md + GwSpacing.xxs;
 
 /// The kind's icon on its soft color, in a rounded square.
 class SupportKindIcon extends StatelessWidget {
@@ -45,8 +45,8 @@ class SupportKindIcon extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
         label: kind.label,
         child: Container(
-          padding: const EdgeInsets.all(GxSpacing.xs),
-          decoration: BoxDecoration(color: kind.softColor, borderRadius: GxRadius.mdAll),
+          padding: const EdgeInsets.all(GwSpacing.xs),
+          decoration: BoxDecoration(color: kind.softColor, borderRadius: GwRadius.mdAll),
           child: Icon(kind.icon, color: kind.color, size: _iconSize),
         ),
       );
@@ -59,10 +59,10 @@ class SupportStatusBadge extends StatelessWidget {
   final SupportStatus status;
 
   @override
-  Widget build(BuildContext context) => GxBadge(
+  Widget build(BuildContext context) => GwBadge(
         status.label,
         dot: true,
-        tone: status == SupportStatus.inProgress ? GxBadgeTone.info : GxBadgeTone.neutral,
+        tone: status == SupportStatus.inProgress ? GwBadgeTone.info : GwBadgeTone.neutral,
       );
 }
 
@@ -76,17 +76,17 @@ class ImageAttachments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = GxSpacing.xxl + GxSpacing.md;
+    const size = GwSpacing.xxl + GwSpacing.md;
     return Wrap(
-      spacing: GxSpacing.xs,
-      runSpacing: GxSpacing.xs,
+      spacing: GwSpacing.xs,
+      runSpacing: GwSpacing.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (final (i, image) in images.indexed)
           Stack(
             children: [
               ClipRRect(
-                borderRadius: GxRadius.mdAll,
+                borderRadius: GwRadius.mdAll,
                 child: Image.memory(image.bytes, width: size, height: size, fit: BoxFit.cover),
               ),
               Positioned(
@@ -95,7 +95,7 @@ class ImageAttachments extends StatelessWidget {
                 child: IconButton.filledTonal(
                   tooltip: 'Görseli kaldır',
                   visualDensity: VisualDensity.compact,
-                  iconSize: GxSpacing.md,
+                  iconSize: GwSpacing.md,
                   icon: const Icon(Icons.close),
                   onPressed: () => onRemove(i),
                 ),
@@ -121,24 +121,24 @@ class AttachmentThumbnail extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const size = GxSpacing.xxl + GxSpacing.md;
+    const size = GwSpacing.xxl + GwSpacing.md;
     final url = ref.watch(attachmentUrlProvider(path)).value;
-    if (url == null) return const GxSkeleton(width: size, height: size);
+    if (url == null) return const GwSkeleton(width: size, height: size);
     return Semantics(
       button: true,
       label: 'Ekran görüntüsünü büyüt',
       child: InkWell(
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         onTap: () => showDialog<void>(
           context: context,
           builder: (context) => Dialog(
             clipBehavior: Clip.antiAlias,
-            shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll),
+            shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll),
             child: InteractiveViewer(child: Image.network(url, fit: BoxFit.contain)),
           ),
         ),
         child: ClipRRect(
-          borderRadius: GxRadius.mdAll,
+          borderRadius: GwRadius.mdAll,
           child: Image.network(
             url,
             width: size,
@@ -147,7 +147,7 @@ class AttachmentThumbnail extends ConsumerWidget {
             errorBuilder: (_, _, _) => const SizedBox(
               width: size,
               height: size,
-              child: Icon(Icons.broken_image_outlined, color: GxColors.textSecondary),
+              child: Icon(Icons.broken_image_outlined, color: GwColors.textSecondary),
             ),
           ),
         ),

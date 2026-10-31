@@ -15,8 +15,8 @@ Uygulamanın Play kurallarına uyumu için yapılanlar `docs/ARCHITECTURE.md` §
 - Şirket adına açılan **kuruluş hesabı** (D-U-N-S numarası gerekir) bu şarttan muaftır.
 
 ## 2. Uygulamayı oluşturma
-- Ad: **GrupX**. Varsayılan dil: Türkçe. Tür: Uygulama. Ücretsiz.
-- Paket adı ilk yüklemede `com.grupx.app` olarak sabitlenir.
+- Ad: **GWAY**. Varsayılan dil: Türkçe. Tür: Uygulama. Ücretsiz.
+- Paket adı ilk yüklemede `com.gway.app` olarak sabitlenir.
 - **Play App Signing** varsayılan olarak açıktır; kabul et. Bizdeki anahtar yalnızca yükleme anahtarıdır:
   - Dosyalar: `%USERPROFILE%\.grupx\upload-keystore.jks` ve `key.properties`.
   - **Yedekle:** iki dosyayı şifre yöneticisine ya da şifreli bir buluta koy.
@@ -78,10 +78,10 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
 - `QUERY_ALL_PACKAGES` **yok**. Yalnızca VPN servisleri sorgulanır (`<queries>`); ayrıca beyan gerekmez.
 
 ## 5. Mağaza kaydı (Play Console → Büyüme → Mağaza varlığı)
-- **Uygulama adı** (30 karakter): `GrupX: Gruplar ve Etkinlikler`
+- **Uygulama adı** (30 karakter): `GWAY: Gruplar ve Etkinlikler`
 - **Kısa açıklama** (80): `Yürüyüş, koşu, bisiklet, müzik ve daha fazlası: grubunu bul, etkinliğe katıl.`
 - **Uzun açıklama** (4000):
-  > GrupX, ilgi alanına göre kurulmuş toplulukları tek çatı altında toplar. Doğa yürüyüşü, koşu, bisiklet, müzik, sanat, spor… Grubunu bul, organizasyonlara katıl, yeni insanlarla tanış.
+  > GWAY, ilgi alanına göre kurulmuş toplulukları tek çatı altında toplar. Doğa yürüyüşü, koşu, bisiklet, müzik, sanat, spor… Grubunu bul, organizasyonlara katıl, yeni insanlarla tanış.
   >
   > • Gruplar: katıl, paylaş, duyuruları kaçırma
   > • Organizasyonlar: tarih, yer, kontenjan; takvimine ekle
@@ -91,7 +91,7 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
   > • Haritada yakınındaki grupları keşfet
   > • Güvenli topluluk: telefon doğrulaması, iki adımlı giriş, şikayet ve disiplin kurulu
   >
-  > GrupX 18 yaş ve üstü içindir.
+  > GWAY 18 yaş ve üstü içindir.
 - **Kategori**: Sosyal. **Etiketler**: topluluk, etkinlik, spor.
 - **İletişim e-postası** zorunludur. İsteğe bağlı olarak web sitesi `https://app.<alan adı>`.
 - **Görseller**:
@@ -108,7 +108,7 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
   - Gizlilik politikası: `https://app.<alan adı>/#/gizlilik`.
   - Koşullar: `https://app.<alan adı>/#/kosullar`.
 - **Publish app** ile durumu "In production" yap. Şu an "Testing" durumunda; yalnızca test kullanıcıları girebiliyor. Yalnızca e-posta ve profil izinleri istendiği için Google incelemesi gerekmez.
-- Supabase → Authentication → URL Configuration'da `com.grupx.app://auth-callback` yönlendirmesi kayıtlı olmalı (`docs/DEPLOY.md` 7. adım).
+- Supabase → Authentication → URL Configuration'da `com.gway.app://auth-callback` yönlendirmesi kayıtlı olmalı (`docs/DEPLOY.md` 7. adım).
 
 ## 7. Kapalı test → üretim
 1. *Test → Kapalı test* bölümünde bir kanal aç ve AAB'yi yükle.

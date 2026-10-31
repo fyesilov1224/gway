@@ -64,7 +64,7 @@ Widget _app(
         inviteLinksProvider.overrideWith((ref, id) async => links),
         invitePreviewProvider.overrideWith((ref, code) async => preview),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: child),
+      child: MaterialApp(theme: GwTheme.light(), home: child),
     );
 
 void _onOpenProfile(BuildContext context, String username) {}

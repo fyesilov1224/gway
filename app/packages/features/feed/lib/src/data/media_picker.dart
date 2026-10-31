@@ -14,8 +14,8 @@ import '../domain/post.dart';
 Future<List<NewMedia>> pickMedia({required bool multiple}) async {
   final picker = ImagePicker();
   final files = multiple
-      ? await picker.pickMultipleMedia(maxWidth: GxMedia.pickMaxSide, maxHeight: GxMedia.pickMaxSide, limit: NewPost.maxMedia)
-      : [?await picker.pickMedia(maxWidth: GxMedia.pickMaxSide, maxHeight: GxMedia.pickMaxSide)];
+      ? await picker.pickMultipleMedia(maxWidth: GwMedia.pickMaxSide, maxHeight: GwMedia.pickMaxSide, limit: NewPost.maxMedia)
+      : [?await picker.pickMedia(maxWidth: GwMedia.pickMaxSide, maxHeight: GwMedia.pickMaxSide)];
   return [for (final f in files.take(NewPost.maxMedia)) await _measure(f)];
 }
 

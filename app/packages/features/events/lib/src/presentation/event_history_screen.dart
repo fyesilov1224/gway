@@ -55,18 +55,18 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Geçmiş organizasyonlar')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch ((_events.isEmpty, _loading, _error)) {
           (true, true, _) => const Padding(
-              padding: EdgeInsets.all(GxSpacing.page),
+              padding: EdgeInsets.all(GwSpacing.page),
               child: Column(children: [
-                GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
-                SizedBox(height: GxSpacing.sm),
-                GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll),
+                GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
+                SizedBox(height: GwSpacing.sm),
+                GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll),
               ]),
             ),
-          (true, false, final Failure failure) => GxErrorState(message: failure.userMessage, onRetry: () => _load(refresh: true)),
-          (true, false, null) => GxEmptyState(
+          (true, false, final Failure failure) => GwErrorState(message: failure.userMessage, onRetry: () => _load(refresh: true)),
+          (true, false, null) => GwEmptyState(
               icon: Icons.history,
               message: 'Bu grubun henüz geçmiş bir organizasyonu yok.',
               actionLabel: 'Yenile',
@@ -75,20 +75,20 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
           _ => RefreshIndicator(
               onRefresh: () => _load(refresh: true),
               child: ListView(
-                padding: const EdgeInsets.all(GxSpacing.page),
+                padding: const EdgeInsets.all(GwSpacing.page),
                 children: [
                   for (final e in _events) ...[
                     EventCard(event: e),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(GxSpacing.sm, GxSpacing.xxs, GxSpacing.sm, GxSpacing.sm),
+                      padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm, GwSpacing.sm),
                       child: Text(e.isCanceled ? 'İptal edildi' : eventSummary(e),
-                          style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                          style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                     ),
                   ],
                   if (_hasMore)
                     Center(
                       child: _loading
-                          ? const Padding(padding: EdgeInsets.all(GxSpacing.md), child: CircularProgressIndicator())
+                          ? const Padding(padding: EdgeInsets.all(GwSpacing.md), child: CircularProgressIndicator())
                           : TextButton(onPressed: _load, child: const Text('Daha eski organizasyonlar')),
                     ),
                 ],

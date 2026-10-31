@@ -27,22 +27,22 @@ Future<void> showLeagueRules(BuildContext context) => showModalBottomSheet<void>
         final textTheme = Theme.of(context).textTheme;
         Widget rule(IconData icon, String title, String text) => ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(icon, color: GxColors.primary),
+              leading: Icon(icon, color: GwColors.primary),
               title: Text(title, style: textTheme.labelLarge),
               subtitle: Text(text),
             );
         return SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Puanlar nasıl hesaplanır?', style: textTheme.titleLarge),
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
                 Text(
                   'Aynı ildeki aynı kategoriden gruplar her ay yarışır. Ayın biten organizasyonları sayılır.',
-                  style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
                 rule(Icons.groups_outlined, 'Katılım: 1 puan', 'Gelen her kişi; bir organizasyonda en fazla 30.'),
                 rule(Icons.event_available_outlined, 'Organizasyon: 5 puan', 'Düzenleyen dışında en az 3 kişinin geldiği her organizasyon.'),
@@ -50,7 +50,7 @@ Future<void> showLeagueRules(BuildContext context) => showModalBottomSheet<void>
                 rule(Icons.star_outline_rounded, 'Memnuniyet: 1 puan', '4 ya da 5 yıldızlı her değerlendirme.'),
                 Text(
                   'Gelmedi işaretlenenler sayılmaz. Sonuçlar ay bittikten 8 gün sonra kesinleşir; ilk üçe giren grupların üyelerine haber verilir.',
-                  style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
             ),
@@ -102,18 +102,18 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
           IconButton(tooltip: 'Puanlar nasıl hesaplanır?', icon: const Icon(Icons.help_outline), onPressed: () => showLeagueRules(context)),
         ],
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, GxSpacing.xl),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, GwSpacing.xl),
           children: [
-            GxCard(
-              padding: const EdgeInsets.all(GxSpacing.md),
+            GwCard(
+              padding: const EdgeInsets.all(GwSpacing.md),
               child: Wrap(
-                spacing: GxSpacing.sm,
-                runSpacing: GxSpacing.sm,
+                spacing: GwSpacing.sm,
+                runSpacing: GwSpacing.sm,
                 children: [
                   SizedBox(
-                    width: GxSpacing.xxl * 5,
+                    width: GwSpacing.xxl * 5,
                     child: DropdownButtonFormField<String>(
                       initialValue: category,
                       isExpanded: true,
@@ -123,7 +123,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                     ),
                   ),
                   SizedBox(
-                    width: GxSpacing.xxl * 4,
+                    width: GwSpacing.xxl * 4,
                     child: DropdownButtonFormField<int>(
                       initialValue: _province,
                       isExpanded: true,
@@ -135,7 +135,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                     ),
                   ),
                   SizedBox(
-                    width: GxSpacing.xxl * 4,
+                    width: GwSpacing.xxl * 4,
                     child: DropdownButtonFormField<DateTime>(
                       initialValue: _months.contains(_month) ? _month : _thisMonth,
                       isExpanded: true,
@@ -147,20 +147,20 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             if (category == null)
-              const GxSkeleton(height: GxSpacing.xxl * 2, borderRadius: GxRadius.lgAll)
+              const GwSkeleton(height: GwSpacing.xxl * 2, borderRadius: GwRadius.lgAll)
             else
               switch (ref.watch(leagueTableProvider((category: category, province: _province, month: _month)))) {
                 AsyncData(:final value) => _Table(table: value, openGroup: widget.openGroup, textTheme: textTheme),
-                AsyncError(:final error) => GxErrorState(
+                AsyncError(:final error) => GwErrorState(
                     message: userMessageOf(error),
                     onRetry: () => ref.invalidate(leagueTableProvider((category: category, province: _province, month: _month))),
                   ),
                 _ => const Column(children: [
-                    GxSkeleton(height: GxSpacing.xxl + GxSpacing.md, borderRadius: GxRadius.lgAll),
-                    SizedBox(height: GxSpacing.xs),
-                    GxSkeleton(height: GxSpacing.xxl + GxSpacing.md, borderRadius: GxRadius.lgAll),
+                    GwSkeleton(height: GwSpacing.xxl + GwSpacing.md, borderRadius: GwRadius.lgAll),
+                    SizedBox(height: GwSpacing.xs),
+                    GwSkeleton(height: GwSpacing.xxl + GwSpacing.md, borderRadius: GwRadius.lgAll),
                   ]),
               },
           ],
@@ -179,12 +179,12 @@ class _Table extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondary = textTheme.bodySmall?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+          padding: const EdgeInsets.only(bottom: GwSpacing.sm),
           child: Text(
             table.finalized
                 ? '${formatMonthYearTr(table.month)} sezonu kapandı; sıralama kesin.'
@@ -193,14 +193,14 @@ class _Table extends StatelessWidget {
           ),
         ),
         if (table.rows.isEmpty)
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.emoji_events_outlined,
             message: '${_province(table.province)} ligine bu ay henüz puan alan grup yok.',
             actionLabel: 'Puanlar nasıl hesaplanır?',
             onAction: () => showLeagueRules(context),
           )
         else
-          GxCard(
+          GwCard(
             child: Column(
               children: [
                 for (final (i, r) in table.rows.indexed) ...[
@@ -208,12 +208,12 @@ class _Table extends StatelessWidget {
                   InkWell(
                     onTap: () => openGroup(context, r.group.handle),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+                      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
                       child: Row(
                         children: [
-                          SizedBox(width: GxSpacing.xl, child: _Rank(rank: r.rank, textTheme: textTheme)),
-                          GxAvatar(name: r.group.name, imageUrl: r.group.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.sm),
-                          const SizedBox(width: GxSpacing.sm),
+                          SizedBox(width: GwSpacing.xl, child: _Rank(rank: r.rank, textTheme: textTheme)),
+                          GwAvatar(name: r.group.name, imageUrl: r.group.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.sm),
+                          const SizedBox(width: GwSpacing.sm),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +223,7 @@ class _Table extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(width: GxSpacing.sm),
+                          const SizedBox(width: GwSpacing.sm),
                           Text('${formatCount(r.points)} puan', style: textTheme.labelLarge),
                         ],
                       ),
@@ -249,9 +249,9 @@ class _Rank extends StatelessWidget {
       ? Icon(
           Icons.emoji_events_rounded,
           semanticLabel: '$rank.',
-          color: switch (rank) { 1 => GxColors.primary, 2 => GxColors.secondary, _ => GxColors.textSecondary },
+          color: switch (rank) { 1 => GwColors.primary, 2 => GwColors.secondary, _ => GwColors.textSecondary },
         )
-      : Text('$rank.', style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary));
+      : Text('$rank.', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary));
 }
 
 /// The group page's league card: this month's place and the top-three finishes.
@@ -270,40 +270,40 @@ class GroupLeagueSection extends ConsumerWidget {
     final league = '${_province(l.province)} · $categoryName ligi';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
-      child: GxCard(
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
+      child: GwCard(
         onTap: () => context.push(EventRoutes.league(category: l.category, province: l.province)),
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.emoji_events_outlined, color: GxColors.primary),
-                const SizedBox(width: GxSpacing.sm),
+                const Icon(Icons.emoji_events_outlined, color: GwColors.primary),
+                const SizedBox(width: GwSpacing.sm),
                 Expanded(child: Text(league, style: textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                const Icon(Icons.chevron_right_rounded, color: GxColors.textSecondary),
+                const Icon(Icons.chevron_right_rounded, color: GwColors.textSecondary),
               ],
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Text(
               switch (l.rank) {
                 final rank? => '${formatMonthYearTr(l.month)}: ${formatCount(l.groups)} grup arasında $rank. sırada, '
                     '${formatCount(l.points)} puan.',
                 null => 'Bu ay henüz puan yok. Biten organizasyonlar, gelenler ve karşılamalar puan getirir.',
               },
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             if (l.titles.isNotEmpty) ...[
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Wrap(
-                spacing: GxSpacing.xs,
-                runSpacing: GxSpacing.xs,
+                spacing: GwSpacing.xs,
+                runSpacing: GwSpacing.xs,
                 children: [
                   for (final t in l.titles)
-                    GxBadge(
+                    GwBadge(
                       '${formatMonthYearTr(t.month)} · ${t.rank == 1 ? 'Şampiyon' : '${t.rank}.'}',
-                      tone: GxBadgeTone.primary,
+                      tone: GwBadgeTone.primary,
                       dot: true,
                     ),
                 ],

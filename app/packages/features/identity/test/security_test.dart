@@ -138,7 +138,7 @@ Widget _app(SecurityStatus status, _FakeSecurity security, [_FakeDevice? device]
         deviceSignalSourceProvider.overrideWithValue(device ?? _FakeDevice(const LocationRead(_signals))),
         accountStateProvider.overrideWith((ref) async => null),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: const SecurityScreen()),
+      child: MaterialApp(theme: GwTheme.light(), home: const SecurityScreen()),
     );
 
 void main() {

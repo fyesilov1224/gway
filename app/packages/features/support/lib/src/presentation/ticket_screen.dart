@@ -35,17 +35,17 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
       appBar: AppBar(title: const Text('Mesaj')),
       body: switch (thread) {
         AsyncData(:final value) => _Thread(thread: value, pickImage: widget.pickImage),
-        AsyncError(error: NotFoundFailure()) => GxEmptyState(
+        AsyncError(error: NotFoundFailure()) => GwEmptyState(
             icon: Icons.search_off,
             message: 'Bu mesaj bulunamadı.',
             actionLabel: 'Geri dön',
             onAction: () => Navigator.of(context).maybePop(),
           ),
-        AsyncError(:final error) => GxErrorState(
+        AsyncError(:final error) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(supportThreadProvider(widget.ticketId)),
           ),
-        _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 3)),
+        _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 3)),
       },
     );
   }
@@ -65,35 +65,35 @@ class _Thread extends StatelessWidget {
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.md, horizontal: GxSpacing.page),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.md, horizontal: GwSpacing.page),
             children: [
               Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+                  constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Row(
                         children: [
                           SupportKindIcon(t.kind),
-                          const SizedBox(width: GxSpacing.sm),
+                          const SizedBox(width: GwSpacing.sm),
                           Expanded(child: Text(t.subject, style: textTheme.titleLarge)),
                         ],
                       ),
-                      const SizedBox(height: GxSpacing.xs),
+                      const SizedBox(height: GwSpacing.xs),
                       Wrap(
-                        spacing: GxSpacing.xs,
-                        runSpacing: GxSpacing.xs,
+                        spacing: GwSpacing.xs,
+                        runSpacing: GwSpacing.xs,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          GxBadge(t.kind.label, tone: t.kind.tone),
+                          GwBadge(t.kind.label, tone: t.kind.tone),
                           SupportStatusBadge(t.status),
-                          if (t.groupName != null) GxBadge(t.groupName!),
+                          if (t.groupName != null) GwBadge(t.groupName!),
                           Text(formatDateTimeTr(t.createdAt),
-                              style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                              style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                         ],
                       ),
-                      const SizedBox(height: GxSpacing.lg),
+                      const SizedBox(height: GwSpacing.lg),
                       for (final m in thread.messages) _Bubble(message: m),
                     ],
                   ),
@@ -104,8 +104,8 @@ class _Thread extends StatelessWidget {
         ),
         t.isClosed
             ? const Padding(
-                padding: EdgeInsets.all(GxSpacing.md),
-                child: GxFormMessage('Bu mesaj kapatıldı. Devam etmek için yeni bir mesaj aç.', kind: GxFormMessageKind.info),
+                padding: EdgeInsets.all(GwSpacing.md),
+                child: GwFormMessage('Bu mesaj kapatıldı. Devam etmek için yeni bir mesaj aç.', kind: GwFormMessageKind.info),
               )
             : _Composer(ticketId: t.id, pickImage: pickImage),
       ],
@@ -128,32 +128,32 @@ class _Bubble extends StatelessWidget {
         widthFactor: 0.85,
         alignment: staff ? Alignment.centerLeft : Alignment.centerRight,
         child: Container(
-          margin: const EdgeInsets.only(bottom: GxSpacing.sm),
-          padding: const EdgeInsets.all(GxSpacing.sm),
+          margin: const EdgeInsets.only(bottom: GwSpacing.sm),
+          padding: const EdgeInsets.all(GwSpacing.sm),
           decoration: BoxDecoration(
-            color: staff ? GxColors.background : GxColors.primarySoft,
-            borderRadius: GxRadius.lgAll,
-            border: staff ? const Border.fromBorderSide(GxBorders.hairline) : null,
+            color: staff ? GwColors.background : GwColors.primarySoft,
+            borderRadius: GwRadius.lgAll,
+            border: staff ? const Border.fromBorderSide(GwBorders.hairline) : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                staff ? 'GrupX Ekibi' : 'Sen',
-                style: textTheme.labelMedium?.copyWith(color: staff ? GxColors.primary : GxColors.textSecondary),
+                staff ? 'GWAY Ekibi' : 'Sen',
+                style: textTheme.labelMedium?.copyWith(color: staff ? GwColors.primary : GwColors.textSecondary),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
               SelectableText(message.body, style: textTheme.bodyLarge),
               if (message.attachments.isNotEmpty) ...[
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [for (final path in message.attachments) AttachmentThumbnail(path: path)],
                 ),
               ],
-              const SizedBox(height: GxSpacing.xxs),
-              Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              const SizedBox(height: GwSpacing.xxs),
+              Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
         ),
@@ -215,22 +215,22 @@ class _ComposerState extends ConsumerState<_Composer> {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+      decoration: const BoxDecoration(color: GwColors.background, border: Border(top: GwBorders.hairline)),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.sm),
+          padding: const EdgeInsets.all(GwSpacing.sm),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.xs)],
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.xs)],
                   if (_images.isNotEmpty) ...[
                     ImageAttachments(images: _images, onAdd: _addImage, onRemove: (i) => setState(() => _images.removeAt(i))),
-                    const SizedBox(height: GxSpacing.xs),
+                    const SizedBox(height: GwSpacing.xs),
                   ],
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -250,13 +250,13 @@ class _ComposerState extends ConsumerState<_Composer> {
                           decoration: const InputDecoration(hintText: 'Yanıt yaz', counterText: ''),
                         ),
                       ),
-                      const SizedBox(width: GxSpacing.xs),
+                      const SizedBox(width: GwSpacing.xs),
                       IconButton.filled(
                         tooltip: 'Gönder',
                         icon: _sending
                             ? const SizedBox.square(
-                                dimension: GxSpacing.md,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: GxColors.onPrimary),
+                                dimension: GwSpacing.md,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: GwColors.onPrimary),
                               )
                             : const Icon(Icons.send),
                         onPressed: _sending ? null : _send,

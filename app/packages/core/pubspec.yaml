@@ -1,5 +1,5 @@
 name: core
-description: Shared foundations for GrupX apps and features.
+description: Shared foundations for GWAY apps and features.
 publish_to: none
 resolution: workspace
 

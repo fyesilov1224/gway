@@ -17,7 +17,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application
-        android:label="GrupX"
+        android:label="GWAY"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:networkSecurityConfig="${networkSecurityConfig}">
@@ -47,7 +47,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.grupx.app" android:host="auth-callback" />
+                <data android:scheme="com.gway.app" android:host="auth-callback" />
             </intent-filter>
         </activity>
         <!-- No background location: the location check runs only while the app is open, so geolocator's

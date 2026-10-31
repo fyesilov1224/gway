@@ -70,10 +70,10 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       title: 'Kullanıcılar',
       subtitle: 'Platformdaki hesapları görüntüle, ara ve yönet.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref
             ..invalidate(userStatsProvider)
             ..invalidate(userSearchProvider),
@@ -81,8 +81,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       ],
       children: [
         _StatsRow(selected: _status, onSelect: _setStatus),
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -100,15 +100,15 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
                     child: filtered
-                        ? GxEmptyState(
+                        ? GwEmptyState(
                             icon: Icons.search_off,
                             message: 'Aramana ve filtrene uygun kullanıcı bulunamadı.',
                             actionLabel: 'Filtreleri temizle',
                             onAction: _clearFilters,
                           )
-                        : GxEmptyState(
+                        : GwEmptyState(
                             icon: Icons.people_outline,
                             message: 'Henüz kayıtlı kullanıcı yok.',
                             actionLabel: 'Yenile',
@@ -117,8 +117,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                   ),
                 AsyncData(:final value) => _UserTable(page: value, onPage: (p) => setState(() => _page = p)),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(
                       message: userMessageOf(error),
                       onRetry: () => ref.invalidate(userSearchProvider(key)),
                     ),
@@ -145,10 +145,10 @@ class _StatsRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(userStatsProvider).value;
     final cards = [
-      (null, 'Toplam kullanıcı', stats?.total, Icons.group_outlined, GxBadgeTone.info),
-      (AdminAccountStatus.active, 'Aktif', stats?.active, Icons.check_circle_outline, GxBadgeTone.primary),
-      (AdminAccountStatus.suspended, 'Askıda', stats?.suspended, Icons.block, GxBadgeTone.danger),
-      (AdminAccountStatus.pendingDeletion, 'Silinecek', stats?.pendingDeletion, Icons.schedule, GxBadgeTone.neutral),
+      (null, 'Toplam kullanıcı', stats?.total, Icons.group_outlined, GwBadgeTone.info),
+      (AdminAccountStatus.active, 'Aktif', stats?.active, Icons.check_circle_outline, GwBadgeTone.primary),
+      (AdminAccountStatus.suspended, 'Askıda', stats?.suspended, Icons.block, GwBadgeTone.danger),
+      (AdminAccountStatus.pendingDeletion, 'Silinecek', stats?.pendingDeletion, Icons.schedule, GwBadgeTone.neutral),
     ];
     return StatCardRow(
       cards: [
@@ -185,14 +185,14 @@ class _UserTable extends StatelessWidget {
     final (from, to) = page.range;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= GxLayout.contentMaxWidth;
+        final wide = constraints.maxWidth >= GwLayout.contentMaxWidth;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (wide)
               Container(
-                color: GxColors.surface,
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+                color: GwColors.surface,
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
                 child: Row(
                   children: [
                     for (final (i, label) in ['KULLANICI', 'E-POSTA', 'DURUM', 'ROL', 'KAYIT TARİHİ'].indexed)
@@ -200,10 +200,10 @@ class _UserTable extends StatelessWidget {
                         flex: _columns[i],
                         child: Text(
                           label,
-                          style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.6),
+                          style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary, letterSpacing: 0.6),
                         ),
                       ),
-                    const SizedBox(width: GxSpacing.lg),
+                    const SizedBox(width: GwSpacing.lg),
                   ],
                 ),
               ),
@@ -237,11 +237,11 @@ class _UserRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final identity = Row(
       children: [
-        GxAvatar(name: user.title, shape: GxAvatarShape.user, imageUrl: ref.watch(avatarUrlProvider(user.avatarPath))),
-        const SizedBox(width: GxSpacing.sm),
+        GwAvatar(name: user.title, shape: GwAvatarShape.user, imageUrl: ref.watch(avatarUrlProvider(user.avatarPath))),
+        const SizedBox(width: GwSpacing.sm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,9 +263,9 @@ class _UserRow extends ConsumerWidget {
 
     return InkWell(
       onTap: () => context.go(AdminRoutes.user(user.id)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: wide
             ? Row(
                 children: [
@@ -286,13 +286,13 @@ class _UserRow extends ConsumerWidget {
                     flex: _columns[4],
                     child: Text(user.createdAt == null ? '—' : formatDateTr(user.createdAt!), style: secondary),
                   ),
-                  const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+                  const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
                 ],
               )
             : Row(
                 children: [
                   Expanded(child: identity),
-                  const SizedBox(width: GxSpacing.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   StatusBadge(user.status, banned: user.isBanned),
                 ],
               ),
@@ -310,18 +310,18 @@ class _TableSkeleton extends StatelessWidget {
       children: [
         for (var i = 0; i < 6; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
             child: Row(
               children: [
-                GxSkeleton.circle(size: GxAvatarSize.md.dimension),
-                const SizedBox(width: GxSpacing.sm),
+                GwSkeleton.circle(size: GwAvatarSize.md.dimension),
+                const SizedBox(width: GwSpacing.sm),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GxSkeleton(width: GxSpacing.xxl * 3, height: GxSpacing.md),
-                      SizedBox(height: GxSpacing.xs),
-                      GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.sm),
+                      GwSkeleton(width: GwSpacing.xxl * 3, height: GwSpacing.md),
+                      SizedBox(height: GwSpacing.xs),
+                      GwSkeleton(width: GwSpacing.xxl * 2, height: GwSpacing.sm),
                     ],
                   ),
                 ),

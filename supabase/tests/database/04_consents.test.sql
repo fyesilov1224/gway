@@ -21,10 +21,10 @@ select is(
 
 select lives_ok(
   $$ insert into public.consents (user_id, kind, version) values
-       ('00000000-0000-0000-0000-0000000000b1', 'terms', 1),
-       ('00000000-0000-0000-0000-0000000000b1', 'privacy_notice', 1),
-       ('00000000-0000-0000-0000-0000000000b1', 'explicit_consent', 1),
-       ('00000000-0000-0000-0000-0000000000b1', 'community_rules', 1) $$,
+       ('00000000-0000-0000-0000-0000000000b1', 'terms', 2),
+       ('00000000-0000-0000-0000-0000000000b1', 'privacy_notice', 2),
+       ('00000000-0000-0000-0000-0000000000b1', 'explicit_consent', 2),
+       ('00000000-0000-0000-0000-0000000000b1', 'community_rules', 2) $$,
   'user can record their own consents'
 );
 
@@ -64,12 +64,12 @@ select throws_ok(
 -- A new published version becomes pending again.
 reset role;
 insert into public.legal_documents (kind, version, title, body)
-values ('privacy_notice', 2, 'KVKK Aydınlatma Metni', 'Yeni sürüm');
+values ('privacy_notice', 3, 'KVKK Aydınlatma Metni', 'Yeni sürüm');
 set local role authenticated;
 
 select results_eq(
   $$ select kind, version from public.pending_legal_documents() $$,
-  $$ values ('privacy_notice'::text, 2) $$,
+  $$ values ('privacy_notice'::text, 3) $$,
   'a new document version must be accepted again'
 );
 

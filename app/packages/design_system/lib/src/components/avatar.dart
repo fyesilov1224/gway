@@ -3,58 +3,58 @@ import 'package:flutter/material.dart';
 import '../tokens/radius.dart';
 import '../tokens/tones.dart';
 
-enum GxAvatarSize {
+enum GwAvatarSize {
   sm(32),
   md(40),
   lg(64),
   xl(96),
   xxl(128);
 
-  const GxAvatarSize(this.dimension);
+  const GwAvatarSize(this.dimension);
 
   final double dimension;
 }
 
 /// Users are shown as circles, groups as rounded squares.
-enum GxAvatarShape { user, group }
+enum GwAvatarShape { user, group }
 
-class GxAvatar extends StatelessWidget {
-  const GxAvatar({
+class GwAvatar extends StatelessWidget {
+  const GwAvatar({
     super.key,
     required this.name,
     required this.shape,
     this.imageUrl,
-    this.size = GxAvatarSize.md,
+    this.size = GwAvatarSize.md,
     this.tone,
   });
 
   /// Used for initials and the semantic label.
   final String name;
-  final GxAvatarShape shape;
+  final GwAvatarShape shape;
   final String? imageUrl;
-  final GxAvatarSize size;
+  final GwAvatarSize size;
 
   /// Background and initials color without an image; defaults to the name's tone.
-  final GxTone? tone;
+  final GwTone? tone;
 
   @override
   Widget build(BuildContext context) {
     final dimension = size.dimension;
     final url = imageUrl;
-    final palette = tone ?? GxTone.of(name);
+    final palette = tone ?? GwTone.of(name);
     final fallback = _Initials(name: name, dimension: dimension, color: palette.strong);
 
     final decoration = switch (shape) {
-      GxAvatarShape.user => ShapeDecoration(
+      GwAvatarShape.user => ShapeDecoration(
           color: palette.soft,
           shape: const CircleBorder(),
         ),
-      GxAvatarShape.group => ShapeDecoration(
+      GwAvatarShape.group => ShapeDecoration(
           color: palette.soft,
           shape: RoundedRectangleBorder(
             // Scales with size so small and large group avatars look alike.
             borderRadius: BorderRadius.circular(
-              dimension * GxRadius.lg / GxAvatarSize.lg.dimension,
+              dimension * GwRadius.lg / GwAvatarSize.lg.dimension,
             ),
           ),
         ),

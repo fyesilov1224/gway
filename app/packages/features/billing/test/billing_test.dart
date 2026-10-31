@@ -97,7 +97,7 @@ Widget _app(
         orderProvider.overrideWith((ref, id) async => order!()),
       ],
       child: MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         home: MediaQuery.withClampedTextScaling(
           minScaleFactor: textScale,
           maxScaleFactor: textScale,
@@ -222,7 +222,7 @@ void main() {
       expect(find.text('1.000 üye'), findsOneWidget);
       expect(find.textContaining('₺'), findsNothing);
       expect(find.textContaining('web'), findsNothing);
-      expect(find.byType(GxButton), findsNothing);
+      expect(find.byType(GwButton), findsNothing);
     });
 
     testWidgets('a new group starts free: the web offers plans, mobile only their limits', (tester) async {

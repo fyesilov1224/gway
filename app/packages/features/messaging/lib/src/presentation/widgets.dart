@@ -33,8 +33,8 @@ class MessagesButton extends ConsumerWidget {
           ? icon
           : Badge(
               label: Text(unread > 99 ? '99+' : '$unread'),
-              backgroundColor: GxColors.primary,
-              textColor: GxColors.onPrimary,
+              backgroundColor: GwColors.primary,
+              textColor: GwColors.onPrimary,
               child: icon,
             ),
     );
@@ -74,8 +74,8 @@ class _MessageUserButtonState extends ConsumerState<MessageUserButton> {
     return IconButton.outlined(
       tooltip: 'Mesaj gönder',
       onPressed: _busy ? null : _open,
-      icon: const Icon(Icons.chat_bubble_outline_rounded, size: GxSpacing.md + GxSpacing.xxs),
-      style: IconButton.styleFrom(foregroundColor: GxColors.textPrimary, side: const BorderSide(color: GxColors.border)),
+      icon: const Icon(Icons.chat_bubble_outline_rounded, size: GwSpacing.md + GwSpacing.xxs),
+      style: IconButton.styleFrom(foregroundColor: GwColors.textPrimary, side: const BorderSide(color: GwColors.border)),
     );
   }
 }
@@ -110,10 +110,10 @@ class _GroupChatButtonState extends ConsumerState<GroupChatButton> {
   }
 
   @override
-  Widget build(BuildContext context) => GxButton(
+  Widget build(BuildContext context) => GwButton(
         label: 'Grup sohbeti',
         icon: Icons.forum_outlined,
-        variant: GxButtonVariant.secondary,
+        variant: GwButtonVariant.secondary,
         isLoading: _busy,
         expand: true,
         onPressed: _open,
@@ -122,16 +122,16 @@ class _GroupChatButtonState extends ConsumerState<GroupChatButton> {
 
 /// A person's circle or a group's rounded square.
 class ConversationAvatar extends StatelessWidget {
-  const ConversationAvatar({super.key, required this.conversation, this.size = GxAvatarSize.md});
+  const ConversationAvatar({super.key, required this.conversation, this.size = GwAvatarSize.md});
 
   final Conversation conversation;
-  final GxAvatarSize size;
+  final GwAvatarSize size;
 
   @override
-  Widget build(BuildContext context) => GxAvatar(
+  Widget build(BuildContext context) => GwAvatar(
         name: conversation.title,
         imageUrl: conversation.avatarUrl,
-        shape: conversation.kind == ConversationKind.direct ? GxAvatarShape.user : GxAvatarShape.group,
+        shape: conversation.kind == ConversationKind.direct ? GwAvatarShape.user : GwAvatarShape.group,
         size: size,
       );
 }

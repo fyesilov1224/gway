@@ -66,22 +66,22 @@ class _AdminSecurityScreenState extends ConsumerState<AdminSecurityScreen> {
       title: 'Güvenlik',
       subtitle: 'Konum, telefon ve iki adımlı doğrulama. Kesin sinyaller (sahte konum, başka ülkenin numarası) hesabı '
           'otomatik kapatır; belirsiz sinyaller (VPN, ülke uyuşmazlığı) hesabı kısıtlar ve buraya düşer.',
-      actions: [GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: _refresh)],
+      actions: [GwButton(label: 'Yenile', icon: Icons.refresh, variant: GwButtonVariant.secondary, onPressed: _refresh)],
       children: [
-        if (role == StaffRole.admin) ...[const _SettingsPanel(), const SizedBox(height: GxSpacing.lg)],
+        if (role == StaffRole.admin) ...[const _SettingsPanel(), const SizedBox(height: GwSpacing.lg)],
         Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           children: [
             ChoiceChip(label: const Text('Tümü'), selected: _status == null, onSelected: (_) => setState(() => _status = null)),
             for (final s in AdminReviewStatus.values)
               ChoiceChip(label: Text(s.label), selected: _status == s, onSelected: (_) => setState(() => _status = s)),
           ],
         ),
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         switch (reviews) {
-          AsyncData(value: []) => GxPanel(
-              child: GxEmptyState(
+          AsyncData(value: []) => GwPanel(
+              child: GwEmptyState(
                 icon: Icons.verified_user_outlined,
                 message: 'Bu durumda inceleme yok.',
                 actionLabel: 'Tüm incelemeleri göster',
@@ -98,12 +98,12 @@ class _AdminSecurityScreenState extends ConsumerState<AdminSecurityScreen> {
                     onApprove: () => _approve(r),
                     onBan: () => _ban(r),
                   ),
-                  const SizedBox(height: GxSpacing.md),
+                  const SizedBox(height: GwSpacing.md),
                 ],
               ],
             ),
-          AsyncError(:final error) => GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: _refresh)),
-          _ => const GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
+          AsyncError(:final error) => GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: _refresh)),
+          _ => const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
         },
       ],
     );
@@ -124,15 +124,15 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: Text(enforce ? 'Doğrulamayı zorunlu yap' : 'Doğrulamayı kapat'),
         content: Text(enforce
             ? 'Herkes (platform ekibi dahil) en geç bir saat içinde konum, telefon ve giriş doğrulamasından geçmeden '
                 'uygulamayı kullanamaz.'
             : 'Konum ve telefon doğrulaması istenmez; kısıtlı hesaplar da uygulamaya girebilir.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: enforce ? 'Zorunlu yap' : 'Kapat', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: enforce ? 'Zorunlu yap' : 'Kapat', onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -155,7 +155,7 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(securitySettingsProvider);
-    return GxPanel(
+    return GwPanel(
       title: 'Doğrulama zorunluluğu',
       child: switch (settings) {
         AsyncData(:final value) => Column(
@@ -198,19 +198,19 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
               ),
               Text(
                 'Bilgisayarda (web) tarayıcı yüklü uygulamaları göstermez; orada yalnızca konum ve IP ülkesi karşılaştırılır.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
               ),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Wrap(
-                spacing: GxSpacing.xs,
-                runSpacing: GxSpacing.xs,
+                spacing: GwSpacing.xs,
+                runSpacing: GwSpacing.xs,
                 children: [
                   value.smsConfigured
-                      ? const GxBadge('SMS sağlayıcısı hazır', tone: GxBadgeTone.success, dot: true)
-                      : const GxBadge('SMS sağlayıcısı yapılandırılmadı', tone: GxBadgeTone.warning, dot: true),
-                  GxBadge(
+                      ? const GwBadge('SMS sağlayıcısı hazır', tone: GwBadgeTone.success, dot: true)
+                      : const GwBadge('SMS sağlayıcısı yapılandırılmadı', tone: GwBadgeTone.warning, dot: true),
+                  GwBadge(
                     value.lookupEnabled ? 'Sanal numara kontrolü açık' : 'Sanal numara kontrolü kapalı',
-                    tone: value.lookupEnabled ? GxBadgeTone.success : GxBadgeTone.neutral,
+                    tone: value.lookupEnabled ? GwBadgeTone.success : GwBadgeTone.neutral,
                     dot: true,
                   ),
                 ],
@@ -218,8 +218,8 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
             ],
           ),
         AsyncError(:final error) =>
-          GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(securitySettingsProvider)),
-        _ => const GxSkeleton(height: GxSpacing.xxl, borderRadius: GxRadius.mdAll),
+          GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(securitySettingsProvider)),
+        _ => const GwSkeleton(height: GwSpacing.xxl, borderRadius: GwRadius.mdAll),
       },
     );
   }
@@ -237,15 +237,15 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final r = review;
-    return GxPanel(
+    return GwPanel(
       title: r.title,
       subtitle: 'Açıldı: ${formatDateTimeTr(r.openedAt)}',
-      trailing: GxBadge(
+      trailing: GwBadge(
         r.status.label,
         tone: switch (r.status) {
-          AdminReviewStatus.open => GxBadgeTone.warning,
-          AdminReviewStatus.approved => GxBadgeTone.success,
-          AdminReviewStatus.banned => GxBadgeTone.danger,
+          AdminReviewStatus.open => GwBadgeTone.warning,
+          AdminReviewStatus.approved => GwBadgeTone.success,
+          AdminReviewStatus.banned => GwBadgeTone.danger,
         },
         dot: true,
       ),
@@ -253,35 +253,35 @@ class _ReviewCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Wrap(
-            spacing: GxSpacing.xs,
-            runSpacing: GxSpacing.xs,
+            spacing: GwSpacing.xs,
+            runSpacing: GwSpacing.xs,
             children: [
               for (final s in r.signals)
-                GxBadge(securitySignalLabel(s), tone: isCertainSignal(s) ? GxBadgeTone.danger : GxBadgeTone.info),
+                GwBadge(securitySignalLabel(s), tone: isCertainSignal(s) ? GwBadgeTone.danger : GwBadgeTone.info),
             ],
           ),
           if (r.check case final check?) ...[
-            const SizedBox(height: GxSpacing.sm),
-            Text(check.summary, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+            const SizedBox(height: GwSpacing.sm),
+            Text(check.summary, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
           ],
           if (r.note case final note? when note.isNotEmpty) ...[
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Text('Not: $note', style: textTheme.bodyMedium),
           ],
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           Wrap(
-            spacing: GxSpacing.xs,
-            runSpacing: GxSpacing.xs,
+            spacing: GwSpacing.xs,
+            runSpacing: GwSpacing.xs,
             children: [
-              GxButton(
+              GwButton(
                 label: 'Kullanıcıyı aç',
                 icon: Icons.person_outline,
-                variant: GxButtonVariant.text,
+                variant: GwButtonVariant.text,
                 onPressed: () => context.go(AdminRoutes.user(r.userId)),
               ),
               if (canAct && r.status == AdminReviewStatus.open) ...[
-                GxButton(label: 'Onayla', icon: Icons.check, variant: GxButtonVariant.secondary, onPressed: onApprove),
-                GxButton(label: 'Banla', icon: Icons.block, onPressed: onBan),
+                GwButton(label: 'Onayla', icon: Icons.check, variant: GwButtonVariant.secondary, onPressed: onApprove),
+                GwButton(label: 'Banla', icon: Icons.block, onPressed: onBan),
               ],
             ],
           ),
@@ -312,26 +312,26 @@ class _ApproveDialogState extends State<_ApproveDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: const Text('Kısıtlamayı kaldır'),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+        constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text('Muafiyet süresince VPN ve ülke uyuşmazlığı hesabı yeniden kısıtlamaz. Kesin sinyaller her zaman '
                 'geçerlidir.'),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final (days, label) in const [(0, 'Muafiyet yok'), (30, '30 gün'), (90, '90 gün')])
                   ChoiceChip(label: Text(label), selected: _days == days, onSelected: (_) => setState(() => _days = days)),
               ],
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             TextField(
               controller: _note,
               maxLength: 1000,
@@ -342,8 +342,8 @@ class _ApproveDialogState extends State<_ApproveDialog> {
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: 'Onayla', onPressed: () => Navigator.of(context).pop((days: _days, note: _note.text.trim()))),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: 'Onayla', onPressed: () => Navigator.of(context).pop((days: _days, note: _note.text.trim()))),
       ],
     );
   }
@@ -366,16 +366,16 @@ class UserSecurityPanel extends ConsumerWidget {
           children: [
             if (value.reviewExempt) ...[
               const DetailBanner(
-                tone: GxBadgeTone.warning,
+                tone: GwBadgeTone.warning,
                 icon: Icons.verified_outlined,
                 title: 'Mağaza inceleme hesabı',
                 body: 'Konum, telefon ve giriş doğrulaması istenmez; konum sinyalleri ban ya da kısıtlama üretmez.',
               ),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
             ],
             if (admin) ...[
               _ReviewExemptSwitch(userId: userId, exempt: value.reviewExempt),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
             ],
             InfoPanel(title: 'Güvenlik', rows: [
               ('Durum', value.state == 'restricted' ? 'Kısıtlı (inceleme)' : 'Normal'),
@@ -389,15 +389,15 @@ class UserSecurityPanel extends ConsumerWidget {
                 ('Muafiyet', '${formatDateTimeTr(until)} tarihine kadar'),
             ]),
             if (value.checks.isNotEmpty) ...[
-              const SizedBox(height: GxSpacing.lg),
-              GxPanel(
+              const SizedBox(height: GwSpacing.lg),
+              GwPanel(
                 title: 'Son konum kontrolleri',
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final c in value.checks.take(10))
                       Padding(
-                        padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+                        padding: const EdgeInsets.only(bottom: GwSpacing.sm),
                         child: _CheckRow(check: c),
                       ),
                   ],
@@ -407,8 +407,8 @@ class UserSecurityPanel extends ConsumerWidget {
           ],
         ),
       AsyncError(:final error) =>
-        GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userSecurityProvider(userId)))),
-      _ => const GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
+        GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userSecurityProvider(userId)))),
+      _ => const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
     };
   }
 }
@@ -452,7 +452,7 @@ class _ReviewExemptSwitchState extends ConsumerState<_ReviewExemptSwitch> {
   }
 
   @override
-  Widget build(BuildContext context) => GxPanel(
+  Widget build(BuildContext context) => GwPanel(
         child: SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: widget.exempt,
@@ -475,20 +475,20 @@ class _CheckRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xxs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xxs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(formatDateTimeTr(check.checkedAt), style: textTheme.labelLarge),
             switch (check.verdict) {
-              'banned' => const GxBadge('Ban', tone: GxBadgeTone.danger),
-              'restricted' => const GxBadge('Kısıtlandı', tone: GxBadgeTone.warning),
-              _ => const GxBadge('Temiz', tone: GxBadgeTone.success),
+              'banned' => const GwBadge('Ban', tone: GwBadgeTone.danger),
+              'restricted' => const GwBadge('Kısıtlandı', tone: GwBadgeTone.warning),
+              _ => const GwBadge('Temiz', tone: GwBadgeTone.success),
             },
-            for (final s in check.signals) GxBadge(securitySignalLabel(s), tone: GxBadgeTone.neutral),
+            for (final s in check.signals) GwBadge(securitySignalLabel(s), tone: GwBadgeTone.neutral),
           ],
         ),
-        Text(check.summary, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+        Text(check.summary, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
       ],
     );
   }

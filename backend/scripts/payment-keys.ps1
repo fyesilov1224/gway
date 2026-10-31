@@ -1,6 +1,6 @@
 # PayTR and iyzico keys for the local API (docs/PAYMENTS.md).
 #
-# Keys go to `dotnet user-secrets` (%APPDATA%\Microsoft\UserSecrets\grupx-api), never into the repo. The API reads them
+# Keys go to `dotnet user-secrets` (%APPDATA%\Microsoft\UserSecrets\gway-api), never into the repo. The API reads them
 # by itself in the Development environment, so no environment variable is needed after this.
 #
 #   powershell -ExecutionPolicy Bypass -File backend\scripts\payment-keys.ps1 paytr    # store PayTR keys
@@ -14,7 +14,7 @@
 param([ValidateSet('paytr', 'iyzico', 'tunnel', 'show', 'clear')][string]$Step = 'show')
 
 $ErrorActionPreference = 'Stop'
-$project = Join-Path $PSScriptRoot '..\src\GrupX.Api'
+$project = Join-Path $PSScriptRoot '..\src\Gway.Api'
 
 function Set-Secret([string]$Name, [string]$Value) {
     dotnet user-secrets set $Name $Value --project $project | Out-Null

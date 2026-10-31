@@ -43,7 +43,7 @@ class _InviteLinksSectionState extends ConsumerState<InviteLinksSection> {
   Future<void> _share(InviteLink link) => shareWithMessage(
         context,
         ref.read(shareLinksProvider).invite(link.code),
-        text: '${widget.group.name} grubuna GrupX\'te katıl:',
+        text: '${widget.group.name} grubuna GWAY\'de katıl:',
       );
 
   Future<void> _revoke(InviteLink link) async {
@@ -67,20 +67,20 @@ class _InviteLinksSectionState extends ConsumerState<InviteLinksSection> {
     final textTheme = Theme.of(context).textTheme;
     final now = DateTime.now();
     return Padding(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('Davet bağlantısı', style: textTheme.titleMedium),
-          const SizedBox(height: GxSpacing.xxs),
+          const SizedBox(height: GwSpacing.xxs),
           Text(
             'WhatsApp ya da Instagram\'da paylaş. Bağlantıyı açan kişi katılım tipine bakılmadan doğrudan üye olur.',
-            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+            style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Align(
             alignment: Alignment.centerLeft,
-            child: GxButton(label: 'Bağlantı oluştur', icon: Icons.add_link, onPressed: _create),
+            child: GwButton(label: 'Bağlantı oluştur', icon: Icons.add_link, onPressed: _create),
           ),
           switch (ref.watch(inviteLinksProvider(widget.group.id))) {
             AsyncData(:final value) => Column(
@@ -108,8 +108,8 @@ class _InviteLinksSectionState extends ConsumerState<InviteLinksSection> {
                 ],
               ),
             AsyncError(:final error) => Padding(
-                padding: const EdgeInsets.only(top: GxSpacing.sm),
-                child: GxFormMessage(userMessageOf(error)),
+                padding: const EdgeInsets.only(top: GwSpacing.sm),
+                child: GwFormMessage(userMessageOf(error)),
               ),
             _ => const GroupListSkeleton(count: 1),
           },
@@ -157,29 +157,29 @@ class _CreateLinkSheetState extends ConsumerState<_CreateLinkSheet> {
     final textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.md),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.md),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Yeni davet bağlantısı', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text('Geçerlilik süresi', style: textTheme.titleSmall),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final days in InviteLink.durations)
                   ChoiceChip(label: Text('$days gün'), selected: _days == days, onSelected: (_) => setState(() => _days = days)),
               ],
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text('Kaç kişi katılabilir?', style: textTheme.titleSmall),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final limit in InviteLink.useLimits)
                   ChoiceChip(
@@ -189,9 +189,9 @@ class _CreateLinkSheetState extends ConsumerState<_CreateLinkSheet> {
                   ),
               ],
             ),
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.lg),
-            GxButton(label: 'Oluştur ve paylaş', isLoading: _saving, onPressed: _save),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.lg),
+            GwButton(label: 'Oluştur ve paylaş', isLoading: _saving, onPressed: _save),
           ],
         ),
       ),
@@ -241,19 +241,19 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Davet')),
       body: switch (ref.watch(invitePreviewProvider(widget.code))) {
-        AsyncData(:final value) when value == null || !value.valid => GxEmptyState(
+        AsyncData(:final value) when value == null || !value.valid => GwEmptyState(
             icon: Icons.link_off,
             message: 'Bu davet bağlantısı artık geçerli değil. Grubun yöneticisinden yeni bir bağlantı isteyebilirsin.',
             actionLabel: value == null ? 'Grupları keşfet' : 'Grubu gör',
             onAction: () => context.go(value == null ? GroupRoutes.discover : GroupRoutes.group(value.handle)),
           ),
         AsyncData(value: final preview?) => ListView(
-            padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+            padding: const EdgeInsets.only(bottom: GwSpacing.xl),
             children: [
-              GxHeroCard(
+              GwHeroCard(
                 name: preview.name,
                 subtitle: '@${preview.handle}',
-                shape: GxAvatarShape.group,
+                shape: GwAvatarShape.group,
                 coverUrl: preview.coverUrl,
                 avatarUrl: preview.logoUrl,
                 coverIcon: categoryIcon(preview.categorySlug),
@@ -261,13 +261,13 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
                   Text('Bu gruba davet edildin.', style: textTheme.titleMedium),
                   if (preview.about.isNotEmpty) Text(preview.about, style: textTheme.bodyLarge),
                   GroupMeta(icon: Icons.people_outline, text: memberCountLabel(preview.memberCount)),
-                  if (_error != null) GxFormMessage(_error!),
-                  GxButton(label: 'Gruba katıl', icon: Icons.group_add_outlined, isLoading: _joining, onPressed: _join),
+                  if (_error != null) GwFormMessage(_error!),
+                  GwButton(label: 'Gruba katıl', icon: Icons.group_add_outlined, isLoading: _joining, onPressed: _join),
                 ],
               ),
             ],
           ),
-        AsyncError(:final error) => GxErrorState(
+        AsyncError(:final error) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(invitePreviewProvider(widget.code)),
           ),

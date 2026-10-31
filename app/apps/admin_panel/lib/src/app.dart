@@ -12,9 +12,9 @@ class AdminPanelApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
-      title: 'GrupX Yönetim',
+      title: 'GWAY Yönetim',
       debugShowCheckedModeBanner: false,
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       routerConfig: router,
       builder: (_, child) => SecurityHeartbeat(
         navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,

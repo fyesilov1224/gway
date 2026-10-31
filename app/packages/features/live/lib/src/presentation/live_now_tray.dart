@@ -10,7 +10,7 @@ import 'routes.dart';
 class LiveNowTray extends ConsumerWidget {
   const LiveNowTray({super.key});
 
-  static const double _cardWidth = GxSpacing.xxl * 6;
+  static const double _cardWidth = GwSpacing.xxl * 6;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,14 +21,14 @@ class LiveNowTray extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const GxSectionHeader(title: 'Şimdi canlı'),
+        const GwSectionHeader(title: 'Şimdi canlı'),
         SizedBox(
-          height: GxAvatarSize.lg.dimension + GxSpacing.lg,
+          height: GwAvatarSize.lg.dimension + GwSpacing.lg,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
             itemCount: live.length,
-            separatorBuilder: (_, _) => const SizedBox(width: GxSpacing.sm),
+            separatorBuilder: (_, _) => const SizedBox(width: GwSpacing.sm),
             itemBuilder: (context, i) {
               final b = live[i];
               return Semantics(
@@ -37,28 +37,28 @@ class LiveNowTray extends ConsumerWidget {
                 excludeSemantics: true,
                 child: SizedBox(
                   width: _cardWidth,
-                  child: GxCard(
-                    radius: GxRadius.lgAll,
-                    padding: const EdgeInsets.all(GxSpacing.sm),
+                  child: GwCard(
+                    radius: GwRadius.lgAll,
+                    padding: const EdgeInsets.all(GwSpacing.sm),
                     onTap: () => context.push(LiveRoutes.room(b.id)),
                     child: Row(
                       children: [
-                        GxAvatar(name: b.group.name, imageUrl: b.group.logoUrl, shape: GxAvatarShape.group, size: GxAvatarSize.lg),
-                        const SizedBox(width: GxSpacing.sm),
+                        GwAvatar(name: b.group.name, imageUrl: b.group.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.lg),
+                        const SizedBox(width: GwSpacing.sm),
                         Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const GxLiveBadge(),
-                              const SizedBox(height: GxSpacing.xxs),
+                              const GwLiveBadge(),
+                              const SizedBox(height: GwSpacing.xxs),
                               Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                               Text(b.group.name,
-                                  maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                                  maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right_rounded, color: GxColors.textSecondary),
+                        const Icon(Icons.chevron_right_rounded, color: GwColors.textSecondary),
                       ],
                     ),
                   ),

@@ -15,7 +15,7 @@ Future<void> showLegalDocument(BuildContext context, LegalDocument document, {Vo
     showDragHandle: true,
     useSafeArea: true,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(GxRadius.xl)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(GwRadius.xl)),
     ),
     builder: (context) => DraggableScrollableSheet(
       expand: false,
@@ -61,7 +61,7 @@ class _DocumentBodyState extends State<_DocumentBody> {
   void _check() {
     if (_reported || !mounted || !widget.controller.hasClients) return;
     final position = widget.controller.position;
-    if (position.pixels >= position.maxScrollExtent - GxSpacing.md) {
+    if (position.pixels >= position.maxScrollExtent - GwSpacing.md) {
       _reported = true;
       widget.onReadToEnd!();
     }
@@ -72,15 +72,15 @@ class _DocumentBodyState extends State<_DocumentBody> {
     final document = widget.document;
     return ListView(
       controller: widget.controller,
-      padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xl),
       children: [
         Text(document.title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         Text(
           'Sürüm ${document.version}',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
         ),
-        const SizedBox(height: GxSpacing.md),
+        const SizedBox(height: GwSpacing.md),
         SelectableText(document.body, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
@@ -98,29 +98,29 @@ class LegalDocumentsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Hukuki metinler')),
       body: switch (docs) {
         AsyncData(:final value) => ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xs),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
             itemCount: value.length,
             separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (context, i) => ListTile(
-              minTileHeight: GxSpacing.xxl + GxSpacing.xs,
+              minTileHeight: GwSpacing.xxl + GwSpacing.xs,
               title: Text(value[i].title),
               subtitle: Text('Sürüm ${value[i].version}'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => showLegalDocument(context, value[i]),
             ),
           ),
-        AsyncError(:final error) => GxErrorState(
+        AsyncError(:final error) => GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref.invalidate(latestLegalDocumentsProvider),
           ),
         _ => ListView(
-            padding: const EdgeInsets.all(GxSpacing.md),
+            padding: const EdgeInsets.all(GwSpacing.md),
             children: const [
-              GxSkeleton(height: GxSpacing.xl),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.xl),
-              SizedBox(height: GxSpacing.md),
-              GxSkeleton(height: GxSpacing.xl),
+              GwSkeleton(height: GwSpacing.xl),
+              SizedBox(height: GwSpacing.md),
+              GwSkeleton(height: GwSpacing.xl),
+              SizedBox(height: GwSpacing.md),
+              GwSkeleton(height: GwSpacing.xl),
             ],
           ),
       },

@@ -17,10 +17,10 @@ bool _nearEnd(ScrollNotification n) => n.metrics.extentAfter < 800;
 
 /// Portrait tiles in three columns, separate rounded cards (docs/DESIGN.md §7).
 const postGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-  crossAxisCount: GxMedia.gridColumns,
-  childAspectRatio: GxMedia.gridTile,
-  mainAxisSpacing: GxMedia.gridGap,
-  crossAxisSpacing: GxMedia.gridGap,
+  crossAxisCount: GwMedia.gridColumns,
+  childAspectRatio: GwMedia.gridTile,
+  mainAxisSpacing: GwMedia.gridGap,
+  crossAxisSpacing: GwMedia.gridGap,
 );
 
 /// Post cards that load more near the end; [header] scrolls with them (e.g. the story bar).
@@ -53,24 +53,24 @@ class PagedPostFeed extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             if (header != null) SliverToBoxAdapter(child: header),
-            const SliverPadding(padding: EdgeInsets.only(top: GxSpacing.xs)),
+            const SliverPadding(padding: EdgeInsets.only(top: GwSpacing.xs)),
             switch (page) {
               AsyncData() when posts.isEmpty => SliverFillRemaining(
                   hasScrollBody: false,
-                  child: GxEmptyState(icon: empty.icon, message: empty.message, actionLabel: empty.actionLabel, onAction: empty.onAction),
+                  child: GwEmptyState(icon: empty.icon, message: empty.message, actionLabel: empty.actionLabel, onAction: empty.onAction),
                 ),
               AsyncData(:final value) => SliverList.separated(
                   itemCount: posts.length + (value.loadingMore ? 1 : 0),
-                  separatorBuilder: (_, _) => const SizedBox(height: GxSpacing.sm),
+                  separatorBuilder: (_, _) => const SizedBox(height: GwSpacing.sm),
                   itemBuilder: (_, i) => i == posts.length ? const PostCardSkeleton() : PostCard(post: posts[i]),
                 ),
               AsyncError(:final error) => SliverFillRemaining(
                   hasScrollBody: false,
-                  child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
+                  child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
                 ),
               _ => SliverList.list(children: const [PostCardSkeleton(), PostCardSkeleton()]),
             },
-            const SliverPadding(padding: EdgeInsets.only(bottom: GxSpacing.lg)),
+            const SliverPadding(padding: EdgeInsets.only(bottom: GwSpacing.lg)),
           ],
         ),
       ),
@@ -94,7 +94,7 @@ class PostGrid extends ConsumerWidget {
     return GridView.builder(
       shrinkWrap: !scrollable,
       physics: scrollable ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.xs),
       gridDelegate: postGridDelegate,
       itemCount: visible.length,
       itemBuilder: (context, i) => PostTile(post: visible[i]),
@@ -112,9 +112,9 @@ class PostTile extends StatelessWidget {
         button: true,
         label: post.caption.isEmpty ? 'Gönderi' : 'Gönderi: ${post.caption}',
         child: Material(
-          color: GxColors.surfaceMuted,
+          color: GwColors.surfaceMuted,
           clipBehavior: Clip.antiAlias,
-          borderRadius: const BorderRadius.all(Radius.circular(GxMedia.gridRadius)),
+          borderRadius: const BorderRadius.all(Radius.circular(GwMedia.gridRadius)),
           child: InkWell(
             onTap: () => context.push(FeedRoutes.post(post.id)),
             child: post.media.isEmpty
@@ -151,11 +151,11 @@ class PagedPostGrid extends ConsumerWidget {
         },
         child: switch (page) {
           AsyncData(:final value) when value.posts.isEmpty => ListView(children: [
-              const SizedBox(height: GxSpacing.xxl),
-              GxEmptyState(icon: empty.icon, message: empty.message, actionLabel: empty.actionLabel, onAction: empty.onAction),
+              const SizedBox(height: GwSpacing.xxl),
+              GwEmptyState(icon: empty.icon, message: empty.message, actionLabel: empty.actionLabel, onAction: empty.onAction),
             ]),
           AsyncData(:final value) => PostGrid(posts: value.posts, scrollable: true),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
           _ => const GridSkeleton(),
         },
       ),
@@ -178,8 +178,8 @@ class PostsSection extends ConsumerWidget {
     final page = ref.watch(postListProvider(source));
     return switch (page) {
       AsyncData(:final value) when value.posts.isEmpty => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg),
-          child: GxEmptyState(
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg),
+          child: GwEmptyState(
             icon: Icons.photo_camera_outlined,
             message: emptyMessage,
             actionLabel: emptyAction?.label ?? 'Yenile',
@@ -191,10 +191,10 @@ class PostsSection extends ConsumerWidget {
             PostGrid(posts: value.posts),
             if (value.hasMore)
               Padding(
-                padding: const EdgeInsets.all(GxSpacing.md),
-                child: GxButton(
+                padding: const EdgeInsets.all(GwSpacing.md),
+                child: GwButton(
                   label: 'Daha fazla göster',
-                  variant: GxButtonVariant.secondary,
+                  variant: GwButtonVariant.secondary,
                   isLoading: value.loadingMore,
                   onPressed: () => ref.read(postListProvider(source).notifier).loadMore(),
                 ),
@@ -202,8 +202,8 @@ class PostsSection extends ConsumerWidget {
           ],
         ),
       AsyncError(:final error) => Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
-          child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
+          padding: const EdgeInsets.all(GwSpacing.md),
+          child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postListProvider(source))),
         ),
       _ => const GridSkeleton(rows: 2, scrollable: false),
     };
@@ -219,11 +219,11 @@ class GridSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GridView.builder(
         gridDelegate: postGridDelegate,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.xs),
         shrinkWrap: !scrollable,
         physics: scrollable ? null : const NeverScrollableScrollPhysics(),
-        itemCount: rows * GxMedia.gridColumns,
+        itemCount: rows * GwMedia.gridColumns,
         itemBuilder: (_, _) =>
-            const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.all(Radius.circular(GxMedia.gridRadius))),
+            const GwSkeleton(height: double.infinity, borderRadius: BorderRadius.all(Radius.circular(GwMedia.gridRadius))),
       );
 }

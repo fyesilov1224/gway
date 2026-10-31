@@ -46,12 +46,12 @@ class _DeletionPendingScreenState extends ConsumerState<DeletionPendingScreen> {
           : 'Hesabın ve tüm verilerin ${formatDateTr(date)} tarihinde kalıcı olarak silinecek. '
               'O zamana kadar fikrini değiştirebilirsin.',
       children: [
-        if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
-        GxButton(label: 'Silmeyi geri al', onPressed: _restore, isLoading: _saving, expand: true),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+        if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
+        GwButton(label: 'Silmeyi geri al', onPressed: _restore, isLoading: _saving, expand: true),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Çıkış yap',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),
       ],
@@ -77,22 +77,22 @@ class SuspendedScreen extends ConsumerWidget {
               'profilinde askıda olduğun görünür.',
       children: [
         if (account?.suspensionReason case final reason?) ...[
-          GxFormMessage(banned ? 'Ban gerekçesi: $reason' : 'Askı gerekçesi: $reason'),
-          const SizedBox(height: GxSpacing.md),
+          GwFormMessage(banned ? 'Ban gerekçesi: $reason' : 'Askı gerekçesi: $reason'),
+          const SizedBox(height: GwSpacing.md),
         ],
         if (!banned) ...[
-          GxButton(
+          GwButton(
             label: 'Tekrar dene',
-            variant: GxButtonVariant.secondary,
+            variant: GwButtonVariant.secondary,
             onPressed: () async {
               await refreshAccountSession(() => ref.read(supabaseClientProvider));
               ref.invalidate(accountStateProvider);
             },
             expand: true,
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
         ],
-        GxButton(
+        GwButton(
           label: 'Çıkış yap',
           onPressed: () => ref.read(authRepositoryProvider).signOut(),
           expand: true,
@@ -142,29 +142,29 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text('Hesabını silmeden önce', style: textTheme.titleLarge),
-                  const SizedBox(height: GxSpacing.md),
+                  const SizedBox(height: GwSpacing.md),
                   for (final line in const [
                     'Profilin hemen gizlenir; kimse seni bulamaz.',
                     '${AccountRetention.graceDays} gün içinde giriş yapıp silmeyi geri alabilirsin.',
                     'Bu sürenin sonunda profilin, fotoğrafların ve tüm verilerin kalıcı olarak silinir.',
                   ])
                     Padding(
-                      padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+                      padding: const EdgeInsets.only(bottom: GwSpacing.sm),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Padding(
-                            padding: EdgeInsets.only(top: GxSpacing.xxs),
-                            child: Icon(Icons.check_circle_outline, size: GxSpacing.md + GxSpacing.xxs),
+                            padding: EdgeInsets.only(top: GwSpacing.xxs),
+                            child: Icon(Icons.check_circle_outline, size: GwSpacing.md + GwSpacing.xxs),
                           ),
-                          const SizedBox(width: GxSpacing.xs),
+                          const SizedBox(width: GwSpacing.xs),
                           Expanded(child: Text(line, style: textTheme.bodyLarge)),
                         ],
                       ),
@@ -176,9 +176,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                     controlAffinity: ListTileControlAffinity.leading,
                     title: const Text('Anladım, hesabımı silmek istiyorum.'),
                   ),
-                  const SizedBox(height: GxSpacing.md),
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
-                  GxButton(
+                  const SizedBox(height: GwSpacing.md),
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
+                  GwButton(
                     label: 'Hesabımı sil',
                     onPressed: _understood ? _delete : null,
                     isLoading: _saving,

@@ -80,33 +80,33 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final groups = ref.watch(managedGroupsProvider).value ?? const <ManagedGroup>[];
-    const gap = SizedBox(height: GxSpacing.md);
+    const gap = SizedBox(height: GwSpacing.md);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Yeni mesaj')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+            constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
             child: Form(
               key: _form,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text('Ne hakkında yazıyorsun?', style: textTheme.titleMedium),
-                  const SizedBox(height: GxSpacing.sm),
+                  const SizedBox(height: GwSpacing.sm),
                   for (final kind in SupportKind.values) ...[
                     _KindCard(kind: kind, selected: _kind == kind, onTap: () => setState(() {
                           _kind = kind;
                           _kindMissing = false;
                         })),
-                    const SizedBox(height: GxSpacing.xs),
+                    const SizedBox(height: GwSpacing.xs),
                   ],
                   if (_kindMissing)
-                    Text('Bir tür seç.', style: textTheme.bodySmall?.copyWith(color: GxColors.error)),
+                    Text('Bir tür seç.', style: textTheme.bodySmall?.copyWith(color: GwColors.error)),
                   gap,
-                  GxPanel(
+                  GwPanel(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -147,9 +147,9 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                           onAdd: _sending ? null : _addImage,
                           onRemove: (i) => setState(() => _images.removeAt(i)),
                         ),
-                        if (_error != null) ...[gap, GxFormMessage(_error!)],
-                        const SizedBox(height: GxSpacing.lg),
-                        GxButton(label: 'Gönder', icon: Icons.send_outlined, expand: true, isLoading: _sending, onPressed: _send),
+                        if (_error != null) ...[gap, GwFormMessage(_error!)],
+                        const SizedBox(height: GwSpacing.lg),
+                        GwButton(label: 'Gönder', icon: Icons.send_outlined, expand: true, isLoading: _sending, onPressed: _send),
                       ],
                     ),
                   ),
@@ -178,26 +178,26 @@ class _KindCard extends StatelessWidget {
       selected: selected,
       button: true,
       child: Material(
-        color: selected ? kind.softColor : GxColors.background,
+        color: selected ? kind.softColor : GwColors.background,
         shape: RoundedRectangleBorder(
-          borderRadius: GxRadius.lgAll,
-          side: selected ? BorderSide(color: kind.color, width: 1.5) : GxBorders.hairline,
+          borderRadius: GwRadius.lgAll,
+          side: selected ? BorderSide(color: kind.color, width: 1.5) : GwBorders.hairline,
         ),
         child: InkWell(
-          borderRadius: GxRadius.lgAll,
+          borderRadius: GwRadius.lgAll,
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(GxSpacing.md),
+            padding: const EdgeInsets.all(GwSpacing.md),
             child: Row(
               children: [
                 SupportKindIcon(kind),
-                const SizedBox(width: GxSpacing.sm),
+                const SizedBox(width: GwSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(kind.label, style: textTheme.titleMedium),
-                      Text(kind.description, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      Text(kind.description, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                     ],
                   ),
                 ),

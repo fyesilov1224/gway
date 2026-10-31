@@ -41,14 +41,14 @@ class GroupModerationPage extends ConsumerWidget {
         AsyncData(:final value) => GroupModerationScreen(groupId: value.id, groupName: value.name, links: moderationLinks),
         AsyncError() => Scaffold(
             appBar: AppBar(),
-            body: GxErrorState(
+            body: GwErrorState(
               message: 'Grup bulunamadı.',
               onRetry: () => ref.invalidate(groupByHandleProvider(handle)),
             ),
           ),
         _ => Scaffold(
             appBar: AppBar(),
-            body: const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 3)),
+            body: const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 3)),
           ),
       };
 }

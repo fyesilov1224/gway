@@ -11,7 +11,7 @@ Widget groupSupportSection(BuildContext context, Group group, MyMembership me) {
     alignment: Alignment.centerLeft,
     child: TextButton.icon(
       onPressed: () => context.push(SupportRoutes.create(groupId: group.id)),
-      icon: const Icon(Icons.support_agent_outlined, size: GxSpacing.md + GxSpacing.xxs),
+      icon: const Icon(Icons.support_agent_outlined, size: GwSpacing.md + GwSpacing.xxs),
       label: const Text('Bu grupla ilgili platform ekibine yaz'),
     ),
   );

@@ -29,19 +29,19 @@ class AdminPlansScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final (i, plan) in value.indexed) ...[
-                  if (i > 0) const SizedBox(height: GxSpacing.md),
+                  if (i > 0) const SizedBox(height: GwSpacing.md),
                   _PlanPanel(plan: plan, canEdit: canEdit),
                 ],
               ],
             ),
-          AsyncError(:final error) => GxPanel(
-              child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminPlansProvider)),
+          AsyncError(:final error) => GwPanel(
+              child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminPlansProvider)),
             ),
           _ => const Column(
               children: [
-                GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
-                SizedBox(height: GxSpacing.md),
-                GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
+                GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
+                SizedBox(height: GwSpacing.md),
+                GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
               ],
             ),
         },
@@ -73,29 +73,29 @@ class _PlanPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    return GxPanel(
+    return GwPanel(
       title: plan.name,
       subtitle: '${plan.activeGroups} grup bu paketi kullanıyor',
       trailing: Wrap(
-        spacing: GxSpacing.sm,
+        spacing: GwSpacing.sm,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (!plan.isFree)
             plan.isActive
-                ? const GxBadge('Satışta', tone: GxBadgeTone.primary, dot: true)
-                : const GxBadge('Satışta değil', dot: true),
+                ? const GwBadge('Satışta', tone: GwBadgeTone.primary, dot: true)
+                : const GwBadge('Satışta değil', dot: true),
           if (canEdit)
-            GxButton(
+            GwButton(
               label: 'Düzenle',
               icon: Icons.edit_outlined,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               onPressed: () => _edit(context, ref),
             ),
         ],
       ),
       child: Wrap(
-        spacing: GxSpacing.xl,
-        runSpacing: GxSpacing.md,
+        spacing: GwSpacing.xl,
+        runSpacing: GwSpacing.md,
         children: [
           for (final (label, value) in [
             ('Üye', formatCount(plan.maxMembers)),
@@ -109,7 +109,7 @@ class _PlanPanel extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                Text(label, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 Text(value, style: textTheme.titleMedium),
               ],
             ),
@@ -182,12 +182,12 @@ class _PlanDialogState extends State<_PlanDialog> {
 
   @override
   Widget build(BuildContext context) {
-    const gap = SizedBox(height: GxSpacing.md);
+    const gap = SizedBox(height: GwSpacing.md);
     return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: Text('${widget.plan.name} paketini düzenle'),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+        constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
         child: Form(
           key: _form,
           child: SingleChildScrollView(
@@ -232,8 +232,8 @@ class _PlanDialogState extends State<_PlanDialog> {
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: 'Kaydet', onPressed: _save),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: 'Kaydet', onPressed: _save),
       ],
     );
   }

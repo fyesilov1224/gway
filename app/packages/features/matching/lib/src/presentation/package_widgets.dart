@@ -37,29 +37,29 @@ Future<void> showPackageSheet(BuildContext context, {required MatchFeature featu
 
         return SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(packageIcon(feature.package), size: GxSpacing.xxl, color: GxColors.primary),
-                const SizedBox(height: GxSpacing.sm),
+                Icon(packageIcon(feature.package), size: GwSpacing.xxl, color: GwColors.primary),
+                const SizedBox(height: GwSpacing.sm),
                 Text(feature.package.title, textAlign: TextAlign.center, style: textTheme.headlineSmall),
-                const SizedBox(height: GxSpacing.xs),
-                Text(reason, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-                const SizedBox(height: GxSpacing.lg),
-                GxButton(label: '${feature.package.title} paketini incele', expand: true, onPressed: () => open(feature.package)),
-                const SizedBox(height: GxSpacing.xs),
-                GxButton(
+                const SizedBox(height: GwSpacing.xs),
+                Text(reason, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                const SizedBox(height: GwSpacing.lg),
+                GwButton(label: '${feature.package.title} paketini incele', expand: true, onPressed: () => open(feature.package)),
+                const SizedBox(height: GwSpacing.xs),
+                GwButton(
                   label: 'Hepsi Bir Arada',
                   icon: Icons.workspace_premium_outlined,
-                  variant: GxButtonVariant.secondary,
+                  variant: GwButtonVariant.secondary,
                   expand: true,
                   onPressed: () => open(MatchPackage.all),
                 ),
-                const SizedBox(height: GxSpacing.xs),
-                GxButton(
+                const SizedBox(height: GwSpacing.xs),
+                GwButton(
                   label: 'Tüm paketler',
-                  variant: GxButtonVariant.text,
+                  variant: GwButtonVariant.text,
                   expand: true,
                   onPressed: () {
                     Navigator.of(sheet).pop();
@@ -82,25 +82,25 @@ class MatchPackagesScreen extends ConsumerWidget {
     final status = ref.watch(matchStatusProvider).value;
     return Scaffold(
       appBar: AppBar(title: const Text('Eşleşme paketleri')),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: RefreshIndicator(
           onRefresh: () async => ref.invalidate(matchStatusProvider),
           child: ListView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             children: [
               Text(
                 'Profil açmak ve kaydırmak ücretsiz. Her özellik ayrı bir pakettir; yalnızca istediğini al.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
               if (status?.fullAccess ?? false) ...[
-                const SizedBox(height: GxSpacing.sm),
-                const GxBadge('Yönetici olarak tüm paketler açık', tone: GxBadgeTone.success),
+                const SizedBox(height: GwSpacing.sm),
+                const GwBadge('Yönetici olarak tüm paketler açık', tone: GwBadgeTone.success),
               ],
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               for (final p in [MatchPackage.all, ...MatchPackage.values.where((p) => p != MatchPackage.all)]) ...[
                 _PackageTile(package: p, until: status?.packages[p]),
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
               ],
             ],
           ),
@@ -120,32 +120,32 @@ class _PackageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final highlight = package == MatchPackage.all;
-    return GxCard(
+    return GwCard(
       onTap: () => context.push(MatchingRoutes.package(package)),
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       child: Row(
         children: [
           Container(
-            width: GxSpacing.xxl,
-            height: GxSpacing.xxl,
-            decoration: BoxDecoration(color: highlight ? GxColors.primary : GxColors.primarySoft, shape: BoxShape.circle),
-            child: Icon(packageIcon(package), color: highlight ? GxColors.onPrimary : GxColors.primary),
+            width: GwSpacing.xxl,
+            height: GwSpacing.xxl,
+            decoration: BoxDecoration(color: highlight ? GwColors.primary : GwColors.primarySoft, shape: BoxShape.circle),
+            child: Icon(packageIcon(package), color: highlight ? GwColors.onPrimary : GwColors.primary),
           ),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(package.title, style: textTheme.titleMedium),
-                Text(package.description, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                Text(package.description, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                 if (until != null) ...[
-                  const SizedBox(height: GxSpacing.xxs),
-                  GxBadge('${formatDateTr(until!)} tarihine kadar açık', tone: GxBadgeTone.success),
+                  const SizedBox(height: GwSpacing.xxs),
+                  GwBadge('${formatDateTr(until!)} tarihine kadar açık', tone: GwBadgeTone.success),
                 ],
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: GxColors.textSecondary),
+          const Icon(Icons.chevron_right_rounded, color: GwColors.textSecondary),
         ],
       ),
     );
@@ -172,37 +172,37 @@ class MatchPackageScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(package.title)),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: ListView(
-          padding: const EdgeInsets.all(GxSpacing.page),
+          padding: const EdgeInsets.all(GwSpacing.page),
           children: [
-            GxCard(
-              padding: const EdgeInsets.all(GxSpacing.lg),
+            GwCard(
+              padding: const EdgeInsets.all(GwSpacing.lg),
               child: Column(
                 children: [
-                  Icon(packageIcon(package), size: GxSpacing.xxl, color: GxColors.primary),
-                  const SizedBox(height: GxSpacing.sm),
+                  Icon(packageIcon(package), size: GwSpacing.xxl, color: GwColors.primary),
+                  const SizedBox(height: GwSpacing.sm),
                   Text(package.title, textAlign: TextAlign.center, style: textTheme.headlineSmall),
-                  const SizedBox(height: GxSpacing.xs),
-                  Text(package.description, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  const SizedBox(height: GwSpacing.xs),
+                  Text(package.description, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                   if (until != null) ...[
-                    const SizedBox(height: GxSpacing.sm),
-                    GxBadge('${formatDateTr(until)} tarihine kadar açık', tone: GxBadgeTone.success),
+                    const SizedBox(height: GwSpacing.sm),
+                    GwBadge('${formatDateTr(until)} tarihine kadar açık', tone: GwBadgeTone.success),
                   ],
                 ],
               ),
             ),
             if (included.length > 1) ...[
-              const SizedBox(height: GxSpacing.md),
-              GxCard(
-                padding: const EdgeInsets.all(GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
+              GwCard(
+                padding: const EdgeInsets.all(GwSpacing.md),
                 child: Column(
                   children: [
                     for (final p in included)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: Icon(packageIcon(p), color: GxColors.primary),
+                        leading: Icon(packageIcon(p), color: GwColors.primary),
                         title: Text(p.title),
                         subtitle: Text(p.description),
                       ),
@@ -210,7 +210,7 @@ class MatchPackageScreen extends ConsumerWidget {
                 ),
               ),
             ],
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             purchase(context, package.slug, orderId),
           ],
         ),
@@ -253,12 +253,12 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Filtreler', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text('Yaş: $min – $max', style: textTheme.titleSmall),
             RangeSlider(
               values: _ages,
@@ -268,7 +268,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
               labels: RangeLabels('$min', '$max'),
               onChanged: (v) => setState(() => _ages = v),
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             DropdownButtonFormField<int?>(
               initialValue: _province,
               isExpanded: true,
@@ -279,7 +279,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
               ],
               onChanged: (v) => setState(() => _province = v),
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             DropdownButtonFormField<String?>(
               initialValue: _interest,
               isExpanded: true,
@@ -290,8 +290,8 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
               ],
               onChanged: (v) => setState(() => _interest = v),
             ),
-            const SizedBox(height: GxSpacing.lg),
-            GxButton(
+            const SizedBox(height: GwSpacing.lg),
+            GwButton(
               label: 'Uygula',
               expand: true,
               onPressed: () => _apply(MatchFilters(
@@ -301,8 +301,8 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
                 interest: _interest,
               )),
             ),
-            const SizedBox(height: GxSpacing.xs),
-            GxButton(label: 'Temizle', variant: GxButtonVariant.text, expand: true, onPressed: () => _apply(const MatchFilters())),
+            const SizedBox(height: GwSpacing.xs),
+            GwButton(label: 'Temizle', variant: GwButtonVariant.text, expand: true, onPressed: () => _apply(const MatchFilters())),
           ],
         ),
       ),
@@ -359,13 +359,13 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Seni beğenenler')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (status) {
           AsyncData(:final value) => Column(
               children: [
                 if (modes.length > 1)
                   Padding(
-                    padding: const EdgeInsets.only(top: GxSpacing.sm),
+                    padding: const EdgeInsets.only(top: GwSpacing.sm),
                     child: SegmentedButton<MatchMode>(
                       segments: [
                         for (final m in MatchMode.values) ButtonSegment(value: m, label: Text('${m.label} (${value.admirers[m] ?? 0})')),
@@ -377,20 +377,20 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
                 Expanded(child: value.has(MatchFeature.admirers) ? _list(mode) : _locked(value.admirers[mode] ?? 0)),
               ],
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(matchStatusProvider)),
-          _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 6)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(matchStatusProvider)),
+          _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 6)),
         },
       ),
     );
   }
 
   Widget _grid(int count, Widget Function(int i) tile) => GridView.builder(
-        padding: const EdgeInsets.all(GxSpacing.page),
+        padding: const EdgeInsets.all(GwSpacing.page),
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: GxLayout.formMaxWidth / 2,
-          childAspectRatio: GxMedia.gridTile,
-          crossAxisSpacing: GxSpacing.xs,
-          mainAxisSpacing: GxSpacing.xs,
+          maxCrossAxisExtent: GwLayout.formMaxWidth / 2,
+          childAspectRatio: GwMedia.gridTile,
+          crossAxisSpacing: GwSpacing.xs,
+          mainAxisSpacing: GwSpacing.xs,
         ),
         itemCount: count,
         itemBuilder: (_, i) => tile(i),
@@ -398,7 +398,7 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
 
   Widget _list(MatchMode mode) => switch (ref.watch(admirersProvider(mode))) {
         AsyncData(:final value) when value.isEmpty => Center(
-            child: GxEmptyState(
+            child: GwEmptyState(
               icon: Icons.favorite_border_rounded,
               message: 'Şimdilik bekleyen beğeni yok. Kaydırmaya devam et; seni beğenenler burada görünür.',
               actionLabel: 'Kaydırmaya dön',
@@ -427,28 +427,28 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
               child: _Tile(card: value[i]),
             ),
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(admirersProvider(mode))),
-        _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 6)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(admirersProvider(mode))),
+        _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 6)),
       };
 
   Widget _locked(int count) {
     final textTheme = Theme.of(context).textTheme;
     return ListView(
-      padding: const EdgeInsets.all(GxSpacing.page),
+      padding: const EdgeInsets.all(GwSpacing.page),
       children: [
-        GxCard(
-          padding: const EdgeInsets.all(GxSpacing.lg),
+        GwCard(
+          padding: const EdgeInsets.all(GwSpacing.lg),
           child: Column(
             children: [
               Text(count == 0 ? 'Henüz bekleyen beğeni yok' : '$count kişi seni beğendi', style: textTheme.headlineSmall),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               Text(
                 'Seni Beğenenler paketiyle kim olduklarını gör, beğenerek anında eşleş.',
                 textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
-              const SizedBox(height: GxSpacing.md),
-              GxButton(
+              const SizedBox(height: GwSpacing.md),
+              GwButton(
                 label: 'Paketi incele',
                 icon: Icons.workspace_premium_outlined,
                 onPressed: () => context.push(MatchingRoutes.package(MatchPackage.admirers)),
@@ -457,27 +457,27 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
           ),
         ),
         if (count > 0) ...[
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
-            childAspectRatio: GxMedia.gridTile,
-            crossAxisSpacing: GxSpacing.xs,
-            mainAxisSpacing: GxSpacing.xs,
+            childAspectRatio: GwMedia.gridTile,
+            crossAxisSpacing: GwSpacing.xs,
+            mainAxisSpacing: GwSpacing.xs,
             children: [
               // No photo reaches the phone without the package; the tiles only hint at the count.
               for (var i = 0; i < count.clamp(0, 6); i++)
                 const DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: GxRadius.lgAll,
+                    borderRadius: GwRadius.lgAll,
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [GxColors.backdropLilac, GxColors.backdropPink],
+                      colors: [GwColors.backdropLilac, GwColors.backdropPink],
                     ),
                   ),
-                  child: Center(child: Icon(Icons.lock_outline_rounded, color: GxColors.primary)),
+                  child: Center(child: Icon(Icons.lock_outline_rounded, color: GwColors.primary)),
                 ),
             ],
           ),
@@ -494,38 +494,38 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-        borderRadius: GxRadius.lgAll,
+        borderRadius: GwRadius.lgAll,
         child: Stack(
           fit: StackFit.expand,
           children: [
             if (card.photoUrls.isEmpty)
-              const ColoredBox(color: GxColors.surfaceMuted)
+              const ColoredBox(color: GwColors.surfaceMuted)
             else
-              Image.network(card.photoUrls.first, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted)),
+              Image.network(card.photoUrls.first, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.center,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, GxColors.mediaScrim],
+                  colors: [Colors.transparent, GwColors.mediaScrim],
                 ),
               ),
             ),
             if (card.superLikedMe)
               const Positioned(
-                top: GxSpacing.xs,
-                right: GxSpacing.xs,
-                child: Icon(Icons.star_rounded, color: GxColors.onMedia),
+                top: GwSpacing.xs,
+                right: GwSpacing.xs,
+                child: Icon(Icons.star_rounded, color: GwColors.onMedia),
               ),
             Positioned(
-              left: GxSpacing.sm,
-              right: GxSpacing.sm,
-              bottom: GxSpacing.sm,
+              left: GwSpacing.sm,
+              right: GwSpacing.sm,
+              bottom: GwSpacing.sm,
               child: Text(
                 '${card.displayName}, ${card.age}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: GxColors.onMedia),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: GwColors.onMedia),
               ),
             ),
           ],

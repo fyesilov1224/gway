@@ -22,23 +22,23 @@ void _snack(BuildContext context, String message) =>
 
 /// An avatar inside a story ring: primary while unseen, a hairline once seen (docs/DESIGN.md §1).
 class StoryRingAvatar extends StatelessWidget {
-  const StoryRingAvatar({super.key, required this.name, this.imageUrl, required this.unseen, this.size = GxAvatarSize.lg, this.shape = GxAvatarShape.user});
+  const StoryRingAvatar({super.key, required this.name, this.imageUrl, required this.unseen, this.size = GwAvatarSize.lg, this.shape = GwAvatarShape.user});
 
   final String name;
   final String? imageUrl;
   final bool unseen;
-  final GxAvatarSize size;
-  final GxAvatarShape shape;
+  final GwAvatarSize size;
+  final GwAvatarShape shape;
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(GxBorders.ringWidth),
+        padding: const EdgeInsets.all(GwBorders.ringWidth),
         decoration: BoxDecoration(
-          shape: shape == GxAvatarShape.user ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: shape == GxAvatarShape.user ? null : GxRadius.lgAll,
-          border: Border.all(color: unseen ? GxColors.primary : GxColors.border, width: GxBorders.ringWidth),
+          shape: shape == GwAvatarShape.user ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: shape == GwAvatarShape.user ? null : GwRadius.lgAll,
+          border: Border.all(color: unseen ? GwColors.primary : GwColors.border, width: GwBorders.ringWidth),
         ),
-        child: GxAvatar(name: name, shape: shape, imageUrl: imageUrl, size: size),
+        child: GwAvatar(name: name, shape: shape, imageUrl: imageUrl, size: size),
       );
 }
 
@@ -47,7 +47,7 @@ class StoryRingAvatar extends StatelessWidget {
 class StoryTray extends ConsumerWidget {
   const StoryTray({super.key});
 
-  static const double _height = GxSpacing.xxl + GxSpacing.xs;
+  static const double _height = GwSpacing.xxl + GwSpacing.xs;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +59,7 @@ class StoryTray extends ConsumerWidget {
       height: _height,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
         children: [
           _TrayItem(
             label: mine == null ? 'Hikâye ekle' : 'Hikâyen',
@@ -82,29 +82,29 @@ class _TrayItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(right: GxSpacing.xs),
+        padding: const EdgeInsets.only(right: GwSpacing.xs),
         child: Center(
           child: Material(
-            color: GxColors.background,
-            shape: const StadiumBorder(side: GxBorders.hairline),
+            color: GwColors.background,
+            shape: const StadiumBorder(side: GwBorders.hairline),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.xxs, GxSpacing.xxs, GxSpacing.md, GxSpacing.xxs),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (ring case final r?)
-                      StoryRingAvatar(name: r.username, imageUrl: r.avatarUrl, unseen: r.hasUnseen, size: GxAvatarSize.sm)
+                      StoryRingAvatar(name: r.username, imageUrl: r.avatarUrl, unseen: r.hasUnseen, size: GwAvatarSize.sm)
                     else
                       Container(
-                        width: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
-                        height: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
-                        decoration: const ShapeDecoration(color: GxColors.primarySoft, shape: CircleBorder()),
-                        child: const Icon(Icons.add_rounded, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.primary),
+                        width: GwAvatarSize.sm.dimension + GwBorders.ringWidth * 4,
+                        height: GwAvatarSize.sm.dimension + GwBorders.ringWidth * 4,
+                        decoration: const ShapeDecoration(color: GwColors.primarySoft, shape: CircleBorder()),
+                        child: const Icon(Icons.add_rounded, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.primary),
                       ),
-                    const SizedBox(width: GxSpacing.xs),
+                    const SizedBox(width: GwSpacing.xs),
                     Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelLarge),
                   ],
                 ),
@@ -151,12 +151,12 @@ class _StoriesLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: GxColors.media,
+        backgroundColor: GwColors.media,
         body: SafeArea(
           child: switch (stories) {
             AsyncData(:final value) when value.isEmpty => Theme(
-                data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: GxColors.onMedia)),
-                child: GxEmptyState(
+                data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: GwColors.onMedia)),
+                child: GwEmptyState(
                   icon: Icons.history_toggle_off,
                   message: 'Burada görebileceğin bir hikaye kalmadı.',
                   actionLabel: 'Kapat',
@@ -165,10 +165,10 @@ class _StoriesLoader extends StatelessWidget {
               ),
             // A 9:16 stage, centered on wide screens.
             AsyncData(:final value) => Center(
-                child: AspectRatio(aspectRatio: GxMedia.story, child: StoryPlayer(stories: value, highlightId: highlightId)),
+                child: AspectRatio(aspectRatio: GwMedia.story, child: StoryPlayer(stories: value, highlightId: highlightId)),
               ),
-            AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: onRetry),
-            _ => const Center(child: CircularProgressIndicator(color: GxColors.onMedia)),
+            AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: onRetry),
+            _ => const Center(child: CircularProgressIndicator(color: GwColors.onMedia)),
           },
         ),
       );
@@ -284,8 +284,8 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
                   },
                 ),
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: GxColors.error),
-                title: const Text('Hikayeyi sil', style: TextStyle(color: GxColors.error)),
+                leading: const Icon(Icons.delete_outline, color: GwColors.error),
+                title: const Text('Hikayeyi sil', style: TextStyle(color: GwColors.error)),
                 onTap: () async {
                   Navigator.of(sheet).pop();
                   final result = await ref.read(storyRepositoryProvider).delete(_story);
@@ -305,7 +305,7 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
     final story = _story;
     final isOwner = story.author.id == ref.watch(currentUserIdProvider);
     final textTheme = Theme.of(context).textTheme;
-    final onMedia = textTheme.labelLarge?.copyWith(color: GxColors.onMedia);
+    final onMedia = textTheme.labelLarge?.copyWith(color: GwColors.onMedia);
 
     return Stack(
       fit: StackFit.expand,
@@ -324,10 +324,10 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
           right: 0,
           child: DecoratedBox(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [GxColors.mediaScrim, Color(0x00000000)]),
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [GwColors.mediaScrim, Color(0x00000000)]),
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.xs, GxSpacing.xxs, GxSpacing.md),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xs, GwSpacing.xxs, GwSpacing.md),
               child: Column(
                 children: [
                   Row(
@@ -341,26 +341,26 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
                               builder: (_, _) => LinearProgressIndicator(
                                 value: i < _index ? 1 : (i == _index ? _timer.value : 0),
                                 minHeight: 2,
-                                color: GxColors.onMedia,
-                                backgroundColor: GxColors.onMedia.withValues(alpha: 0.35),
+                                color: GwColors.onMedia,
+                                backgroundColor: GwColors.onMedia.withValues(alpha: 0.35),
                               ),
                             ),
                           ),
                         ),
                     ],
                   ),
-                  const SizedBox(height: GxSpacing.xs),
+                  const SizedBox(height: GwSpacing.xs),
                   Row(
                     children: [
-                      GxAvatar(name: story.author.displayName, shape: GxAvatarShape.user, imageUrl: story.author.avatarUrl, size: GxAvatarSize.sm),
-                      const SizedBox(width: GxSpacing.xs),
+                      GwAvatar(name: story.author.displayName, shape: GwAvatarShape.user, imageUrl: story.author.avatarUrl, size: GwAvatarSize.sm),
+                      const SizedBox(width: GwSpacing.xs),
                       Flexible(child: Text(story.author.username, style: onMedia, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                      const SizedBox(width: GxSpacing.xs),
-                      Text(formatAgoTr(story.createdAt), style: textTheme.labelMedium?.copyWith(color: GxColors.onMedia)),
+                      const SizedBox(width: GwSpacing.xs),
+                      Text(formatAgoTr(story.createdAt), style: textTheme.labelMedium?.copyWith(color: GwColors.onMedia)),
                       const Spacer(),
                       if (isOwner)
-                        IconButton(tooltip: 'Seçenekler', color: GxColors.onMedia, icon: const Icon(Icons.more_horiz), onPressed: _menu),
-                      IconButton(tooltip: 'Kapat', color: GxColors.onMedia, icon: const Icon(Icons.close), onPressed: _close),
+                        IconButton(tooltip: 'Seçenekler', color: GwColors.onMedia, icon: const Icon(Icons.more_horiz), onPressed: _menu),
+                      IconButton(tooltip: 'Kapat', color: GwColors.onMedia, icon: const Icon(Icons.close), onPressed: _close),
                     ],
                   ),
                 ],
@@ -370,12 +370,12 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
         ),
         if (isOwner)
           Positioned(
-            left: GxSpacing.md,
-            bottom: GxSpacing.md,
+            left: GwSpacing.md,
+            bottom: GwSpacing.md,
             child: TextButton.icon(
               onPressed: _showViewers,
-              style: TextButton.styleFrom(foregroundColor: GxColors.onMedia, backgroundColor: GxColors.mediaScrim),
-              icon: const Icon(Icons.visibility_outlined, size: GxSpacing.md + GxSpacing.xxs),
+              style: TextButton.styleFrom(foregroundColor: GwColors.onMedia, backgroundColor: GwColors.mediaScrim),
+              icon: const Icon(Icons.visibility_outlined, size: GwSpacing.md + GwSpacing.xxs),
               label: const Text('Görenler'),
             ),
           ),
@@ -394,7 +394,7 @@ class _StoryMedia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = story.media;
-    final fills = (media.aspectRatio / GxMedia.story - 1).abs() <= GxMedia.storyFitTolerance;
+    final fills = (media.aspectRatio / GwMedia.story - 1).abs() <= GwMedia.storyFitTolerance;
     final fit = fills ? BoxFit.cover : BoxFit.contain;
     final backdrop = media.previewUrl;
     return Stack(
@@ -402,10 +402,10 @@ class _StoryMedia extends StatelessWidget {
       children: [
         if (!fills && backdrop != null)
           ImageFiltered(
-            imageFilter: ui.ImageFilter.blur(sigmaX: GxMedia.backdropBlur, sigmaY: GxMedia.backdropBlur),
+            imageFilter: ui.ImageFilter.blur(sigmaX: GwMedia.backdropBlur, sigmaY: GwMedia.backdropBlur),
             child: MediaImage(url: backdrop),
           ),
-        if (!fills) const ColoredBox(color: GxColors.mediaScrim),
+        if (!fills) const ColoredBox(color: GwColors.mediaScrim),
         if (media.kind == MediaKind.image)
           MediaImage(url: media.url, placeholderUrl: media.thumbUrl, fit: fit)
         else
@@ -427,9 +427,9 @@ class _ViewersSheet extends ConsumerWidget {
     // The sheet's default height limit applies; short lists stay short.
     return SafeArea(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: GxSpacing.xxl * 4),
+        constraints: const BoxConstraints(minHeight: GwSpacing.xxl * 4),
         child: switch (viewers) {
-          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+          AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.visibility_outlined,
               message: 'Henüz kimse görmedi. Görenler burada yalnızca sana görünür.',
               actionLabel: 'Yenile',
@@ -439,12 +439,12 @@ class _ViewersSheet extends ConsumerWidget {
               shrinkWrap: true,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+                  padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
                   child: Text('${value.length} kişi gördü', style: Theme.of(context).textTheme.titleMedium),
                 ),
                 for (final v in value)
                   ListTile(
-                    leading: GxAvatar(name: v.person.displayName, shape: GxAvatarShape.user, imageUrl: v.person.avatarUrl, size: GxAvatarSize.md),
+                    leading: GwAvatar(name: v.person.displayName, shape: GwAvatarShape.user, imageUrl: v.person.avatarUrl, size: GwAvatarSize.md),
                     title: Text(v.person.username),
                     subtitle: Text(v.person.displayName),
                     trailing: Text(formatAgoTr(v.viewedAt)),
@@ -455,7 +455,7 @@ class _ViewersSheet extends ConsumerWidget {
                   ),
               ],
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyViewersProvider(storyId))),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyViewersProvider(storyId))),
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),
@@ -512,8 +512,8 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
     try {
       prepared = media.kind == MediaKind.video
           ? media
-          : await renderPhoto(media, _frame.rectIn(Size(media.width.toDouble(), media.height.toDouble()), GxMedia.story),
-              maxSide: GxMedia.storyMaxSide);
+          : await renderPhoto(media, _frame.rectIn(Size(media.width.toDouble(), media.height.toDouble()), GwMedia.story),
+              maxSide: GwMedia.storyMaxSide);
     } on Object {
       if (mounted) {
         setState(() {
@@ -544,8 +544,8 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
         title: const Text('Yeni hikaye'),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GxSpacing.sm),
-            child: GxButton(
+            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            child: GwButton(
               label: 'Hikayene ekle',
               isLoading: _sharing,
               onPressed: media == null || (media.kind == MediaKind.video && media.problem != null) ? null : _share,
@@ -553,16 +553,16 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
           ),
         ],
       ),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.feedMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.feedMaxWidth,
         child: ListView(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           children: [
-            if (_error case final error?) ...[GxFormMessage(error), const SizedBox(height: GxSpacing.sm)],
+            if (_error case final error?) ...[GwFormMessage(error), const SizedBox(height: GwSpacing.sm)],
             if (media == null)
               _picking
-                  ? const AspectRatio(aspectRatio: GxMedia.story, child: GxSkeleton(height: double.infinity, borderRadius: GxRadius.lgAll))
-                  : GxEmptyState(
+                  ? const AspectRatio(aspectRatio: GwMedia.story, child: GwSkeleton(height: double.infinity, borderRadius: GwRadius.lgAll))
+                  : GwEmptyState(
                       icon: Icons.history_toggle_off,
                       message: 'Hikayen için bir fotoğraf ya da 60 saniyeye kadar video seç.',
                       actionLabel: 'Galeriden seç',
@@ -570,14 +570,14 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
                     )
             else ...[
               ClipRRect(
-                borderRadius: GxRadius.lgAll,
+                borderRadius: GwRadius.lgAll,
                 child: IgnorePointer(
                   ignoring: _sharing,
-                  child: CropEditor(media: media, ratio: GxMedia.story, frame: _frame, onChanged: (f) => setState(() => _frame = f)),
+                  child: CropEditor(media: media, ratio: GwMedia.story, frame: _frame, onChanged: (f) => setState(() => _frame = f)),
                 ),
               ),
-              const SizedBox(height: GxSpacing.sm),
-              GxButton(label: 'Başka seç', variant: GxButtonVariant.secondary, onPressed: _sharing ? null : _pick),
+              const SizedBox(height: GwSpacing.sm),
+              GwButton(label: 'Başka seç', variant: GwButtonVariant.secondary, onPressed: _sharing ? null : _pick),
             ],
           ],
         ),
@@ -601,7 +601,7 @@ class AddToHighlightSheet extends ConsumerWidget {
         shrinkWrap: true,
         children: [
           ListTile(
-            leading: const CircleAvatar(backgroundColor: GxColors.surfaceMuted, child: Icon(Icons.add, color: GxColors.textPrimary)),
+            leading: const CircleAvatar(backgroundColor: GwColors.surfaceMuted, child: Icon(Icons.add, color: GwColors.textPrimary)),
             title: const Text('Yeni öne çıkan'),
             onTap: () async {
               final title = await askHighlightTitle(context);
@@ -615,7 +615,7 @@ class AddToHighlightSheet extends ConsumerWidget {
           ),
           for (final h in highlights)
             ListTile(
-              leading: _HighlightCover(highlight: h, size: GxSpacing.xxl - GxSpacing.xs),
+              leading: _HighlightCover(highlight: h, size: GwSpacing.xxl - GwSpacing.xs),
               title: Text(h.title),
               subtitle: Text('${h.storyCount} hikaye'),
               onTap: () async {
@@ -637,7 +637,7 @@ Future<String?> askHighlightTitle(BuildContext context, {String initial = ''}) {
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: const Text('Öne çıkan başlığı'),
       content: TextField(
         controller: controller,
@@ -646,8 +646,8 @@ Future<String?> askHighlightTitle(BuildContext context, {String initial = ''}) {
         decoration: const InputDecoration(hintText: 'Ör. Kamp 2026'),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(
           label: 'Kaydet',
           onPressed: () {
             final t = controller.text.trim();
@@ -667,13 +667,13 @@ class _HighlightCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(GxBorders.ringWidth),
-        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GxColors.border, width: GxBorders.ringWidth)),
+        padding: const EdgeInsets.all(GwBorders.ringWidth),
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GwColors.border, width: GwBorders.ringWidth)),
         child: ClipOval(
           child: SizedBox.square(
             dimension: size,
             child: highlight.cover == null
-                ? const ColoredBox(color: GxColors.surfaceMuted, child: Icon(Icons.collections_bookmark_outlined, color: GxColors.textSecondary))
+                ? const ColoredBox(color: GwColors.surfaceMuted, child: Icon(Icons.collections_bookmark_outlined, color: GwColors.textSecondary))
                 : MediaThumb(media: highlight.cover!),
           ),
         ),
@@ -695,22 +695,22 @@ class HighlightsRow extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     // Chips like the home story row, so highlights read as a shelf, not a row of circles.
     Widget item({required Widget cover, required String label, required VoidCallback onTap, VoidCallback? onLongPress}) => Padding(
-          padding: const EdgeInsets.only(right: GxSpacing.xs),
+          padding: const EdgeInsets.only(right: GwSpacing.xs),
           child: Center(
             child: Material(
-              color: GxColors.background,
-              shape: const StadiumBorder(side: GxBorders.hairline),
+              color: GwColors.background,
+              shape: const StadiumBorder(side: GwBorders.hairline),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: onTap,
                 onLongPress: onLongPress,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(GxSpacing.xxs, GxSpacing.xxs, GxSpacing.md, GxSpacing.xxs),
+                  padding: const EdgeInsets.fromLTRB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       cover,
-                      const SizedBox(width: GxSpacing.xs),
+                      const SizedBox(width: GwSpacing.xs),
                       Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                     ],
                   ),
@@ -720,14 +720,14 @@ class HighlightsRow extends ConsumerWidget {
           ),
         );
     return SizedBox(
-      height: GxSpacing.xxl + GxSpacing.md,
+      height: GwSpacing.xxl + GwSpacing.md,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
         children: [
           for (final h in visible)
             item(
-              cover: _HighlightCover(highlight: h, size: GxAvatarSize.sm.dimension),
+              cover: _HighlightCover(highlight: h, size: GwAvatarSize.sm.dimension),
               label: h.title,
               onTap: () => h.storyCount == 0 ? context.push(FeedRoutes.archive) : context.push(FeedRoutes.highlight(h.id)),
               onLongPress: isOwn ? () => _manage(context, ref, h) : null,
@@ -735,10 +735,10 @@ class HighlightsRow extends ConsumerWidget {
           if (isOwn)
             item(
               cover: Container(
-                width: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
-                height: GxAvatarSize.sm.dimension + GxBorders.ringWidth * 4,
-                decoration: const ShapeDecoration(color: GxColors.primarySoft, shape: CircleBorder()),
-                child: const Icon(Icons.add_rounded, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.primary),
+                width: GwAvatarSize.sm.dimension + GwBorders.ringWidth * 4,
+                height: GwAvatarSize.sm.dimension + GwBorders.ringWidth * 4,
+                decoration: const ShapeDecoration(color: GwColors.primarySoft, shape: CircleBorder()),
+                child: const Icon(Icons.add_rounded, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.primary),
               ),
               label: 'Öne çıkan ekle',
               onTap: () => context.push(FeedRoutes.archive),
@@ -768,8 +768,8 @@ class HighlightsRow extends ConsumerWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: GxColors.error),
-                title: const Text('Öne çıkanı sil', style: TextStyle(color: GxColors.error)),
+                leading: const Icon(Icons.delete_outline, color: GwColors.error),
+                title: const Text('Öne çıkanı sil', style: TextStyle(color: GwColors.error)),
                 subtitle: const Text('Hikayeler arşivinde kalır.'),
                 onTap: () async {
                   Navigator.of(sheet).pop();
@@ -814,14 +814,14 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
         actions: [
           if (_selected.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.sm),
-              child: GxButton(label: 'Öne çıkar', onPressed: _addSelected),
+              padding: const EdgeInsets.only(right: GwSpacing.sm),
+              child: GwButton(label: 'Öne çıkar', onPressed: _addSelected),
             ),
         ],
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (archive) {
-          AsyncData(:final value) when value.isEmpty => GxEmptyState(
+          AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.history_toggle_off,
               message: 'Paylaştığın hikayeler 24 saat sonra burada, yalnızca sana görünür şekilde saklanır.',
               actionLabel: 'Hikaye paylaş',
@@ -830,17 +830,17 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
           AsyncData(:final value) => Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(GxSpacing.md),
+                  padding: const EdgeInsets.all(GwSpacing.md),
                   child: Text('Öne çıkan oluşturmak ya da var olana eklemek için hikayeleri seç.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ),
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: GxMedia.gridColumns,
-                      childAspectRatio: GxMedia.story,
-                      mainAxisSpacing: GxMedia.gridGap,
-                      crossAxisSpacing: GxMedia.gridGap,
+                      crossAxisCount: GwMedia.gridColumns,
+                      childAspectRatio: GwMedia.story,
+                      mainAxisSpacing: GwMedia.gridGap,
+                      crossAxisSpacing: GwMedia.gridGap,
                     ),
                     itemCount: value.length,
                     itemBuilder: (context, i) {
@@ -857,23 +857,23 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                             children: [
                               MediaThumb(media: s.media),
                               Positioned(
-                                left: GxSpacing.xxs,
-                                bottom: GxSpacing.xxs,
+                                left: GwSpacing.xxs,
+                                bottom: GwSpacing.xxs,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xxs, vertical: 2),
-                                  decoration: const BoxDecoration(color: GxColors.mediaScrim, borderRadius: GxRadius.smAll),
+                                  padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
+                                  decoration: const BoxDecoration(color: GwColors.mediaScrim, borderRadius: GwRadius.smAll),
                                   child: Text(
                                     s.isActive(now) ? 'Yayında' : formatDateTr(s.createdAt),
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.onMedia),
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia),
                                   ),
                                 ),
                               ),
                               Positioned(
-                                right: GxSpacing.xxs,
-                                top: GxSpacing.xxs,
+                                right: GwSpacing.xxs,
+                                top: GwSpacing.xxs,
                                 child: Icon(
                                   selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-                                  color: selected ? GxColors.primary : GxColors.onMedia,
+                                  color: selected ? GwColors.primary : GwColors.onMedia,
                                 ),
                               ),
                             ],
@@ -885,7 +885,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                 ),
               ],
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyArchiveProvider)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(storyArchiveProvider)),
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),

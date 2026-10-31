@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Gway.Modules.Billing.Contracts\Gway.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Live.Contracts\Gway.Modules.Live.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Gway.Api.Tests" />
+  </ItemGroup>
+</Project>

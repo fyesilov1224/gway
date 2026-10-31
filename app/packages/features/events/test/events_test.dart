@@ -133,7 +133,7 @@ Future<_FakeEvents> _pump(WidgetTester tester, Widget child, {EventDetail? detai
       pollsProvider.overrideWith((ref, scope) async => polls),
       if (events != null) groupEventsProvider.overrideWith((ref, id) async => events),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: child),
+    child: MaterialApp(theme: GwTheme.light(), home: child),
   ));
   await tester.pumpAndSettle();
   return fake;
@@ -201,7 +201,7 @@ void main() {
         groupEventsProvider.overrideWith((ref, id) async => const GroupEvents(eventsLeft: 3)),
         similarEventsProvider.overrideWith((ref, key) async => key.groupId == 'g1' ? 2 : null),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
+      child: MaterialApp(theme: GwTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
     ));
     await tester.pumpAndSettle();
 
@@ -228,7 +228,7 @@ void main() {
             eventsRepositoryProvider.overrideWithValue(_FakeEvents()),
             yearSummaryProvider.overrideWith((ref, year) async => value),
           ],
-          child: MaterialApp(theme: GxTheme.light(), home: const YearSummaryScreen(year: 2026)),
+          child: MaterialApp(theme: GwTheme.light(), home: const YearSummaryScreen(year: 2026)),
         );
 
     testWidgets('the card fits a small phone at 130% text', (tester) async {
@@ -340,7 +340,7 @@ void main() {
           groupEventsProvider.overrideWith((ref, id) async => const GroupEvents(eventsLeft: 3)),
           similarEventsProvider.overrideWith((ref, key) async => null),
         ],
-        child: MaterialApp(theme: GxTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
+        child: MaterialApp(theme: GwTheme.light(), home: const EventEditorScreen(groupId: 'g1')),
       ));
       await tester.pumpAndSettle();
 
@@ -365,7 +365,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Tekrarı durdur'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(GxButton, 'Durdur'));
+      await tester.tap(find.widgetWithText(GwButton, 'Durdur'));
       await tester.pumpAndSettle();
       expect(fake.stopped, ['s1']);
     });
@@ -386,7 +386,7 @@ void main() {
           eventWelcomeProvider.overrideWith((ref, id) async => w),
         ],
         child: MaterialApp(
-          theme: GxTheme.light(),
+          theme: GwTheme.light(),
           home: Scaffold(body: SingleChildScrollView(child: EventWelcomeSection(event: event ?? upcoming, links: _links))),
         ),
       ));
@@ -433,7 +433,7 @@ void main() {
 
       expect(find.text('Karşılanmayı bekleyenler (1)'), findsOneWidget);
       expect(find.text('Mavi çanta'), findsOneWidget);
-      await tester.tap(find.widgetWithText(GxButton, 'Karşılarım'));
+      await tester.tap(find.widgetWithText(GwButton, 'Karşılarım'));
       await tester.pumpAndSettle();
       final take = find.widgetWithText(TextButton, 'Karşılarım');
       expect(tester.widget<TextButton>(take).onPressed, isNull, reason: 'a meeting note is required');
@@ -452,7 +452,7 @@ void main() {
           groupWelcomeProvider.overrideWith((ref, id) async => const GroupWelcome(greeters: 4, canGreet: true)),
         ],
         child: MaterialApp(
-          theme: GxTheme.light(),
+          theme: GwTheme.light(),
           home: const Scaffold(body: GroupWelcomeSection(groupId: 'g1', isMember: true)),
         ),
       ));
@@ -468,7 +468,7 @@ void main() {
       await tester.pumpWidget(ProviderScope(
         overrides: [groupWelcomeProvider.overrideWith((ref, id) async => const GroupWelcome(greeters: 2))],
         child: MaterialApp(
-          theme: GxTheme.light(),
+          theme: GwTheme.light(),
           home: const Scaffold(body: GroupWelcomeSection(groupId: 'g1', isMember: false)),
         ),
       ));
@@ -500,7 +500,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: GxTheme.light(),
+          theme: GwTheme.light(),
           home: LeagueScreen(category: 'hiking', province: 6, openGroup: (_, handle) => opened.add(handle)),
         ),
       ));
@@ -533,7 +533,7 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: GroupLeagueSection(groupId: 'g1'))),
+        child: MaterialApp(theme: GwTheme.light(), home: const Scaffold(body: GroupLeagueSection(groupId: 'g1'))),
       ));
       await tester.pumpAndSettle();
 
@@ -559,7 +559,7 @@ void main() {
     await _pump(tester, EventScreen(eventId: 'e1', links: _links), detail: EventDetail(event: e));
 
     expect(find.text('Katılım ücreti: 250 ₺'), findsOneWidget);
-    expect(find.text('Ücret organizasyon sahibine ödenir; GrupX ödeme almaz.'), findsOneWidget);
+    expect(find.text('Ücret organizasyon sahibine ödenir; GWAY ödeme almaz.'), findsOneWidget);
     expect(find.text('Doğa Yürüyüşçüleri grubuna katıl'), findsOneWidget);
     expect(find.text('Katıl'), findsNothing);
     expect(find.byTooltip('Şikayet et'), findsOneWidget);
@@ -698,7 +698,7 @@ void main() {
 
     expect(find.text('Katılım istekleri (1)'), findsOneWidget);
     expect(find.text('Katıl'), findsOneWidget, reason: 'managers join without a request');
-    await tester.tap(find.widgetWithText(GxButton, 'Onayla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Onayla'));
     await tester.pumpAndSettle();
     expect(fake.decisions, ['u7:true']);
   });
@@ -734,7 +734,7 @@ void main() {
         eventsRepositoryProvider.overrideWithValue(fake),
         calendarProvider.overrideWith((ref, q) async => [e1, e2]),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: const CalendarScreen()),
+      child: MaterialApp(theme: GwTheme.light(), home: const CalendarScreen()),
     ));
     await tester.pumpAndSettle();
 
@@ -798,7 +798,7 @@ void main() {
 
     await tester.tap(find.byTooltip('4 yıldız'));
     await tester.enterText(find.widgetWithText(TextField, 'Düzenleyenlere notun (isteğe bağlı)'), 'Rota güzeldi');
-    await tester.tap(find.widgetWithText(GxButton, 'Kaydet'));
+    await tester.tap(find.widgetWithText(GwButton, 'Kaydet'));
     await tester.pumpAndSettle();
     expect(fake.reviews, ['e1:4:Rota güzeldi']);
   });
@@ -839,7 +839,7 @@ void main() {
               ContributionBadge(slug: 'category', name: 'tutkunu', description: 'Bir kategoride 5 organizasyona katıl.'),
             ]),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: ContributionsSection(userId: 'u1', isOwn: false))),
+      child: MaterialApp(theme: GwTheme.light(), home: const Scaffold(body: ContributionsSection(userId: 'u1', isOwn: false))),
     ));
     await tester.pumpAndSettle();
 

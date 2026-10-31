@@ -168,7 +168,7 @@ void main() {
         liveAlertSoundProvider.overrideWithValue(() async => rings++),
       ],
       child: MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         builder: (_, child) => LiveNotificationAlerts(openLive: opened.add, child: child!),
         home: const Scaffold(),
       ),
@@ -276,7 +276,7 @@ void main() {
     final repo = _FakePreferences();
     await tester.pumpWidget(ProviderScope(
       overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
-      child: MaterialApp(theme: GxTheme.light(), home: const NotificationPreferencesScreen()),
+      child: MaterialApp(theme: GwTheme.light(), home: const NotificationPreferencesScreen()),
     ));
     await tester.pumpAndSettle();
 
@@ -290,7 +290,7 @@ void main() {
     final repo = _FakePreferences();
     await tester.pumpWidget(ProviderScope(
       overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
-      child: MaterialApp(theme: GxTheme.light(), home: const NotificationPreferencesScreen()),
+      child: MaterialApp(theme: GwTheme.light(), home: const NotificationPreferencesScreen()),
     ));
     await tester.pumpAndSettle();
 

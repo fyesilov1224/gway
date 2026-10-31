@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <title>GWAY</title>
+  <!-- A way curves into a G and a member steps onto it. Geometry: docs/brand/README.md -->
+  <path d="M100 60 A40 40 0 1 1 73.68 22.41" fill="none" stroke="#6E56CF" stroke-width="16" stroke-linecap="round"/><path d="M62 60 H100" stroke="#2F6FE0" stroke-width="16" stroke-linecap="round"/><circle cx="92" cy="35" r="11" fill="#2F6FE0"/>
+</svg>

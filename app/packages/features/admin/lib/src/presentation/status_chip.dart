@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart';
 
 import '../domain/admin_user.dart';
 
-GxBadgeTone statusTone(AdminAccountStatus status) => switch (status) {
-      AdminAccountStatus.active => GxBadgeTone.primary,
-      AdminAccountStatus.suspended => GxBadgeTone.danger,
-      AdminAccountStatus.pendingDeletion => GxBadgeTone.neutral,
+GwBadgeTone statusTone(AdminAccountStatus status) => switch (status) {
+      AdminAccountStatus.active => GwBadgeTone.primary,
+      AdminAccountStatus.suspended => GwBadgeTone.danger,
+      AdminAccountStatus.pendingDeletion => GwBadgeTone.neutral,
     };
 
 class StatusBadge extends StatelessWidget {
@@ -18,7 +18,7 @@ class StatusBadge extends StatelessWidget {
   final bool banned;
 
   @override
-  Widget build(BuildContext context) => GxBadge(banned ? 'Banlı' : status.label, tone: statusTone(status), dot: true);
+  Widget build(BuildContext context) => GwBadge(banned ? 'Banlı' : status.label, tone: statusTone(status), dot: true);
 }
 
 class RoleBadge extends StatelessWidget {
@@ -27,5 +27,5 @@ class RoleBadge extends StatelessWidget {
   final StaffRole role;
 
   @override
-  Widget build(BuildContext context) => GxBadge(role.label, tone: GxBadgeTone.info);
+  Widget build(BuildContext context) => GwBadge(role.label, tone: GwBadgeTone.info);
 }

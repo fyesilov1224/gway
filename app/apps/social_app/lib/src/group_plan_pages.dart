@@ -41,8 +41,8 @@ class _GroupGate extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: error == null
-          ? const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 4))
-          : GxErrorState(
+          ? const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4))
+          : GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(groupByHandleProvider(handle)),
             ),
@@ -89,7 +89,7 @@ class GroupCheckoutPage extends StatelessWidget {
             ? CheckoutScreen(groupId: group.id, groupName: group.name, planSlug: planSlug, period: period)
             : Scaffold(
                 appBar: AppBar(title: const Text('Ödeme')),
-                body: GxEmptyState(
+                body: GwEmptyState(
                   icon: Icons.lock_outline,
                   message: 'Paket işlemlerini yalnızca grup sahibi yapabilir.',
                   actionLabel: 'Gruba dön',

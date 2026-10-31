@@ -11,7 +11,7 @@ void main() {
       'items': [
         {
           'id': 'u1',
-          'email': 'ayse@grupx.app',
+          'email': 'ayse@gway.app',
           'username': 'ayse.k',
           'displayName': 'Ayşe',
           'status': 'suspended',
@@ -33,9 +33,9 @@ void main() {
   });
 
   test('users without a profile fall back to e-mail as title', () {
-    final u = AdminUserSummary.fromJson({'id': 'u2', 'email': 'yeni@grupx.app', 'status': 'active'});
+    final u = AdminUserSummary.fromJson({'id': 'u2', 'email': 'yeni@gway.app', 'status': 'active'});
 
-    expect(u.title, 'yeni@grupx.app');
+    expect(u.title, 'yeni@gway.app');
   });
 
   test('only admins and moderators can suspend', () {
@@ -48,7 +48,7 @@ void main() {
     SuspendRequest? result;
     await tester.pumpWidget(
       MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -79,7 +79,7 @@ void main() {
     SuspendRequest? result;
     await tester.pumpWidget(
       MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: Column(children: [

@@ -22,7 +22,7 @@ class EditProfileScreen extends ConsumerWidget {
       (AsyncData(value: final p?), AsyncData(value: final i)) => _EditForm(profile: p, interests: i.toSet()),
       (AsyncError(:final error), _) || (_, AsyncError(:final error)) => Scaffold(
           appBar: AppBar(title: const Text('Profili düzenle')),
-          body: GxErrorState(
+          body: GwErrorState(
             message: userMessageOf(error),
             onRetry: () {
               ref.invalidate(myProfileProvider);
@@ -33,14 +33,14 @@ class EditProfileScreen extends ConsumerWidget {
       _ => Scaffold(
           appBar: AppBar(title: const Text('Profili düzenle')),
           body: const Padding(
-            padding: EdgeInsets.all(GxSpacing.page),
+            padding: EdgeInsets.all(GwSpacing.page),
             child: Column(
               children: [
-                GxSkeleton(height: GxSpacing.xxl * 2),
-                SizedBox(height: GxSpacing.md),
-                GxSkeleton(height: GxSpacing.xxl),
-                SizedBox(height: GxSpacing.md),
-                GxSkeleton(height: GxSpacing.xxl),
+                GwSkeleton(height: GwSpacing.xxl * 2),
+                SizedBox(height: GwSpacing.md),
+                GwSkeleton(height: GwSpacing.xxl),
+                SizedBox(height: GwSpacing.md),
+                GwSkeleton(height: GwSpacing.xxl),
               ],
             ),
           ),
@@ -146,22 +146,22 @@ class _EditFormState extends ConsumerState<_EditForm> {
         title: const Text('Profili düzenle'),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GxSpacing.sm),
-            child: GxButton(label: 'Kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            child: GwButton(label: 'Kaydet', onPressed: busy ? null : _save, isLoading: _saving),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+            constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
             child: Form(
               key: _form,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  GxPanel(
+                  GwPanel(
                     padding: EdgeInsets.zero,
                     child: _ImagesEditor(
                       profile: profile,
@@ -171,8 +171,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                       onRemove: (kind) => _changeImage(kind, remove: true),
                     ),
                   ),
-                  const SizedBox(height: GxSpacing.lg),
-                  GxPanel(
+                  const SizedBox(height: GwSpacing.lg),
+                  GwPanel(
                     title: 'Profil bilgileri',
                     subtitle: 'Bu bilgiler profilinde herkese görünür.',
                     child: Column(
@@ -185,7 +185,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           validator: ProfileRules.validateDisplayName,
                           decoration: const InputDecoration(labelText: 'Adın', counterText: ''),
                         ),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         UsernameField(
                           controller: _username,
                           current: widget.profile.username,
@@ -195,7 +195,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                               : '${formatDateTr(lockedUntil)} tarihinden sonra değiştirebilirsin.',
                           onAvailabilityChanged: (v) => setState(() => _usernameAvailable = v),
                         ),
-                        const SizedBox(height: GxSpacing.md),
+                        const SizedBox(height: GwSpacing.md),
                         TextFormField(
                           controller: _bio,
                           maxLength: ProfileRules.bioMaxLength,
@@ -210,30 +210,30 @@ class _EditFormState extends ConsumerState<_EditForm> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: GxSpacing.lg),
-                  GxPanel(
+                  const SizedBox(height: GwSpacing.lg),
+                  GwPanel(
                     title: 'İlgi alanları',
                     subtitle: 'En fazla ${ProfileRules.maxInterests} tane seçebilirsin.',
                     trailing: Text(
                       '${_interests.length} / ${ProfileRules.maxInterests}',
-                      style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary),
+                      style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary),
                     ),
                     child: InterestPicker(selected: _interests, onChanged: (v) => setState(() => _interests = v)),
                   ),
-                  const SizedBox(height: GxSpacing.lg),
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.md)],
+                  const SizedBox(height: GwSpacing.lg),
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
                     alignment: Alignment.centerRight,
                     child: Wrap(
-                      spacing: GxSpacing.sm,
-                      runSpacing: GxSpacing.sm,
+                      spacing: GwSpacing.sm,
+                      runSpacing: GwSpacing.sm,
                       children: [
-                        GxButton(
+                        GwButton(
                           label: 'Vazgeç',
-                          variant: GxButtonVariant.secondary,
+                          variant: GwButtonVariant.secondary,
                           onPressed: busy ? null : () => context.pop(),
                         ),
-                        GxButton(label: 'Değişiklikleri kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+                        GwButton(label: 'Değişiklikleri kaydet', onPressed: busy ? null : _save, isLoading: _saving),
                       ],
                     ),
                   ),
@@ -274,18 +274,18 @@ class _ImagesEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(GxRadius.lg)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(GwRadius.lg)),
           child: AspectRatio(
-            aspectRatio: gxCoverAspectRatio(context),
+            aspectRatio: gwCoverAspectRatio(context),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (cover == null) const ColoredBox(color: GxColors.primarySoft) else Image.network(cover, fit: BoxFit.cover),
+                if (cover == null) const ColoredBox(color: GwColors.primarySoft) else Image.network(cover, fit: BoxFit.cover),
                 Positioned(
-                  top: GxSpacing.sm,
-                  right: GxSpacing.sm,
+                  top: GwSpacing.sm,
+                  right: GwSpacing.sm,
                   child: Wrap(
-                    spacing: GxSpacing.xs,
+                    spacing: GwSpacing.xs,
                     children: [
                       if (cover != null)
                         _OverlayButton(
@@ -308,16 +308,16 @@ class _ImagesEditor extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Row(
             children: [
               Stack(
                 children: [
-                  GxAvatar(name: profile.displayName, shape: GxAvatarShape.user, imageUrl: profile.avatarUrl, size: GxAvatarSize.xl),
+                  GwAvatar(name: profile.displayName, shape: GwAvatarShape.user, imageUrl: profile.avatarUrl, size: GwAvatarSize.xl),
                   if (uploading == ProfileImage.avatar)
                     const Positioned.fill(
                       child: Center(
-                        child: SizedBox.square(dimension: GxSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2)),
+                        child: SizedBox.square(dimension: GwSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2)),
                       ),
                     ),
                   Positioned(
@@ -325,24 +325,24 @@ class _ImagesEditor extends StatelessWidget {
                     bottom: 0,
                     child: IconButton.filled(
                       tooltip: 'Profil fotoğrafını değiştir',
-                      icon: const Icon(Icons.photo_camera_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                      icon: const Icon(Icons.photo_camera_outlined, size: GwSpacing.md + GwSpacing.xxs),
                       style: IconButton.styleFrom(
-                        backgroundColor: GxColors.primary,
-                        foregroundColor: GxColors.onPrimary,
-                        side: const BorderSide(color: GxColors.background, width: 2),
+                        backgroundColor: GwColors.primary,
+                        foregroundColor: GwColors.onPrimary,
+                        side: const BorderSide(color: GwColors.background, width: 2),
                       ),
                       onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: GxSpacing.md),
+              const SizedBox(width: GwSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Profil ve kapak fotoğrafı', style: textTheme.labelLarge),
-                    Text('JPEG, PNG veya WebP · en fazla 5 MB', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                    Text('JPEG, PNG veya WebP · en fazla 5 MB', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                     TextButton(
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
@@ -350,7 +350,7 @@ class _ImagesEditor extends StatelessWidget {
                     ),
                     if (hasAvatar)
                       TextButton(
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: GxColors.error),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: GwColors.error),
                         onPressed: enabled ? () => onRemove(ProfileImage.avatar) : null,
                         child: const Text('Profil fotoğrafını kaldır'),
                       ),
@@ -387,16 +387,16 @@ class _OverlayButton extends StatelessWidget {
       onPressed: loading ? null : onPressed,
       icon: loading
           ? const SizedBox.square(
-              dimension: GxSpacing.md,
-              child: CircularProgressIndicator(strokeWidth: 2, color: GxColors.onPrimary),
+              dimension: GwSpacing.md,
+              child: CircularProgressIndicator(strokeWidth: 2, color: GwColors.onPrimary),
             )
-          : Icon(icon, size: GxSpacing.md + GxSpacing.xxs),
+          : Icon(icon, size: GwSpacing.md + GwSpacing.xxs),
       label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: GxColors.textPrimary.withValues(alpha: 0.72),
-        foregroundColor: GxColors.onPrimary,
-        minimumSize: const Size(GxSpacing.minTouchTarget, GxSpacing.minTouchTarget),
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+        backgroundColor: GwColors.textPrimary.withValues(alpha: 0.72),
+        foregroundColor: GwColors.onPrimary,
+        minimumSize: const Size(GwSpacing.minTouchTarget, GwSpacing.minTouchTarget),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm),
         shape: const StadiumBorder(),
       ),
     );

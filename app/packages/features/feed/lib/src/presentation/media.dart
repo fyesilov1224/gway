@@ -17,11 +17,11 @@ class MediaImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
-        final cacheWidth = gxCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context));
+        final cacheWidth = gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context));
         final placeholder = placeholderUrl == null || placeholderUrl == url
-            ? const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)
+            ? const GwSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)
             : Image.network(placeholderUrl!, fit: fit, width: double.infinity, height: double.infinity, cacheWidth: cacheWidth,
-                errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted));
+                errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted));
         return Image.network(
           url,
           fit: fit,
@@ -40,8 +40,8 @@ class MediaImage extends StatelessWidget {
                   ),
                 ]),
           errorBuilder: (_, _, _) => const ColoredBox(
-            color: GxColors.surfaceMuted,
-            child: Center(child: Icon(Icons.broken_image_outlined, color: GxColors.textSecondary)),
+            color: GwColors.surfaceMuted,
+            child: Center(child: Icon(Icons.broken_image_outlined, color: GwColors.textSecondary)),
           ),
         );
       });
@@ -66,15 +66,15 @@ class MediaThumb extends StatelessWidget {
           MediaImage(url: poster)
         else
           const ColoredBox(
-            color: GxColors.media,
-            child: Center(child: Icon(Icons.play_arrow_rounded, color: GxColors.onMedia, size: GxSpacing.xl)),
+            color: GwColors.media,
+            child: Center(child: Icon(Icons.play_arrow_rounded, color: GwColors.onMedia, size: GwSpacing.xl)),
           ),
         if (badge != null)
           Positioned(
-            top: GxSpacing.xs,
-            right: GxSpacing.xs,
-            child: Icon(badge, color: GxColors.onMedia, size: GxSpacing.md + GxSpacing.xxs,
-                shadows: const [Shadow(color: GxColors.mediaScrim, blurRadius: GxSpacing.xxs)]),
+            top: GwSpacing.xs,
+            right: GwSpacing.xs,
+            child: Icon(badge, color: GwColors.onMedia, size: GwSpacing.md + GwSpacing.xxs,
+                shadows: const [Shadow(color: GwColors.mediaScrim, blurRadius: GwSpacing.xxs)]),
           ),
       ],
     );
@@ -150,7 +150,7 @@ class VideoViewState extends State<VideoView> {
     return GestureDetector(
       onTap: _ready ? _toggle : null,
       child: ColoredBox(
-        color: GxColors.media,
+        color: GwColors.media,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -163,22 +163,22 @@ class VideoViewState extends State<VideoView> {
             else if (widget.posterUrl != null)
               MediaImage(url: widget.posterUrl!)
             else if (v.hasError)
-              const Center(child: Icon(Icons.videocam_off_outlined, color: GxColors.onMedia))
+              const Center(child: Icon(Icons.videocam_off_outlined, color: GwColors.onMedia))
             else
-              const Center(child: CircularProgressIndicator(color: GxColors.onMedia)),
+              const Center(child: CircularProgressIndicator(color: GwColors.onMedia)),
             if (_ready && !v.isPlaying && widget.onFinished == null)
-              const Center(child: Icon(Icons.play_circle_fill_rounded, color: GxColors.onMedia, size: GxSpacing.xxl)),
+              const Center(child: Icon(Icons.play_circle_fill_rounded, color: GwColors.onMedia, size: GwSpacing.xxl)),
             if (_ready)
               Positioned(
-                right: GxSpacing.xs,
-                bottom: GxSpacing.xs,
+                right: GwSpacing.xs,
+                bottom: GwSpacing.xs,
                 child: Semantics(
                   button: true,
                   label: _muted ? 'Sesi aç' : 'Sesi kapat',
                   child: IconButton(
                     onPressed: _toggleMute,
-                    style: IconButton.styleFrom(backgroundColor: GxColors.mediaScrim, foregroundColor: GxColors.onMedia),
-                    icon: Icon(_muted ? Icons.volume_off_rounded : Icons.volume_up_rounded, size: GxSpacing.md + GxSpacing.xxs),
+                    style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim, foregroundColor: GwColors.onMedia),
+                    icon: Icon(_muted ? Icons.volume_off_rounded : Icons.volume_up_rounded, size: GwSpacing.md + GwSpacing.xxs),
                   ),
                 ),
               ),
@@ -261,8 +261,8 @@ class _MediaCarouselState extends State<MediaCarousel> with SingleTickerProvider
                     opacity: t < 0.7 ? 1 : (1 - (t - 0.7) / 0.3),
                     child: Transform.scale(
                       scale: scale,
-                      child: const Icon(Icons.favorite_rounded, color: GxColors.onMedia, size: GxSpacing.xxl * 2,
-                          shadows: [Shadow(color: GxColors.mediaScrim, blurRadius: GxSpacing.md)]),
+                      child: const Icon(Icons.favorite_rounded, color: GwColors.onMedia, size: GwSpacing.xxl * 2,
+                          shadows: [Shadow(color: GwColors.mediaScrim, blurRadius: GwSpacing.md)]),
                     ),
                   );
                 },
@@ -271,31 +271,31 @@ class _MediaCarouselState extends State<MediaCarousel> with SingleTickerProvider
           ),
           if (media.length > 1) ...[
             Positioned(
-              top: GxSpacing.sm,
-              right: GxSpacing.sm,
+              top: GwSpacing.sm,
+              right: GwSpacing.sm,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs),
-                decoration: const BoxDecoration(color: GxColors.mediaScrim, borderRadius: GxRadius.lgAll),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
+                decoration: const BoxDecoration(color: GwColors.mediaScrim, borderRadius: GwRadius.lgAll),
                 child: Text('${_index + 1}/${media.length}',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.onMedia)),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia)),
               ),
             ),
             Positioned(
-              bottom: GxSpacing.sm,
+              bottom: GwSpacing.sm,
               left: 0,
               right: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                spacing: GxSpacing.xxs,
+                spacing: GwSpacing.xxs,
                 children: [
                   for (var i = 0; i < media.length; i++)
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: GxSpacing.xs,
-                      height: GxSpacing.xs,
+                      width: GwSpacing.xs,
+                      height: GwSpacing.xs,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: i == _index ? GxColors.onMedia : GxColors.onMedia.withValues(alpha: 0.5),
+                        color: i == _index ? GwColors.onMedia : GwColors.onMedia.withValues(alpha: 0.5),
                       ),
                     ),
                 ],

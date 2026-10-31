@@ -22,17 +22,17 @@ class GroupModerationEntry extends ConsumerWidget {
       if (desk.pendingAppeals.isNotEmpty) '${desk.pendingAppeals.length} itiraz',
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
       child: Material(
-        color: GxColors.surface,
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll, side: BorderSide(color: GxColors.border)),
+        color: GwColors.surface,
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll, side: BorderSide(color: GwColors.border)),
         clipBehavior: Clip.antiAlias,
         child: ListTile(
           onTap: onOpen,
-          leading: const Icon(Icons.shield_outlined, color: GxColors.primary),
+          leading: const Icon(Icons.shield_outlined, color: GwColors.primary),
           title: Text('Moderasyon', style: textTheme.labelLarge),
           subtitle: Text(work.isEmpty ? 'Bekleyen iş yok' : work.join(' · ')),
-          trailing: desk.pending > 0 ? GxBadge('${desk.pending}', tone: GxBadgeTone.danger) : const Icon(Icons.chevron_right),
+          trailing: desk.pending > 0 ? GwBadge('${desk.pending}', tone: GwBadgeTone.danger) : const Icon(Icons.chevron_right),
         ),
       ),
     );

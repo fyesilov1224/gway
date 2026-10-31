@@ -1,6 +1,8 @@
-# GrupX — Mimari ve Kurallar
+# GWAY — Mimari ve Kurallar
 
 Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. Bir kural değişecekse önce bu dosya güncellenir, sonra kod yazılır.
+
+**Ad:** Ürünün adı **GWAY**'dir; 2026-10-31'e kadar GrupX'ti (kullanıcı isteği). Kodda C# projeleri ve namespace'leri `Gway.*`, tasarım sistemi bileşenleri `Gw*` önekini taşır. Uygulanmış migration'lar değiştirilmez: eski hukuki metin sürümleri GrupX adıyla kalır, adı GWAY olan yeni sürümler `0061` ile yayınlanır ve kullanıcılardan yeniden onay istenir. Firebase proje kimliği (`grupx-08706`) ve anahtarların durduğu yerel `%USERPROFILE%\.grupx` klasörü değiştirilemeyen ya da repoya ait olmayan adlar olarak kalır.
 
 ---
 
@@ -12,7 +14,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
    ├──────────────────────────────► Supabase (Auth, Postgres+RLS, Storage, Realtime)
    │                                        ▲
    │  kural / para / yetki içeren yazma     │ service role
-   └──────────────► C# API (GrupX.Api) ─────┘
+   └──────────────► C# API (Gway.Api) ─────┘
                        │
                        ├──► LiveKit (yayın tokenı, sunucu tarafı moderasyon)
                        ├──► PayTR (yurt içi ödeme, hash doğrulamalı bildirim)
@@ -41,11 +43,11 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 
 `core, identity, profile, groups, billing, support, feed, notifications, events, moderation, live, messaging, matching, admin`
 
-- Her modül Flutter'da `app/packages/features/<modül>` olarak, C#'ta `backend/src/Modules/GrupX.Modules.<Ad>` olarak **aynı isimle** yaşar.
+- Her modül Flutter'da `app/packages/features/<modül>` olarak, C#'ta `backend/src/Modules/Gway.Modules.<Ad>` olarak **aynı isimle** yaşar.
 - Her modül kendi tablolarının sahibidir. Bir tablonun sahibi migration'daki yorumla belirtilir (`-- owner: <modül>`).
 - Modüller birbirinin tablosuna doğrudan yazmaz.
 - Flutter'da feature paketleri birbirini import etmez. Ortak ihtiyaçlar `core` veya `design_system` paketindedir.
-- C#'ta bir modül başka bir modülün yalnızca `GrupX.Modules.<Ad>.Contracts` projesine referans verebilir.
+- C#'ta bir modül başka bir modülün yalnızca `Gway.Modules.<Ad>.Contracts` projesine referans verebilir.
 - Modül klasörü ancak o modülün ilk gerçek kodu yazıldığında oluşturulur. Boş modül iskeleti tutulmaz.
 
 ### Tablo sahipliği
@@ -139,7 +141,7 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 - **Değişmezlik:** bir sürüme **en az bir onay (`consents`) bağlandıysa** o sürümün başlığı ve gövdesi artık değiştirilemez, silinemez (hem FK hem `legal_documents_guard` trigger ile). Kullanıcıların onayladığı metin kayıt altında kalır; metni güncellemek için yeni sürüm açılır. Henüz kimsenin onaylamadığı bir sürüm (taslak ya da yeni yayın) serbestçe düzenlenip silinebilir.
 
 ### Yaş sınırı: 18+ (Faz 17a, kullanıcı kararı 2026-10-27)
-- GrupX yalnızca 18 yaş ve üstüne açıktır (eşleşmede sevgili bulma var; Play hedef kitlesi 18+).
+- GWAY yalnızca 18 yaş ve üstüne açıktır (eşleşmede sevgili bulma var; Play hedef kitlesi 18+).
 - Giriş sonrası sıra: güvenlik → KVKK → **doğum tarihi** → onboarding → uygulama. Doğum tarihi olmayan mevcut hesaplar da bu adımı görür.
 - `birth_dates` (identity): kullanıcı başına bir satır.
   - Kullanıcı kendi tarihini bir kez ekler ve okur (kendi verisine basit yazma).
@@ -149,7 +151,7 @@ Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları 
 
 ### Profil
 - `profiles` satırı onboarding sonunda kullanıcı tarafından oluşturulur (Flutter → Supabase, RLS `id = auth.uid()`).
-- Kullanıcı adı: zorunlu, benzersiz, 3–30 karakter, `a-z 0-9 _ .`, nokta ile başlayıp bitemez, `..` içeremez, ayrılmış adlar (`admin`, `grupx`, `destek`...) kullanılamaz. İlk seçimden sonra **30 günde bir** değiştirilebilir. Kuralı trigger uygular, `username_changed_at` değerini trigger yazar.
+- Kullanıcı adı: zorunlu, benzersiz, 3–30 karakter, `a-z 0-9 _ .`, nokta ile başlayıp bitemez, `..` içeremez, ayrılmış adlar (`admin`, `gway`, `destek`...) kullanılamaz. İlk seçimden sonra **30 günde bir** değiştirilebilir. Kuralı trigger uygular, `username_changed_at` değerini trigger yazar.
 - Uygunluk kontrolü: `public.is_username_available(text)` RPC'si. Gizli hesapların adları da dolu sayılır.
 - İlgi alanları: `profile_interests` (en fazla 10), `categories` tablosundan seçilir. `categories` Faz 2'de gruplar için de kullanılır.
 - Görseller: `avatars` ve `covers` bucket'ları herkese açık okunur. Kullanıcı yalnızca `<uid>/` klasörüne yazar. En fazla 5 MB; JPEG, PNG veya WebP.
@@ -208,7 +210,7 @@ Grupları WhatsApp ve Instagram'dan taşımanın yolu: paylaşılan bir bağlant
 - **Audit log:** `group.invite_link_created`, `group.invite_link_revoked` (yapan grup yetkilisi ya da platform ekibi). Bağlantıyla katılmak kişinin kendi işlemidir; kullanım tablosunda kalır.
 
 ### Paylaşım sayfaları (Faz 18j)
-- Grup, organizasyon ve davet bağlantıları `<paylaşım adresi>/s/g/<handle>`, `/s/e/<id>`, `/s/i/<kod>` biçimindedir. Bu adresleri C# API sunar (`GET /s/...`, giriş gerekmez): başlık, açıklama ve görselle Open Graph etiketli küçük bir HTML sayfası döner (WhatsApp ve Instagram önizlemesi) ve kişiyi web uygulamasındaki sayfaya (`<uygulama adresi>/#/g/<handle>`, `/#/e/<id>`, `/#/i/<kod>`) yönlendirir. Bulunmayan ya da askıdaki kayıt için genel GrupX önizlemesi döner; gizli bilgi sayfaya girmez (organizasyonun katılımcıları, bağlantının sahibi).
+- Grup, organizasyon ve davet bağlantıları `<paylaşım adresi>/s/g/<handle>`, `/s/e/<id>`, `/s/i/<kod>` biçimindedir. Bu adresleri C# API sunar (`GET /s/...`, giriş gerekmez): başlık, açıklama ve görselle Open Graph etiketli küçük bir HTML sayfası döner (WhatsApp ve Instagram önizlemesi) ve kişiyi web uygulamasındaki sayfaya (`<uygulama adresi>/#/g/<handle>`, `/#/e/<id>`, `/#/i/<kod>`) yönlendirir. Bulunmayan ya da askıdaki kayıt için genel GWAY önizlemesi döner; gizli bilgi sayfaya girmez (organizasyonun katılımcıları, bağlantının sahibi).
 - Uygulamanın adresi `Share__AppUrl` ayarıdır. Yayında Caddy `app.<alan adı>/s/*` isteklerini API'ye geçirir; uygulama paylaşım adresini `SHARE_URL` dart-define'ından alır (yoksa `API_URL`).
 - Giriş yapmamış kişi bir bağlantıyı açarsa uygulama adresi hatırlar; giriş, doğrulama ve onboarding bitince oraya döner.
 - Uygulama yüklü telefonda `https` bağlantısını doğrudan uygulamada açmak (Android App Links, iOS Universal Links) alan adı belli olunca bağlanır; o zamana kadar bağlantı web uygulamasında açılır.
@@ -318,7 +320,7 @@ Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 | feed | `posts`, `post_media`, `post_hashtags`, `post_likes`, `post_reactions`, `comments`, `comment_likes`, `saved_posts`, `stories`, `story_views`, `highlights`, `highlight_stories`, Storage `media` |
 | notifications | `notifications` (kayıtları diğer modüllerin tablolarındaki trigger'lar oluşturur), `push_devices` |
 
-C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gönderi oluşturma, düzenleme, silme; admin kaldırma) modülleri eklenir. `GrupX.Modules.Notifications` yalnızca push gönderimini yapar (§3c, Push).
+C#'ta `Gway.Modules.Profile` (takip ve engelleme) ve `Gway.Modules.Feed` (gönderi oluşturma, düzenleme, silme; admin kaldırma) modülleri eklenir. `Gway.Modules.Notifications` yalnızca push gönderimini yapar (§3c, Push).
 
 ### Görünürlük kuralı (tek yerde)
 `private.can_view_user_content(author)` bir kullanıcının içeriğinin (gönderi, hikaye, takipçi listeleri) görülüp görülemeyeceğini söyler:
@@ -403,7 +405,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
   - **Küçük kopya** (`post_media.thumb_path`): her fotoğraf için en uzun kenarı 480 px JPEG; ızgara, keşfet ve bildirim önizlemeleri bunu kullanır. Sunucu görsel dönüştürmez (Supabase görsel dönüştürme bulutta ücretli).
   - Medyanın (kırpılmış) genişlik ve yüksekliği saklanır; akış ilk medyanın oranını 4:5 ile 1.91:1 arasında sınırlayarak gösterir.
   - Video cihazda dönüştürülmez. Süresi cihazda kontrol edilir; sunucu boyut ve türü kontrol eder.
-  - Ölçülerin hepsi `GxMedia` tokenlarındadır (`docs/DESIGN.md` §7).
+  - Ölçülerin hepsi `GwMedia` tokenlarındadır (`docs/DESIGN.md` §7).
 - **Seçenekler:** yorumları kapat, beğeni sayısını gizle (sayıyı yalnızca yazar görür).
 - **Oluşturma, düzenleme, silme C# API'den geçer** (`POST /posts`, `PATCH /posts/{id}`, `DELETE /posts/{id}`):
   - Medya (ve küçük kopyası) önce `media` bucket'ına `<uid>/<uuid>.<uzantı>` olarak yüklenir. API, her dosyanın yükleyene ait olduğunu, depoda bulunduğunu ve türünün doğru olduğunu doğrular (küçük kopya yalnızca fotoğrafta ve görsel olmalı).
@@ -558,7 +560,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 
 ### Arayüz
 - **Grup sayfası:** "Organizasyonlar" bölümü (yaklaşanlar; kapak, tarih, yer, katılan sayısı) ve "Anketler" bölümü (açık anketler, oy verme ve sonuç çubukları). Yetkiliye "Organizasyon oluştur" ve "Anket aç".
-- **Organizasyon sayfası** (`/e/<id>`): kapak, başlık, grup, tarih ve saat, yer ve harita bağlantısı, ücret bilgisi ("Ücret organizasyon sahibine ödenir, GrupX ödeme almaz"), kapasite çubuğu, katılanlar, bağlı anketler, Katıl / Bekleme listesine gir / Vazgeç. Yetkiliye Düzenle ve İptal et.
+- **Organizasyon sayfası** (`/e/<id>`): kapak, başlık, grup, tarih ve saat, yer ve harita bağlantısı, ücret bilgisi ("Ücret organizasyon sahibine ödenir, GWAY ödeme almaz"), kapasite çubuğu, katılanlar, bağlı anketler, Katıl / Bekleme listesine gir / Vazgeç. Yetkiliye Düzenle ve İptal et.
 - **Organizasyon sayfası** (Faz 8): katılım koşulları ve ekipman listesi, "Takvime ekle", onaylı katılımda "Katılım isteği gönder" ve "Onay bekliyor"; yetkiliye bekleyen istekler (Onayla / Reddet).
 - **Organizasyon formu:** kapak, başlık, açıklama, tarih ve saat, bitiş, yer, bağlantı, kapasite, ücret, katılım koşulları, ekipman, "Katılım onayla olsun"; bu ay kalan organizasyon hakkı.
 
@@ -604,10 +606,10 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Görünürlük:** Profilde (`public.user_contributions`) ve grubun üye listesinde (`public.group_contributions`, yalnızca o grubun katılım ve düzenleme sayıları; yalnızca grubun üyelerine ve platform ekibine, §3b Gruplar arası denge) görünür. Gizli hesabın katkısını yalnızca içeriğini görebilenler görür. Profildeki hedef rozetleri yalnızca görüntüleyenin üyeliğini görebildiği grupların hedeflerini gösterir. Sıralama ve "ayın en iyileri" listesi yoktur.
 
 ### Yılın özeti ve "Ben de oradaydım" (Faz 18c, kullanıcı kararı 2026-10-29)
-Gerçek hayatta yaşananı paylaşılabilir bir karta dönüştürmek; her paylaşım GrupX'i yeni insanlara gösterir.
+Gerçek hayatta yaşananı paylaşılabilir bir karta dönüştürmek; her paylaşım GWAY'i yeni insanlara gösterir.
 - **Yılın özeti** (`/year`, isteğe bağlı `?y=<yıl>`; kendi profilinden): `public.year_summary(year)` yalnızca kişinin kendi verisini döner. Sayımlar Katkı tanımıyla yapılır (katılmış sayılmak: `going`, gelmedi işaretlenmemiş, iptal edilmemiş ve bitmiş), yıl Türkiye saatiyle başlangıç tarihine göredir: katıldığı organizasyon sayısı, toplam saat (bitişi olmayan 2 saat), farklı grup ve il sayısı, en çok gittiği 3 kategori, en çok gittiği grup, ilk organizasyonu, düzenlediği (bitmiş, iptal edilmemiş), paylaştığı anı ve karşıladığı kişi sayısı. Yıl 2026 ile içinde bulunulan yıl arasındadır.
 - **"Ben de oradaydım"**: katılmış sayılan kişiye organizasyon sayfasında kart çıkar: organizasyon, grup, tarih, yer ve "bu grupla N. organizasyonun" (`event_detail.was_there`).
-- **Kart:** 9:16 hikâye boyutunda, sayfa zemini (`GxBackdrop`) üstünde beyaz kart; cihazda görsele (PNG) çevrilir ve paylaşım penceresiyle (Instagram hikâyesi, WhatsApp) paylaşılır. Kartta yalnızca kişinin kendi bilgisi ve herkese açık organizasyon ile grup bilgisi bulunur; başka katılımcının adı ya da yüzü yoktur. Sunucuya görsel gönderilmez.
+- **Kart:** 9:16 hikâye boyutunda, sayfa zemini (`GwBackdrop`) üstünde beyaz kart; cihazda görsele (PNG) çevrilir ve paylaşım penceresiyle (Instagram hikâyesi, WhatsApp) paylaşılır. Kartta yalnızca kişinin kendi bilgisi ve herkese açık organizasyon ile grup bilgisi bulunur; başka katılımcının adı ya da yüzü yoktur. Sunucuya görsel gönderilmez.
 - **Ölçüm:** Paylaşım sayfası açılınca kişi kendi kaydını yazar (`public.record_card_share(kind)`, `story_card_shares`: `year` / `event`; günde en fazla 50). Kaydı yalnızca kişinin kendisi ve platform ekibi okur; hesap silinince silinir.
 - **Admin:** genel bakışta "Paylaşılan kart" (yıl özeti ve organizasyon kartı) eğilimi.
 
@@ -910,7 +912,7 @@ Aynı hedefin açık şikayetleri ekranda tek satırda toplanır. Ön inceleme k
   - **Banla:** Süreli (1–3650 gün) ya da kalıcı. Hesap bu süreyle askıda kalır. Kişinin kişisel paketleri (eşleşme ve ekip arkadaşı) **iadesiz** iptal edilir. Sahibi olduğu gruplar askıya alınır ve paketleri iadesiz iptal edilir. İptal gerekçesi `cancel_note`'a yazılır.
   - **Temize çıkar:** Hesap askısı kalkar. Grup banı kurulun kararıdır, sürer; kişi itiraz hakkını kullanabilir.
   - Kararla birlikte **kolluk durumu** seçilir: `none` ya da `to_notify` (bildirilecek). Bildirim yapıldığında `notified` olarak işaretlenir ve tarih ile notu (ör. başvuru yeri, evrak no) kaydedilir.
-  - Kolluğa ve adli makamlara veri aktarımını yalnızca GrupX (veri sorumlusu) yapar, grup kurulu yapmaz. Aktarım, kanunun öngördüğü durumlarda ya da yetkili makamların talebiyle olur (KVKK m.8/2, 5651).
+  - Kolluğa ve adli makamlara veri aktarımını yalnızca GWAY (veri sorumlusu) yapar, grup kurulu yapmaz. Aktarım, kanunun öngördüğü durumlarda ya da yetkili makamların talebiyle olur (KVKK m.8/2, 5651).
 - Bütün adımlar `audit_log`'a yazılır: `referral.opened`, `referral.decided`, `referral.authorities_notified`.
 - **Tablo koruması:** `platform_referrals` RLS ile yalnızca platform ekibine (`admin`, `moderator`) görünür. İstemci yazamaz. Trigger kuralları:
   - bildirim yalnızca onaylanmış, işaretli bir dosyadan açılır,
@@ -1189,7 +1191,7 @@ Kullanıcı isteği (2026-10-27): yabancı numara ve VPN ile konumunu farklı g�
 - `identity` paketi: `SecurityScreen` (`/security`) sunucunun bildirdiği adımı gösterir. `SecurityHeartbeat` açılışta ve öne gelişte (30 dakikada bir) konumu sessizce yeniden gönderir.
 - Gate yalnızca adım `done` olunca KVKK ve profil verisini ister, çünkü öncesindeki token bunları okuyamaz. Sunucu oturumu doğrulanmış saydığı halde elde hâlâ `unverified` token varsa oturum yenilenir.
 - Push cihaz kaydı, token rolü (`sessionRoleProvider`, core) `authenticated` olunca yapılır.
-- Android: `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` izinleri ve SIM ülkesi için `grupx/device` kanalı. iOS: `NSLocationWhenInUseUsageDescription`.
+- Android: `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` izinleri ve SIM ülkesi için `gway/device` kanalı. iOS: `NSLocationWhenInUseUsageDescription`.
 - Admin paneli aynı `SecurityScreen` ve `SecurityHeartbeat`'i kullanır. Personel rolü ancak oturum doğrulanınca okunur. Panelin "Güvenlik" sayfası `/security-reviews` yolundadır (`/security` doğrulama adımıdır).
 
 ### Sunucu tarafı zorlama (atlanamaz kısım)
@@ -1330,7 +1332,7 @@ app/
 - `core` ayrıca Supabase istemcisini (`supabaseClientProvider`), C# API istemcisini (`ApiClient`: Supabase oturum token'ını ekler, ProblemDetails'i `Failure`'a çevirir), `AppConfig`'i (`--dart-define`: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_URL`), ortak kategorileri (`categoriesProvider`), görsel seçimini (`ImageUpload`, `pickGalleryImage`; ekranlar testte değiştirilebilen `PickImage` alır) ve tarih, para (`formatMoney`: `249 ₺`, `$9.99`) ve sayı biçimlendirmesini sağlar. `ApiClient`, ProblemDetails içeren 503 yanıtlarının başlığını da gösterir (ör. ödeme geçici olarak kapalı).
 - Uygulamanın router'ı feature paketlerinin provider'larını birleştirir (oturum, onay, profil durumu). Feature'lar birbirini bilmez; bir feature'ın başka bir feature'ın ekranında yer alması gerekiyorsa uygulama bunu bağlar (ör. profil sayfasındaki "Gruplar" bölümü `ProfileScreen.sections` ile, grup ekranından profile geçiş `onOpenProfile` ile, grup sayfasındaki paket kartı `GroupScreen.sections` ile verilir; paket ve ödeme rotaları `/g/<handle>/plan` ve `/g/<handle>/plan/checkout` grubu uygulamada çözer ve `billing` ekranlarına kimliğini verir; canlı yayın kartı `GroupScreen.sections`, ana sayfadaki "Şimdi canlı" ve "Yaklaşanlar" bölümleri `HomeFeedScreen.top` (uygulamanın `HomePage`'i), `live_scheduled` ve `live_started` bildirimleri ile sesli uyarı şeridi `NotificationLinks.openLive` ve `LiveNotificationAlerts.openLive` ile bağlanır, yayın odası `/live/<id>` rotasındadır; mesaj butonu profilde `ProfileScreen.visitorActions`, Kaydedilenler ve Ekip arkadaşı bul kısayolları kendi profilinde `ProfileScreen.ownActions`, "Grup sohbeti" `GroupScreen.sections` ile verilir, sohbetler `/messages` ve `/messages/<id>` rotalarındadır).
 - Sosyal uygulamanın sayfaları `HomeShell` içindedir (tam ekran hikâye, hikâye ekleme ve yayın odası hariç): telefonda ana hedeflerde (Bugün, Gruplar, Takvim, Ben) yüzen dok ve ortada Paylaş, geniş ekranda her sayfada etiketli yan menü (docs/DESIGN.md §7). Web'de Flutter'ın varsayılan hash URL stratejisi kullanılır (`/#/g/<handle>`).
-- OAuth ve e-posta bağlantıları mobilde `com.grupx.app://auth-callback` deep link'ine döner. Şema paket adıyla aynıdır; eski `com.grupx.social` şeması, aynı telefonda kalan eski `com.grupx.social_app` uygulaması da sahiplendiği için girişi ona gönderiyordu (2026-10-28).
+- OAuth ve e-posta bağlantıları mobilde `com.gway.app://auth-callback` deep link'ine döner. Şema paket adıyla aynıdır; eski `com.grupx.social` şeması, aynı telefonda kalan eski `com.grupx.social_app` uygulaması da sahiplendiği için girişi ona gönderiyordu (2026-10-28).
 
 Platform klasörleri (`android/`, `ios/`, `web/`) ilk kurulumda `tool/setup_platforms.sh` ile bir kez üretilir ve repoya alınır. Sonraki platform ayarları (izinler, ikonlar, bundle id) bu klasörlerde yapılır.
 
@@ -1354,15 +1356,15 @@ lib/src/presentation/  ekranlar, widget'lar, Riverpod provider'ları
 ### Klasörler
 ```
 backend/
-  GrupX.slnx
+  Gway.slnx
   Directory.Build.props        net10.0, nullable, uyarılar hata
   Directory.Packages.props     merkezi paket sürümleri
-  src/GrupX.Api                giriş noktası: auth, ProblemDetails, rate limit, endpoint kaydı
-  src/GrupX.SharedKernel       Result, Error ve modüller arası ortak tipler
-  src/Modules/GrupX.Modules.<Ad>            modül implementasyonu (internal)
-  src/Modules/GrupX.Modules.<Ad>.Contracts  modülün dışa açık sözleşmeleri
-  src/GrupX.SharedKernel       ayrıca: audit log yazıcısı, ActingUser (trigger'lara işlemi yapanı bildirir), ISupabaseStorage, RateLimitPolicies
-  tests/GrupX.Api.Tests        entegrasyon ve birim testleri
+  src/Gway.Api                giriş noktası: auth, ProblemDetails, rate limit, endpoint kaydı
+  src/Gway.SharedKernel       Result, Error ve modüller arası ortak tipler
+  src/Modules/Gway.Modules.<Ad>            modül implementasyonu (internal)
+  src/Modules/Gway.Modules.<Ad>.Contracts  modülün dışa açık sözleşmeleri
+  src/Gway.SharedKernel       ayrıca: audit log yazıcısı, ActingUser (trigger'lara işlemi yapanı bildirir), ISupabaseStorage, RateLimitPolicies
+  tests/Gway.Api.Tests        entegrasyon ve birim testleri
 ```
 
 ### Kurallar
@@ -1459,7 +1461,7 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 ### Satın alma akışı
 1. **Yalnızca web'de** grup sahibi paket ekranını açar (`billing.manage`; yalnızca sahipte olan yetki). `GET /billing/groups/{id}/offer` pazarı, satıştaki paketlerin fiyatlarını ve her seçenek için satın alma türünü ve tahmini tarihleri döner.
 2. Sahip fatura bilgilerini girer (ad, soyad, telefon, adres, şehir, ülke) ve Ön Bilgilendirme Formu ile Mesafeli Satış Sözleşmesi'ni onaylar. `POST /billing/groups/{id}/orders` siparişi `pending` olarak açar. Tutarı fiyat listesinden alır, sağlayıcıda ödeme oturumu başlatır ve ödeme sayfasının adresini döner.
-3. Tarayıcı sağlayıcının ödeme sayfasına gider. Kart bilgisi GrupX'e hiç gelmez.
+3. Tarayıcı sağlayıcının ödeme sayfasına gider. Kart bilgisi GWAY'e hiç gelmez.
 4. Ödeme **yalnızca sunucu tarafında** kesinleşir:
    - **PayTR:** Mağaza panelinde tanımlı bildirim adresine (`POST /billing/paytr/notify`) gelen isteğin `hash` değeri doğrulanır: `base64(HMAC-SHA256(merchant_key, merchant_oid + merchant_salt + status + total_amount))`. Yanıt düz metin `OK`'dir; PayTR `OK` alana kadar tekrar dener.
    - **iyzico:** Tarayıcının döndüğü callback (`POST /billing/iyzico/callback`, imzasız) ve mağaza panelinde tanımlı webhook (`POST /billing/iyzico/webhook`, `X-IYZ-SIGNATURE-V3` imzalı) yalnızca tetikleyicidir. Sonuç her zaman sunucunun iyzico'ya kendi anahtarıyla (IYZWSv2) sorduğu ödeme detayından alınır. Ödeme `SUCCESS` ve dolandırıcılık durumu onaylı (`fraudStatus = 1`) değilse sipariş beklemede kalır.
@@ -1534,7 +1536,7 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
   - Böylece ödenmiş süre kaybolmaz. Tanımlanan sürenin yükseltmede aktarılan değeri de aylık fiyatla hesaplanır. 400 gün sınırı yönetici için uygulanmaz.
 - **Paketi iptal:** Grubun süren ve sıradaki bütün dilimleri hemen biter (`cancel_reason = 'admin'`); grup Ücretsiz pakete döner. "Ödeme iade edildi" seçilirse bu dilimlerin ödenmiş siparişleri `refunded` olur. Tek bir dilim de iptal edilebilir.
 - **Gerekçeler veritabanında:** Tanımlama gerekçesi `grant_reason`, her yönetici iptalinin gerekçesi `cancel_note` sütununa yazılır ve sonradan değişmez (trigger). Ayrıca `audit_log`'a da yazılır: `subscription.granted`, `subscription.canceled`, `group_plan.canceled`.
-- **Veritabanı koruması:** Siparişsiz dilimi yalnızca platform yöneticisi kendi adına açabilir. Ücretsiz paket tanımlanamaz. İptal gerekçesi yalnızca yönetici iptaliyle birlikte yazılır (`group_subscriptions_guard`, migration `0045`). Grup sahibinin paket ekranında tanımlanan dönem "GrupX tanımladı" olarak görünür.
+- **Veritabanı koruması:** Siparişsiz dilimi yalnızca platform yöneticisi kendi adına açabilir. Ücretsiz paket tanımlanamaz. İptal gerekçesi yalnızca yönetici iptaliyle birlikte yazılır (`group_subscriptions_guard`, migration `0045`). Grup sahibinin paket ekranında tanımlanan dönem "GWAY tanımladı" olarak görünür.
 
 ### Kişisel ürünler (Faz 15.6b)
 - Grup paketlerinin yanında kişinin kendisi için aldığı ürünler: `personal_plans` (eşleşme paketleri ve Ekip Arkadaşı, §3g Ücretli paketler), `personal_plan_prices`. Fiyat ve satış durumu yalnızca platform yöneticisince değişir (trigger).
@@ -1547,7 +1549,7 @@ Pazar, isteğin geldiği IP'nin ülkesine göre **sunucuda** belirlenir:
 - Admin sipariş listesi kişisel siparişleri ürün adı ve alıcıyla gösterir; aylık gelir grafiği hepsini kapsar.
 
 ### Yapılandırma
-`Billing:AppUrl` (dönüş adresleri için web uygulaması, ör. `https://grupx.app`) ve `Billing:PublicApiUrl` (iyzico callback'i için API'nin dışarıdan erişilen adresi) tanımlanır. Ayrıca:
+`Billing:AppUrl` (dönüş adresleri için web uygulaması, ör. `https://gway.app`) ve `Billing:PublicApiUrl` (iyzico callback'i için API'nin dışarıdan erişilen adresi) tanımlanır. Ayrıca:
 - `Billing:Paytr:MerchantId`, `MerchantKey`, `MerchantSalt`, `TestMode`
 - `Billing:Iyzico:ApiKey`, `SecretKey`, `BaseUrl` (sandbox: `https://sandbox-api.iyzipay.com`)
 - `Geo:*`
@@ -1709,7 +1711,7 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 | `POST /admin/live/{id}/end` | Acil kapatma (`reason`). Rol: `admin`, `moderator` |
 
 ### Yapılandırma
-`LiveKit:Url` (istemcinin bağlandığı adres, ör. `wss://live.grupx.app`), `LiveKit:ApiUrl` (sunucu API'si; boşsa `Url`'in http karşılığı), `LiveKit:ApiKey`, `LiveKit:ApiSecret`. Anahtarlar tanımlı değilse yayın kapalıdır (`live.unavailable`, 503). Yerelde LiveKit Docker'da `--dev` modunda çalışır (§9).
+`LiveKit:Url` (istemcinin bağlandığı adres, ör. `wss://live.gway.app`), `LiveKit:ApiUrl` (sunucu API'si; boşsa `Url`'in http karşılığı), `LiveKit:ApiKey`, `LiveKit:ApiSecret`. Anahtarlar tanımlı değilse yayın kapalıdır (`live.unavailable`, 503). Yerelde LiveKit Docker'da `--dev` modunda çalışır (§9).
 
 ## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
 
@@ -1742,7 +1744,7 @@ Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemle
 ## 10. Google Play (Faz 17a, kullanıcı kararları 2026-10-27)
 
 ### Uygulama kimliği ve imza
-- Paket adı **`com.grupx.app`**. Yayından sonra değişmez. Firebase'de bu adla ayrı bir Android uygulaması vardır (`google-services.json`).
+- Paket adı **`com.gway.app`** (2026-10-31'deki ad değişikliğiyle `com.grupx.app`'ten geçildi; o tarihte Play'e yükleme yapılmamıştı). Yayından sonra değişmez. Firebase'de bu adla ayrı bir Android uygulaması kayıtlı olmalıdır (`google-services.json`); yoksa sürüm derlemesi google-services adımında durur.
 - Sürüm `pubspec.yaml`'daki `version`'dan gelir (`1.0.0+1`; `+` sonrası her yüklemede artar).
 - **Play App Signing** kullanılır. Bizdeki anahtar yalnızca *yükleme anahtarıdır*.
   - Anahtar ve şifreleri repoya girmez; `%USERPROFILE%\.grupx\upload-keystore.jks` ve `android/key.properties` (gitignore) dosyalarındadır.
@@ -1789,4 +1791,4 @@ Bir faz şu koşullar sağlanınca biter:
 | `flutter pub get`, `flutter analyze`, `melos run test` | `app/` |
 | `dotnet build`, `dotnet test` | `backend/` |
 | `supabase start`, `supabase db reset`, `supabase test db` | repo kökü |
-| `docker run --rm -d --name grupx-livekit -p 7880:7880 -p 7881:7881 -p 7882:7882/udp livekit/livekit-server:v1.9.1 --dev --bind 0.0.0.0 --node-ip 127.0.0.1` | Yerel LiveKit (`devkey` / `secret`). Telefon için `adb reverse tcp:7880` ve `tcp:7881` (ses TCP üzerinden akar). |
+| `docker run --rm -d --name gway-livekit -p 7880:7880 -p 7881:7881 -p 7882:7882/udp livekit/livekit-server:v1.9.1 --dev --bind 0.0.0.0 --node-ip 127.0.0.1` | Yerel LiveKit (`devkey` / `secret`). Telefon için `adb reverse tcp:7880` ve `tcp:7881` (ses TCP üzerinden akar). |

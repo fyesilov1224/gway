@@ -32,7 +32,7 @@ Future<void> main() async {
         reportLauncherProvider.overrideWithValue(showReportSheet),
         packageOpenerProvider.overrideWithValue((context, slug) => context.push('/matching/packages/$slug')),
         authRedirectUrlProvider.overrideWithValue(
-          kIsWeb ? Uri.base.origin : 'com.grupx.app://auth-callback',
+          kIsWeb ? Uri.base.origin : 'com.gway.app://auth-callback',
         ),
       ],
       child: const SocialApp(),

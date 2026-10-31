@@ -45,14 +45,14 @@ class GroupScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         // Opened from a link there is no back button, so the title keeps its padding.
-        titleSpacing: Navigator.canPop(context) ? 0 : GxSpacing.md,
+        titleSpacing: Navigator.canPop(context) ? 0 : GwSpacing.md,
         title: g == null
             ? const Text('Grup')
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(g.name, style: textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text(memberCountLabel(g.memberCount), style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                  Text(memberCountLabel(g.memberCount), style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
         actions: [
@@ -61,7 +61,7 @@ class GroupScreen extends ConsumerWidget {
               tooltip: 'Paylaş',
               icon: const Icon(Icons.share_outlined),
               onPressed: () => shareWithMessage(context, ref.read(shareLinksProvider).group(g.handle),
-                  text: '${g.name} grubuna GrupX\'te göz at:'),
+                  text: '${g.name} grubuna GWAY\'de göz at:'),
             ),
           if (g != null && me != null && me.isMember && g.ownerId != userId)
             PopupMenuButton<void>(
@@ -70,19 +70,19 @@ class GroupScreen extends ConsumerWidget {
                 PopupMenuItem(onTap: () => _leave(context, ref, g), child: const Text('Gruptan ayrıl')),
               ],
             ),
-          const SizedBox(width: GxSpacing.xs),
+          const SizedBox(width: GwSpacing.xs),
         ],
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (group) {
           AsyncData(:final value) => _GroupBody(group: value, onOpenProfile: onOpenProfile, sections: sections, contentSections: contentSections),
-          AsyncError(error: NotFoundFailure()) => GxEmptyState(
+          AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.group_off_outlined,
               message: 'Bu grup bulunamadı ya da artık görünür değil.',
               actionLabel: 'Gruplara dön',
               onAction: () => context.go(GroupRoutes.discover),
             ),
-          AsyncError(:final error) => GxErrorState(
+          AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
               onRetry: () => ref.invalidate(groupByHandleProvider(handle)),
             ),
@@ -131,12 +131,12 @@ class _GroupBody extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async => refreshGroup(ref, group),
       child: ListView(
-        padding: const EdgeInsets.only(bottom: GxSpacing.xl),
+        padding: const EdgeInsets.only(bottom: GwSpacing.xl),
         children: [
-          GxHeroCard(
+          GwHeroCard(
             name: group.name,
             subtitle: '@${group.handle}',
-            shape: GxAvatarShape.group,
+            shape: GwAvatarShape.group,
             coverUrl: group.coverUrl,
             avatarUrl: group.logoUrl,
             coverIcon: categoryIcon(group.categorySlug),
@@ -149,11 +149,11 @@ class _GroupBody extends ConsumerWidget {
                 ),
               if (group.about.isNotEmpty) Text(group.about, style: textTheme.bodyLarge),
               Wrap(
-                spacing: GxSpacing.md,
-                runSpacing: GxSpacing.xs,
+                spacing: GwSpacing.md,
+                runSpacing: GwSpacing.xs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (category != null) GxTag(icon: categoryIcon(group.categorySlug), label: category, tone: GxTone.of(group.categorySlug)),
+                  if (category != null) GwTag(icon: categoryIcon(group.categorySlug), label: category, tone: GwTone.of(group.categorySlug)),
                   if (group.provinceName case final province?) GroupMeta(icon: Icons.place_outlined, text: province),
                   GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
                   InkWell(
@@ -166,8 +166,8 @@ class _GroupBody extends ConsumerWidget {
               // No action until the membership is known, so it never flickers.
               if (membership != null)
                 Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     _JoinAction(group: group, me: membership),
                     if (!membership.isMember && !group.isSuspended) _FollowAction(group: group, me: membership),
@@ -184,9 +184,9 @@ class _GroupBody extends ConsumerWidget {
           ),
           if (membership != null && sections.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
-              child: GxCard(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
+              child: GwCard(
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [for (final section in sections) section(context, group, membership)],
@@ -249,8 +249,8 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
     final group = widget.group;
     final me = widget.me;
     final state = joinStateOf(group, me, userId: ref.watch(currentUserIdProvider));
-    final outlined = OutlinedButton.styleFrom(foregroundColor: GxColors.textPrimary);
-    const iconSize = GxSpacing.md + GxSpacing.xxs;
+    final outlined = OutlinedButton.styleFrom(foregroundColor: GwColors.textPrimary);
+    const iconSize = GwSpacing.md + GwSpacing.xxs;
 
     Widget edit() => OutlinedButton.icon(
           onPressed: () => context.push(GroupRoutes.edit(group.handle)),
@@ -270,20 +270,20 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
       JoinState.owner => edit(),
       JoinState.member => me.can(GroupPermission.edit) ? edit() : leave,
       JoinState.suspended => me.isMember && group.ownerId != ref.watch(currentUserIdProvider) ? leave : const SizedBox.shrink(),
-      JoinState.canJoin => GxButton(
+      JoinState.canJoin => GwButton(
           label: 'Katıl',
           isLoading: _busy,
           onPressed: () => _run((r) => r.join(group.id), success: '${group.name} grubuna katıldın.'),
         ),
-      JoinState.canRequest => GxButton(
+      JoinState.canRequest => GwButton(
           label: 'Katılma isteği gönder',
           isLoading: _busy,
           onPressed: () => _run((r) => r.join(group.id)),
         ),
-      JoinState.requested => GxButton(
+      JoinState.requested => GwButton(
           label: 'İstek gönderildi',
           icon: Icons.schedule,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           isLoading: _busy,
           onPressed: () => _confirmThen(
             'İsteği geri al',
@@ -293,23 +293,23 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
           ),
         ),
       JoinState.invited => Wrap(
-          spacing: GxSpacing.xs,
-          runSpacing: GxSpacing.xs,
+          spacing: GwSpacing.xs,
+          runSpacing: GwSpacing.xs,
           alignment: WrapAlignment.end,
           children: [
-            GxButton(
+            GwButton(
               label: 'Reddet',
-              variant: GxButtonVariant.text,
+              variant: GwButtonVariant.text,
               onPressed: _busy ? null : () => _run((r) => r.declineInvitation(group.id), success: 'Davet reddedildi.'),
             ),
-            GxButton(
+            GwButton(
               label: 'Daveti kabul et',
               isLoading: _busy,
               onPressed: () => _run((r) => r.join(group.id), success: '${group.name} grubuna katıldın.'),
             ),
           ],
         ),
-      JoinState.inviteOnly => const GxBadge('Davetle katılım'),
+      JoinState.inviteOnly => const GwBadge('Davetle katılım'),
     };
   }
 }
@@ -342,9 +342,9 @@ class _FollowActionState extends ConsumerState<_FollowAction> {
   }
 
   @override
-  Widget build(BuildContext context) => GxButton(
+  Widget build(BuildContext context) => GwButton(
         label: widget.me.isFollowing ? 'Takiptesin' : 'Takip et',
-        variant: GxButtonVariant.secondary,
+        variant: GwButtonVariant.secondary,
         isLoading: _busy,
         onPressed: _toggle,
       );
@@ -374,8 +374,8 @@ class _TeamSection extends ConsumerWidget {
             ],
           ),
         AsyncError(:final error) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
-            child: GxFormMessage(userMessageOf(error)),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
+            child: GwFormMessage(userMessageOf(error)),
           ),
         _ => const GroupListSkeleton(count: 1),
       },
@@ -398,11 +398,11 @@ class PersonTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
         child: Row(
           children: [
-            GxAvatar(name: person.displayName, shape: GxAvatarShape.user, imageUrl: person.avatarUrl),
-            const SizedBox(width: GxSpacing.sm),
+            GwAvatar(name: person.displayName, shape: GwAvatarShape.user, imageUrl: person.avatarUrl),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,13 +412,13 @@ class PersonTile extends StatelessWidget {
                     subtitle ?? '@${person.username}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                    style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
                   if (person.titles.isNotEmpty) ...[
-                    const SizedBox(height: GxSpacing.xxs),
+                    const SizedBox(height: GwSpacing.xxs),
                     Wrap(
-                      spacing: GxSpacing.xxs,
-                      runSpacing: GxSpacing.xxs,
+                      spacing: GwSpacing.xxs,
+                      runSpacing: GwSpacing.xxs,
                       children: [for (final r in person.titles) GroupRoleBadge(r)],
                     ),
                   ],
@@ -445,14 +445,14 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, 0),
-      child: GxCard(
-        padding: const EdgeInsets.symmetric(vertical: GxSpacing.md),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
+      child: GwCard(
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: GxSpacing.md, right: trailing == null ? GxSpacing.md : GxSpacing.xs),
+              padding: EdgeInsets.only(left: GwSpacing.md, right: trailing == null ? GwSpacing.md : GwSpacing.xs),
               child: Row(
                 children: [
                   Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),
@@ -460,8 +460,8 @@ class _Section extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: GxSpacing.xs),
-            padChild ? Padding(padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md), child: child) : child,
+            const SizedBox(height: GwSpacing.xs),
+            padChild ? Padding(padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md), child: child) : child,
           ],
         ),
       ),
@@ -478,19 +478,19 @@ class _LinkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return InkWell(
-      borderRadius: GxRadius.smAll,
+      borderRadius: GwRadius.smAll,
       onTap: () => launchUrl(Uri.parse(link.url), mode: LaunchMode.externalApplication),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget),
+        constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget),
         child: Row(
           children: [
-            const Icon(Icons.link, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.secondary),
-            const SizedBox(width: GxSpacing.xs),
+            const Icon(Icons.link, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.secondary),
+            const SizedBox(width: GwSpacing.xs),
             Flexible(
               child: Text.rich(
                 TextSpan(children: [
-                  TextSpan(text: link.label, style: textTheme.labelLarge?.copyWith(color: GxColors.secondary)),
-                  TextSpan(text: '  ${Uri.tryParse(link.url)?.host ?? ''}', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  TextSpan(text: link.label, style: textTheme.labelLarge?.copyWith(color: GwColors.secondary)),
+                  TextSpan(text: '  ${Uri.tryParse(link.url)?.host ?? ''}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ]),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -514,14 +514,14 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (background, foreground) = danger ? (GxColors.errorSoft, GxColors.error) : (GxColors.primarySoft, GxColors.primary);
+    final (background, foreground) = danger ? (GwColors.errorSoft, GwColors.error) : (GwColors.primarySoft, GwColors.primary);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
-      decoration: BoxDecoration(color: background, borderRadius: GxRadius.mdAll),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
+      decoration: BoxDecoration(color: background, borderRadius: GwRadius.mdAll),
       child: Row(
         children: [
-          Icon(icon, color: foreground, size: GxSpacing.md + GxSpacing.xxs),
-          const SizedBox(width: GxSpacing.xs),
+          Icon(icon, color: foreground, size: GwSpacing.md + GwSpacing.xxs),
+          const SizedBox(width: GwSpacing.xs),
           Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
           if (actionLabel != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
         ],
@@ -537,7 +537,7 @@ class _GroupSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: EdgeInsets.zero,
-      children: const [GxHeroCardSkeleton(shape: GxAvatarShape.group)],
+      children: const [GwHeroCardSkeleton(shape: GwAvatarShape.group)],
     );
   }
 }

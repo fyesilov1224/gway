@@ -9,7 +9,7 @@ import '../domain/security.dart';
 class PlatformDeviceSignalSource implements DeviceSignalSource {
   /// Android only: `MainActivity` answers `simCountry` (TelephonyManager), `vpnActive` (the active network has
   /// TRANSPORT_VPN) and `vpnApps` (apps offering android.net.VpnService).
-  static const _device = MethodChannel('grupx/device');
+  static const _device = MethodChannel('gway/device');
 
   static const _timeout = Duration(seconds: 20);
 

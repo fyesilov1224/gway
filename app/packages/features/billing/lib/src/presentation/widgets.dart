@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/billing.dart';
 
-const _iconSize = GxSpacing.md + GxSpacing.xxs;
+const _iconSize = GwSpacing.md + GwSpacing.xxs;
 
 /// Soft, tinted one-line message with an optional action.
 class PlanNotice extends StatelessWidget {
@@ -18,14 +18,14 @@ class PlanNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (background, foreground) = danger ? (GxColors.errorSoft, GxColors.error) : (GxColors.primarySoft, GxColors.primary);
+    final (background, foreground) = danger ? (GwColors.errorSoft, GwColors.error) : (GwColors.primarySoft, GwColors.primary);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
-      decoration: BoxDecoration(color: background, borderRadius: GxRadius.mdAll),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
+      decoration: BoxDecoration(color: background, borderRadius: GwRadius.mdAll),
       child: Row(
         children: [
           Icon(icon, color: foreground, size: _iconSize),
-          const SizedBox(width: GxSpacing.xs),
+          const SizedBox(width: GwSpacing.xs),
           Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
           if (actionLabel != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
         ],
@@ -52,20 +52,20 @@ class MemberUsage extends StatelessWidget {
             Expanded(child: Text('Üyeler', style: textTheme.labelLarge)),
             Text(
               '${formatCount(plan.memberCount)} / ${formatCount(plan.plan.maxMembers)}',
-              style: textTheme.labelLarge?.copyWith(color: plan.isFull ? GxColors.error : GxColors.textSecondary),
+              style: textTheme.labelLarge?.copyWith(color: plan.isFull ? GwColors.error : GwColors.textSecondary),
             ),
           ],
         ),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         Semantics(
           label: '${plan.memberCount} üye, limit ${plan.plan.maxMembers}',
           child: ClipRRect(
-            borderRadius: GxRadius.smAll,
+            borderRadius: GwRadius.smAll,
             child: LinearProgressIndicator(
               value: ratio,
-              minHeight: GxSpacing.xs,
-              backgroundColor: GxColors.surfaceMuted,
-              color: plan.isFull ? GxColors.error : GxColors.primary,
+              minHeight: GwSpacing.xs,
+              backgroundColor: GwColors.surfaceMuted,
+              color: plan.isFull ? GwColors.error : GwColors.primary,
             ),
           ),
         ),
@@ -102,11 +102,11 @@ class _LimitRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+      padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
       child: Row(
         children: [
-          Icon(icon, size: _iconSize, color: GxColors.textSecondary),
-          const SizedBox(width: GxSpacing.xs),
+          Icon(icon, size: _iconSize, color: GwColors.textSecondary),
+          const SizedBox(width: GwSpacing.xs),
           Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),

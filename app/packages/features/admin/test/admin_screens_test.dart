@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 final _users = [
   AdminUserSummary(
     id: 'u1',
-    email: 'ayse@grupx.app',
+    email: 'ayse@gway.app',
     username: 'ayse.k',
     displayName: 'Ayşe Kaya',
     status: AdminAccountStatus.active,
@@ -17,14 +17,14 @@ final _users = [
   ),
   AdminUserSummary(
     id: 'u2',
-    email: 'can@grupx.app',
+    email: 'can@gway.app',
     username: 'can_dag',
     displayName: 'Can Dağ',
     status: AdminAccountStatus.suspended,
     suspendedUntil: DateTime(2026, 10, 25),
     createdAt: DateTime(2026, 9, 20),
   ),
-  const AdminUserSummary(id: 'u3', email: 'yeni@grupx.app', status: AdminAccountStatus.active, staffRole: StaffRole.support),
+  const AdminUserSummary(id: 'u3', email: 'yeni@gway.app', status: AdminAccountStatus.active, staffRole: StaffRole.support),
 ];
 
 final _groups = [
@@ -87,7 +87,7 @@ final _groupDetail = AdminGroupDetail(
       occurredAt: DateTime(2026, 10, 18),
       action: 'group.suspended',
       actorKind: 'staff',
-      actorName: 'GrupX Ekibi',
+      actorName: 'GWAY Ekibi',
       detail: 'Dolandırıcılık şikayetleri',
     ),
     AdminAuditItem(
@@ -107,7 +107,7 @@ final _detail = AdminUserDetail(
   suspensionReason: 'Spam paylaşımları',
   consents: [AdminConsent(kind: 'terms', version: 1, acceptedAt: DateTime(2026, 9, 20))],
   history: [
-    AdminAuditItem(occurredAt: DateTime(2026, 10, 18), action: 'user.suspended', actorKind: 'staff', actorName: 'GrupX Ekibi'),
+    AdminAuditItem(occurredAt: DateTime(2026, 10, 18), action: 'user.suspended', actorKind: 'staff', actorName: 'GWAY Ekibi'),
     AdminAuditItem(occurredAt: DateTime(2026, 10, 1), action: 'account.deletion_cancelled', actorKind: 'user'),
   ],
 );
@@ -236,7 +236,7 @@ const _paymentProviders = [
     market: 'TR · TL',
     configured: true,
     testMode: true,
-    addresses: [ProviderAddress(label: 'Bildirim URL (PayTR paneli)', url: 'https://api.grupx.app/billing/paytr/notify')],
+    addresses: [ProviderAddress(label: 'Bildirim URL (PayTR paneli)', url: 'https://api.gway.app/billing/paytr/notify')],
     warnings: ['Test modu açık: kartlardan para çekilmez.'],
   ),
   PaymentProviderStatus(
@@ -244,7 +244,7 @@ const _paymentProviders = [
     market: 'Yurt dışı · USD',
     configured: true,
     testMode: true,
-    addresses: [ProviderAddress(label: 'Webhook adresi (iyzico paneli)', url: 'https://api.grupx.app/billing/iyzico/webhook')],
+    addresses: [ProviderAddress(label: 'Webhook adresi (iyzico paneli)', url: 'https://api.gway.app/billing/iyzico/webhook')],
   ),
 ];
 
@@ -664,7 +664,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         ticketDetailProvider.overrideWith(
           (ref, id) async => AdminTicketDetail(
             ticket: _ticket,
-            email: 'can@grupx.app',
+            email: 'can@gway.app',
             groupHandle: 'pedal',
             messages: [
               AdminTicketMessage(
@@ -705,7 +705,7 @@ Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
         ),
         groupDetailProvider.overrideWith((ref, id) async => _groupDetail),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: Scaffold(body: child)),
+      child: MaterialApp(theme: GwTheme.light(), home: Scaffold(body: child)),
     );
 
 // A week of every measure: rising, so the cards show a rise against the previous week.
@@ -913,7 +913,7 @@ void main() {
       expect(find.text('Askıyı kaldır'), findsOneWidget);
       expect(find.textContaining('Spam paylaşımları'), findsOneWidget);
       expect(find.text('Hesap askıya alındı'), findsOneWidget);
-      expect(find.textContaining('GrupX Ekibi'), findsOneWidget);
+      expect(find.textContaining('GWAY Ekibi'), findsOneWidget);
       expect(find.text('Paketleri'), findsOneWidget);
       expect(find.text('Eşleşme Sohbeti'), findsOneWidget);
       expect(find.text('Paket tanımla'), findsOneWidget);
@@ -998,7 +998,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Yeni adres: pedal.istanbul'), findsOneWidget);
       expect(find.textContaining('Pedal Kadıköy'), findsOneWidget);
-      expect(find.text('can@grupx.app'), findsOneWidget);
+      expect(find.text('can@gway.app'), findsOneWidget);
     });
   }
 
@@ -1040,13 +1040,13 @@ void main() {
     await _pumpAt(tester, const Size(1280, 900), const AdminBillingScreen());
 
     expect(find.text('Ödeme sağlayıcıları'), findsOneWidget);
-    expect(find.text('https://api.grupx.app/billing/paytr/notify'), findsOneWidget);
-    expect(find.text('https://api.grupx.app/billing/iyzico/webhook'), findsOneWidget);
+    expect(find.text('https://api.gway.app/billing/paytr/notify'), findsOneWidget);
+    expect(find.text('https://api.gway.app/billing/iyzico/webhook'), findsOneWidget);
     expect(find.text('Test modu açık: kartlardan para çekilmez.'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(GxButton, 'Bağlantıyı dene').first);
+    await tester.tap(find.widgetWithText(GwButton, 'Bağlantıyı dene').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'Bağlantıyı dene').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Bağlantıyı dene').last);
     await tester.pumpAndSettle();
     expect(_billing.checks.sublist(_billing.checks.length - 2), ['paytr', 'iyzico']);
     expect(find.textContaining('Bağlantı başarılı'), findsOneWidget);
@@ -1060,12 +1060,12 @@ void main() {
 
   testWidgets('an admin gives a group a plan for some days with a reason', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminGroupDetailScreen(groupId: 'g2'));
-    await tester.tap(find.widgetWithText(GxButton, 'Paket tanımla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Paket tanımla'));
     await tester.pumpAndSettle();
 
     expect(find.text('Grubun mevcut süresi bitince başlar.'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextFormField, 'Gün (1–365)'), '400');
-    await tester.tap(find.widgetWithText(GxButton, 'Tanımla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Tanımla'));
     await tester.pumpAndSettle();
     expect(find.text('1 ile 365 arasında bir gün sayısı yaz.'), findsOneWidget);
     expect(find.text('Bir açıklama yaz.'), findsOneWidget);
@@ -1073,17 +1073,17 @@ void main() {
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Gün (1–365)'), '45');
     await tester.enterText(find.widgetWithText(TextFormField, 'Açıklama'), 'Festival sponsorluğu');
-    await tester.tap(find.widgetWithText(GxButton, 'Tanımla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Tanımla'));
     await tester.pumpAndSettle();
     expect(_billing.grants.last, ('g2', 'starter', 45, 'Festival sponsorluğu'));
   });
 
   testWidgets('an admin cancels all of a group plan with a reason', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminGroupDetailScreen(groupId: 'g2'));
-    await tester.tap(find.widgetWithText(GxButton, 'Paketi iptal et'));
+    await tester.tap(find.widgetWithText(GwButton, 'Paketi iptal et'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Topluluk kuralları ihlali');
-    await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
+    await tester.tap(find.widgetWithText(GwButton, 'İptal et').last);
     await tester.pumpAndSettle();
     expect(_billing.groupCancels.last, ('g2', 'Topluluk kuralları ihlali', false));
   });
@@ -1105,7 +1105,7 @@ void main() {
           canceledAt: now.subtract(const Duration(days: 1)),
           cancelReason: 'admin',
           grantReason: 'Festival sponsorluğu',
-          grantedByUsername: 'grupx_ekip',
+          grantedByUsername: 'gway_ekip',
           cancelNote: 'Sponsorluk bitti',
         ),
       ],
@@ -1119,7 +1119,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Pro'), findsOneWidget);
-    expect(find.textContaining('Tanımlandı (@grupx_ekip): Festival sponsorluğu'), findsOneWidget);
+    expect(find.textContaining('Tanımlandı (@gway_ekip): Festival sponsorluğu'), findsOneWidget);
     expect(find.text('İptal gerekçesi: Sponsorluk bitti'), findsOneWidget);
     expect(find.text('Paketi iptal et'), findsNothing);
   });
@@ -1146,24 +1146,24 @@ void main() {
   testWidgets('moderators remove posts and comments with a reason', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminPostDetailScreen(postId: 'p1'), role: StaffRole.moderator);
 
-    await tester.tap(find.widgetWithText(GxButton, 'Kaldır'));
+    await tester.tap(find.widgetWithText(GwButton, 'Kaldır'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Taciz');
-    await tester.tap(find.widgetWithText(GxButton, 'Kaldır').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Kaldır').last);
     await tester.pumpAndSettle();
     expect(_content.removedPosts.last, ('p1', 'Taciz'));
 
     await tester.tap(find.byTooltip('Yorumu kaldır'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Spam');
-    await tester.tap(find.widgetWithText(GxButton, 'Kaldır').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Kaldır').last);
     await tester.pumpAndSettle();
     expect(_content.removedComments.last, ('c1', 'Spam'));
   });
 
   testWidgets('support views content but cannot remove it', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminPostDetailScreen(postId: 'p1'), role: StaffRole.support);
-    expect(find.widgetWithText(GxButton, 'Kaldır'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Kaldır'), findsNothing);
     expect(find.byTooltip('Yorumu kaldır'), findsNothing);
   });
 
@@ -1173,17 +1173,17 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('Akşam sohbeti'), findsOneWidget);
-      expect(find.byType(GxLiveBadge), findsOneWidget);
+      expect(find.byType(GwLiveBadge), findsOneWidget);
       expect(find.textContaining('37 kişi'), findsOneWidget);
     });
   }
 
   testWidgets('moderators close a live room with a reason; support only watches', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminLiveScreen(), role: StaffRole.moderator);
-    await tester.tap(find.widgetWithText(GxButton, 'Kapat'));
+    await tester.tap(find.widgetWithText(GwButton, 'Kapat'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Canlı yayında taciz');
-    await tester.tap(find.widgetWithText(GxButton, 'Kapat').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Kapat').last);
     await tester.pumpAndSettle();
     expect(_live.ended.single, ('b1', 'Canlı yayında taciz'));
   });
@@ -1196,8 +1196,8 @@ void main() {
     expect(find.text('Pazar konseri'), findsOneWidget);
     expect(find.textContaining('Planlanan 2 Kasım 2026, 20:00'), findsOneWidget);
     expect(find.textContaining('42 üyeye duyuruldu'), findsOneWidget);
-    expect(find.byType(GxLiveBadge), findsNothing);
-    expect(find.widgetWithText(GxButton, 'Kapat'), findsNothing);
+    expect(find.byType(GwLiveBadge), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Kapat'), findsNothing);
   });
 
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
@@ -1227,7 +1227,7 @@ void main() {
 
   testWidgets('support cannot close a live room', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminLiveScreen(), role: StaffRole.support);
-    expect(find.widgetWithText(GxButton, 'Kapat'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Kapat'), findsNothing);
   });
 
   for (final (name, size) in [('desktop', const Size(1280, 900)), ('phone', const Size(390, 844))]) {
@@ -1252,17 +1252,17 @@ void main() {
 
   testWidgets('moderators close reports and decide the platform appeals', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminReportsScreen(), role: StaffRole.moderator);
-    await tester.tap(find.widgetWithText(GxButton, 'İşlem yapıldı'));
+    await tester.tap(find.widgetWithText(GwButton, 'İşlem yapıldı'));
     await tester.pumpAndSettle();
     expect(_moderation.reviewed.last, ('r1', true));
 
     await tester.tap(find.text('İtirazlar'));
     await tester.pumpAndSettle();
     expect(find.text('İtiraz: Reklam değil, etkinlik duyurusuydu.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'Yaptırımı kaldır'));
+    await tester.tap(find.widgetWithText(GwButton, 'Yaptırımı kaldır'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Duyuru reklam sayılmaz');
-    await tester.tap(find.widgetWithText(GxButton, 'Kaldır'));
+    await tester.tap(find.widgetWithText(GwButton, 'Kaldır'));
     await tester.pumpAndSettle();
     expect(_moderation.decided.single, ('a1', true, 'Duyuru reklam sayılmaz'));
   });
@@ -1275,15 +1275,15 @@ void main() {
     expect(find.text('Kurulun gerekçesi: Üyeleri ölümle tehdit etti.'), findsOneWidget);
     expect(find.text('Seni bulacağım'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(GxButton, 'Karar ver'));
+    await tester.tap(find.widgetWithText(GwButton, 'Karar ver'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ChoiceChip, 'Kalıcı'));
     await tester.tap(find.text('Kolluğa bildirilecek'));
-    await tester.tap(find.widgetWithText(GxButton, 'Banla').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Banla').last);
     await tester.pumpAndSettle();
     expect(_moderation.referralDecisions, isEmpty, reason: 'a decision needs a note');
     await tester.enterText(find.widgetWithText(TextField, 'Karar notu'), 'Tehdit kanıtlandı');
-    await tester.tap(find.widgetWithText(GxButton, 'Banla').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Banla').last);
     await tester.pumpAndSettle();
     expect(_moderation.referralDecisions.single, ('f1', true, null, true, 'Tehdit kanıtlandı'));
     expect(find.textContaining('2 paket dilimi iadesiz iptal edildi, 1 grup askıya alındı'), findsOneWidget);
@@ -1296,22 +1296,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Kolluğa bildirilecek'), findsOneWidget);
-    expect(find.widgetWithText(GxButton, 'Karar ver'), findsNothing);
-    expect(find.widgetWithText(GxButton, 'Kolluğa bildirildi'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Karar ver'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Kolluğa bildirildi'), findsNothing);
   });
 
   testWidgets('support staff only read reports', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminReportsScreen(), role: StaffRole.support);
-    expect(find.widgetWithText(GxButton, 'Reddet'), findsNothing);
-    expect(find.widgetWithText(GxButton, 'Görüntüle'), findsOneWidget);
+    expect(find.widgetWithText(GwButton, 'Reddet'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Görüntüle'), findsOneWidget);
   });
 
   testWidgets('moderators cancel an event with a reason', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminEventsScreen(), role: StaffRole.moderator);
-    await tester.tap(find.widgetWithText(GxButton, 'İptal et'));
+    await tester.tap(find.widgetWithText(GwButton, 'İptal et'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Kurallara aykırı');
-    await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
+    await tester.tap(find.widgetWithText(GwButton, 'İptal et').last);
     await tester.pumpAndSettle();
     expect(_events.canceled.single, ('ev1', 'Kurallara aykırı'));
   });
@@ -1345,9 +1345,9 @@ void main() {
   testWidgets('moderators cancel a goal', (tester) async {
     await _pumpAt(tester, const Size(1280, 900), const AdminGoalsScreen(), role: StaffRole.moderator);
     expect(find.textContaining('Grup · 50 katılım · 7 tamamlayan'), findsOneWidget);
-    await tester.tap(find.widgetWithText(GxButton, 'İptal et'));
+    await tester.tap(find.widgetWithText(GwButton, 'İptal et'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'İptal et').last);
+    await tester.tap(find.widgetWithText(GwButton, 'İptal et').last);
     await tester.pumpAndSettle();
     expect(_events.canceledGoals, ['q1']);
   });
@@ -1362,11 +1362,11 @@ void main() {
     expect(find.text('22 katılım · 3 organizasyon · 1 karşılama · 2 memnuniyet'), findsOneWidget);
     expect(find.textContaining('Sahte katılım'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(GxButton, 'Ligden çıkar'));
+    await tester.tap(find.widgetWithText(GwButton, 'Ligden çıkar'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Aynı kişiler her gün katılmış görünüyor');
     await tester.pump();
-    await tester.tap(find.widgetWithText(GxButton, 'Ligden çıkar').last);
+    await tester.tap(find.widgetWithText(GwButton, 'Ligden çıkar').last);
     await tester.pumpAndSettle();
     expect(_events.excluded, [('g1', 'Aynı kişiler her gün katılmış görünüyor')]);
   });
@@ -1375,6 +1375,6 @@ void main() {
     await _pumpAt(tester, const Size(1280, 900), const AdminLeaguesScreen(), role: StaffRole.support);
     await tester.tap(find.text('Ankara · Yürüyüş'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(GxButton, 'Ligden çıkar'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Ligden çıkar'), findsNothing);
   });
 }

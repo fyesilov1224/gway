@@ -59,7 +59,7 @@ Widget _app(Widget child, _FakeFeed repo) => ProviderScope(
         feedLinksProvider.overrideWithValue(FeedLinks(openProfile: (_, _) {}, openGroup: (_, _) {})),
       ],
       child: MaterialApp.router(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         routerConfig: GoRouter(routes: [
           GoRoute(path: '/', builder: (_, _) => Scaffold(body: SingleChildScrollView(child: child))),
           GoRoute(path: '/p/:id/comments', builder: (_, _) => const Text('comments')),
@@ -140,7 +140,7 @@ void main() {
 
     test('each aspect gives its frame; the original is kept between 4:5 and 1.91:1', () {
       expect(MediaAspect.original.ratioFor(photo), 1.5);
-      expect(MediaAspect.original.ratioFor(const Size(1000, 3000)), GxMedia.portrait);
+      expect(MediaAspect.original.ratioFor(const Size(1000, 3000)), GwMedia.portrait);
       expect(MediaAspect.square.ratioFor(photo), 1);
       expect(MediaAspect.portrait.ratioFor(photo), 0.8);
       expect(MediaAspect.landscape.ratioFor(photo), 1.91);
@@ -159,35 +159,35 @@ void main() {
       final f = const CropFrame().panned(const Offset(100, 0), photo, 1, 400);
       // 400 px frame shows 2000 source px: 100 px drag = 500 source px to the left.
       expect(f.rectIn(photo, 1).left, 0);
-      expect(const CropFrame().zoomed(10, photo, 1).zoom, GxMedia.maxZoom);
+      expect(const CropFrame().zoomed(10, photo, 1).zoom, GwMedia.maxZoom);
     });
 
     test('uploads keep the ratio within the size limit and never upscale', () {
-      expect(outputSize(const Size(2000, 2500), GxMedia.uploadMaxSide), const Size(1152, 1440));
-      expect(outputSize(const Size(2000, 2500), GxMedia.thumbMaxSide), const Size(384, 480));
-      expect(outputSize(const Size(1080, 1920), GxMedia.storyMaxSide), const Size(1080, 1920));
-      expect(outputSize(const Size(600, 600), GxMedia.uploadMaxSide), const Size(600, 600));
+      expect(outputSize(const Size(2000, 2500), GwMedia.uploadMaxSide), const Size(1152, 1440));
+      expect(outputSize(const Size(2000, 2500), GwMedia.thumbMaxSide), const Size(384, 480));
+      expect(outputSize(const Size(1080, 1920), GwMedia.storyMaxSide), const Size(1080, 1920));
+      expect(outputSize(const Size(600, 600), GwMedia.uploadMaxSide), const Size(600, 600));
     });
 
     test('images decode at their on-screen pixel width', () {
-      expect(gxCacheWidth(130, 3), 390);
-      expect(gxCacheWidth(double.infinity, 2), isNull);
+      expect(gwCacheWidth(130, 3), 390);
+      expect(gwCacheWidth(double.infinity, 2), isNull);
     });
 
     test('grid tiles are 4:5 portraits in three columns', () {
-      expect(postGridDelegate.childAspectRatio, GxMedia.gridTile);
-      expect(postGridDelegate.crossAxisCount, GxMedia.gridColumns);
+      expect(postGridDelegate.childAspectRatio, GwMedia.gridTile);
+      expect(postGridDelegate.crossAxisCount, GwMedia.gridColumns);
     });
 
     test('a photo is cropped and resized on the device as JPEG with a small copy', () async {
       final source = img.encodePng(img.Image(width: 3000, height: 2000));
       final picked = NewMedia(kind: MediaKind.image, bytes: source, fileName: 'a.png', width: 3000, height: 2000);
-      final out = await renderPhoto(picked, const CropFrame().rectIn(photo, GxMedia.portrait),
-          maxSide: GxMedia.uploadMaxSide, thumbSide: GxMedia.thumbMaxSide);
+      final out = await renderPhoto(picked, const CropFrame().rectIn(photo, GwMedia.portrait),
+          maxSide: GwMedia.uploadMaxSide, thumbSide: GwMedia.thumbMaxSide);
       expect((out.width, out.height), (1152, 1440));
       expect(out.contentType, 'image/jpeg');
       expect(img.decodeJpg(out.bytes)!.width, 1152);
-      expect(img.decodeJpg(out.thumb!)!.height, GxMedia.thumbMaxSide);
+      expect(img.decodeJpg(out.thumb!)!.height, GwMedia.thumbMaxSide);
     });
   });
 

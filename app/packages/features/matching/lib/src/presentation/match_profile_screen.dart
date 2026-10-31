@@ -22,12 +22,12 @@ class MatchProfileScreen extends ConsumerWidget {
     final profile = ref.watch(myMatchProfileProvider);
     return Scaffold(
       appBar: AppBar(title: Text(profile.value == null ? 'Eşleşme profili oluştur' : 'Eşleşme profilim')),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: switch (profile) {
           AsyncData(:final value) => _Form(key: ValueKey(value == null), profile: value, pickImage: pickImage),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myMatchProfileProvider)),
-          _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 4)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myMatchProfileProvider)),
+          _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4)),
         },
       ),
     );
@@ -137,18 +137,18 @@ class _FormState extends ConsumerState<_Form> {
     final textTheme = Theme.of(context).textTheme;
     final profile = widget.profile;
     Widget section(String title, List<Widget> children) => Padding(
-          padding: const EdgeInsets.only(bottom: GxSpacing.md),
-          child: GxCard(
-            padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.only(bottom: GwSpacing.md),
+          child: GwCard(
+            padding: const EdgeInsets.all(GwSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [Text(title, style: textTheme.titleMedium), const SizedBox(height: GxSpacing.sm), ...children],
+              children: [Text(title, style: textTheme.titleMedium), const SizedBox(height: GwSpacing.sm), ...children],
             ),
           ),
         );
 
     return ListView(
-      padding: const EdgeInsets.all(GxSpacing.page),
+      padding: const EdgeInsets.all(GwSpacing.page),
       children: [
         if (profile != null) _Photos(profile: profile, pickImage: widget.pickImage),
         section('Hakkında', [
@@ -165,14 +165,14 @@ class _FormState extends ConsumerState<_Form> {
             items: [for (final g in MatchGender.values) DropdownMenuItem(value: g, child: Text(g.label))],
             onChanged: (g) => setState(() => _gender = g),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           DropdownButtonFormField<int>(
             initialValue: _province,
             decoration: const InputDecoration(labelText: 'İl'),
             items: [for (var i = 0; i < turkishProvinces.length; i++) DropdownMenuItem(value: i + 1, child: Text(turkishProvinces[i]))],
             onChanged: (p) => setState(() => _province = p),
           ),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           TextField(
             controller: _about,
             maxLength: 300,
@@ -181,7 +181,7 @@ class _FormState extends ConsumerState<_Form> {
           ),
           TextField(controller: _job, maxLength: 60, decoration: const InputDecoration(labelText: 'Meslek (isteğe bağlı)')),
           TextField(controller: _education, maxLength: 60, decoration: const InputDecoration(labelText: 'Eğitim (isteğe bağlı)')),
-          Text('İlgi alanların sosyal profilinden gelir.', style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+          Text('İlgi alanların sosyal profilinden gelir.', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         ]),
         section('Ne arıyorsun?', [
           SwitchListTile(
@@ -199,11 +199,11 @@ class _FormState extends ConsumerState<_Form> {
             subtitle: const Text('Romantik bir ilişki'),
           ),
           if (_dating) ...[
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Text('Kimi arıyorsun?', style: textTheme.labelLarge),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
               children: [
                 for (final g in MatchGender.values)
                   FilterChip(
@@ -213,7 +213,7 @@ class _FormState extends ConsumerState<_Form> {
                   ),
               ],
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Text('Yaş aralığı: ${_ages.start.round()}–${_ages.end.round()}', style: textTheme.labelLarge),
             RangeSlider(
               values: _ages,
@@ -246,10 +246,10 @@ class _FormState extends ConsumerState<_Form> {
               ),
             ),
           ]),
-        if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.sm)],
-        GxButton(label: _creating ? 'Profilimi oluştur' : 'Kaydet', expand: true, isLoading: _busy, onPressed: _save),
+        if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.sm)],
+        GwButton(label: _creating ? 'Profilimi oluştur' : 'Kaydet', expand: true, isLoading: _busy, onPressed: _save),
         if (profile != null) ...[
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           _Controls(profile: profile),
         ],
       ],
@@ -282,7 +282,7 @@ class _PhotosState extends ConsumerState<_Photos> {
   }
 
   Future<void> _add() async {
-    final pick = widget.pickImage ?? () => pickGalleryImage(maxWidth: GxMedia.uploadMaxSide.toDouble());
+    final pick = widget.pickImage ?? () => pickGalleryImage(maxWidth: GwMedia.uploadMaxSide.toDouble());
     final image = await pick();
     if (image == null || !mounted) return;
     final taken = {for (final p in widget.profile.photos) p.position};
@@ -295,9 +295,9 @@ class _PhotosState extends ConsumerState<_Photos> {
     final photos = widget.profile.photos;
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: GxSpacing.md),
-      child: GxCard(
-        padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.only(bottom: GwSpacing.md),
+      child: GwCard(
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -306,16 +306,16 @@ class _PhotosState extends ConsumerState<_Photos> {
               photos.length < matchMinPhotos
                   ? 'Kartının görünmesi için en az $matchMinPhotos fotoğraf ekle. İlki kapaktır.'
                   : 'En fazla $matchMaxPhotos fotoğraf. İlki kapaktır; değiştirmek için bir fotoğrafa dokun.',
-              style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             GridView.count(
-              crossAxisCount: GxMedia.gridColumns,
+              crossAxisCount: GwMedia.gridColumns,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: GxMedia.gridGap,
-              crossAxisSpacing: GxMedia.gridGap,
-              childAspectRatio: GxMedia.gridTile,
+              mainAxisSpacing: GwMedia.gridGap,
+              crossAxisSpacing: GwMedia.gridGap,
+              childAspectRatio: GwMedia.gridTile,
               children: [
                 for (final (i, p) in photos.indexed)
                   _PhotoTile(
@@ -327,15 +327,15 @@ class _PhotosState extends ConsumerState<_Photos> {
                   ),
                 if (photos.length < matchMaxPhotos)
                   Material(
-                    color: GxColors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(GxMedia.gridRadius),
+                    color: GwColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(GwMedia.gridRadius),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(GxMedia.gridRadius),
+                      borderRadius: BorderRadius.circular(GwMedia.gridRadius),
                       onTap: _busy ? null : _add,
                       child: Center(
                         child: _busy
                             ? const CircularProgressIndicator()
-                            : const Icon(Icons.add_a_photo_outlined, color: GxColors.primary, semanticLabel: 'Fotoğraf ekle'),
+                            : const Icon(Icons.add_a_photo_outlined, color: GwColors.primary, semanticLabel: 'Fotoğraf ekle'),
                       ),
                     ),
                   ),
@@ -358,24 +358,24 @@ class _PhotoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(GxMedia.gridRadius),
+        borderRadius: BorderRadius.circular(GwMedia.gridRadius),
         child: Stack(
           fit: StackFit.expand,
           children: [
             InkWell(
               onTap: onMakeCover,
               child: (photo.url ?? '').isEmpty
-                  ? const ColoredBox(color: GxColors.surfaceMuted)
-                  : Image.network(photo.url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted)),
+                  ? const ColoredBox(color: GwColors.surfaceMuted)
+                  : Image.network(photo.url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
             ),
-            if (cover) const Positioned(left: GxSpacing.xs, bottom: GxSpacing.xs, child: GxBadge('Kapak', tone: GxBadgeTone.primary)),
+            if (cover) const Positioned(left: GwSpacing.xs, bottom: GwSpacing.xs, child: GwBadge('Kapak', tone: GwBadgeTone.primary)),
             Positioned(
               top: 0,
               right: 0,
               child: IconButton(
                 tooltip: 'Fotoğrafı kaldır',
-                color: GxColors.onMedia,
-                style: IconButton.styleFrom(backgroundColor: GxColors.mediaScrim),
+                color: GwColors.onMedia,
+                style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim),
                 icon: const Icon(Icons.close_rounded),
                 onPressed: onRemove,
               ),
@@ -395,8 +395,8 @@ class _Controls extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.read(matchingRepositoryProvider);
     void show(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
-    return GxCard(
-      padding: const EdgeInsets.all(GxSpacing.md),
+    return GwCard(
+      padding: const EdgeInsets.all(GwSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -414,8 +414,8 @@ class _Controls extends ConsumerWidget {
           const Divider(),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.delete_forever_outlined, color: GxColors.error),
-            title: const Text('Eşleşme verilerimi sil', style: TextStyle(color: GxColors.error)),
+            leading: const Icon(Icons.delete_forever_outlined, color: GwColors.error),
+            title: const Text('Eşleşme verilerimi sil', style: TextStyle(color: GwColors.error)),
             subtitle: const Text('Profil, fotoğraflar ve beğeniler silinir; eşleşmelerin biter. Açık rızan geri alınmış olur.'),
             onTap: () async {
               final sure = await confirmMatchAction(

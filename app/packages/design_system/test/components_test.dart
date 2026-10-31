@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child, {double textScale = 1}) => MaterialApp(
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       home: MediaQuery(
         data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
         child: Scaffold(body: child),
@@ -11,10 +11,10 @@ Widget _wrap(Widget child, {double textScale = 1}) => MaterialApp(
     );
 
 void main() {
-  group('GxAvatar', () {
+  group('GwAvatar', () {
     testWidgets('user avatar is a circle', (tester) async {
       await tester.pumpWidget(
-        _wrap(const GxAvatar(name: 'Ayşe Yılmaz', shape: GxAvatarShape.user)),
+        _wrap(const GwAvatar(name: 'Ayşe Yılmaz', shape: GwAvatarShape.user)),
       );
 
       final decoration = tester
@@ -27,10 +27,10 @@ void main() {
     testWidgets('group avatar is a rounded square', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const GxAvatar(
+          const GwAvatar(
             name: 'Doğa Yürüyüşçüleri',
-            shape: GxAvatarShape.group,
-            size: GxAvatarSize.lg,
+            shape: GwAvatarShape.group,
+            size: GwAvatarSize.lg,
           ),
         ),
       );
@@ -39,7 +39,7 @@ void main() {
           .widget<Container>(find.byType(Container).first)
           .decoration! as ShapeDecoration;
       final shape = decoration.shape as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(GxRadius.lg));
+      expect(shape.borderRadius, BorderRadius.circular(GwRadius.lg));
     });
 
     test('initials follow Turkish casing', () {
@@ -49,15 +49,15 @@ void main() {
     });
   });
 
-  group('GxButton', () {
+  group('GwButton', () {
     testWidgets('meets the 44x44 minimum touch target', (tester) async {
       await tester.pumpWidget(
-        _wrap(Center(child: GxButton(label: 'Tamam', onPressed: () {}))),
+        _wrap(Center(child: GwButton(label: 'Tamam', onPressed: () {}))),
       );
 
       final size = tester.getSize(find.byType(FilledButton));
-      expect(size.width, greaterThanOrEqualTo(GxSpacing.minTouchTarget));
-      expect(size.height, greaterThanOrEqualTo(GxSpacing.minTouchTarget));
+      expect(size.width, greaterThanOrEqualTo(GwSpacing.minTouchTarget));
+      expect(size.height, greaterThanOrEqualTo(GwSpacing.minTouchTarget));
     });
 
     testWidgets('ignores taps while loading', (tester) async {
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           Center(
-            child: GxButton(
+            child: GwButton(
               label: 'Kaydet',
               onPressed: () => taps++,
               isLoading: true,
@@ -82,10 +82,10 @@ void main() {
     testWidgets('secondary variant is outlined', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          GxButton(
+          GwButton(
             label: 'Vazgeç',
             onPressed: () {},
-            variant: GxButtonVariant.secondary,
+            variant: GwButtonVariant.secondary,
           ),
         ),
       );
@@ -94,12 +94,12 @@ void main() {
     });
   });
 
-  group('GxEmptyState', () {
+  group('GwEmptyState', () {
     testWidgets('shows icon, message and a working action', (tester) async {
       var tapped = false;
       await tester.pumpWidget(
         _wrap(
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.groups_outlined,
             message: 'Henüz bir gruba katılmadın.',
             actionLabel: 'Grupları keşfet',
@@ -123,7 +123,7 @@ void main() {
 
       await tester.pumpWidget(
         _wrap(
-          GxEmptyState(
+          GwEmptyState(
             icon: Icons.event_outlined,
             message: 'Bu grubun yaklaşan bir organizasyonu bulunmuyor.',
             actionLabel: 'Organizasyon oluştur',
@@ -137,20 +137,20 @@ void main() {
     });
   });
 
-  group('GxSkeleton', () {
+  group('GwSkeleton', () {
     testWidgets('stays still when animations are disabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: MediaQuery(
             data: MediaQueryData(disableAnimations: true),
-            child: GxSkeleton(height: 16),
+            child: GwSkeleton(height: 16),
           ),
         ),
       );
 
       // pumpAndSettle would time out if the pulse kept repeating.
       await tester.pumpAndSettle();
-      expect(find.byType(GxSkeleton), findsOneWidget);
+      expect(find.byType(GwSkeleton), findsOneWidget);
     });
   });
 }

@@ -42,7 +42,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-      body: GxReadingColumn(child: PeopleSearchResults(query: _query, onClear: _clear)),
+      body: GwReadingColumn(child: PeopleSearchResults(query: _query, onClear: _clear)),
     );
   }
 }

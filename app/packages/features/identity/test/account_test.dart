@@ -47,7 +47,7 @@ Future<_FakeAccounts> _pump(WidgetTester tester, AccountState state, {Widget chi
       currentUserIdProvider.overrideWithValue('u1'),
       accountRepositoryProvider.overrideWithValue(accounts),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: child),
+    child: MaterialApp(theme: GwTheme.light(), home: child),
   ));
   await tester.pumpAndSettle();
   return accounts;

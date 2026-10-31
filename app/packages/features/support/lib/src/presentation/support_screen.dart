@@ -27,14 +27,14 @@ class SupportScreen extends ConsumerWidget {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+          constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
           child: RefreshIndicator(
             onRefresh: () async => ref.invalidate(myTicketsProvider),
             child: switch (tickets) {
               AsyncData(:final value) when value.isEmpty => ListView(
                   children: [
-                    const SizedBox(height: GxSpacing.xxl),
-                    GxEmptyState(
+                    const SizedBox(height: GwSpacing.xxl),
+                    GwEmptyState(
                       icon: Icons.support_agent_outlined,
                       message: 'Bir sorun, talep ya da istek için platform ekibine yazabilirsin.',
                       actionLabel: 'Yeni mesaj',
@@ -43,29 +43,29 @@ class SupportScreen extends ConsumerWidget {
                   ],
                 ),
               AsyncData(:final value) => ListView.separated(
-                  padding: const EdgeInsets.only(bottom: GxSpacing.xxl * 2),
+                  padding: const EdgeInsets.only(bottom: GwSpacing.xxl * 2),
                   itemCount: value.length + 1,
                   separatorBuilder: (_, i) => i == 0 ? const SizedBox.shrink() : const Divider(),
                   itemBuilder: (context, i) => i == 0
                       ? Padding(
-                          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+                          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
                           child: Text(
                             'Mesajların platform ekibine iletilir; yanıtları ve durumlarını buradan izleyebilirsin.',
-                            style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                            style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                           ),
                         )
                       : _TicketRow(ticket: value[i - 1]),
                 ),
-              AsyncError(:final error) => GxErrorState(
+              AsyncError(:final error) => GwErrorState(
                   message: userMessageOf(error),
                   onRetry: () => ref.invalidate(myTicketsProvider),
                 ),
               _ => const Padding(
-                  padding: EdgeInsets.all(GxSpacing.md),
+                  padding: EdgeInsets.all(GwSpacing.md),
                   child: Column(children: [
-                    GxSkeleton(height: GxSpacing.xxl),
-                    SizedBox(height: GxSpacing.md),
-                    GxSkeleton(height: GxSpacing.xxl),
+                    GwSkeleton(height: GwSpacing.xxl),
+                    SizedBox(height: GwSpacing.md),
+                    GwSkeleton(height: GwSpacing.xxl),
                   ]),
                 ),
             },
@@ -88,11 +88,11 @@ class _TicketRow extends StatelessWidget {
     return InkWell(
       onTap: () => context.push(SupportRoutes.ticket(ticket.id)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
         child: Row(
           children: [
             SupportKindIcon(ticket.kind),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,18 +104,18 @@ class _TicketRow extends StatelessWidget {
                     style: textTheme.labelLarge?.copyWith(fontWeight: ticket.hasUnreadReply ? FontWeight.w700 : null),
                   ),
                   Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                      style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
-            const SizedBox(width: GxSpacing.sm),
+            const SizedBox(width: GwSpacing.sm),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SupportStatusBadge(ticket.status),
                 if (ticket.hasUnreadReply) ...[
-                  const SizedBox(height: GxSpacing.xxs),
-                  const GxBadge('Yeni yanıt', tone: GxBadgeTone.primary),
+                  const SizedBox(height: GwSpacing.xxs),
+                  const GwBadge('Yeni yanıt', tone: GwBadgeTone.primary),
                 ],
               ],
             ),

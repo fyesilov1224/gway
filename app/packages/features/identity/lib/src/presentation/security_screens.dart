@@ -32,11 +32,11 @@ class SecurityScreen extends ConsumerWidget {
           AsyncError(:final error) => AuthLayout(
               title: 'Güvenlik doğrulaması',
               children: [
-                GxErrorState(message: userMessageOf(error), onRetry: () => _reload(ref)),
+                GwErrorState(message: userMessageOf(error), onRetry: () => _reload(ref)),
                 const _SignOutButton(),
               ],
             ),
-          _ => const GxSplash(caption: 'Güvenlik kontrol ediliyor'),
+          _ => const GwSplash(caption: 'Güvenlik kontrol ediliyor'),
         },
     };
   }
@@ -55,11 +55,11 @@ Future<void> showSecurityWarnings(BuildContext context, List<String> warnings) a
   await showDialog<void>(
     context: context,
     builder: (dialog) => AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       icon: const Icon(Icons.vpn_lock_outlined),
       title: const Text('Güvenlik uyarısı'),
       content: const Text(vpnInstalledWarning),
-      actions: [GxButton(label: 'Anladım', onPressed: () => Navigator.of(dialog).pop())],
+      actions: [GwButton(label: 'Anladım', onPressed: () => Navigator.of(dialog).pop())],
     ),
   );
 }
@@ -90,7 +90,7 @@ void _reload(WidgetRef ref) => ref
   ..invalidate(securityStatusProvider)
   ..invalidate(accountStateProvider);
 
-const _gap = SizedBox(height: GxSpacing.md);
+const _gap = SizedBox(height: GwSpacing.md);
 
 class _SignOutButton extends ConsumerWidget {
   const _SignOutButton({this.enabled = true});
@@ -98,9 +98,9 @@ class _SignOutButton extends ConsumerWidget {
   final bool enabled;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => GxButton(
+  Widget build(BuildContext context, WidgetRef ref) => GwButton(
         label: 'Çıkış yap',
-        variant: GxButtonVariant.text,
+        variant: GwButtonVariant.text,
         onPressed: enabled ? () => ref.read(authRepositoryProvider).signOut() : null,
       );
 }
@@ -142,7 +142,7 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
       case LocationDenied(:final permanently):
         _permanentlyDenied = permanently;
         _error = permanently
-            ? 'Konum iznini daha önce reddettin. Cihaz ayarlarından GrupX için konum iznini açıp tekrar dene.'
+            ? 'Konum iznini daha önce reddettin. Cihaz ayarlarından GWAY için konum iznini açıp tekrar dene.'
             : 'Konum izni olmadan devam edemezsin.';
       case LocationServiceOff():
         _error = 'Cihazının konum servisi kapalı. Açıp tekrar dene.';
@@ -154,25 +154,25 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
   Widget build(BuildContext context) {
     return AuthLayout(
       title: 'Konumunu doğrulayalım',
-      subtitle: 'Hesap güvenliği ve sahte hesapların önlenmesi için GrupX, giriş yaparken ve uygulamayı açtığında '
+      subtitle: 'Hesap güvenliği ve sahte hesapların önlenmesi için GWAY, giriş yaparken ve uygulamayı açtığında '
           'konumunu kullanır. Konum izni olmadan uygulama açılmaz.',
       children: [
-        if (_error != null) ...[GxFormMessage(_error!), _gap],
+        if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (_permanentlyDenied) ...[
-          GxButton(
+          GwButton(
             label: 'Ayarları aç',
             icon: Icons.settings_outlined,
             onPressed: _busy ? null : () => ref.read(deviceSignalSourceProvider).openSettings(),
             expand: true,
           ),
-          const SizedBox(height: GxSpacing.sm),
-          GxButton(label: 'Tekrar dene', variant: GxButtonVariant.secondary, onPressed: _check, isLoading: _busy, expand: true),
+          const SizedBox(height: GwSpacing.sm),
+          GwButton(label: 'Tekrar dene', variant: GwButtonVariant.secondary, onPressed: _check, isLoading: _busy, expand: true),
         ] else
-          GxButton(label: 'Konum iznini ver', icon: Icons.my_location, onPressed: _check, isLoading: _busy, expand: true),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+          GwButton(label: 'Konum iznini ver', icon: Icons.my_location, onPressed: _check, isLoading: _busy, expand: true),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Aydınlatma metnini oku',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: () => _showPrivacyNotice(context),
         ),
         _SignOutButton(enabled: !_busy),
@@ -191,7 +191,7 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
             final textTheme = Theme.of(context).textTheme;
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.page),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.page),
                 child: switch (docs) {
                   AsyncData(:final value) => switch (value.where((d) => d.kind == LegalKind.privacyNotice).firstOrNull) {
                       final doc? => SingleChildScrollView(
@@ -199,14 +199,14 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(doc.title, style: textTheme.titleLarge),
-                              const SizedBox(height: GxSpacing.sm),
+                              const SizedBox(height: GwSpacing.sm),
                               Text(doc.body, style: textTheme.bodyMedium),
                             ],
                           ),
                         ),
                       null => const Text('Aydınlatma metni şu anda yüklenemedi.'),
                     },
-                  AsyncError(:final error) => GxErrorState(
+                  AsyncError(:final error) => GwErrorState(
                       message: userMessageOf(error),
                       onRetry: () => ref.invalidate(latestLegalDocumentsProvider),
                     ),
@@ -341,11 +341,11 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
       context: context,
       barrierDismissible: false,
       builder: (dialog) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         icon: const Icon(Icons.verified_user_outlined),
         title: const Text('Girişlerini hızlandır'),
         content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+          constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -355,22 +355,22 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
                   : 'Sonraki girişlerinde SMS beklemeden Google Authenticator koduyla doğrulama yapabilirsin.'),
               _gap,
               if (passkeys) ...[
-                GxButton(
+                GwButton(
                   label: 'Parmak izi ekle',
                   icon: Icons.fingerprint,
                   onPressed: () => Navigator.of(dialog).pop('passkey'),
                   expand: true,
                 ),
-                const SizedBox(height: GxSpacing.sm),
+                const SizedBox(height: GwSpacing.sm),
               ],
-              GxButton(
+              GwButton(
                 label: 'Google Authenticator ekle',
                 icon: Icons.phonelink_lock_outlined,
-                variant: passkeys ? GxButtonVariant.secondary : GxButtonVariant.primary,
+                variant: passkeys ? GwButtonVariant.secondary : GwButtonVariant.primary,
                 onPressed: () => Navigator.of(dialog).pop('totp'),
                 expand: true,
               ),
-              GxButton(label: 'Şimdi değil', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+              GwButton(label: 'Şimdi değil', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
             ],
           ),
         ),
@@ -407,21 +407,21 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
           _CodeField(controller: _code, onSubmitted: _verify),
           _gap,
         ],
-        if (_error != null) ...[GxFormMessage(_error!), _gap],
+        if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (!_sent)
-          GxButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
+          GwButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
         else ...[
-          GxButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
-          const SizedBox(height: GxSpacing.sm),
-          GxButton(
+          GwButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
+          const SizedBox(height: GwSpacing.sm),
+          GwButton(
             label: resendIn > 0 ? 'Kodu yeniden gönder ($resendIn sn)' : 'Kodu yeniden gönder',
-            variant: GxButtonVariant.secondary,
+            variant: GwButtonVariant.secondary,
             onPressed: resendIn > 0 || _busy ? null : _send,
             expand: true,
           ),
-          GxButton(
+          GwButton(
             label: 'Numarayı değiştir',
-            variant: GxButtonVariant.text,
+            variant: GwButtonVariant.text,
             onPressed: _busy ? null : () => setState(() => _sent = false),
           ),
         ],
@@ -574,9 +574,9 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
           _CodeField(controller: _code, onSubmitted: _verify),
           _gap,
         ],
-        if (_error != null) ...[GxFormMessage(_error!), _gap],
+        if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (passkey)
-          GxButton(
+          GwButton(
             label: 'Parmak iziyle doğrula',
             icon: Icons.fingerprint,
             onPressed: _verifyPasskey,
@@ -584,14 +584,14 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
             expand: true,
           )
         else if (sms && !_sent)
-          GxButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
+          GwButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
         else ...[
-          GxButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
+          GwButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
           if (sms) ...[
-            const SizedBox(height: GxSpacing.sm),
-            GxButton(
+            const SizedBox(height: GwSpacing.sm),
+            GwButton(
               label: resendIn > 0 ? 'Kodu yeniden gönder ($resendIn sn)' : 'Kodu yeniden gönder',
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               onPressed: resendIn > 0 || _busy ? null : _send,
               expand: true,
             ),
@@ -617,16 +617,16 @@ class _RestrictedStep extends ConsumerWidget {
       subtitle: 'Hesabın güvenlik incelemesine alındı. İnceleme sonuçlanınca uygulamayı kullanmaya kaldığın yerden '
           'devam edebilirsin.',
       children: [
-        const GxFormMessage(securityWarning),
-        const SizedBox(height: GxSpacing.md),
-        GxButton(
+        const GwFormMessage(securityWarning),
+        const SizedBox(height: GwSpacing.md),
+        GwButton(
           label: 'Durumu yenile',
           icon: Icons.refresh,
           isLoading: refreshing,
           onPressed: () => _reload(ref),
           expand: true,
         ),
-        const SizedBox(height: GxSpacing.sm),
+        const SizedBox(height: GwSpacing.sm),
         const _SignOutButton(),
       ],
     );
@@ -643,12 +643,12 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Doğrulama uygulamasını kaldır'),
         content: const Text('Bundan sonra yeni girişlerini yalnızca SMS koduyla doğrulayabilirsin.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: 'Kaldır', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: 'Kaldır', onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -673,11 +673,11 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
               child: switch (status) {
-                AsyncData(value: final s?) => GxCard(
+                AsyncData(value: final s?) => GwCard(
                     padding: EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -699,15 +699,15 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                         const _PasskeysSection(),
                         const Divider(height: 1),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.md),
+                          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.md),
                           child: s.totpEnabled
-                              ? GxButton(
+                              ? GwButton(
                                   label: 'Kaldır',
-                                  variant: GxButtonVariant.secondary,
+                                  variant: GwButtonVariant.secondary,
                                   onPressed: () => _remove(context, ref),
                                   expand: true,
                                 )
-                              : GxButton(
+                              : GwButton(
                                   label: 'Doğrulama uygulaması ekle',
                                   icon: Icons.add,
                                   onPressed: () => Navigator.of(context)
@@ -718,12 +718,12 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                AsyncError(:final error) => GxErrorState(
+                AsyncError(:final error) => GwErrorState(
                     message: userMessageOf(error),
                     onRetry: () => ref.invalidate(securityStatusProvider),
                   ),
                 AsyncData() => Text('Giriş yapman gerekiyor.', style: textTheme.bodyMedium),
-                _ => const GxSkeleton(height: GxSpacing.xxl * 3, borderRadius: GxRadius.lgAll),
+                _ => const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
               },
             ),
           ),
@@ -779,7 +779,7 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
         ),
         for (final p in passkeys)
           ListTile(
-            contentPadding: const EdgeInsets.only(left: GxSpacing.xxl + GxSpacing.md, right: GxSpacing.xs),
+            contentPadding: const EdgeInsets.only(left: GwSpacing.xxl + GwSpacing.md, right: GwSpacing.xs),
             title: Text(p.name),
             subtitle: Text(p.lastUsedAt == null ? 'Henüz kullanılmadı' : 'Son kullanım: ${formatDateTimeTr(p.lastUsedAt!)}'),
             trailing: IconButton(
@@ -789,19 +789,19 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
             ),
           ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
           child: supported
-              ? GxButton(
+              ? GwButton(
                   label: 'Bu cihazda parmak izi ekle',
                   icon: Icons.add,
-                  variant: GxButtonVariant.secondary,
+                  variant: GwButtonVariant.secondary,
                   isLoading: _busy,
                   onPressed: _add,
                   expand: true,
                 )
               : Text(
                   'Bu cihaz ya da tarayıcı parmak iziyle girişi desteklemiyor.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
         ),
       ],
@@ -860,19 +860,19 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.formMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
               child: FutureBuilder(
                 future: _setup,
                 builder: (context, snapshot) => switch (snapshot.data) {
                   null => const Center(child: CircularProgressIndicator()),
-                  Err(:final failure) => GxErrorState(
+                  Err(:final failure) => GwErrorState(
                       message: failure.userMessage,
                       onRetry: () => setState(() => _setup = ref.read(securityRepositoryProvider).beginTotp()),
                     ),
-                  Ok(value: final setup) => GxCard(
-                      padding: const EdgeInsets.all(GxSpacing.lg),
+                  Ok(value: final setup) => GwCard(
+                      padding: const EdgeInsets.all(GwSpacing.lg),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -885,8 +885,8 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
                           Center(
                             child: QrImageView(
                               data: setup.uri,
-                              size: GxSpacing.xxl * 4,
-                              backgroundColor: GxColors.surface,
+                              size: GwSpacing.xxl * 4,
+                              backgroundColor: GwColors.surface,
                             ),
                           ),
                           _gap,
@@ -895,33 +895,33 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
                             textAlign: TextAlign.center,
                             style: textTheme.titleMedium,
                           ),
-                          const SizedBox(height: GxSpacing.sm),
+                          const SizedBox(height: GwSpacing.sm),
                           Wrap(
                             alignment: WrapAlignment.center,
-                            spacing: GxSpacing.xs,
+                            spacing: GwSpacing.xs,
                             children: [
-                              GxButton(
+                              GwButton(
                                 label: 'Anahtarı kopyala',
                                 icon: Icons.copy,
-                                variant: GxButtonVariant.text,
+                                variant: GwButtonVariant.text,
                                 onPressed: () => Clipboard.setData(ClipboardData(text: setup.secret)),
                               ),
                               if (!kIsWeb)
-                                GxButton(
+                                GwButton(
                                   label: 'Uygulamada aç',
                                   icon: Icons.open_in_new,
-                                  variant: GxButtonVariant.text,
+                                  variant: GwButtonVariant.text,
                                   onPressed: () => launchUrl(Uri.parse(setup.uri)),
                                 ),
                             ],
                           ),
                           _gap,
                           Text('2. Uygulamanın gösterdiği 6 haneli kodu gir.', style: textTheme.bodyMedium),
-                          const SizedBox(height: GxSpacing.sm),
+                          const SizedBox(height: GwSpacing.sm),
                           _CodeField(controller: _code, onSubmitted: _confirm),
                           _gap,
-                          if (_error != null) ...[GxFormMessage(_error!), _gap],
-                          GxButton(label: 'Etkinleştir', onPressed: _confirm, isLoading: _busy, expand: true),
+                          if (_error != null) ...[GwFormMessage(_error!), _gap],
+                          GwButton(label: 'Etkinleştir', onPressed: _confirm, isLoading: _busy, expand: true),
                         ],
                       ),
                     ),

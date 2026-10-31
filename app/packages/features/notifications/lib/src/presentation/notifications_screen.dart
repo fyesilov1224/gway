@@ -95,7 +95,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bildirimler')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () async {
             _marked = false;
@@ -104,8 +104,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           },
           child: switch (page) {
             AsyncData(:final value) when value.items.isEmpty => ListView(children: [
-                const SizedBox(height: GxSpacing.xxl),
-                GxEmptyState(
+                const SizedBox(height: GwSpacing.xxl),
+                GwEmptyState(
                   icon: Icons.notifications_none_rounded,
                   message: 'Beğeniler, yorumlar ve yeni takipçiler burada görünür.',
                   actionLabel: 'Yenile',
@@ -125,18 +125,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     for (final (period, items) in groupByPeriod(
                         [for (final n in value.items) if (n.type != NotificationType.followRequest) n], now)) ...[
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+                        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
                         child: Text(period.label, style: textTheme.titleMedium),
                       ),
                       for (final n in items) _NotificationRow(notification: n, links: widget.links),
                     ],
                     if (value.loadingMore)
-                      const Padding(padding: EdgeInsets.all(GxSpacing.md), child: Center(child: CircularProgressIndicator())),
+                      const Padding(padding: EdgeInsets.all(GwSpacing.md), child: Center(child: CircularProgressIndicator())),
                   ],
                 ),
               ),
             AsyncError(:final error) =>
-              GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(notificationListProvider)),
+              GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(notificationListProvider)),
             _ => const _Skeleton(),
           },
         ),
@@ -158,7 +158,7 @@ class _RequestsRow extends StatelessWidget {
     final others = requests.length - 1;
     return ListTile(
       onTap: onTap,
-      leading: GxAvatar(name: first.displayName, shape: GxAvatarShape.user, imageUrl: first.avatarUrl, size: GxAvatarSize.md),
+      leading: GwAvatar(name: first.displayName, shape: GwAvatarShape.user, imageUrl: first.avatarUrl, size: GwAvatarSize.md),
       title: Text('Takip istekleri', style: textTheme.labelLarge),
       subtitle: Text(others == 0 ? first.username : '${first.username} ve $others kişi daha'),
       trailing: const Icon(Icons.chevron_right),
@@ -169,7 +169,7 @@ class _RequestsRow extends StatelessWidget {
 class _NotificationRow extends ConsumerWidget {
   const _NotificationRow({required this.notification, required this.links});
 
-  static final _thumb = GxAvatarSize.md.dimension + GxSpacing.xxs;
+  static final _thumb = GwAvatarSize.md.dimension + GwSpacing.xxs;
 
   final AppNotification notification;
   final NotificationLinks links;
@@ -200,10 +200,10 @@ class _NotificationRow extends ConsumerWidget {
       key: ValueKey(n.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: GxColors.errorSoft,
+        color: GwColors.errorSoft,
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg),
-        child: const Icon(Icons.delete_outline, color: GxColors.error, semanticLabel: 'Sil'),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
+        child: const Icon(Icons.delete_outline, color: GwColors.error, semanticLabel: 'Sil'),
       ),
       onDismissed: (_) async {
         final result = await ref.read(notificationListProvider.notifier).delete(n);
@@ -212,29 +212,29 @@ class _NotificationRow extends ConsumerWidget {
         }
       },
       child: Material(
-        color: n.read ? GxColors.background : GxColors.primarySoft,
+        color: n.read ? GwColors.background : GwColors.primarySoft,
         child: InkWell(
           onTap: () => _open(context),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.xs),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
             child: Row(
               children: [
                 if (n.type.fromGroup)
-                  GxAvatar(name: n.group?.name ?? '', shape: GxAvatarShape.group, imageUrl: n.group?.logoUrl, size: GxAvatarSize.md)
+                  GwAvatar(name: n.group?.name ?? '', shape: GwAvatarShape.group, imageUrl: n.group?.logoUrl, size: GwAvatarSize.md)
                 else if (n.type.anonymous)
                   Container(
-                    width: GxAvatarSize.md.dimension,
-                    height: GxAvatarSize.md.dimension,
-                    decoration: const BoxDecoration(color: GxColors.primarySoft, shape: BoxShape.circle),
-                    child: const Icon(Icons.favorite_rounded, color: GxColors.primary),
+                    width: GwAvatarSize.md.dimension,
+                    height: GwAvatarSize.md.dimension,
+                    decoration: const BoxDecoration(color: GwColors.primarySoft, shape: BoxShape.circle),
+                    child: const Icon(Icons.favorite_rounded, color: GwColors.primary),
                   )
                 else
                   InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => links.openProfile(context, n.actor.username),
-                    child: GxAvatar(name: n.actor.displayName, shape: GxAvatarShape.user, imageUrl: n.actor.avatarUrl, size: GxAvatarSize.md),
+                    child: GwAvatar(name: n.actor.displayName, shape: GwAvatarShape.user, imageUrl: n.actor.avatarUrl, size: GwAvatarSize.md),
                   ),
-                const SizedBox(width: GxSpacing.sm),
+                const SizedBox(width: GwSpacing.sm),
                 Expanded(
                   child: Text.rich(
                     TextSpan(children: [
@@ -242,7 +242,7 @@ class _NotificationRow extends ConsumerWidget {
                       TextSpan(text: n.action),
                       TextSpan(
                         text: '  ${_ago(n.createdAt)}',
-                        style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                        style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                       ),
                     ]),
                     maxLines: 3,
@@ -250,21 +250,21 @@ class _NotificationRow extends ConsumerWidget {
                     style: textTheme.bodyMedium,
                   ),
                 ),
-                const SizedBox(width: GxSpacing.sm),
+                const SizedBox(width: GwSpacing.sm),
                 if (n.type.isFollow)
                   links.followButton(context, n.actor)
                 else if (n.postId != null)
                   ClipRRect(
-                    borderRadius: GxRadius.smAll,
+                    borderRadius: GwRadius.smAll,
                     child: SizedBox.square(
                       dimension: _thumb,
                       child: n.thumbUrl == null
-                          ? const ColoredBox(color: GxColors.media, child: Icon(Icons.play_arrow_rounded, color: GxColors.onMedia))
+                          ? const ColoredBox(color: GwColors.media, child: Icon(Icons.play_arrow_rounded, color: GwColors.onMedia))
                           : Image.network(
                               n.thumbUrl!,
                               fit: BoxFit.cover,
-                              cacheWidth: gxCacheWidth(_thumb, MediaQuery.devicePixelRatioOf(context)),
-                              errorBuilder: (_, _, _) => const ColoredBox(color: GxColors.surfaceMuted),
+                              cacheWidth: gwCacheWidth(_thumb, MediaQuery.devicePixelRatioOf(context)),
+                              errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted),
                             ),
                     ),
                   ),
@@ -291,15 +291,15 @@ class _Skeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         children: [
           for (var i = 0; i < 6; i++) ...[
             const Row(children: [
-              GxSkeleton.circle(size: GxSpacing.xxl - GxSpacing.xs),
-              SizedBox(width: GxSpacing.sm),
-              Expanded(child: GxSkeleton(height: GxSpacing.md)),
+              GwSkeleton.circle(size: GwSpacing.xxl - GwSpacing.xs),
+              SizedBox(width: GwSpacing.sm),
+              Expanded(child: GwSkeleton(height: GwSpacing.md)),
             ]),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
           ],
         ],
       );
@@ -318,8 +318,8 @@ class NotificationsIcon extends ConsumerWidget {
     if (unread == 0) return icon;
     return Badge(
       label: Text(unread > 99 ? '99+' : '$unread'),
-      backgroundColor: GxColors.primary,
-      textColor: GxColors.onPrimary,
+      backgroundColor: GwColors.primary,
+      textColor: GwColors.onPrimary,
       child: icon,
     );
   }

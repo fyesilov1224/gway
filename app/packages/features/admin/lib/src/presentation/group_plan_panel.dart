@@ -84,43 +84,43 @@ class GroupPlanPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final canManage = ref.watch(myStaffRoleProvider).value?.canManageBilling ?? false;
     final now = DateTime.now();
     final plan = detail.plan;
 
     final hasLive = detail.subscriptions.any((s) => s.isLive(now));
 
-    return GxPanel(
+    return GwPanel(
       title: 'Paket',
       subtitle: '${detail.group.memberCount} / ${formatCount(plan.maxMembers)} üye',
-      trailing: GxBadge(plan.name, tone: plan.slug == 'free' ? GxBadgeTone.neutral : GxBadgeTone.primary),
+      trailing: GwBadge(plan.name, tone: plan.slug == 'free' ? GwBadgeTone.neutral : GwBadgeTone.primary),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (canManage)
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
-                GxButton(label: 'Paket tanımla', icon: Icons.workspace_premium_outlined, onPressed: () => _grant(context, ref)),
+                GwButton(label: 'Paket tanımla', icon: Icons.workspace_premium_outlined, onPressed: () => _grant(context, ref)),
                 if (hasLive)
-                  GxButton(
+                  GwButton(
                     label: 'Paketi iptal et',
                     icon: Icons.block,
-                    variant: GxButtonVariant.secondary,
+                    variant: GwButtonVariant.secondary,
                     onPressed: () => _cancelAll(context, ref),
                   ),
               ],
             ),
-          if (canManage) const SizedBox(height: GxSpacing.sm),
+          if (canManage) const SizedBox(height: GwSpacing.sm),
           if (detail.subscriptions.isEmpty)
             Text('Bu grubun hiç paketi olmadı; Ücretsiz paketi kullanıyor.', style: secondary)
           else
             for (final (i, s) in detail.subscriptions.indexed) ...[
               if (i > 0) const Divider(),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: GxSpacing.xs),
+                padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
                 child: Row(
                   children: [
                     Expanded(
@@ -133,7 +133,7 @@ class GroupPlanPanel extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: GxSpacing.sm),
+                    const SizedBox(width: GwSpacing.sm),
                     _SliceBadge(subscription: s, now: now),
                     if (canManage && s.isLive(now))
                       TextButton(onPressed: () => _cancel(context, ref, s), child: const Text('İptal et')),
@@ -162,13 +162,13 @@ class _SliceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = subscription;
-    if (s.orderStatus == AdminOrderStatus.refunded) return const GxBadge('İade edildi', dot: true);
+    if (s.orderStatus == AdminOrderStatus.refunded) return const GwBadge('İade edildi', dot: true);
     return switch (s.cancelReason) {
-      'upgraded' => const GxBadge('Yükseltildi', dot: true),
-      'admin' => const GxBadge('İptal edildi', tone: GxBadgeTone.danger, dot: true),
-      _ when s.isCurrent(now) => const GxBadge('Aktif', tone: GxBadgeTone.primary, dot: true),
-      _ when s.startsAt.isAfter(now) => const GxBadge('Sırada', tone: GxBadgeTone.info, dot: true),
-      _ => const GxBadge('Bitti', dot: true),
+      'upgraded' => const GwBadge('Yükseltildi', dot: true),
+      'admin' => const GwBadge('İptal edildi', tone: GwBadgeTone.danger, dot: true),
+      _ when s.isCurrent(now) => const GwBadge('Aktif', tone: GwBadgeTone.primary, dot: true),
+      _ when s.startsAt.isAfter(now) => const GwBadge('Sırada', tone: GwBadgeTone.info, dot: true),
+      _ => const GwBadge('Bitti', dot: true),
     };
   }
 }
@@ -203,7 +203,7 @@ class _CancelPlanDialogState extends State<CancelPlanDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: Text(widget.title),
       content: Form(
         key: _form,
@@ -213,7 +213,7 @@ class _CancelPlanDialogState extends State<CancelPlanDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.message),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               TextFormField(
                 controller: _reason,
                 maxLength: 500,
@@ -235,8 +235,8 @@ class _CancelPlanDialogState extends State<CancelPlanDialog> {
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: 'İptal et', onPressed: _confirm),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: 'İptal et', onPressed: _confirm),
       ],
     );
   }
@@ -280,10 +280,10 @@ class _GrantGroupPlanDialogState extends State<GrantGroupPlanDialog> {
     final current = widget.plans.where((p) => p.slug == widget.currentSlug).firstOrNull;
     final upgrade = _plan.tier > (current?.tier ?? 0);
     return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: const Text('Paket tanımla'),
       content: SizedBox(
-        width: GxLayout.formMaxWidth,
+        width: GwLayout.formMaxWidth,
         child: Form(
           key: _form,
           child: SingleChildScrollView(
@@ -301,14 +301,14 @@ class _GrantGroupPlanDialogState extends State<GrantGroupPlanDialog> {
                   ],
                   onChanged: (p) => setState(() => _plan = p ?? _plan),
                 ),
-                const SizedBox(height: GxSpacing.xs),
+                const SizedBox(height: GwSpacing.xs),
                 Text(
                   upgrade
                       ? 'Üst paket hemen başlar; grubun kalan süresi yeni pakete aktarılır.'
                       : 'Grubun mevcut süresi bitince başlar.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
-                const SizedBox(height: GxSpacing.sm),
+                const SizedBox(height: GwSpacing.sm),
                 TextFormField(
                   controller: _days,
                   keyboardType: TextInputType.number,
@@ -318,7 +318,7 @@ class _GrantGroupPlanDialogState extends State<GrantGroupPlanDialog> {
                     _ => '1 ile 365 arasında bir gün sayısı yaz.',
                   },
                 ),
-                const SizedBox(height: GxSpacing.sm),
+                const SizedBox(height: GwSpacing.sm),
                 TextFormField(
                   controller: _reason,
                   maxLength: 500,
@@ -333,8 +333,8 @@ class _GrantGroupPlanDialogState extends State<GrantGroupPlanDialog> {
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-        GxButton(label: 'Tanımla', onPressed: _confirm),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: 'Tanımla', onPressed: _confirm),
       ],
     );
   }

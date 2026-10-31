@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="1024" height="1024">
+  <title>GWAY uygulama ikonu</title>
+  <rect width="120" height="120" fill="#6E56CF"/>
+  <g transform="translate(60 60) scale(0.66) translate(-60 -60)"><path d="M100 60 A40 40 0 1 1 73.68 22.41" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/><path d="M62 60 H100" stroke="#C9DAFF" stroke-width="16" stroke-linecap="round"/><circle cx="92" cy="35" r="11" fill="#C9DAFF"/></g>
+</svg>

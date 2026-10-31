@@ -41,7 +41,7 @@ class CheckoutScreen extends ConsumerWidget {
 
     Widget body;
     if (!ref.watch(purchasesOnThisPlatformProvider)) {
-      body = GxEmptyState(
+      body = GwEmptyState(
         icon: planIcon,
         message: 'Bu işlem bu cihazda kullanılamıyor.',
         actionLabel: 'Geri dön',
@@ -55,7 +55,7 @@ class CheckoutScreen extends ConsumerWidget {
         (_, AsyncError(:final error), _, _) ||
         (_, _, AsyncError(:final error), _) ||
         (_, _, _, AsyncError(:final error)) =>
-          GxErrorState(
+          GwErrorState(
             message: userMessageOf(error),
             onRetry: () => ref
               ..invalidate(offerProvider(groupId))
@@ -64,8 +64,8 @@ class CheckoutScreen extends ConsumerWidget {
               ..invalidate(lastBillingDetailsProvider),
           ),
         _ => const Padding(
-            padding: EdgeInsets.all(GxSpacing.page),
-            child: Column(children: [GxSkeleton(height: GxSpacing.xxl * 3), SizedBox(height: GxSpacing.md), GxSkeleton(height: GxSpacing.xxl * 5)]),
+            padding: EdgeInsets.all(GwSpacing.page),
+            child: Column(children: [GwSkeleton(height: GwSpacing.xxl * 3), SizedBox(height: GwSpacing.md), GwSkeleton(height: GwSpacing.xxl * 5)]),
           ),
       };
     }
@@ -80,7 +80,7 @@ class CheckoutScreen extends ConsumerWidget {
     final option = offer.option(planSlug, period);
     final plan = plans.where((p) => p.slug == planSlug).firstOrNull;
     if (option == null || plan == null || !option.available || !offer.purchasesEnabled) {
-      return GxEmptyState(
+      return GwEmptyState(
         icon: planIcon,
         message: 'Bu paket şu anda satın alınamıyor.',
         actionLabel: 'Paketlere dön',
@@ -209,10 +209,10 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
           initialChildSize: 0.85,
           builder: (context, controller) => ListView(
             controller: controller,
-            padding: const EdgeInsets.fromLTRB(GxSpacing.lg, 0, GxSpacing.lg, GxSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xl),
             children: [
               Text(widget.terms.title, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               Text(widget.terms.body, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
@@ -221,27 +221,27 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final summary = widget.summary;
     final form = _detailsPanel(context);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: GxSpacing.lg, horizontal: GxSpacing.page),
+      padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: GxLayout.dashboardMaxWidth),
+          constraints: const BoxConstraints(maxWidth: GwLayout.dashboardMaxWidth),
           child: wide
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 3, child: form),
-                    const SizedBox(width: GxSpacing.lg),
+                    const SizedBox(width: GwSpacing.lg),
                     Expanded(flex: 2, child: summary),
                   ],
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [summary, const SizedBox(height: GxSpacing.md), form],
+                  children: [summary, const SizedBox(height: GwSpacing.md), form],
                 ),
         ),
       ),
@@ -250,8 +250,8 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
 
   Widget _detailsPanel(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    const gap = SizedBox(height: GxSpacing.md);
-    return GxPanel(
+    const gap = SizedBox(height: GwSpacing.md);
+    return GwPanel(
       title: 'Fatura bilgileri',
       subtitle: 'Faturan bu bilgilerle düzenlenir.',
       child: Form(
@@ -261,8 +261,8 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Wrap(
-                spacing: GxSpacing.md,
-                runSpacing: GxSpacing.md,
+                spacing: GwSpacing.md,
+                runSpacing: GwSpacing.md,
                 children: [
                   for (final (controller, label, hint) in [
                     (_firstName, 'Ad', AutofillHints.givenName),
@@ -270,7 +270,7 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                   ])
                     LayoutBuilder(
                       builder: (context, c) => SizedBox(
-                        width: c.maxWidth >= GxLayout.formMaxWidth ? (c.maxWidth - GxSpacing.md) / 2 : c.maxWidth,
+                        width: c.maxWidth >= GwLayout.formMaxWidth ? (c.maxWidth - GwSpacing.md) / 2 : c.maxWidth,
                         child: TextFormField(
                           controller: controller,
                           maxLength: 50,
@@ -330,23 +330,23 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                   TextSpan(children: [
                     TextSpan(
                       text: widget.terms.title,
-                      style: textTheme.bodyMedium?.copyWith(color: GxColors.secondary, fontWeight: FontWeight.w600),
+                      style: textTheme.bodyMedium?.copyWith(color: GwColors.secondary, fontWeight: FontWeight.w600),
                       recognizer: _termsLink,
                     ),
                     TextSpan(text: "'ni okudum ve kabul ediyorum.", style: textTheme.bodyMedium),
                   ]),
                 ),
                 subtitle: _termsMissing
-                    ? Text('Devam etmek için sözleşmeyi onaylamalısın.', style: textTheme.bodySmall?.copyWith(color: GxColors.error))
+                    ? Text('Devam etmek için sözleşmeyi onaylamalısın.', style: textTheme.bodySmall?.copyWith(color: GwColors.error))
                     : null,
               ),
               Text(
                 'Fatura bilgilerin yalnızca ödemenin alınması, faturalandırma ve yasal saklama yükümlülükleri için kullanılır.',
-                style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
               ),
-              if (_error != null) ...[gap, GxFormMessage(_error!)],
-              const SizedBox(height: GxSpacing.lg),
-              GxButton(
+              if (_error != null) ...[gap, GwFormMessage(_error!)],
+              const SizedBox(height: GwSpacing.lg),
+              GwButton(
                 label: 'Ödemeye geç · ${formatMoney(widget.amountMinor, widget.market.currency)}',
                 icon: Icons.lock_outline,
                 expand: true,
@@ -372,45 +372,45 @@ class _Summary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
     Widget row(String label, String value) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: Text(label, style: secondary)),
-              const SizedBox(width: GxSpacing.sm),
+              const SizedBox(width: GwSpacing.sm),
               Flexible(child: Text(value, textAlign: TextAlign.end, style: textTheme.bodyMedium)),
             ],
           ),
         );
 
-    return GxPanel(
+    return GwPanel(
       title: 'Sipariş özeti',
       subtitle: groupName,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('${plan.name} paketi · ${option.period.label}', style: textTheme.titleMedium),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           PlanLimits(plan: plan),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           const Divider(),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           row('Başlangıç', option.change == PlanChange.upgrade ? 'Ödeme onaylanınca' : formatDateTr(option.startsAt)),
           row('Bitiş (tahmini)', formatDateTr(option.endsAt)),
           if (option.credit > Duration.zero) row('Aktarılan süre', 'yaklaşık ${creditLabel(option.credit)}'),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           const Divider(),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Row(
             children: [
               Expanded(child: Text('Toplam', style: textTheme.titleMedium)),
               Text(formatMoney(option.amountMinor, market.currency), style: textTheme.titleLarge),
             ],
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           PaymentAssurance(market: market),
         ],
       ),
@@ -428,13 +428,13 @@ class PaymentAssurance extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.verified_user_outlined, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.secondary),
-          const SizedBox(width: GxSpacing.xs),
+          const Icon(Icons.verified_user_outlined, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.secondary),
+          const SizedBox(width: GwSpacing.xs),
           Expanded(
             child: Text(
               'Ödeme ${market.provider.label} güvencesiyle ${market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır. '
-              "Kart bilgilerin GrupX'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              "Kart bilgilerin GWAY'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
           ),
         ],

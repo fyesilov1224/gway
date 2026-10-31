@@ -32,13 +32,13 @@ class HomeFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          toolbarHeight: GxSpacing.xxl + GxSpacing.md,
-          titleSpacing: GxSpacing.page,
-          title: title ?? const GxLogo(size: GxSpacing.lg + GxSpacing.xxs, wordmark: true),
-          actions: [...actions, const SizedBox(width: GxSpacing.xs)],
+          toolbarHeight: GwSpacing.xxl + GwSpacing.md,
+          titleSpacing: GwSpacing.page,
+          title: title ?? const GwLogo(size: GwSpacing.lg + GwSpacing.xxs, wordmark: true),
+          actions: [...actions, const SizedBox(width: GwSpacing.xs)],
         ),
-        body: GxReadingColumn(
-          maxWidth: GxLayout.feedMaxWidth,
+        body: GwReadingColumn(
+          maxWidth: GwLayout.feedMaxWidth,
           child: PagedPostFeed(
             source: const HomeFeed(),
             onRefresh: onRefresh,
@@ -47,9 +47,9 @@ class HomeFeedScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ?top,
-                const GxSectionHeader(title: 'Hikâyeler'),
+                const GwSectionHeader(title: 'Hikâyeler'),
                 const StoryTray(),
-                const GxSectionHeader(title: 'Akış', subtitle: 'Gruplarından ve takip ettiklerinden'),
+                const GwSectionHeader(title: 'Akış', subtitle: 'Gruplarından ve takip ettiklerinden'),
               ],
             ),
             empty: (
@@ -103,7 +103,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final searching = _query.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: GxSpacing.md,
+        titleSpacing: GwSpacing.md,
         title: TextField(
           controller: _search,
           onChanged: _changed,
@@ -116,7 +116,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
         ),
       ),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: !searching
             ? PagedPostGrid(
                 source: const ExplorePosts(),
@@ -159,7 +159,7 @@ class _HashtagResults extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tags = ref.watch(hashtagSearchProvider(query));
     return switch (tags) {
-      AsyncData(:final value) when value.isEmpty => GxEmptyState(
+      AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.tag,
           message: '"$query" ile başlayan bir etiket bulunamadı.',
           actionLabel: 'Aramayı temizle',
@@ -169,14 +169,14 @@ class _HashtagResults extends ConsumerWidget {
           children: [
             for (final t in value)
               ListTile(
-                leading: const CircleAvatar(backgroundColor: GxColors.surfaceMuted, child: Icon(Icons.tag, color: GxColors.textPrimary)),
+                leading: const CircleAvatar(backgroundColor: GwColors.surfaceMuted, child: Icon(Icons.tag, color: GwColors.textPrimary)),
                 title: Text('#${t.tag}'),
                 subtitle: Text('${formatCount(t.postCount)} gönderi'),
                 onTap: () => context.push(FeedRoutes.hashtag(t.tag)),
               ),
           ],
         ),
-      AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(hashtagSearchProvider(query))),
+      AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(hashtagSearchProvider(query))),
       _ => const Center(child: CircularProgressIndicator()),
     };
   }
@@ -192,7 +192,7 @@ class HashtagScreen extends StatelessWidget {
     final normalized = tag.toLowerCase();
     return Scaffold(
       appBar: AppBar(title: Text('#$normalized')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: PagedPostGrid(
           source: HashtagPosts(normalized),
           empty: (
@@ -213,7 +213,7 @@ class SavedPostsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Kaydedilenler')),
-        body: GxReadingColumn(
+        body: GwReadingColumn(
           child: PagedPostGrid(
             source: const SavedPosts(),
             empty: (
@@ -238,7 +238,7 @@ class PostScreen extends ConsumerWidget {
     final post = ref.watch(postProvider(postId));
     return Scaffold(
       appBar: AppBar(title: const Text('Gönderi')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (post) {
           AsyncData(:final value) => RefreshIndicator(
               onRefresh: () => ref.refresh(postProvider(postId).future),
@@ -248,13 +248,13 @@ class PostScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          AsyncError(error: NotFoundFailure()) => GxEmptyState(
+          AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.image_not_supported_outlined,
               message: 'Bu gönderi silinmiş ya da görme iznin yok.',
               actionLabel: 'Akışa dön',
               onAction: () => context.go(FeedRoutes.home),
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postProvider(postId))),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postProvider(postId))),
           _ => const PostCardSkeleton(),
         },
       ),

@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Gway.Modules.Support.Contracts\Gway.Modules.Support.Contracts.csproj" />
+  </ItemGroup>
+</Project>

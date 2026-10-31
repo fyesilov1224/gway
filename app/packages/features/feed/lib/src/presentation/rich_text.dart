@@ -45,7 +45,7 @@ class _FeedRichTextState extends ConsumerState<FeedRichText> {
     }
     _recognizers.clear();
     final base = widget.style ?? Theme.of(context).textTheme.bodyMedium!;
-    final link = base.copyWith(color: GxColors.secondary);
+    final link = base.copyWith(color: GwColors.secondary);
     final links = ref.read(feedLinksProvider);
     return Text.rich(
       TextSpan(

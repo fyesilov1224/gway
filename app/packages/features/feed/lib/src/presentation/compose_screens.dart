@@ -50,7 +50,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   String? _error;
 
   /// Every item uses the first one's frame shape.
-  double get _ratio => _items.isEmpty ? GxMedia.square : _aspect.ratioFor(_items.first.size);
+  double get _ratio => _items.isEmpty ? GwMedia.square : _aspect.ratioFor(_items.first.size);
 
   @override
   void initState() {
@@ -100,7 +100,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           item.media.kind == MediaKind.video
               ? item.media
               : await renderPhoto(item.media, item.frame.rectIn(item.size, _ratio),
-                  maxSide: GxMedia.uploadMaxSide, thumbSide: GxMedia.thumbMaxSide),
+                  maxSide: GwMedia.uploadMaxSide, thumbSide: GwMedia.thumbMaxSide),
       ];
     } on Object {
       if (mounted) _fail('Fotoğraflar hazırlanamadı. Başka bir fotoğraf dene.');
@@ -149,33 +149,33 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         title: const Text('Yeni gönderi'),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GxSpacing.sm),
-            child: GxButton(label: 'Paylaş', isLoading: busy, onPressed: _items.isEmpty ? null : _share),
+            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            child: GwButton(label: 'Paylaş', isLoading: busy, onPressed: _items.isEmpty ? null : _share),
           ),
         ],
       ),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.feedMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.feedMaxWidth,
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: GxSpacing.md),
+          padding: const EdgeInsets.symmetric(vertical: GwSpacing.md),
           children: [
             if (widget.eventId != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.sm),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.sm),
                 child: Text(
                   'Bu gönderi organizasyonun anıları arasında da görünecek. Yalnızca kendi fotoğraflarını ve izin aldığın kişileri paylaş.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
             if (selected == null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
                 child: _picking
                     ? const AspectRatio(
-                        aspectRatio: GxMedia.square,
-                        child: GxSkeleton(height: double.infinity, borderRadius: GxRadius.lgAll),
+                        aspectRatio: GwMedia.square,
+                        child: GwSkeleton(height: double.infinity, borderRadius: GwRadius.lgAll),
                       )
-                    : GxEmptyState(
+                    : GwEmptyState(
                         icon: Icons.add_photo_alternate_outlined,
                         message: 'Paylaşmak için 10 taneye kadar fotoğraf ya da video seç.',
                         actionLabel: 'Galeriden seç',
@@ -194,9 +194,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.md, 0),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, 0),
                 child: Wrap(
-                  spacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
                   children: [
                     for (final a in MediaAspect.values)
                       ChoiceChip(label: Text(a.label), selected: _aspect == a, onSelected: busy ? null : (_) => _setAspect(a)),
@@ -204,13 +204,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.xs, GxSpacing.md, 0),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.md, 0),
                 child: Text(
                   'Yakınlaştırmak için iki parmakla aç, kadrajlamak için sürükle. Oran tüm fotoğraflara uygulanır.',
-                  style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               _MediaStrip(
                 items: _items,
                 selected: _selected,
@@ -231,21 +231,21 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               ),
             ],
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (_stage case final stage?) ...[
-                    const SizedBox(height: GxSpacing.sm),
-                    const LinearProgressIndicator(borderRadius: GxRadius.smAll),
-                    const SizedBox(height: GxSpacing.xxs),
+                    const SizedBox(height: GwSpacing.sm),
+                    const LinearProgressIndicator(borderRadius: GwRadius.smAll),
+                    const SizedBox(height: GwSpacing.xxs),
                     Text(stage, style: textTheme.labelMedium),
                   ],
                   if (_error case final error?) ...[
-                    const SizedBox(height: GxSpacing.sm),
-                    GxFormMessage(error),
+                    const SizedBox(height: GwSpacing.sm),
+                    GwFormMessage(error),
                   ],
-                  const SizedBox(height: GxSpacing.md),
+                  const SizedBox(height: GwSpacing.md),
                   TextField(
                     controller: _caption,
                     enabled: !busy,
@@ -260,7 +260,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     ),
                   ),
                   if (groups.isNotEmpty) ...[
-                    const SizedBox(height: GxSpacing.md),
+                    const SizedBox(height: GwSpacing.md),
                     DropdownButtonFormField<String?>(
                       initialValue: groups.any((g) => g.id == _groupId) ? _groupId : null,
                       decoration: const InputDecoration(labelText: 'Kim adına paylaşılsın?'),
@@ -271,7 +271,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       onChanged: busy ? null : (v) => setState(() => _groupId = v),
                     ),
                   ],
-                  const SizedBox(height: GxSpacing.sm),
+                  const SizedBox(height: GwSpacing.sm),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Yorumları kapat'),
@@ -313,12 +313,12 @@ class _MediaStrip extends StatelessWidget {
   final VoidCallback? onAdd;
   final void Function(int from, int to)? onReorder;
 
-  static const _tile = GxSpacing.xxl + GxSpacing.lg;
+  static const _tile = GwSpacing.xxl + GwSpacing.lg;
 
   @override
   Widget build(BuildContext context) {
-    final label = Theme.of(context).textTheme.labelMedium?.copyWith(color: GxColors.onMedia);
-    final cacheWidth = gxCacheWidth(_tile, MediaQuery.devicePixelRatioOf(context));
+    final label = Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia);
+    final cacheWidth = gwCacheWidth(_tile, MediaQuery.devicePixelRatioOf(context));
     return SizedBox(
       height: _tile,
       child: Row(
@@ -326,7 +326,7 @@ class _MediaStrip extends StatelessWidget {
           Expanded(
             child: ReorderableListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
               buildDefaultDragHandles: onReorder != null,
               itemCount: items.length,
               onReorder: onReorder ?? (_, _) {},
@@ -334,20 +334,20 @@ class _MediaStrip extends StatelessWidget {
                 final m = items[i].media;
                 return Padding(
                   key: ObjectKey(items[i]),
-                  padding: const EdgeInsets.only(right: GxSpacing.xs),
+                  padding: const EdgeInsets.only(right: GwSpacing.xs),
                   child: Semantics(
                     button: true,
                     selected: i == selected,
                     label: '${i + 1}. medya',
                     child: InkWell(
                       onTap: () => onSelect(i),
-                      borderRadius: GxRadius.smAll,
+                      borderRadius: GwRadius.smAll,
                       child: Container(
                         width: _tile,
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
-                          borderRadius: GxRadius.smAll,
-                          border: Border.all(color: i == selected ? GxColors.primary : GxColors.border, width: GxBorders.ringWidth),
+                          borderRadius: GwRadius.smAll,
+                          border: Border.all(color: i == selected ? GwColors.primary : GwColors.border, width: GwBorders.ringWidth),
                         ),
                         child: Stack(
                           fit: StackFit.expand,
@@ -356,7 +356,7 @@ class _MediaStrip extends StatelessWidget {
                               Image.memory(m.bytes, fit: BoxFit.cover, cacheWidth: cacheWidth)
                             else
                               ColoredBox(
-                                color: GxColors.media,
+                                color: GwColors.media,
                                 child: Center(child: Text('▶ ${m.duration?.inSeconds ?? 0} sn', style: label)),
                               ),
                             if (onRemove != null)
@@ -366,15 +366,15 @@ class _MediaStrip extends StatelessWidget {
                                 child: IconButton(
                                   tooltip: 'Çıkar',
                                   onPressed: () => onRemove!(i),
-                                  style: IconButton.styleFrom(backgroundColor: GxColors.mediaScrim, foregroundColor: GxColors.onMedia),
-                                  icon: const Icon(Icons.close, size: GxSpacing.md),
+                                  style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim, foregroundColor: GwColors.onMedia),
+                                  icon: const Icon(Icons.close, size: GwSpacing.md),
                                 ),
                               ),
                             if (m.kind == MediaKind.video && m.problem != null)
                               const Positioned(
-                                left: GxSpacing.xxs,
-                                bottom: GxSpacing.xxs,
-                                child: Icon(Icons.error, color: GxColors.error, semanticLabel: 'Paylaşılamaz'),
+                                left: GwSpacing.xxs,
+                                bottom: GwSpacing.xxs,
+                                child: Icon(Icons.error, color: GwColors.error, semanticLabel: 'Paylaşılamaz'),
                               ),
                           ],
                         ),
@@ -387,14 +387,14 @@ class _MediaStrip extends StatelessWidget {
           ),
           if (onAdd != null)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.md),
+              padding: const EdgeInsets.only(right: GwSpacing.md),
               child: SizedBox.square(
                 dimension: _tile,
                 child: OutlinedButton(
                   onPressed: onAdd,
                   style: OutlinedButton.styleFrom(
-                    shape: const RoundedRectangleBorder(borderRadius: GxRadius.smAll),
-                    side: const BorderSide(color: GxColors.border),
+                    shape: const RoundedRectangleBorder(borderRadius: GwRadius.smAll),
+                    side: const BorderSide(color: GwColors.border),
                     padding: EdgeInsets.zero,
                   ),
                   child: const Icon(Icons.add, semanticLabel: 'Medya ekle'),
@@ -472,24 +472,24 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
         actions: [
           if (post != null && post.canManage)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.sm),
-              child: GxButton(label: 'Kaydet', isLoading: _saving, onPressed: () => _save(post)),
+              padding: const EdgeInsets.only(right: GwSpacing.sm),
+              child: GwButton(label: 'Kaydet', isLoading: _saving, onPressed: () => _save(post)),
             ),
         ],
       ),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.feedMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.feedMaxWidth,
         child: switch (loaded) {
-          AsyncData(:final value) when !value.canManage => GxEmptyState(
+          AsyncData(:final value) when !value.canManage => GwEmptyState(
               icon: Icons.lock_outline,
               message: 'Bu gönderiyi düzenleme yetkin yok.',
               actionLabel: 'Geri dön',
               onAction: () => context.pop(),
             ),
           AsyncData() => ListView(
-              padding: const EdgeInsets.all(GxSpacing.md),
+              padding: const EdgeInsets.all(GwSpacing.md),
               children: [
-                if (_error case final error?) ...[GxFormMessage(error), const SizedBox(height: GxSpacing.sm)],
+                if (_error case final error?) ...[GwFormMessage(error), const SizedBox(height: GwSpacing.sm)],
                 TextField(
                   controller: _caption,
                   minLines: 3,
@@ -513,7 +513,7 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
                 ),
               ],
             ),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postProvider(widget.postId))),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postProvider(widget.postId))),
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),

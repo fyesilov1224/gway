@@ -17,7 +17,7 @@ class UpcomingEventsSection extends ConsumerWidget {
   final VoidCallback onFindGroups;
 
   static const int _limit = 8;
-  static const double _cardWidth = GxSpacing.xxl * 5;
+  static const double _cardWidth = GwSpacing.xxl * 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,27 +38,27 @@ class UpcomingEventsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GxSectionHeader(title: 'Yaklaşanlar', actionLabel: 'Takvim', onAction: () => context.go(EventRoutes.calendar)),
+        GwSectionHeader(title: 'Yaklaşanlar', actionLabel: 'Takvim', onAction: () => context.go(EventRoutes.calendar)),
         switch (events) {
           AsyncData() when upcoming.isEmpty => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
               child: _EmptyCard(onFindGroups: onFindGroups),
             ),
           AsyncData() => SizedBox(
-              height: GxDateTile.size + GxSpacing.lg,
+              height: GwDateTile.size + GwSpacing.lg,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
                 itemCount: upcoming.length,
-                separatorBuilder: (_, _) => const SizedBox(width: GxSpacing.sm),
+                separatorBuilder: (_, _) => const SizedBox(width: GwSpacing.sm),
                 itemBuilder: (context, i) => SizedBox(width: _cardWidth, child: _EventCard(event: upcoming[i])),
               ),
             ),
           AsyncError(:final error) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
-              child: GxFormMessage(userMessageOf(error)),
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
+              child: GwFormMessage(userMessageOf(error)),
             ),
-          _ => const SizedBox(height: GxDateTile.size + GxSpacing.lg),
+          _ => const SizedBox(height: GwDateTile.size + GwSpacing.lg),
         },
       ],
     );
@@ -70,7 +70,7 @@ class UpcomingEventsSection extends ConsumerWidget {
 class StartingSoonSection extends ConsumerWidget {
   const StartingSoonSection({super.key});
 
-  static const double _cardWidth = GxSpacing.xxl * 5;
+  static const double _cardWidth = GwSpacing.xxl * 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,14 +79,14 @@ class StartingSoonSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const GxSectionHeader(title: 'Yakında başlıyor', subtitle: 'Önümüzdeki 6 saat'),
+        const GwSectionHeader(title: 'Yakında başlıyor', subtitle: 'Önümüzdeki 6 saat'),
         SizedBox(
-          height: GxDateTile.size + GxSpacing.lg,
+          height: GwDateTile.size + GwSpacing.lg,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
             itemCount: soon.length,
-            separatorBuilder: (_, _) => const SizedBox(width: GxSpacing.sm),
+            separatorBuilder: (_, _) => const SizedBox(width: GwSpacing.sm),
             itemBuilder: (context, i) => SizedBox(width: _cardWidth, child: _EventCard(event: soon[i], showTime: true)),
           ),
         ),
@@ -108,14 +108,14 @@ class _EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GxCard(
-      radius: GxRadius.lgAll,
-      padding: const EdgeInsets.all(GxSpacing.sm),
+    return GwCard(
+      radius: GwRadius.lgAll,
+      padding: const EdgeInsets.all(GwSpacing.sm),
       onTap: () => context.push(EventRoutes.event(event.id)),
       child: Row(
         children: [
-          GxDateTile(date: event.startsAt, tone: GxTone.of(event.group.id)),
-          const SizedBox(width: GxSpacing.sm),
+          GwDateTile(date: event.startsAt, tone: GwTone.of(event.group.id)),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +130,7 @@ class _EventCard extends StatelessWidget {
                   ].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.labelMedium?.copyWith(color: event.isMine ? GxColors.primary : GxColors.textSecondary),
+                  style: textTheme.labelMedium?.copyWith(color: event.isMine ? GwColors.primary : GwColors.textSecondary),
                 ),
               ],
             ),
@@ -147,17 +147,17 @@ class _EmptyCard extends StatelessWidget {
   final VoidCallback onFindGroups;
 
   @override
-  Widget build(BuildContext context) => GxCard(
-        radius: GxRadius.lgAll,
-        padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.sm, GxSpacing.xs, GxSpacing.sm),
+  Widget build(BuildContext context) => GwCard(
+        radius: GwRadius.lgAll,
+        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.xs, GwSpacing.sm),
         child: Row(
           children: [
-            const GxTag(label: 'Plan yok', icon: Icons.event_available_outlined),
-            const SizedBox(width: GxSpacing.sm),
+            const GwTag(label: 'Plan yok', icon: Icons.event_available_outlined),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Text(
                 'Gruplarının yaklaşan organizasyonları burada görünür.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
             ),
             TextButton(onPressed: onFindGroups, child: const Text('Grup bul')),

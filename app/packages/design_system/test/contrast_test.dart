@@ -12,44 +12,44 @@ double contrast(Color a, Color b) {
 void main() {
   // Every text/background pair the design system uses. WCAG AA, normal text.
   const pairs = <String, (Color, Color)>{
-    'textPrimary on background': (GxColors.textPrimary, GxColors.background),
-    'textPrimary on backdropLilac': (GxColors.textPrimary, GxColors.backdropLilac),
-    'textPrimary on backdropPink': (GxColors.textPrimary, GxColors.backdropPink),
-    'textSecondary on backdropLilac': (GxColors.textSecondary, GxColors.backdropLilac),
-    'textSecondary on backdropPink': (GxColors.textSecondary, GxColors.backdropPink),
-    'primary on backdropLilac': (GxColors.primary, GxColors.backdropLilac),
-    'textPrimary on surface': (GxColors.textPrimary, GxColors.surface),
+    'textPrimary on background': (GwColors.textPrimary, GwColors.background),
+    'textPrimary on backdropLilac': (GwColors.textPrimary, GwColors.backdropLilac),
+    'textPrimary on backdropPink': (GwColors.textPrimary, GwColors.backdropPink),
+    'textSecondary on backdropLilac': (GwColors.textSecondary, GwColors.backdropLilac),
+    'textSecondary on backdropPink': (GwColors.textSecondary, GwColors.backdropPink),
+    'primary on backdropLilac': (GwColors.primary, GwColors.backdropLilac),
+    'textPrimary on surface': (GwColors.textPrimary, GwColors.surface),
     'textPrimary on surfaceMuted': (
-      GxColors.textPrimary,
-      GxColors.surfaceMuted,
+      GwColors.textPrimary,
+      GwColors.surfaceMuted,
     ),
-    'textPrimary on primarySoft': (GxColors.textPrimary, GxColors.primarySoft),
+    'textPrimary on primarySoft': (GwColors.textPrimary, GwColors.primarySoft),
     'textPrimary on secondarySoft': (
-      GxColors.textPrimary,
-      GxColors.secondarySoft,
+      GwColors.textPrimary,
+      GwColors.secondarySoft,
     ),
     'textSecondary on background': (
-      GxColors.textSecondary,
-      GxColors.background,
+      GwColors.textSecondary,
+      GwColors.background,
     ),
-    'textSecondary on surface': (GxColors.textSecondary, GxColors.surface),
+    'textSecondary on surface': (GwColors.textSecondary, GwColors.surface),
     'textSecondary on surfaceMuted': (
-      GxColors.textSecondary,
-      GxColors.surfaceMuted,
+      GwColors.textSecondary,
+      GwColors.surfaceMuted,
     ),
-    'onPrimary on primary': (GxColors.onPrimary, GxColors.primary),
-    'onPrimary on secondary': (GxColors.onPrimary, GxColors.secondary),
-    'primary on background': (GxColors.primary, GxColors.background),
-    'primary on primarySoft': (GxColors.primary, GxColors.primarySoft),
-    'secondary on background': (GxColors.secondary, GxColors.background),
-    'error on background': (GxColors.error, GxColors.background),
-    'error on errorSoft': (GxColors.error, GxColors.errorSoft),
-    'warning on background': (GxColors.warning, GxColors.background),
-    'warning on warningSoft': (GxColors.warning, GxColors.warningSoft),
-    'success on background': (GxColors.success, GxColors.background),
-    'success on successSoft': (GxColors.success, GxColors.successSoft),
-    'like on background': (GxColors.like, GxColors.background),
-    'onMedia on media': (GxColors.onMedia, GxColors.media),
+    'onPrimary on primary': (GwColors.onPrimary, GwColors.primary),
+    'onPrimary on secondary': (GwColors.onPrimary, GwColors.secondary),
+    'primary on background': (GwColors.primary, GwColors.background),
+    'primary on primarySoft': (GwColors.primary, GwColors.primarySoft),
+    'secondary on background': (GwColors.secondary, GwColors.background),
+    'error on background': (GwColors.error, GwColors.background),
+    'error on errorSoft': (GwColors.error, GwColors.errorSoft),
+    'warning on background': (GwColors.warning, GwColors.background),
+    'warning on warningSoft': (GwColors.warning, GwColors.warningSoft),
+    'success on background': (GwColors.success, GwColors.background),
+    'success on successSoft': (GwColors.success, GwColors.successSoft),
+    'like on background': (GwColors.like, GwColors.background),
+    'onMedia on media': (GwColors.onMedia, GwColors.media),
   };
 
   for (final MapEntry(key: name, value: (fg, bg)) in pairs.entries) {
@@ -60,6 +60,6 @@ void main() {
 
   test('secondary on secondarySoft is below AA and must not be used', () {
     // Documented in docs/DESIGN.md §1; guards against silently "fixing" it.
-    expect(contrast(GxColors.secondary, GxColors.secondarySoft), lessThan(4.5));
+    expect(contrast(GwColors.secondary, GwColors.secondarySoft), lessThan(4.5));
   });
 }

@@ -99,23 +99,23 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     if (w == null) return const SizedBox.shrink();
     final open = widget.event.isOpen(DateTime.now());
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
     final children = <Widget>[
       if (w.mine case final mine?) ..._mine(mine, open, textTheme, secondary),
       if (w.mine == null && w.canRequest && w.greeters > 0) ...[
         Text('İlk kez mi geliyorsun?', style: textTheme.titleMedium),
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         Text(
           'Bu grupta ${formatCount(w.greeters)} karşılayıcı var. Biri seni girişte karşılasın, grupla tanıştırsın.',
           style: secondary,
         ),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(label: 'Karşılanmak istiyorum', icon: Icons.waving_hand_outlined, isLoading: _busy, onPressed: _request),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(label: 'Karşılanmak istiyorum', icon: Icons.waving_hand_outlined, isLoading: _busy, onPressed: _request),
       ],
       if (w.taken.isNotEmpty) ...[
         Text('Karşıladıkların', style: textTheme.titleMedium),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         for (final t in w.taken)
           _PersonRow(
             entry: t,
@@ -139,20 +139,20 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
           ),
       ],
       if (w.open case final waiting? when waiting.isNotEmpty && open) ...[
-        if (w.taken.isNotEmpty) const SizedBox(height: GxSpacing.sm),
+        if (w.taken.isNotEmpty) const SizedBox(height: GwSpacing.sm),
         Text('Karşılanmayı bekleyenler (${waiting.length})', style: textTheme.titleMedium),
         if (!w.greeting && w.matched != null)
           Text('${formatCount(w.matched!)} kişi bir karşılayıcıyla eşleşti.', style: secondary),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         for (final entry in waiting)
           _PersonRow(
             entry: entry,
             links: widget.links,
             subtitle: entry.note ?? 'İlk kez geliyor',
             trailing: w.greeting
-                ? GxButton(
+                ? GwButton(
                     label: 'Karşılarım',
-                    variant: GxButtonVariant.secondary,
+                    variant: GwButtonVariant.secondary,
                     onPressed: _busy || w.taken.length >= 3 ? null : () => _take(entry),
                   )
                 : null,
@@ -166,11 +166,11 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     if (children.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.lg),
+      padding: const EdgeInsets.only(top: GwSpacing.lg),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(GxSpacing.md),
-        decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.lgAll),
+        padding: const EdgeInsets.all(GwSpacing.md),
+        decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.lgAll),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
       ),
     );
@@ -181,11 +181,11 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     if (greeter == null) {
       return [
         Text('Karşılayıcı aranıyor', style: textTheme.titleMedium),
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         Text('Grubun karşılayıcılarına haber verdik. Biri üstlenince bildirim gelecek.', style: secondary),
         if (mine.note case final note?) Text('Notun: $note', style: secondary),
         if (open) ...[
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           TextButton(
             style: TextButton.styleFrom(padding: EdgeInsets.zero),
             onPressed: _busy ? null : () => _run((r) => r.withdrawWelcome(_id), 'Karşılanma isteğin geri çekildi.'),
@@ -196,15 +196,15 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     }
     return [
       Text(mine.thanked || mine.canThank ? 'Seni karşılayan' : 'Seni karşılayacak', style: textTheme.titleMedium),
-      const SizedBox(height: GxSpacing.xs),
+      const SizedBox(height: GwSpacing.xs),
       _PersonRow(
         entry: WelcomeEntry(person: greeter),
         links: widget.links,
         subtitle: mine.greeterNote == null ? '@${greeter.username}' : 'Buluşma: ${mine.greeterNote}',
       ),
       if (mine.canThank) ...[
-        const SizedBox(height: GxSpacing.xs),
-        GxButton(
+        const SizedBox(height: GwSpacing.xs),
+        GwButton(
           label: 'Teşekkür et',
           icon: Icons.favorite_border_rounded,
           isLoading: _busy,
@@ -235,22 +235,22 @@ class _PersonRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final p = entry.person;
     return Padding(
-      padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+      padding: const EdgeInsets.only(bottom: GwSpacing.xs),
       child: Row(
         children: [
           InkWell(
             customBorder: const CircleBorder(),
             onTap: () => links.openProfile(context, p.username),
-            child: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+            child: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
           ),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(p.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
                 if (subtitle.isNotEmpty)
-                  Text(subtitle, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                  Text(subtitle, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
@@ -303,7 +303,7 @@ class _NoteDialogState extends State<_NoteDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.message case final message?) ...[Text(message), const SizedBox(height: GxSpacing.sm)],
+          if (widget.message case final message?) ...[Text(message), const SizedBox(height: GwSpacing.sm)],
           TextField(
             controller: _text,
             autofocus: true,
@@ -364,21 +364,21 @@ class _GroupWelcomeSectionState extends ConsumerState<GroupWelcomeSection> {
     final count = formatCount(w.greeters);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
-      child: GxCard(
-        padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
+      child: GwCard(
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.waving_hand_outlined, color: GxColors.primary),
-                const SizedBox(width: GxSpacing.sm),
+                const Icon(Icons.waving_hand_outlined, color: GwColors.primary),
+                const SizedBox(width: GwSpacing.sm),
                 Expanded(child: Text('Karşılama', style: textTheme.titleMedium)),
-                if (w.greeters > 0) GxBadge('$count karşılayıcı', tone: GxBadgeTone.primary),
+                if (w.greeters > 0) GwBadge('$count karşılayıcı', tone: GwBadgeTone.primary),
               ],
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Text(
               switch ((w.canGreet, w.greeters)) {
                 (true, _) => 'İlk kez gelenler organizasyon sayfasından karşılanmak isteyebilir. '
@@ -388,7 +388,7 @@ class _GroupWelcomeSectionState extends ConsumerState<GroupWelcomeSection> {
                 _ => 'Bu grupta $count karşılayıcı var: ilk organizasyonuna yalnız gitmezsin, '
                     'biri seni girişte karşılar.',
               },
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             if (w.canGreet || w.isGreeter)
               SwitchListTile(

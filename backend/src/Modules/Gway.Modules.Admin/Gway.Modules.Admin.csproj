@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Gway.Modules.Billing.Contracts\Gway.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Events.Contracts\Gway.Modules.Events.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Feed.Contracts\Gway.Modules.Feed.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Groups.Contracts\Gway.Modules.Groups.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Identity.Contracts\Gway.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Live.Contracts\Gway.Modules.Live.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Matching.Contracts\Gway.Modules.Matching.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Messaging.Contracts\Gway.Modules.Messaging.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Moderation.Contracts\Gway.Modules.Moderation.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Notifications.Contracts\Gway.Modules.Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\Gway.Modules.Support.Contracts\Gway.Modules.Support.Contracts.csproj" />
+  </ItemGroup>
+</Project>

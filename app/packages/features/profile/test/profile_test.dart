@@ -85,7 +85,7 @@ void main() {
               (ref) async => const [Category(slug: 'hiking', name: 'Yürüyüş'), Category(slug: 'music', name: 'Müzik')],
             ),
           ],
-          child: MaterialApp(theme: GxTheme.light(), home: const ProfileScreen()),
+          child: MaterialApp(theme: GwTheme.light(), home: const ProfileScreen()),
         );
 
     testWidgets('shows own profile with interests and edit action', (tester) async {
@@ -120,7 +120,7 @@ void main() {
           categoriesProvider.overrideWith((ref) async => const []),
           profileSuspensionProvider.overrideWith((ref, id) async => DateTime(2026, 11, 2, 9)),
         ],
-        child: MaterialApp(theme: GxTheme.light(), home: const ProfileScreen()),
+        child: MaterialApp(theme: GwTheme.light(), home: const ProfileScreen()),
       ));
       await tester.pumpAndSettle();
 
@@ -135,7 +135,7 @@ void main() {
             currentUserIdProvider.overrideWithValue('u1'),
             profileByUsernameProvider.overrideWith((ref, username) async => throw const NotFoundFailure()),
           ],
-          child: MaterialApp(theme: GxTheme.light(), home: const ProfileScreen(username: 'yok')),
+          child: MaterialApp(theme: GwTheme.light(), home: const ProfileScreen(username: 'yok')),
         ),
       );
       await tester.pumpAndSettle();

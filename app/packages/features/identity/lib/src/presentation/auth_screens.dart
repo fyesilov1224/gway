@@ -93,7 +93,7 @@ class _EmailField extends StatelessWidget {
   }
 }
 
-const _gap = SizedBox(height: GxSpacing.md);
+const _gap = SizedBox(height: GwSpacing.md);
 
 // ---------------------------------------------------------------------------
 
@@ -166,41 +166,41 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: GxButton(
+          child: GwButton(
             label: 'Şifremi unuttum',
-            variant: GxButtonVariant.text,
+            variant: GwButtonVariant.text,
             onPressed: loading ? null : () => context.push(IdentityRoutes.forgotPassword),
           ),
         ),
-        if (error != null) ...[GxFormMessage(error!), _gap],
-        GxButton(label: 'Giriş yap', onPressed: _signIn, isLoading: loading, expand: true),
+        if (error != null) ...[GwFormMessage(error!), _gap],
+        GwButton(label: 'Giriş yap', onPressed: _signIn, isLoading: loading, expand: true),
         if (widget.allowSocial && social.isNotEmpty) ...[
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           const LabeledDivider('veya'),
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           if (social.contains(SocialProvider.google))
-            GxButton(
+            GwButton(
               label: 'Google ile devam et',
               icon: Icons.g_mobiledata,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               expand: true,
               onPressed: loading ? null : () => _social(SocialProvider.google),
             ),
-          if (social.length == 2) const SizedBox(height: GxSpacing.sm),
+          if (social.length == 2) const SizedBox(height: GwSpacing.sm),
           if (social.contains(SocialProvider.apple))
-            GxButton(
+            GwButton(
               label: 'Apple ile devam et',
               icon: Icons.apple,
-              variant: GxButtonVariant.secondary,
+              variant: GwButtonVariant.secondary,
               expand: true,
               onPressed: loading ? null : () => _social(SocialProvider.apple),
             ),
         ],
         if (widget.allowSignUp) ...[
-          const SizedBox(height: GxSpacing.lg),
-          GxButton(
+          const SizedBox(height: GwSpacing.lg),
+          GwButton(
             label: 'Hesabın yok mu? Kayıt ol',
-            variant: GxButtonVariant.text,
+            variant: GwButtonVariant.text,
             onPressed: loading ? null : () => context.go(IdentityRoutes.signUp),
           ),
         ],
@@ -278,12 +278,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
           ),
         ),
         _gap,
-        if (error != null) ...[GxFormMessage(error!), _gap],
-        GxButton(label: 'Kayıt ol', onPressed: _signUp, isLoading: loading, expand: true),
-        const SizedBox(height: GxSpacing.lg),
-        GxButton(
+        if (error != null) ...[GwFormMessage(error!), _gap],
+        GwButton(label: 'Kayıt ol', onPressed: _signUp, isLoading: loading, expand: true),
+        const SizedBox(height: GwSpacing.lg),
+        GwButton(
           label: 'Zaten hesabın var mı? Giriş yap',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: loading ? null : () => context.go(IdentityRoutes.signIn),
         ),
       ],
@@ -318,15 +318,15 @@ class _CheckEmailScreenState extends ConsumerState<CheckEmailScreen> with _Submi
           'Bağlantıya tıkladıktan sonra giriş yapabilirsin.',
       children: [
         if (_resent) ...[
-          const GxFormMessage('Bağlantıyı yeniden gönderdik.', kind: GxFormMessageKind.info),
+          const GwFormMessage('Bağlantıyı yeniden gönderdik.', kind: GwFormMessageKind.info),
           _gap,
         ],
-        if (error != null) ...[GxFormMessage(error!), _gap],
-        GxButton(label: 'Girişe dön', onPressed: () => context.go(IdentityRoutes.signIn), expand: true),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+        if (error != null) ...[GwFormMessage(error!), _gap],
+        GwButton(label: 'Girişe dön', onPressed: () => context.go(IdentityRoutes.signIn), expand: true),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Bağlantıyı tekrar gönder',
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: _resend,
           isLoading: loading,
           expand: true,
@@ -371,18 +371,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> wit
         Form(key: _form, child: _EmailField(controller: _email)),
         _gap,
         if (_sent) ...[
-          const GxFormMessage(
+          const GwFormMessage(
             'Bu adrese kayıtlı bir hesap varsa sıfırlama bağlantısını gönderdik.',
-            kind: GxFormMessageKind.info,
+            kind: GwFormMessageKind.info,
           ),
           _gap,
         ],
-        if (error != null) ...[GxFormMessage(error!), _gap],
-        GxButton(label: 'Bağlantı gönder', onPressed: _send, isLoading: loading, expand: true),
-        const SizedBox(height: GxSpacing.sm),
-        GxButton(
+        if (error != null) ...[GwFormMessage(error!), _gap],
+        GwButton(label: 'Bağlantı gönder', onPressed: _send, isLoading: loading, expand: true),
+        const SizedBox(height: GwSpacing.sm),
+        GwButton(
           label: 'Girişe dön',
-          variant: GxButtonVariant.text,
+          variant: GwButtonVariant.text,
           onPressed: () => context.go(IdentityRoutes.signIn),
         ),
       ],
@@ -446,8 +446,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with 
           ),
         ),
         _gap,
-        if (error != null) ...[GxFormMessage(error!), _gap],
-        GxButton(label: 'Şifreyi kaydet', onPressed: _save, isLoading: loading, expand: true),
+        if (error != null) ...[GwFormMessage(error!), _gap],
+        GwButton(label: 'Şifreyi kaydet', onPressed: _save, isLoading: loading, expand: true),
       ],
     );
   }

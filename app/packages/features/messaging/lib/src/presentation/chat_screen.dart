@@ -71,13 +71,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             pickImage: widget.pickImage,
             onOpenProfile: (username) => widget.onOpenProfile(context, username),
           ),
-        AsyncError(error: NotFoundFailure()) => GxEmptyState(
+        AsyncError(error: NotFoundFailure()) => GwEmptyState(
             icon: Icons.forum_outlined,
             message: 'Bu sohbet bulunamadı ya da artık göremiyorsun.',
             actionLabel: 'Mesajlara dön',
             onAction: () => context.go(MessagingRoutes.list),
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(provider)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(provider)),
         _ => const _Skeleton(),
       },
     );
@@ -111,13 +111,13 @@ class _Title extends StatelessWidget {
     };
     return InkWell(
       onTap: onOpen,
-      borderRadius: GxRadius.mdAll,
+      borderRadius: GwRadius.mdAll,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
         child: Row(
           children: [
-            ConversationAvatar(conversation: c, size: GxAvatarSize.sm),
-            const SizedBox(width: GxSpacing.sm),
+            ConversationAvatar(conversation: c, size: GwAvatarSize.sm),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +125,7 @@ class _Title extends StatelessWidget {
                 children: [
                   Text(c.title, style: textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
                   Text(subtitle,
-                      style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary),
+                      style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                 ],
@@ -208,7 +208,7 @@ class _Chat extends ConsumerWidget {
           const _Notice('Mesaj isteğin iletildi. Kabul edilene kadar okunup okunmadığını göremezsin.'),
         Expanded(
           child: messages.isEmpty
-              ? GxEmptyState(
+              ? GwEmptyState(
                   icon: Icons.waving_hand_outlined,
                   message: group ? 'Grup sohbetinde henüz mesaj yok. İlk mesajı sen yaz.' : 'Henüz mesaj yok. İlk mesajı sen yaz.',
                   actionLabel: 'Yazmaya başla',
@@ -216,7 +216,7 @@ class _Chat extends ConsumerWidget {
                 )
               : ListView.builder(
                   reverse: true,
-                  padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+                  padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
                   itemCount: messages.length,
                   itemBuilder: (context, i) {
                     final index = messages.length - 1 - i;
@@ -227,7 +227,7 @@ class _Chat extends ConsumerWidget {
                     final mine = m.sender.id == me;
                     return Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+                        constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -283,9 +283,9 @@ class _DayLabel extends StatelessWidget {
       final t => t,
     };
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(vertical: GwSpacing.sm),
       child: Center(
-        child: Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GxColors.textSecondary)),
+        child: Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
       ),
     );
   }
@@ -331,14 +331,14 @@ class _BubbleState extends ConsumerState<_Bubble> {
     final m = message;
     final time = formatChatTime(m.createdAt);
     // The avatar and the gap after it.
-    final avatarRoom = GxAvatarSize.sm.dimension + GxSpacing.xs;
+    final avatarRoom = GwAvatarSize.sm.dimension + GwSpacing.xs;
     final clock = '${m.createdAt.toLocal().hour.toString().padLeft(2, '0')}:${m.createdAt.toLocal().minute.toString().padLeft(2, '0')}';
     final bubble = Container(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
       decoration: BoxDecoration(
-        color: m.isDeleted ? GxColors.surfaceMuted : (mine ? GxColors.primarySoft : GxColors.background),
-        borderRadius: GxRadius.lgAll,
-        border: mine || m.isDeleted ? null : const Border.fromBorderSide(GxBorders.hairline),
+        color: m.isDeleted ? GwColors.surfaceMuted : (mine ? GwColors.primarySoft : GwColors.background),
+        borderRadius: GwRadius.lgAll,
+        border: mine || m.isDeleted ? null : const Border.fromBorderSide(GwBorders.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,12 +347,12 @@ class _BubbleState extends ConsumerState<_Bubble> {
           if (m.isDeleted)
             Text(
               m.removed ? 'Bu mesaj kaldırıldı.' : 'Bu mesaj silindi.',
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary, fontStyle: FontStyle.italic),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary, fontStyle: FontStyle.italic),
             )
           else ...[
             if (m.imageUrl case final url?)
               Padding(
-                padding: EdgeInsets.only(bottom: m.body.isEmpty ? 0 : GxSpacing.xs),
+                padding: EdgeInsets.only(bottom: m.body.isEmpty ? 0 : GwSpacing.xs),
                 child: _Photo(url: url),
               ),
             if (m.body.isNotEmpty) Text(m.body, style: textTheme.bodyLarge),
@@ -362,11 +362,11 @@ class _BubbleState extends ConsumerState<_Bubble> {
     );
 
     final options = SizedBox.square(
-      dimension: GxSpacing.minTouchTarget,
+      dimension: GwSpacing.minTouchTarget,
       child: _hovered && !m.isDeleted
           ? IconButton(
               tooltip: 'Mesaj seçenekleri',
-              icon: const Icon(Icons.more_horiz, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
+              icon: const Icon(Icons.more_horiz, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
               onPressed: _actions,
             )
           : null,
@@ -377,7 +377,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
-          padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+          padding: const EdgeInsets.only(bottom: GwSpacing.xs),
           child: Row(
             mainAxisAlignment: mine ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -392,8 +392,8 @@ class _BubbleState extends ConsumerState<_Bubble> {
                     children: [
                       if (showSender)
                         Padding(
-                          padding: EdgeInsets.only(left: avatarRoom + GxSpacing.xs, bottom: GxSpacing.xxs),
-                          child: Text(m.sender.displayName, style: textTheme.labelMedium?.copyWith(color: GxColors.primary)),
+                          padding: EdgeInsets.only(left: avatarRoom + GwSpacing.xs, bottom: GwSpacing.xxs),
+                          child: Text(m.sender.displayName, style: textTheme.labelMedium?.copyWith(color: GwColors.primary)),
                         ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -410,11 +410,11 @@ class _BubbleState extends ConsumerState<_Bubble> {
                                         label: '${m.sender.displayName} profili',
                                         child: GestureDetector(
                                           onTap: widget.onOpenSender,
-                                          child: GxAvatar(
+                                          child: GwAvatar(
                                             name: m.sender.displayName,
                                             imageUrl: m.sender.avatarUrl,
-                                            shape: GxAvatarShape.user,
-                                            size: GxAvatarSize.sm,
+                                            shape: GwAvatarShape.user,
+                                            size: GwAvatarSize.sm,
                                           ),
                                         ),
                                       ),
@@ -434,14 +434,14 @@ class _BubbleState extends ConsumerState<_Bubble> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                          left: (mine ? 0 : avatarRoom) + GxSpacing.xs,
-                          right: GxSpacing.xs,
-                          top: GxSpacing.xxs,
-                          bottom: GxSpacing.xxs,
+                          left: (mine ? 0 : avatarRoom) + GwSpacing.xs,
+                          right: GwSpacing.xs,
+                          top: GwSpacing.xxs,
+                          bottom: GwSpacing.xxs,
                         ),
                         child: Text(
                           status == null ? clock : '$clock · $status',
-                          style: textTheme.labelSmall?.copyWith(color: GxColors.textSecondary),
+                          style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary),
                         ),
                       ),
                     ],
@@ -479,8 +479,8 @@ class _BubbleState extends ConsumerState<_Bubble> {
               ),
             if (mine)
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: GxColors.error),
-                title: const Text('Herkesten sil', style: TextStyle(color: GxColors.error)),
+                leading: const Icon(Icons.delete_outline, color: GwColors.error),
+                title: const Text('Herkesten sil', style: TextStyle(color: GwColors.error)),
                 onTap: () {
                   Navigator.of(sheet).pop();
                   _delete();
@@ -505,12 +505,12 @@ class _BubbleState extends ConsumerState<_Bubble> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: const Text('Mesaj herkesten silinsin mi?'),
         content: const Text('Mesaj sohbetteki herkes için "Bu mesaj silindi" olarak görünür. Bu işlem geri alınamaz.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: 'Sil', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: 'Sil', onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -527,7 +527,7 @@ class _Photo extends StatelessWidget {
 
   final String url;
 
-  static const _maxSide = GxSpacing.xxl * 5;
+  static const _maxSide = GwSpacing.xxl * 5;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -537,14 +537,14 @@ class _Photo extends StatelessWidget {
           onTap: () => showDialog<void>(
             context: context,
             builder: (dialog) => Dialog.fullscreen(
-              backgroundColor: GxColors.media,
+              backgroundColor: GwColors.media,
               child: Stack(
                 children: [
-                  Positioned.fill(child: InteractiveViewer(maxScale: GxMedia.maxZoom, child: Image.network(url))),
+                  Positioned.fill(child: InteractiveViewer(maxScale: GwMedia.maxZoom, child: Image.network(url))),
                   SafeArea(
                     child: IconButton(
                       tooltip: 'Kapat',
-                      color: GxColors.onMedia,
+                      color: GwColors.onMedia,
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(dialog).pop(),
                     ),
@@ -554,15 +554,15 @@ class _Photo extends StatelessWidget {
             ),
           ),
           child: ClipRRect(
-            borderRadius: GxRadius.mdAll,
+            borderRadius: GwRadius.mdAll,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: _maxSide, maxHeight: _maxSide),
               child: Image.network(
                 url,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => const SizedBox.square(
-                  dimension: GxSpacing.xxl * 2,
-                  child: ColoredBox(color: GxColors.surfaceMuted, child: Icon(Icons.broken_image_outlined)),
+                  dimension: GwSpacing.xxl * 2,
+                  child: ColoredBox(color: GwColors.surfaceMuted, child: Icon(Icons.broken_image_outlined)),
                 ),
               ),
             ),
@@ -582,24 +582,24 @@ class _Notice extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
         decoration: BoxDecoration(
-          color: GxColors.surface,
-          border: Border(top: bottom ? GxBorders.hairline : BorderSide.none, bottom: bottom ? BorderSide.none : GxBorders.hairline),
+          color: GwColors.surface,
+          border: Border(top: bottom ? GwBorders.hairline : BorderSide.none, bottom: bottom ? BorderSide.none : GwBorders.hairline),
         ),
         child: SafeArea(
           top: false,
           bottom: bottom,
           child: Padding(
-            padding: const EdgeInsets.all(GxSpacing.md),
+            padding: const EdgeInsets.all(GwSpacing.md),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-                const SizedBox(width: GxSpacing.xs),
+                const Icon(Icons.info_outline, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+                const SizedBox(width: GwSpacing.xs),
                 Expanded(
-                  child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ),
                 if (actionLabel != null) ...[
-                  const SizedBox(width: GxSpacing.xs),
-                  GxButton(label: actionLabel!, variant: GxButtonVariant.secondary, onPressed: onAction),
+                  const SizedBox(width: GwSpacing.xs),
+                  GwButton(label: actionLabel!, variant: GwButtonVariant.secondary, onPressed: onAction),
                 ],
               ],
             ),
@@ -643,11 +643,11 @@ class _RequestBarState extends ConsumerState<_RequestBar> {
   Widget build(BuildContext context) {
     final name = widget.conversation.peer?.displayName ?? '';
     return DecoratedBox(
-      decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+      decoration: const BoxDecoration(color: GwColors.background, border: Border(top: GwBorders.hairline)),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -656,18 +656,18 @@ class _RequestBarState extends ConsumerState<_RequestBar> {
                 '$name sana mesaj göndermek istiyor. Kabul edersen yazışabilirsiniz ve mesajları okuduğunu görebilir.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               Row(
                 children: [
                   Expanded(
-                    child: GxButton(
+                    child: GwButton(
                       label: 'Sil',
-                      variant: GxButtonVariant.secondary,
+                      variant: GwButtonVariant.secondary,
                       onPressed: _busy ? null : () => _answer(accept: false),
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.sm),
-                  Expanded(child: GxButton(label: 'Kabul et', isLoading: _busy, onPressed: () => _answer(accept: true))),
+                  const SizedBox(width: GwSpacing.sm),
+                  Expanded(child: GwButton(label: 'Kabul et', isLoading: _busy, onPressed: () => _answer(accept: true))),
                 ],
               ),
             ],
@@ -702,7 +702,7 @@ class _ComposerState extends ConsumerState<_Composer> {
   }
 
   Future<void> _pick() async {
-    final image = await (widget.pickImage ?? () => pickGalleryImage(maxWidth: GxMedia.uploadMaxSide.toDouble()))();
+    final image = await (widget.pickImage ?? () => pickGalleryImage(maxWidth: GwMedia.uploadMaxSide.toDouble()))();
     if (image != null && mounted) setState(() => _image = image);
   }
 
@@ -730,27 +730,27 @@ class _ComposerState extends ConsumerState<_Composer> {
   Widget build(BuildContext context) {
     final image = _image;
     return DecoratedBox(
-      decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+      decoration: const BoxDecoration(color: GwColors.background, border: Border(top: GwBorders.hairline)),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.all(GxSpacing.sm),
+          padding: const EdgeInsets.all(GwSpacing.sm),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (_error != null) ...[GxFormMessage(_error!), const SizedBox(height: GxSpacing.xs)],
+                  if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.xs)],
                   if (image != null) ...[
                     Row(
                       children: [
                         ClipRRect(
-                          borderRadius: GxRadius.mdAll,
-                          child: Image.memory(image.bytes, width: GxSpacing.xxl * 1.5, height: GxSpacing.xxl * 1.5, fit: BoxFit.cover),
+                          borderRadius: GwRadius.mdAll,
+                          child: Image.memory(image.bytes, width: GwSpacing.xxl * 1.5, height: GwSpacing.xxl * 1.5, fit: BoxFit.cover),
                         ),
-                        const SizedBox(width: GxSpacing.xs),
+                        const SizedBox(width: GwSpacing.xs),
                         IconButton(
                           tooltip: 'Fotoğrafı kaldır',
                           icon: const Icon(Icons.close),
@@ -758,7 +758,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: GxSpacing.xs),
+                    const SizedBox(height: GwSpacing.xs),
                   ],
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -779,13 +779,13 @@ class _ComposerState extends ConsumerState<_Composer> {
                           decoration: const InputDecoration(hintText: 'Mesaj yaz', counterText: ''),
                         ),
                       ),
-                      const SizedBox(width: GxSpacing.xs),
+                      const SizedBox(width: GwSpacing.xs),
                       IconButton.filled(
                         tooltip: 'Gönder',
                         icon: _sending
                             ? const SizedBox.square(
-                                dimension: GxSpacing.md,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: GxColors.onPrimary),
+                                dimension: GwSpacing.md,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: GwColors.onPrimary),
                               )
                             : const Icon(Icons.send),
                         onPressed: _sending ? null : _send,
@@ -807,14 +807,14 @@ class _Skeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         children: [
           for (var i = 0; i < 6; i++)
             Align(
               alignment: i.isEven ? Alignment.centerLeft : Alignment.centerRight,
               child: const Padding(
-                padding: EdgeInsets.only(bottom: GxSpacing.sm),
-                child: GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.xl + GxSpacing.xs, borderRadius: GxRadius.lgAll),
+                padding: EdgeInsets.only(bottom: GwSpacing.sm),
+                child: GwSkeleton(width: GwSpacing.xxl * 4, height: GwSpacing.xl + GwSpacing.xs, borderRadius: GwRadius.lgAll),
               ),
             ),
         ],

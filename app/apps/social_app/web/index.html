@@ -18,32 +18,32 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="GrupX — tüm grupların tek adresi.">
+  <meta name="description" content="GWAY — tüm grupların tek adresi.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="GrupX">
+  <meta name="apple-mobile-web-app-title" content="GWAY">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>GrupX</title>
+  <title>GWAY</title>
   <link rel="manifest" href="manifest.json">
   <style>
     @font-face { font-family: "Plus Jakarta Sans"; font-weight: 700; font-display: swap;
       src: url("assets/packages/design_system/fonts/PlusJakartaSans-Bold.ttf") format("truetype"); }
     html, body { margin: 0; height: 100%; background: #FFFFFF; }
-    #gx-preloader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+    #gw-preloader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
       justify-content: center; gap: 20px; background: #FFFFFF; transition: opacity .25s ease; }
-    #gx-preloader svg { animation: gx-breathe 1.6s ease-in-out infinite; }
-    #gx-preloader .gx-name { font: 700 28px/1 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: -0.5px; color: #1F2033; }
-    #gx-preloader .gx-name b { color: #6E56CF; }
-    #gx-preloader .gx-caption { font: 700 12px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: #6E56CF; background: #F3F0FF;
+    #gw-preloader svg { animation: gw-breathe 1.6s ease-in-out infinite; }
+    #gw-preloader .gw-name { font: 700 28px/1 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: -0.5px; color: #1F2033; }
+    #gw-preloader .gw-name b { color: #6E56CF; }
+    #gw-preloader .gw-caption { font: 700 12px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: #6E56CF; background: #F3F0FF;
       padding: 4px 8px; border-radius: 8px; }
-    @keyframes gx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08) rotate(8deg); } }
-    @media (prefers-reduced-motion: reduce) { #gx-preloader svg { animation: none; } }
+    @keyframes gw-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08) rotate(8deg); } }
+    @media (prefers-reduced-motion: reduce) { #gw-preloader svg { animation: none; } }
   </style>
 </head>
 <body>
@@ -55,10 +55,10 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
-  <div id="gx-preloader" role="progressbar" aria-label="GrupX yükleniyor"><svg viewBox="0 0 120 120" width="64" height="64" aria-hidden="true"><g fill="#6E56CF" stroke="#6E56CF"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#2F6FE0" stroke="#2F6FE0" transform="rotate(90 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#6E56CF" stroke="#6E56CF" transform="rotate(180 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g><g fill="#2F6FE0" stroke="#2F6FE0" transform="rotate(270 60 60)"><circle cx="22" cy="22" r="12"/><path d="M39 39 L50 50" stroke-width="16" stroke-linecap="round"/></g></svg><div class="gx-name">Grup<b>X</b></div></div>
+  <div id="gw-preloader" role="progressbar" aria-label="GWAY yükleniyor"><svg viewBox="0 0 120 120" width="64" height="64" aria-hidden="true"><path d="M100 60 A40 40 0 1 1 73.68 22.41" fill="none" stroke="#6E56CF" stroke-width="16" stroke-linecap="round"/><path d="M62 60 H100" stroke="#2F6FE0" stroke-width="16" stroke-linecap="round"/><circle cx="92" cy="35" r="11" fill="#2F6FE0"/></svg><div class="gw-name">G<b>WAY</b></div></div>
   <script>
     window.addEventListener('flutter-first-frame', function () {
-      var el = document.getElementById('gx-preloader');
+      var el = document.getElementById('gw-preloader');
       if (!el) return;
       el.style.opacity = '0';
       setTimeout(function () { el.remove(); }, 300);

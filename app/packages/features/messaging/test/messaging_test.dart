@@ -67,7 +67,7 @@ Future<_FakeMessaging> _pumpChat(WidgetTester tester, ChatThread thread, {void F
       conversationsProvider.overrideWith((ref) => Stream.value(const [])),
     ],
     child: MaterialApp(
-      theme: GxTheme.light(),
+      theme: GwTheme.light(),
       home: ChatScreen(
         conversationId: thread.conversation.id,
         onOpenProfile: (_, username) => onOpenProfile?.call(username),
@@ -99,7 +99,7 @@ void main() {
     testWidgets('the profile message button shows only when messaging is allowed ($allowed)', (tester) async {
       await tester.pumpWidget(ProviderScope(
         overrides: [canMessageProvider.overrideWith((ref, id) async => allowed)],
-        child: MaterialApp(theme: GxTheme.light(), home: const Scaffold(body: MessageUserButton(userId: 'deniz'))),
+        child: MaterialApp(theme: GwTheme.light(), home: const Scaffold(body: MessageUserButton(userId: 'deniz'))),
       ));
       await tester.pumpAndSettle();
       expect(find.byTooltip('Mesaj gönder'), shown);
@@ -117,9 +117,9 @@ void main() {
     await _pumpChat(tester, thread, onOpenProfile: (username) => opened = username);
 
     // One photo for Deniz's two messages, none for mine.
-    final photos = find.descendant(of: find.byType(ListView), matching: find.byType(GxAvatar));
+    final photos = find.descendant(of: find.byType(ListView), matching: find.byType(GwAvatar));
     expect(photos, findsOneWidget);
-    expect(tester.widget<GxAvatar>(photos).name, 'Deniz');
+    expect(tester.widget<GwAvatar>(photos).name, 'Deniz');
     await tester.tap(photos);
     expect(opened, 'deniz');
   });
@@ -136,7 +136,7 @@ void main() {
         packageOpenerProvider.overrideWithValue((_, slug) => opened = slug),
       ],
       child: MaterialApp(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         home: ChatScreen(conversationId: 'c1', onOpenProfile: (_, _) {}, onOpenGroup: (_, _) {}),
       ),
     ));
@@ -155,7 +155,7 @@ void main() {
               _direct(id: 'c2', myState: MemberState.request, unread: 1),
             ])),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: ConversationsScreen(onFindPeople: (_) {})),
+      child: MaterialApp(theme: GwTheme.light(), home: ConversationsScreen(onFindPeople: (_) {})),
     ));
     await tester.pumpAndSettle();
 
@@ -175,7 +175,7 @@ void main() {
         currentUserIdProvider.overrideWithValue('me'),
         conversationsProvider.overrideWith((ref) => Stream.value(const [])),
       ],
-      child: MaterialApp(theme: GxTheme.light(), home: ConversationsScreen(onFindPeople: (_) => asked = true)),
+      child: MaterialApp(theme: GwTheme.light(), home: ConversationsScreen(onFindPeople: (_) => asked = true)),
     ));
     await tester.pumpAndSettle();
 

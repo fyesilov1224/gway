@@ -48,7 +48,7 @@ class TrendChart extends StatelessWidget {
     this.bars = false,
     this.format = _countFormat,
     this.axisFormat = formatCompactTr,
-    this.height = GxSpacing.xxl * 5,
+    this.height = GwSpacing.xxl * 5,
   }) : assert(series.length <= 4, 'Fold a fifth series into another chart');
 
   final List<DateTime> buckets;
@@ -68,7 +68,7 @@ class TrendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final axisStyle = textTheme.labelSmall?.copyWith(color: GxColors.textSecondary);
+    final axisStyle = textTheme.labelSmall?.copyWith(color: GwColors.textSecondary);
     final scale = _niceScale(_max);
     // About six date labels whatever the range.
     final labelEvery = math.max(1, (buckets.length / 6).ceil());
@@ -97,20 +97,20 @@ class TrendChart extends StatelessWidget {
       topTitles: const AxisTitles(),
       rightTitles: const AxisTitles(),
       bottomTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: true, interval: 1, reservedSize: GxSpacing.lg, getTitlesWidget: bottom),
+        sideTitles: SideTitles(showTitles: true, interval: 1, reservedSize: GwSpacing.lg, getTitlesWidget: bottom),
       ),
       leftTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: true, interval: scale.step, reservedSize: GxSpacing.xxl, getTitlesWidget: left),
+        sideTitles: SideTitles(showTitles: true, interval: scale.step, reservedSize: GwSpacing.xxl, getTitlesWidget: left),
       ),
     );
     final grid = FlGridData(
       drawVerticalLine: false,
       horizontalInterval: scale.step,
-      getDrawingHorizontalLine: (_) => const FlLine(color: GxColors.chartGrid, strokeWidth: 1),
+      getDrawingHorizontalLine: (_) => const FlLine(color: GwColors.chartGrid, strokeWidth: 1),
     );
-    const tooltipBorder = BorderSide(color: GxColors.border);
-    final tooltipTitle = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary);
-    final tooltipValue = textTheme.labelLarge?.copyWith(color: GxColors.textPrimary);
+    const tooltipBorder = BorderSide(color: GwColors.border);
+    final tooltipTitle = textTheme.labelMedium?.copyWith(color: GwColors.textSecondary);
+    final tooltipValue = textTheme.labelLarge?.copyWith(color: GwColors.textPrimary);
 
     // The tooltip lists every series of the bucket under its date, in text colors (the legend carries identity).
     List<TextSpan> lines(int i) => [
@@ -129,10 +129,10 @@ class TrendChart extends StatelessWidget {
               borderData: FlBorderData(show: false),
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => GxColors.background,
+                  getTooltipColor: (_) => GwColors.background,
                   tooltipBorder: tooltipBorder,
-                  tooltipBorderRadius: GxRadius.mdAll,
-                  maxContentWidth: GxSpacing.xxl * 5,
+                  tooltipBorderRadius: GwRadius.mdAll,
+                  maxContentWidth: GwSpacing.xxl * 5,
                   fitInsideHorizontally: true,
                   fitInsideVertically: true,
                   // One tooltip per bucket, on its first bar.
@@ -151,9 +151,9 @@ class TrendChart extends StatelessWidget {
                       for (final (n, s) in series.indexed)
                         BarChartRodData(
                           toY: s.points[i].toDouble(),
-                          color: GxColors.chartSeries[n],
+                          color: GwColors.chartSeries[n],
                           width: 0,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(GxSpacing.xxs)),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(GwSpacing.xxs)),
                         ),
                     ],
                   ),
@@ -173,22 +173,22 @@ class TrendChart extends StatelessWidget {
                 getTouchedSpotIndicator: (bar, indexes) => [
                   for (final _ in indexes)
                     TouchedSpotIndicatorData(
-                      const FlLine(color: GxColors.border, strokeWidth: 1),
+                      const FlLine(color: GwColors.border, strokeWidth: 1),
                       FlDotData(
                         getDotPainter: (_, _, line, _) => FlDotCirclePainter(
-                          radius: GxSpacing.xxs,
-                          color: line.color ?? GxColors.primary,
+                          radius: GwSpacing.xxs,
+                          color: line.color ?? GwColors.primary,
                           strokeWidth: 2,
-                          strokeColor: GxColors.background,
+                          strokeColor: GwColors.background,
                         ),
                       ),
                     ),
                 ],
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (_) => GxColors.background,
+                  getTooltipColor: (_) => GwColors.background,
                   tooltipBorder: tooltipBorder,
-                  tooltipBorderRadius: GxRadius.mdAll,
-                  maxContentWidth: GxSpacing.xxl * 5,
+                  tooltipBorderRadius: GwRadius.mdAll,
+                  maxContentWidth: GwSpacing.xxl * 5,
                   fitInsideHorizontally: true,
                   fitInsideVertically: true,
                   // One block on the first line; the others stay empty so the values are not repeated.
@@ -205,7 +205,7 @@ class TrendChart extends StatelessWidget {
                 if (previous case final p?)
                   LineChartBarData(
                     spots: [for (final (i, v) in p.indexed) FlSpot(i.toDouble(), v.toDouble())],
-                    color: GxColors.chartCompare,
+                    color: GwColors.chartCompare,
                     barWidth: 1.5,
                     dashArray: const [4, 4],
                     dotData: const FlDotData(show: false),
@@ -214,7 +214,7 @@ class TrendChart extends StatelessWidget {
                 for (final (n, s) in series.indexed.toList().reversed)
                   LineChartBarData(
                     spots: [for (final (i, v) in s.points.indexed) FlSpot(i.toDouble(), v.toDouble())],
-                    color: GxColors.chartSeries[n],
+                    color: GwColors.chartSeries[n],
                     barWidth: 2,
                     isStrokeJoinRound: true,
                     dotData: FlDotData(show: buckets.length <= 1),
@@ -224,7 +224,7 @@ class TrendChart extends StatelessWidget {
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [GxColors.chartSeries[n].withValues(alpha: 0.16), GxColors.chartSeries[n].withValues(alpha: 0)],
+                              colors: [GwColors.chartSeries[n].withValues(alpha: 0.16), GwColors.chartSeries[n].withValues(alpha: 0)],
                             ),
                           )
                         : BarAreaData(),
@@ -238,8 +238,8 @@ class TrendChart extends StatelessWidget {
       child: LayoutBuilder(builder: (context, size) {
         if (!bars) return chart;
         // Bars share the plot width: a gap of one bar between buckets, 2 px between a bucket's bars.
-        final plot = size.maxWidth - GxSpacing.xxl;
-        final width = (plot / buckets.length / (series.length + 1)).clamp(2.0, GxSpacing.md);
+        final plot = size.maxWidth - GwSpacing.xxl;
+        final width = (plot / buckets.length / (series.length + 1)).clamp(2.0, GwSpacing.md);
         final data = (chart as BarChart).data;
         return BarChart(data.copyWith(barGroups: [
           for (final g in data.barGroups) g.copyWith(barRods: [for (final r in g.barRods) r.copyWith(width: width)]),
@@ -251,7 +251,7 @@ class TrendChart extends StatelessWidget {
 
 /// The current range as a small line over the previous one; no axes, no touch.
 class Sparkline extends StatelessWidget {
-  const Sparkline({super.key, required this.points, required this.previous, this.color = GxColors.primary});
+  const Sparkline({super.key, required this.points, required this.previous, this.color = GwColors.primary});
 
   final List<int> points;
   final List<int> previous;
@@ -270,7 +270,7 @@ class Sparkline extends StatelessWidget {
         );
     return ExcludeSemantics(
       child: SizedBox(
-        height: GxSpacing.xl,
+        height: GwSpacing.xl,
         child: LineChart(
           LineChartData(
             minY: 0,
@@ -279,7 +279,7 @@ class Sparkline extends StatelessWidget {
             gridData: const FlGridData(show: false),
             borderData: FlBorderData(show: false),
             lineTouchData: const LineTouchData(enabled: false),
-            lineBarsData: [line(previous, GxColors.chartCompare, dashed: true), line(points, color)],
+            lineBarsData: [line(previous, GwColors.chartCompare, dashed: true), line(points, color)],
           ),
         ),
       ),
@@ -302,24 +302,24 @@ class ChartLegend extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: GxSpacing.sm,
-              height: dashed ? 2 : GxSpacing.sm,
-              decoration: BoxDecoration(color: color, borderRadius: dashed ? null : const BorderRadius.all(Radius.circular(GxSpacing.xxs / 2))),
+              width: GwSpacing.sm,
+              height: dashed ? 2 : GwSpacing.sm,
+              decoration: BoxDecoration(color: color, borderRadius: dashed ? null : const BorderRadius.all(Radius.circular(GwSpacing.xxs / 2))),
             ),
-            const SizedBox(width: GxSpacing.xs),
-            Text(label, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+            const SizedBox(width: GwSpacing.xs),
+            Text(label, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
             if (value != null) ...[
-              const SizedBox(width: GxSpacing.xxs),
-              Text(value, style: textTheme.labelLarge?.copyWith(color: GxColors.textPrimary)),
+              const SizedBox(width: GwSpacing.xxs),
+              Text(value, style: textTheme.labelLarge?.copyWith(color: GwColors.textPrimary)),
             ],
           ],
         );
     return Wrap(
-      spacing: GxSpacing.md,
-      runSpacing: GxSpacing.xs,
+      spacing: GwSpacing.md,
+      runSpacing: GwSpacing.xs,
       children: [
-        for (final (n, s) in series.indexed) item(GxColors.chartSeries[n], s.label, format(s.total)),
-        if (showPrevious) item(GxColors.chartCompare, 'Önceki dönem', null, dashed: true),
+        for (final (n, s) in series.indexed) item(GwColors.chartSeries[n], s.label, format(s.total)),
+        if (showPrevious) item(GwColors.chartCompare, 'Önceki dönem', null, dashed: true),
       ],
     );
   }
@@ -337,18 +337,18 @@ class ChartTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final head = textTheme.labelMedium?.copyWith(color: GxColors.textSecondary);
+    final head = textTheme.labelMedium?.copyWith(color: GwColors.textSecondary);
     final body = textTheme.bodyMedium;
     Widget cell(String text, TextStyle? style, {bool end = false}) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs),
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
           child: Text(text, style: style, textAlign: end ? TextAlign.end : TextAlign.start),
         );
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: GxSpacing.xxl * 6),
+      constraints: const BoxConstraints(maxHeight: GwSpacing.xxl * 6),
       child: SingleChildScrollView(
         child: Table(
           columnWidths: const {0: FlexColumnWidth(2)},
-          border: const TableBorder(horizontalInside: GxBorders.hairline),
+          border: const TableBorder(horizontalInside: GwBorders.hairline),
           children: [
             TableRow(children: [
               cell(weekly ? 'Hafta' : 'Gün', head),
@@ -411,7 +411,7 @@ class _ChartPanelState extends State<ChartPanel> {
   Widget build(BuildContext context) {
     final empty = widget.series.every((s) => s.total == 0) && (widget.previous ?? const []).every((v) => v == 0);
     final summary = [for (final s in widget.series) '${s.label} ${widget.format(s.total)}'].join(', ');
-    return GxPanel(
+    return GwPanel(
       title: widget.title,
       subtitle: widget.subtitle,
       trailing: Row(
@@ -429,14 +429,14 @@ class _ChartPanelState extends State<ChartPanel> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ChartLegend(series: widget.series, format: widget.format, showPrevious: widget.previous != null),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           if (empty)
             SizedBox(
-              height: GxSpacing.xxl * 3,
+              height: GwSpacing.xxl * 3,
               child: Center(
                 child: Text(
                   'Bu dönemde kayıt yok.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
             )

@@ -28,12 +28,12 @@ class GroupRoleBadge extends StatelessWidget {
   final GroupRole role;
 
   @override
-  Widget build(BuildContext context) => GxBadge(
+  Widget build(BuildContext context) => GwBadge(
         role.label,
         tone: switch (role) {
-          GroupRole.owner => GxBadgeTone.primary,
-          GroupRole.admin => GxBadgeTone.info,
-          _ => GxBadgeTone.neutral,
+          GroupRole.owner => GwBadgeTone.primary,
+          GroupRole.admin => GwBadgeTone.info,
+          _ => GwBadgeTone.neutral,
         },
       );
 }
@@ -50,10 +50,10 @@ class GroupMeta extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-        const SizedBox(width: GxSpacing.xxs + 2),
+        Icon(icon, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+        const SizedBox(width: GwSpacing.xxs + 2),
         Flexible(
-          child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+          child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
         ),
       ],
     );
@@ -72,15 +72,15 @@ class GroupTile extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final category = categoryNames(ref)[group.categorySlug];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.xxs),
-      child: GxCard(
-        radius: GxRadius.lgAll,
-        padding: const EdgeInsets.all(GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.xxs),
+      child: GwCard(
+        radius: GwRadius.lgAll,
+        padding: const EdgeInsets.all(GwSpacing.sm),
         onTap: () => context.push(GroupRoutes.group(group.handle)),
         child: Row(
           children: [
-            GxAvatar(name: group.name, shape: GxAvatarShape.group, imageUrl: group.logoUrl, size: GxAvatarSize.lg),
-            const SizedBox(width: GxSpacing.sm),
+            GwAvatar(name: group.name, shape: GwAvatarShape.group, imageUrl: group.logoUrl, size: GwAvatarSize.lg),
+            const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,18 +90,18 @@ class GroupTile extends ConsumerWidget {
                     [?category, memberCountLabel(group.memberCount)].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                    style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
                   if (group.joinPolicy != JoinPolicy.open || group.isSuspended) ...[
-                    const SizedBox(height: GxSpacing.xxs),
+                    const SizedBox(height: GwSpacing.xxs),
                     group.isSuspended
-                        ? const GxBadge('Askıda', tone: GxBadgeTone.danger, dot: true)
+                        ? const GwBadge('Askıda', tone: GwBadgeTone.danger, dot: true)
                         : GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
                   ],
                 ],
               ),
             ),
-            trailing ?? const Icon(Icons.chevron_right, color: GxColors.textSecondary),
+            trailing ?? const Icon(Icons.chevron_right, color: GwColors.textSecondary),
           ],
         ),
       ),
@@ -116,23 +116,23 @@ class GroupListSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logo = GxAvatarSize.lg.dimension;
+    final logo = GwAvatarSize.lg.dimension;
     return Column(
       children: [
         for (var i = 0; i < count; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md, vertical: GxSpacing.sm),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
             child: Row(
               children: [
-                GxSkeleton(width: logo, height: logo, borderRadius: GxRadius.lgAll),
-                const SizedBox(width: GxSpacing.sm),
+                GwSkeleton(width: logo, height: logo, borderRadius: GwRadius.lgAll),
+                const SizedBox(width: GwSpacing.sm),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GxSkeleton(width: GxSpacing.xxl * 3, height: GxSpacing.md),
-                      SizedBox(height: GxSpacing.xs),
-                      GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.sm),
+                      GwSkeleton(width: GwSpacing.xxl * 3, height: GwSpacing.md),
+                      SizedBox(height: GwSpacing.xs),
+                      GwSkeleton(width: GwSpacing.xxl * 2, height: GwSpacing.sm),
                     ],
                   ),
                 ),
@@ -158,28 +158,28 @@ class UserGroupsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final groups = ref.watch(userGroupsProvider(userId));
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
           child: Text('Gruplar', style: textTheme.titleLarge),
         ),
         if (!groupsPublic)
           Padding(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.xs),
             child: Text(
               isOwn
                   ? 'Gruplarını yalnızca aynı gruptaki üyeler görür. Ayarlar\'dan herkese açabilirsin.'
                   : 'Yalnızca ortak grupların ve yönetim ekibinde olduğu gruplar görünür.',
-              style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
           ),
         switch (groups) {
           AsyncData(:final value) when value.isEmpty => Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -195,12 +195,12 @@ class UserGroupsSection extends ConsumerWidget {
             ),
           AsyncData(:final value) => Column(children: [for (final g in value) GroupTile(group: g)]),
           AsyncError(:final error) => Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
-              child: GxFormMessage(userMessageOf(error)),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
+              child: GwFormMessage(userMessageOf(error)),
             ),
           _ => const GroupListSkeleton(count: 2),
         },
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
       ],
     );
   }
@@ -277,18 +277,18 @@ class HandleFieldState extends ConsumerState<HandleField> {
           GroupRules.validateHandle(v) ?? (_available == false ? 'Bu grup adresi alınmış. Başka bir tane dene.' : null),
       decoration: InputDecoration(
         labelText: 'Grup adresi',
-        prefixText: 'grupx.app/g/',
+        prefixText: 'gway.app/g/',
         helperText: 'Grup sayfanın adresi. Sonradan değiştirilemez.',
         helperMaxLines: 2,
         counterText: '',
         suffixIcon: _checking
             ? const Padding(
-                padding: EdgeInsets.all(GxSpacing.sm),
-                child: SizedBox.square(dimension: GxSpacing.md, child: CircularProgressIndicator(strokeWidth: 2)),
+                padding: EdgeInsets.all(GwSpacing.sm),
+                child: SizedBox.square(dimension: GwSpacing.md, child: CircularProgressIndicator(strokeWidth: 2)),
               )
             : switch (_available) {
-                true => const Icon(Icons.check_circle, color: GxColors.primary, semanticLabel: 'Kullanılabilir'),
-                false => const Icon(Icons.cancel, color: GxColors.error, semanticLabel: 'Alınmış'),
+                true => const Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: 'Kullanılabilir'),
+                false => const Icon(Icons.cancel, color: GwColors.error, semanticLabel: 'Alınmış'),
                 null => null,
               },
       ),
@@ -338,8 +338,8 @@ class CategoryField extends ConsumerWidget {
             value: c.slug,
             child: Row(
               children: [
-                Icon(categoryIcon(c.slug), size: GxSpacing.md + GxSpacing.xxs, color: GxColors.textSecondary),
-                const SizedBox(width: GxSpacing.xs),
+                Icon(categoryIcon(c.slug), size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
+                const SizedBox(width: GwSpacing.xs),
                 Text(c.name),
               ],
             ),
@@ -369,37 +369,37 @@ class JoinPolicyPicker extends StatelessWidget {
             selected: p == value,
             button: true,
             child: Material(
-              color: p == value ? GxColors.primarySoft : GxColors.background,
+              color: p == value ? GwColors.primarySoft : GwColors.background,
               shape: RoundedRectangleBorder(
-                borderRadius: GxRadius.mdAll,
-                side: p == value ? const BorderSide(color: GxColors.primary) : GxBorders.hairline,
+                borderRadius: GwRadius.mdAll,
+                side: p == value ? const BorderSide(color: GwColors.primary) : GwBorders.hairline,
               ),
               child: InkWell(
-                borderRadius: GxRadius.mdAll,
+                borderRadius: GwRadius.mdAll,
                 onTap: () => onChanged(p),
                 child: Padding(
-                  padding: const EdgeInsets.all(GxSpacing.sm),
+                  padding: const EdgeInsets.all(GwSpacing.sm),
                   child: Row(
                     children: [
-                      Icon(joinPolicyIcon(p), color: p == value ? GxColors.primary : GxColors.textSecondary),
-                      const SizedBox(width: GxSpacing.sm),
+                      Icon(joinPolicyIcon(p), color: p == value ? GwColors.primary : GwColors.textSecondary),
+                      const SizedBox(width: GwSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(p.label, style: textTheme.labelLarge),
-                            Text(p.description, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                            Text(p.description, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                           ],
                         ),
                       ),
-                      if (p == value) const Icon(Icons.check_circle, color: GxColors.primary),
+                      if (p == value) const Icon(Icons.check_circle, color: GwColors.primary),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          if (p != JoinPolicy.values.last) const SizedBox(height: GxSpacing.xs),
+          if (p != JoinPolicy.values.last) const SizedBox(height: GwSpacing.xs),
         ],
       ],
     );
@@ -416,12 +416,12 @@ Future<bool> confirmAction(
     await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: Text(title),
         content: Text(message),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: confirmLabel, onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: confirmLabel, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     ) ??

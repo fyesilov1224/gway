@@ -33,41 +33,41 @@ class AdminMatchingScreen extends ConsumerWidget {
       subtitle: 'Arkadaş ve sevgili eşleşmeleri ve ücretli paketler. Yalnızca sayılar gösterilir; şikayet edilen profiller ve fotoğraflar Şikayetler sayfasındadır.',
       actions: [
         if (isAdmin && packages != null)
-          GxButton(
+          GwButton(
             label: 'Paket tanımla',
             icon: Icons.workspace_premium_outlined,
-            variant: GxButtonVariant.secondary,
+            variant: GwButtonVariant.secondary,
             onPressed: () => _grantPackage(context, ref, packages),
           ),
-        GxButton(
+        GwButton(
           label: 'Şikayetler',
           icon: Icons.flag_outlined,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => context.go(AdminRoutes.reports),
         ),
-        GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: refresh),
+        GwButton(label: 'Yenile', icon: Icons.refresh, variant: GwButtonVariant.secondary, onPressed: refresh),
       ],
       children: [
         if (result case AsyncError(:final error))
-          GxErrorState(message: userMessageOf(error), onRetry: refresh)
+          GwErrorState(message: userMessageOf(error), onRetry: refresh)
         else ...[
           StatCardRow(
             cards: [
-              StatCard(label: 'Açık profil', value: stats?.profiles, icon: Icons.badge_outlined, tone: GxBadgeTone.primary),
-              StatCard(label: 'Son 24 saatte eşleşme', value: stats?.matches24h, icon: Icons.favorite_border_rounded, tone: GxBadgeTone.success),
-              StatCard(label: 'Paket (kişi × paket)', value: members, icon: Icons.workspace_premium_outlined, tone: GxBadgeTone.info),
+              StatCard(label: 'Açık profil', value: stats?.profiles, icon: Icons.badge_outlined, tone: GwBadgeTone.primary),
+              StatCard(label: 'Son 24 saatte eşleşme', value: stats?.matches24h, icon: Icons.favorite_border_rounded, tone: GwBadgeTone.success),
+              StatCard(label: 'Paket (kişi × paket)', value: members, icon: Icons.workspace_premium_outlined, tone: GwBadgeTone.info),
               StatCard(
                 label: 'Açık şikayet',
                 value: stats?.openReports,
                 icon: Icons.flag_outlined,
-                tone: (stats?.openReports ?? 0) > 0 ? GxBadgeTone.danger : GxBadgeTone.neutral,
+                tone: (stats?.openReports ?? 0) > 0 ? GwBadgeTone.danger : GwBadgeTone.neutral,
                 onTap: () => context.go(AdminRoutes.reports),
               ),
             ],
           ),
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           if (stats == null)
-            const GxSkeleton(height: GxSpacing.xxl * 2)
+            const GwSkeleton(height: GwSpacing.xxl * 2)
           else ...[
             InfoPanel(
               title: 'Profiller',
@@ -80,7 +80,7 @@ class AdminMatchingScreen extends ConsumerWidget {
                 ('Platform ekibince kapatılmış', formatCount(stats.suspended)),
               ],
             ),
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
             InfoPanel(
               title: 'Son 24 saat',
               rows: [
@@ -92,14 +92,14 @@ class AdminMatchingScreen extends ConsumerWidget {
                 ('Şu an öne çıkan', formatCount(stats.activeBoosts)),
               ],
             ),
-            const SizedBox(height: GxSpacing.lg),
-            GxPanel(
+            const SizedBox(height: GwSpacing.lg),
+            GwPanel(
               title: 'Günlük haklar',
               trailing: isAdmin
-                  ? GxButton(
+                  ? GwButton(
                       label: 'Değiştir',
                       icon: Icons.edit_outlined,
-                      variant: GxButtonVariant.text,
+                      variant: GwButtonVariant.text,
                       onPressed: () => _editSettings(context, ref, stats.settings),
                     )
                   : null,
@@ -117,9 +117,9 @@ class AdminMatchingScreen extends ConsumerWidget {
               ),
             ),
           ],
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           if (packages != null)
-            GxPanel(
+            GwPanel(
               title: 'Paketler',
               subtitle: 'Aylık fiyat (TRY) · kişi (tanımlanan) · son 30 gün gelir. ${isAdmin ? 'Düzenlemek için pakete dokun.' : ''}',
               padding: EdgeInsets.zero,
@@ -162,21 +162,21 @@ Future<void> _editSettings(BuildContext context, WidgetRef ref, AdminMatchingSet
     builder: (dialog) => AlertDialog(
       title: const Text('Günlük haklar'),
       content: SizedBox(
-        width: GxLayout.formMaxWidth,
+        width: GwLayout.formMaxWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             for (final (i, (label, _)) in fields.indexed)
               Padding(
-                padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+                padding: const EdgeInsets.only(bottom: GwSpacing.sm),
                 child: TextField(controller: controllers[i], keyboardType: TextInputType.number, decoration: InputDecoration(labelText: label)),
               ),
           ],
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-        GxButton(label: 'Kaydet', onPressed: () => Navigator.of(dialog).pop(true)),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+        GwButton(label: 'Kaydet', onPressed: () => Navigator.of(dialog).pop(true)),
       ],
     ),
   );
@@ -211,16 +211,16 @@ Future<void> _editPremium(BuildContext context, WidgetRef ref, AdminPremium curr
       builder: (dialog, setState) => AlertDialog(
         title: Text(current.name),
         content: SizedBox(
-          width: GxLayout.formMaxWidth,
+          width: GwLayout.formMaxWidth,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(controller: name, decoration: const InputDecoration(labelText: 'Ürün adı')),
-                const SizedBox(height: GxSpacing.sm),
+                const SizedBox(height: GwSpacing.sm),
                 for (final (i, (c, p)) in keys.indexed)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+                    padding: const EdgeInsets.only(bottom: GwSpacing.sm),
                     child: TextField(
                       controller: prices[i],
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -238,8 +238,8 @@ Future<void> _editPremium(BuildContext context, WidgetRef ref, AdminPremium curr
           ),
         ),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: 'Kaydet', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: 'Kaydet', onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     ),
@@ -288,12 +288,12 @@ Future<GrantPackageRequest?> showGrantPackageDialog(BuildContext context, List<A
     builder: (dialog) => AlertDialog(
       title: const Text('Paket tanımla'),
       content: SizedBox(
-        width: GxLayout.formMaxWidth,
+        width: GwLayout.formMaxWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('Süre, kişinin o paketteki kalan süresinin ardına eklenir. Gerekçe kayda geçer.'),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             DropdownButtonFormField<AdminPremium>(
               initialValue: package,
               isExpanded: true,
@@ -302,19 +302,19 @@ Future<GrantPackageRequest?> showGrantPackageDialog(BuildContext context, List<A
               onChanged: (p) => package = p ?? package,
             ),
             if (askUsername) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               TextField(controller: username, decoration: const InputDecoration(labelText: 'Kullanıcı adı', prefixText: '@')),
             ],
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             TextField(controller: days, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Gün (1–365)')),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             TextField(controller: reason, decoration: const InputDecoration(labelText: 'Gerekçe')),
           ],
         ),
       ),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-        GxButton(label: 'Tanımla', onPressed: () => Navigator.of(dialog).pop(true)),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+        GwButton(label: 'Tanımla', onPressed: () => Navigator.of(dialog).pop(true)),
       ],
     ),
   );
@@ -336,12 +336,12 @@ class MatchPhotoDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => AlertDialog(
         title: const Text('Şikayet edilen fotoğraf'),
         content: SizedBox(
-          width: GxLayout.formMaxWidth / 2,
+          width: GwLayout.formMaxWidth / 2,
           child: FutureBuilder(
             future: ref.read(adminMatchingRepositoryProvider).photoUrl(path),
             builder: (context, snapshot) => switch (snapshot.data) {
               Ok(:final value) => ClipRRect(
-                  borderRadius: GxRadius.mdAll,
+                  borderRadius: GwRadius.mdAll,
                   child: Image.network(
                     value,
                     fit: BoxFit.contain,
@@ -349,11 +349,11 @@ class MatchPhotoDialog extends ConsumerWidget {
                   ),
                 ),
               Err(:final failure) => Text(failure.userMessage),
-              null => const GxSkeleton(height: GxSpacing.xxl * 3),
+              null => const GwSkeleton(height: GwSpacing.xxl * 3),
             },
           ),
         ),
-        actions: [GxButton(label: 'Kapat', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop())],
+        actions: [GwButton(label: 'Kapat', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop())],
       );
 }
 

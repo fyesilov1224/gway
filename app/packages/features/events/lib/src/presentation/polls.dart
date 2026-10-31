@@ -78,11 +78,11 @@ class _PollCardState extends ConsumerState<PollCard> {
     final pendingChange = poll.allowsMultiple && !setEquals(_picked, {for (final o in poll.options) if (o.mine) o.id});
 
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       decoration: const BoxDecoration(
-        color: GxColors.surface,
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(GxBorders.hairline),
+        color: GwColors.surface,
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(GwBorders.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -91,10 +91,10 @@ class _PollCardState extends ConsumerState<PollCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: GxSpacing.xxs / 2),
-                child: Icon(Icons.poll_outlined, color: GxColors.secondary, size: GxSpacing.lg),
+                padding: EdgeInsets.only(top: GwSpacing.xxs / 2),
+                child: Icon(Icons.poll_outlined, color: GwColors.secondary, size: GwSpacing.lg),
               ),
-              const SizedBox(width: GxSpacing.xs),
+              const SizedBox(width: GwSpacing.xs),
               Expanded(child: Text(poll.question, style: textTheme.titleSmall)),
               if (widget.canManage)
                 PopupMenuButton<String>(
@@ -110,12 +110,12 @@ class _PollCardState extends ConsumerState<PollCard> {
                 ),
             ],
           ),
-          const SizedBox(height: GxSpacing.xxs),
-          Text(meta, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.xxs),
+          Text(meta, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+          const SizedBox(height: GwSpacing.sm),
           for (final o in poll.options)
             Padding(
-              padding: const EdgeInsets.only(bottom: GxSpacing.xs),
+              padding: const EdgeInsets.only(bottom: GwSpacing.xs),
               child: _OptionRow(
                 option: o,
                 share: poll.share(o),
@@ -130,7 +130,7 @@ class _PollCardState extends ConsumerState<PollCard> {
           if (poll.allowsMultiple && poll.isOpen && pendingChange)
             Align(
               alignment: Alignment.centerRight,
-              child: GxButton(
+              child: GwButton(
                 label: 'Oy ver',
                 isLoading: _busy,
                 onPressed: () => _run((r) => r.vote(poll, _picked), done: 'Oyun kaydedildi.'),
@@ -173,11 +173,11 @@ class _OptionRow extends StatelessWidget {
       label: showResult ? '${option.label}, $percent, ${option.votes} oy' : option.label,
       excludeSemantics: true,
       child: InkWell(
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         onTap: enabled ? onTap : null,
         onLongPress: onShowVoters,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget),
+          constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget),
           child: Stack(
             children: [
               if (showResult)
@@ -189,18 +189,18 @@ class _OptionRow extends StatelessWidget {
                       heightFactor: 1,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: selected ? GxColors.primarySoft : GxColors.surfaceMuted,
-                          borderRadius: GxRadius.mdAll,
+                          color: selected ? GwColors.primarySoft : GwColors.surfaceMuted,
+                          borderRadius: GwRadius.mdAll,
                         ),
                       ),
                     ),
                   ),
                 ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xs),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xs),
                 decoration: BoxDecoration(
-                  borderRadius: GxRadius.mdAll,
-                  border: Border.all(color: selected ? GxColors.primary : GxColors.border),
+                  borderRadius: GwRadius.mdAll,
+                  border: Border.all(color: selected ? GwColors.primary : GwColors.border),
                 ),
                 child: Row(
                   children: [
@@ -208,21 +208,21 @@ class _OptionRow extends StatelessWidget {
                       multiple
                           ? (selected ? Icons.check_box : Icons.check_box_outline_blank)
                           : (selected ? Icons.radio_button_checked : Icons.radio_button_unchecked),
-                      size: GxSpacing.md + GxSpacing.xxs,
-                      color: selected ? GxColors.primary : GxColors.textSecondary,
+                      size: GwSpacing.md + GwSpacing.xxs,
+                      color: selected ? GwColors.primary : GwColors.textSecondary,
                     ),
-                    const SizedBox(width: GxSpacing.xs),
+                    const SizedBox(width: GwSpacing.xs),
                     Expanded(child: Text(option.label, style: textTheme.bodyMedium)),
                     if (showResult) ...[
-                      const SizedBox(width: GxSpacing.xs),
+                      const SizedBox(width: GwSpacing.xs),
                       Text(percent, style: textTheme.labelLarge),
                       if (onShowVoters != null) ...[
-                        const SizedBox(width: GxSpacing.xxs),
+                        const SizedBox(width: GwSpacing.xxs),
                         IconButton(
                           tooltip: 'Oy verenler',
                           visualDensity: VisualDensity.compact,
                           onPressed: onShowVoters,
-                          icon: const Icon(Icons.people_outline, size: GxSpacing.md + GxSpacing.xxs),
+                          icon: const Icon(Icons.people_outline, size: GwSpacing.md + GwSpacing.xxs),
                         ),
                       ],
                     ],
@@ -253,17 +253,17 @@ class _Voters extends ConsumerWidget {
               ListTile(title: Text(option.label, style: Theme.of(context).textTheme.titleMedium), subtitle: Text('${value.length} kişi')),
               for (final p in value)
                 ListTile(
-                  leading: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+                  leading: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
                   title: Text(p.displayName),
                   subtitle: Text('@${p.username}'),
                 ),
             ],
           ),
         AsyncError(:final error) => Padding(
-            padding: const EdgeInsets.all(GxSpacing.lg),
-            child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(pollVotersProvider(option.id))),
+            padding: const EdgeInsets.all(GwSpacing.lg),
+            child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(pollVotersProvider(option.id))),
           ),
-        _ => const Padding(padding: EdgeInsets.all(GxSpacing.lg), child: Center(child: CircularProgressIndicator())),
+        _ => const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: Center(child: CircularProgressIndicator())),
       },
     );
   }
@@ -283,7 +283,7 @@ class PollsSection extends ConsumerWidget {
     if (polls.isEmpty && !canManage) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -293,17 +293,17 @@ class PollsSection extends ConsumerWidget {
               if (canManage)
                 TextButton.icon(
                   onPressed: () => showPollEditor(context, scope: scope),
-                  icon: const Icon(Icons.add_chart_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                  icon: const Icon(Icons.add_chart_outlined, size: GwSpacing.md + GwSpacing.xxs),
                   label: const Text('Anket aç'),
                 ),
             ],
           ),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           if (polls.isEmpty)
             Text('Üyelere bir soru sor; örneğin hangi gün buluşalım?',
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
-            for (final p in polls) ...[PollCard(poll: p, scope: scope, canManage: canManage), const SizedBox(height: GxSpacing.sm)],
+            for (final p in polls) ...[PollCard(poll: p, scope: scope, canManage: canManage), const SizedBox(height: GwSpacing.sm)],
         ],
       ),
     );
@@ -390,14 +390,14 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: Form(
         key: _form,
         child: ListView(
           shrinkWrap: true,
           children: [
             Text('Anket aç', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             TextFormField(
               controller: _question,
               maxLength: 200,
@@ -406,7 +406,7 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
             ),
             for (final (i, c) in _options.indexed)
               Padding(
-                padding: const EdgeInsets.only(top: GxSpacing.xs),
+                padding: const EdgeInsets.only(top: GwSpacing.xs),
                 child: TextFormField(
                   controller: c,
                   maxLength: 80,
@@ -454,9 +454,9 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
                   ? TextButton(onPressed: _pickClose, child: const Text('Ekle'))
                   : IconButton(tooltip: 'Bitiş zamanını kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _closesAt = null)),
             ),
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.md),
-            GxButton(label: 'Anketi aç', icon: Icons.poll_outlined, isLoading: _busy, expand: true, onPressed: _submit),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.md),
+            GwButton(label: 'Anketi aç', icon: Icons.poll_outlined, isLoading: _busy, expand: true, onPressed: _submit),
           ],
         ),
       ),

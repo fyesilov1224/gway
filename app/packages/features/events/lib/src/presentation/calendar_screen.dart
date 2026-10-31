@@ -88,11 +88,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final events = ref.watch(calendarProvider(query));
     return Scaffold(
       appBar: AppBar(title: Text(_mine ? 'Takvimim' : 'Grup takvimi')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(calendarProvider(query).future),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, GxSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xl),
             children: [
               Row(
                 children: [
@@ -111,7 +111,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       onSelectionChanged: (v) => setState(() => _view = v.single),
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.xs),
+                  const SizedBox(width: GwSpacing.xs),
                   TextButton(onPressed: () => setState(() => _focus = _day(DateTime.now())), child: const Text('Bugün')),
                 ],
               ),
@@ -123,16 +123,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   title: const Text('Gruplarımın organizasyonları'),
                   subtitle: const Text('Katılmadıklarını da göster'),
                 ),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.xs),
               ...switch (events) {
                 AsyncData(:final value) => _content(value),
                 AsyncError(:final error) => [
-                    GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(calendarProvider(query))),
+                    GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(calendarProvider(query))),
                   ],
                 _ => const [
-                    GxSkeleton(height: GxSpacing.xxl * 5, borderRadius: GxRadius.lgAll),
-                    SizedBox(height: GxSpacing.md),
-                    GxSkeleton(height: GxSpacing.xxl * 1.5, borderRadius: GxRadius.lgAll),
+                    GwSkeleton(height: GwSpacing.xxl * 5, borderRadius: GwRadius.lgAll),
+                    SizedBox(height: GwSpacing.md),
+                    GwSkeleton(height: GwSpacing.xxl * 1.5, borderRadius: GwRadius.lgAll),
                   ],
               },
             ],
@@ -150,11 +150,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Widget cards(List<GroupEvent> list) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final e in list) ...[EventCard(event: e, conflict: conflicts.contains(e.id)), const SizedBox(height: GxSpacing.xs)],
+            for (final e in list) ...[EventCard(event: e, conflict: conflicts.contains(e.id)), const SizedBox(height: GwSpacing.xs)],
           ],
         );
 
-    final empty = GxEmptyState(
+    final empty = GwEmptyState(
       icon: Icons.event_busy_outlined,
       message: _mine && !_includeGroups
           ? 'Bu tarihlerde katıldığın organizasyon yok. Gruplarının organizasyonlarına da bakabilirsin.'
@@ -172,11 +172,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             marks: {for (final x in local) x.day: (local.where((y) => y.day == x.day).any((y) => y.event.isMine))},
             onSelect: (d) => setState(() => _focus = d),
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           Text('${_weekdayNames[_focus.weekday - 1]}, ${formatDateTr(_focus)}', style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           if (selected.isEmpty)
-            Text('Bu günde organizasyon yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+            Text('Bu günde organizasyon yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
             cards(selected),
         ];
@@ -187,7 +187,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           for (var i = 0; i < 7; i++)
             if (on(DateTime(monday.year, monday.month, monday.day + i)) case final list when list.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(top: GxSpacing.sm, bottom: GxSpacing.xs),
+                padding: const EdgeInsets.only(top: GwSpacing.sm, bottom: GwSpacing.xs),
                 child: Text('${_weekdayNames[i]}, ${formatDateTr(DateTime(monday.year, monday.month, monday.day + i))}',
                     style: Theme.of(context).textTheme.titleSmall),
               ),
@@ -223,10 +223,10 @@ class _MonthGrid extends StatelessWidget {
         Row(
           children: [
             for (final name in _weekdayShort)
-              Expanded(child: Text(name, textAlign: TextAlign.center, style: textTheme.labelSmall?.copyWith(color: GxColors.textSecondary))),
+              Expanded(child: Text(name, textAlign: TextAlign.center, style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary))),
           ],
         ),
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         for (var w = 0; w < days.length; w += 7)
           Row(
             children: [
@@ -237,14 +237,14 @@ class _MonthGrid extends StatelessWidget {
                     selected: _sameDay(d, focus),
                     label: formatDateTr(d),
                     child: InkWell(
-                      borderRadius: GxRadius.mdAll,
+                      borderRadius: GwRadius.mdAll,
                       onTap: () => onSelect(d),
                       child: Container(
-                        height: GxSpacing.minTouchTarget + GxSpacing.xs,
+                        height: GwSpacing.minTouchTarget + GwSpacing.xs,
                         decoration: BoxDecoration(
-                          color: _sameDay(d, focus) ? GxColors.primarySoft : null,
-                          borderRadius: GxRadius.mdAll,
-                          border: _sameDay(d, today) ? Border.all(color: GxColors.primary) : null,
+                          color: _sameDay(d, focus) ? GwColors.primarySoft : null,
+                          borderRadius: GwRadius.mdAll,
+                          border: _sameDay(d, today) ? Border.all(color: GwColors.primary) : null,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -252,18 +252,18 @@ class _MonthGrid extends StatelessWidget {
                             Text(
                               '${d.day}',
                               style: textTheme.bodyMedium?.copyWith(
-                                color: d.month == focus.month ? GxColors.textPrimary : GxColors.textSecondary,
+                                color: d.month == focus.month ? GwColors.textPrimary : GwColors.textSecondary,
                                 fontWeight: _sameDay(d, focus) ? FontWeight.w700 : null,
                               ),
                             ),
-                            const SizedBox(height: GxSpacing.xxs),
+                            const SizedBox(height: GwSpacing.xxs),
                             SizedBox(
-                              height: GxSpacing.xs,
-                              width: GxSpacing.xs,
+                              height: GwSpacing.xs,
+                              width: GwSpacing.xs,
                               child: switch (marks[d]) {
-                                true => const DecoratedBox(decoration: BoxDecoration(color: GxColors.primary, shape: BoxShape.circle)),
+                                true => const DecoratedBox(decoration: BoxDecoration(color: GwColors.primary, shape: BoxShape.circle)),
                                 false => DecoratedBox(
-                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GxColors.secondary)),
+                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: GwColors.secondary)),
                                   ),
                                 null => null,
                               },

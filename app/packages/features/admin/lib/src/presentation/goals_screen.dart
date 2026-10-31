@@ -34,8 +34,8 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
         title: const Text('Hedefi iptal et'),
         content: Text('"${g.title}" iptal edilir; kazanılmış rozetler kalır. İşlem kayda geçer.'),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GxButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -61,19 +61,19 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
       title: 'Hedefler',
       subtitle: 'Grupların hedefleri ve görevleri. Kurallara aykırı bir hedefi iptal edebilirsin.',
       actions: [
-        GxButton(label: 'Yenile', icon: Icons.refresh, variant: GxButtonVariant.secondary, onPressed: () => ref.invalidate(adminGoalSearchProvider)),
+        GwButton(label: 'Yenile', icon: Icons.refresh, variant: GwButtonVariant.secondary, onPressed: () => ref.invalidate(adminGoalSearchProvider)),
       ],
       children: [
-        GxPanel(
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.all(GxSpacing.md),
+                padding: const EdgeInsets.all(GwSpacing.md),
                 child: Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     ChoiceChip(label: const Text('Tümü'), selected: _status == null, onSelected: (_) => _filter(null)),
                     for (final s in AdminGoalStatus.values)
@@ -84,8 +84,8 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxEmptyState(
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwEmptyState(
                       icon: Icons.flag_circle_outlined,
                       message: 'Bu filtrede hedef yok.',
                       actionLabel: 'Yenile',
@@ -98,9 +98,9 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
                       for (final g in value.items) ...[
                         InkWell(
                           onTap: () => context.go(AdminRoutes.group(g.groupId)),
-                          hoverColor: GxColors.surface,
+                          hoverColor: GwColors.surface,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+                            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
                             child: Row(
                               children: [
                                 Expanded(
@@ -112,15 +112,15 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
                                         '${g.groupName} (@${g.groupHandle}) · ${g.summary} · ${formatDateTr(g.startsAt)} – ${formatDateTr(g.endsAt)}',
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                                        style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                                       ),
                                     ],
                                   ),
                                 ),
-                                if (g.canceledAt != null) const GxBadge('İptal edildi', tone: GxBadgeTone.danger),
+                                if (g.canceledAt != null) const GwBadge('İptal edildi', tone: GwBadgeTone.danger),
                                 if (canCancel && g.isRunning) ...[
-                                  const SizedBox(width: GxSpacing.sm),
-                                  GxButton(label: 'İptal et', variant: GxButtonVariant.secondary, onPressed: () => _cancel(g)),
+                                  const SizedBox(width: GwSpacing.sm),
+                                  GwButton(label: 'İptal et', variant: GwButtonVariant.secondary, onPressed: () => _cancel(g)),
                                 ],
                               ],
                             ),
@@ -140,10 +140,10 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminGoalSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(adminGoalSearchProvider(key))),
                   ),
-                _ => const Padding(padding: EdgeInsets.all(GxSpacing.lg), child: GxSkeleton(height: GxSpacing.xl)),
+                _ => const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: GwSkeleton(height: GwSpacing.xl)),
               },
             ],
           ),

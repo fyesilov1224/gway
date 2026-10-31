@@ -10,7 +10,7 @@ livekit.<alan adı>  → LiveKit sinyal (WebSocket); ses 7881/tcp ve 7882/udp
 ```
 
 ## 1. Satın alınacaklar
-- **Alan adı**, ör. `grupx.app` (yıllık).
+- **Alan adı**, ör. `gway.app` (yıllık).
 - **Sunucu**: Ubuntu 24.04, en az 2 vCPU ve 4 GB RAM. Örnek: Hetzner CX22, Almanya, aylık yaklaşık 5–7 €.
 - **Supabase**: Mevcut proje Sidney'de. Türkiye'deki kullanıcılar için yayından önce Frankfurt'ta (eu-central-1) yeni bir proje açılması önerilir; migration'lar `supabase db push` ile kurulur.
 
@@ -58,7 +58,7 @@ curl https://api.<alan adı>/health   # Healthy
 
 ## 7. Supabase ayarları (panel: Authentication → URL Configuration)
 - **Site URL**: `https://app.<alan adı>`
-- **Redirect URLs**: `https://app.<alan adı>`, `https://panel.<alan adı>`, `com.grupx.app://auth-callback` (Android uygulaması)
+- **Redirect URLs**: `https://app.<alan adı>`, `https://panel.<alan adı>`, `com.gway.app://auth-callback` (Android uygulaması)
 - Token hook açık olmalı (`supabase config push`, `docs/ARCHITECTURE.md` §3h).
 
 ## 8. Android uygulamasını sunucuya bağlama

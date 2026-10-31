@@ -5,8 +5,8 @@ import '../tokens/spacing.dart';
 import 'button.dart';
 
 /// Shown for every empty list: an icon, one sentence and one action.
-class GxEmptyState extends StatelessWidget {
-  const GxEmptyState({
+class GwEmptyState extends StatelessWidget {
+  const GwEmptyState({
     super.key,
     required this.icon,
     required this.message,
@@ -24,28 +24,28 @@ class GxEmptyState extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(GxSpacing.lg),
+        padding: const EdgeInsets.all(GwSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(GxSpacing.md),
+              padding: const EdgeInsets.all(GwSpacing.md),
               decoration: const ShapeDecoration(
-                color: GxColors.primarySoft,
+                color: GwColors.primarySoft,
                 shape: CircleBorder(),
               ),
-              child: Icon(icon, size: GxSpacing.xl, color: GxColors.primary),
+              child: Icon(icon, size: GwSpacing.xl, color: GwColors.primary),
             ),
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             Text(
               message,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
-                color: GxColors.textSecondary,
+                color: GwColors.textSecondary,
               ),
             ),
-            const SizedBox(height: GxSpacing.lg),
-            GxButton(label: actionLabel, onPressed: onAction),
+            const SizedBox(height: GwSpacing.lg),
+            GwButton(label: actionLabel, onPressed: onAction),
           ],
         ),
       ),

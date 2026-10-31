@@ -7,140 +7,140 @@ import 'tokens/radius.dart';
 import 'tokens/spacing.dart';
 import 'tokens/typography.dart';
 
-/// The single source of [ThemeData] for every GrupX app.
-abstract final class GxTheme {
+/// The single source of [ThemeData] for every GWAY app.
+abstract final class GwTheme {
   static ThemeData light() {
     const colorScheme = ColorScheme(
       brightness: Brightness.light,
-      primary: GxColors.primary,
-      onPrimary: GxColors.onPrimary,
-      primaryContainer: GxColors.primarySoft,
-      onPrimaryContainer: GxColors.textPrimary,
-      secondary: GxColors.secondary,
-      onSecondary: GxColors.onPrimary,
-      secondaryContainer: GxColors.secondarySoft,
-      onSecondaryContainer: GxColors.textPrimary,
-      error: GxColors.error,
-      onError: GxColors.onPrimary,
-      errorContainer: GxColors.errorSoft,
-      onErrorContainer: GxColors.textPrimary,
-      surface: GxColors.background,
-      onSurface: GxColors.textPrimary,
-      onSurfaceVariant: GxColors.textSecondary,
-      surfaceContainerLowest: GxColors.background,
-      surfaceContainerLow: GxColors.surface,
-      surfaceContainer: GxColors.surface,
-      surfaceContainerHigh: GxColors.surfaceMuted,
-      surfaceContainerHighest: GxColors.surfaceMuted,
-      outline: GxColors.border,
-      outlineVariant: GxColors.border,
+      primary: GwColors.primary,
+      onPrimary: GwColors.onPrimary,
+      primaryContainer: GwColors.primarySoft,
+      onPrimaryContainer: GwColors.textPrimary,
+      secondary: GwColors.secondary,
+      onSecondary: GwColors.onPrimary,
+      secondaryContainer: GwColors.secondarySoft,
+      onSecondaryContainer: GwColors.textPrimary,
+      error: GwColors.error,
+      onError: GwColors.onPrimary,
+      errorContainer: GwColors.errorSoft,
+      onErrorContainer: GwColors.textPrimary,
+      surface: GwColors.background,
+      onSurface: GwColors.textPrimary,
+      onSurfaceVariant: GwColors.textSecondary,
+      surfaceContainerLowest: GwColors.background,
+      surfaceContainerLow: GwColors.surface,
+      surfaceContainer: GwColors.surface,
+      surfaceContainerHigh: GwColors.surfaceMuted,
+      surfaceContainerHighest: GwColors.surfaceMuted,
+      outline: GwColors.border,
+      outlineVariant: GwColors.border,
       shadow: Colors.transparent,
       surfaceTint: Colors.transparent,
     );
 
-    final textTheme = GxTypography.textTheme;
+    final textTheme = GwTypography.textTheme;
 
-    const buttonShape = RoundedRectangleBorder(borderRadius: GxRadius.mdAll);
-    const buttonSize = Size(GxSpacing.minTouchTarget, GxSpacing.buttonHeight);
-    const buttonPadding = EdgeInsets.symmetric(horizontal: GxSpacing.lg);
+    const buttonShape = RoundedRectangleBorder(borderRadius: GwRadius.mdAll);
+    const buttonSize = Size(GwSpacing.minTouchTarget, GwSpacing.buttonHeight);
+    const buttonPadding = EdgeInsets.symmetric(horizontal: GwSpacing.lg);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      // Pages are transparent over GxBackdrop; content sits on white cards (docs/DESIGN.md §1, §5).
+      // Pages are transparent over GwBackdrop; content sits on white cards (docs/DESIGN.md §1, §5).
       scaffoldBackgroundColor: Colors.transparent,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
-          TargetPlatform.fuchsia: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
-          TargetPlatform.linux: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
-          TargetPlatform.windows: GxBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
-          TargetPlatform.iOS: GxBackdropTransitions(CupertinoPageTransitionsBuilder()),
-          TargetPlatform.macOS: GxBackdropTransitions(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.android: GwBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.fuchsia: GwBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.linux: GwBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.windows: GwBackdropTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.iOS: GwBackdropTransitions(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.macOS: GwBackdropTransitions(CupertinoPageTransitionsBuilder()),
         },
       ),
-      fontFamily: GxTypography.fontFamily,
-      package: GxTypography.fontPackage,
+      fontFamily: GwTypography.fontFamily,
+      package: GwTypography.fontPackage,
       textTheme: textTheme,
       materialTapTargetSize: MaterialTapTargetSize.padded,
       dividerTheme: const DividerThemeData(
-        color: GxColors.border,
+        color: GwColors.border,
         thickness: 1,
         space: 1,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
-        foregroundColor: GxColors.textPrimary,
+        foregroundColor: GwColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
       ),
       tabBarTheme: TabBarThemeData(
-        labelColor: GxColors.textPrimary,
-        unselectedLabelColor: GxColors.textSecondary,
+        labelColor: GwColors.textPrimary,
+        unselectedLabelColor: GwColors.textSecondary,
         labelStyle: textTheme.labelLarge,
         unselectedLabelStyle: textTheme.labelLarge,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: const _PillIndicator(),
-        dividerColor: GxColors.border,
-        splashBorderRadius: GxRadius.xlAll,
+        dividerColor: GwColors.border,
+        splashBorderRadius: GwRadius.xlAll,
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
-          backgroundColor: GxColors.background,
-          foregroundColor: GxColors.textSecondary,
-          selectedBackgroundColor: GxColors.primarySoft,
-          selectedForegroundColor: GxColors.textPrimary,
-          side: GxBorders.hairline,
+          backgroundColor: GwColors.background,
+          foregroundColor: GwColors.textSecondary,
+          selectedBackgroundColor: GwColors.primarySoft,
+          selectedForegroundColor: GwColors.textPrimary,
+          side: GwBorders.hairline,
           textStyle: textTheme.labelLarge,
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: GxColors.background,
-        selectedColor: GxColors.primarySoft,
-        side: GxBorders.hairline,
+        backgroundColor: GwColors.background,
+        selectedColor: GwColors.primarySoft,
+        side: GwBorders.hairline,
         shape: const StadiumBorder(),
         labelStyle: textTheme.labelLarge,
         showCheckmark: false,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: GxColors.background,
-        modalBackgroundColor: GxColors.background,
+        backgroundColor: GwColors.background,
+        modalBackgroundColor: GwColors.background,
         surfaceTintColor: Colors.transparent,
-        dragHandleColor: GxColors.border,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(GxRadius.xl))),
+        dragHandleColor: GwColors.border,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(GwRadius.xl))),
       ),
       dialogTheme: const DialogThemeData(
-        backgroundColor: GxColors.background,
+        backgroundColor: GwColors.background,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: GxColors.background,
+        color: GwColors.background,
         surfaceTintColor: Colors.transparent,
         textStyle: textTheme.bodyLarge,
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.mdAll, side: GxBorders.hairline),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.mdAll, side: GwBorders.hairline),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: GxColors.textPrimary,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(color: GxColors.onPrimary),
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.mdAll),
+        backgroundColor: GwColors.textPrimary,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(color: GwColors.onPrimary),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.mdAll),
       ),
       cardTheme: const CardThemeData(
-        color: GxColors.background,
+        color: GwColors.background,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: GxRadius.lgAll,
-          side: GxBorders.hairline,
+          borderRadius: GwRadius.lgAll,
+          side: GwBorders.hairline,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: GxColors.primary,
-          foregroundColor: GxColors.onPrimary,
+          backgroundColor: GwColors.primary,
+          foregroundColor: GwColors.onPrimary,
           minimumSize: buttonSize,
           padding: buttonPadding,
           shape: buttonShape,
@@ -150,18 +150,18 @@ abstract final class GxTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          backgroundColor: GxColors.background,
-          foregroundColor: GxColors.secondary,
+          backgroundColor: GwColors.background,
+          foregroundColor: GwColors.secondary,
           minimumSize: buttonSize,
           padding: buttonPadding,
           shape: buttonShape,
-          side: GxBorders.hairline,
+          side: GwBorders.hairline,
           textStyle: textTheme.labelLarge,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: GxColors.primary,
+          foregroundColor: GwColors.primary,
           minimumSize: buttonSize,
           padding: buttonPadding,
           shape: buttonShape,
@@ -170,31 +170,31 @@ abstract final class GxTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: GxColors.background,
+        fillColor: GwColors.background,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: GxSpacing.md,
-          vertical: GxSpacing.sm,
+          horizontal: GwSpacing.md,
+          vertical: GwSpacing.sm,
         ),
-        hintStyle: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary),
+        hintStyle: textTheme.bodyLarge?.copyWith(color: GwColors.textSecondary),
         border: const OutlineInputBorder(
-          borderRadius: GxRadius.mdAll,
-          borderSide: GxBorders.hairline,
+          borderRadius: GwRadius.mdAll,
+          borderSide: GwBorders.hairline,
         ),
         enabledBorder: const OutlineInputBorder(
-          borderRadius: GxRadius.mdAll,
-          borderSide: GxBorders.hairline,
+          borderRadius: GwRadius.mdAll,
+          borderSide: GwBorders.hairline,
         ),
         focusedBorder: const OutlineInputBorder(
-          borderRadius: GxRadius.mdAll,
-          borderSide: BorderSide(color: GxColors.primary, width: 1.5),
+          borderRadius: GwRadius.mdAll,
+          borderSide: BorderSide(color: GwColors.primary, width: 1.5),
         ),
         errorBorder: const OutlineInputBorder(
-          borderRadius: GxRadius.mdAll,
-          borderSide: BorderSide(color: GxColors.error),
+          borderRadius: GwRadius.mdAll,
+          borderSide: BorderSide(color: GwColors.error),
         ),
         focusedErrorBorder: const OutlineInputBorder(
-          borderRadius: GxRadius.mdAll,
-          borderSide: BorderSide(color: GxColors.error, width: 1.5),
+          borderRadius: GwRadius.mdAll,
+          borderSide: BorderSide(color: GwColors.error, width: 1.5),
         ),
       ),
     );
@@ -210,11 +210,11 @@ class _PillIndicator extends Decoration {
 }
 
 class _PillPainter extends BoxPainter {
-  static const _inset = EdgeInsets.symmetric(horizontal: GxSpacing.xs, vertical: GxSpacing.xxs + GxSpacing.xxs / 2);
+  static const _inset = EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs + GwSpacing.xxs / 2);
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final rect = _inset.deflateRect(offset & configuration.size!);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(rect.height / 2)), Paint()..color = GxColors.primarySoft);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(rect.height / 2)), Paint()..color = GwColors.primarySoft);
   }
 }

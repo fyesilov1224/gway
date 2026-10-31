@@ -32,27 +32,27 @@ class GroupPlanCard extends ConsumerWidget {
       return full == null
           ? const SizedBox.shrink()
           : Padding(
-              padding: const EdgeInsets.only(top: GxSpacing.md),
+              padding: const EdgeInsets.only(top: GwSpacing.md),
               child: PlanNotice(icon: Icons.group_off_outlined, text: full, danger: true),
             );
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.md),
+      padding: const EdgeInsets.only(top: GwSpacing.md),
       child: Container(
-        padding: const EdgeInsets.all(GxSpacing.md),
+        padding: const EdgeInsets.all(GwSpacing.md),
         decoration: const BoxDecoration(
-          color: GxColors.surface,
-          borderRadius: GxRadius.lgAll,
-          border: Border.fromBorderSide(GxBorders.hairline),
+          color: GwColors.surface,
+          borderRadius: GwRadius.lgAll,
+          border: Border.fromBorderSide(GwBorders.hairline),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                const Icon(planIcon, color: GxColors.primary),
-                const SizedBox(width: GxSpacing.sm),
+                const Icon(planIcon, color: GwColors.primary),
+                const SizedBox(width: GwSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +60,7 @@ class GroupPlanCard extends ConsumerWidget {
                       Text(planStatusLine(plan), style: textTheme.labelLarge),
                       Text(
                         '${formatCount(plan.memberCount)} / ${formatCount(plan.plan.maxMembers)} üye',
-                        style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                        style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                       ),
                     ],
                   ),
@@ -70,18 +70,18 @@ class GroupPlanCard extends ConsumerWidget {
               ],
             ),
             if (ref.watch(purchasesOnThisPlatformProvider)) ...[
-              const SizedBox(height: GxSpacing.sm),
-              GxButton(
+              const SizedBox(height: GwSpacing.sm),
+              GwButton(
                 label: plan.plan.isFree ? 'Paket al' : 'Paketi yükselt',
                 icon: planIcon,
                 onPressed: onManage,
               ),
             ],
             if (full != null) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               PlanNotice(icon: Icons.group_off_outlined, text: full, danger: true),
             ] else if (plan.renewalDue(DateTime.now())) ...[
-              const SizedBox(height: GxSpacing.sm),
+              const SizedBox(height: GwSpacing.sm),
               PlanNotice(
                 icon: Icons.schedule,
                 text: 'Paketin ${formatDateTr(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',

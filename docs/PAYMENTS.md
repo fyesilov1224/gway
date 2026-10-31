@@ -27,7 +27,7 @@ Kart anahtarların kendisini hiçbir zaman göstermez.
 
 Senden beklenenler:
 - Şirket ya da şahıs şirketi bilgileri, vergi levhası, IBAN.
-- Canlı alan adı (ör. `grupx.app`) ve https'li sunucu (`docs/DEPLOY.md`). Bildirimler yalnızca dışarıdan erişilebilen adrese gelir.
+- Canlı alan adı (ör. `gway.app`) ve https'li sunucu (`docs/DEPLOY.md`). Bildirimler yalnızca dışarıdan erişilebilen adrese gelir.
 - İletişim bilgileri ve iade/iptal koşulları metni. Hukuki inceleme bekleniyor; ön ödemeli dijital hizmette cayma hakkı istisnası avukatla netleştirilmeli.
 
 ## 2. PayTR (Türkiye, TL)

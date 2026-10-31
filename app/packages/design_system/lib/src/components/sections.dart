@@ -8,8 +8,8 @@ import '../tokens/tones.dart';
 
 /// White card with the large radius and a hairline. Pages are built from
 /// these on the tinted canvas instead of edge-to-edge rows with dividers.
-class GxCard extends StatelessWidget {
-  const GxCard({super.key, required this.child, this.padding = EdgeInsets.zero, this.onTap, this.radius = GxRadius.xlAll});
+class GwCard extends StatelessWidget {
+  const GwCard({super.key, required this.child, this.padding = EdgeInsets.zero, this.onTap, this.radius = GwRadius.xlAll});
 
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -20,17 +20,17 @@ class GxCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = Padding(padding: padding, child: child);
     return Material(
-      color: GxColors.background,
+      color: GwColors.background,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: radius, side: GxBorders.hairline),
+      shape: RoundedRectangleBorder(borderRadius: radius, side: GwBorders.hairline),
       child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }
 }
 
 /// A page section's title with an optional "Tümü"-style link on the right.
-class GxSectionHeader extends StatelessWidget {
-  const GxSectionHeader({super.key, required this.title, this.subtitle, this.actionLabel, this.onAction, this.padding});
+class GwSectionHeader extends StatelessWidget {
+  const GwSectionHeader({super.key, required this.title, this.subtitle, this.actionLabel, this.onAction, this.padding});
 
   final String title;
   final String? subtitle;
@@ -44,7 +44,7 @@ class GxSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: padding ?? const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.lg, GxSpacing.xs, GxSpacing.xs),
+      padding: padding ?? const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),
       child: Row(
         children: [
           Expanded(
@@ -55,7 +55,7 @@ class GxSectionHeader extends StatelessWidget {
                 children: [
                   Text(title, style: textTheme.titleLarge),
                   if (subtitle case final text?)
-                    Text(text, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                    Text(text, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
@@ -63,10 +63,10 @@ class GxSectionHeader extends StatelessWidget {
           if (actionLabel case final label?)
             TextButton(
               onPressed: onAction,
-              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm)),
+              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm)),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Text(label), const Icon(Icons.chevron_right_rounded, size: GxSpacing.md + GxSpacing.xxs)],
+                children: [Text(label), const Icon(Icons.chevron_right_rounded, size: GwSpacing.md + GwSpacing.xxs)],
               ),
             ),
         ],
@@ -78,13 +78,13 @@ class GxSectionHeader extends StatelessWidget {
 const _monthsShort = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
 
 /// The calendar leaf of organizations: short month over a large day.
-class GxDateTile extends StatelessWidget {
-  const GxDateTile({super.key, required this.date, this.tone = GxTone.lilac});
+class GwDateTile extends StatelessWidget {
+  const GwDateTile({super.key, required this.date, this.tone = GwTone.lilac});
 
   final DateTime date;
-  final GxTone tone;
+  final GwTone tone;
 
-  static const double size = GxSpacing.xxl + GxSpacing.xs;
+  static const double size = GwSpacing.xxl + GwSpacing.xs;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class GxDateTile extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(color: tone.soft, borderRadius: GxRadius.mdAll),
+        decoration: BoxDecoration(color: tone.soft, borderRadius: GwRadius.mdAll),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -110,23 +110,23 @@ class GxDateTile extends StatelessWidget {
 }
 
 /// A soft pill with an icon: categories, interests, quick filters.
-class GxTag extends StatelessWidget {
-  const GxTag({super.key, required this.label, this.icon, this.tone = GxTone.lilac});
+class GwTag extends StatelessWidget {
+  const GwTag({super.key, required this.label, this.icon, this.tone = GwTone.lilac});
 
   final String label;
   final IconData? icon;
-  final GxTone tone;
+  final GwTone tone;
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm, vertical: GxSpacing.xxs),
-        decoration: BoxDecoration(color: tone.soft, borderRadius: GxRadius.xlAll),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm, vertical: GwSpacing.xxs),
+        decoration: BoxDecoration(color: tone.soft, borderRadius: GwRadius.xlAll),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon case final i?) ...[
-              Icon(i, size: GxSpacing.md, color: tone.strong),
-              const SizedBox(width: GxSpacing.xxs),
+              Icon(i, size: GwSpacing.md, color: tone.strong),
+              const SizedBox(width: GwSpacing.xxs),
             ],
             Flexible(
               child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelLarge),

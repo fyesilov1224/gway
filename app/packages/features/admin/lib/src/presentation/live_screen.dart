@@ -55,21 +55,21 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
       title: 'Canlı yayınlar',
       subtitle: 'Grupların sesli yayınları ve kaç üyeye bildirildikleri. Acil durumda bir yayını herkes için kapatabilirsin.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref.invalidate(broadcastSearchProvider),
         ),
       ],
       children: [
-        GxPanel(
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.all(GxSpacing.md),
+                padding: const EdgeInsets.all(GwSpacing.md),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: SegmentedButton<AdminLiveStatus>(
@@ -85,8 +85,8 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxEmptyState(
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwEmptyState(
                       icon: Icons.podcasts_outlined,
                       message: switch (_tab) {
                         AdminLiveStatus.live => 'Şu anda canlı yayın yok.',
@@ -116,15 +116,15 @@ class _AdminLiveScreenState extends ConsumerState<AdminLiveScreen> {
                     ],
                   ),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(broadcastSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(broadcastSearchProvider(key))),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.lg),
+                    padding: EdgeInsets.all(GwSpacing.lg),
                     child: Column(children: [
-                      GxSkeleton(height: GxSpacing.xl),
-                      SizedBox(height: GxSpacing.md),
-                      GxSkeleton(height: GxSpacing.xl),
+                      GwSkeleton(height: GwSpacing.xl),
+                      SizedBox(height: GwSpacing.md),
+                      GwSkeleton(height: GwSpacing.xl),
                     ]),
                   ),
               },
@@ -161,9 +161,9 @@ class _BroadcastRow extends StatelessWidget {
     ].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.group(b.groupId)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: Row(
           children: [
             Expanded(
@@ -172,17 +172,17 @@ class _BroadcastRow extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      if (live) ...[const GxLiveBadge(), const SizedBox(width: GxSpacing.xs)],
+                      if (live) ...[const GwLiveBadge(), const SizedBox(width: GwSpacing.xs)],
                       Flexible(child: Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge)),
                     ],
                   ),
-                  Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+                  Text(meta, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
             if (onEnd != null) ...[
-              const SizedBox(width: GxSpacing.sm),
-              GxButton(label: 'Kapat', icon: Icons.stop_circle_outlined, variant: GxButtonVariant.secondary, onPressed: onEnd),
+              const SizedBox(width: GwSpacing.sm),
+              GwButton(label: 'Kapat', icon: Icons.stop_circle_outlined, variant: GwButtonVariant.secondary, onPressed: onEnd),
             ],
           ],
         ),

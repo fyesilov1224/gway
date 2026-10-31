@@ -30,14 +30,14 @@ class GoalCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final running = g.isRunning(DateTime.now());
     return InkWell(
-      borderRadius: GxRadius.lgAll,
+      borderRadius: GwRadius.lgAll,
       onTap: () => context.push(EventRoutes.goal(g.id)),
       child: Container(
-        padding: const EdgeInsets.all(GxSpacing.sm),
+        padding: const EdgeInsets.all(GwSpacing.sm),
         decoration: const BoxDecoration(
-          color: GxColors.background,
-          borderRadius: GxRadius.lgAll,
-          border: Border.fromBorderSide(GxBorders.hairline),
+          color: GwColors.background,
+          borderRadius: GwRadius.lgAll,
+          border: Border.fromBorderSide(GwBorders.hairline),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,25 +46,25 @@ class GoalCard extends StatelessWidget {
               children: [
                 Expanded(child: Text(g.title, style: textTheme.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis)),
                 if (g.completed)
-                  const GxBadge('Tamamladın', tone: GxBadgeTone.success, dot: true)
+                  const GwBadge('Tamamladın', tone: GwBadgeTone.success, dot: true)
                 else if (g.canceledAt != null)
-                  const GxBadge('İptal edildi', tone: GxBadgeTone.danger)
+                  const GwBadge('İptal edildi', tone: GwBadgeTone.danger)
                 else if (!running)
-                  const GxBadge('Sona erdi'),
+                  const GwBadge('Sona erdi'),
               ],
             ),
-            const SizedBox(height: GxSpacing.xxs),
+            const SizedBox(height: GwSpacing.xxs),
             Text(
               [g.kind.label, if (g.myTeam != null) 'Takım: ${g.myTeam}', goalPeriod(g)].join(' · '),
-              style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+              style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             if (g.metric != null) ...[
               ClipRRect(
-                borderRadius: GxRadius.smAll,
-                child: LinearProgressIndicator(value: g.share, minHeight: GxSpacing.xs, backgroundColor: GxColors.surfaceMuted),
+                borderRadius: GwRadius.smAll,
+                child: LinearProgressIndicator(value: g.share, minHeight: GwSpacing.xs, backgroundColor: GwColors.surfaceMuted),
               ),
-              const SizedBox(height: GxSpacing.xxs),
+              const SizedBox(height: GwSpacing.xxs),
             ],
             Text(
               g.kind == GoalKind.team && g.myTeam == null ? 'Bir takıma eklenince ilerlemen burada görünür.' : g.progressLabel,
@@ -90,7 +90,7 @@ class GroupGoalsSection extends ConsumerWidget {
     if (goals == null || (goals.isEmpty && !canManage)) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page, vertical: GxSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -100,16 +100,16 @@ class GroupGoalsSection extends ConsumerWidget {
               if (canManage)
                 TextButton.icon(
                   onPressed: () => showGoalEditor(context, groupId: groupId),
-                  icon: const Icon(Icons.flag_circle_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                  icon: const Icon(Icons.flag_circle_outlined, size: GwSpacing.md + GwSpacing.xxs),
                   label: const Text('Hedef oluştur'),
                 ),
             ],
           ),
           if (goals.isEmpty)
             Text('Örneğin "Bu ay 4 yürüyüşe katıl" ya da "Hep birlikte 50 katılım"; ilk hedefi oluştur.',
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary))
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
-            for (final g in goals) ...[GoalCard(goal: g), const SizedBox(height: GxSpacing.xs)],
+            for (final g in goals) ...[GoalCard(goal: g), const SizedBox(height: GwSpacing.xs)],
         ],
       ),
     );
@@ -153,11 +153,11 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
     final detail = ref.watch(goalDetailProvider(widget.goalId));
     return Scaffold(
       appBar: AppBar(title: Text(detail.value?.goal.group.name ?? 'Hedef')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (detail) {
           AsyncData(:final value) => _content(value),
-          AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(goalDetailProvider(widget.goalId))),
-          _ => const Padding(padding: EdgeInsets.all(GxSpacing.page), child: GxSkeleton(height: GxSpacing.xxl * 4, borderRadius: GxRadius.lgAll)),
+          AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(goalDetailProvider(widget.goalId))),
+          _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4, borderRadius: GwRadius.lgAll)),
         },
       ),
     );
@@ -166,11 +166,11 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
   Widget _content(GoalDetail d) {
     final g = d.goal;
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final running = g.isRunning(DateTime.now());
     Widget person(EventPerson p, {Widget? trailing, String? subtitle}) => ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: GxAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GxAvatarShape.user, size: GxAvatarSize.sm),
+          leading: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
           title: Text(p.displayName),
           subtitle: subtitle == null || subtitle.isEmpty ? null : Text(subtitle),
           trailing: trailing,
@@ -178,36 +178,36 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
     return RefreshIndicator(
       onRefresh: () => ref.refresh(goalDetailProvider(widget.goalId).future),
       child: ListView(
-        padding: const EdgeInsets.all(GxSpacing.page),
+        padding: const EdgeInsets.all(GwSpacing.page),
         children: [
           GoalCard(goal: g),
-          if (g.description.isNotEmpty) ...[const SizedBox(height: GxSpacing.sm), Text(g.description, style: textTheme.bodyLarge)],
-          const SizedBox(height: GxSpacing.xs),
+          if (g.description.isNotEmpty) ...[const SizedBox(height: GwSpacing.sm), Text(g.description, style: textTheme.bodyLarge)],
+          const SizedBox(height: GwSpacing.xs),
           Text(g.kind.description, style: secondary),
           if (g.metric != null)
             Text('Yalnızca bu grubun dönem içindeki organizasyonları sayılır; "gelmedi" işaretlenen katılımlar sayılmaz.', style: secondary),
           if (g.kind == GoalKind.task && running && !g.completed) ...[
-            const SizedBox(height: GxSpacing.md),
+            const SizedBox(height: GwSpacing.md),
             if (g.myClaim == ClaimStatus.pending)
-              GxButton(
+              GwButton(
                 label: 'Bildirimi geri çek',
-                variant: GxButtonVariant.secondary,
+                variant: GwButtonVariant.secondary,
                 expand: true,
                 isLoading: _busy,
                 onPressed: () => _run((r) => r.withdrawClaim(g.id), 'Bildirimin geri çekildi.', groupId: g.group.id),
               )
             else
-              GxButton(label: 'Yaptım', icon: Icons.task_alt, expand: true, isLoading: _busy, onPressed: () => _claim(g)),
+              GwButton(label: 'Yaptım', icon: Icons.task_alt, expand: true, isLoading: _busy, onPressed: () => _claim(g)),
           ],
           if (g.kind == GoalKind.team) ...[
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
             Row(
               children: [
                 Expanded(child: Text('Takımlar', style: textTheme.titleMedium)),
                 if (g.canManage && running && (d.candidates?.isNotEmpty ?? false))
                   TextButton.icon(
                     onPressed: () => _newTeam(g, d.candidates!),
-                    icon: const Icon(Icons.group_add_outlined, size: GxSpacing.md + GxSpacing.xxs),
+                    icon: const Icon(Icons.group_add_outlined, size: GwSpacing.md + GwSpacing.xxs),
                     label: const Text('Takım kur'),
                   ),
               ],
@@ -229,7 +229,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               ),
           ],
           if (d.claims case final claims? when claims.isNotEmpty) ...[
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
             Text('Onay bekleyen bildirimler (${claims.length})', style: textTheme.titleMedium),
             for (final c in claims)
               person(
@@ -242,7 +242,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                       onPressed: _busy ? null : () => _run((r) => r.decideClaim(g.id, c.person.id, approve: false), 'Bildirim onaylanmadı.'),
                       child: const Text('Reddet'),
                     ),
-                    GxButton(
+                    GwButton(
                       label: 'Onayla',
                       onPressed: _busy
                           ? null
@@ -252,17 +252,17 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 ),
               ),
           ],
-          const SizedBox(height: GxSpacing.lg),
+          const SizedBox(height: GwSpacing.lg),
           Text('Tamamlayanlar (${formatCount(g.completions)})', style: textTheme.titleMedium),
           if (d.completers.isEmpty)
             Text('Henüz tamamlayan yok. Tamamlayan herkes profilinde bu hedefin rozetini alır.', style: secondary)
           else
             for (final p in d.completers) person(p),
           if (g.canManage && g.canceledAt == null && running) ...[
-            const SizedBox(height: GxSpacing.lg),
+            const SizedBox(height: GwSpacing.lg),
             TextButton(
               onPressed: _busy ? null : () => _run((r) => r.cancel(g.id), 'Hedef iptal edildi.', groupId: g.group.id),
-              child: const Text('Hedefi iptal et', style: TextStyle(color: GxColors.error)),
+              child: const Text('Hedefi iptal et', style: TextStyle(color: GwColors.error)),
             ),
           ],
         ],
@@ -306,7 +306,7 @@ class _TeamSheetState extends State<_TeamSheet> {
   Widget build(BuildContext context) {
     final ready = _name.text.trim().length >= 2 && _picked.isNotEmpty;
     return Padding(
-      padding: EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: ListView(
         shrinkWrap: true,
         children: [
@@ -325,8 +325,8 @@ class _TeamSheetState extends State<_TeamSheet> {
               title: Text(p.displayName),
               subtitle: Text('@${p.username}'),
             ),
-          const SizedBox(height: GxSpacing.sm),
-          GxButton(
+          const SizedBox(height: GwSpacing.sm),
+          GwButton(
             label: _picked.isEmpty ? 'Takımı kur' : 'Takımı kur (${_picked.length} kişi)',
             expand: true,
             onPressed: ready ? () => Navigator.of(context).pop((_name.text.trim(), _picked.toList())) : null,
@@ -423,24 +423,24 @@ class _GoalEditorState extends ConsumerState<_GoalEditor> {
     final textTheme = Theme.of(context).textTheme;
     final measured = _kind != GoalKind.task;
     return Padding(
-      padding: EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: Form(
         key: _form,
         child: ListView(
           shrinkWrap: true,
           children: [
             Text('Hedef oluştur', style: textTheme.titleLarge),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [
                 for (final k in GoalKind.values) ChoiceChip(label: Text(k.label), selected: _kind == k, onSelected: (_) => setState(() => _kind = k)),
               ],
             ),
-            const SizedBox(height: GxSpacing.xxs),
-            Text(_kind.description, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.xxs),
+            Text(_kind.description, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+            const SizedBox(height: GwSpacing.sm),
             TextFormField(
               controller: _title,
               maxLength: 80,
@@ -468,7 +468,7 @@ class _GoalEditorState extends ConsumerState<_GoalEditor> {
                       },
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   DropdownButton<GoalMetric>(
                     value: _metric,
                     items: [for (final m in GoalMetric.values) DropdownMenuItem(value: m, child: Text(m.unit))],
@@ -484,9 +484,9 @@ class _GoalEditorState extends ConsumerState<_GoalEditor> {
               trailing: const Icon(Icons.edit_calendar_outlined),
               onTap: _pickEnd,
             ),
-            if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-            const SizedBox(height: GxSpacing.md),
-            GxButton(label: 'Hedefi oluştur', icon: Icons.flag_circle_outlined, isLoading: _busy, expand: true, onPressed: _submit),
+            if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+            const SizedBox(height: GwSpacing.md),
+            GwButton(label: 'Hedefi oluştur', icon: Icons.flag_circle_outlined, isLoading: _busy, expand: true, onPressed: _submit),
           ],
         ),
       ),

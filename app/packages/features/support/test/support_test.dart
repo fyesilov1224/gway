@@ -80,7 +80,7 @@ Widget _app(
         supportThreadProvider.overrideWith((ref, id) async => thread ?? _thread),
       ],
       child: MaterialApp.router(
-        theme: GxTheme.light(),
+        theme: GwTheme.light(),
         routerConfig: GoRouter(routes: [
           GoRoute(path: '/', builder: (_, _) => child),
           GoRoute(path: '/support/t/:id', builder: (_, state) => Text('ticket ${state.pathParameters['id']}')),
@@ -179,7 +179,7 @@ void main() {
       final repo = _FakeSupport();
       await _pump(tester, _app(const TicketScreen(ticketId: 't1'), repo: repo));
 
-      expect(find.text('GrupX Ekibi'), findsOneWidget);
+      expect(find.text('GWAY Ekibi'), findsOneWidget);
       expect(find.text('İnceliyoruz, teşekkürler.'), findsOneWidget);
       expect(find.text('Doğa Yürüyüşçüleri'), findsOneWidget);
       expect(repo.read, ['t1']);

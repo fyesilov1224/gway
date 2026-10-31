@@ -1,11 +1,11 @@
 {
-    "name": "GrupX",
-    "short_name": "GrupX",
+    "name": "GWAY",
+    "short_name": "GWAY",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#6E56CF",
-    "description": "GrupX — tüm grupların tek adresi.",
+    "description": "GWAY — tüm grupların tek adresi.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

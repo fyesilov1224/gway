@@ -27,9 +27,9 @@ class GroupStatusBadge extends StatelessWidget {
   final AdminGroupStatus status;
 
   @override
-  Widget build(BuildContext context) => GxBadge(
+  Widget build(BuildContext context) => GwBadge(
         status.label,
-        tone: status == AdminGroupStatus.active ? GxBadgeTone.primary : GxBadgeTone.danger,
+        tone: status == AdminGroupStatus.active ? GwBadgeTone.primary : GwBadgeTone.danger,
         dot: true,
       );
 }
@@ -92,10 +92,10 @@ class _AdminGroupsScreenState extends ConsumerState<AdminGroupsScreen> {
       title: 'Gruplar',
       subtitle: 'Platformdaki grupları görüntüle, ara ve gerekirse askıya al.',
       actions: [
-        GxButton(
+        GwButton(
           label: 'Yenile',
           icon: Icons.refresh,
-          variant: GxButtonVariant.secondary,
+          variant: GwButtonVariant.secondary,
           onPressed: () => ref
             ..invalidate(groupStatsProvider)
             ..invalidate(groupSearchProvider),
@@ -105,9 +105,9 @@ class _AdminGroupsScreenState extends ConsumerState<AdminGroupsScreen> {
         StatCardRow(
           cards: [
             for (final (status, label, value, icon, tone) in [
-              (null, 'Toplam grup', stats?.total, Icons.groups_2_outlined, GxBadgeTone.info),
-              (AdminGroupStatus.active, 'Aktif', stats?.active, Icons.check_circle_outline, GxBadgeTone.primary),
-              (AdminGroupStatus.suspended, 'Askıda', stats?.suspended, Icons.block, GxBadgeTone.danger),
+              (null, 'Toplam grup', stats?.total, Icons.groups_2_outlined, GwBadgeTone.info),
+              (AdminGroupStatus.active, 'Aktif', stats?.active, Icons.check_circle_outline, GwBadgeTone.primary),
+              (AdminGroupStatus.suspended, 'Askıda', stats?.suspended, Icons.block, GwBadgeTone.danger),
             ])
               StatCard(
                 label: label,
@@ -119,8 +119,8 @@ class _AdminGroupsScreenState extends ConsumerState<AdminGroupsScreen> {
               ),
           ],
         ),
-        const SizedBox(height: GxSpacing.lg),
-        GxPanel(
+        const SizedBox(height: GwSpacing.lg),
+        GwPanel(
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -138,15 +138,15 @@ class _AdminGroupsScreenState extends ConsumerState<AdminGroupsScreen> {
               const Divider(),
               switch (result) {
                 AsyncData(:final value) when value.items.isEmpty => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
                     child: filtered
-                        ? GxEmptyState(
+                        ? GwEmptyState(
                             icon: Icons.search_off,
                             message: 'Aramana ve filtrene uygun grup bulunamadı.',
                             actionLabel: 'Filtreleri temizle',
                             onAction: _clearFilters,
                           )
-                        : GxEmptyState(
+                        : GwEmptyState(
                             icon: Icons.groups_2_outlined,
                             message: 'Henüz oluşturulmuş grup yok.',
                             actionLabel: 'Yenile',
@@ -155,18 +155,18 @@ class _AdminGroupsScreenState extends ConsumerState<AdminGroupsScreen> {
                   ),
                 AsyncData(:final value) => _GroupTable(page: value, onPage: (p) => setState(() => _page = p)),
                 AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: GxSpacing.xl),
-                    child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupSearchProvider(key))),
+                    padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
+                    child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupSearchProvider(key))),
                   ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(GxSpacing.lg),
+                    padding: EdgeInsets.all(GwSpacing.lg),
                     child: Column(
                       children: [
-                        GxSkeleton(height: GxSpacing.xl),
-                        SizedBox(height: GxSpacing.md),
-                        GxSkeleton(height: GxSpacing.xl),
-                        SizedBox(height: GxSpacing.md),
-                        GxSkeleton(height: GxSpacing.xl),
+                        GwSkeleton(height: GwSpacing.xl),
+                        SizedBox(height: GwSpacing.md),
+                        GwSkeleton(height: GwSpacing.xl),
+                        SizedBox(height: GwSpacing.md),
+                        GwSkeleton(height: GwSpacing.xl),
                       ],
                     ),
                   ),
@@ -194,14 +194,14 @@ class _GroupTable extends StatelessWidget {
     final (from, to) = page.range;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= GxLayout.contentMaxWidth;
+        final wide = constraints.maxWidth >= GwLayout.contentMaxWidth;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (wide) ...[
               Container(
-                color: GxColors.surface,
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+                color: GwColors.surface,
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
                 child: Row(
                   children: [
                     for (final (i, label) in ['GRUP', 'SAHİBİ', 'KATEGORİ', 'ÜYE', 'DURUM', 'KURULUŞ'].indexed)
@@ -209,10 +209,10 @@ class _GroupTable extends StatelessWidget {
                         flex: _columns[i],
                         child: Text(
                           label,
-                          style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary, letterSpacing: 0.6),
+                          style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary, letterSpacing: 0.6),
                         ),
                       ),
-                    const SizedBox(width: GxSpacing.lg),
+                    const SizedBox(width: GwSpacing.lg),
                   ],
                 ),
               ),
@@ -247,13 +247,13 @@ class _GroupRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final categories = {for (final c in ref.watch(categoriesProvider).value ?? const <Category>[]) c.slug: c.name};
     final owner = group.ownerUsername == null ? '—' : '@${group.ownerUsername}';
     final identity = Row(
       children: [
-        GxAvatar(name: group.name, shape: GxAvatarShape.group, imageUrl: ref.watch(groupLogoUrlProvider(group.logoPath))),
-        const SizedBox(width: GxSpacing.sm),
+        GwAvatar(name: group.name, shape: GwAvatarShape.group, imageUrl: ref.watch(groupLogoUrlProvider(group.logoPath))),
+        const SizedBox(width: GwSpacing.sm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,9 +269,9 @@ class _GroupRow extends ConsumerWidget {
 
     return InkWell(
       onTap: () => context.go(AdminRoutes.group(group.id)),
-      hoverColor: GxColors.surface,
+      hoverColor: GwColors.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: GxSpacing.lg, vertical: GxSpacing.sm),
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
         child: wide
             ? Row(
                 children: [
@@ -281,13 +281,13 @@ class _GroupRow extends ConsumerWidget {
                   Expanded(flex: _columns[3], child: Text('${group.memberCount}', style: textTheme.bodyMedium)),
                   Expanded(flex: _columns[4], child: Align(alignment: Alignment.centerLeft, child: GroupStatusBadge(group.status))),
                   Expanded(flex: _columns[5], child: Text(formatDateTr(group.createdAt), style: secondary)),
-                  const Icon(Icons.chevron_right, color: GxColors.textSecondary, size: GxSpacing.lg),
+                  const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
                 ],
               )
             : Row(
                 children: [
                   Expanded(child: identity),
-                  const SizedBox(width: GxSpacing.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   GroupStatusBadge(group.status),
                 ],
               ),

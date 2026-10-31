@@ -68,12 +68,12 @@ Future<bool> deletePost(BuildContext context, WidgetRef ref, Post post) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       title: const Text('Gönderi silinsin mi?'),
       content: const Text('Gönderi, fotoğrafları, videoları ve yorumlarıyla birlikte kalıcı olarak silinir.'),
       actions: [
-        GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-        GxButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
+        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+        GwButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
       ],
     ),
   );
@@ -116,18 +116,18 @@ class PostCard extends ConsumerWidget {
         };
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: GxSpacing.page),
-      child: GxCard(
-        radius: GxRadius.lgAll,
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
+      child: GwCard(
+        radius: GwRadius.lgAll,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _Header(post: current, onOpenOwner: openOwner, onDeleted: onDeleted),
             if (current.media.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+                padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
                 child: ClipRRect(
-                  borderRadius: GxRadius.mdAll,
+                  borderRadius: GwRadius.mdAll,
                   child: MediaCarousel(media: current.media, onDoubleTap: () => toggleLike(context, ref, current, onlyLike: true)),
                 ),
               ),
@@ -135,20 +135,20 @@ class PostCard extends ConsumerWidget {
             PostReactions(post: current),
             if (current.caption.isNotEmpty || current.event != null || (current.hideLikeCount && current.canManage))
               Padding(
-                padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
+                padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (current.hideLikeCount && current.canManage)
-                      Text('Beğeni sayısı yalnızca sana görünür.', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                      Text('Beğeni sayısı yalnızca sana görünür.', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                     if (current.caption.isNotEmpty) _Caption(post: current, onOpenOwner: openOwner),
                     if (current.event case final event?)
                       Padding(
-                        padding: const EdgeInsets.only(top: GxSpacing.xs),
+                        padding: const EdgeInsets.only(top: GwSpacing.xs),
                         child: InkWell(
-                          borderRadius: GxRadius.xlAll,
+                          borderRadius: GwRadius.xlAll,
                           onTap: links.openEvent == null ? null : () => links.openEvent!(context, event.id),
-                          child: GxTag(label: 'Anı · ${event.title}', icon: Icons.event_outlined),
+                          child: GwTag(label: 'Anı · ${event.title}', icon: Icons.event_outlined),
                         ),
                       ),
                   ],
@@ -180,21 +180,21 @@ class _Header extends ConsumerWidget {
       if (post.editedAt != null) 'düzenlendi',
     ].join(' · ');
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.sm, GxSpacing.sm, GxSpacing.xxs, GxSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm),
       child: Row(
         children: [
           Expanded(
             child: InkWell(
               onTap: onOpenOwner,
-              borderRadius: GxRadius.mdAll,
+              borderRadius: GwRadius.mdAll,
               child: Row(
                 children: [
-                  GxAvatar(
+                  GwAvatar(
                     name: group?.name ?? author?.displayName ?? '?',
-                    shape: group == null ? GxAvatarShape.user : GxAvatarShape.group,
+                    shape: group == null ? GwAvatarShape.user : GwAvatarShape.group,
                     imageUrl: group?.logoUrl ?? author?.avatarUrl,
                   ),
-                  const SizedBox(width: GxSpacing.sm),
+                  const SizedBox(width: GwSpacing.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +203,7 @@ class _Header extends ConsumerWidget {
                         Text(meta,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                            style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -227,7 +227,7 @@ class _Header extends ConsumerWidget {
                   onTap: () async {
                     if (await deletePost(context, ref, post)) onDeleted?.call();
                   },
-                  child: const Text('Sil', style: TextStyle(color: GxColors.error)),
+                  child: const Text('Sil', style: TextStyle(color: GwColors.error)),
                 ),
               ],
             ],
@@ -249,13 +249,13 @@ class _Actions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Padding(
-        padding: const EdgeInsets.fromLTRB(GxSpacing.xs, GxSpacing.xxs, GxSpacing.xxs, GxSpacing.xxs),
+        padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xxs, GwSpacing.xxs, GwSpacing.xxs),
         child: Row(
           children: [
             _Counter(
               tooltip: post.liked ? 'Beğenmekten vazgeç' : 'Beğen',
               icon: post.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              color: post.liked ? GxColors.like : null,
+              color: post.liked ? GwColors.like : null,
               count: post.likeCount,
               unit: 'beğenme',
               onTap: () => toggleLike(context, ref, post),
@@ -291,26 +291,26 @@ class PostReactions extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.xs),
+      padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.xs),
       child: Row(
         children: [
           for (final emoji in postReactionEmojis)
             Padding(
-              padding: const EdgeInsets.only(right: GxSpacing.xs),
+              padding: const EdgeInsets.only(right: GwSpacing.xs),
               child: Semantics(
                 button: true,
                 selected: post.myReaction == emoji,
                 label: '$emoji tepkisi, ${post.reactions[emoji] ?? 0}',
                 child: InkWell(
                   onTap: () => toggleReaction(context, ref, post, emoji),
-                  borderRadius: GxRadius.xlAll,
+                  borderRadius: GwRadius.xlAll,
                   child: Container(
-                    constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget - GxSpacing.xs, minWidth: GxSpacing.minTouchTarget),
-                    padding: const EdgeInsets.symmetric(horizontal: GxSpacing.sm),
+                    constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget - GwSpacing.xs, minWidth: GwSpacing.minTouchTarget),
+                    padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm),
                     decoration: BoxDecoration(
-                      color: post.myReaction == emoji ? GxColors.primarySoft : GxColors.surface,
-                      borderRadius: GxRadius.xlAll,
-                      border: Border.all(color: post.myReaction == emoji ? GxColors.primary : GxColors.border),
+                      color: post.myReaction == emoji ? GwColors.primarySoft : GwColors.surface,
+                      borderRadius: GwRadius.xlAll,
+                      border: Border.all(color: post.myReaction == emoji ? GwColors.primary : GwColors.border),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -318,7 +318,7 @@ class PostReactions extends ConsumerWidget {
                       children: [
                         ExcludeSemantics(child: Text(emoji, style: textTheme.titleMedium)),
                         if ((post.reactions[emoji] ?? 0) > 0) ...[
-                          const SizedBox(width: GxSpacing.xxs),
+                          const SizedBox(width: GwSpacing.xxs),
                           ExcludeSemantics(child: Text(formatCount(post.reactions[emoji]!), style: textTheme.labelLarge)),
                         ],
                       ],
@@ -353,18 +353,18 @@ class _Counter extends StatelessWidget {
       message: tooltip,
       child: InkWell(
         onTap: onTap,
-        borderRadius: GxRadius.xlAll,
+        borderRadius: GwRadius.xlAll,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: GxSpacing.minTouchTarget, minWidth: GxSpacing.minTouchTarget),
+          constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget, minWidth: GwSpacing.minTouchTarget),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GxSpacing.xs),
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: color ?? GxColors.textPrimary, size: GxSpacing.lg - GxSpacing.xxs),
+                Icon(icon, color: color ?? GwColors.textPrimary, size: GwSpacing.lg - GwSpacing.xxs),
                 if (n != null && n > 0) ...[
-                  const SizedBox(width: GxSpacing.xxs),
+                  const SizedBox(width: GwSpacing.xxs),
                   Semantics(
                     label: '${formatCount(n)} $unit',
                     excludeSemantics: true,
@@ -407,8 +407,8 @@ class _CaptionState extends State<_Caption> {
         InkWell(
           onTap: () => setState(() => _expanded = true),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xxs),
-            child: Text('devamı', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
+            child: Text('devamı', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
           ),
         ),
       ],
@@ -422,22 +422,22 @@ class PostCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: GxSpacing.page),
-        child: GxCard(
-          radius: GxRadius.lgAll,
-          padding: EdgeInsets.all(GxSpacing.sm),
+        padding: EdgeInsets.symmetric(horizontal: GwSpacing.page),
+        child: GwCard(
+          radius: GwRadius.lgAll,
+          padding: EdgeInsets.all(GwSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                GxSkeleton.circle(size: GxSpacing.xl + GxSpacing.xs),
-                SizedBox(width: GxSpacing.sm),
-                GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
+                GwSkeleton.circle(size: GwSpacing.xl + GwSpacing.xs),
+                SizedBox(width: GwSpacing.sm),
+                GwSkeleton(width: GwSpacing.xxl * 2, height: GwSpacing.md),
               ]),
-              SizedBox(height: GxSpacing.sm),
-              AspectRatio(aspectRatio: 1, child: GxSkeleton(height: double.infinity, borderRadius: GxRadius.mdAll)),
-              SizedBox(height: GxSpacing.sm),
-              GxSkeleton(width: GxSpacing.xxl * 4, height: GxSpacing.md),
+              SizedBox(height: GwSpacing.sm),
+              AspectRatio(aspectRatio: 1, child: GwSkeleton(height: double.infinity, borderRadius: GwRadius.mdAll)),
+              SizedBox(height: GwSpacing.sm),
+              GwSkeleton(width: GwSpacing.xxl * 4, height: GwSpacing.md),
             ],
           ),
         ),

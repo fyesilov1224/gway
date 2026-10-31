@@ -5,16 +5,16 @@ import '../tokens/radius.dart';
 
 /// Placeholder block shown while content loads. Pulses gently unless the
 /// platform asks for reduced motion.
-class GxSkeleton extends StatefulWidget {
-  const GxSkeleton({
+class GwSkeleton extends StatefulWidget {
+  const GwSkeleton({
     super.key,
     this.width,
     required this.height,
-    this.borderRadius = GxRadius.smAll,
+    this.borderRadius = GwRadius.smAll,
   });
 
   /// Circle placeholder, e.g. for a user avatar.
-  const GxSkeleton.circle({super.key, required double size})
+  const GwSkeleton.circle({super.key, required double size})
       : width = size,
         height = size,
         borderRadius = const BorderRadius.all(Radius.circular(9999));
@@ -24,10 +24,10 @@ class GxSkeleton extends StatefulWidget {
   final BorderRadius borderRadius;
 
   @override
-  State<GxSkeleton> createState() => _GxSkeletonState();
+  State<GwSkeleton> createState() => _GwSkeletonState();
 }
 
-class _GxSkeletonState extends State<GxSkeleton>
+class _GwSkeletonState extends State<GwSkeleton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -60,8 +60,8 @@ class _GxSkeletonState extends State<GxSkeleton>
           height: widget.height,
           decoration: BoxDecoration(
             color: Color.lerp(
-              GxColors.surfaceMuted,
-              GxColors.border,
+              GwColors.surfaceMuted,
+              GwColors.border,
               _controller.value,
             ),
             borderRadius: widget.borderRadius,

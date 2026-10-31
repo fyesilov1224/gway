@@ -21,7 +21,7 @@ val keyProperties = Properties().apply {
 val lanHttp = (project.findProperty("lanHttp") as String?) == "true"
 
 android {
-    namespace = "com.grupx.app"
+    namespace = "com.gway.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -36,7 +36,7 @@ android {
 
     defaultConfig {
         // Permanent on Google Play.
-        applicationId = "com.grupx.app"
+        applicationId = "com.gway.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

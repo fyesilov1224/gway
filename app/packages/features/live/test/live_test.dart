@@ -48,7 +48,7 @@ Future<_FakeLive> _pump(WidgetTester tester, Widget child, {GroupLive? data, Str
       if (data != null) groupLiveProvider.overrideWith((ref, id) async => data),
       liveBroadcastProvider.overrideWith((ref, id) async => _broadcast(id, LiveStatus.ended)),
     ],
-    child: MaterialApp(theme: GxTheme.light(), home: Scaffold(body: SingleChildScrollView(child: child))),
+    child: MaterialApp(theme: GwTheme.light(), home: Scaffold(body: SingleChildScrollView(child: child))),
   ));
   await tester.pumpAndSettle();
   return fake;
@@ -97,7 +97,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(GxLiveBadge), findsOneWidget);
+    expect(find.byType(GwLiveBadge), findsOneWidget);
     expect(find.text('Akşam sohbeti'), findsOneWidget);
     expect(find.text('Deniz sunuyor'), findsOneWidget);
     expect(find.text('Katıl'), findsOneWidget);
@@ -125,8 +125,8 @@ void main() {
 
   testWidgets('nothing shows for members when there is no broadcast', (tester) async {
     await _pump(tester, const GroupLiveSection(groupId: 'g1', canStart: false), data: const GroupLive());
-    expect(find.byType(GxLiveButton), findsNothing);
-    expect(find.byType(GxLiveBadge), findsNothing);
+    expect(find.byType(GwLiveButton), findsNothing);
+    expect(find.byType(GwLiveBadge), findsNothing);
   });
 
   testWidgets('starting asks for a title, shows the minutes left and can schedule', (tester) async {
@@ -144,7 +144,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextFormField, 'Başlık'), 'Pazar yürüyüşü planı');
     await tester.tap(find.text('Planla').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'Planla'));
+    await tester.tap(find.widgetWithText(GwButton, 'Planla'));
     await tester.pumpAndSettle();
 
     final (group, title, at) = fake.starts.single;
@@ -159,7 +159,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('canlı yayın süresi doldu'), findsOneWidget);
-    expect(tester.widget<GxLiveButton>(find.widgetWithText(GxLiveButton, 'Yayını başlat')).onPressed, isNull);
+    expect(tester.widget<GwLiveButton>(find.widgetWithText(GwLiveButton, 'Yayını başlat')).onPressed, isNull);
   });
 
   testWidgets('an ended broadcast opens as a closed room', (tester) async {

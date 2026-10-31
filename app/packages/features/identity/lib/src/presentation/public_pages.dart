@@ -24,13 +24,13 @@ class PublicLegalScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(doc.title, style: textTheme.headlineMedium),
-                  const SizedBox(height: GxSpacing.xxs),
-                  Text('Sürüm ${doc.version}', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
-                  const SizedBox(height: GxSpacing.lg),
+                  const SizedBox(height: GwSpacing.xxs),
+                  Text('Sürüm ${doc.version}', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                  const SizedBox(height: GwSpacing.lg),
                   SelectableText(doc.body, style: textTheme.bodyLarge),
                 ],
               ),
-            null => GxEmptyState(
+            null => GwEmptyState(
                 icon: Icons.description_outlined,
                 message: 'Bu metin şu anda yayında değil.',
                 actionLabel: 'Yenile',
@@ -38,8 +38,8 @@ class PublicLegalScreen extends ConsumerWidget {
               ),
           },
         AsyncError(:final error) =>
-          GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(latestLegalDocumentsProvider)),
-        _ => const GxSkeleton(height: GxSpacing.xxl * 6, borderRadius: GxRadius.lgAll),
+          GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(latestLegalDocumentsProvider)),
+        _ => const GwSkeleton(height: GwSpacing.xxl * 6, borderRadius: GwRadius.lgAll),
       },
     );
   }
@@ -55,11 +55,11 @@ class AccountDeletionInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     Widget step(String number, String text) => Padding(
-          padding: const EdgeInsets.only(bottom: GxSpacing.sm),
+          padding: const EdgeInsets.only(bottom: GwSpacing.sm),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(width: GxSpacing.lg, child: Text(number, style: textTheme.titleMedium)),
+              SizedBox(width: GwSpacing.lg, child: Text(number, style: textTheme.titleMedium)),
               Expanded(child: Text(text, style: textTheme.bodyLarge)),
             ],
           ),
@@ -68,16 +68,16 @@ class AccountDeletionInfoScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('GrupX hesabını silme', style: textTheme.headlineMedium),
-          const SizedBox(height: GxSpacing.md),
+          Text('GWAY hesabını silme', style: textTheme.headlineMedium),
+          const SizedBox(height: GwSpacing.md),
           Text('Hesabını ve verilerini uygulamadan ya da bu web sitesinden silebilirsin:', style: textTheme.bodyLarge),
-          const SizedBox(height: GxSpacing.md),
-          step('1.', 'GrupX uygulamasına ya da web sitesine giriş yap.'),
+          const SizedBox(height: GwSpacing.md),
+          step('1.', 'GWAY uygulamasına ya da web sitesine giriş yap.'),
           step('2.', 'Ben → Ayarlar → Hesabı sil adımlarını izle.'),
           step('3.', 'Silme isteğini onayla. Profilin hemen gizlenir.'),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           Text('Ne silinir, ne kalır?', style: textTheme.titleMedium),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xs),
           Text(
             '${AccountRetention.graceDays} gün içinde giriş yapıp silmeyi geri alabilirsin. Süre dolunca profilin, '
             'gönderilerin, fotoğrafların, mesajların, grup üyeliklerin, konum kontrol kayıtların ve doğrulama bilgilerin '
@@ -86,8 +86,8 @@ class AccountDeletionInfoScreen extends StatelessWidget {
             'hesap açılmasını önlemek için saklanır.',
             style: textTheme.bodyLarge,
           ),
-          const SizedBox(height: GxSpacing.lg),
-          GxButton(label: 'Giriş yap', icon: Icons.login, onPressed: onSignIn),
+          const SizedBox(height: GwSpacing.lg),
+          GwButton(label: 'Giriş yap', icon: Icons.login, onPressed: onSignIn),
         ],
       ),
     );
@@ -105,15 +105,15 @@ class _PublicPage extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: GxLayout.contentMaxWidth),
+              constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(child: GxLogo(size: GxSpacing.xl + GxSpacing.xs, wordmark: true)),
-                  const SizedBox(height: GxSpacing.lg),
-                  GxCard(padding: const EdgeInsets.all(GxSpacing.lg), child: child),
+                  const Center(child: GwLogo(size: GwSpacing.xl + GwSpacing.xs, wordmark: true)),
+                  const SizedBox(height: GwSpacing.lg),
+                  GwCard(padding: const EdgeInsets.all(GwSpacing.lg), child: child),
                 ],
               ),
             ),

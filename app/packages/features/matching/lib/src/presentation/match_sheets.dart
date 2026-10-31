@@ -15,22 +15,22 @@ Future<void> showMatchDialog(BuildContext context, {required MatchCard card, req
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              GxAvatar(
+              GwAvatar(
                 name: card.displayName,
-                shape: GxAvatarShape.user,
-                size: GxAvatarSize.xl,
+                shape: GwAvatarShape.user,
+                size: GwAvatarSize.xl,
                 imageUrl: card.photoUrls.isEmpty ? null : card.photoUrls.first,
               ),
-              const SizedBox(height: GxSpacing.md),
-              Text('Eşleştiniz!', style: textTheme.headlineSmall?.copyWith(color: GxColors.primary)),
-              const SizedBox(height: GxSpacing.xs),
+              const SizedBox(height: GwSpacing.md),
+              Text('Eşleştiniz!', style: textTheme.headlineSmall?.copyWith(color: GwColors.primary)),
+              const SizedBox(height: GwSpacing.xs),
               Text('Sen ve ${card.displayName} birbirinizi beğendiniz.', textAlign: TextAlign.center),
             ],
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
-            GxButton(label: 'Kaydırmaya devam et', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
-            GxButton(
+            GwButton(label: 'Kaydırmaya devam et', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+            GwButton(
               label: 'Mesaj gönder',
               icon: Icons.chat_bubble_outline,
               onPressed: () {
@@ -70,8 +70,8 @@ Future<void> showCardMenu(BuildContext context, WidgetRef ref, MatchCard card, {
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.block, color: GxColors.error),
-              title: const Text('Engelle', style: TextStyle(color: GxColors.error)),
+              leading: const Icon(Icons.block, color: GwColors.error),
+              title: const Text('Engelle', style: TextStyle(color: GwColors.error)),
               subtitle: const Text('Birbirinizi hiçbir yerde görmezsiniz.'),
               onTap: () async {
                 Navigator.of(sheet).pop();
@@ -99,8 +99,8 @@ Future<bool> confirmMatchAction(BuildContext context, {required String title, re
         title: Text(title),
         content: Text(message),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GxButton(label: confirmLabel, onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: confirmLabel, onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     ) ??

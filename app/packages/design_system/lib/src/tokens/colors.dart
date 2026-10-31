@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 
 /// Color tokens. See docs/DESIGN.md §1.
-abstract final class GxColors {
+abstract final class GwColors {
   static const primary = Color(0xFF6E56CF);
   static const primarySoft = Color(0xFFF3F0FF);
 
@@ -18,7 +18,7 @@ abstract final class GxColors {
 
   static const onPrimary = Color(0xFFFFFFFF);
 
-  /// The page backdrop only (`GxBackdrop`): white melts into these.
+  /// The page backdrop only (`GwBackdrop`): white melts into these.
   static const backdropLilac = Color(0xFFEEE8FF);
   static const backdropPink = Color(0xFFFFE6F3);
 
@@ -51,7 +51,7 @@ abstract final class GxColors {
   static const chartCompare = Color(0xFFB4B6C8);
   static const chartGrid = border;
 
-  /// Reserved for the live badge and the "start live" button only (`GxLiveBadge`, `GxLiveButton`).
+  /// Reserved for the live badge and the "start live" button only (`GwLiveBadge`, `GwLiveButton`).
   static const liveGradient = LinearGradient(
     colors: [primary, secondary],
     begin: Alignment.centerLeft,

@@ -27,8 +27,8 @@ class AdminTicketDetailScreen extends ConsumerWidget {
           breadcrumbs: crumbs,
           title: 'Bulunamadı',
           children: [
-            GxPanel(
-              child: GxEmptyState(
+            GwPanel(
+              child: GwEmptyState(
                 icon: Icons.search_off,
                 message: 'Bu mesaj bulunamadı. Gönderenin hesabı silinmiş olabilir.',
                 actionLabel: 'Destek listesine dön',
@@ -40,12 +40,12 @@ class AdminTicketDetailScreen extends ConsumerWidget {
       AsyncError(:final error) => AdminPage(
           breadcrumbs: crumbs,
           children: [
-            GxPanel(child: GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(ticketDetailProvider(ticketId)))),
+            GwPanel(child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(ticketDetailProvider(ticketId)))),
           ],
         ),
       _ => const AdminPage(
           breadcrumbs: crumbs,
-          children: [GxSkeleton(height: GxSpacing.xxl * 5, borderRadius: GxRadius.lgAll)],
+          children: [GwSkeleton(height: GwSpacing.xxl * 5, borderRadius: GwRadius.lgAll)],
         ),
     };
   }
@@ -96,19 +96,19 @@ class _ContentState extends ConsumerState<_Content> {
   Widget build(BuildContext context) {
     final d = widget.detail;
     final t = d.ticket;
-    final wide = MediaQuery.sizeOf(context).width >= GxLayout.wideBreakpoint;
+    final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
     final textTheme = Theme.of(context).textTheme;
 
-    final conversation = GxPanel(
+    final conversation = GwPanel(
       title: 'Yazışma',
       subtitle: '${d.messages.length} mesaj',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final m in d.messages) _Message(message: m, senderName: t.displayName ?? t.username ?? 'Kullanıcı'),
-          const SizedBox(height: GxSpacing.sm),
+          const SizedBox(height: GwSpacing.sm),
           if (t.status == AdminSupportStatus.closed)
-            const GxFormMessage('Mesaj kapatıldı. Yanıt yazmak için önce durumunu değiştir.', kind: GxFormMessageKind.info)
+            const GwFormMessage('Mesaj kapatıldı. Yanıt yazmak için önce durumunu değiştir.', kind: GwFormMessageKind.info)
           else ...[
             TextField(
               controller: _reply,
@@ -117,10 +117,10 @@ class _ContentState extends ConsumerState<_Content> {
               maxLength: 4000,
               decoration: const InputDecoration(labelText: 'Yanıt', alignLabelWithHint: true, counterText: ''),
             ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             Align(
               alignment: Alignment.centerRight,
-              child: GxButton(
+              child: GwButton(
                 label: 'Yanıtla',
                 icon: Icons.send_outlined,
                 isLoading: _busy,
@@ -131,12 +131,12 @@ class _ContentState extends ConsumerState<_Content> {
               ),
             ),
           ],
-          if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
+          if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
         ],
       ),
     );
 
-    final info = GxPanel(
+    final info = GwPanel(
       title: 'Bilgiler',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,40 +144,40 @@ class _ContentState extends ConsumerState<_Content> {
           Row(
             children: [
               SupportKindIcon(t.kind),
-              const SizedBox(width: GxSpacing.sm),
-              GxBadge(t.kind.label, tone: t.kind.tone),
+              const SizedBox(width: GwSpacing.sm),
+              GwBadge(t.kind.label, tone: t.kind.tone),
             ],
           ),
-          const SizedBox(height: GxSpacing.md),
+          const SizedBox(height: GwSpacing.md),
           DropdownButtonFormField<AdminSupportStatus>(
             initialValue: t.status,
             decoration: const InputDecoration(labelText: 'Durum'),
             items: [for (final s in AdminSupportStatus.values) DropdownMenuItem(value: s, child: Text(s.label))],
             onChanged: _busy ? null : (s) => s == null || s == t.status ? null : _run((r) => r.setStatus(t.id, s)),
           ),
-          const SizedBox(height: GxSpacing.md),
-          Text('Gönderen', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+          const SizedBox(height: GwSpacing.md),
+          Text('Gönderen', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
           InkWell(
             onTap: () => context.go(AdminRoutes.user(t.userId)),
             child: Text(
               t.username == null ? 'Silinmiş hesap' : '${t.displayName ?? ''} (@${t.username})',
-              style: textTheme.bodyMedium?.copyWith(color: GxColors.primary),
+              style: textTheme.bodyMedium?.copyWith(color: GwColors.primary),
             ),
           ),
           if (d.email != null) SelectableText(d.email!, style: textTheme.bodyMedium),
           if (t.groupId != null) ...[
-            const SizedBox(height: GxSpacing.sm),
-            Text('Grup', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+            const SizedBox(height: GwSpacing.sm),
+            Text('Grup', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
             InkWell(
               onTap: () => context.go(AdminRoutes.group(t.groupId!)),
               child: Text(
                 '${t.groupName ?? ''}${d.groupHandle == null ? '' : ' (@${d.groupHandle})'}',
-                style: textTheme.bodyMedium?.copyWith(color: GxColors.primary),
+                style: textTheme.bodyMedium?.copyWith(color: GwColors.primary),
               ),
             ),
           ],
-          const SizedBox(height: GxSpacing.sm),
-          Text('Açıldı', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+          const SizedBox(height: GwSpacing.sm),
+          Text('Açıldı', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
           Text(formatDateTimeTr(t.createdAt), style: textTheme.bodyMedium),
         ],
       ),
@@ -188,13 +188,13 @@ class _ContentState extends ConsumerState<_Content> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 3, child: conversation),
-              const SizedBox(width: GxSpacing.lg),
+              const SizedBox(width: GwSpacing.lg),
               Expanded(flex: 2, child: info),
             ],
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [info, const SizedBox(height: GxSpacing.lg), conversation],
+            children: [info, const SizedBox(height: GwSpacing.lg), conversation],
           );
   }
 }
@@ -210,32 +210,32 @@ class _Message extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final staff = message.fromStaff;
     return Container(
-      margin: const EdgeInsets.only(bottom: GxSpacing.sm),
-      padding: const EdgeInsets.all(GxSpacing.sm),
+      margin: const EdgeInsets.only(bottom: GwSpacing.sm),
+      padding: const EdgeInsets.all(GwSpacing.sm),
       decoration: BoxDecoration(
-        color: staff ? GxColors.primarySoft : GxColors.surface,
-        borderRadius: GxRadius.lgAll,
-        border: staff ? null : const Border.fromBorderSide(GxBorders.hairline),
+        color: staff ? GwColors.primarySoft : GwColors.surface,
+        borderRadius: GwRadius.lgAll,
+        border: staff ? null : const Border.fromBorderSide(GwBorders.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             staff ? 'Ekip · ${message.authorName ?? 'Platform ekibi'}' : senderName,
-            style: textTheme.labelMedium?.copyWith(color: staff ? GxColors.primary : GxColors.textSecondary),
+            style: textTheme.labelMedium?.copyWith(color: staff ? GwColors.primary : GwColors.textSecondary),
           ),
-          const SizedBox(height: GxSpacing.xxs),
+          const SizedBox(height: GwSpacing.xxs),
           SelectableText(message.body, style: textTheme.bodyLarge),
           if (message.attachments.isNotEmpty) ...[
-            const SizedBox(height: GxSpacing.xs),
+            const SizedBox(height: GwSpacing.xs),
             Wrap(
-              spacing: GxSpacing.xs,
-              runSpacing: GxSpacing.xs,
+              spacing: GwSpacing.xs,
+              runSpacing: GwSpacing.xs,
               children: [for (final path in message.attachments) _Attachment(path: path)],
             ),
           ],
-          const SizedBox(height: GxSpacing.xxs),
-          Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+          const SizedBox(height: GwSpacing.xxs),
+          Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         ],
       ),
     );
@@ -249,21 +249,21 @@ class _Attachment extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const size = GxSpacing.xxl * 2;
+    const size = GwSpacing.xxl * 2;
     final url = ref.watch(supportAttachmentUrlProvider(path)).value;
-    if (url == null) return const GxSkeleton(width: size, height: size);
+    if (url == null) return const GwSkeleton(width: size, height: size);
     return InkWell(
-      borderRadius: GxRadius.mdAll,
+      borderRadius: GwRadius.mdAll,
       onTap: () => showDialog<void>(
         context: context,
         builder: (_) => Dialog(
           clipBehavior: Clip.antiAlias,
-          shape: const RoundedRectangleBorder(borderRadius: GxRadius.lgAll),
+          shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll),
           child: InteractiveViewer(child: Image.network(url, fit: BoxFit.contain)),
         ),
       ),
       child: ClipRRect(
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         child: Image.network(
           url,
           width: size,
@@ -271,7 +271,7 @@ class _Attachment extends ConsumerWidget {
           fit: BoxFit.cover,
           errorBuilder: (_, _, _) => const SizedBox.square(
             dimension: size,
-            child: Icon(Icons.broken_image_outlined, color: GxColors.textSecondary),
+            child: Icon(Icons.broken_image_outlined, color: GwColors.textSecondary),
           ),
         ),
       ),

@@ -1,10 +1,10 @@
-# GrupX production stack on one server (docs/DEPLOY.md, docs/ARCHITECTURE.md §10).
+# GWAY production stack on one server (docs/DEPLOY.md, docs/ARCHITECTURE.md §10).
 # Caddy terminates https for every subdomain; the API and LiveKit are reachable only through it (LiveKit media
 # also uses its own TCP/UDP ports). Supabase stays the hosted project.
-name: grupx
+name: gway
 
 networks:
-  grupx:
+  gway:
     ipam:
       config:
         # Fixed so the API can trust Caddy's X-Forwarded-For (ReverseProxy__KnownNetworks below).
@@ -27,7 +27,7 @@ services:
       - ./www/panel:/srv/panel:ro
       - caddy_data:/data
       - caddy_config:/config
-    networks: [grupx]
+    networks: [gway]
     depends_on: [api, livekit]
 
   api:
@@ -52,7 +52,7 @@ services:
       Push__CredentialsPath: /secrets/firebase-adminsdk.json
     volumes:
       - ./secrets:/secrets:ro
-    networks: [grupx]
+    networks: [gway]
 
   livekit:
     image: livekit/livekit-server:v1.9.1
@@ -65,7 +65,7 @@ services:
     ports:
       - "7881:7881"
       - "7882:7882/udp"
-    networks: [grupx]
+    networks: [gway]
 
 volumes:
   caddy_data:

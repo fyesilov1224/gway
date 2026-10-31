@@ -110,7 +110,7 @@ Future<void> _pump(WidgetTester tester, _FakeMatching repo, Widget home) async {
       matchingRepositoryProvider.overrideWithValue(repo),
       categoriesProvider.overrideWith((ref) async => const [Category(slug: 'music', name: 'Müzik'), Category(slug: 'hiking', name: 'Yürüyüş')]),
     ],
-    child: MaterialApp.router(theme: GxTheme.light(), routerConfig: router),
+    child: MaterialApp.router(theme: GwTheme.light(), routerConfig: router),
   ));
   await tester.pumpAndSettle();
 }
@@ -269,7 +269,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Eşleşmeyi bitir'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'Bitir'));
+    await tester.tap(find.widgetWithText(GwButton, 'Bitir'));
     await tester.pumpAndSettle();
     expect(repo.ended, ['m2', 'm1']);
   });
@@ -285,7 +285,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Yalnızca arkadaş kal'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(GxButton, 'Devam et'));
+    await tester.tap(find.widgetWithText(GwButton, 'Devam et'));
     await tester.pumpAndSettle();
     expect(repo.ended, ['m1']);
   });

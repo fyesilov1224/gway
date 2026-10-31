@@ -64,15 +64,15 @@ class UserPackagesPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final slices = ref.watch(userPackagesProvider(userId));
     final canManage = ref.watch(myStaffRoleProvider).value?.canManageBilling ?? false;
-    final secondary = Theme.of(context).textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
 
-    return GxPanel(
+    return GwPanel(
       title: 'Paketleri',
       trailing: canManage
-          ? GxButton(
+          ? GwButton(
               label: 'Paket tanımla',
               icon: Icons.add,
-              variant: GxButtonVariant.text,
+              variant: GwButtonVariant.text,
               onPressed: () => _grant(context, ref),
             )
           : null,
@@ -80,15 +80,15 @@ class UserPackagesPanel extends ConsumerWidget {
         AsyncData(:final value) when value.isEmpty => Text('Bu kişinin hiç paketi olmadı.', style: secondary),
         AsyncData(:final value) => _list(context, ref, value, canManage),
         AsyncError(:final error) =>
-          GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userPackagesProvider(userId))),
-        _ => const GxSkeleton(height: GxSpacing.xxl * 2),
+          GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(userPackagesProvider(userId))),
+        _ => const GwSkeleton(height: GwSpacing.xxl * 2),
       },
     );
   }
 
   Widget _list(BuildContext context, WidgetRef ref, List<AdminPersonalSubscription> slices, bool canManage) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary);
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final now = DateTime.now();
 
     // Running and upcoming time, one line per package with its last end.
@@ -110,7 +110,7 @@ class UserPackagesPanel extends ConsumerWidget {
         if (live.isEmpty) Text('Şu an süren bir paketi yok.', style: secondary),
         for (final MapEntry(key: slug, value: p) in live.entries)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: GxSpacing.xs),
+            padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
             child: Row(
               children: [
                 Expanded(
@@ -126,7 +126,7 @@ class UserPackagesPanel extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const GxBadge('Aktif', tone: GxBadgeTone.primary, dot: true),
+                const GwBadge('Aktif', tone: GwBadgeTone.primary, dot: true),
                 if (canManage) TextButton(onPressed: () => _cancel(context, ref, slug, p.name), child: const Text('İptal et')),
               ],
             ),
@@ -136,7 +136,7 @@ class UserPackagesPanel extends ConsumerWidget {
           Text('Geçmiş', style: textTheme.labelLarge),
           for (final s in past)
             Padding(
-              padding: const EdgeInsets.only(top: GxSpacing.xs),
+              padding: const EdgeInsets.only(top: GwSpacing.xs),
               child: Text(
                 [
                   s.planName,

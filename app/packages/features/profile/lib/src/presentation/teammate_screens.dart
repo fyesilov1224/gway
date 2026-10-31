@@ -70,7 +70,7 @@ class _RequestDialogState extends State<_RequestDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: GxRadius.xlAll),
+        shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: Text('${widget.name} ile ekip arkadaşı ol'),
         content: TextField(
           controller: _controller,
@@ -80,8 +80,8 @@ class _RequestDialogState extends State<_RequestDialog> {
           decoration: const InputDecoration(labelText: 'Kısa bir mesaj (isteğe bağlı)', hintText: 'Cumartesi sabahı Belgrad Ormanı?'),
         ),
         actions: [
-          GxButton(label: 'Vazgeç', variant: GxButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-          GxButton(label: 'İstek gönder', onPressed: () => Navigator.of(context).pop(_controller.text)),
+          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: 'İstek gönder', onPressed: () => Navigator.of(context).pop(_controller.text)),
         ],
       );
 }
@@ -116,7 +116,7 @@ class TeammatesScreen extends ConsumerWidget {
             const Tab(text: 'Ekibim'),
           ]),
         ),
-        body: const GxReadingColumn(child: TabBarView(children: [_Suggestions(), _Requests(), _Teammates()])),
+        body: const GwReadingColumn(child: TabBarView(children: [_Suggestions(), _Requests(), _Teammates()])),
       ),
     );
   }
@@ -133,38 +133,38 @@ class _Locked extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Ekip arkadaşı bul')),
-      body: GxReadingColumn(
-        maxWidth: GxLayout.formMaxWidth,
+      body: GwReadingColumn(
+        maxWidth: GwLayout.formMaxWidth,
         child: ListView(
-          padding: const EdgeInsets.all(GxSpacing.page),
+          padding: const EdgeInsets.all(GwSpacing.page),
           children: [
-            GxCard(
-              padding: const EdgeInsets.all(GxSpacing.lg),
+            GwCard(
+              padding: const EdgeInsets.all(GwSpacing.lg),
               child: Column(
                 children: [
-                  const Icon(Icons.groups_2_outlined, size: GxSpacing.xxl, color: GxColors.primary),
-                  const SizedBox(height: GxSpacing.sm),
+                  const Icon(Icons.groups_2_outlined, size: GwSpacing.xxl, color: GwColors.primary),
+                  const SizedBox(height: GwSpacing.sm),
                   Text(
                     waiting == 0 ? 'Ekip arkadaşını bul' : '$waiting kişi seninle ekip arkadaşı olmak istiyor',
                     textAlign: TextAlign.center,
                     style: textTheme.headlineSmall,
                   ),
-                  const SizedBox(height: GxSpacing.xs),
+                  const SizedBox(height: GwSpacing.xs),
                   Text(
                     'Önerileri görmek, istek gönderip kabul etmek ve ekip arkadaşlarınla yazışmak Ekip Arkadaşı paketiyle açılır.',
                     textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary),
+                    style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
-                  const SizedBox(height: GxSpacing.md),
-                  GxButton(
+                  const SizedBox(height: GwSpacing.md),
+                  GwButton(
                     label: 'Paketi incele',
                     icon: Icons.workspace_premium_outlined,
                     onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates'),
                   ),
-                  const SizedBox(height: GxSpacing.xs),
-                  GxButton(
+                  const SizedBox(height: GwSpacing.xs),
+                  GwButton(
                     label: 'Ekip arkadaşı tercihlerim',
-                    variant: GxButtonVariant.text,
+                    variant: GwButtonVariant.text,
                     onPressed: () => context.push(ProfileRoutes.teammateSettings),
                   ),
                 ],
@@ -186,19 +186,19 @@ class _LookingPrompt extends ConsumerWidget {
     final prefs = ref.watch(teammatePreferencesProvider).value;
     if (prefs == null || prefs.looking) return const SizedBox.shrink();
     return Container(
-      margin: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.md),
-      padding: const EdgeInsets.all(GxSpacing.md),
-      decoration: const BoxDecoration(color: GxColors.primarySoft, borderRadius: GxRadius.lgAll),
+      margin: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
+      decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.lgAll),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Sen de görün', style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: GxSpacing.xxs),
+          const SizedBox(height: GwSpacing.xxs),
           const Text('"Ekip arıyorum"u açarsan seninle aynı şeyleri sevenler sana istek gönderebilir.'),
-          const SizedBox(height: GxSpacing.sm),
-          GxButton(
+          const SizedBox(height: GwSpacing.sm),
+          GwButton(
             label: 'Tercihlerimi ayarla',
-            variant: GxButtonVariant.secondary,
+            variant: GwButtonVariant.secondary,
             onPressed: () => context.push(ProfileRoutes.teammateSettings),
           ),
         ],
@@ -218,8 +218,8 @@ class _Suggestions extends ConsumerWidget {
       child: switch (suggestions) {
         AsyncData(:final value) when value.isEmpty => ListView(children: [
             const _LookingPrompt(),
-            const SizedBox(height: GxSpacing.lg),
-            GxEmptyState(
+            const SizedBox(height: GwSpacing.lg),
+            GwEmptyState(
               icon: Icons.diversity_3_outlined,
               message: 'Şimdilik sana uyan biri yok. İlgi alanlarını ve tercihlerini doldurursan öneriler artar.',
               actionLabel: 'Tercihlerimi ayarla',
@@ -227,13 +227,13 @@ class _Suggestions extends ConsumerWidget {
             ),
           ]),
         AsyncData(:final value) => ListView(
-            padding: const EdgeInsets.only(top: GxSpacing.md),
+            padding: const EdgeInsets.only(top: GwSpacing.md),
             children: [
               const _LookingPrompt(),
               for (final s in value) _SuggestionCard(suggestion: s),
             ],
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
         _ => const ListSkeleton(),
       },
     );
@@ -250,10 +250,10 @@ class _SuggestionCard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final s = suggestion;
     return Container(
-      margin: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.sm),
+      margin: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.sm),
       decoration: const BoxDecoration(
-        borderRadius: GxRadius.lgAll,
-        border: Border.fromBorderSide(BorderSide(color: GxColors.border)),
+        borderRadius: GwRadius.lgAll,
+        border: Border.fromBorderSide(BorderSide(color: GwColors.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,27 +261,27 @@ class _SuggestionCard extends ConsumerWidget {
           PersonRow(
             person: s.person,
             subtitle: s.level == null ? s.person.displayName : '${s.person.displayName} · ${s.level!.label} seviye',
-            trailing: GxButton(label: 'İstek gönder', onPressed: () => sendTeammateRequest(context, ref, s.person)),
+            trailing: GwButton(label: 'İstek gönder', onPressed: () => sendTeammateRequest(context, ref, s.person)),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(GxSpacing.md, 0, GxSpacing.md, GxSpacing.sm),
+            padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.sm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (s.note.isNotEmpty) ...[
                   Text('"${s.note}"', style: textTheme.bodyMedium),
-                  const SizedBox(height: GxSpacing.xs),
+                  const SizedBox(height: GwSpacing.xs),
                 ],
-                Text('Neden önerildi', style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
-                const SizedBox(height: GxSpacing.xxs),
+                Text('Neden önerildi', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                const SizedBox(height: GwSpacing.xxs),
                 for (final reason in s.reasons)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: GxSpacing.xxs),
+                    padding: const EdgeInsets.only(bottom: GwSpacing.xxs),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.check_circle_outline, size: GxSpacing.md, color: GxColors.primary),
-                        const SizedBox(width: GxSpacing.xs),
+                        const Icon(Icons.check_circle_outline, size: GwSpacing.md, color: GwColors.primary),
+                        const SizedBox(width: GwSpacing.xs),
                         Expanded(child: Text(reason, style: textTheme.bodyMedium)),
                       ],
                     ),
@@ -303,15 +303,15 @@ class _Requests extends ConsumerWidget {
     final mine = ref.watch(myTeammatesProvider);
     final textTheme = Theme.of(context).textTheme;
     Widget heading(String text) => Padding(
-          padding: const EdgeInsets.fromLTRB(GxSpacing.md, GxSpacing.md, GxSpacing.md, GxSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
           child: Text(text, style: textTheme.titleSmall),
         );
     return RefreshIndicator(
       onRefresh: () async => refreshTeammates(ref),
       child: switch (mine) {
         AsyncData(:final value) when value.incoming.isEmpty && value.outgoing.isEmpty => ListView(children: [
-            const SizedBox(height: GxSpacing.xxl),
-            GxEmptyState(
+            const SizedBox(height: GwSpacing.xxl),
+            GwEmptyState(
               icon: Icons.mark_email_unread_outlined,
               message: 'Bekleyen ekip arkadaşlığı isteği yok.',
               actionLabel: 'Önerilere bak',
@@ -327,7 +327,7 @@ class _Requests extends ConsumerWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GxButton(
+                      GwButton(
                         label: 'Kabul et',
                         onPressed: () => runTeammateAction(
                             context, ref, (t) => t.accept(r.person.id), '${r.person.displayName} ile artık ekip arkadaşısınız.'),
@@ -343,7 +343,7 @@ class _Requests extends ConsumerWidget {
                 if (r.message.isNotEmpty)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
-                        GxSpacing.md + GxAvatarSize.md.dimension + GxSpacing.sm, 0, GxSpacing.md, GxSpacing.sm),
+                        GwSpacing.md + GwAvatarSize.md.dimension + GwSpacing.sm, 0, GwSpacing.md, GwSpacing.sm),
                     child: Text('"${r.message}"', style: textTheme.bodyMedium),
                   ),
               ],
@@ -352,15 +352,15 @@ class _Requests extends ConsumerWidget {
                 PersonRow(
                   person: r.person,
                   subtitle: 'Yanıt bekleniyor',
-                  trailing: GxButton(
+                  trailing: GwButton(
                     label: 'Geri çek',
-                    variant: GxButtonVariant.secondary,
+                    variant: GwButtonVariant.secondary,
                     onPressed: () => runTeammateAction(context, ref, (t) => t.remove(r.person.id), 'İstek geri çekildi.'),
                   ),
                 ),
             ],
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
         _ => const ListSkeleton(),
       },
     );
@@ -377,8 +377,8 @@ class _Teammates extends ConsumerWidget {
       onRefresh: () async => refreshTeammates(ref),
       child: switch (mine) {
         AsyncData(:final value) when value.teammates.isEmpty => ListView(children: [
-            const SizedBox(height: GxSpacing.xxl),
-            GxEmptyState(
+            const SizedBox(height: GwSpacing.xxl),
+            GwEmptyState(
               icon: Icons.groups_2_outlined,
               message: 'Henüz ekip arkadaşın yok. Önerilerden birine istek göndererek başla.',
               actionLabel: 'Önerilere bak',
@@ -403,7 +403,7 @@ class _Teammates extends ConsumerWidget {
                 ),
             ],
           ),
-        AsyncError(:final error) => GxErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => refreshTeammates(ref)),
         _ => const ListSkeleton(),
       },
     );
@@ -419,11 +419,11 @@ class TeammateSettingsScreen extends ConsumerWidget {
     final prefs = ref.watch(teammatePreferencesProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Ekip arkadaşı tercihleri')),
-      body: GxReadingColumn(
+      body: GwReadingColumn(
         child: switch (prefs) {
           AsyncData(:final value) => _SettingsForm(initial: value),
           AsyncError(:final error) =>
-            GxErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(teammatePreferencesProvider)),
+            GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(teammatePreferencesProvider)),
           _ => const ListSkeleton(),
         },
       ),
@@ -501,10 +501,10 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.all(GxSpacing.page),
+            padding: const EdgeInsets.all(GwSpacing.page),
             children: [
               _VisibilityCard(looking: _looking, onChanged: (v) => setState(() => _looking = v)),
-              const SizedBox(height: GxSpacing.md),
+              const SizedBox(height: GwSpacing.md),
               _Completeness(answered: answered),
               _Section(
                 icon: Icons.sports_handball_outlined,
@@ -512,12 +512,12 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 help: 'Ekip arkadaşı aradığın aktiviteler. En fazla ${TeammatePreferences.maxActivities} tane.',
                 trailing: '${_activities.length}/${TeammatePreferences.maxActivities}',
                 child: Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final c in categories)
                       FilterChip(
-                        avatar: Icon(categoryIcon(c.slug), size: GxSpacing.md + GxSpacing.xxs),
+                        avatar: Icon(categoryIcon(c.slug), size: GwSpacing.md + GwSpacing.xxs),
                         label: Text(c.name),
                         selected: _activities.contains(c.slug),
                         onSelected: _activities.contains(c.slug) || _activities.length < TeammatePreferences.maxActivities
@@ -533,7 +533,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 child: Row(
                   children: [
                     for (final (i, l) in TeammateLevel.values.indexed) ...[
-                      if (i > 0) const SizedBox(width: GxSpacing.xs),
+                      if (i > 0) const SizedBox(width: GwSpacing.xs),
                       Expanded(
                         child: _OptionTile(
                           title: l.label,
@@ -551,8 +551,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 title: 'Hedeflerin',
                 help: 'Birden fazla seçebilirsin.',
                 child: Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final g in TeammateGoal.values)
                       FilterChip(label: Text(g.label), selected: _goals.contains(g), onSelected: (on) => _toggle(_goals, g, on)),
@@ -563,8 +563,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 icon: Icons.repeat_rounded,
                 title: 'Ne sıklıkla buluşmak istersin?',
                 child: Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final f in TeammateFrequency.values)
                       ChoiceChip(
@@ -585,8 +585,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 icon: Icons.groups_2_outlined,
                 title: 'Nasıl bir ekip istersin?',
                 child: Wrap(
-                  spacing: GxSpacing.xs,
-                  runSpacing: GxSpacing.xs,
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
                   children: [
                     for (final s in TeammateGroupSize.values)
                       FilterChip(label: Text(s.label), selected: _sizes.contains(s), onSelected: (on) => _toggle(_sizes, s, on)),
@@ -649,21 +649,21 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
           ),
         ),
         DecoratedBox(
-          decoration: const BoxDecoration(color: GxColors.background, border: Border(top: GxBorders.hairline)),
+          decoration: const BoxDecoration(color: GwColors.background, border: Border(top: GwBorders.hairline)),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.sm, GxSpacing.page, GxSpacing.sm),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, GwSpacing.sm),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       _looking ? 'Önerilerde görüneceksin.' : 'Şu an önerilerde görünmüyorsun.',
-                      style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                      style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ),
-                  const SizedBox(width: GxSpacing.sm),
-                  GxButton(label: 'Kaydet', icon: Icons.check_rounded, isLoading: _saving, onPressed: _saving ? null : _save),
+                  const SizedBox(width: GwSpacing.sm),
+                  GwButton(label: 'Kaydet', icon: Icons.check_rounded, isLoading: _saving, onPressed: _saving ? null : _save),
                 ],
               ),
             ),
@@ -685,21 +685,21 @@ class _VisibilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.all(GwSpacing.md),
       decoration: BoxDecoration(
-        color: looking ? GxColors.primarySoft : GxColors.background,
-        borderRadius: GxRadius.lgAll,
-        border: Border.all(color: looking ? GxColors.primary : GxColors.border),
+        color: looking ? GwColors.primarySoft : GwColors.background,
+        borderRadius: GwRadius.lgAll,
+        border: Border.all(color: looking ? GwColors.primary : GwColors.border),
       ),
       child: Row(
         children: [
           Container(
-            width: GxSpacing.xxl,
-            height: GxSpacing.xxl,
-            decoration: BoxDecoration(color: looking ? GxColors.primary : GxColors.surfaceMuted, shape: BoxShape.circle),
-            child: Icon(Icons.person_search_outlined, color: looking ? GxColors.onPrimary : GxColors.textSecondary),
+            width: GwSpacing.xxl,
+            height: GwSpacing.xxl,
+            decoration: BoxDecoration(color: looking ? GwColors.primary : GwColors.surfaceMuted, shape: BoxShape.circle),
+            child: Icon(Icons.person_search_outlined, color: looking ? GwColors.onPrimary : GwColors.textSecondary),
           ),
-          const SizedBox(width: GxSpacing.sm),
+          const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,7 +709,7 @@ class _VisibilityCard extends StatelessWidget {
                   looking
                       ? 'Önerilerde görünürsün; sana ekip arkadaşlığı isteği gönderilebilir.'
                       : 'Açarsan seninle aynı şeyleri sevenler seni bulur. Gizli hesaplar önerilerde görünmez.',
-                  style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
             ),
@@ -737,18 +737,18 @@ class _Completeness extends StatelessWidget {
         Row(
           children: [
             Expanded(child: Text('Tercihlerin %${(ratio * 100).round()} tamam', style: textTheme.labelLarge)),
-            Text('$answered/${TeammatePreferences.sections}', style: textTheme.labelLarge?.copyWith(color: GxColors.textSecondary)),
+            Text('$answered/${TeammatePreferences.sections}', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
-        const SizedBox(height: GxSpacing.xs),
+        const SizedBox(height: GwSpacing.xs),
         ClipRRect(
-          borderRadius: GxRadius.smAll,
-          child: LinearProgressIndicator(value: ratio, minHeight: GxSpacing.xs, backgroundColor: GxColors.surfaceMuted),
+          borderRadius: GwRadius.smAll,
+          child: LinearProgressIndicator(value: ratio, minHeight: GwSpacing.xs, backgroundColor: GwColors.surfaceMuted),
         ),
-        const SizedBox(height: GxSpacing.xxs),
+        const SizedBox(height: GwSpacing.xxs),
         Text(
           'Ne kadar çok doldurursan önerilerin o kadar isabetli olur.',
-          style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
+          style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
         ),
       ],
     );
@@ -769,26 +769,26 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.only(top: GxSpacing.md),
-      child: GxCard(
-        padding: const EdgeInsets.all(GxSpacing.md),
+      padding: const EdgeInsets.only(top: GwSpacing.md),
+      child: GwCard(
+        padding: const EdgeInsets.all(GwSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Icon(icon, color: GxColors.primary, size: GxSpacing.lg - GxSpacing.xxs),
-                const SizedBox(width: GxSpacing.xs),
+                Icon(icon, color: GwColors.primary, size: GwSpacing.lg - GwSpacing.xxs),
+                const SizedBox(width: GwSpacing.xs),
                 Expanded(child: Text(title, style: textTheme.titleSmall)),
-                if (trailing != null) Text(trailing!, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                if (trailing != null) Text(trailing!, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
             if (help != null)
               Padding(
-                padding: const EdgeInsets.only(top: GxSpacing.xxs),
-                child: Text(help!, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+                padding: const EdgeInsets.only(top: GwSpacing.xxs),
+                child: Text(help!, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ),
-            const SizedBox(height: GxSpacing.sm),
+            const SizedBox(height: GwSpacing.sm),
             child,
           ],
         ),
@@ -814,21 +814,21 @@ class _OptionTile extends StatelessWidget {
       selected: selected,
       child: InkWell(
         onTap: onTap,
-        borderRadius: GxRadius.mdAll,
+        borderRadius: GwRadius.mdAll,
         child: Container(
-          constraints: const BoxConstraints(minHeight: GxSpacing.xxl + GxSpacing.md),
-          padding: const EdgeInsets.all(GxSpacing.sm),
+          constraints: const BoxConstraints(minHeight: GwSpacing.xxl + GwSpacing.md),
+          padding: const EdgeInsets.all(GwSpacing.sm),
           decoration: BoxDecoration(
-            color: selected ? GxColors.primarySoft : GxColors.surface,
-            borderRadius: GxRadius.mdAll,
-            border: Border.all(color: selected ? GxColors.primary : GxColors.border),
+            color: selected ? GwColors.primarySoft : GwColors.surface,
+            borderRadius: GwRadius.mdAll,
+            border: Border.all(color: selected ? GwColors.primary : GwColors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(title, style: textTheme.titleSmall?.copyWith(color: selected ? GxColors.primary : null)),
-              Text(subtitle, style: textTheme.bodySmall?.copyWith(color: GxColors.textSecondary)),
+              Text(title, style: textTheme.titleSmall?.copyWith(color: selected ? GwColors.primary : null)),
+              Text(subtitle, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
         ),
@@ -849,31 +849,31 @@ class _AvailabilityGrid extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final parts = [for (final s in TeammateSlot.values) if (!s.weekend) s.part];
     Widget row(String label, bool weekend) => Padding(
-          padding: const EdgeInsets.only(top: GxSpacing.xs),
+          padding: const EdgeInsets.only(top: GwSpacing.xs),
           child: Row(
             children: [
-              SizedBox(width: GxSpacing.xxl + GxSpacing.lg, child: Text(label, style: textTheme.labelLarge)),
+              SizedBox(width: GwSpacing.xxl + GwSpacing.lg, child: Text(label, style: textTheme.labelLarge)),
               for (final slot in TeammateSlot.values.where((s) => s.weekend == weekend))
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: GxSpacing.xs),
+                    padding: const EdgeInsets.only(left: GwSpacing.xs),
                     child: Semantics(
                       button: true,
                       selected: selected.contains(slot),
                       label: slot.label,
                       child: InkWell(
                         onTap: () => onToggle(slot),
-                        borderRadius: GxRadius.mdAll,
+                        borderRadius: GwRadius.mdAll,
                         child: Container(
-                          height: GxSpacing.minTouchTarget,
+                          height: GwSpacing.minTouchTarget,
                           decoration: BoxDecoration(
-                            color: selected.contains(slot) ? GxColors.primary : GxColors.surface,
-                            borderRadius: GxRadius.mdAll,
-                            border: Border.all(color: selected.contains(slot) ? GxColors.primary : GxColors.border),
+                            color: selected.contains(slot) ? GwColors.primary : GwColors.surface,
+                            borderRadius: GwRadius.mdAll,
+                            border: Border.all(color: selected.contains(slot) ? GwColors.primary : GwColors.border),
                           ),
                           child: Icon(
                             selected.contains(slot) ? Icons.check_rounded : Icons.add_rounded,
-                            color: selected.contains(slot) ? GxColors.onPrimary : GxColors.textSecondary,
+                            color: selected.contains(slot) ? GwColors.onPrimary : GwColors.textSecondary,
                           ),
                         ),
                       ),
@@ -887,12 +887,12 @@ class _AvailabilityGrid extends StatelessWidget {
       children: [
         Row(
           children: [
-            const SizedBox(width: GxSpacing.xxl + GxSpacing.lg),
+            const SizedBox(width: GwSpacing.xxl + GwSpacing.lg),
             for (final p in parts)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: GxSpacing.xs),
-                  child: Text(p, textAlign: TextAlign.center, style: textTheme.labelMedium?.copyWith(color: GxColors.textSecondary)),
+                  padding: const EdgeInsets.only(left: GwSpacing.xs),
+                  child: Text(p, textAlign: TextAlign.center, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 ),
               ),
           ],

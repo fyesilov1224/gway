@@ -1,11 +1,11 @@
 {
-    "name": "GrupX Yönetim",
-    "short_name": "GrupX Yönetim",
+    "name": "GWAY Yönetim",
+    "short_name": "GWAY Yönetim",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#6E56CF",
-    "description": "GrupX platform ekibi yönetim paneli.",
+    "description": "GWAY platform ekibi yönetim paneli.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

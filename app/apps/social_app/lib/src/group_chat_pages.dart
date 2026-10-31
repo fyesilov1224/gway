@@ -8,7 +8,7 @@ import 'package:profile/profile.dart';
 Widget groupChatSection(BuildContext context, Group group, MyMembership me) {
   if (!me.isMember || group.isSuspended) return const SizedBox.shrink();
   return Padding(
-    padding: const EdgeInsets.only(top: GxSpacing.md),
+    padding: const EdgeInsets.only(top: GwSpacing.md),
     child: GroupChatButton(groupId: group.id),
   );
 }

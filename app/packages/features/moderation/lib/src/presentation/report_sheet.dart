@@ -72,14 +72,14 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: EdgeInsets.fromLTRB(GxSpacing.page, 0, GxSpacing.page, GxSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg + MediaQuery.viewInsetsOf(context).bottom),
       child: ListView(
         shrinkWrap: true,
         children: [
           Text(_title, style: textTheme.titleLarge),
-          const SizedBox(height: GxSpacing.xxs),
-          Text('Neden şikayet ediyorsun?', style: textTheme.bodyMedium?.copyWith(color: GxColors.textSecondary)),
-          const SizedBox(height: GxSpacing.xs),
+          const SizedBox(height: GwSpacing.xxs),
+          Text('Neden şikayet ediyorsun?', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+          const SizedBox(height: GwSpacing.xs),
           RadioGroup<ReportReason>(
             groupValue: _reason,
             onChanged: (r) => setState(() => _reason = r),
@@ -97,9 +97,9 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
             minLines: 1,
             decoration: const InputDecoration(labelText: 'Açıklama (isteğe bağlı)', hintText: 'Ne olduğunu kısaca anlat.'),
           ),
-          if (_error != null) ...[const SizedBox(height: GxSpacing.sm), GxFormMessage(_error!)],
-          const SizedBox(height: GxSpacing.md),
-          GxButton(
+          if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+          const SizedBox(height: GwSpacing.md),
+          GwButton(
             label: 'Şikayet et',
             icon: Icons.flag_outlined,
             isLoading: _busy,

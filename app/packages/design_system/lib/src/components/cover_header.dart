@@ -8,10 +8,10 @@ import 'avatar.dart';
 import 'sections.dart';
 import 'skeleton.dart';
 
-/// Centered column for pages that read top to bottom ([GxLayout.contentMaxWidth];
-/// the home page passes [GxLayout.feedMaxWidth]).
-class GxReadingColumn extends StatelessWidget {
-  const GxReadingColumn({super.key, required this.child, this.maxWidth = GxLayout.contentMaxWidth});
+/// Centered column for pages that read top to bottom ([GwLayout.contentMaxWidth];
+/// the home page passes [GwLayout.feedMaxWidth]).
+class GwReadingColumn extends StatelessWidget {
+  const GwReadingColumn({super.key, required this.child, this.maxWidth = GwLayout.contentMaxWidth});
 
   final Widget child;
   final double maxWidth;
@@ -24,17 +24,17 @@ class GxReadingColumn extends StatelessWidget {
 }
 
 /// Edge of the hero avatar: 64 on phones, 96 from the reading width on.
-GxAvatarSize gxHeroAvatarSize(BuildContext context) =>
-    MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? GxAvatarSize.xl : GxAvatarSize.lg;
+GwAvatarSize gwHeroAvatarSize(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= GwLayout.contentMaxWidth ? GwAvatarSize.xl : GwAvatarSize.lg;
 
 /// Cover proportion: 2:1 on phones, a little flatter from the reading width on.
-double gxCoverAspectRatio(BuildContext context) => MediaQuery.sizeOf(context).width >= GxLayout.contentMaxWidth ? 2.5 : 2;
+double gwCoverAspectRatio(BuildContext context) => MediaQuery.sizeOf(context).width >= GwLayout.contentMaxWidth ? 2.5 : 2;
 
 /// The identity card at the top of a profile or group page: a rounded card
 /// with the cover inside it, the avatar beside the name (it never overlaps
 /// the cover) and the page's own content ([children]) below.
-class GxHeroCard extends StatelessWidget {
-  const GxHeroCard({
+class GwHeroCard extends StatelessWidget {
+  const GwHeroCard({
     super.key,
     required this.name,
     required this.subtitle,
@@ -51,12 +51,12 @@ class GxHeroCard extends StatelessWidget {
 
   /// The @handle line under the name.
   final String subtitle;
-  final GxAvatarShape shape;
+  final GwAvatarShape shape;
   final String? coverUrl;
   final String? avatarUrl;
 
   /// Tone of the cover placeholder and the avatar fallback; defaults to the name's.
-  final GxTone? tone;
+  final GwTone? tone;
 
   /// Drawn on the cover placeholder (e.g. the group's category).
   final IconData coverIcon;
@@ -64,36 +64,36 @@ class GxHeroCard extends StatelessWidget {
   /// Next to the subtitle, e.g. a lock for private accounts.
   final Widget? subtitleTrailing;
 
-  /// Bio, meta, stats and actions, separated by [GxSpacing.sm].
+  /// Bio, meta, stats and actions, separated by [GwSpacing.sm].
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final palette = tone ?? GxTone.of(name);
+    final palette = tone ?? GwTone.of(name);
     final cover = coverUrl;
     final placeholder = _CoverPlaceholder(tone: palette, icon: coverIcon);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, 0),
-      child: GxCard(
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, 0),
+      child: GwCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AspectRatio(
-              aspectRatio: gxCoverAspectRatio(context),
+              aspectRatio: gwCoverAspectRatio(context),
               child: cover == null
                   ? placeholder
                   : Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
             ),
             Padding(
-              padding: const EdgeInsets.all(GxSpacing.md),
+              padding: const EdgeInsets.all(GwSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     children: [
-                      GxAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gxHeroAvatarSize(context), tone: palette),
-                      const SizedBox(width: GxSpacing.md),
+                      GwAvatar(name: name, shape: shape, imageUrl: avatarUrl, size: gwHeroAvatarSize(context), tone: palette),
+                      const SizedBox(width: GwSpacing.md),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,9 +105,9 @@ class GxHeroCard extends StatelessWidget {
                                   child: Text(subtitle,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: textTheme.bodyLarge?.copyWith(color: GxColors.textSecondary)),
+                                      style: textTheme.bodyLarge?.copyWith(color: GwColors.textSecondary)),
                                 ),
-                                if (subtitleTrailing case final trailing?) ...[const SizedBox(width: GxSpacing.xxs), trailing],
+                                if (subtitleTrailing case final trailing?) ...[const SizedBox(width: GwSpacing.xxs), trailing],
                               ],
                             ),
                           ],
@@ -115,7 +115,7 @@ class GxHeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  for (final child in children) ...[const SizedBox(height: GxSpacing.sm), child],
+                  for (final child in children) ...[const SizedBox(height: GwSpacing.sm), child],
                 ],
               ),
             ),
@@ -126,41 +126,41 @@ class GxHeroCard extends StatelessWidget {
   }
 }
 
-/// Loading state of [GxHeroCard].
-class GxHeroCardSkeleton extends StatelessWidget {
-  const GxHeroCardSkeleton({super.key, required this.shape});
+/// Loading state of [GwHeroCard].
+class GwHeroCardSkeleton extends StatelessWidget {
+  const GwHeroCardSkeleton({super.key, required this.shape});
 
-  final GxAvatarShape shape;
+  final GwAvatarShape shape;
 
   @override
   Widget build(BuildContext context) {
-    final size = gxHeroAvatarSize(context).dimension;
+    final size = gwHeroAvatarSize(context).dimension;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GxSpacing.page, GxSpacing.xs, GxSpacing.page, 0),
-      child: GxCard(
+      padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, 0),
+      child: GwCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AspectRatio(
-              aspectRatio: gxCoverAspectRatio(context),
-              child: const GxSkeleton(height: double.infinity, borderRadius: BorderRadius.zero),
+              aspectRatio: gwCoverAspectRatio(context),
+              child: const GwSkeleton(height: double.infinity, borderRadius: BorderRadius.zero),
             ),
             Padding(
-              padding: const EdgeInsets.all(GxSpacing.md),
+              padding: const EdgeInsets.all(GwSpacing.md),
               child: Row(
                 children: [
-                  if (shape == GxAvatarShape.user)
-                    GxSkeleton.circle(size: size)
+                  if (shape == GwAvatarShape.user)
+                    GwSkeleton.circle(size: size)
                   else
-                    GxSkeleton(width: size, height: size, borderRadius: BorderRadius.circular(size * GxRadius.lg / GxAvatarSize.lg.dimension)),
-                  const SizedBox(width: GxSpacing.md),
+                    GwSkeleton(width: size, height: size, borderRadius: BorderRadius.circular(size * GwRadius.lg / GwAvatarSize.lg.dimension)),
+                  const SizedBox(width: GwSpacing.md),
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GxSkeleton(width: GxSpacing.xxl * 3, height: GxSpacing.lg),
-                        SizedBox(height: GxSpacing.xs),
-                        GxSkeleton(width: GxSpacing.xxl * 2, height: GxSpacing.md),
+                        GwSkeleton(width: GwSpacing.xxl * 3, height: GwSpacing.lg),
+                        SizedBox(height: GwSpacing.xs),
+                        GwSkeleton(width: GwSpacing.xxl * 2, height: GwSpacing.md),
                       ],
                     ),
                   ),
@@ -178,7 +178,7 @@ class GxHeroCardSkeleton extends StatelessWidget {
 class _CoverPlaceholder extends StatelessWidget {
   const _CoverPlaceholder({required this.tone, required this.icon});
 
-  final GxTone tone;
+  final GwTone tone;
   final IconData icon;
 
   @override
@@ -188,8 +188,8 @@ class _CoverPlaceholder extends StatelessWidget {
       color: tone.soft,
       child: Stack(
         children: [
-          Positioned(right: GxSpacing.lg, bottom: -GxSpacing.md, child: Icon(icon, size: GxSpacing.xxl * 2.5, color: faint)),
-          Positioned(right: GxSpacing.xxl * 3, top: GxSpacing.md, child: Icon(icon, size: GxSpacing.xxl, color: faint)),
+          Positioned(right: GwSpacing.lg, bottom: -GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl * 2.5, color: faint)),
+          Positioned(right: GwSpacing.xxl * 3, top: GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl, color: faint)),
         ],
       ),
     );
