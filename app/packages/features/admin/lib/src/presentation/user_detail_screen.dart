@@ -157,6 +157,13 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         GwButton(label: 'Askıya al', icon: Icons.pause_circle_outline, variant: GwButtonVariant.secondary, isLoading: _saving, onPressed: _suspend),
         GwButton(label: 'Kalıcı banla', icon: Icons.block, isLoading: _saving, onPressed: _ban),
       ],
+      if (myRole?.code == 'admin' && u.username != null)
+        GwButton(
+          label: 'Mesaj kayıtları',
+          icon: Icons.forum_outlined,
+          variant: GwButtonVariant.secondary,
+          onPressed: () => context.go(AdminRoutes.messageLogsOf(u.username!)),
+        ),
     ];
 
     final left = [

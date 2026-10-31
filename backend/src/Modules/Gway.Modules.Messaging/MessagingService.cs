@@ -34,6 +34,8 @@ public static class MessagingModule
         services.AddSingleton<MessagingService>();
         services.AddSingleton<IMessagingAdministration>(sp => sp.GetRequiredService<MessagingService>());
         services.AddSingleton<IMessagingModeration>(sp => sp.GetRequiredService<MessagingService>());
+        services.AddSingleton<IMessageLogs, MessageLogService>();
+        services.AddHostedService<MessageArchivePurger>();
         return services;
     }
 

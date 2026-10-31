@@ -112,6 +112,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: AdminRoutes.live, builder: (_, _) => const AdminLiveScreen()),
           GoRoute(path: AdminRoutes.notifications, builder: (_, _) => const AdminNotificationsScreen()),
           GoRoute(path: AdminRoutes.legal, builder: (_, _) => const AdminLegalScreen()),
+          GoRoute(
+            path: AdminRoutes.messageLogs,
+            builder: (_, state) => AdminMessageLogsScreen(
+              key: ValueKey(state.uri.toString()),
+              initialUsername: state.uri.queryParameters['user'],
+            ),
+          ),
+          GoRoute(
+            path: '/message-logs/:id',
+            builder: (_, state) => AdminMessageLogScreen(conversationId: state.pathParameters['id']!),
+          ),
           GoRoute(path: AdminRoutes.securityReviews, builder: (_, _) => const AdminSecurityScreen()),
           GoRoute(path: AdminRoutes.matching, builder: (_, _) => const AdminMatchingScreen()),
           GoRoute(path: AdminRoutes.billing, builder: (_, _) => const AdminBillingScreen()),

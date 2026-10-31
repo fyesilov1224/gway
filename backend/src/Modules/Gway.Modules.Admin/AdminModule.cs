@@ -456,6 +456,16 @@ public static class AdminModule
                 (await messaging.RemoveMessageAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        // Message logs (docs/ARCHITECTURE.md §3f, Mesaj kayıtları): platform admin only, with a reason; every read is audited.
+        var logs = app.MapGroup("/admin/message-logs").AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        logs.MapPost("/search", async (MessageLogSearch body, ClaimsPrincipal user, IMessageLogs messageLogs, CancellationToken ct) =>
+            (await messageLogs.SearchAsync(user.GetUserId(), body, ct)).ToHttpResult());
+
+        logs.MapPost("/conversations/{id:guid}", async (
+                Guid id, MessageLogQuery body, ClaimsPrincipal user, IMessageLogs messageLogs, CancellationToken ct) =>
+            (await messageLogs.ViewAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
+
         content.MapPost("/reports/{id:guid}/dismissal", async (Guid id, ClaimsPrincipal user, IModerationAdministration moderation, CancellationToken ct) =>
                 (await moderation.ReviewReportAsync(user.GetUserId(), id, actioned: false, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));

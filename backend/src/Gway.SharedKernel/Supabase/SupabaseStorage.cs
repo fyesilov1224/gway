@@ -10,6 +10,9 @@ public interface ISupabaseStorage
 
     /// <summary>Deletes the given objects of <paramref name="bucket"/>. Missing objects are ignored.</summary>
     Task DeleteObjectsAsync(string bucket, IReadOnlyList<string> paths, CancellationToken ct);
+
+    /// <summary>Signed download URLs for the given objects, by path; missing objects are left out.</summary>
+    Task<IReadOnlyDictionary<string, string>> CreateSignedUrlsAsync(string bucket, IReadOnlyList<string> paths, TimeSpan lifetime, CancellationToken ct);
 }
 
 /// <summary>Supabase Storage admin calls using the service role key.</summary>
@@ -20,6 +23,10 @@ public sealed class SupabaseStorage(HttpClient http, IOptions<SupabaseOptions> o
     private sealed record StorageObject(string Name);
 
     private sealed record DeleteRequest(IReadOnlyList<string> Prefixes);
+
+    private sealed record SignRequest(int ExpiresIn, IReadOnlyList<string> Paths);
+
+    private sealed record SignedObject(string? Path, string? SignedURL, string? Error);
 
     public async Task DeleteFolderAsync(string bucket, string folder, CancellationToken ct)
     {
@@ -38,6 +45,20 @@ public sealed class SupabaseStorage(HttpClient http, IOptions<SupabaseOptions> o
     {
         ArgumentNullException.ThrowIfNull(paths);
         if (paths.Count > 0) await Send<object>(HttpMethod.Delete, $"storage/v1/object/{bucket}", new DeleteRequest(paths), ct);
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> CreateSignedUrlsAsync(
+        string bucket, IReadOnlyList<string> paths, TimeSpan lifetime, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(paths);
+        if (paths.Count == 0) return new Dictionary<string, string>();
+        var signed = await Send<IReadOnlyList<SignedObject>>(
+            HttpMethod.Post, $"storage/v1/object/sign/{bucket}", new SignRequest((int)lifetime.TotalSeconds, paths), ct);
+        // signedURL is relative to /storage/v1.
+        var root = options.Value.Url.TrimEnd('/') + "/storage/v1";
+        return (signed ?? [])
+            .Where(o => o.Path is not null && o.SignedURL is not null && o.Error is null)
+            .ToDictionary(o => o.Path!, o => root + o.SignedURL);
     }
 
     private async Task<T?> Send<T>(HttpMethod method, string path, object body, CancellationToken ct)

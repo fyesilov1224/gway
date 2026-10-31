@@ -1026,7 +1026,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Eski isteklerin istek ve ret durumları uygulanır.
   - Grupta susturulan üye yazamaz (Faz 6); `admins_only` modu uygulanır.
   - Hız sınırı uygulanır.
-- **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür.
+- **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür. Silinen (ya da moderasyonla kaldırılan) mesajın metni 180 gün yalnızca platform yöneticisinin görebileceği arşivde kalır (§ Mesaj kayıtları); fotoğrafı hemen silinir.
 - **Fotoğraf:** özel `message-images` deposunda tutulur (yol `{konuşma}/{dosya}`; JPEG, PNG ya da WebP; en fazla 5 MB).
   - Yalnızca konuşmanın okurları okur; yükleme yalnızca o konuşmanın okurları içindir.
   - İstemci imzalı adresle gösterir.
@@ -1040,19 +1040,29 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 - Mesaj şikayet edilebilir (`reports.target_type = 'message'`; kanıt olarak metin saklanır).
   - Grup sohbetindeki mesaj şikayeti grubun moderasyon masasına gider. `reports.review` yetkilisi mesajı kaldırabilir; rütbe kuralı uygulanır.
   - Birebir mesaj şikayeti platform ekibine gider.
-- **Platform ekibinin gördükleri:** şikayet edilen mesaj ve sohbetteki önceki 5 mesaj (`GET /admin/reports/{id}/message-context`). Bunun dışında hiçbir özel mesaj okunamaz. Her görüntüleme audit log'a yazılır (`message.context_viewed`).
+- **Platform ekibinin gördükleri:** şikayet edilen mesaj ve sohbetteki önceki 5 mesaj (`GET /admin/reports/{id}/message-context`). Her görüntüleme audit log'a yazılır (`message.context_viewed`). Bunun dışında yalnızca platform yöneticisi, gerekçe yazarak mesaj kayıtlarını açar (aşağıda).
 - Platform ekibi (admin, moderatör) mesajı kaldırabilir (`message.removed_by_admin`).
+
+### Mesaj kayıtları (kullanıcı kararı, 2026-10-31)
+Önceki kural ("şikayet dışında hiçbir özel mesaj okunamaz") kullanıcı isteğiyle değişti: platform yöneticisi güvenlik ve hukuki sebeplerle yazışmaları inceleyebilir. Aydınlatma metnine bu işleme eklendi (migration 0062, yeni sürüm; kullanıcılar sonraki girişte kabul eder).
+- **Kim:** yalnızca platform `admin` rolü. Moderatör ve destek göremez. Kontrol hem C#'ta (`RequireStaffFilter`) hem SQL'de (`private.admin_message_*` fonksiyonları `is_platform_staff(array['admin'])` ister) yapılır.
+- **Gerekçe:** her arama ve her sohbet açılışı 10–500 karakterlik gerekçe ister. Gerekçe audit log'a yazılır: arama `message.log_searched` (hedef kullanıcı, varsa ikinci kullanıcı, tür), sohbet `message.log_viewed` (konuşma, sayfa, metin araması).
+- **Arama:** kullanıcı adıyla (büyük/küçük harf duyarsız, `@` atılır). İsteğe bağlı ikinci kullanıcı adı yalnızca ikisinin birlikte bulunduğu sohbetleri getirir. Tür filtresi: birebir, grup, küçük masa. Kişinin sohbetleri: birebir konuşmaları, üyesi olduğu ya da yazdığı grup sohbetleri ve masa sohbetleri. Her satırda karşı taraf / grup / masa, toplam mesaj, kişinin mesajı, silinen mesaj, son mesaj zamanı. Sayfa başına 20, son mesaja göre.
+- **Sohbet:** başlıkta türü ve katılımcılar; mesajlar eskiden yeniye, sayfa başına 50, "Daha eski mesajlar" ile geriye gidilir. Sohbet içinde metin araması yapılır (arşivdeki silinmiş metinler dahil). Her mesajda gönderen, zaman, metin, fotoğraf (C# 10 dakikalık imzalı adres üretir), silinme zamanı ve kimin sildiği (gönderen / moderasyon ve gerekçesi). Silinmiş mesajın metni arşivden gösterilir ve "Silindi" olarak işaretlenir; arşivden düşmüşse "metin saklanmıyor" yazar.
+- **Silinmiş mesaj arşivi (`message_deletion_archive`, owner: messaging):** mesaj silindiğinde ya da kaldırıldığında trigger eski metni ve fotoğraf olup olmadığını yazar; saklama süresi 180 gündür (`purge_after`). Fotoğraf saklanmaz (özel fotoğrafları kişi silince tutmamak için). Süresi dolan satırları `MessageArchivePurger` saatte bir siler (`Messaging:ArchivePurgeInterval`, sıfır kapatır). Hesap silinince mesajlarla birlikte arşiv de silinir (cascade). Bu kuraldan önce silinmiş mesajların metni geri gelmez.
+- **Değiştirmez:** grup disiplin kurulu birebir mesajları yine göremez; yönetici mesajları yalnızca okur, mesaj kaldırma şikayet akışında kalır.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
+| `message_deletion_archive` | Kimse (RLS, politika yok); platform yöneticisi yalnızca C# üzerinden | Trigger |
 | `conversations` | Konuşmanın okurları | Backend (grup konuşması: trigger) |
 | `conversation_members` | Kişinin kendi satırları; birebirde karşı tarafın satırı | Backend; okuma zamanı kişinin kendisi (RPC) |
 | `messages` | Konuşmanın okurları (engellenenlerin mesajları hariç) | Backend |
 | Storage `message-images` | Konuşmanın okurları | Konuşmanın okurları (kendi klasörlerine değil, konuşmanın klasörüne; sahip kendisi) |
 
 ### Audit log
-`group.chat_mode_changed`, `message.removed` (grup moderasyonu, rapor üzerinden `report.content_removed`), `message.removed_by_admin`, `message.context_viewed`. Kişinin kendi mesajı ve kendi silmesi yazılmaz.
+`group.chat_mode_changed`, `message.removed` (grup moderasyonu, rapor üzerinden `report.content_removed`), `message.removed_by_admin`, `message.context_viewed`, `message.log_searched`, `message.log_viewed`. Kişinin kendi mesajı ve kendi silmesi yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -1064,6 +1074,8 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 | `PUT /groups/{id}/chat` | Grup sohbeti modu (`adminsOnly`; `group.edit`) |
 | `GET /admin/reports/{id}/message-context` | Şikayet edilen mesaj ve önceki 5 mesaj (admin, moderatör; audit log) |
 | `POST /admin/messages/{id}/removal` | Mesajı kaldırma (`reason`; admin, moderatör) |
+| `POST /admin/message-logs/search` | Kullanıcının sohbetleri (`username`, `withUsername?`, `kind?`, `page`, `reason`; yalnızca admin; audit log) |
+| `POST /admin/message-logs/conversations/{id}` | Sohbetin mesajları (`reason`, `before?`, `query?`; yalnızca admin; audit log) |
 
 ## 3g. Eşleşme (Faz 15.6)
 
