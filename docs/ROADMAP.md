@@ -358,7 +358,7 @@ Platform yöneticisi kullanıcıların yazışmalarını kullanıcı adıyla ara
 - [x] Silinen mesaj arşivi: metin 180 gün saklanır, fotoğraf saklanmaz, saatlik temizlik, hesap silinince silinir
 - [x] Aydınlatma metninin yeni sürümü (migration 0062); kullanıcı sayfasında "Mesaj kayıtları" düğmesi
 - [x] pgTAP (`50_message_logs`, 24 test), C# (227/227) ve Flutter testleri (67/67); `flutter analyze` ve `dotnet build` temiz (2026-10-31)
-- [ ] Bulut: `0062` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0061` ve `0062` migration'ları (2026-10-31)
 - [ ] Aydınlatma metni eki hukuki incelemeden geçmeli
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)

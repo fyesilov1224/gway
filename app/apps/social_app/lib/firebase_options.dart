@@ -65,10 +65,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDRsA-NgYOjT84wb4ayhGON2a218jg3U5o',
-    appId: '1:981517510131:ios:2f5397a9d05865764a5e86',
+    appId: '1:981517510131:ios:9212e95d2f80bba44a5e86',
     messagingSenderId: '981517510131',
     projectId: 'grupx-08706',
     storageBucket: 'grupx-08706.firebasestorage.app',
-    iosBundleId: 'com.grupx.socialApp',
+    iosBundleId: 'com.gway.socialApp',
   );
 }

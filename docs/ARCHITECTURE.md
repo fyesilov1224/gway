@@ -452,7 +452,7 @@ C#'ta `Gway.Modules.Profile` (takip ve engelleme) ve `Gway.Modules.Feed` (gönde
 - **Silme:** Beğeni geri alınınca, yorum silinince ya da takip bırakılınca ilgili bildirim de silinir.
 - **Erişim:** Alıcı okur, okundu işaretler ve siler; başka hiçbir rol yazamaz.
 - **Arayüz:** Ekranda bildirimler Bugün / Bu hafta / Daha önce diye gruplanır. Bekleyen takip istekleri en üstte toplanır. Okunmamış sayısı gezinmede görünür.
-- **Push** (FCM; Firebase projesi `grupx-08706`):
+- **Push** (FCM; Firebase projesi `grupx-08706`. Proje kimliği değiştirilemediği için eski adı taşır; uygulamalar GWAY adıyla kayıtlı: Android `com.gway.app`, iOS `com.gway.socialApp`, 2026-10-31):
   - **Cihaz kaydı** (`push_devices`: FCM token, kişi, platform): uygulama girişte bildirim izni ister ve token'ı `public.register_push_device` ile kaydeder. Token yeni giriş yapan kişiye geçer (aynı telefonda hesap değişimi). Kişi başına en fazla 10 cihaz tutulur, en eskisi silinir. Kişi kendi kayıtlarını okur ve siler (RLS). Çıkışta uygulama token'ı FCM'den siler; geçersiz token'ı sunucu ilk gönderimde kaldırır.
   - **Gönderim:** C#'taki `PushDispatcher` birkaç saniyede bir (`Push:DispatchInterval`, varsayılan 5 sn, sıfır kapatır) gönderilmemiş bildirimleri (`notifications.pushed_at` boş, son 15 dakika) işaretler ve alıcının cihazlarına sesli bildirim olarak gönderir. Önce işaretlenir, sonra gönderilir; bir bildirim en fazla bir kez gider. Metin uygulamadaki cümleyle aynıdır.
   - **Kimlik bilgisi:** Firebase servis hesabı anahtarı (JSON) yalnızca sunucudadır, repoya girmez: `Push:CredentialsPath`. Tanımlı değilse push kapalıdır, bildirimler yalnızca uygulama içinde kalır.
