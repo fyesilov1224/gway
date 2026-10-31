@@ -13,6 +13,11 @@ abstract final class EventRoutes {
 
   static const exploration = '/exploration';
 
+  /// El sıkış for an event; the event title may come along as the route's `extra`.
+  static String handshake(String eventId) => '/handshake/$eventId';
+
+  static const met = '/met';
+
   static String groupCalendar(String groupId) => '/calendar?group=$groupId';
 
   static String goal(String id) => '/goals/$id';

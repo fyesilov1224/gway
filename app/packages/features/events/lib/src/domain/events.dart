@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'exploration.dart';
+import 'handshakes.dart';
 import 'tonight.dart';
 
 class EventGroup {
@@ -286,6 +287,7 @@ class Contributions {
     this.reviews = 0,
     this.groups = 0,
     this.welcomed = 0,
+    this.handshakes = 0,
     this.badges = const [],
   });
 
@@ -299,9 +301,12 @@ class Contributions {
 
   /// First-timers greeted (docs/ARCHITECTURE.md §3d, Karşılama).
   final int welcomed;
+
+  /// People met at events (docs/ARCHITECTURE.md §3d, El sıkış); who they are only the person sees.
+  final int handshakes;
   final List<ContributionBadge> badges;
 
-  bool get isEmpty => attended == 0 && organized == 0 && memories == 0 && reviews == 0 && welcomed == 0;
+  bool get isEmpty => attended == 0 && organized == 0 && memories == 0 && reviews == 0 && welcomed == 0 && handshakes == 0;
 }
 
 /// A going attendee in the roll call, and whether they were marked as not there.
@@ -751,6 +756,15 @@ abstract interface class EventsRepository {
 
   /// The signed-in person's exploration map (docs/ARCHITECTURE.md §3d, Keşif haritam).
   Future<Result<Exploration>> exploration();
+
+  /// El sıkış (docs/ARCHITECTURE.md §3d): the person's current code at the event.
+  Future<Result<HandshakeCode>> handshakeCode(String eventId);
+
+  /// Shakes hands with the owner of [code] (typed, or read from a QR code).
+  Future<Result<HandshakeResult>> shake(String eventId, String code);
+
+  /// "Tanıştıklarım", newest first.
+  Future<Result<List<MetPerson>>> metPeople();
 
   /// The event page's welcome block (Supabase); null when the event is not visible.
   Future<Result<EventWelcome?>> eventWelcome(String eventId);

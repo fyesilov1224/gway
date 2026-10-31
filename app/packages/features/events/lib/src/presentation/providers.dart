@@ -7,6 +7,7 @@ import '../data/goals_repository_impl.dart';
 import '../domain/events.dart';
 import '../domain/exploration.dart';
 import '../domain/goals.dart';
+import '../domain/handshakes.dart';
 import '../domain/tonight.dart';
 
 final eventsRepositoryProvider = Provider<EventsRepository>(
@@ -112,6 +113,11 @@ final pollsProvider = FutureProvider.autoDispose.family<List<Poll>, PollScope>(
 
 final pollVotersProvider = FutureProvider.autoDispose.family<List<EventPerson>, int>(
   (ref, optionId) async => (await ref.watch(eventsRepositoryProvider).voters(optionId)).getOrThrow(),
+);
+
+/// "Tanıştıklarım": the people the signed-in person met at events.
+final metPeopleProvider = FutureProvider.autoDispose<List<MetPerson>>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).metPeople()).getOrThrow(),
 );
 
 /// The signed-in person's exploration map.

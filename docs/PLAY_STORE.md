@@ -75,6 +75,7 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
 ### İzin beyanları
 - **Konum** yalnızca uygulama açıkken kullanılır. Arka planda konum ve ön plan servisi yoktur. Uygulama, izin istemeden önce amacı bir ekranda söyler. *Konum izni beyanı* sorulursa: "Hesap güvenliği ve sahte hesapların önlenmesi için giriş ve açılışta ülke doğrulaması."
 - **Mikrofon** yalnızca canlı yayında sahneye alınınca kullanılır.
+- **Kamera** yalnızca organizasyonda el sıkış kodu okutulurken kullanılır (Faz 18e); görüntü kaydedilmez ve gönderilmez. Kamera izni verilmezse kod elle yazılır. Veri güvenliği formunda kamera görüntüsü toplanmadığı belirtilir.
 - `QUERY_ALL_PACKAGES` **yok**. Yalnızca VPN servisleri sorgulanır (`<queries>`); ayrıca beyan gerekmez.
 
 ## 5. Mağaza kaydı (Play Console → Büyüme → Mağaza varlığı)

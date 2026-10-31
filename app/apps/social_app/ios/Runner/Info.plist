@@ -19,6 +19,8 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Organizasyonda tanıştığın kişinin el sıkış kodunu okutabilmen için kameraya erişmemiz gerekiyor.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Profil ve kapak fotoğrafı seçebilmen için galerine erişmemiz gerekiyor.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

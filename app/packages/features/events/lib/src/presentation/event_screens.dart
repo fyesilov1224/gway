@@ -10,6 +10,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/events.dart';
+import '../domain/handshakes.dart';
+import 'handshake.dart';
 import 'map_screens.dart';
 import 'polls.dart';
 import 'providers.dart';
@@ -620,6 +622,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                         ]),
                       ),
+                    if (handshakeOpen(e, now)) HandshakeEntry(event: e),
                     if (d.asksConfirmation(now))
                       Container(
                         width: double.infinity,

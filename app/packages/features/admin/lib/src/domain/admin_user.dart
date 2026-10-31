@@ -229,6 +229,7 @@ class AdminContributions {
     this.noShows = 0,
     this.welcomed = 0,
     this.exploredProvinces = 0,
+    this.handshakes = 0,
   });
 
   factory AdminContributions.fromJson(Map<String, Object?> j) => AdminContributions(
@@ -239,6 +240,7 @@ class AdminContributions {
         noShows: j['noShows']! as int,
         welcomed: j['welcomed'] as int? ?? 0,
         exploredProvinces: j['exploredProvinces'] as int? ?? 0,
+        handshakes: j['handshakes'] as int? ?? 0,
       );
 
   final int attended;
@@ -252,6 +254,9 @@ class AdminContributions {
 
   /// Provinces of the events attended (Keşif haritam).
   final int exploredProvinces;
+
+  /// People met at events (El sıkış).
+  final int handshakes;
 }
 
 /// One page of a paged admin list.

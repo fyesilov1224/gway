@@ -13,6 +13,7 @@ String contributionLine(Contributions c) => [
       if (c.memories > 0) '${formatCount(c.memories)} anı',
       if (c.reviews > 0) '${formatCount(c.reviews)} değerlendirme',
       if (c.welcomed > 0) '${formatCount(c.welcomed)} karşılama',
+      if (c.handshakes > 0) '${formatCount(c.handshakes)} el sıkış',
     ].join(' · ');
 
 /// A member's line in a group's list: "12 katılım · 2 düzenleme".

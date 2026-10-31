@@ -36,7 +36,8 @@ enum NotificationType {
   eventSeriesLimit('event_series_limit'),
   tonightTableInvite('tonight_table_invite'),
   tonightTableReady('tonight_table_ready'),
-  eventVenueRevealed('event_venue_revealed');
+  eventVenueRevealed('event_venue_revealed'),
+  handshake('handshake');
 
   const NotificationType(this.code);
 
@@ -196,6 +197,7 @@ class AppNotification {
         NotificationType.tonightTableInvite => 'bu akşam küçük bir masa kurdu ve seni de çağırıyor.',
         NotificationType.tonightTableReady => 'masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.',
         NotificationType.eventVenueRevealed => '"${eventTitle ?? ''}": nereye gideceğini görmek için dokun.',
+        NotificationType.handshake => '"${eventTitle ?? ''}" organizasyonunda seninle el sıkıştı.',
         NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
       };
 

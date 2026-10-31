@@ -156,6 +156,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomePage()),
           GoRoute(path: '/year', builder: (_, state) => YearSummaryScreen(year: int.tryParse(state.uri.queryParameters['y'] ?? ''))),
           GoRoute(path: EventRoutes.exploration, builder: (_, _) => const ExplorationScreen()),
+          GoRoute(path: EventRoutes.met, builder: (_, _) => const MetPeopleScreen()),
+          GoRoute(
+            path: '/handshake/:id',
+            builder: (_, state) => HandshakeScreen(eventId: state.pathParameters['id']!, eventTitle: state.extra as String?),
+          ),
           GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_leagueButton, _mapButton], packages: groupPackagesRow)),
@@ -389,7 +394,7 @@ class _YearButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: 'Yılın özeti ve keşif haritam',
+        tooltip: 'Yılın özeti, keşif haritam ve tanıştıklarım',
         icon: const Icon(Icons.auto_awesome_outlined),
         onPressed: () => showModalBottomSheet<void>(
           context: context,
@@ -414,6 +419,15 @@ class _YearButton extends StatelessWidget {
                   onTap: () {
                     Navigator.of(sheet).pop();
                     context.push(EventRoutes.exploration);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.handshake_outlined),
+                  title: const Text('Tanıştıklarım'),
+                  subtitle: const Text('Organizasyonlarda el sıkıştığın kişiler'),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    context.push(EventRoutes.met);
                   },
                 ),
               ],

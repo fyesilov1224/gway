@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/events.dart';
 import '../domain/exploration.dart';
+import '../domain/handshakes.dart';
 import '../domain/tonight.dart';
 
 const coverBucket = 'event-images';
@@ -327,6 +328,50 @@ class EventsRepositoryImpl implements EventsRepository {
       });
 
   @override
+  Future<Result<HandshakeCode>> handshakeCode(String eventId) => _api.post(
+        '/events/$eventId/handshake-code',
+        decode: (json) {
+          final j = (json! as Map).cast<String, Object?>();
+          return HandshakeCode(code: j['code']! as String, expiresAt: DateTime.parse(j['expiresAt']! as String));
+        },
+      );
+
+  @override
+  Future<Result<HandshakeResult>> shake(String eventId, String code) => _api.post(
+        '/events/$eventId/handshakes',
+        body: {'code': code},
+        decode: (json) {
+          final j = (json! as Map).cast<String, Object?>();
+          final p = (j['person']! as Map).cast<String, Object?>();
+          return HandshakeResult(
+            person: EventPerson(
+              id: p['id']! as String,
+              username: p['username']! as String,
+              displayName: p['displayName']! as String,
+              avatarUrl: _url('avatars', p['avatarPath']),
+            ),
+            alreadyMet: j['alreadyMet'] == true,
+          );
+        },
+      );
+
+  @override
+  Future<Result<List<MetPerson>>> metPeople() => _run(() async {
+        final r = await _client.rpc<List<dynamic>>('my_handshakes');
+        return [
+          for (final m in r.cast<Map<String, dynamic>>())
+            MetPerson(
+              person: _person((m['person'] as Map).cast<String, dynamic>()),
+              eventId: (m['event'] as Map)['id'] as String,
+              eventTitle: (m['event'] as Map)['title'] as String,
+              eventStartsAt: DateTime.parse((m['event'] as Map)['starts_at'] as String),
+              groupName: ((m['event'] as Map)['group'] as Map)['name'] as String,
+              metAt: DateTime.parse(m['created_at'] as String),
+            ),
+        ];
+      });
+
+  @override
   Future<void> recordCardShare(String kind) async {
     try {
       await _client.rpc<Object?>('record_card_share', params: {'card_kind': kind});
@@ -543,6 +588,7 @@ class EventsRepositoryImpl implements EventsRepository {
           reviews: n('reviews'),
           groups: n('groups'),
           welcomed: n('welcomed'),
+          handshakes: n('handshakes'),
           badges: [for (final b in (r['badges'] as List? ?? const []).cast<Map<String, dynamic>>()) _badge(b)],
         );
       });

@@ -689,6 +689,16 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 - **Ekran:** kendi profilinde "Yılın özeti ve keşif haritam" düğmesi → "Keşif haritam": Türkiye haritasında keşfedilen iller dolu, buluşma noktaları küçük noktalar; "7 / 81 ili keşfettim", organizasyon sayısı, son üç il; altında iller (organizasyon sayısı, son tarih). Hiç katılım yoksa boş harita, açıklama ve "Haritada organizasyon bul". Harita döşemesiz çizilir (il sınırları uygulamanın içindeki aynı veriden, `assets/tr_provinces.json`); harita servisi çağrılmaz.
 - **Yönetim paneli:** kullanıcı sayfasında "Keşfettiği il: 7 / 81"; genel bakışta paylaşılan kartlar grafiğinde keşif haritası.
 
+### El sıkış (Faz 18e, kullanıcı kararı 2026-10-31)
+- **Ne:** aynı organizasyona "Geliyorum" diyen iki kişi birbirinin QR kodunu okutur (ya da 6 haneli kodu yazar); ikisine de "bu organizasyonda tanıştı" kaydı düşer. Mesaj hakkı vermez; birebir mesaj yine eşleşme ve ekip arkadaşlığına bağlıdır (§3f).
+- **Ne zaman:** başlangıçtan 1 saat önceden bitişten 6 saat sonrasına kadar (bitiş yoksa 2 saat sürmüş sayılır); iptal edilen organizasyonda yok. Organizasyon sayfasında bu aralıkta "El sıkış" kartı görünür.
+- **Kod:** C# üretir (`POST /events/{id}/handshake-code`): karışmayan harf ve rakamlardan 6 karakter, 3 dakika geçerli, bir dakikadan az kalınca yenilenir; uygulama süresi dolmadan yenisini ister. QR kodu `gway-handshake:{organizasyon}:{kod}` taşır; kodun fotoğrafı sonradan işe yaramaz. Kod yalnızca sahibini ve organizasyonu adlar; kod tablosu istemciye kapalıdır.
+- **El sıkışma** (`POST /events/{id}/handshakes`, `code`): kodun sahibi ve okutan aynı organizasyona gidiyor, aralık açık, aralarında engel yok olmalı; kendi kodu okunamaz. Aynı iki kişi bir organizasyonda bir kez el sıkışır (yeniden okutmak "Zaten tanışıyorsunuz" der). Günde en fazla 200 el sıkış (trigger). Karşı tarafa `handshake` bildirimi ve push'u gider.
+- **Kim görür:** "Tanıştıklarım" listesini (kişi, organizasyon, tarih) yalnızca kişinin kendisi görür (`public.my_handshakes()`). Profilde yalnızca sayı, katkılar satırında ("12 el sıkış") ve katkıları görebilen herkese görünür. Rozetler: Tanışkan (5), Sosyal kelebek (25).
+- **Kamera:** QR okuma telefonda ve tarayıcıda kamerayla (`mobile_scanner`); kamera izni yoksa ya da masaüstündeyse kod yazılır. iOS kamera izni metni `Info.plist`'tedir; Android izni paketten gelir.
+- **Hesap ya da organizasyon silinince** el sıkışlar da silinir (cascade); başka hiçbir şey bir el sıkışı değiştiremez.
+- **Yönetim paneli:** kullanıcı sayfasında el sıkış sayısı; genel bakışta "Karşılama ve tanışma" grafiğinde el sıkışlar.
+
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.
 
@@ -732,6 +742,8 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 |---|---|---|
 | `events` | Herkes (grup görünürse) | Backend |
 | `event_attendees` | Grubun üyeleri ve kişinin kendisi | Backend |
+| `handshakes` | Kişinin kendi el sıkışları (RLS) | Backend (trigger kuralları) |
+| `handshake_codes` | Kimse (RLS, politika yok) | Backend |
 | `province_shapes` (owner: core) | Kimse doğrudan; il bulma fonksiyonları kullanır | Migration |
 | `event_venues` | Kimse doğrudan; `private.event_card` yetkiliye döner (yöneticiler ve platform ekibi her zaman, katılanlar açıklanma zamanından itibaren) | Backend (`events.manage`, trigger) |
 | `polls`, `poll_options` | Grubun üyeleri | Backend |
@@ -751,6 +763,8 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 | `DELETE /event-series/{id}` | Seriyi durdurma (`events.manage`); açılmış tarihler kalır |
 | `PUT /events/{id}` | Düzenleme (`events.manage`); formun tamamı gönderilir (buluşma noktası `meeting: {lat, lng}` ya da boş) |
 | `POST /events/{id}/cancellation` | İptal (`reason`, `events.manage`) |
+| `POST /events/{id}/handshake-code` | Kişinin geçerli el sıkış kodu (`code`, `expiresAt`); yalnızca katılanlara, aralık açıkken (Faz 18e) |
+| `POST /events/{id}/handshakes` | Kodla el sıkışma (`code`; çıplak kod ya da QR içeriği); yanıt kişi ve `alreadyMet` |
 | `POST /events/{id}/attendance` | Katılma; yanıt `going`, `waitlisted` (ve sıra) ya da onaylı katılımda `requested` |
 | `DELETE /events/{id}/attendance` | Vazgeçme ya da isteği geri alma; sıradaki yükselir |
 | `POST /events/{id}/requests/{userId}/approval` | Katılım isteğini onaylama (`events.manage`) |

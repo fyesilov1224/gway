@@ -40,7 +40,7 @@ public sealed record AdminUserDetail(
 
 /// <summary>What the person did in groups (docs/ARCHITECTURE.md §3d, Katkı ve rozetler).</summary>
 /// <param name="ExploredProvinces">Provinces of the events attended (docs/ARCHITECTURE.md §3d, Keşif haritam).</param>
-public sealed record AdminContributions(int Attended, int Organized, int Memories, int Reviews, int NoShows, int Welcomed = 0, int ExploredProvinces = 0);
+public sealed record AdminContributions(int Attended, int Organized, int Memories, int Reviews, int NoShows, int Welcomed = 0, int ExploredProvinces = 0, int Handshakes = 0);
 
 /// <summary>Teammate activity, for spotting request spam (docs/ARCHITECTURE.md §3c, Ekip arkadaşı); the province is never shown.</summary>
 public sealed record AdminTeammates(bool Looking, int Teammates, int RequestsSentToday, int RequestsPending);
@@ -201,7 +201,7 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
             """
             select (c->>'attended')::int, (c->>'organized')::int, (c->>'memories')::int, (c->>'reviews')::int,
                    (select count(*)::int from public.event_attendees where user_id = @id and no_show_at is not null),
-                   (c->>'welcomed')::int, private.explored_province_count(@id)
+                   (c->>'welcomed')::int, private.explored_province_count(@id), (c->>'handshakes')::int
             from (select private.contribution_counts(@id, null) as c) x
             """, conn))
         {
@@ -210,7 +210,7 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
             await reader.ReadAsync(ct);
             contributions = new AdminContributions(
                 reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5),
-                reader.GetInt32(6));
+                reader.GetInt32(6), reader.GetInt32(7));
         }
 
         AdminTeammates teammates;

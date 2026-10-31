@@ -69,6 +69,7 @@ public static class EventsModule
         services.AddSingleton<EventService>();
         services.AddSingleton<GoalService>();
         services.AddSingleton<WelcomeService>();
+        services.AddSingleton<HandshakeService>();
         services.AddSingleton<TonightService>();
         services.AddSingleton<LeagueService>();
         services.AddSingleton<IEventsAdministration>(sp => sp.GetRequiredService<EventService>());
@@ -115,6 +116,7 @@ public static class EventsModule
 
         app.MapGoalEndpoints();
         app.MapWelcomeEndpoints();
+        app.MapHandshakeEndpoints();
         app.MapTonightEndpoints();
 
         // "Takvime ekle": public like the event page itself.

@@ -83,6 +83,7 @@ String notificationTypeLabel(String type) => switch (type) {
       'teammate_accepted' => 'Ekip arkadaşlığı kabulü',
       'event_series_limit' => 'Tekrar limiti',
       'event_venue_revealed' => 'Sürpriz mekan',
+      'handshake' => 'El sıkış',
       _ => type,
     };
 

@@ -434,7 +434,14 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] pgTAP (1135/1135; `52_exploration_map` 16 test), C# (230/230) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-31)
 - [x] Bulut: `0064` migration'ı (2026-10-31)
 - Not: "rotalar" için GPS izi tutulmuyor; buluşma noktaları haritada nokta olarak görünür. Rota (iz) Strava bağlantısıyla (18n) gelebilir
-### 18e — El Sıkış (organizasyonda QR ile tanışma)
+### 18e — El Sıkış (kullanıcı kararı, 2026-10-31; `docs/ARCHITECTURE.md` §3d)
+- [x] Aynı organizasyona katılanlar arasında QR ya da 6 haneli kodla tanışma; kod 3 dakikada bir yenilenir; başlangıçtan 1 saat önce ile bitişten 6 saat sonrası arası
+- [x] "Tanıştıklarım" yalnızca kişiye; profilde sayı, iki rozet (Tanışkan, Sosyal kelebek); karşı tarafa bildirim ve push; mesaj hakkı vermez
+- [x] Kamera ile okuma (telefon ve tarayıcı), kamera yoksa kodu yazma; iOS kamera izni metni, Play izin beyanı notu
+- [x] Yönetim paneli: kullanıcı sayfasında el sıkış sayısı, genel bakış grafiğinde el sıkışlar
+- [x] pgTAP (1153/1153; `53_handshakes` 18 test), C# (231/231) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-31)
+- [x] Bulut: `0065` migration'ı (2026-10-31)
+- [ ] Gerçek telefonda iki hesapla QR okutma denemesi
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
 ### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar; ortak gruplardan küçük masa; `docs/ARCHITECTURE.md` §3d)
 - [x] "Bu akşam boşum" ve not (ortak grup üyeleri görür, 04:00'te kapanır), boş olanlar listesi
