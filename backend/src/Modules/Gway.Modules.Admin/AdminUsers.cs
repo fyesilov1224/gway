@@ -52,7 +52,7 @@ public sealed record AdminUserStats(int Total, int Active, int Suspended, int Pe
 internal sealed class AdminUsers(NpgsqlDataSource db)
 {
     public const int PageSize = 20;
-    private const int HistoryLimit = 50;
+    private const int HistoryLimit = 200;
 
     public static readonly string[] Statuses = ["active", "suspended", "pending_deletion"];
 
@@ -173,10 +173,12 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
         var history = new List<AdminAuditItem>();
         await using (var cmd = new NpgsqlCommand(
             $"""
-            select a.occurred_at, a.action, a.actor_kind, a.actor_id, coalesce(ap.display_name, au.email)
+            select a.occurred_at, a.action, a.actor_kind, a.actor_id, coalesce(ap.display_name, au.email), g.name,
+                   coalesce(a.data->>'role', a.data->>'reason', a.data->>'note', a.data->>'name', a.data->>'country', a.data->>'plan')
             from public.audit_log a
             left join public.profiles ap on ap.id = a.actor_id
             left join auth.users au on au.id = a.actor_id
+            left join public.groups g on g.id = a.group_id
             where a.target_type = 'user' and a.target_id = @id
             order by a.occurred_at desc
             limit {HistoryLimit}
@@ -188,7 +190,9 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
                 history.Add(new AdminAuditItem(
                     reader.GetFieldValue<DateTimeOffset>(0), reader.GetString(1), reader.GetString(2),
                     reader.IsDBNull(3) ? null : reader.GetGuid(3),
-                    reader.IsDBNull(4) ? null : reader.GetString(4)));
+                    reader.IsDBNull(4) ? null : reader.GetString(4),
+                    reader.IsDBNull(5) ? null : reader.GetString(5),
+                    reader.IsDBNull(6) ? null : reader.GetString(6)));
         }
 
         AdminContributions contributions;

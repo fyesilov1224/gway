@@ -952,7 +952,7 @@ void main() {
       expect(find.text('Yönetim ekibi'), findsOneWidget);
       expect(find.text('Bisiklet'), findsOneWidget);
       expect(find.text('Rol verildi'), findsOneWidget);
-      expect(find.text('Ayşe Kaya · Yönetici'), findsOneWidget);
+      expect(find.textContaining('Ayşe Kaya · Yönetici · '), findsOneWidget);
       expect(find.text('Paket'), findsOneWidget);
       expect(find.text('Başlangıç · Aylık'), findsOneWidget);
       expect(find.text('İptal et'), findsOneWidget);

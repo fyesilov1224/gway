@@ -52,7 +52,7 @@ public sealed record AdminGroupStats(int Total, int Active, int Suspended);
 internal sealed class AdminGroups(NpgsqlDataSource db)
 {
     public const int PageSize = 20;
-    private const int HistoryLimit = 50;
+    private const int HistoryLimit = 200;
 
     public static readonly string[] Statuses = ["active", "suspended"];
 

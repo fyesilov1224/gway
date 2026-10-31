@@ -323,8 +323,35 @@ class InfoPanel extends StatelessWidget {
   }
 }
 
-/// Audit history as a vertical timeline.
-class HistoryPanel extends StatelessWidget {
+/// Kinds of recorded actions, read from the action code's prefix; each has its own color and filter chip.
+enum _HistoryKind {
+  account('Hesap', GwColors.primarySoft, GwColors.primary),
+  security('Güvenlik', GwColors.warningSoft, GwColors.warning),
+  groups('Gruplar', GwColors.secondarySoft, GwColors.secondary),
+  moderation('Moderasyon', GwColors.errorSoft, GwColors.error),
+  plans('Paketler', GwColors.successSoft, GwColors.success),
+  messages('Mesaj kayıtları', GwColors.surfaceMuted, GwColors.textSecondary),
+  other('Diğer', GwColors.surfaceMuted, GwColors.textSecondary);
+
+  const _HistoryKind(this.label, this.background, this.foreground);
+
+  final String label;
+  final Color background;
+  final Color foreground;
+
+  static _HistoryKind of(String action) => switch (action.split('.').first) {
+        'user' || 'account' => account,
+        'security' => security,
+        'group' || 'role' || 'event' || 'poll' || 'goal' || 'league' => groups,
+        'moderation' || 'sanction' || 'report' || 'appeal' || 'case' || 'referral' || 'post' || 'comment' => moderation,
+        'plans' || 'personal_plan' || 'subscription' || 'plan' || 'order' || 'billing' => plans,
+        'message' => messages,
+        _ => other,
+      };
+}
+
+/// Audit history: filter chips by kind, day headings and compact rows, a page at a time.
+class HistoryPanel extends StatefulWidget {
   const HistoryPanel({
     super.key,
     required this.history,
@@ -334,6 +361,9 @@ class HistoryPanel extends StatelessWidget {
     this.detailLabels = const {},
   });
 
+  /// Rows per page.
+  static const pageSize = 8;
+
   final List<AdminAuditItem> history;
 
   /// Shown for actions users took themselves; defaults to the actor's name.
@@ -342,65 +372,164 @@ class HistoryPanel extends StatelessWidget {
   /// Readable names for recorded details, e.g. role slugs.
   final Map<String, String> detailLabels;
 
-  /// Action code → (label, icon). Unknown actions show their code.
+  /// Action code → (label, icon). Unknown actions show a generic name.
   final Map<String, (String, IconData)> labels;
   final String emptyText;
+
+  @override
+  State<HistoryPanel> createState() => _HistoryPanelState();
+}
+
+class _HistoryPanelState extends State<HistoryPanel> {
+  _HistoryKind? _kind;
+  int _page = 1;
+
+  String _actor(AdminAuditItem h) => switch (h.actorKind) {
+        'staff' => 'Ekip: ${h.actorName ?? 'Platform ekibi'}',
+        'system' => 'Sistem',
+        _ => widget.userActorLabel ?? h.actorName ?? 'Kullanıcı',
+      };
+
+  static String _day(DateTime at) {
+    final day = DateUtils.dateOnly(at.toLocal());
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (day == today) return 'Bugün';
+    if (day == today.subtract(const Duration(days: 1))) return 'Dün';
+    return formatDateTr(day);
+  }
+
+  static String _time(DateTime at) {
+    final local = at.toLocal();
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${two(local.hour)}:${two(local.minute)}';
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
+    final counts = <_HistoryKind, int>{};
+    for (final h in widget.history) {
+      counts.update(_HistoryKind.of(h.action), (c) => c + 1, ifAbsent: () => 1);
+    }
+    final filtered = _kind == null ? widget.history : [for (final h in widget.history) if (_HistoryKind.of(h.action) == _kind) h];
+    final pageCount = filtered.isEmpty ? 1 : (filtered.length / HistoryPanel.pageSize).ceil();
+    final page = _page.clamp(1, pageCount);
+    final from = (page - 1) * HistoryPanel.pageSize;
+    final rows = filtered.skip(from).take(HistoryPanel.pageSize).toList();
+
     return GwPanel(
       title: 'İşlem geçmişi',
-      child: history.isEmpty
-          ? Text(emptyText, style: secondary)
+      subtitle: widget.history.isEmpty ? null : 'Son ${widget.history.length} kayıt, en yenisi üstte.',
+      padding: EdgeInsets.zero,
+      child: widget.history.isEmpty
+          ? Padding(padding: const EdgeInsets.all(GwSpacing.lg), child: Text(widget.emptyText, style: secondary))
           : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final (i, h) in history.indexed)
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                if (counts.length > 1)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.md),
+                    child: Wrap(
+                      spacing: GwSpacing.xs,
+                      runSpacing: GwSpacing.xs,
                       children: [
-                        Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(GwSpacing.xxs + 2),
-                              decoration: const BoxDecoration(color: GwColors.primarySoft, shape: BoxShape.circle),
-                              child: Icon(labels[h.action]?.$2 ?? Icons.history, size: GwSpacing.md, color: GwColors.primary),
-                            ),
-                            if (i < history.length - 1)
-                              const Expanded(child: VerticalDivider(width: GwSpacing.md, thickness: 1)),
-                          ],
-                        ),
-                        const SizedBox(width: GwSpacing.sm),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: GwSpacing.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(labels[h.action]?.$1 ?? h.action, style: textTheme.labelLarge),
-                                if (h.targetName != null || h.detail != null)
-                                  Text(
-                                    [?h.targetName, if (h.detail case final d?) detailLabels[d] ?? d].join(' · '),
-                                    style: textTheme.bodyMedium,
-                                  ),
-                                Text('${formatDateTimeTr(h.occurredAt)} · ${_actor(h, userActorLabel)}', style: secondary),
-                              ],
-                            ),
+                        for (final (value, label) in <(_HistoryKind?, String)>[
+                          (null, 'Tümü (${widget.history.length})'),
+                          for (final k in _HistoryKind.values)
+                            if (counts[k] case final n?) (k, '${k.label} ($n)'),
+                        ])
+                          ChoiceChip(
+                            label: Text(label),
+                            selected: _kind == value,
+                            showCheckmark: false,
+                            onSelected: (_) => setState(() {
+                              _kind = value;
+                              _page = 1;
+                            }),
                           ),
-                        ),
                       ],
                     ),
                   ),
+                const Divider(),
+                for (final (i, h) in rows.indexed) ...[
+                  if (i == 0 || _day(rows[i - 1].occurredAt) != _day(h.occurredAt))
+                    Container(
+                      color: GwColors.surface,
+                      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.xxs),
+                      child: Text(_day(h.occurredAt), style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                    ),
+                  _HistoryRow(
+                    item: h,
+                    label: widget.labels[h.action]?.$1 ?? 'Kayıtlı işlem',
+                    icon: widget.labels[h.action]?.$2 ?? Icons.history,
+                    detail: [?h.targetName, if (h.detail case final d?) widget.detailLabels[d] ?? d, _actor(h)].join(' · '),
+                    time: _time(h.occurredAt),
+                  ),
+                  if (i < rows.length - 1) const Divider(),
+                ],
+                if (filtered.length > HistoryPanel.pageSize) ...[
+                  const Divider(),
+                  PageFooter(
+                    from: from + 1,
+                    to: from + rows.length,
+                    total: filtered.length,
+                    noun: 'kayıt',
+                    page: page,
+                    pageCount: pageCount,
+                    onPage: (p) => setState(() => _page = p),
+                  ),
+                ],
               ],
             ),
     );
   }
+}
 
-  static String _actor(AdminAuditItem h, String? userLabel) => switch (h.actorKind) {
-        'staff' => h.actorName ?? 'Platform ekibi',
-        'system' => 'Sistem',
-        _ => userLabel ?? h.actorName ?? 'Kullanıcı',
-      };
+class _HistoryRow extends StatelessWidget {
+  const _HistoryRow({required this.item, required this.label, required this.icon, required this.detail, required this.time});
+
+  final AdminAuditItem item;
+  final String label;
+  final IconData icon;
+  final String detail;
+  final String time;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final kind = _HistoryKind.of(item.action);
+    return Tooltip(
+      message: formatDateTimeTr(item.occurredAt),
+      waitDuration: const Duration(milliseconds: 500),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
+        child: Row(
+          children: [
+            Semantics(
+              label: kind.label,
+              child: Container(
+                padding: const EdgeInsets.all(GwSpacing.xs),
+                decoration: BoxDecoration(color: kind.background, borderRadius: GwRadius.mdAll),
+                child: Icon(icon, size: GwSpacing.md + GwSpacing.xxs, color: kind.foreground),
+              ),
+            ),
+            const SizedBox(width: GwSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
+                  Text(detail, maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                ],
+              ),
+            ),
+            const SizedBox(width: GwSpacing.sm),
+            Text(time, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+          ],
+        ),
+      ),
+    );
+  }
 }

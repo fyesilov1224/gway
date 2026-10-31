@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/admin_user.dart';
 import 'admin_shell.dart';
+import 'groups_screen.dart' show groupRoleLabels;
 import 'providers.dart';
 import 'routes.dart';
 import 'security_screen.dart';
@@ -26,6 +27,28 @@ const _actionLabels = {
   'security.banned': ('Güvenlik nedeniyle otomatik banlandı', Icons.gpp_bad_outlined),
   'security.review_approved': ('Güvenlik incelemesi onaylandı', Icons.verified_user_outlined),
   'security.review_banned': ('Güvenlik incelemesinde banlandı', Icons.gpp_bad_outlined),
+  'security.review_exempt_changed': ('Mağaza inceleme muafiyeti değişti', Icons.verified_outlined),
+  'security.passkey_added': ('Parmak izi / geçiş anahtarı eklendi', Icons.fingerprint),
+  'security.passkey_removed': ('Parmak izi / geçiş anahtarı kaldırıldı', Icons.fingerprint),
+  'account.purged': ('Hesap kalıcı olarak silindi', Icons.delete_forever_outlined),
+  'group.invitation_sent': ('Gruba davet edildi', Icons.mail_outline),
+  'group.invitation_revoked': ('Grup daveti geri alındı', Icons.cancel_schedule_send_outlined),
+  'group.join_approved': ('Katılma isteği onaylandı', Icons.how_to_reg_outlined),
+  'group.join_rejected': ('Katılma isteği reddedildi', Icons.person_off_outlined),
+  'group.role_assigned': ('Grupta rol verildi', Icons.badge_outlined),
+  'group.role_removed': ('Gruptaki rolü alındı', Icons.badge_outlined),
+  'personal_plan.canceled': ('Kişisel paketi iptal edildi', Icons.remove_shopping_cart_outlined),
+  'plans.canceled_for_violation': ('Paketleri ihlal nedeniyle iptal edildi', Icons.gavel_outlined),
+  'message.log_searched': ('Mesaj kayıtları arandı', Icons.manage_search),
+};
+
+/// Readable names of recorded details: group roles, plans and countries.
+const _detailLabels = {
+  ...groupRoleLabels,
+  'matching_premium': 'Hepsi Bir Arada',
+  'matching_chat': 'Eşleşme Sohbeti',
+  'matching_teammates': 'Ekip Arkadaşı',
+  'TR': 'Türkiye',
 };
 
 const _consentLabels = {
@@ -195,13 +218,6 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       UserPackagesPanel(userId: u.id, title: u.title),
       const SizedBox(height: GwSpacing.lg),
       _ConsentsPanel(consents: d.consents),
-      const SizedBox(height: GwSpacing.lg),
-      HistoryPanel(
-        history: d.history,
-        labels: _actionLabels,
-        emptyText: 'Bu hesapla ilgili kayıtlı bir işlem yok.',
-        userActorLabel: 'Kullanıcının kendisi',
-      ),
     ];
 
     return [
@@ -242,6 +258,14 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         const SizedBox(height: GwSpacing.lg),
         ...right,
       ],
+      const SizedBox(height: GwSpacing.lg),
+      HistoryPanel(
+        history: d.history,
+        labels: _actionLabels,
+        detailLabels: _detailLabels,
+        emptyText: 'Bu hesapla ilgili kayıtlı bir işlem yok.',
+        userActorLabel: 'Kullanıcının kendisi',
+      ),
     ];
   }
 }
