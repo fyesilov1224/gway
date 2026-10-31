@@ -101,7 +101,11 @@ select ok(
   'each date copies the last one a week later, with its length');
 
 -- The monthly limit -----------------------------------------------------------------------
+-- Two ordinary events first: the free plan (4 a month) then leaves the series room for two dates.
 select pg_temp.act('00000000-0000-0000-0000-00000052d001');
+insert into public.events (group_id, created_by, title, starts_at, location)
+select '00000000-0000-0000-0000-000000005202', '00000000-0000-0000-0000-00000052d001', 'Tek seferlik ' || n, now() + interval '3 days', 'Park'
+from generate_series(1, 2) n;
 select pg_temp.series('00000000-0000-0000-0000-0000005200b1', '00000000-0000-0000-0000-000000005202', 1, null);
 reset role;
 select private.extend_event_series('00000000-0000-0000-0000-0000005200b1');

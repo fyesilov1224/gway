@@ -29,7 +29,7 @@ insert into public.posts (id, author_id, caption) values ('00000000-0000-0000-00
 
 set local role authenticated;
 select pg_temp.act('00000000-0000-0000-0000-0000000ea102');
-select is((pg_temp.card('00000000-0000-0000-0000-0000000eb001'))->>'can_comment', 'false', 'a stranger may not comment');
+select is((pg_temp.card('00000000-0000-0000-0000-0000000eb001'))->>'can_comment', 'true', 'whoever sees a post may comment (2026-10-30)');
 select lives_ok(
   $$ insert into public.post_reactions (post_id, user_id, emoji) values ('00000000-0000-0000-0000-0000000eb001', '00000000-0000-0000-0000-0000000ea102', '🔥') $$,
   'but leaves an emoji'

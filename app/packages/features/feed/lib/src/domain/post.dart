@@ -120,8 +120,8 @@ class Post {
   /// The viewer may edit and delete it (author, or the group's publishers).
   final bool canManage;
 
-  /// The viewer may write a comment: on a personal post only its author, their matches and teammates;
-  /// everyone else reacts with an emoji. Group posts are open (docs/ARCHITECTURE.md §3c).
+  /// The viewer may write a comment: whoever sees the post, unless its owner turned comments off
+  /// (docs/ARCHITECTURE.md §3c, 2026-10-30).
   final bool canComment;
 
   /// How many people reacted with each emoji.

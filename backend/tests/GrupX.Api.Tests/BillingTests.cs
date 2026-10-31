@@ -340,8 +340,8 @@ public sealed class BillingTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var (owner, group) = await GroupAsync();
         var joiner = await _db.CreateUserAsync(Unique("j_"));
-        // Free plan: 50 members. Pretend the group is full.
-        await _db.ExecuteAsync("update public.groups set member_count = 50 where id = @id", ("id", group));
+        // Free plan: 100 members. Pretend the group is full.
+        await _db.ExecuteAsync("update public.groups set member_count = 100 where id = @id", ("id", group));
 
         var full = await factory.ClientFor(joiner).PostAsync(Path($"/groups/{group}/join"), null, Ct);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, full.StatusCode);

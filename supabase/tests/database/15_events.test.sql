@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(35);
+select plan(37);
 
 -- e1 owner, e2 Yönetici, e3..e6 members, e7 outsider, e8 platform admin.
 insert into auth.users (id, email, aud, role)
@@ -63,17 +63,27 @@ select lives_ok(
              'Akşam buluşması', now() + interval '30 minutes', 'Kadıköy') $$,
   'a second event this month'
 );
-select throws_ok(
+select lives_ok(
   $$ insert into public.events (group_id, created_by, title, starts_at, location)
      values ('00000000-0000-0000-0000-0000000ec001', pg_temp.u(2), 'Üçüncü', now() + interval '3 days', 'Park') $$,
-  'P0001', 'monthly_limit_reached', 'the free plan allows two events a month'
+  'a third event this month'
+);
+select lives_ok(
+  $$ insert into public.events (group_id, created_by, title, starts_at, location)
+     values ('00000000-0000-0000-0000-0000000ec001', pg_temp.u(2), 'Dördüncü', now() + interval '4 days', 'Park') $$,
+  'a fourth event this month'
+);
+select throws_ok(
+  $$ insert into public.events (group_id, created_by, title, starts_at, location)
+     values ('00000000-0000-0000-0000-0000000ec001', pg_temp.u(2), 'Beşinci', now() + interval '5 days', 'Park') $$,
+  'P0001', 'monthly_limit_reached', 'the free plan allows four events a month'
 );
 
 -- Reading ------------------------------------------------------------------------------------------------
 set local role anon;
 select set_config('request.jwt.claims', '', true);
-select is((select count(*)::int from public.events where group_id = '00000000-0000-0000-0000-0000000ec001'), 2, 'anyone sees the events of a visible group');
-select is(jsonb_array_length(public.group_events('00000000-0000-0000-0000-0000000ec001')->'events'), 2, 'group_events lists upcoming ones');
+select is((select count(*)::int from public.events where group_id = '00000000-0000-0000-0000-0000000ec001'), 4, 'anyone sees the events of a visible group');
+select is(jsonb_array_length(public.group_events('00000000-0000-0000-0000-0000000ec001')->'events'), 4, 'group_events lists upcoming ones');
 reset role;
 set local role authenticated;
 select pg_temp.act('00000000-0000-0000-0000-0000000ef002');

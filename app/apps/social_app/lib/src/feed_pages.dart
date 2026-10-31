@@ -78,9 +78,9 @@ class _ProfilePosts extends ConsumerWidget {
   }
 }
 
-/// The group's posts; publishers (owner, Yönetici) can share from here.
+/// The group's posts; every member shares from here (docs/ARCHITECTURE.md §3c; the server refuses a muted member).
 Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
-  final canPublish = me.can(GroupPermission.publishPosts) && !group.isSuspended;
+  final canPublish = me.isMember && !group.isSuspended;
   void create() => context.push(FeedRoutes.createFor(group.id));
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
       GxSectionHeader(title: 'Gönderiler', actionLabel: canPublish ? 'Yeni gönderi' : null, onAction: create),
       PostsSection(
         source: GroupPosts(group.id),
-        emptyMessage: canPublish ? 'Grup adına ilk gönderiyi sen paylaş.' : 'Bu grup henüz gönderi paylaşmadı.',
+        emptyMessage: canPublish ? 'Grubun akışına ilk gönderiyi sen paylaş.' : 'Bu grupta henüz gönderi yok.',
         emptyAction: canPublish ? (label: 'İlk gönderiyi paylaş', onPressed: create) : null,
       ),
     ],

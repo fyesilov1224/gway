@@ -80,11 +80,14 @@ public sealed class EventsTests(ApiFactory factory) : IClassFixture<ApiFactory>,
             "insert into storage.objects (bucket_id, name, metadata) values ('event-images', @p, '{\"mimetype\": \"image/jpeg\"}'::jsonb)", ("p", cover));
         await EventAsync(crew, Form(cover: cover));
         await EventAsync(crew, Form(title: "İkinci yürüyüş"));
+        await EventAsync(crew, Form(title: "Üçüncü yürüyüş"));
+        await EventAsync(crew, Form(title: "Dördüncü yürüyüş"));
 
-        var third = await CreateAsync(crew.Owner, crew.Group, Form(title: "Üçüncü"));
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, third.StatusCode);
-        Assert.Contains("event.monthly_limit_reached", await third.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
-        Assert.Equal(2L, await CountAsync("select count(*) from public.audit_log where action = 'event.created' and group_id = @g", ("g", crew.Group)));
+        // The free plan has four events a month.
+        var fifth = await CreateAsync(crew.Owner, crew.Group, Form(title: "Beşinci"));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, fifth.StatusCode);
+        Assert.Contains("event.monthly_limit_reached", await fifth.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        Assert.Equal(4L, await CountAsync("select count(*) from public.audit_log where action = 'event.created' and group_id = @g", ("g", crew.Group)));
     }
 
     [Fact]

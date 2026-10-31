@@ -11,7 +11,7 @@ const mediaBucket = 'media';
 /// Trigger codes users can run into, as Turkish messages (docs/ARCHITECTURE.md §3c).
 const _rules = {
   'comments_disabled': 'Bu gönderide yorumlar kapalı.',
-  'comment_not_allowed': 'Bu paylaşıma yalnızca eşleştiği kişiler ve ekip arkadaşları yorum yazabilir. Emojiyle tepki bırakabilirsin.',
+  'comment_not_allowed': 'Bu paylaşıma şu anda yorum yazılamıyor. Emojiyle tepki bırakabilirsin.',
   'blocked': 'Bu hesapla etkileşime geçemezsin.',
   'comment_rate_limited': 'Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.',
   'muted': 'Bu grupta susturulduğun için şu anda yorum yazamazsın.',

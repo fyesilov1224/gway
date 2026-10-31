@@ -147,9 +147,11 @@ internal sealed partial class PostService(NpgsqlDataSource db, ISupabaseStorage 
 
             if (request.GroupId is { } groupId)
             {
+                // Every member posts to the group's feed; a muted one does not (docs/ARCHITECTURE.md §3c).
                 var allowed = await ActingTransaction.ScalarAsync(conn, tx,
-                    "select private.user_has_group_permission(@actor, @group, 'posts.publish')", ct, ("actor", actor), ("group", groupId));
-                if (allowed is not true) return Error.Forbidden("feed.group_forbidden", "Bu grup adına paylaşım yapma yetkin yok.");
+                    "select private.can_post_in_group(@actor, @group)", ct, ("actor", actor), ("group", groupId));
+                if (allowed is not true)
+                    return Error.Forbidden("feed.group_forbidden", "Bu gruba paylaşım yapmak için grubun üyesi olmalısın ve susturulmuş olmamalısın.");
             }
 
             // A memory (docs/ARCHITECTURE.md §3d, Organizasyon sonrası): the event took place and the author went or manages it.

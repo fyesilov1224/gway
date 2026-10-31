@@ -426,6 +426,11 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Bulut: `0058` migration'ı (2026-10-30)
 - [x] Düzeltme: durum kaydedilemiyordu (uygulamanın upsert'i yazma izni olmayan sütuna yazıyordu); yazma artık `set_tonight` / `close_tonight` ile, kartta boş olanların yüzleri ve masa için gereken kişi sayısı, Bugün yenilenince bölümler de yenilenir (`0059`; pgTAP 1060/1060)
 - [x] Bulut: `0059` migration'ı (2026-10-30)
+### 1000 kullanıcılı uçtan uca test ve kural değişiklikleri (kullanıcı kararı, 2026-10-30)
+- [x] Yerelde 1000 sentetik kullanıcıyla bütün özellikler ve yönetim paneli API üzerinden denendi; çalışmayan özellik bulunmadı
+- [x] Kişisel gönderiye gönderiyi gören herkes yorum yazar (sahibi kapatabilir); grubun akışına her üye paylaşır (susturulan hariç); ücretsiz paket 100 üye ve ayda 4 organizasyon (`0060`)
+- [x] pgTAP (1070/1070), C# (225/225) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz
+- [x] Bulut: `0060` migration'ı (2026-10-30)
 ### 18h — Sürpriz Organizasyon (yer başlamadan önce açıklanır)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)

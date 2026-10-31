@@ -142,11 +142,10 @@ select lives_ok(
        ('00000000-0000-0000-0000-0000000cd001', '00000000-0000-0000-0000-0000000cf001', '00000000-0000-0000-0000-0000000cc003', ' Harika! ') $$,
   'a teammate comments'
 );
-select pg_temp.act('00000000-0000-0000-0000-0000000cc0a1');
 select throws_ok(
   $$ insert into public.comments (post_id, author_id, body) values
-       ('00000000-0000-0000-0000-0000000cf001', '00000000-0000-0000-0000-0000000cc0a1', 'Merhaba') $$,
-  'P0001', 'comment_not_allowed', 'without a match or a teammate, a personal post takes reactions only'
+       ('00000000-0000-0000-0000-0000000cf003', '00000000-0000-0000-0000-0000000cc003', 'Merhaba') $$,
+  '42501', null, 'nobody comments on a post they cannot see'
 );
 select pg_temp.act('00000000-0000-0000-0000-0000000cc005');
 select lives_ok(

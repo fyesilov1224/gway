@@ -382,7 +382,7 @@ class _ReactOnly extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: GxSpacing.md),
                   child: Text(
-                    'Bu paylaşıma yalnızca eşleştiği kişiler ve ekip arkadaşları yorum yazabilir. Sen emojiyle tepki bırakabilirsin.',
+                    'Bu paylaşıma şu anda yorum yazamazsın. Emojiyle tepki bırakabilirsin.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GxColors.textSecondary),
                   ),
                 ),

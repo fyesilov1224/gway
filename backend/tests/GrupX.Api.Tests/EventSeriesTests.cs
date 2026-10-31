@@ -49,10 +49,13 @@ public sealed class EventSeriesTests(ApiFactory factory) : IClassFixture<ApiFact
         Assert.Equal(HttpStatusCode.BadRequest,
             (await CreateAsync(owner, group, Form(new RepeatRequest(1, DateOnly.FromDateTime(DateTime.UtcNow))))).StatusCode);
 
+        // Two one-off events first: the free plan (four a month) then leaves the series room for two dates.
+        (await CreateAsync(owner, group, Form(null))).EnsureSuccessStatusCode();
+        (await CreateAsync(owner, group, Form(null))).EnsureSuccessStatusCode();
         (await CreateAsync(owner, group, Form(new RepeatRequest(1, null)))).EnsureSuccessStatusCode();
         var series = await SeriesOfAsync(group);
 
-        // The free plan has two events a month: the first date and one more open, then the owner is told.
+        // The first date and one more open, then the owner is told.
         Assert.Equal(2L, await _db.ScalarAsync<long>("select count(*) from public.events where series_id = @s", ("s", series)));
         Assert.Equal(7.0, await _db.ScalarAsync<double>(
             "select (extract(epoch from max(starts_at) - min(starts_at)) / 86400)::float8 from public.events where series_id = @s", ("s", series)));

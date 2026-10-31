@@ -248,10 +248,11 @@ public sealed class SocialTests(ApiFactory factory) : IClassFixture<ApiFactory>,
     }
 
     [Fact]
-    public async Task Group_posts_need_the_publish_permission()
+    public async Task Every_member_posts_to_the_group_feed_but_not_a_stranger()
     {
         var owner = await UserAsync();
         var member = await UserAsync();
+        var stranger = await UserAsync();
         var created = await factory.ClientFor(owner).PostAsJsonAsync(Path("/groups"),
             new CreateGroupRequest($"gp_{Guid.NewGuid():N}"[..20], "Paylaşım Grubu", "music", "open", null), Ct);
         var group = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
@@ -259,12 +260,13 @@ public sealed class SocialTests(ApiFactory factory) : IClassFixture<ApiFactory>,
 
         var byMember = await factory.ClientFor(member).PostAsJsonAsync(Path("/posts"), new CreatePostRequest(
             "Duyuru", [new PostMediaInput("image", await MediaAsync(member), 10, 10, null, null, null)], group, false, false), Ct);
-        var byOwner = await factory.ClientFor(owner).PostAsJsonAsync(Path("/posts"), new CreatePostRequest(
-            "Duyuru", [new PostMediaInput("image", await MediaAsync(owner), 10, 10, null, null, null)], group, false, false), Ct);
+        var byStranger = await factory.ClientFor(stranger).PostAsJsonAsync(Path("/posts"), new CreatePostRequest(
+            "Duyuru", [new PostMediaInput("image", await MediaAsync(stranger), 10, 10, null, null, null)], group, false, false), Ct);
 
-        Assert.Equal(HttpStatusCode.Forbidden, byMember.StatusCode);
-        byOwner.EnsureSuccessStatusCode();
-        Assert.Equal(group, await _db.ScalarAsync<Guid>("select group_id from public.posts where author_id = @id", ("id", owner)));
+        // docs/ARCHITECTURE.md §3c (2026-10-30): members post too; only members.
+        byMember.EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.Forbidden, byStranger.StatusCode);
+        Assert.Equal(group, await _db.ScalarAsync<Guid>("select group_id from public.posts where author_id = @id", ("id", member)));
     }
 
     [Fact]

@@ -250,7 +250,7 @@ Yetkiler `group_permissions`, rol–yetki eşlemesi `group_role_permissions` tab
 | `members.approve` | Katılım isteklerini onaylama ve reddetme | admin |
 | `members.invite` | Davet gönderme ve geri alma | admin |
 | `billing.manage` | Paket satın alma ve abonelik bilgilerini görme (Faz 3) | — |
-| `posts.publish` | Grup adına gönderi paylaşma, düzenleme, silme ve grup gönderilerindeki yorumları silme (Faz 4) | admin |
+| `posts.publish` | Grubun bütün gönderilerini düzenleme ve silme, grup gönderilerindeki yorumları silme (Faz 4; paylaşmak için gerekmez, 2026-10-30) | admin |
 | `events.manage` | Organizasyon ve anket yönetimi (Faz 5, §3d) | admin |
 | `live.start` | Canlı yayın başlatma ve planlama (Faz 7) | admin |
 | `live.moderate` | Canlı yayın moderasyonu (Faz 7, §8) | admin, discipline, moderator |
@@ -395,7 +395,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Bildirimler:** `teammate_request` (alana), `teammate_accepted` (gönderene). İstek geri çekilir ya da reddedilirse bildirimi de silinir. Bir çift için tek "kabul etti" bildirimi tutulur.
 
 ### Gönderi (feed)
-- **Yazar:** kullanıcı (kendi profili) ya da grup (`group_id`). Grup adına yalnızca `posts.publish` yetkisi olan yayınlar; bu yetki sahip ve Yönetici'dedir. Grup gönderisinde yazan yönetici kayıtlıdır, gönderi grup adıyla gösterilir.
+- **Yazar:** kullanıcı (kendi profili) ya da grup (`group_id`). **Grubun akışına grubun her üyesi paylaşır (kullanıcı kararı, 2026-10-30);** susturulan üye paylaşamaz (`private.can_post_in_group`). Gönderi grubun adı ve yazanın kullanıcı adıyla gösterilir. Grup gönderisini yazarı ya da `posts.publish` yetkilisi (sahip ve Yönetici) düzenler ve siler; uygunsuz paylaşımı yöneticiler kaldırır.
 - **İçerik:**
   - Açıklama (en fazla 2.200 karakter, 30 etiket).
   - 1–10 medya: fotoğraf (JPEG, PNG, WebP; 10 MB) ya da video (MP4, MOV; 50 MB, en fazla 60 sn; kapak görseli zorunlu değil).
@@ -413,7 +413,7 @@ C#'ta `GrupX.Modules.Profile` (takip ve engelleme) ve `GrupX.Modules.Feed` (gön
 - **Bahsetmeler:** Açıklamadaki ve yorumlardaki `@kullanıcıadı` görünür bir hesabı gösteriyorsa ve engel yoksa bildirim oluşturur.
 - **Beğeni, yorum, yorum beğenisi ve kaydetme** kullanıcının kendi basit yazmasıdır (Flutter → Supabase, RLS):
   - Gönderiyi görebilmek gerekir. Yorum için yorumların açık olması ve engel olmaması gerekir.
-  - **Kişisel fotoğraf ve videoya yorum (kullanıcı kararı, 2026-10-27):** yalnızca paylaşımın sahibi, sahibiyle eşleşenler (§3g) ve ekip arkadaşları yazar (`private.can_comment_as`, trigger `comment_not_allowed`). Diğerleri yalnızca emoji tepkisi bırakır. Grup paylaşımlarına görebilen herkes (üyeler, takipçiler) eskisi gibi yorum yazar. Mevcut yorumlar silinmez. Kart, `can_comment` ile yazma kutusunu gösterir ya da gizler.
+  - **Yorum (kullanıcı kararı, 2026-10-30; 2026-10-27'deki "yalnızca eşleşenler ve ekip arkadaşları" kuralının yerine):** Paylaşımı görebilen herkes yorum yazar, kişisel ya da grup paylaşımı fark etmez (`private.can_comment_as`, trigger `comment_not_allowed`). Sahibi yorumları kapatabilir (`comments_disabled`). Yorumdan istemeyen emoji tepkisi bırakır. Kart, `can_comment` ile yazma kutusunu gösterir ya da gizler.
   - **Emoji tepkisi** (`post_reactions`): gönderiyi gören herkes 😍 😂 😮 👏 🔥 🙏 emojilerinden birini bırakır; kişi başına bir tepki, değiştirilebilir ve geri alınabilir. Kart her emojinin sayısını (`reactions`) ve kişinin kendi tepkisini (`my_reaction`) taşır. Tepki bildirim üretmez.
   - Yorum en fazla 2.200 karakterdir. Yanıtlar tek seviyedir (yanıta yanıt, ana yoruma bağlanır).
   - Yorumu yazarı ya da gönderinin sahibi (grup gönderisinde `posts.publish` yetkilisi) siler.
@@ -1414,7 +1414,7 @@ backend/
 
 | Paket (`slug`) | Kademe | Üye | Organizasyon / ay | Yayın dakikası / ay | Aylık | Yıllık |
 |---|---|---|---|---|---|---|
-| Ücretsiz (`free`) | 0 | 50 | 2 | 60 | — | — |
+| Ücretsiz (`free`) | 0 | 100 | 4 | 60 | — | — |
 | Başlangıç (`starter`) | 1 | 250 | 10 | 600 | 249 ₺ · $9.99 | 2.490 ₺ · $99.90 |
 | Pro (`pro`) | 2 | 1.000 | 40 | 3.000 | 699 ₺ · $24.99 | 6.990 ₺ · $249.90 |
 | Topluluk (`community`) | 3 | 10.000 | 200 | 20.000 | 1.999 ₺ · $69.99 | 19.990 ₺ · $699.90 |
