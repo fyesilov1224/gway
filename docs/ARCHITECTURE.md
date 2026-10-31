@@ -682,6 +682,13 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 - **Kapatma:** organizatör sürprizi kapatırsa gizli mekan silinir, "Yer" yeniden normal yer olur ve açıklanma işareti sıfırlanır.
 - **Yönetim paneli:** organizasyon listesinde ipucu, gerçek mekan ve açıklanma durumu ("3 saat önce açıklanacak / açıklandı").
 
+### Keşif haritam (Faz 18d, kullanıcı kararı 2026-10-31)
+- **Ne sayılır:** kişinin katıldığı organizasyonlar: "Geliyorum" (onaylı katılımda onaylanmış), "gelmedi" işaretlenmemiş, başlamış ve iptal edilmemiş. Kişinin kendi işaretlediği iller yoktur; harita uydurulamaz.
+- **İl:** organizasyonun buluşma noktasının ili (sürprizde gizli mekanın noktası), nokta yoksa grubun ili. Nokta il sınırlarıyla eşleştirilir (`province_shapes`: Natural Earth, kamu malı, ~1 km sadeleştirilmiş; `private.province_at`). Sadeleşen kıyıdan biraz taşan nokta ~30 km içindeki en yakın il merkezine düşer. İl, nokta yazılırken trigger'la `events.province` ve `event_venues.province` sütununa yazılır.
+- **Kim görür:** yalnızca kişinin kendisi (`public.my_exploration()`); başkasının haritası, tarihleri ve noktaları hiçbir yerde görünmez. Kişi haritayı Yılın özeti gibi bir hikâye kartı olarak paylaşabilir (`story_card_shares.kind = 'map'`).
+- **Ekran:** kendi profilinde "Yılın özeti ve keşif haritam" düğmesi → "Keşif haritam": Türkiye haritasında keşfedilen iller dolu, buluşma noktaları küçük noktalar; "7 / 81 ili keşfettim", organizasyon sayısı, son üç il; altında iller (organizasyon sayısı, son tarih). Hiç katılım yoksa boş harita, açıklama ve "Haritada organizasyon bul". Harita döşemesiz çizilir (il sınırları uygulamanın içindeki aynı veriden, `assets/tr_provinces.json`); harita servisi çağrılmaz.
+- **Yönetim paneli:** kullanıcı sayfasında "Keşfettiği il: 7 / 81"; genel bakışta paylaşılan kartlar grafiğinde keşif haritası.
+
 ### Hedefler ve görevler (Faz 12)
 Ürün kararları (2026-10-21): kişisel, grup, takım hedefleri ve onaylı görevler olur. Hedefleri `events.manage` yetkilileri açar. Ödül görev rozetidir; para ya da puan yoktur.
 
@@ -725,6 +732,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 |---|---|---|
 | `events` | Herkes (grup görünürse) | Backend |
 | `event_attendees` | Grubun üyeleri ve kişinin kendisi | Backend |
+| `province_shapes` (owner: core) | Kimse doğrudan; il bulma fonksiyonları kullanır | Migration |
 | `event_venues` | Kimse doğrudan; `private.event_card` yetkiliye döner (yöneticiler ve platform ekibi her zaman, katılanlar açıklanma zamanından itibaren) | Backend (`events.manage`, trigger) |
 | `polls`, `poll_options` | Grubun üyeleri | Backend |
 | `poll_votes` | Kendi oyları; açık anketlerde grubun üyeleri | Kendi oyu (RLS) |

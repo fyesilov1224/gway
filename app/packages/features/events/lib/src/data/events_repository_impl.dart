@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/events.dart';
+import '../domain/exploration.dart';
 import '../domain/tonight.dart';
 
 const coverBucket = 'event-images';
@@ -294,6 +295,34 @@ class EventsRepositoryImpl implements EventsRepository {
           topGroupCount: (top?['count'] as num?)?.toInt() ?? 0,
           firstEvent: first?['title'] as String?,
           firstEventAt: _time(first?['starts_at']),
+        );
+      });
+
+  @override
+  Future<Result<Exploration>> exploration() => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>>('my_exploration');
+        return Exploration(
+          provinceTotal: (r['province_total'] as num).toInt(),
+          eventCount: (r['event_count'] as num).toInt(),
+          provinces: [
+            for (final p in (r['provinces'] as List).cast<Map<String, dynamic>>())
+              ExploredProvince(
+                id: (p['id'] as num).toInt(),
+                name: p['name'] as String,
+                events: (p['events'] as num).toInt(),
+                firstAt: DateTime.parse(p['first_at'] as String),
+                lastAt: DateTime.parse(p['last_at'] as String),
+              ),
+          ],
+          points: [
+            for (final p in (r['points'] as List).cast<Map<String, dynamic>>())
+              ExploredPoint(
+                eventId: p['event_id'] as String,
+                title: p['title'] as String,
+                startsAt: DateTime.parse(p['starts_at'] as String),
+                point: LatLng((p['lat'] as num).toDouble(), (p['lng'] as num).toDouble()),
+              ),
+          ],
         );
       });
 

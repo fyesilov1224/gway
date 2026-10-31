@@ -196,10 +196,14 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
         ),
         ChartPanel(
           title: 'Paylaşılan kartlar',
-          subtitle: 'Yılın özeti ve "Ben de oradaydım" kartlarının paylaşım sayfasının açılması.',
+          subtitle: 'Yılın özeti, "Ben de oradaydım" ve keşif haritası kartlarının paylaşım sayfasının açılması.',
           buckets: o.buckets,
           weekly: o.weekly,
-          series: [series('Yılın özeti', 'card_shares_year'), series('Ben de oradaydım', 'card_shares_event')],
+          series: [
+            series('Yılın özeti', 'card_shares_year'),
+            series('Ben de oradaydım', 'card_shares_event'),
+            series('Keşif haritası', 'card_shares_map'),
+          ],
         ),
         ChartPanel(
           title: 'Bu akşam',

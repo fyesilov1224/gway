@@ -199,6 +199,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         ('Değerlendirme', formatCount(d.contributions.reviews)),
         ('Gelmedi işareti', formatCount(d.contributions.noShows)),
         ('Karşıladığı ilk kez gelen', formatCount(d.contributions.welcomed)),
+        ('Keşfettiği il', '${d.contributions.exploredProvinces} / 81'),
       ]),
       const SizedBox(height: GwSpacing.lg),
       InfoPanel(title: 'Ekip arkadaşı', rows: [

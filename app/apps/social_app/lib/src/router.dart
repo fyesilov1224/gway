@@ -155,6 +155,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: FeedRoutes.home, builder: (_, _) => const HomePage()),
           GoRoute(path: '/year', builder: (_, state) => YearSummaryScreen(year: int.tryParse(state.uri.queryParameters['y'] ?? ''))),
+          GoRoute(path: EventRoutes.exploration, builder: (_, _) => const ExplorationScreen()),
           GoRoute(path: EventRoutes.calendar, builder: (_, state) => CalendarScreen(groupId: state.uri.queryParameters['group'])),
           GoRoute(path: FeedRoutes.explore, builder: (_, _) => const ExploreScreen(peopleResults: peopleResults)),
           GoRoute(path: GroupRoutes.discover, builder: (_, _) => const GroupsScreen(actions: [_leagueButton, _mapButton], packages: groupPackagesRow)),
@@ -380,15 +381,46 @@ class _MapButton extends StatelessWidget {
       IconButton(tooltip: 'Haritada keşfet', icon: const Icon(Icons.map_outlined), onPressed: () => context.push(EventRoutes.map));
 }
 
-/// "Yılın özeti" on your own profile (docs/ARCHITECTURE.md §3d).
+/// "Yılın özeti" and "Keşif haritam" on your own profile (docs/ARCHITECTURE.md §3d), behind one button.
 const _yearButton = _YearButton();
 
 class _YearButton extends StatelessWidget {
   const _YearButton();
 
   @override
-  Widget build(BuildContext context) =>
-      IconButton(tooltip: 'Yılın özeti', icon: const Icon(Icons.auto_awesome_outlined), onPressed: () => context.push(EventRoutes.year()));
+  Widget build(BuildContext context) => IconButton(
+        tooltip: 'Yılın özeti ve keşif haritam',
+        icon: const Icon(Icons.auto_awesome_outlined),
+        onPressed: () => showModalBottomSheet<void>(
+          context: context,
+          showDragHandle: true,
+          builder: (sheet) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.auto_awesome_outlined),
+                  title: const Text('Yılın özeti'),
+                  subtitle: const Text('Bu yılki buluşmaların, paylaşılabilir kart'),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    context.push(EventRoutes.year());
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.travel_explore),
+                  title: const Text('Keşif haritam'),
+                  subtitle: const Text('Katıldığın organizasyonların illeri'),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    context.push(EventRoutes.exploration);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 /// "Ekip arkadaşı bul" on your own profile.

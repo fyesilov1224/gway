@@ -4,10 +4,13 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../domain/events.dart';
+import '../domain/exploration.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -265,6 +268,158 @@ class YearSummaryScreen extends ConsumerWidget {
             ],
           ),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(yearSummaryProvider(y))),
+        _ => const Padding(
+            padding: EdgeInsets.all(GwSpacing.page),
+            child: GwSkeleton(height: GwSpacing.xxl * 8, borderRadius: GwRadius.xlAll),
+          ),
+      },
+    );
+  }
+}
+
+/// Turkey with the explored provinces filled in and the meeting points marked; it does not move.
+class ExplorationMap extends StatelessWidget {
+  const ExplorationMap({super.key, required this.shapes, required this.explored, this.points = const []});
+
+  static final _turkey = LatLngBounds(const LatLng(35.8, 25.6), const LatLng(42.2, 44.9));
+
+  final ProvinceShapes shapes;
+  final Set<int> explored;
+  final List<LatLng> points;
+
+  @override
+  Widget build(BuildContext context) => AspectRatio(
+        aspectRatio: 2.2,
+        child: Semantics(
+          label: 'Türkiye haritası: ${explored.length} il keşfedildi',
+          child: IgnorePointer(
+            child: FlutterMap(
+              options: MapOptions(
+                initialCameraFit: CameraFit.bounds(bounds: _turkey, padding: const EdgeInsets.all(GwSpacing.xxs)),
+                backgroundColor: GwColors.background,
+                interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+              ),
+              children: [
+                PolygonLayer(polygons: [
+                  for (final MapEntry(key: id, value: polygons) in shapes.entries)
+                    for (final ring in polygons)
+                      Polygon(
+                        points: ring,
+                        color: explored.contains(id) ? GwColors.primary : GwColors.surfaceMuted,
+                        borderColor: explored.contains(id) ? GwColors.primary : GwColors.border,
+                        borderStrokeWidth: GwBorders.hairline.width,
+                      ),
+                ]),
+                CircleLayer(circles: [
+                  for (final p in points)
+                    CircleMarker(
+                      point: p,
+                      radius: GwSpacing.xxs,
+                      color: GwColors.secondary,
+                      borderColor: GwColors.background,
+                      borderStrokeWidth: GwBorders.hairline.width,
+                    ),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+/// The exploration card: the map, how many provinces and events, and the latest provinces.
+class ExplorationCard extends StatelessWidget {
+  const ExplorationCard({super.key, required this.exploration, required this.shapes});
+
+  final Exploration exploration;
+  final ProvinceShapes shapes;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = exploration;
+    final textTheme = Theme.of(context).textTheme;
+    return _StoryFrame(children: [
+      Text('Keşif haritam', style: textTheme.headlineSmall),
+      const SizedBox(height: GwSpacing.md),
+      ExplorationMap(shapes: shapes, explored: e.provinceIds, points: [for (final p in e.points) p.point]),
+      const SizedBox(height: GwSpacing.md),
+      _Stat('${e.provinces.length} / ${e.provinceTotal}', 'ili keşfettim'),
+      _Stat('${e.eventCount}', e.eventCount == 1 ? 'organizasyona katıldım' : 'organizasyonda buluştum'),
+      if (e.provinces.isNotEmpty) ...[
+        const SizedBox(height: GwSpacing.xs),
+        Text('Son keşiflerim', style: textTheme.titleSmall),
+        Text(e.provinces.take(3).map((p) => p.name).join(' · '), style: textTheme.bodyLarge),
+      ],
+    ]);
+  }
+}
+
+/// "Keşif haritam" (`/exploration`): the provinces of the events the person attended; only they see it, they may share it.
+class ExplorationScreen extends ConsumerWidget {
+  const ExplorationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
+    final exploration = ref.watch(explorationProvider);
+    final shapes = ref.watch(provinceShapesProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Keşif haritam')),
+      body: switch ((exploration, shapes)) {
+        (AsyncData(value: final e), AsyncData(value: final s)) when e.isEmpty => ListView(
+            padding: const EdgeInsets.all(GwSpacing.page),
+            children: [
+              ExplorationMap(shapes: s, explored: const {}),
+              const SizedBox(height: GwSpacing.lg),
+              GwEmptyState(
+                icon: Icons.travel_explore,
+                message: 'Katıldığın organizasyonların illeri burada açılır. İlk buluşmandan sonra haritan renklenir.',
+                actionLabel: 'Haritada organizasyon bul',
+                onAction: () => context.go(EventRoutes.map),
+              ),
+            ],
+          ),
+        (AsyncData(value: final e), AsyncData(value: final s)) => ListView(
+            padding: const EdgeInsets.all(GwSpacing.page),
+            children: [
+              _SharePreview(
+                card: ExplorationCard(exploration: e, shapes: s),
+                kind: 'map',
+                fileName: 'gway-kesif-haritam.png',
+                text: "GWAY'de ${e.provinces.length} ili keşfettim",
+              ),
+              const SizedBox(height: GwSpacing.lg),
+              Text('Keşfettiğin iller', style: textTheme.titleMedium),
+              Text('Yalnızca sen görürsün. Katıldığın ve "gelmedi" işaretlenmediğin organizasyonlar sayılır.', style: secondary),
+              const SizedBox(height: GwSpacing.xs),
+              GwPanel(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (final (i, p) in e.provinces.indexed) ...[
+                      if (i > 0) const Divider(),
+                      ListTile(
+                        leading: const Icon(Icons.place_outlined, color: GwColors.primary),
+                        title: Text(p.name),
+                        subtitle: Text(
+                          p.events == 1
+                              ? formatDateTr(p.lastAt.toLocal())
+                              : '${p.events} organizasyon · son ${formatDateTr(p.lastAt.toLocal())}',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        (AsyncError(:final error), _) || (_, AsyncError(:final error)) => GwErrorState(
+            message: userMessageOf(error),
+            onRetry: () => ref
+              ..invalidate(explorationProvider)
+              ..invalidate(provinceShapesProvider),
+          ),
         _ => const Padding(
             padding: EdgeInsets.all(GwSpacing.page),
             child: GwSkeleton(height: GwSpacing.xxl * 8, borderRadius: GwRadius.xlAll),

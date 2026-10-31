@@ -1,9 +1,11 @@
 import 'package:core/core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/events_repository_impl.dart';
 import '../data/goals_repository_impl.dart';
 import '../domain/events.dart';
+import '../domain/exploration.dart';
 import '../domain/goals.dart';
 import '../domain/tonight.dart';
 
@@ -110,6 +112,16 @@ final pollsProvider = FutureProvider.autoDispose.family<List<Poll>, PollScope>(
 
 final pollVotersProvider = FutureProvider.autoDispose.family<List<EventPerson>, int>(
   (ref, optionId) async => (await ref.watch(eventsRepositoryProvider).voters(optionId)).getOrThrow(),
+);
+
+/// The signed-in person's exploration map.
+final explorationProvider = FutureProvider.autoDispose<Exploration>(
+  (ref) async => (await ref.watch(eventsRepositoryProvider).exploration()).getOrThrow(),
+);
+
+/// Province outlines for the exploration map, read once from the package's asset.
+final provinceShapesProvider = FutureProvider<ProvinceShapes>(
+  (ref) async => parseProvinceShapes(await rootBundle.loadString('packages/events/assets/tr_provinces.json')),
 );
 
 /// The signed-in person's year in review.

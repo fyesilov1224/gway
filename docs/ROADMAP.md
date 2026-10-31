@@ -426,7 +426,14 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] pgTAP (1011/1011), C# (221/221) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-29)
 - [ ] Gerçek telefonda paylaşım denemesi (Instagram hikâyesi, WhatsApp)
 - [x] Bulut: `0054` migration'ı (2026-10-29)
-### 18d — Keşif Haritam (gidilen iller ve rotalar açılır)
+### 18d — Keşif Haritam (kullanıcı kararı, 2026-10-31; `docs/ARCHITECTURE.md` §3d)
+- [x] Katılınan organizasyonların illeri (buluşma noktasından il sınırlarıyla, yoksa grubun ili; sürprizde gizli mekan); kişinin kendi işaretlemesi yok
+- [x] Yalnızca kişinin kendisi görür; Türkiye haritası, "x / 81 il", iller listesi; hikâye kartı olarak paylaşma
+- [x] İl sınırları: Natural Earth (kamu malı), veritabanında ve uygulamada aynı veri; harita servisi çağrılmaz
+- [x] Yönetim paneli: kullanıcı sayfasında keşfettiği il sayısı, genel bakışta harita kartı paylaşımı
+- [x] pgTAP (1135/1135; `52_exploration_map` 16 test), C# (230/230) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-31)
+- [x] Bulut: `0064` migration'ı (2026-10-31)
+- Not: "rotalar" için GPS izi tutulmuyor; buluşma noktaları haritada nokta olarak görünür. Rota (iz) Strava bağlantısıyla (18n) gelebilir
 ### 18e — El Sıkış (organizasyonda QR ile tanışma)
 ### 18f — Eve Vardım (güvenli dönüş; uygulama içi, SMS ücretli ve onaylı)
 ### 18g — Bu Akşam Boşum (yakında başlayanlar ve anlık buluşmalar; ortak gruplardan küçük masa; `docs/ARCHITECTURE.md` §3d)
@@ -458,7 +465,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] Açıklanma bildirimi ve push'u; açıklandıktan sonra mekan değişirse güncelleme bildirimi
 - [x] Yönetim paneli: organizasyon listesinde ipucu, gerçek mekan ve açıklanma durumu
 - [x] pgTAP (1119/1119; `51_surprise_events` 20 test, `36_platform_referrals` başka testlerin bıraktığı kayıtlardan bağımsız), C# (229/229) ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-10-31)
-- [ ] Bulut: `0063` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0063` migration'ı (2026-10-31)
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
 

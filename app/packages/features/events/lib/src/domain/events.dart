@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'exploration.dart';
 import 'tonight.dart';
 
 class EventGroup {
@@ -747,6 +748,9 @@ abstract interface class EventsRepository {
 
   /// Counts that a story card's share sheet was opened (`year` or `event`); best effort.
   Future<void> recordCardShare(String kind);
+
+  /// The signed-in person's exploration map (docs/ARCHITECTURE.md §3d, Keşif haritam).
+  Future<Result<Exploration>> exploration();
 
   /// The event page's welcome block (Supabase); null when the event is not visible.
   Future<Result<EventWelcome?>> eventWelcome(String eventId);

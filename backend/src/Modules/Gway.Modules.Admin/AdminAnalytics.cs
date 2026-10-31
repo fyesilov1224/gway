@@ -58,6 +58,7 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
           union all select 'welcomes_thanked', thanked_at, 1, null from public.event_welcomes where thanked_at >= (select at from since)
           union all select 'card_shares_year', created_at, 1, null from public.story_card_shares where kind = 'year' and created_at >= (select at from since)
           union all select 'card_shares_event', created_at, 1, null from public.story_card_shares where kind = 'event' and created_at >= (select at from since)
+          union all select 'card_shares_map', created_at, 1, null from public.story_card_shares where kind = 'map' and created_at >= (select at from since)
           union all select 'tonight_free', created_at, 1, null from public.tonight_status where created_at >= (select at from since)
           union all select 'tonight_tables', created_at, 1, null from public.tonight_tables where created_at >= (select at from since)
           union all select 'tonight_tables_set', created_at, 1, null from public.conversations where kind = 'table' and created_at >= (select at from since)
@@ -112,7 +113,7 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
     [
         "new_users", "active_users", "new_groups", "posts", "comments", "likes", "reactions", "messages",
         "match_likes", "super_likes", "matches", "reports_opened", "reports_reviewed", "live_started",
-        "welcome_requests", "welcomes_matched", "welcomes_thanked", "card_shares_year", "card_shares_event",
+        "welcome_requests", "welcomes_matched", "welcomes_thanked", "card_shares_year", "card_shares_event", "card_shares_map",
         "tonight_free", "tonight_tables", "tonight_tables_set",
     ];
 
