@@ -92,4 +92,23 @@ void main() {
 
     expect(result, const Err<int>(NetworkFailure()));
   });
+
+  test('waits for the token getter, so an expired session is refreshed first', () async {
+    late http.Request sent;
+    final client = ApiClient(
+      baseUrl: Uri.parse('http://api.test/'),
+      accessToken: () async {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        return 'fresh';
+      },
+      httpClient: MockClient((req) async {
+        sent = req;
+        return http.Response('{}', 200);
+      }),
+    );
+
+    await client.get('/account', decode: (json) => json);
+
+    expect(sent.headers['Authorization'], 'Bearer fresh');
+  });
 }

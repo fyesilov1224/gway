@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/media.dart';
 import '../tokens/radius.dart';
 import '../tokens/tones.dart';
 
@@ -73,6 +74,9 @@ class GwAvatar extends StatelessWidget {
             : Image.network(
                 url,
                 fit: BoxFit.cover,
+                // Twice the box: a wide photo still covers the circle sharply, and a list of avatars never
+                // decodes full-size uploads.
+                cacheWidth: gwCacheWidth(dimension * 2, MediaQuery.devicePixelRatioOf(context)),
                 excludeFromSemantics: true,
                 errorBuilder: (_, _, _) => fallback,
               ),

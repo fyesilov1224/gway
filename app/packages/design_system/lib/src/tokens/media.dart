@@ -14,6 +14,9 @@ abstract final class GwMedia {
   static const double gridRadius = 12;
 
   static const int uploadMaxSide = 1440;
+
+  /// Profile avatars and group logos: the largest avatar (128) at 3x fits, so lists download little.
+  static const double avatarMaxSide = 512;
   static const int storyMaxSide = 1920;
   static const int thumbMaxSide = 480;
   static const int jpegQuality = 85;

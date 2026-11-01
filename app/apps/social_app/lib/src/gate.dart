@@ -59,7 +59,9 @@ AppGate resolveGate({
 final gateProvider = Provider<AppGate>((ref) {
   final security = ref.watch(securityStatusProvider);
   // Until the session is verified its token cannot read consents or profiles; asking would only cache errors.
-  final verified = security.value?.step == SecurityStep.done;
+  // A token already carrying the verified role can read at once, so these load alongside the security status
+  // instead of one round trip after it.
+  final verified = security.value?.step == SecurityStep.done || ref.watch(sessionRoleProvider) == 'authenticated';
   return resolveGate(
     signedIn: ref.watch(currentUserIdProvider) != null,
     passwordRecovery: ref.watch(passwordRecoveryProvider),

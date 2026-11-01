@@ -10,9 +10,15 @@ final moderationRepositoryProvider = Provider<ModerationRepository>(
 
 /// Null when the user may not review the group's reports.
 final groupModerationProvider = FutureProvider.autoDispose.family<GroupModeration?, String>(
-  (ref, groupId) async => (await ref.watch(moderationRepositoryProvider).groupModeration(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(moderationRepositoryProvider).groupModeration(groupId)).getOrThrow();
+  },
 );
 
 final mySanctionsProvider = FutureProvider.autoDispose<List<MySanction>>(
-  (ref) async => (await ref.watch(moderationRepositoryProvider).mySanctions()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(moderationRepositoryProvider).mySanctions()).getOrThrow();
+  },
 );

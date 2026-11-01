@@ -34,14 +34,20 @@ final myStaffRoleProvider = FutureProvider<StaffRole?>((ref) async {
 typedef UserSearch = ({String query, AdminAccountStatus? status, int page});
 
 final userSearchProvider = FutureProvider.autoDispose.family<UserPage, UserSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminUsersRepositoryProvider)
           .search(query: search.query, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 final userStatsProvider = FutureProvider.autoDispose<AdminUserStats>(
-  (ref) async => (await ref.watch(adminUsersRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminUsersRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 /// E-mail of the signed-in staff member, for the panel's account menu.
@@ -51,7 +57,10 @@ final currentEmailProvider = Provider<String?>((ref) {
 });
 
 final userDetailProvider = FutureProvider.autoDispose.family<AdminUserDetail, String>(
-  (ref, id) async => (await ref.watch(adminUsersRepositoryProvider).get(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(adminUsersRepositoryProvider).get(id)).getOrThrow();
+  },
 );
 
 /// Public URL of an avatar stored in the `avatars` bucket.
@@ -66,18 +75,27 @@ final adminGroupsRepositoryProvider = Provider<AdminGroupsRepository>(
 typedef GroupSearch = ({String query, AdminGroupStatus? status, int page});
 
 final groupSearchProvider = FutureProvider.autoDispose.family<GroupPage, GroupSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminGroupsRepositoryProvider)
           .search(query: search.query, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 final groupStatsProvider = FutureProvider.autoDispose<AdminGroupStats>(
-  (ref) async => (await ref.watch(adminGroupsRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminGroupsRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 final groupDetailProvider = FutureProvider.autoDispose.family<AdminGroupDetail, String>(
-  (ref, id) async => (await ref.watch(adminGroupsRepositoryProvider).get(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(adminGroupsRepositoryProvider).get(id)).getOrThrow();
+  },
 );
 
 /// Public URL of a group logo stored in the `group-images` bucket.
@@ -92,14 +110,20 @@ final adminContentRepositoryProvider = Provider<AdminContentRepository>(
 typedef ContentSearch = ({String query, AdminContentFilter? filter, int page});
 
 final contentSearchProvider = FutureProvider.autoDispose.family<PostPage, ContentSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminContentRepositoryProvider)
           .search(query: search.query, filter: search.filter, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 final postDetailProvider = FutureProvider.autoDispose.family<AdminPostDetail, String>(
-  (ref, id) async => (await ref.watch(adminContentRepositoryProvider).get(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(adminContentRepositoryProvider).get(id)).getOrThrow();
+  },
 );
 
 /// Public URL of post media in the `media` bucket.
@@ -114,10 +138,13 @@ final adminEventsRepositoryProvider = Provider<AdminEventsRepository>(
 typedef AdminEventSearch = ({String query, AdminEventStatus? status, int page});
 
 final adminEventSearchProvider = FutureProvider.autoDispose.family<AdminEventPage, AdminEventSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminEventsRepositoryProvider)
           .search(query: search.query, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 final adminModerationRepositoryProvider = Provider<AdminModerationRepository>(
@@ -127,39 +154,54 @@ final adminModerationRepositoryProvider = Provider<AdminModerationRepository>(
 typedef AdminReportSearch = ({AdminReportScope? scope, AdminReportStatus? status, int page});
 
 final adminReportSearchProvider = FutureProvider.autoDispose.family<AdminReportPage, AdminReportSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminModerationRepositoryProvider)
           .reports(scope: search.scope, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 typedef AdminAppealSearch = ({AdminAppealStatus? status, int page});
 
 final adminAppealSearchProvider = FutureProvider.autoDispose.family<AdminAppealPage, AdminAppealSearch>(
-  (ref, search) async =>
-      (await ref.watch(adminModerationRepositoryProvider).appeals(status: search.status, page: search.page)).getOrThrow(),
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref.watch(adminModerationRepositoryProvider).appeals(status: search.status, page: search.page)).getOrThrow();
+  },
 );
 
 typedef AdminReferralSearch = ({AdminReferralStatus? status, int page});
 
 final adminReferralSearchProvider = FutureProvider.autoDispose.family<AdminReferralPage, AdminReferralSearch>(
-  (ref, search) async =>
-      (await ref.watch(adminModerationRepositoryProvider).referrals(status: search.status, page: search.page)).getOrThrow(),
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref.watch(adminModerationRepositoryProvider).referrals(status: search.status, page: search.page)).getOrThrow();
+  },
 );
 
 typedef AdminGoalSearch = ({AdminGoalStatus? status, int page});
 
 final adminLeaguesProvider = FutureProvider.autoDispose.family<AdminLeagueMonth, DateTime>(
-  (ref, month) async => (await ref.watch(adminEventsRepositoryProvider).leagues(month)).getOrThrow(),
+  (ref, month) async {
+    ref.cacheFor();
+    return (await ref.watch(adminEventsRepositoryProvider).leagues(month)).getOrThrow();
+  },
 );
 
 final adminLeagueTableProvider = FutureProvider.autoDispose.family<AdminLeagueTable, AdminLeagueKey>(
-  (ref, key) async => (await ref.watch(adminEventsRepositoryProvider).leagueTable(key)).getOrThrow(),
+  (ref, key) async {
+    ref.cacheFor();
+    return (await ref.watch(adminEventsRepositoryProvider).leagueTable(key)).getOrThrow();
+  },
 );
 
 final adminGoalSearchProvider = FutureProvider.autoDispose.family<AdminGoalPage, AdminGoalSearch>(
-  (ref, search) async =>
-      (await ref.watch(adminEventsRepositoryProvider).goals(status: search.status, page: search.page)).getOrThrow(),
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref.watch(adminEventsRepositoryProvider).goals(status: search.status, page: search.page)).getOrThrow();
+  },
 );
 
 final adminLiveRepositoryProvider = Provider<AdminLiveRepository>(
@@ -169,7 +211,10 @@ final adminLiveRepositoryProvider = Provider<AdminLiveRepository>(
 typedef BroadcastSearch = ({AdminLiveStatus status, int page});
 
 final broadcastSearchProvider = FutureProvider.autoDispose.family<BroadcastPage, BroadcastSearch>(
-  (ref, search) async => (await ref.watch(adminLiveRepositoryProvider).search(status: search.status, page: search.page)).getOrThrow(),
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref.watch(adminLiveRepositoryProvider).search(status: search.status, page: search.page)).getOrThrow();
+  },
 );
 
 final adminMatchingRepositoryProvider = Provider<AdminMatchingRepository>(
@@ -177,16 +222,25 @@ final adminMatchingRepositoryProvider = Provider<AdminMatchingRepository>(
 );
 
 final matchingStatsProvider = FutureProvider.autoDispose<AdminMatchingStats>(
-  (ref) async => (await ref.watch(adminMatchingRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminMatchingRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 final matchingPackagesProvider = FutureProvider.autoDispose<List<AdminPremium>>(
-  (ref) async => (await ref.watch(adminMatchingRepositoryProvider).packages()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminMatchingRepositoryProvider).packages()).getOrThrow();
+  },
 );
 
 /// One person's package slices (user page).
 final userPackagesProvider = FutureProvider.autoDispose.family<List<AdminPersonalSubscription>, String>(
-  (ref, userId) async => (await ref.watch(adminMatchingRepositoryProvider).userPackages(userId)).getOrThrow(),
+  (ref, userId) async {
+    ref.cacheFor();
+    return (await ref.watch(adminMatchingRepositoryProvider).userPackages(userId)).getOrThrow();
+  },
 );
 
 final adminLegalRepositoryProvider = Provider<AdminLegalRepository>(
@@ -195,12 +249,18 @@ final adminLegalRepositoryProvider = Provider<AdminLegalRepository>(
 
 /// Legal text kinds and their versions.
 final legalKindsProvider = FutureProvider.autoDispose<List<LegalKind>>(
-  (ref) async => (await ref.watch(adminLegalRepositoryProvider).list()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminLegalRepositoryProvider).list()).getOrThrow();
+  },
 );
 
 /// One version's full body.
 final legalDocumentProvider = FutureProvider.autoDispose.family<LegalDocument, ({String kind, int version})>(
-  (ref, key) async => (await ref.watch(adminLegalRepositoryProvider).get(key.kind, key.version)).getOrThrow(),
+  (ref, key) async {
+    ref.cacheFor();
+    return (await ref.watch(adminLegalRepositoryProvider).get(key.kind, key.version)).getOrThrow();
+  },
 );
 
 final adminSecurityRepositoryProvider = Provider<AdminSecurityRepository>(
@@ -209,15 +269,24 @@ final adminSecurityRepositoryProvider = Provider<AdminSecurityRepository>(
 
 /// The enforcement switch (admin only).
 final securitySettingsProvider = FutureProvider.autoDispose<AdminSecuritySettings>(
-  (ref) async => (await ref.watch(adminSecurityRepositoryProvider).settings()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminSecurityRepositoryProvider).settings()).getOrThrow();
+  },
 );
 
 final securityReviewsProvider = FutureProvider.autoDispose.family<List<AdminSecurityReview>, AdminReviewStatus?>(
-  (ref, status) async => (await ref.watch(adminSecurityRepositoryProvider).reviews(status)).getOrThrow(),
+  (ref, status) async {
+    ref.cacheFor();
+    return (await ref.watch(adminSecurityRepositoryProvider).reviews(status)).getOrThrow();
+  },
 );
 
 final userSecurityProvider = FutureProvider.autoDispose.family<AdminUserSecurity, String>(
-  (ref, userId) async => (await ref.watch(adminSecurityRepositoryProvider).user(userId)).getOrThrow(),
+  (ref, userId) async {
+    ref.cacheFor();
+    return (await ref.watch(adminSecurityRepositoryProvider).user(userId)).getOrThrow();
+  },
 );
 
 final adminAnalyticsRepositoryProvider = Provider<AdminAnalyticsRepository>(
@@ -226,7 +295,10 @@ final adminAnalyticsRepositoryProvider = Provider<AdminAnalyticsRepository>(
 
 /// The overview for a range of 7, 30, 90 or 365 days.
 final overviewProvider = FutureProvider.autoDispose.family<AdminOverview, int>(
-  (ref, days) async => (await ref.watch(adminAnalyticsRepositoryProvider).overview(days)).getOrThrow(),
+  (ref, days) async {
+    ref.cacheFor();
+    return (await ref.watch(adminAnalyticsRepositoryProvider).overview(days)).getOrThrow();
+  },
 );
 
 final adminNotificationsRepositoryProvider = Provider<AdminNotificationsRepository>(
@@ -234,7 +306,10 @@ final adminNotificationsRepositoryProvider = Provider<AdminNotificationsReposito
 );
 
 final pushStatsProvider = FutureProvider.autoDispose<AdminPushStats>(
-  (ref) async => (await ref.watch(adminNotificationsRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminNotificationsRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 final adminBillingRepositoryProvider = Provider<AdminBillingRepository>(
@@ -242,31 +317,45 @@ final adminBillingRepositoryProvider = Provider<AdminBillingRepository>(
 );
 
 final billingStatsProvider = FutureProvider.autoDispose<AdminBillingStats>(
-  (ref) async => (await ref.watch(adminBillingRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminBillingRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 final paymentProvidersProvider = FutureProvider.autoDispose<List<PaymentProviderStatus>>(
-  (ref) async => (await ref.watch(adminBillingRepositoryProvider).providers()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminBillingRepositoryProvider).providers()).getOrThrow();
+  },
 );
 
 typedef OrderSearch = ({String query, AdminOrderStatus? status, int page});
 
 final orderSearchProvider = FutureProvider.autoDispose.family<OrderPage, OrderSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminBillingRepositoryProvider)
           .orders(query: search.query, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 typedef SubscriptionSearch = ({String query, int page});
 
 final subscriptionSearchProvider = FutureProvider.autoDispose.family<SubscriptionPage, SubscriptionSearch>(
-  (ref, search) async =>
-      (await ref.watch(adminBillingRepositoryProvider).subscriptions(query: search.query, page: search.page)).getOrThrow(),
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref.watch(adminBillingRepositoryProvider).subscriptions(query: search.query, page: search.page)).getOrThrow();
+  },
 );
 
 final adminPlansProvider = FutureProvider.autoDispose<List<AdminPlan>>(
-  (ref) async => (await ref.watch(adminBillingRepositoryProvider).plans()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminBillingRepositoryProvider).plans()).getOrThrow();
+  },
 );
 
 final adminSupportRepositoryProvider = Provider<AdminSupportRepository>(
@@ -274,20 +363,29 @@ final adminSupportRepositoryProvider = Provider<AdminSupportRepository>(
 );
 
 final supportStatsProvider = FutureProvider.autoDispose<AdminSupportStats>(
-  (ref) async => (await ref.watch(adminSupportRepositoryProvider).stats()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(adminSupportRepositoryProvider).stats()).getOrThrow();
+  },
 );
 
 typedef TicketSearch = ({String query, AdminSupportKind? kind, AdminSupportStatus? status, int page});
 
 final ticketSearchProvider = FutureProvider.autoDispose.family<TicketPage, TicketSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(adminSupportRepositoryProvider)
           .search(query: search.query, kind: search.kind, status: search.status, page: search.page))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 final ticketDetailProvider = FutureProvider.autoDispose.family<AdminTicketDetail, String>(
-  (ref, id) async => (await ref.watch(adminSupportRepositoryProvider).get(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(adminSupportRepositoryProvider).get(id)).getOrThrow();
+  },
 );
 
 final supportAttachmentUrlProvider = FutureProvider.autoDispose.family<String, String>(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/colors.dart';
+import '../tokens/media.dart';
 import '../tokens/radius.dart';
 import '../tokens/spacing.dart';
 import '../tokens/tones.dart';
@@ -83,7 +84,15 @@ class GwHeroCard extends StatelessWidget {
               aspectRatio: gwCoverAspectRatio(context),
               child: cover == null
                   ? placeholder
-                  : Image.network(cover, fit: BoxFit.cover, semanticLabel: 'Kapak fotoğrafı', errorBuilder: (_, _, _) => placeholder),
+                  : LayoutBuilder(
+                      builder: (context, constraints) => Image.network(
+                        cover,
+                        fit: BoxFit.cover,
+                        cacheWidth: gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context)),
+                        semanticLabel: 'Kapak fotoğrafı',
+                        errorBuilder: (_, _, _) => placeholder,
+                      ),
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(GwSpacing.md),

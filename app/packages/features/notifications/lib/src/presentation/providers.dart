@@ -23,6 +23,7 @@ final notificationArrivalsProvider = StreamProvider.autoDispose<NotificationArri
 
 /// Unread count for the navigation badge; recounts when a notification arrives.
 final unreadNotificationsProvider = FutureProvider.autoDispose<int>((ref) async {
+  ref.cacheFor();
   if (ref.watch(currentUserIdProvider) == null) return 0;
   ref.watch(notificationArrivalsProvider);
   return switch (await ref.watch(notificationsRepositoryProvider).unreadCount()) {
@@ -43,7 +44,10 @@ final liveAlertSoundProvider = Provider<Future<void> Function()>((ref) {
 });
 
 final notificationPreferencesProvider = FutureProvider.autoDispose<NotificationPreferences>(
-  (ref) async => (await ref.watch(notificationsRepositoryProvider).preferences()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(notificationsRepositoryProvider).preferences()).getOrThrow();
+  },
 );
 
 class NotificationPage {
@@ -59,7 +63,8 @@ final notificationListProvider = AsyncNotifierProvider.autoDispose<NotificationL
 class NotificationList extends AsyncNotifier<NotificationPage> {
   @override
   Future<NotificationPage> build() async {
-    ref.watch(currentUserIdProvider);
+    // Pages loaded with loadMore would be lost to a background refresh; pull to refresh reloads.
+    ref.cacheFor(staleAfter: screenCacheKeep);
     final items = (await ref.watch(notificationsRepositoryProvider).list()).getOrThrow();
     return NotificationPage(items, hasMore: items.length >= NotificationsRepositoryImpl.pageSize);
   }

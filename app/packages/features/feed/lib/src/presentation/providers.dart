@@ -30,7 +30,8 @@ class PostList extends AsyncNotifier<PostPage> {
 
   @override
   Future<PostPage> build() async {
-    ref.watch(currentUserIdProvider);
+    // Pages loaded with loadMore would be lost to a background refresh; pull to refresh reloads.
+    ref.cacheFor(staleAfter: screenCacheKeep);
     final posts = (await ref.watch(feedRepositoryProvider).posts(source)).getOrThrow();
     return PostPage(posts, hasMore: source is! SavedPosts && posts.length >= FeedRepositoryImpl.pageSize);
   }
@@ -54,6 +55,7 @@ class PostList extends AsyncNotifier<PostPage> {
 }
 
 final postProvider = FutureProvider.autoDispose.family<Post, String>((ref, id) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(feedRepositoryProvider).post(id)).getOrThrow();
 });
@@ -81,43 +83,64 @@ Post? watchPost(WidgetRef ref, Post post) {
 }
 
 final commentsProvider = FutureProvider.autoDispose.family<List<Comment>, String>((ref, postId) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(feedRepositoryProvider).comments(postId)).getOrThrow();
 });
 
 final hashtagSearchProvider = FutureProvider.autoDispose.family<List<HashtagCount>, String>((ref, query) async {
+  ref.cacheFor();
   final q = query.trim().replaceAll('#', '');
   if (q.isEmpty) return const [];
   return (await ref.watch(feedRepositoryProvider).searchHashtags(q)).getOrThrow();
 });
 
 final publishableGroupsProvider = FutureProvider.autoDispose<List<PostGroup>>(
-  (ref) async => (await ref.watch(feedRepositoryProvider).publishableGroups()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(feedRepositoryProvider).publishableGroups()).getOrThrow();
+  },
 );
 
 final storyTrayProvider = FutureProvider.autoDispose<List<StoryRing>>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(storyRepositoryProvider).tray()).getOrThrow();
 });
 
 final activeStoriesProvider = FutureProvider.autoDispose.family<List<Story>, String>(
-  (ref, userId) async => (await ref.watch(storyRepositoryProvider).active(userId)).getOrThrow(),
+  (ref, userId) async {
+    ref.cacheFor();
+    return (await ref.watch(storyRepositoryProvider).active(userId)).getOrThrow();
+  },
 );
 
 final storyArchiveProvider = FutureProvider.autoDispose<List<Story>>(
-  (ref) async => (await ref.watch(storyRepositoryProvider).archive()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(storyRepositoryProvider).archive()).getOrThrow();
+  },
 );
 
 final storyViewersProvider = FutureProvider.autoDispose.family<List<StoryViewer>, String>(
-  (ref, storyId) async => (await ref.watch(storyRepositoryProvider).viewers(storyId)).getOrThrow(),
+  (ref, storyId) async {
+    ref.cacheFor();
+    return (await ref.watch(storyRepositoryProvider).viewers(storyId)).getOrThrow();
+  },
 );
 
 final highlightsProvider = FutureProvider.autoDispose.family<List<Highlight>, String>(
-  (ref, userId) async => (await ref.watch(storyRepositoryProvider).highlights(userId)).getOrThrow(),
+  (ref, userId) async {
+    ref.cacheFor();
+    return (await ref.watch(storyRepositoryProvider).highlights(userId)).getOrThrow();
+  },
 );
 
 final highlightStoriesProvider = FutureProvider.autoDispose.family<List<Story>, String>(
-  (ref, id) async => (await ref.watch(storyRepositoryProvider).highlightStories(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(storyRepositoryProvider).highlightStories(id)).getOrThrow();
+  },
 );
 
 /// Bumped whenever a post is created or deleted, so other pages (e.g. profile counts) can reload.
