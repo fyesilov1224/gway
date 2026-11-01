@@ -21,6 +21,10 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:networkSecurityConfig="${networkSecurityConfig}">
+        <!-- Push without its own channel lands here (MainActivity creates it; docs/ARCHITECTURE.md 3c). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="gway_general" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

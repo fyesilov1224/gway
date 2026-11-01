@@ -49,6 +49,12 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xs),
+                    child: Text('Mesajlar', style: textTheme.titleSmall),
+                  ),
+                  toggle('Yeni mesajlar', 'Sohbetlerine ve grup sohbetlerine mesaj gelince, uygulama kapalıyken de sesli',
+                      p.messages, (v) => p.copyWith(messages: v)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                     child: Text('Organizasyonlar', style: textTheme.titleSmall),
                   ),
                   toggle('1 gün önce hatırlat', 'Katıldığın organizasyon yarın başlıyorsa', p.reminderDay,

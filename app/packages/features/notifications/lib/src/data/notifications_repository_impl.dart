@@ -40,6 +40,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           reviewRequests: r['event_review_requests'] as bool,
           liveBroadcasts: r['live_broadcasts'] as bool,
           matchAlerts: r['match_alerts'] as bool,
+          messages: r['messages'] as bool,
         );
       });
 
@@ -53,6 +54,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'event_review_requests': p.reviewRequests,
           'live_broadcasts': p.liveBroadcasts,
           'match_alerts': p.matchAlerts,
+          'messages': p.messages,
         });
       });
 

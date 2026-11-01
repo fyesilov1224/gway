@@ -17,7 +17,11 @@ internal sealed record PendingPush(
     DateTimeOffset? EventStartsAt,
     string? GroupName,
     string? SanctionType,
-    string? GoalTitle);
+    string? GoalTitle,
+    Guid? ConversationId = null,
+    string? MessageText = null,
+    bool MessagePhoto = false,
+    string? ChatGroupName = null);
 
 /// <summary>The same Turkish sentences as the app's notification list (<c>AppNotification.action</c> in Flutter).</summary>
 internal static class PushTexts
@@ -27,7 +31,8 @@ internal static class PushTexts
 
     private static readonly TimeZoneInfo Turkey = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
 
-    public static PushMessage For(PendingPush n)
+    /// <summary>The push for a notification; null for a chat message deleted before it went out.</summary>
+    public static PushMessage? For(PendingPush n)
     {
         var data = new Dictionary<string, string>
         {
@@ -35,7 +40,19 @@ internal static class PushTexts
             ["notification_id"] = n.Id.ToString(CultureInfo.InvariantCulture),
         };
         if (n.LiveId is { } live) data["live_id"] = live.ToString();
+        if (n.Type == "message") return ForMessage(n, data);
         return new PushMessage(Lead(n), Action(n), data);
+    }
+
+    /// <summary>Direct: the sender and the text. Group: the group, then "sender: text" (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).</summary>
+    private static PushMessage? ForMessage(PendingPush n, Dictionary<string, string> data)
+    {
+        var text = !string.IsNullOrWhiteSpace(n.MessageText) ? n.MessageText : n.MessagePhoto ? "📷 Fotoğraf" : null;
+        if (text is null || n.ConversationId is not { } conversation) return null;
+        data["conversation_id"] = conversation.ToString();
+        return n.ChatGroupName is { } group
+            ? new PushMessage(group, $"{n.ActorUsername}: {text}", data)
+            : new PushMessage(n.ActorUsername, text, data);
     }
 
     /// <summary>The group for group notices, nobody for a match (who it is needs a package), otherwise the person.</summary>

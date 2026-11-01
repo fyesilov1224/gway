@@ -242,6 +242,7 @@ void main() {
     final push = _FakePush();
     final repo = _FakeDevices();
     final opened = <String>[];
+    final chats = <String>[];
     var listOpened = 0;
     await tester.pumpWidget(ProviderScope(
       overrides: [
@@ -249,7 +250,12 @@ void main() {
         notificationsRepositoryProvider.overrideWithValue(repo),
         pushMessagingProvider.overrideWithValue(push),
       ],
-      child: PushNotifications(openLive: opened.add, openNotifications: () => listOpened++, child: const SizedBox()),
+      child: PushNotifications(
+        openLive: opened.add,
+        openConversation: chats.add,
+        openNotifications: () => listOpened++,
+        child: const SizedBox(),
+      ),
     ));
     await tester.pump();
     // Not while the session is still in security verification: its token may not write yet.
@@ -262,10 +268,12 @@ void main() {
     push.refreshes.add('new-token-of-this-phone');
     push.tapped
       ..add({'type': 'live_started', 'live_id': 'b1'})
+      ..add({'type': 'message', 'conversation_id': 'c1'})
       ..add({'type': 'like'});
     await tester.pump();
     expect(repo.registered.last, ('new-token-of-this-phone', 'android'));
     expect(opened, ['b1']);
+    expect(chats, ['c1'], reason: 'a message notice opens its chat');
     expect(listOpened, 1);
 
     ProviderScope.containerOf(tester.element(find.byType(SizedBox))).read(_signedIn.notifier).signOut();
@@ -281,10 +289,27 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(find.text('Planlanan ve başlayan yayınlar'), 100);
+    await tester.ensureVisible(find.text('Planlanan ve başlayan yayınlar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Planlanan ve başlayan yayınlar'));
     await tester.pumpAndSettle();
     expect(repo.saved.single.liveBroadcasts, isFalse);
     expect(repo.saved.single.reminderDay, isTrue);
+  });
+  testWidgets('message notices are on for a new user and can be turned off', (tester) async {
+    final repo = _FakePreferences();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [currentUserIdProvider.overrideWithValue('u1'), notificationsRepositoryProvider.overrideWithValue(repo)],
+      child: MaterialApp(theme: GwTheme.light(), home: const NotificationPreferencesScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    final toggle = find.widgetWithText(SwitchListTile, 'Yeni mesajlar');
+    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(repo.saved.single.messages, isFalse);
+    expect(repo.saved.single.liveBroadcasts, isTrue);
   });
   testWidgets('turning a reminder off saves it', (tester) async {
     final repo = _FakePreferences();

@@ -56,18 +56,38 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
 
     public bool IsConfigured => options.Value.IsConfigured;
 
-    public Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct) =>
-        PostAsync(new
+    /// <summary>Android channels the app creates (MainActivity); both ring with the phone's sound and pop up.</summary>
+    internal const string MessagesChannel = "gway_messages";
+    internal const string GeneralChannel = "gway_general";
+
+    /// <summary>FCM refuses explicit nulls in some fields (e.g. <c>tag</c>); unset ones are left out.</summary>
+    private static readonly JsonSerializerOptions OmitNulls = new() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+
+    public Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct)
+    {
+        // A chat keeps one notification on the phone: the newest message replaces the previous one.
+        message.Data.TryGetValue("conversation_id", out var conversation);
+        return PostAsync(new
         {
             message = new
             {
                 token,
                 notification = new { title = message.Title, body = message.Body },
                 data = message.Data,
-                android = new { priority = "HIGH", notification = new { sound = "default" } },
+                android = new
+                {
+                    priority = "HIGH",
+                    notification = new
+                    {
+                        sound = "default",
+                        channel_id = conversation is null ? GeneralChannel : MessagesChannel,
+                        tag = conversation,
+                    },
+                },
                 apns = new { payload = new { aps = new { sound = "default" } } },
             },
         }, ct);
+    }
 
     /// <summary>FCM's dry run (<c>validate_only</c>) checks the token and delivers nothing.</summary>
     public Task<PushResult> ProbeAsync(string token, CancellationToken ct) =>
@@ -79,7 +99,7 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
         using var request = new HttpRequestMessage(HttpMethod.Post,
             new Uri($"https://fcm.googleapis.com/v1/projects/{account.ProjectId}/messages:send"));
         request.Headers.Authorization = new("Bearer", await AccessTokenAsync(account, ct));
-        request.Content = JsonContent.Create(body);
+        request.Content = JsonContent.Create(body, options: OmitNulls);
         using var response = await http.SendAsync(request, ct);
         if (response.IsSuccessStatusCode) return PushResult.Sent;
         var error = await response.Content.ReadAsStringAsync(ct);

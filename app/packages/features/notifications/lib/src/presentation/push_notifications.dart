@@ -9,9 +9,18 @@ import 'providers.dart';
 /// Registers this phone for push while someone is signed in, forgets it on sign-out,
 /// and opens what a tapped notification is about (docs/ARCHITECTURE.md §3c, Push).
 class PushNotifications extends ConsumerStatefulWidget {
-  const PushNotifications({super.key, required this.openLive, required this.openNotifications, required this.child});
+  const PushNotifications({
+    super.key,
+    required this.openLive,
+    required this.openConversation,
+    required this.openNotifications,
+    required this.child,
+  });
 
   final void Function(String liveId) openLive;
+
+  /// A chat message notification opens its chat (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
+  final void Function(String conversationId) openConversation;
   final void Function() openNotifications;
   final Widget child;
 
@@ -32,6 +41,8 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
       ..add(push.taps.listen((data) {
         if (data['live_id'] case final String liveId) {
           widget.openLive(liveId);
+        } else if (data['conversation_id'] case final String conversationId) {
+          widget.openConversation(conversationId);
         } else {
           widget.openNotifications();
         }
