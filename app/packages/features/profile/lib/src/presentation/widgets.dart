@@ -11,7 +11,7 @@ import 'providers.dart';
 
 /// Picks a gallery image sized for [kind]. Null when the user cancels.
 Future<ImageUpload?> pickProfileImage(ProfileImage kind) =>
-    pickGalleryImage(maxWidth: kind == ProfileImage.avatar ? 1024 : 2048);
+    pickGalleryImage(maxWidth: kind == ProfileImage.avatar ? GwMedia.avatarMaxSide : 2048);
 
 /// Selectable interest chips, limited to [ProfileRules.maxInterests].
 class InterestPicker extends ConsumerWidget {

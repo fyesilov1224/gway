@@ -50,8 +50,16 @@ String? tokenRole(String? accessToken) {
 final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(
     baseUrl: Uri.parse(ref.watch(appConfigProvider).apiUrl),
-    accessToken: () =>
-        ref.read(supabaseClientProvider).auth.currentSession?.accessToken,
+    // Like Supabase's own clients: after the app sat in the background the token may have expired; getSession
+    // refreshes it once for all concurrent requests. If the refresh fails the API answers 401 as before.
+    accessToken: () async {
+      final auth = ref.read(supabaseClientProvider).auth;
+      try {
+        return (await auth.getSession())?.accessToken;
+      } on AuthException {
+        return auth.currentSession?.accessToken;
+      }
+    },
   );
   ref.onDispose(client.close);
   return client;

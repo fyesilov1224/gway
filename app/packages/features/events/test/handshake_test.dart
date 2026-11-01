@@ -30,7 +30,7 @@ class _FakeEvents implements EventsRepository {
 }
 
 Widget _app(Widget child, _FakeEvents events) => ProviderScope(
-      overrides: [eventsRepositoryProvider.overrideWithValue(events)],
+      overrides: [currentUserIdProvider.overrideWithValue('u1'), eventsRepositoryProvider.overrideWithValue(events)],
       child: MaterialApp(theme: GwTheme.light(), home: child),
     );
 

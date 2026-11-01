@@ -14,15 +14,24 @@ final billingRepositoryProvider = Provider<BillingRepository>(
 final purchasesOnThisPlatformProvider = Provider<bool>((ref) => kIsWeb);
 
 final plansProvider = FutureProvider.autoDispose<List<Plan>>(
-  (ref) async => (await ref.watch(billingRepositoryProvider).plans()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(billingRepositoryProvider).plans()).getOrThrow();
+  },
 );
 
 final groupPlanProvider = FutureProvider.autoDispose.family<GroupPlan?, String>(
-  (ref, groupId) async => (await ref.watch(billingRepositoryProvider).groupPlan(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(billingRepositoryProvider).groupPlan(groupId)).getOrThrow();
+  },
 );
 
 final planTimelineProvider = FutureProvider.autoDispose.family<List<PlanSlice>, String>(
-  (ref, groupId) async => (await ref.watch(billingRepositoryProvider).timeline(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(billingRepositoryProvider).timeline(groupId)).getOrThrow();
+  },
 );
 
 final offerProvider = FutureProvider.autoDispose.family<Offer, String>(
@@ -30,7 +39,10 @@ final offerProvider = FutureProvider.autoDispose.family<Offer, String>(
 );
 
 final salesTermsProvider = FutureProvider.autoDispose<SalesTerms>(
-  (ref) async => (await ref.watch(billingRepositoryProvider).salesTerms()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(billingRepositoryProvider).salesTerms()).getOrThrow();
+  },
 );
 
 final lastBillingDetailsProvider = FutureProvider.autoDispose<BillingDetails?>(

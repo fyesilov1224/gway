@@ -113,7 +113,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
-      GoRoute(path: AppRoutes.loading, builder: (_, _) => const GwSplash()),
+      GoRoute(path: AppRoutes.loading, builder: (_, _) => const StartupSplash()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const _GateErrorScreen()),
       GoRoute(path: IdentityRoutes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: IdentityRoutes.signUp, builder: (_, _) => const SignUpScreen()),

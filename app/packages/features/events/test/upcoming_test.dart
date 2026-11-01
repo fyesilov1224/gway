@@ -37,7 +37,7 @@ Future<void> _pump(WidgetTester tester, List<GroupEvent> events, {VoidCallback? 
   // A fresh ProviderScope each time, so overridden data is never reused.
   await tester.pumpWidget(const SizedBox());
   await tester.pumpWidget(ProviderScope(
-    overrides: [eventsRepositoryProvider.overrideWithValue(_FakeEvents(events))],
+    overrides: [currentUserIdProvider.overrideWithValue('u1'), eventsRepositoryProvider.overrideWithValue(_FakeEvents(events))],
     child: MaterialApp(
       theme: GwTheme.light(),
       home: MediaQuery.withClampedTextScaling(

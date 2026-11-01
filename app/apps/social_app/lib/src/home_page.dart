@@ -5,6 +5,7 @@ import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:groups/groups.dart';
 import 'package:live/live.dart';
 import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
@@ -33,6 +34,27 @@ class HomePage extends StatelessWidget {
           children: [LiveNowTray(), StartingSoonSection()],
         ),
       );
+}
+
+/// The splash while the gate resolves. A token that already carries the verified role can read, so Bugün's data
+/// loads alongside the gate instead of after it; the screen cache (`ref.cacheFor`) hands it to [HomePage].
+class StartupSplash extends ConsumerWidget {
+  const StartupSplash({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final me = ref.watch(currentUserIdProvider);
+    if (me != null && ref.watch(sessionRoleProvider) == 'authenticated') {
+      ref
+        ..watch(postListProvider(const HomeFeed()))
+        ..watch(storyTrayProvider)
+        ..watch(myLiveProvider)
+        ..watch(startingSoonProvider)
+        ..watch(unreadNotificationsProvider)
+        ..watch(userGroupsProvider(me));
+    }
+    return const GwSplash();
+  }
 }
 
 const _weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];

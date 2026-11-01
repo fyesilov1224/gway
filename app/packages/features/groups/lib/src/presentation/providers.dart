@@ -11,22 +11,32 @@ final groupsRepositoryProvider = Provider<GroupsRepository>(
 typedef GroupSearch = ({String query, String? category, int limit});
 
 final discoverGroupsProvider = FutureProvider.autoDispose.family<List<Group>, GroupSearch>(
-  (ref, search) async => (await ref
+  (ref, search) async {
+    ref.cacheFor();
+    return (await ref
           .watch(groupsRepositoryProvider)
           .discover(query: search.query, categorySlug: search.category, limit: search.limit))
-      .getOrThrow(),
+      .getOrThrow();
+  },
 );
 
 /// Groups a user belongs to (profile section, "Gruplarım").
 final userGroupsProvider = FutureProvider.autoDispose.family<List<Group>, String>(
-  (ref, userId) async => (await ref.watch(groupsRepositoryProvider).groupsOf(userId)).getOrThrow(),
+  (ref, userId) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).groupsOf(userId)).getOrThrow();
+  },
 );
 
 final groupByHandleProvider = FutureProvider.autoDispose.family<Group, String>(
-  (ref, handle) async => (await ref.watch(groupsRepositoryProvider).byHandle(handle)).getOrThrow(),
+  (ref, handle) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).byHandle(handle)).getOrThrow();
+  },
 );
 
 final myMembershipProvider = FutureProvider.autoDispose.family<MyMembership, String>((ref, groupId) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(groupsRepositoryProvider).myMembership(groupId)).getOrThrow();
 });
@@ -36,26 +46,42 @@ typedef GroupKey = ({String id, String ownerId});
 GroupKey groupKeyOf(Group group) => (id: group.id, ownerId: group.ownerId);
 
 final groupMembersProvider = FutureProvider.autoDispose.family<List<GroupPerson>, GroupKey>(
-  (ref, key) async => (await ref.watch(groupsRepositoryProvider).members(key.id, ownerId: key.ownerId)).getOrThrow(),
+  (ref, key) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).members(key.id, ownerId: key.ownerId)).getOrThrow();
+  },
 );
 
 final joinRequestsProvider = FutureProvider.autoDispose.family<List<GroupPerson>, String>(
-  (ref, groupId) async => (await ref.watch(groupsRepositoryProvider).joinRequests(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).joinRequests(groupId)).getOrThrow();
+  },
 );
 
 final groupInvitationsProvider = FutureProvider.autoDispose.family<List<GroupPerson>, String>(
-  (ref, groupId) async => (await ref.watch(groupsRepositoryProvider).invitations(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).invitations(groupId)).getOrThrow();
+  },
 );
 
 final inviteLinksProvider = FutureProvider.autoDispose.family<List<InviteLink>, String>(
-  (ref, groupId) async => (await ref.watch(groupsRepositoryProvider).inviteLinks(groupId)).getOrThrow(),
+  (ref, groupId) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).inviteLinks(groupId)).getOrThrow();
+  },
 );
 
 final invitePreviewProvider = FutureProvider.autoDispose.family<InvitePreview?, String>(
-  (ref, code) async => (await ref.watch(groupsRepositoryProvider).invitePreview(code)).getOrThrow(),
+  (ref, code) async {
+    ref.cacheFor();
+    return (await ref.watch(groupsRepositoryProvider).invitePreview(code)).getOrThrow();
+  },
 );
 
 final myInvitationsProvider = FutureProvider.autoDispose<List<GroupInvitation>>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(groupsRepositoryProvider).myInvitations()).getOrThrow();
 });

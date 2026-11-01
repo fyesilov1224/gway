@@ -14,13 +14,14 @@ import 'result.dart';
 class ApiClient {
   ApiClient({
     required this.baseUrl,
-    required String? Function() accessToken,
+    required FutureOr<String?> Function() accessToken,
     http.Client? httpClient,
   })  : _accessToken = accessToken,
         _http = httpClient ?? http.Client();
 
   final Uri baseUrl;
-  final String? Function() _accessToken;
+  /// Awaited before each request, so an expired session is refreshed first instead of answering 401.
+  final FutureOr<String?> Function() _accessToken;
   final http.Client _http;
 
   static const _timeout = Duration(seconds: 20);
@@ -74,7 +75,7 @@ class ApiClient {
     );
     final request = http.Request(method, uri)
       ..headers['Accept'] = 'application/json';
-    final token = _accessToken();
+    final token = await _accessToken();
     if (token != null) request.headers['Authorization'] = 'Bearer $token';
     if (body != null) {
       request.headers['Content-Type'] = 'application/json';

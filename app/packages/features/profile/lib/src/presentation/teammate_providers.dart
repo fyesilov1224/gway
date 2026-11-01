@@ -9,20 +9,26 @@ final teammatesRepositoryProvider = Provider<TeammatesRepository>(
 );
 
 final teammatePreferencesProvider = FutureProvider.autoDispose<TeammatePreferences>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(teammatesRepositoryProvider).preferences()).getOrThrow();
 });
 
 final teammateStatusProvider = FutureProvider.autoDispose.family<TeammateStatus?, String>((ref, userId) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(teammatesRepositoryProvider).status(userId)).getOrThrow();
 });
 
 final teammateSuggestionsProvider = FutureProvider.autoDispose<List<TeammateSuggestion>>(
-  (ref) async => (await ref.watch(teammatesRepositoryProvider).suggestions()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(teammatesRepositoryProvider).suggestions()).getOrThrow();
+  },
 );
 
 final myTeammatesProvider = FutureProvider.autoDispose<MyTeammates>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(teammatesRepositoryProvider).mine()).getOrThrow();
 });

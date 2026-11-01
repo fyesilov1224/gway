@@ -275,7 +275,7 @@ void main() {
   testWidgets('turning live broadcast notices off saves it', (tester) async {
     final repo = _FakePreferences();
     await tester.pumpWidget(ProviderScope(
-      overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
+      overrides: [currentUserIdProvider.overrideWithValue('u1'), notificationsRepositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(theme: GwTheme.light(), home: const NotificationPreferencesScreen()),
     ));
     await tester.pumpAndSettle();
@@ -289,7 +289,7 @@ void main() {
   testWidgets('turning a reminder off saves it', (tester) async {
     final repo = _FakePreferences();
     await tester.pumpWidget(ProviderScope(
-      overrides: [notificationsRepositoryProvider.overrideWithValue(repo)],
+      overrides: [currentUserIdProvider.overrideWithValue('u1'), notificationsRepositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(theme: GwTheme.light(), home: const NotificationPreferencesScreen()),
     ));
     await tester.pumpAndSettle();

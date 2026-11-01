@@ -10,6 +10,7 @@ export 'src/packages.dart';
 export 'src/provinces.dart';
 export 'src/reporting.dart';
 export 'src/result.dart';
+export 'src/screen_cache.dart';
 export 'src/session.dart';
 export 'src/sharing.dart';
 export 'src/supabase_errors.dart';

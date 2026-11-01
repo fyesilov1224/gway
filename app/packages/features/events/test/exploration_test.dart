@@ -36,6 +36,7 @@ Future<void> _pump(WidgetTester tester, Exploration exploration) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(ProviderScope(
     overrides: [
+      currentUserIdProvider.overrideWithValue('u1'),
       eventsRepositoryProvider.overrideWithValue(_FakeEvents(exploration)),
       provinceShapesProvider.overrideWith((ref) async => _shapes),
     ],

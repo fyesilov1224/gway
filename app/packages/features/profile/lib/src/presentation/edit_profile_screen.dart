@@ -280,7 +280,7 @@ class _ImagesEditor extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (cover == null) const ColoredBox(color: GwColors.primarySoft) else Image.network(cover, fit: BoxFit.cover),
+                if (cover == null) const ColoredBox(color: GwColors.primarySoft) else Image(image: gwNetworkImage(cover), fit: BoxFit.cover),
                 Positioned(
                   top: GwSpacing.sm,
                   right: GwSpacing.sm,

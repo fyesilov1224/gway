@@ -9,23 +9,31 @@ final matchingRepositoryProvider = Provider<MatchingRepository>(
 );
 
 final myMatchProfileProvider = FutureProvider.autoDispose<MatchProfile?>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(matchingRepositoryProvider).myProfile()).getOrThrow();
 });
 
 final matchListProvider = FutureProvider.autoDispose<List<MatchSummary>>(
-  (ref) async => (await ref.watch(matchingRepositoryProvider).matches()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(matchingRepositoryProvider).matches()).getOrThrow();
+  },
 );
 
 /// The user's packages and today's allowances.
 final matchStatusProvider = FutureProvider.autoDispose<MatchStatus>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(matchingRepositoryProvider).status()).getOrThrow();
 });
 
 /// Seni Beğenenler: the people waiting for an answer in one mode.
 final admirersProvider = FutureProvider.autoDispose.family<List<MatchCard>, MatchMode>(
-  (ref, mode) async => (await ref.watch(matchingRepositoryProvider).admirers(mode)).getOrThrow(),
+  (ref, mode) async {
+    ref.cacheFor();
+    return (await ref.watch(matchingRepositoryProvider).admirers(mode)).getOrThrow();
+  },
 );
 
 /// The deck filters for this session (Sınırsız Beğeni).

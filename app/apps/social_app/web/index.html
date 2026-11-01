@@ -17,6 +17,9 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <!-- Start the large downloads while flutter_bootstrap.js loads, instead of after it (docs/DEPLOY.md, Web hızı). -->
+  <link rel="preload" href="main.dart.js" as="script">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="GWAY — tüm grupların tek adresi.">
 

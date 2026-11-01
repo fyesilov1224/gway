@@ -9,6 +9,7 @@ final supportRepositoryProvider = Provider<SupportRepository>(
 );
 
 final myTicketsProvider = FutureProvider.autoDispose<List<SupportTicket>>((ref) async {
+  ref.cacheFor();
   ref.watch(currentUserIdProvider);
   return (await ref.watch(supportRepositoryProvider).myTickets()).getOrThrow();
 });
@@ -19,11 +20,17 @@ final unreadSupportCountProvider = Provider.autoDispose<int>(
 );
 
 final supportThreadProvider = FutureProvider.autoDispose.family<SupportThread, String>(
-  (ref, id) async => (await ref.watch(supportRepositoryProvider).thread(id)).getOrThrow(),
+  (ref, id) async {
+    ref.cacheFor();
+    return (await ref.watch(supportRepositoryProvider).thread(id)).getOrThrow();
+  },
 );
 
 final managedGroupsProvider = FutureProvider.autoDispose<List<ManagedGroup>>(
-  (ref) async => (await ref.watch(supportRepositoryProvider).managedGroups()).getOrThrow(),
+  (ref) async {
+    ref.cacheFor();
+    return (await ref.watch(supportRepositoryProvider).managedGroups()).getOrThrow();
+  },
 );
 
 final attachmentUrlProvider = FutureProvider.autoDispose.family<String, String>(
