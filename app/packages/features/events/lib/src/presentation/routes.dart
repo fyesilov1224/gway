@@ -25,6 +25,9 @@ abstract final class EventRoutes {
   /// "Bu akşam": who is free and the small table.
   static const tonight = '/tonight';
 
+  /// "Yaklaşanlar": the next 60 days of the user's groups, day by day.
+  static const upcoming = '/upcoming';
+
   /// Groups and upcoming events on the map.
   static const map = '/map';
 

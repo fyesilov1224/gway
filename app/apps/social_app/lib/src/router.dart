@@ -189,6 +189,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: EventRoutes.map, builder: (_, _) => const DiscoverMapScreen(onOpenGroup: _openGroup)),
           GoRoute(path: EventRoutes.tonight, builder: (_, _) => const TonightScreen(openChat: openTonightChat, openProfile: _openProfile)),
           GoRoute(
+            path: EventRoutes.upcoming,
+            builder: (context, _) => UpcomingScreen(onFindGroups: () => context.go(GroupRoutes.discover)),
+          ),
+          GoRoute(
             path: '/league',
             builder: (_, state) => LeagueScreen(
               openGroup: _openGroup,
