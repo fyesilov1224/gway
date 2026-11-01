@@ -280,7 +280,10 @@ class _ReportRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: GwSpacing.xs),
-          if (r.excerpt.isNotEmpty) Text(r.excerpt, maxLines: 3, overflow: TextOverflow.ellipsis, style: textTheme.bodyLarge),
+          if (r.targetType == 'message')
+            Text('Mesaj içeriği gizlilik gereği gösterilmez; karar şikayet gerekçesine göre verilir.', style: secondary)
+          else if (r.excerpt.isNotEmpty)
+            Text(r.excerpt, maxLines: 3, overflow: TextOverflow.ellipsis, style: textTheme.bodyLarge),
           if (r.note case final note?) Text('“$note”', style: secondary?.copyWith(fontStyle: FontStyle.italic)),
           Text(meta, style: secondary),
           const SizedBox(height: GwSpacing.xs),
@@ -288,16 +291,8 @@ class _ReportRow extends StatelessWidget {
             spacing: GwSpacing.xs,
             runSpacing: GwSpacing.xs,
             children: [
-              if (canAct && r.targetType == 'message')
-                GwButton(
-                  label: 'Mesajı incele',
-                  icon: Icons.forum_outlined,
-                  variant: GwButtonVariant.text,
-                  onPressed: () async {
-                    final removed = await showDialog<bool>(context: context, builder: (_) => _MessageContextDialog(report: r));
-                    if (removed ?? false) await onReview(r, actioned: true);
-                  },
-                ),
+              if (canAct && r.status == AdminReportStatus.open && r.targetType == 'message')
+                _RemoveMessageButton(report: r, onRemoved: () => onReview(r, actioned: true)),
               if (r.targetType == 'match_photo')
                 GwButton(
                   label: 'Fotoğrafı gör',
@@ -337,24 +332,22 @@ class _ReportRow extends StatelessWidget {
   }
 }
 
-/// The reported message and the five before it. Loaded on each opening, since every viewing is audited.
-class _MessageContextDialog extends ConsumerStatefulWidget {
-  const _MessageContextDialog({required this.report});
+
+/// Removes a reported message without showing it: the platform team never reads private messages.
+class _RemoveMessageButton extends ConsumerStatefulWidget {
+  const _RemoveMessageButton({required this.report, required this.onRemoved});
 
   final AdminReport report;
+  final Future<void> Function() onRemoved;
 
   @override
-  ConsumerState<_MessageContextDialog> createState() => _MessageContextDialogState();
+  ConsumerState<_RemoveMessageButton> createState() => _RemoveMessageButtonState();
 }
 
-class _MessageContextDialogState extends ConsumerState<_MessageContextDialog> {
-  late Future<Result<List<AdminContextMessage>>> _messages = _load();
+class _RemoveMessageButtonState extends ConsumerState<_RemoveMessageButton> {
   bool _removing = false;
 
-  Future<Result<List<AdminContextMessage>>> _load() =>
-      ref.read(adminModerationRepositoryProvider).messageContext(widget.report.id);
-
-  Future<void> _remove(AdminContextMessage message) async {
+  Future<void> _remove() async {
     final request = await showSuspendDialog(
       context,
       title: 'Mesajı kaldır',
@@ -364,100 +357,25 @@ class _MessageContextDialogState extends ConsumerState<_MessageContextDialog> {
     );
     if (request == null || !mounted) return;
     setState(() => _removing = true);
-    final result = await ref.read(adminModerationRepositoryProvider).removeMessage(message.id, reason: request.reason);
+    final result = await ref.read(adminModerationRepositoryProvider).removeMessage(widget.report.targetId, reason: request.reason);
     if (!mounted) return;
     setState(() => _removing = false);
     switch (result) {
       case Ok():
-        Navigator.of(context).pop(true);
+        await widget.onRemoved();
       case Err(:final failure):
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-      title: const Text('Şikayet edilen mesaj'),
-      content: SizedBox(
-        width: GwLayout.formMaxWidth,
-        child: FutureBuilder(
-          future: _messages,
-          builder: (context, snapshot) => switch (snapshot.data) {
-            null => const GwSkeleton(height: GwSpacing.xxl * 2),
-            Err(:final failure) => GwErrorState(
-                message: failure.userMessage,
-                onRetry: () => setState(() => _messages = _load()),
-              ),
-            Ok(:final value) => Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Yalnızca şikayet edilen mesaj ve sohbetteki önceki 5 mesaj gösterilir. Bu görüntüleme kayda geçer.',
-                      style: secondary),
-                  const SizedBox(height: GwSpacing.sm),
-                  Flexible(
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        for (final m in value)
-                          Container(
-                            margin: const EdgeInsets.only(bottom: GwSpacing.xs),
-                            padding: const EdgeInsets.all(GwSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: m.reported ? GwColors.warningSoft : GwColors.surface,
-                              borderRadius: GwRadius.mdAll,
-                              border: const Border.fromBorderSide(GwBorders.hairline),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  [
-                                    m.senderUsername == null ? 'Silinmiş hesap' : '${m.senderName} (@${m.senderUsername})',
-                                    formatDateTimeTr(m.createdAt),
-                                    if (m.reported) 'Şikayet edilen',
-                                  ].join(' · '),
-                                  style: textTheme.labelMedium,
-                                ),
-                                const SizedBox(height: GwSpacing.xxs),
-                                if (m.deleted)
-                                  Text('Bu mesaj silindi ya da kaldırıldı.', style: secondary?.copyWith(fontStyle: FontStyle.italic))
-                                else ...[
-                                  if (m.hasImage) Text('[Fotoğraf]', style: secondary),
-                                  if (m.body.isNotEmpty) SelectableText(m.body, style: textTheme.bodyMedium),
-                                ],
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          },
-        ),
-      ),
-      actions: [
-        GwButton(label: 'Kapat', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-        FutureBuilder(
-          future: _messages,
-          builder: (context, snapshot) => switch (snapshot.data) {
-            Ok(:final value) when value.any((m) => m.reported && !m.deleted) => GwButton(
-                label: 'Mesajı kaldır',
-                icon: Icons.delete_outline,
-                isLoading: _removing,
-                onPressed: () => _remove(value.firstWhere((m) => m.reported)),
-              ),
-            _ => const SizedBox.shrink(),
-          },
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => GwButton(
+        label: 'Mesajı kaldır',
+        icon: Icons.delete_outline,
+        variant: GwButtonVariant.text,
+        isLoading: _removing,
+        onPressed: _remove,
+      );
 }
 
 class _AppealList extends ConsumerWidget {

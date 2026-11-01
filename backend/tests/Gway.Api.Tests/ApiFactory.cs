@@ -75,7 +75,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Live:MonitorInterval", "00:00:00");
         builder.UseSetting("Events:ReminderInterval", "00:00:00");
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
-        builder.UseSetting("Messaging:ArchivePurgeInterval", "00:00:00");
         builder.UseSetting("Push:DispatchInterval", "00:00:00");
         builder.UseSetting("Map:TileUrl", FakeTiles.Url);
         builder.UseSetting("Security:Passkeys:RelyingPartyId", "localhost");
@@ -160,8 +159,4 @@ public sealed class FakeStorage : ISupabaseStorage
         foreach (var path in paths) DeletedObjects.Add((bucket, path));
         return Task.CompletedTask;
     }
-
-    public Task<IReadOnlyDictionary<string, string>> CreateSignedUrlsAsync(
-        string bucket, IReadOnlyList<string> paths, TimeSpan lifetime, CancellationToken ct) =>
-        Task.FromResult<IReadOnlyDictionary<string, string>>(paths.ToDictionary(p => p, p => $"https://storage.test/{bucket}/{p}?signed"));
 }

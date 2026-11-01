@@ -10,7 +10,7 @@ $$;
 
 select ok(pg_temp.notice() like '%telefon numaran%', 'the privacy notice names the phone number');
 select ok(pg_temp.notice() like '%yalnızca ülke%' and pg_temp.notice() like '%doğum tarihin%', 'and location (country only) and birth date');
-select ok(pg_temp.notice() like '%cihaz jetonu%' and pg_temp.notice() like '%Mesajların:%', 'and the device token, keeping the message review paragraph');
+select ok(pg_temp.notice() like '%cihaz jetonu%', 'and the device token');
 
 select finish();
 rollback;

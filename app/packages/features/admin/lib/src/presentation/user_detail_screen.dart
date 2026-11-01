@@ -39,7 +39,6 @@ const _actionLabels = {
   'group.role_removed': ('Gruptaki rolü alındı', Icons.badge_outlined),
   'personal_plan.canceled': ('Kişisel paketi iptal edildi', Icons.remove_shopping_cart_outlined),
   'plans.canceled_for_violation': ('Paketleri ihlal nedeniyle iptal edildi', Icons.gavel_outlined),
-  'message.log_searched': ('Mesaj kayıtları arandı', Icons.manage_search),
 };
 
 /// Readable names of recorded details: group roles, plans and countries.
@@ -180,13 +179,6 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         GwButton(label: 'Askıya al', icon: Icons.pause_circle_outline, variant: GwButtonVariant.secondary, isLoading: _saving, onPressed: _suspend),
         GwButton(label: 'Kalıcı banla', icon: Icons.block, isLoading: _saving, onPressed: _ban),
       ],
-      if (myRole?.code == 'admin' && u.username != null)
-        GwButton(
-          label: 'Mesaj kayıtları',
-          icon: Icons.forum_outlined,
-          variant: GwButtonVariant.secondary,
-          onPressed: () => context.go(AdminRoutes.messageLogsOf(u.username!)),
-        ),
     ];
 
     final left = [

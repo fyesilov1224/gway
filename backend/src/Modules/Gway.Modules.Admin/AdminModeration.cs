@@ -63,14 +63,6 @@ internal sealed class AdminModeration(NpgsqlDataSource db)
 {
     public const int PageSize = 20;
 
-    /// <summary>The message a report is about; null for other reports.</summary>
-    public async Task<Guid?> ReportedMessageAsync(Guid reportId, CancellationToken ct)
-    {
-        await using var cmd = db.CreateCommand("select target_id from public.reports where id = @id and target_type = 'message'");
-        cmd.Parameters.AddWithValue("id", reportId);
-        return await cmd.ExecuteScalarAsync(ct) is string id && Guid.TryParse(id, out var message) ? message : null;
-    }
-
     public async Task<PagedResult<AdminReport>> ReportsAsync(string? scope, string? status, string? type, int page, CancellationToken ct)
     {
         page = Math.Max(page, 1);
@@ -98,7 +90,7 @@ internal sealed class AdminModeration(NpgsqlDataSource db)
                    case r.target_type when 'post' then r.target_id::uuid
                                       when 'comment' then (select c.post_id from public.comments c where c.id::text = r.target_id) end,
                    g.id, g.name, g.handle, r.reporter_id, rp.username, r.subject_id, sp.username,
-                   r.reason, r.note, r.excerpt, r.status,
+                   r.reason, r.note, case when r.target_type = 'message' then '' else r.excerpt end, r.status,
                    (select count(*)::int from public.reports o
                     where o.status = 'open' and o.target_type = r.target_type and o.target_id = r.target_id
                       and o.group_id is not distinct from r.group_id),
