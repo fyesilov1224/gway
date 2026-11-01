@@ -18,4 +18,12 @@ internal sealed class FakePush : IPushSender
         Sent.Enqueue((token, message));
         return Task.FromResult(PushResult.Sent);
     }
+
+    public ConcurrentQueue<string> Probed { get; } = new();
+
+    public Task<PushResult> ProbeAsync(string token, CancellationToken ct)
+    {
+        Probed.Enqueue(token);
+        return Task.FromResult(token.StartsWith(DeadPrefix, StringComparison.Ordinal) ? PushResult.Unregistered : PushResult.Sent);
+    }
 }
