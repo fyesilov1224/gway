@@ -34,11 +34,7 @@ final tonightPeopleProvider = FutureProvider.autoDispose<List<TonightPerson>>(
 );
 
 /// Reloads what Bugün shows from this feature (pull to refresh).
-void refreshToday(WidgetRef ref) => ref
-  ..invalidate(startingSoonProvider)
-  ..invalidate(tonightProvider)
-  ..invalidate(tonightPeopleProvider)
-  ..invalidate(calendarProvider);
+void refreshToday(WidgetRef ref) => ref.invalidate(startingSoonProvider);
 
 final goalsRepositoryProvider = Provider<GoalsRepository>(
   (ref) => GoalsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
@@ -59,6 +55,14 @@ final calendarProvider = FutureProvider.autoDispose.family<List<GroupEvent>, Cal
   (ref, q) async =>
       (await ref.watch(eventsRepositoryProvider).calendar(q.from, q.to, groupId: q.groupId, includeGroups: q.includeGroups)).getOrThrow(),
 );
+
+/// "Yaklaşanlar": the user's own and their groups' events in the next 60 days. Day precision keeps
+/// the provider key stable, so the create sheet and the page share one load.
+CalendarQuery upcomingQuery() {
+  final today = DateTime.now();
+  final from = DateTime(today.year, today.month, today.day);
+  return (from: from, to: DateTime(from.year, from.month, from.day + 60), groupId: null, includeGroups: true);
+}
 
 /// Null when the person's content is private to the viewer.
 final contributionsProvider = FutureProvider.autoDispose.family<Contributions?, String>(

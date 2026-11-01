@@ -62,47 +62,193 @@ class HomeShell extends StatelessWidget {
   }
 }
 
-/// Share a post or a story, or start a group.
+/// The create button: tonight and upcoming plans first, then sharing a post or a story, or starting a group.
 Future<void> showCreateSheet(BuildContext context) => showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (sheet) {
-        void open(String location) {
+      isScrollControlled: true,
+      builder: (sheet) => _CreateSheet(
+        open: (location) {
           Navigator.of(sheet).pop();
           context.push(location);
-        }
-
-        Widget option(IconData icon, GwTone tone, String title, String subtitle, String location) => ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
-              leading: Container(
-                width: GwAvatarSize.md.dimension,
-                height: GwAvatarSize.md.dimension,
-                decoration: BoxDecoration(color: tone.soft, borderRadius: GwRadius.mdAll),
-                child: Icon(icon, color: tone.strong),
-              ),
-              title: Text(title),
-              subtitle: Text(subtitle),
-              onTap: () => open(location),
-            );
-
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xs),
-                child: Text('Paylaş', style: Theme.of(sheet).textTheme.titleLarge),
-              ),
-              option(Icons.photo_library_outlined, GwTone.lilac, 'Gönderi', '10 fotoğraf ya da videoya kadar', FeedRoutes.create),
-              option(Icons.auto_awesome_outlined, GwTone.sky, 'Hikâye', '24 saat görünür', FeedRoutes.newStory),
-              option(Icons.group_add_outlined, GwTone.mist, 'Grup', 'Kendi topluluğunu kur', GroupRoutes.create),
-              const SizedBox(height: GwSpacing.md),
-            ],
-          ),
-        );
-      },
+        },
+      ),
     );
+
+class _CreateSheet extends ConsumerWidget {
+  const _CreateSheet({required this.open});
+
+  final ValueChanged<String> open;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final tonight = ref.watch(tonightProvider).value;
+    final free = ref.watch(tonightPeopleProvider).value?.length ?? 0;
+    final now = DateTime.now();
+    final upcoming = [
+      for (final e in ref.watch(calendarProvider(upcomingQuery())).value ?? const <GroupEvent>[])
+        if (!e.isCanceled && (e.endsAt ?? e.startsAt).isAfter(now)) e,
+    ];
+    final mine = upcoming.where((e) => e.isMine).length;
+
+    final tonightNote = switch (tonight) {
+      null => 'Boşsan söyle, masa kur',
+      Tonight(table: _?) => 'Masan kuruldu',
+      Tonight(invites: [_, ...]) => 'Masaya davetin var',
+      Tonight(isFree: true) when free > 0 => '${formatCount(free)} kişi seninle boş',
+      Tonight(isFree: true) => 'Boşsun · 04:00\'e kadar',
+      _ when free > 0 => '${formatCount(free)} kişi bu akşam boş',
+      _ => 'Boşsan söyle, masa kur',
+    };
+    final upcomingNote = switch (upcoming.length) {
+      0 => 'Gruplarının planları',
+      final n when mine > 0 => '${formatCount(n)} plan · ${formatCount(mine)} katılım',
+      final n => '${formatCount(n)} plan, 60 gün',
+    };
+
+    Widget option(IconData icon, GwTone tone, String title, String subtitle, String location) => ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
+          leading: _OptionIcon(icon: icon, tone: tone),
+          title: Text(title),
+          subtitle: Text(subtitle),
+          onTap: () => open(location),
+        );
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: GwSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.sm),
+              child: Text('Bugün için', style: textTheme.titleLarge),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _PlanTile(
+                        icon: Icons.nights_stay_rounded,
+                        tone: GwTone.lilac,
+                        title: 'Bu akşam',
+                        subtitle: tonightNote,
+                        highlight: tonight?.isFree ?? false,
+                        onTap: () => open(EventRoutes.tonight),
+                      ),
+                    ),
+                    const SizedBox(width: GwSpacing.sm),
+                    Expanded(
+                      child: _PlanTile(
+                        icon: Icons.event_available_rounded,
+                        tone: GwTone.sky,
+                        title: 'Yaklaşanlar',
+                        subtitle: upcomingNote,
+                        onTap: () => open(EventRoutes.upcoming),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.lg, GwSpacing.lg, GwSpacing.xs),
+              child: Text('Paylaş', style: textTheme.titleLarge),
+            ),
+            option(Icons.photo_library_outlined, GwTone.lilac, 'Gönderi', '10 fotoğraf ya da videoya kadar', FeedRoutes.create),
+            option(Icons.auto_awesome_outlined, GwTone.sky, 'Hikâye', '24 saat görünür', FeedRoutes.newStory),
+            option(Icons.group_add_outlined, GwTone.mist, 'Grup', 'Kendi topluluğunu kur', GroupRoutes.create),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionIcon extends StatelessWidget {
+  const _OptionIcon({required this.icon, required this.tone});
+
+  final IconData icon;
+  final GwTone tone;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: GwAvatarSize.md.dimension,
+        height: GwAvatarSize.md.dimension,
+        decoration: BoxDecoration(color: tone.soft, borderRadius: GwRadius.mdAll),
+        child: Icon(icon, color: tone.strong),
+      );
+}
+
+/// A large shortcut in the create sheet: icon, title and a live one-line status.
+class _PlanTile extends StatelessWidget {
+  const _PlanTile({
+    required this.icon,
+    required this.tone,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.highlight = false,
+  });
+
+  final IconData icon;
+  final GwTone tone;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  /// A dot on the icon, e.g. while the user is marked free.
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      child: Material(
+        color: tone.soft,
+        borderRadius: GwRadius.lgAll,
+        child: InkWell(
+          borderRadius: GwRadius.lgAll,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(GwSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Badge(
+                      isLabelVisible: highlight,
+                      backgroundColor: GwColors.success,
+                      child: Container(
+                        width: GwAvatarSize.md.dimension,
+                        height: GwAvatarSize.md.dimension,
+                        decoration: const BoxDecoration(color: GwColors.background, borderRadius: GwRadius.mdAll),
+                        child: Icon(icon, color: tone.strong),
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(Icons.arrow_forward_rounded, size: GwSpacing.md + GwSpacing.xxs, color: tone.strong),
+                  ],
+                ),
+                const SizedBox(height: GwSpacing.sm),
+                Text(title, style: textTheme.titleMedium),
+                const SizedBox(height: GwSpacing.xxs),
+                Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _Dock extends StatelessWidget {
   const _Dock({required this.selected});
@@ -131,7 +277,7 @@ class _Dock extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
                 child: IconButton.filled(
-                  tooltip: 'Paylaş',
+                  tooltip: 'Oluştur',
                   onPressed: () => showCreateSheet(context),
                   icon: const Icon(Icons.add_rounded),
                   style: IconButton.styleFrom(
@@ -239,7 +385,7 @@ class _Sidebar extends ConsumerWidget {
               onTap: () => context.push(MatchingRoutes.home),
             ),
             const SizedBox(height: GwSpacing.md),
-            GwButton(label: 'Paylaş', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
+            GwButton(label: 'Oluştur', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
             if (groups.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),

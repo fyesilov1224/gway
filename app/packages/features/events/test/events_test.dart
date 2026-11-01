@@ -729,6 +729,9 @@ void main() {
     final e2 = GroupEvent(id: 'e2', group: _group, title: 'Kahvaltı', startsAt: DateTime(today.year, today.month, today.day, 11),
         location: 'Kafe', myStatus: AttendanceStatus.requested);
     final fake = _FakeEvents();
+    // A six-week month (e.g. November 2026) would push the day's list below an 800×600 screen.
+    tester.view.physicalSize = tester.view.physicalSize.flipped;
+    addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(ProviderScope(
       overrides: [
         eventsRepositoryProvider.overrideWithValue(fake),

@@ -5,16 +5,13 @@ import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:groups/groups.dart';
 import 'package:live/live.dart';
 import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 
-import 'router.dart' show openTonightChat;
-
-/// "Bugün": live broadcasts and upcoming organizations of the user's groups
-/// come before the posts (docs/DESIGN.md §7, Bugün).
+/// "Bugün": live broadcasts and what starts within hours come before the posts;
+/// "Bu akşam" and "Yaklaşanlar" open from the create button (docs/DESIGN.md §7, Bugün).
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -31,14 +28,9 @@ class HomePage extends StatelessWidget {
           ),
           const MessagesButton(),
         ],
-        top: Column(
+        top: const Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const LiveNowTray(),
-            const StartingSoonSection(),
-            const TonightCard(openChat: openTonightChat),
-            UpcomingEventsSection(onFindGroups: () => context.go(GroupRoutes.discover)),
-          ],
+          children: [LiveNowTray(), StartingSoonSection()],
         ),
       );
 }
