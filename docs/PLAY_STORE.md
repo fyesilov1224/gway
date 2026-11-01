@@ -127,3 +127,14 @@ Hizmet sağlayıcılar (Supabase, Twilio, Firebase, LiveKit, kendi sunucumuz) ve
 ## Sonraki sürümler
 - `pubspec.yaml`'da sürümü artır (`1.0.1+2`), AAB'yi derle, *Üretim → Yeni sürüm* ile yükle.
 - Veritabanı değişikliği varsa önce `supabase db push`, sonra sunucu güncellemesi, en son uygulama yüklemesi.
+
+## Play'e yükleme (komutla)
+
+Hizmet hesabı `gway-play-publisher@grupx-512513.iam.gserviceaccount.com` (Google Cloud projesi `grupx-512513`, Google Play Android Developer API açık) yalnızca GWAY için **test kanallarına yayınlama** iznine sahiptir; üretime yayınlayamaz. Anahtarı `~/.grupx/play-publisher.json`'dadır (depoya girmez; kaybolursa Google Cloud'da yenisi oluşturulur, eskisi silinir).
+
+```bash
+pip install google-api-python-client google-auth
+python deploy/play-upload.py GWAY-1.0.0-6.aab --track alpha --notes "Türkçe sürüm notu"
+```
+
+Kapalı test kanalı `alpha`, test kullanıcısı listesi `GWAY test`; katılım bağlantısı https://play.google.com/apps/testing/com.gway.app. Play'den kurulan sürüm Play anahtarıyla imzalı olduğu için elle kurulan APK'nın üzerine kurulmaz; önce eski uygulama kaldırılır.
