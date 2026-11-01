@@ -105,6 +105,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       sanctionType: r['sanction_type'] as String?,
       goalId: r['goal_id'] as String?,
       goalTitle: r['goal_title'] as String?,
+      conversationId: r['conversation_id'] as String?,
     );
   }
 

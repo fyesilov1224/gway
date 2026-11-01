@@ -37,7 +37,11 @@ enum NotificationType {
   tonightTableInvite('tonight_table_invite'),
   tonightTableReady('tonight_table_ready'),
   eventVenueRevealed('event_venue_revealed'),
-  handshake('handshake');
+  handshake('handshake'),
+  callMissed('call_missed'),
+  callPermissionGranted('call_permission_granted'),
+  callPermissionDeclined('call_permission_declined'),
+  callPermissionRevoked('call_permission_revoked');
 
   const NotificationType(this.code);
 
@@ -53,6 +57,9 @@ enum NotificationType {
 
   /// Names nobody: who matched needs a package (docs/ARCHITECTURE.md §3g).
   bool get anonymous => this == matchCreated;
+
+  /// A decision on the person's voice call permission (docs/ARCHITECTURE.md §8c): named by the feature, not a person.
+  bool get isCallPermission => this == callPermissionGranted || this == callPermissionDeclined || this == callPermissionRevoked;
 
   /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
   bool get isLive => this == liveScheduled || this == liveStarted;
@@ -117,6 +124,7 @@ class AppNotification {
     this.sanctionType,
     this.goalId,
     this.goalTitle,
+    this.conversationId,
   });
 
   final int id;
@@ -150,6 +158,9 @@ class AppNotification {
   /// The goal of goal_completed.
   final String? goalId;
   final String? goalTitle;
+
+  /// The chat of call_missed.
+  final String? conversationId;
 
   /// What happened, after the actor's username.
   String get action => switch (type) {
@@ -198,6 +209,10 @@ class AppNotification {
         NotificationType.tonightTableReady => 'masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.',
         NotificationType.eventVenueRevealed => '"${eventTitle ?? ''}": nereye gideceğini görmek için dokun.',
         NotificationType.handshake => '"${eventTitle ?? ''}" organizasyonunda seninle el sıkıştı.',
+        NotificationType.callMissed => 'seni aradı, açamadın.',
+        NotificationType.callPermissionGranted => 'yetkin açıldı. Eşleştiğin kişileri sohbetten arayabilirsin.',
+        NotificationType.callPermissionDeclined => 'talebin şimdilik kabul edilmedi. Ayrıntılar için dokun.',
+        NotificationType.callPermissionRevoked => 'yetkin kapatıldı. Ayrıntılar için dokun.',
         NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
       };
 
@@ -207,6 +222,7 @@ class AppNotification {
         NotificationType.matchCreated => 'Yeni bir eşleşmen var!',
         NotificationType.eventSeriesLimit => 'Tekrarlayan organizasyon',
         NotificationType.eventVenueRevealed => 'Sürpriz mekan açıklandı',
+        _ when type.isCallPermission => 'Sesli görüşme',
         _ => actor.username,
       };
 

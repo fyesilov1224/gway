@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/calls.dart';
 import '../domain/messaging.dart';
+import 'call_providers.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -60,6 +62,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         titleSpacing: 0,
         title: conversation == null ? null : _Title(conversation: conversation, onOpen: () => _openHeader(conversation)),
         actions: [
+          if (conversation != null && conversation.kind == ConversationKind.direct) _CallButton(conversationId: conversation.id),
           if (conversation != null && conversation.canManage)
             _ChatSettings(conversation: conversation, onChanged: () => ref.invalidate(provider)),
         ],
@@ -90,6 +93,55 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       widget.onOpenProfile(context, peer.username);
     }
   }
+}
+
+/// Calls the other person of a match chat (docs/ARCHITECTURE.md §8c). Hidden where calls never apply;
+/// otherwise a tap either calls or says why it cannot.
+class _CallButton extends ConsumerStatefulWidget {
+  const _CallButton({required this.conversationId});
+
+  final String conversationId;
+
+  @override
+  ConsumerState<_CallButton> createState() => _CallButtonState();
+}
+
+class _CallButtonState extends ConsumerState<_CallButton> {
+  bool _starting = false;
+
+  Future<void> _start() async {
+    setState(() => _starting = true);
+    final result = await ref.read(callsRepositoryProvider).start(widget.conversationId);
+    if (!mounted) return;
+    setState(() => _starting = false);
+    switch (result) {
+      case Ok(:final value):
+        await context.push(MessagingRoutes.call(value.callId), extra: value);
+      case Err(:final failure):
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
+    }
+    if (mounted) ref.invalidate(callEligibilityProvider(widget.conversationId));
+  }
+
+  void _explain(CallEligibility eligibility) {
+    final ownPermission = eligibility.code == 'call.no_permission';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(eligibility.message ?? 'Şu anda arama yapılamıyor.'),
+      action: ownPermission
+          ? SnackBarAction(label: 'Talep et', onPressed: () => context.push(MessagingRoutes.callSettings))
+          : null,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) => switch (ref.watch(callEligibilityProvider(widget.conversationId))) {
+        AsyncData(:final value) when !value.hidden => IconButton(
+            tooltip: 'Sesli ara',
+            icon: Icon(Icons.call_outlined, color: value.allowed ? null : GwColors.textSecondary),
+            onPressed: _starting ? null : () => value.allowed ? _start() : _explain(value),
+          ),
+        _ => const SizedBox.shrink(),
+      };
 }
 
 class _Title extends StatelessWidget {

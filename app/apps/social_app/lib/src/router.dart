@@ -302,6 +302,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: ProfileRoutes.edit, builder: (_, _) => const EditProfileScreen()),
           GoRoute(path: AppRoutes.settings, builder: (_, _) => const SettingsScreen()),
+          GoRoute(path: MessagingRoutes.callSettings, builder: (_, _) => const CallPermissionScreen()),
           GoRoute(
             path: ModerationRoutes.mySanctions,
             builder: (_, _) => MySanctionsScreen(openGroup: (context, handle) => context.push(GroupRoutes.group(handle))),
@@ -333,6 +334,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/live/:id', builder: (_, state) => LiveRoomScreen(broadcastId: state.pathParameters['id']!)),
+      GoRoute(
+        path: '/calls/:id',
+        builder: (_, state) => CallScreen(callId: state.pathParameters['id']!, join: state.extra as CallJoin?),
+      ),
       GoRoute(path: FeedRoutes.newStory, builder: (_, _) => const NewStoryScreen()),
       GoRoute(path: '/stories/:userId', builder: (_, state) => StoryViewerScreen(userId: state.pathParameters['userId']!)),
       GoRoute(path: '/highlights/:id', builder: (_, state) => HighlightViewerScreen(highlightId: state.pathParameters['id']!)),

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:identity/identity.dart';
 import 'package:matching/matching.dart';
+import 'package:messaging/messaging.dart';
 import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
@@ -48,6 +49,8 @@ class SettingsScreen extends ConsumerWidget {
               tile(Icons.diversity_3_outlined, 'Ekip arkadaşı tercihleri', () => context.push(ProfileRoutes.teammateSettings)),
               const Divider(),
               tile(Icons.favorite_border_rounded, 'Eşleşme profili', () => context.push(MatchingRoutes.profile)),
+              const Divider(),
+              tile(Icons.call_outlined, 'Sesli görüşme', () => context.push(MessagingRoutes.callSettings)),
               const Divider(),
               tile(Icons.block, 'Engellenen hesaplar', () => context.push(ProfileRoutes.blocked)),
               const Divider(),

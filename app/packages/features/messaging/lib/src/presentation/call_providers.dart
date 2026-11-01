@@ -1,0 +1,62 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:core/core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../data/calls_repository_impl.dart';
+import '../domain/calls.dart';
+import 'call_session.dart';
+
+final callsRepositoryProvider = Provider<CallsRepository>(
+  (ref) => CallsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
+);
+
+/// Whether a chat may call now; asked fresh each time the chat opens (permissions change from the panel).
+final callEligibilityProvider = FutureProvider.autoDispose.family<CallEligibility, String>(
+  (ref, conversationId) async => (await ref.watch(callsRepositoryProvider).eligibility(conversationId)).getOrThrow(),
+);
+
+final myCallPermissionProvider = FutureProvider.autoDispose<CallPermission>((ref) async {
+  ref.watch(currentUserIdProvider);
+  return (await ref.watch(callsRepositoryProvider).myPermission()).getOrThrow();
+});
+
+/// Calls ringing for the signed-in person.
+final incomingCallsProvider = StreamProvider.autoDispose<List<CallInfo>>((ref) {
+  if (ref.watch(currentUserIdProvider) == null) return Stream.value(const []);
+  return ref.watch(callsRepositoryProvider).incoming();
+});
+
+final callPeerProvider = FutureProvider.autoDispose.family<CallPeer, String>(
+  (ref, userId) async => (await ref.watch(callsRepositoryProvider).peer(userId)).getOrThrow(),
+);
+
+/// Plays the ring in a loop until stopped; replaced in tests.
+abstract interface class CallRinger {
+  Future<void> start();
+
+  Future<void> stop();
+}
+
+final callRingerProvider = Provider<CallRinger>((ref) {
+  final ringer = _AudioRinger();
+  ref.onDispose(ringer.dispose);
+  return ringer;
+});
+
+class _AudioRinger implements CallRinger {
+  final _player = AudioPlayer()..audioCache = AudioCache(prefix: 'packages/messaging/assets/');
+
+  @override
+  Future<void> start() async {
+    await _player.setReleaseMode(ReleaseMode.loop);
+    await _player.play(AssetSource('call_ring.wav'));
+  }
+
+  @override
+  Future<void> stop() => _player.stop();
+
+  Future<void> dispose() => _player.dispose();
+}
+
+/// A new audio session for a call screen; replaced in tests.
+final callSessionFactoryProvider = Provider<CallSession Function()>((_) => CallSession.new);

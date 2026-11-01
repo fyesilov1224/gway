@@ -238,11 +238,31 @@ void main() {
     expect(vote.lead, 'moderator');
     expect(vote.action, 'Doğa Yürüyüşçüleri grubunda bir disiplin dosyası açtı; oyunu bekliyor.');
   });
+  test('voice call notices name the caller, or the feature for permission decisions', () {
+    const me = NotificationActor(id: 'u1', username: 'ben', displayName: 'Ben');
+    final missed = AppNotification(
+      id: 3,
+      type: NotificationType.tryParse('call_missed')!,
+      actor: const NotificationActor(id: 'u2', username: 'arayan', displayName: 'Arayan'),
+      createdAt: DateTime(2026),
+      conversationId: 'c1',
+    );
+    expect((missed.lead, missed.action), ('arayan', 'seni aradı, açamadın.'));
+    final granted = AppNotification(
+      id: 4,
+      type: NotificationType.tryParse('call_permission_granted')!,
+      actor: me,
+      createdAt: DateTime(2026),
+    );
+    expect(granted.lead, 'Sesli görüşme', reason: 'the deciding staff member is never named');
+    expect(granted.type.isCallPermission, isTrue);
+  });
   testWidgets('the phone registers for push while signed in, forgets it on sign-out and opens taps', (tester) async {
     final push = _FakePush();
     final repo = _FakeDevices();
     final opened = <String>[];
     final chats = <String>[];
+    final calls = <String>[];
     var listOpened = 0;
     await tester.pumpWidget(ProviderScope(
       overrides: [
@@ -252,6 +272,7 @@ void main() {
       ],
       child: PushNotifications(
         openLive: opened.add,
+        openCall: calls.add,
         openConversation: chats.add,
         openNotifications: () => listOpened++,
         child: const SizedBox(),
@@ -269,11 +290,13 @@ void main() {
     push.tapped
       ..add({'type': 'live_started', 'live_id': 'b1'})
       ..add({'type': 'message', 'conversation_id': 'c1'})
+      ..add({'type': 'call_incoming', 'call_id': 'k1', 'conversation_id': 'c9'})
       ..add({'type': 'like'});
     await tester.pump();
     expect(repo.registered.last, ('new-token-of-this-phone', 'android'));
     expect(opened, ['b1']);
     expect(chats, ['c1'], reason: 'a message notice opens its chat');
+    expect(calls, ['k1'], reason: 'the ringing push opens the call, not the chat');
     expect(listOpened, 1);
 
     ProviderScope.containerOf(tester.element(find.byType(SizedBox))).read(_signedIn.notifier).signOut();
