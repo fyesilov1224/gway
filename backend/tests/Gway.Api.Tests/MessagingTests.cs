@@ -168,7 +168,7 @@ public sealed class MessagingTests(ApiFactory factory) : IClassFixture<ApiFactor
             Path($"/reports/{groupReport}/removal"), new RemoveReportedRequest("Hakaret içeriyor"), Ct)).StatusCode);
         Assert.Equal("Hakaret içeriyor", await _db.ScalarAsync<string>("select removed_reason from public.messages where id = @id", ("id", rude)));
 
-        // A direct message: the platform team sees it with the five before it, and the viewing is recorded.
+        // A direct message: the platform team never sees its text, and can only remove it.
         var (me, friend) = (await UserAsync(), await UserAsync());
         await TeammatesAsync(me, friend);
         var direct = (await OpenAsync(me, friend)).Id;
@@ -178,21 +178,15 @@ public sealed class MessagingTests(ApiFactory factory) : IClassFixture<ApiFactor
         await ReportAsync(me, reported, "violence");
         var report = await _db.ScalarAsync<Guid>("select id from public.reports where target_id = @t", ("t", reported.ToString()));
 
-        var support = await UserAsync();
-        await _db.MakeStaffAsync(support, "support");
-        Assert.Equal(HttpStatusCode.Forbidden,
-            (await factory.ClientFor(support).GetAsync(Path($"/admin/reports/{report}/message-context"), Ct)).StatusCode);
+        Assert.Equal("", await _db.ScalarAsync<string>("select excerpt from public.reports where id = @id", ("id", report)));
 
         var moderator = await UserAsync();
         await _db.MakeStaffAsync(moderator, "moderator");
         var staff = factory.ClientFor(moderator);
-        var context = await staff.GetFromJsonAsync<List<ContextMessage>>($"/admin/reports/{report}/message-context", Ct);
-        Assert.Equal(6, context!.Count);
-        Assert.True(context[^1].Reported);
-        Assert.Equal("Tehdit içeren mesaj", context[^1].Body);
-        Assert.DoesNotContain(context, m => m.Body == "Sonraki mesaj");
-        Assert.Equal(1L, await _db.ScalarAsync<long>(
-            "select count(*) from public.audit_log where action = 'message.context_viewed' and target_id = @t", ("t", reported.ToString())));
+        Assert.Equal(HttpStatusCode.NotFound, (await staff.GetAsync(Path($"/admin/reports/{report}/message-context"), Ct)).StatusCode);
+        var reports = await staff.GetStringAsync(Path("/admin/reports?type=message"), Ct);
+        Assert.DoesNotContain("Kaba bir mesaj", reports, StringComparison.Ordinal);
+        Assert.DoesNotContain("Tehdit", reports, StringComparison.Ordinal);
 
         Assert.Equal(HttpStatusCode.NoContent, (await staff.PostAsJsonAsync(
             Path($"/admin/messages/{reported}/removal"), new RemoveContentRequest("Tehdit"), Ct)).StatusCode);

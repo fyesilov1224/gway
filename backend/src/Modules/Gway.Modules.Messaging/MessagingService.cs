@@ -34,8 +34,6 @@ public static class MessagingModule
         services.AddSingleton<MessagingService>();
         services.AddSingleton<IMessagingAdministration>(sp => sp.GetRequiredService<MessagingService>());
         services.AddSingleton<IMessagingModeration>(sp => sp.GetRequiredService<MessagingService>());
-        services.AddSingleton<IMessageLogs, MessageLogService>();
-        services.AddHostedService<MessageArchivePurger>();
         return services;
     }
 
@@ -71,7 +69,6 @@ internal sealed partial class MessagingService(NpgsqlDataSource db, ISupabaseSto
 {
     public const string ImageBucket = "message-images";
     public const int MaxBody = 2000;
-    private const int ContextSize = 5;
 
     private static readonly Error NotFound = Error.NotFound("message.not_found", "Mesaj bulunamadı.");
 
@@ -244,36 +241,4 @@ internal sealed partial class MessagingService(NpgsqlDataSource db, ISupabaseSto
         if (removed.IsSuccess && image is not null) await DeleteImageAsync(image);
         return removed;
     }
-
-    public Task<Result<IReadOnlyList<ContextMessage>>> ContextAsync(Guid actorId, Guid messageId, Guid reportId, CancellationToken ct) =>
-        ActingTransaction.RunAsync<IReadOnlyList<ContextMessage>>(db, actorId, async (conn, tx) =>
-        {
-            var items = new List<ContextMessage>();
-            await using (var cmd = new NpgsqlCommand(
-                """
-                with target as (select conversation_id, created_at from public.messages where id = @id)
-                select m.id, m.sender_id, p.username, p.display_name, m.body, m.image_path is not null, m.created_at, m.deleted_at is not null
-                from public.messages m
-                join target t on t.conversation_id = m.conversation_id and m.created_at <= t.created_at
-                left join public.profiles p on p.id = m.sender_id
-                order by m.created_at desc, m.id
-                limit @size
-                """, conn, tx))
-            {
-                cmd.Parameters.AddWithValue("id", messageId);
-                cmd.Parameters.AddWithValue("size", ContextSize + 1);
-                await using var r = await cmd.ExecuteReaderAsync(ct);
-                while (await r.ReadAsync(ct))
-                {
-                    items.Add(new ContextMessage(r.GetGuid(0), r.GetGuid(1), r.IsDBNull(2) ? null : r.GetString(2),
-                        r.IsDBNull(3) ? null : r.GetString(3), r.GetString(4), r.GetBoolean(5), r.GetFieldValue<DateTimeOffset>(6),
-                        r.GetBoolean(7), r.GetGuid(0) == messageId));
-                }
-            }
-            if (items.Count == 0) return Error.NotFound("message.not_found", "Mesaj bulunamadı.");
-            items.Reverse();
-            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "message.context_viewed", "message",
-                messageId.ToString(), new { reportId, messages = items.Count }), ct);
-            return items;
-        }, RuleError, ct);
 }

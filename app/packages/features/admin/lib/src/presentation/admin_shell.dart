@@ -197,14 +197,6 @@ class _Sidebar extends ConsumerWidget {
                   selected: path.startsWith(AdminRoutes.legal),
                   onTap: () => go(AdminRoutes.legal),
                 ),
-                const SizedBox(height: GwSpacing.xxs),
-                _NavItem(
-                  icon: Icons.forum_outlined,
-                  selectedIcon: Icons.forum,
-                  label: 'Mesaj kayıtları',
-                  selected: path.startsWith(AdminRoutes.messageLogs),
-                  onTap: () => go(AdminRoutes.messageLogs),
-                ),
               ],
               const SizedBox(height: GwSpacing.xxs),
               _NavItem(

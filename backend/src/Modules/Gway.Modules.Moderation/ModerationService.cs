@@ -340,7 +340,7 @@ internal sealed partial class ModerationService(
             insert into public.platform_referrals (case_id, group_id, group_name, subject_id, subject_username, category, reason, evidence)
             select c.id, c.group_id, g.name, c.subject_id, p.username, c.illegal_category, c.reason,
                    coalesce((select jsonb_agg(jsonb_build_object(
-                               'targetType', r.target_type, 'reason', r.reason, 'excerpt', r.excerpt, 'note', r.note, 'reportedAt', r.created_at)
+                               'targetType', r.target_type, 'reason', r.reason, 'excerpt', case when r.target_type = 'message' then '' else r.excerpt end, 'note', r.note, 'reportedAt', r.created_at)
                              order by r.created_at)
                              from public.reports r where r.case_id = c.id), '[]'::jsonb)
             from public.moderation_cases c

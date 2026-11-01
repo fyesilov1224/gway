@@ -443,28 +443,10 @@ public static class AdminModule
                 TypedResults.Ok(await admin.ReportsAsync(scope, status, type, page ?? 1, ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
-        // Phase 15: the reported message and the five before it; every viewing is audited.
-        content.MapGet("/reports/{id:guid}/message-context", async (
-                Guid id, ClaimsPrincipal user, AdminModeration admin, IMessagingAdministration messaging, CancellationToken ct) =>
-                await admin.ReportedMessageAsync(id, ct) is { } message
-                    ? (await messaging.ContextAsync(user.GetUserId(), message, id, ct)).ToHttpResult()
-                    : ((Result)Error.NotFound("admin.not_a_message_report", "Bu şikayet bir mesaj hakkında değil.")).ToHttpResult())
-            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
-
         content.MapPost("/messages/{id:guid}/removal", async (
                 Guid id, RemoveContentRequest body, ClaimsPrincipal user, IMessagingAdministration messaging, CancellationToken ct) =>
                 (await messaging.RemoveMessageAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
-
-        // Message logs (docs/ARCHITECTURE.md §3f, Mesaj kayıtları): platform admin only, with a reason; every read is audited.
-        var logs = app.MapGroup("/admin/message-logs").AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
-
-        logs.MapPost("/search", async (MessageLogSearch body, ClaimsPrincipal user, IMessageLogs messageLogs, CancellationToken ct) =>
-            (await messageLogs.SearchAsync(user.GetUserId(), body, ct)).ToHttpResult());
-
-        logs.MapPost("/conversations/{id:guid}", async (
-                Guid id, MessageLogQuery body, ClaimsPrincipal user, IMessageLogs messageLogs, CancellationToken ct) =>
-            (await messageLogs.ViewAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
 
         content.MapPost("/reports/{id:guid}/dismissal", async (Guid id, ClaimsPrincipal user, IModerationAdministration moderation, CancellationToken ct) =>
                 (await moderation.ReviewReportAsync(user.GetUserId(), id, actioned: false, ct)).ToHttpResult())

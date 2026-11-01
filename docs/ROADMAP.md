@@ -349,17 +349,16 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [ ] Bulut: `0047` migration'ı — kullanıcı onayıyla
 - Sonraki adım önerisi (onay bekliyor): ortak organizasyon (iki grubun birlikte düzenlemesi), sadık üyelere özel organizasyonlar
 
-## Faz 15.10 — Mesaj Kayıtları (kullanıcı isteği, onaylandı 2026-10-31; `docs/ARCHITECTURE.md` §3f)
 
-Platform yöneticisi kullanıcıların yazışmalarını kullanıcı adıyla arayıp inceler. Önceki "şikayet dışında özel mesaj okunamaz" kuralı kullanıcı kararıyla değişti.
-- [x] Yalnızca platform `admin` rolü; her arama ve sohbet açılışı gerekçe ister ve audit log'a yazılır (`message.log_searched`, `message.log_viewed`)
-- [x] Kullanıcı adıyla arama, isteğe bağlı ikinci kullanıcı, tür filtresi (birebir, grup, küçük masa); sohbet listesi sayıları ve son mesajıyla
-- [x] Sohbet görünümü: katılımcılar, eskiden yeniye mesajlar, daha eski sayfalar, sohbet içi arama, fotoğraflar (imzalı adres)
-- [x] Silinen mesaj arşivi: metin 180 gün saklanır, fotoğraf saklanmaz, saatlik temizlik, hesap silinince silinir
-- [x] Aydınlatma metninin yeni sürümü (migration 0062); kullanıcı sayfasında "Mesaj kayıtları" düğmesi
-- [x] pgTAP (`50_message_logs`, 24 test), C# (227/227) ve Flutter testleri (67/67); `flutter analyze` ve `dotnet build` temiz (2026-10-31)
-- [x] Bulut: `0061` ve `0062` migration'ları (2026-10-31)
-- [ ] Aydınlatma metni eki hukuki incelemeden geçmeli
+## Faz 15.10 — Mesaj Gizliliği (kullanıcı isteği, 2026-11-01; `docs/ARCHITECTURE.md` §3f)
+
+2026-10-31'de eklenen mesaj kayıtları kullanıcı kararıyla tamamen kaldırıldı: platform ekibi hiçbir mesajı okuyamaz, görüşmeyi dinleyemez ve kimin kimi aradığını göremez.
+- [x] Yönetim panelinden "Mesaj kayıtları" sayfası, kullanıcı sayfasındaki düğme ve şikayetteki "Mesajı incele" (önceki 5 mesaj) kaldırıldı; mesaj şikayeti içerik gösterilmeden "Mesajı kaldır" ile sonuçlanır
+- [x] Migration 0069: silinen mesaj arşivi (tüm metinleriyle), trigger ve okuma fonksiyonları silindi; şikayet ve bildirimlerdeki birebir mesaj metinleri temizlendi; geçmiş okuma kayıtları silindi; 0062 boşaltıldı
+- [x] Aydınlatma metninin yeni sürümü: mesajlar okunmaz, görüşmeler kaydedilmez
+- [x] pgTAP (`57_message_privacy`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-01)
+- [ ] Bulut: `0069` migration'ı — kullanıcı onayıyla
+- [ ] Aydınlatma metni hukuki incelemeden geçmeli
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 

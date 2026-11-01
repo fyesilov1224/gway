@@ -330,7 +330,6 @@ enum _HistoryKind {
   groups('Gruplar', GwColors.secondarySoft, GwColors.secondary),
   moderation('Moderasyon', GwColors.errorSoft, GwColors.error),
   plans('Paketler', GwColors.successSoft, GwColors.success),
-  messages('Mesaj kayıtları', GwColors.surfaceMuted, GwColors.textSecondary),
   other('Diğer', GwColors.surfaceMuted, GwColors.textSecondary);
 
   const _HistoryKind(this.label, this.background, this.foreground);
@@ -343,9 +342,9 @@ enum _HistoryKind {
         'user' || 'account' => account,
         'security' => security,
         'group' || 'role' || 'event' || 'poll' || 'goal' || 'league' => groups,
-        'moderation' || 'sanction' || 'report' || 'appeal' || 'case' || 'referral' || 'post' || 'comment' => moderation,
+        'moderation' || 'sanction' || 'report' || 'appeal' || 'case' || 'referral' || 'post' || 'comment' || 'message' =>
+          moderation,
         'plans' || 'personal_plan' || 'subscription' || 'plan' || 'order' || 'billing' => plans,
-        'message' => messages,
         _ => other,
       };
 }
