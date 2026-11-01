@@ -90,7 +90,9 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         var phone = Unique("phone-of-b-") + "-token";
         await _db.ExecuteAsync("insert into public.push_devices (token, user_id, platform) values (@t, @u, 'android')", ("t", phone), ("u", b));
         await factory.Services.GetRequiredService<PushService>().DispatchAsync(Ct);
-        var ring = Assert.Single(factory.Push.Sent, s => s.Token == phone).Message;
+        // Earlier notices (the match, the opened permission) go out in the same round; the ring is one push.
+        var ring = Assert.Single(factory.Push.Sent,
+            s => s.Token == phone && s.Message.Data.TryGetValue("type", out var type) && type == "call_incoming").Message;
         Assert.Equal("call_incoming", ring.Data["type"]);
         Assert.Equal(call.CallId.ToString(), ring.Data["call_id"]);
         Assert.Equal("gway_calls", ring.Channel);
