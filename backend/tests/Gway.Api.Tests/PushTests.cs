@@ -99,6 +99,33 @@ public sealed class PushTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     }
 
     [Fact]
+    public async Task The_sweep_drops_removed_and_long_unused_devices_without_ringing_the_live_ones()
+    {
+        var user = await _db.CreateUserAsync(Unique("p_"));
+        var live = Unique("phone-in-use-") + "-token";
+        var removed = FakePush.DeadPrefix + Unique("phone-removed-") + "-token";
+        var unused = Unique("phone-unused-") + "-token";
+        await RegisterAsync(user, live);
+        await RegisterAsync(user, removed);
+        await RegisterAsync(user, unused);
+        await _db.ExecuteAsync("update public.push_devices set updated_at = now() - interval '61 days' where token = @t", ("t", unused));
+
+        var sweep = factory.Services.GetRequiredService<PushService>();
+        Assert.True(await sweep.SweepDevicesAsync(Ct) >= 2);
+
+        Assert.Equal(1L, await _db.ScalarAsync<long>("select count(*) from public.push_devices where user_id = @id", ("id", user)));
+        Assert.Equal(1L, await _db.ScalarAsync<long>("select count(*) from public.push_devices where token = @t", ("t", live)));
+        Assert.Contains(removed, factory.Push.Probed);
+        Assert.Empty(SentTo(live));
+        Assert.NotNull(await _db.ScalarAsync<DateTime?>("select last_checked_at from public.push_devices where token = @t", ("t", live)));
+
+        // Checked today: the next sweep leaves it alone.
+        var probes = factory.Push.Probed.Count(t => t == live);
+        await sweep.SweepDevicesAsync(Ct);
+        Assert.Equal(probes, factory.Push.Probed.Count(t => t == live));
+    }
+
+    [Fact]
     public void Times_are_shown_in_Turkey()
     {
         Assert.Equal("27 Ekim 2026, 20:00", PushTexts.DateTimeTr(new DateTimeOffset(2026, 10, 27, 17, 0, 0, TimeSpan.Zero)));

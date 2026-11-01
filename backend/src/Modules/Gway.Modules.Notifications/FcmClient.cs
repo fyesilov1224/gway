@@ -37,6 +37,9 @@ internal interface IPushSender
     bool IsConfigured { get; }
 
     Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct);
+
+    /// <summary>Asks FCM whether the token still reaches an app, without showing anything on the phone.</summary>
+    Task<PushResult> ProbeAsync(string token, CancellationToken ct);
 }
 
 /// <summary>FCM HTTP v1 with a service account token signed here (RS256; no SDK needed).</summary>
@@ -53,13 +56,8 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
 
     public bool IsConfigured => options.Value.IsConfigured;
 
-    public async Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct)
-    {
-        var account = await AccountAsync(ct);
-        using var request = new HttpRequestMessage(HttpMethod.Post,
-            new Uri($"https://fcm.googleapis.com/v1/projects/{account.ProjectId}/messages:send"));
-        request.Headers.Authorization = new("Bearer", await AccessTokenAsync(account, ct));
-        request.Content = JsonContent.Create(new
+    public Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct) =>
+        PostAsync(new
         {
             message = new
             {
@@ -69,11 +67,23 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
                 android = new { priority = "HIGH", notification = new { sound = "default" } },
                 apns = new { payload = new { aps = new { sound = "default" } } },
             },
-        });
+        }, ct);
+
+    /// <summary>FCM's dry run (<c>validate_only</c>) checks the token and delivers nothing.</summary>
+    public Task<PushResult> ProbeAsync(string token, CancellationToken ct) =>
+        PostAsync(new { validate_only = true, message = new { token } }, ct);
+
+    private async Task<PushResult> PostAsync(object body, CancellationToken ct)
+    {
+        var account = await AccountAsync(ct);
+        using var request = new HttpRequestMessage(HttpMethod.Post,
+            new Uri($"https://fcm.googleapis.com/v1/projects/{account.ProjectId}/messages:send"));
+        request.Headers.Authorization = new("Bearer", await AccessTokenAsync(account, ct));
+        request.Content = JsonContent.Create(body);
         using var response = await http.SendAsync(request, ct);
         if (response.IsSuccessStatusCode) return PushResult.Sent;
-        var body = await response.Content.ReadAsStringAsync(ct);
-        return response.StatusCode == HttpStatusCode.NotFound || body.Contains("\"UNREGISTERED\"", StringComparison.Ordinal)
+        var error = await response.Content.ReadAsStringAsync(ct);
+        return response.StatusCode == HttpStatusCode.NotFound || error.Contains("\"UNREGISTERED\"", StringComparison.Ordinal)
             ? PushResult.Unregistered
             : PushResult.Failed;
     }

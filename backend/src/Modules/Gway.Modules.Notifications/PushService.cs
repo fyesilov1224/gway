@@ -81,6 +81,75 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
         return deliveries.Values.Sum();
     }
 
+    /// <summary>A device whose app was not opened this long is dropped; opening the app registers it again.</summary>
+    private static readonly TimeSpan DeviceMaxIdle = TimeSpan.FromDays(60);
+
+    /// <summary>How often each token is probed.</summary>
+    private static readonly TimeSpan ProbeEvery = TimeSpan.FromDays(1);
+
+    /// <summary>
+    /// Removes devices that no longer receive push: not opened for <see cref="DeviceMaxIdle"/>, or whose token FCM
+    /// no longer knows (app removed, data cleared, signed out offline). Probes at most 200 tokens a run.
+    /// Returns how many devices were removed (docs/ARCHITECTURE.md §3c, Cihaz kaydının temizliği).
+    /// </summary>
+    public async Task<int> SweepDevicesAsync(CancellationToken ct)
+    {
+        if (!sender.IsConfigured) return 0;
+
+        int removed;
+        await using (var idle = db.CreateCommand("delete from public.push_devices where updated_at < now() - @idle"))
+        {
+            idle.Parameters.AddWithValue("idle", DeviceMaxIdle);
+            removed = await idle.ExecuteNonQueryAsync(ct);
+        }
+
+        var tokens = new List<string>();
+        await using (var due = db.CreateCommand(
+            """
+            select token from public.push_devices
+            where last_checked_at is null or last_checked_at < now() - @every
+            order by last_checked_at nulls first
+            limit 200
+            """))
+        {
+            due.Parameters.AddWithValue("every", ProbeEvery);
+            await using var r = await due.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) tokens.Add(r.GetString(0));
+        }
+
+        var alive = new List<string>();
+        var gone = new List<string>();
+        foreach (var token in tokens)
+        {
+            PushResult result;
+            try
+            {
+                result = await sender.ProbeAsync(token, ct);
+            }
+            catch (HttpRequestException ex)
+            {
+                LogProbeFailed(log, ex);
+                continue;
+            }
+            if (result == PushResult.Unregistered) gone.Add(token);
+            else if (result == PushResult.Sent) alive.Add(token);
+        }
+
+        if (alive.Count > 0)
+        {
+            await using var cmd = db.CreateCommand("update public.push_devices set last_checked_at = now() where token = any(@tokens)");
+            cmd.Parameters.AddWithValue("tokens", alive.ToArray());
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+        if (gone.Count > 0)
+        {
+            await using var cmd = db.CreateCommand("delete from public.push_devices where token = any(@tokens)");
+            cmd.Parameters.AddWithValue("tokens", gone.ToArray());
+            removed += await cmd.ExecuteNonQueryAsync(ct);
+        }
+        return removed;
+    }
+
     private async Task<List<PendingPush>> ClaimAsync(CancellationToken ct)
     {
         await using var conn = await db.OpenConnectionAsync(ct);
@@ -159,9 +228,15 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Could not push notification {NotificationId}; it stays in the app")]
     private static partial void LogSendFailed(ILogger logger, Exception ex, long notificationId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not probe a push token; it is tried again on the next sweep")]
+    private static partial void LogProbeFailed(ILogger logger, Exception ex);
 }
 
-/// <summary>Pushes new notifications every <c>Push:DispatchInterval</c> (default 5 seconds; zero turns it off).</summary>
+/// <summary>
+/// Pushes new notifications every <c>Push:DispatchInterval</c> (default 5 seconds; zero turns it off) and sweeps the
+/// device list every <c>Push:SweepInterval</c> (default 1 hour; zero turns the sweep off).
+/// </summary>
 internal sealed partial class PushDispatcher(PushService push, IConfiguration configuration, ILogger<PushDispatcher> logger)
     : BackgroundService
 {
@@ -169,6 +244,8 @@ internal sealed partial class PushDispatcher(PushService push, IConfiguration co
     {
         var interval = configuration.GetValue("Push:DispatchInterval", TimeSpan.FromSeconds(5));
         if (interval <= TimeSpan.Zero) return;
+        var sweepEvery = configuration.GetValue("Push:SweepInterval", TimeSpan.FromHours(1));
+        var nextSweep = DateTimeOffset.UtcNow;
 
         using var timer = new PeriodicTimer(interval);
         do
@@ -177,6 +254,11 @@ internal sealed partial class PushDispatcher(PushService push, IConfiguration co
             try
             {
                 await push.DispatchAsync(stoppingToken);
+                if (sweepEvery > TimeSpan.Zero && DateTimeOffset.UtcNow >= nextSweep)
+                {
+                    nextSweep = DateTimeOffset.UtcNow + sweepEvery;
+                    await push.SweepDevicesAsync(stoppingToken);
+                }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
