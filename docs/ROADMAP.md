@@ -357,7 +357,7 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] Migration 0069: silinen mesaj arşivi (tüm metinleriyle), trigger ve okuma fonksiyonları silindi; şikayet ve bildirimlerdeki birebir mesaj metinleri temizlendi; geçmiş okuma kayıtları silindi; 0062 boşaltıldı
 - [x] Aydınlatma metninin yeni sürümü: mesajlar okunmaz, görüşmeler kaydedilmez
 - [x] pgTAP (`57_message_privacy`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-01)
-- [ ] Bulut: `0069` migration'ı — kullanıcı onayıyla
+- [x] Bulut: `0069` migration'ı, API ve yönetim paneli yayında (2026-11-01)
 - [ ] Aydınlatma metni hukuki incelemeden geçmeli
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
