@@ -1,15 +1,15 @@
 # Sunucu kurulumu (yayın)
 
-API, LiveKit, web uygulaması ve yönetim paneli tek bir sunucuda Docker Compose ile çalışır. Caddy her alt alan adı için otomatik `https` sertifikası alır. Supabase barındırılan projedir. Kurallar: `docs/ARCHITECTURE.md` §10.
+API ve LiveKit tek bir sunucuda Docker Compose ile çalışır; Caddy `api` ve `livekit` için otomatik `https` sertifikası alır. Web uygulaması ve yönetim paneli 2026-11-01'den beri Cloudflare Pages'te (ücretsiz plan) yayındadır. Supabase barındırılan projedir. Kurallar: `docs/ARCHITECTURE.md` §10.
 
 ```
-app.<alan adı>      → web uygulaması (www/app) + /#/gizlilik, /#/kosullar, /#/hesap-silme
-panel.<alan adı>    → yönetim paneli (www/panel)
+app.<alan adı>      → web uygulaması (Cloudflare Pages `gway-app`) + /#/gizlilik, /#/kosullar, /#/hesap-silme
+panel.<alan adı>    → yönetim paneli (Cloudflare Pages `gway-panel`)
 api.<alan adı>      → C# API
 livekit.<alan adı>  → LiveKit sinyal (WebSocket); ses 7881/tcp ve 7882/udp
 ```
 
-**Durum (2026-10-31):** Yayında. Alan adı `gwayapp.com` (Cloudflare, DNS kayıtları proxy'siz), sunucu Hetzner CX23 Helsinki `gway-1` (CX tipi Almanya'da tükenmişti), dosyalar sunucuda `/opt/gway/deploy`. Supabase Frankfurt'taki `GWAY` projesine taşındı (`ivrfovtlwwffmtlcmqmy`); eski Sidney projesi yedek olarak duruyor. Twilio, Stadia ve ödeme anahtarları boş (ilgili özellikler 503 ile kapalı).
+**Durum (2026-11-01):** Yayında. Alan adı `gwayapp.com` (Cloudflare; `app` ve `panel` Pages'e CNAME ve proxy'li, `api` ve `livekit` sunucuya A kaydı ve proxy'siz; LiveKit'in UDP/TCP sesi proxy'den geçemez). Yanlış yazım `gwayaap.com` bir yönlendirme kuralıyla `app.gwayapp.com`'a gider (`@` ve `www` proxy'li yer tutucu kayıt `192.0.2.1`), sunucu Hetzner CX23 Helsinki `gway-1` (CX tipi Almanya'da tükenmişti), dosyalar sunucuda `/opt/gway/deploy`. Supabase Frankfurt'taki `GWAY` projesine taşındı (`ivrfovtlwwffmtlcmqmy`); eski Sidney projesi yedek olarak duruyor. Twilio, Stadia ve ödeme anahtarları boş (ilgili özellikler 503 ile kapalı).
 
 ## 1. Satın alınacaklar
 - **Alan adı**, ör. `gway.app` (yıllık).
@@ -17,7 +17,7 @@ livekit.<alan adı>  → LiveKit sinyal (WebSocket); ses 7881/tcp ve 7882/udp
 - **Supabase**: Mevcut proje Sidney'de. Türkiye'deki kullanıcılar için yayından önce Frankfurt'ta (eu-central-1) yeni bir proje açılması önerilir; migration'lar `supabase db push` ile kurulur.
 
 ## 2. DNS
-Alan adının DNS panelinde dört **A** kaydı, hepsi sunucunun IP adresine: `app`, `panel`, `api`, `livekit`.
+Alan adının DNS panelinde iki **A** kaydı sunucunun IP adresine, proxy kapalı: `api`, `livekit`. `app` ve `panel` Cloudflare Pages projelerine **CNAME** (`gway-app.pages.dev`, `gway-panel.pages.dev`), proxy açık; alan adları Pages projesine de eklenir (Custom domains).
 
 ## 3. Sunucuyu hazırlama
 ```bash
@@ -47,7 +47,10 @@ mkdir -p secrets        # firebase-adminsdk.json (push) ve isteğe bağlı ülke
 ## 5. Web uygulaması ve paneli derleme (geliştirme bilgisayarında)
 ```bash
 deploy/build-web.sh <alan adı> <SUPABASE_URL> <SUPABASE_PUBLISHABLE_KEY>
-# deploy/www/app ve deploy/www/panel klasörlerini sunucudaki deploy/www altına kopyala
+# Cloudflare Pages'e yükle (bir kez: npx wrangler login; projeler gway-app ve gway-panel hazır)
+cd deploy/www
+npx wrangler pages deploy app --project-name=gway-app --branch=main
+npx wrangler pages deploy panel --project-name=gway-panel --branch=main
 ```
 
 ## 6. Başlatma
