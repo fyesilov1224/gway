@@ -175,7 +175,7 @@ insert into public.reports (reporter_id, target_type, target_id, reason)
 select pg_temp.u(4), 'message', id::text, 'harassment' from public.messages where body = 'Kaba bir mesaj';
 select is(
   (select row(group_id, subject_id, excerpt)::text from public.reports where target_type = 'message' and reporter_id = pg_temp.u(4)),
-  row(null::uuid, pg_temp.u(2), 'Kaba bir mesaj')::text, 'a direct message report goes to the platform with the text as evidence'
+  row(null::uuid, pg_temp.u(2), '')::text, 'a direct message report goes to the platform without the text (nobody there reads messages)'
 );
 select pg_temp.act('00000000-0000-0000-0000-0000000dd106');
 select throws_ok(

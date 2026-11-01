@@ -106,10 +106,11 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal("ended", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
         Assert.False(factory.LiveKit.HasRoom($"call-{call.CallId}"));
 
-        // The panel shows the call on the person's page.
-        var detail = await factory.ClientFor(admin).GetFromJsonAsync<CallUserDetail>(Path($"/admin/calls/users/{a}"), Ct);
-        Assert.Equal("active", detail!.Permission!.Status);
-        Assert.Contains(detail.Calls, c => c.Id == call.CallId && c.Outgoing && c.Status == "ended");
+        // The panel shows the person's permission, never their calls.
+        var detail = await factory.ClientFor(admin).GetStringAsync(Path($"/admin/calls/users/{a}"), Ct);
+        Assert.Contains("\"status\":\"active\"", detail, StringComparison.Ordinal);
+        Assert.DoesNotContain(call.CallId.ToString(), detail, StringComparison.Ordinal);
+        Assert.DoesNotContain(b.ToString(), detail, StringComparison.Ordinal);
     }
 
     [Fact]

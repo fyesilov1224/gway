@@ -57,8 +57,9 @@ alter table public.calls enable row level security;
 revoke all on public.calls from anon, authenticated;
 grant select on public.calls to authenticated;
 
+-- Only the two people: the platform team never sees whom a person called.
 create policy calls_select on public.calls for select to authenticated
-  using ((select auth.uid()) in (caller_id, callee_id) or private.is_platform_staff(array['admin', 'support', 'moderator']));
+  using ((select auth.uid()) in (caller_id, callee_id));
 
 -- The callee's app rings from the row; both see it change.
 alter publication supabase_realtime add table public.calls;

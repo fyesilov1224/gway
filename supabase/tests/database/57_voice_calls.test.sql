@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(21);
 
 -- f1 and f2 are matched; f3 is matched with f1 but never asks; f4 is a stranger.
 insert into auth.users (id, email, aud, role)
@@ -76,6 +76,11 @@ select is((select count(*)::int from public.calls), 1, 'the callee sees the call
 select is((select count(*)::int from public.notifications where type = 'call_incoming'), 0, 'the ringing push is not in the list');
 select pg_temp.act(4);
 select is((select count(*)::int from public.calls), 0, 'strangers do not');
+reset role;
+insert into public.platform_staff (user_id, role) values (pg_temp.u(4), 'admin');
+set local role authenticated;
+select pg_temp.act(4);
+select is((select count(*)::int from public.calls), 0, 'nor does the platform team');
 reset role;
 
 -- Not answered: a missed call, which opens the chat.

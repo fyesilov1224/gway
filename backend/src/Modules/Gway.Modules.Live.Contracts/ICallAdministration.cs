@@ -14,18 +14,8 @@ public sealed record CallPermissionRow(
     DateTimeOffset? DecidedAt,
     string? Reason);
 
-/// <summary>One call of a person, from their side.</summary>
-public sealed record CallSummary(
-    Guid Id,
-    bool Outgoing,
-    Guid OtherId,
-    string? OtherUsername,
-    string Status,
-    string? EndReason,
-    DateTimeOffset CreatedAt,
-    int Seconds);
-
-public sealed record CallUserDetail(CallPermissionRow? Permission, IReadOnlyList<CallSummary> Calls);
+/// <summary>A person's call permission. The platform team never sees whom a person called (docs/ARCHITECTURE.md §8c).</summary>
+public sealed record CallUserDetail(CallPermissionRow? Permission);
 
 public sealed record CallPermissionsPage(IReadOnlyList<CallPermissionRow> Items, int Calls24h, int Minutes24h);
 

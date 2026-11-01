@@ -10,7 +10,6 @@ import '../domain/admin_group.dart';
 import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
-import '../domain/admin_message_logs.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
 import '../domain/admin_security.dart';
@@ -391,53 +390,3 @@ final ticketDetailProvider = FutureProvider.autoDispose.family<AdminTicketDetail
 final supportAttachmentUrlProvider = FutureProvider.autoDispose.family<String, String>(
   (ref, path) async => (await ref.watch(adminSupportRepositoryProvider).attachmentUrl(path)).getOrThrow(),
 );
-
-final adminMessageLogsRepositoryProvider = Provider<AdminMessageLogsRepository>(
-  (ref) => ApiAdminMessageLogsRepository(ref.watch(apiClientProvider)),
-);
-
-/// The last message log search.
-typedef MessageLogSearch = ({String username, String? withUsername, LogConversationKind? kind, int page});
-
-/// The admin's message log session: the reason (sent with every request; the API audits it) and the last search.
-class MessageLogSession {
-  const MessageLogSession({this.reason, this.search});
-
-  final String? reason;
-  final MessageLogSearch? search;
-}
-
-final messageLogSessionProvider = NotifierProvider<MessageLogSessionNotifier, MessageLogSession>(MessageLogSessionNotifier.new);
-
-class MessageLogSessionNotifier extends Notifier<MessageLogSession> {
-  @override
-  MessageLogSession build() => const MessageLogSession();
-
-  void setReason(String reason) => state = MessageLogSession(reason: reason, search: state.search);
-
-  void search(String reason, MessageLogSearch search) => state = MessageLogSession(reason: reason, search: search);
-
-  void page(int page) {
-    final search = state.search;
-    if (search == null) return;
-    state = MessageLogSession(
-      reason: state.reason,
-      search: (username: search.username, withUsername: search.withUsername, kind: search.kind, page: page),
-    );
-  }
-}
-
-/// The conversations of the last search; null before the first search.
-final messageLogResultsProvider = FutureProvider.autoDispose<LogConversationPage?>((ref) async {
-  final session = ref.watch(messageLogSessionProvider);
-  final (search, reason) = (session.search, session.reason);
-  if (search == null || reason == null) return null;
-  return (await ref.watch(adminMessageLogsRepositoryProvider).search(
-            username: search.username,
-            withUsername: search.withUsername,
-            kind: search.kind,
-            page: search.page,
-            reason: reason,
-          ))
-      .getOrThrow();
-});

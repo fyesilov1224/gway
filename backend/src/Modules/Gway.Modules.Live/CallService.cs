@@ -355,28 +355,7 @@ internal sealed partial class CallService(
             await using var r = await cmd.ExecuteReaderAsync(ct);
             if (await r.ReadAsync(ct)) permission = ReadPermission(r);
         }
-        var calls = new List<CallSummary>();
-        await using (var cmd = db.CreateCommand(
-            """
-            select c.id, c.caller_id = @u, case when c.caller_id = @u then c.callee_id else c.caller_id end, o.username,
-                   c.status, c.end_reason, c.created_at,
-                   coalesce(extract(epoch from (coalesce(c.ended_at, now()) - c.answered_at)), 0)::int
-            from public.calls c
-            left join public.profiles o on o.id = case when c.caller_id = @u then c.callee_id else c.caller_id end
-            where @u in (c.caller_id, c.callee_id)
-            order by c.created_at desc
-            limit 20
-            """))
-        {
-            cmd.Parameters.AddWithValue("u", userId);
-            await using var r = await cmd.ExecuteReaderAsync(ct);
-            while (await r.ReadAsync(ct))
-            {
-                calls.Add(new CallSummary(r.GetGuid(0), r.GetBoolean(1), r.GetGuid(2), r.IsDBNull(3) ? null : r.GetString(3),
-                    r.GetString(4), r.IsDBNull(5) ? null : r.GetString(5), r.GetFieldValue<DateTimeOffset>(6), r.GetInt32(7)));
-            }
-        }
-        return new CallUserDetail(permission, calls);
+        return new CallUserDetail(permission);
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "LiveKit call failed for call room {Room}")]

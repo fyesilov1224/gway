@@ -9,7 +9,6 @@ import '../domain/admin_group.dart';
 import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
 import '../domain/admin_matching.dart';
-import '../domain/admin_message_logs.dart';
 import '../domain/admin_moderation.dart';
 import '../domain/admin_notifications.dart';
 import '../domain/admin_security.dart';
@@ -333,12 +332,6 @@ class ApiAdminModerationRepository implements AdminModerationRepository {
       _api.post('/admin/referrals/$referralId/authorities', body: {'note': note}, decode: (_) {});
 
   @override
-  Future<Result<List<AdminContextMessage>>> messageContext(String reportId) => _api.get(
-        '/admin/reports/$reportId/message-context',
-        decode: (json) => [for (final m in json! as List) AdminContextMessage.fromJson((m as Map).cast())],
-      );
-
-  @override
   Future<Result<void>> removeMessage(String messageId, {required String reason}) =>
       _api.post('/admin/messages/$messageId/removal', body: {'reason': reason}, decode: (_) {});
 }
@@ -597,42 +590,4 @@ class ApiAdminSupportRepository implements AdminSupportRepository {
       return Err(failureFromSupabase(e));
     }
   }
-}
-
-class ApiAdminMessageLogsRepository implements AdminMessageLogsRepository {
-  ApiAdminMessageLogsRepository(this._api);
-
-  final ApiClient _api;
-
-  @override
-  Future<Result<LogConversationPage>> search({
-    required String username,
-    String? withUsername,
-    LogConversationKind? kind,
-    int page = 1,
-    required String reason,
-  }) =>
-      _api.post(
-        '/admin/message-logs/search',
-        body: {
-          'username': username.trim(),
-          if (withUsername != null && withUsername.trim().isNotEmpty) 'withUsername': withUsername.trim(),
-          'kind': ?kind?.code,
-          'page': page,
-          'reason': reason.trim(),
-        },
-        decode: (json) => LogConversationPage.fromJson((json! as Map).cast()),
-      );
-
-  @override
-  Future<Result<LogConversationView>> view(String conversationId, {required String reason, DateTime? before, String? query}) =>
-      _api.post(
-        '/admin/message-logs/conversations/$conversationId',
-        body: {
-          'reason': reason.trim(),
-          if (before != null) 'before': before.toUtc().toIso8601String(),
-          if (query != null && query.trim().isNotEmpty) 'query': query.trim(),
-        },
-        decode: (json) => LogConversationView.fromJson((json! as Map).cast()),
-      );
 }

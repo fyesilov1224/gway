@@ -33,12 +33,6 @@ abstract final class AdminRoutes {
 
   static const leagues = '/leagues';
 
-  static const messageLogs = '/message-logs';
-
-  static String messageLog(String conversationId) => '/message-logs/$conversationId';
-
-  static String messageLogsOf(String username) => '/message-logs?user=${Uri.encodeQueryComponent(username)}';
-
   static String post(String id) => '/content/$id';
 
   static String ticket(String id) => '/support/$id';

@@ -1070,7 +1070,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Eski isteklerin istek ve ret durumları uygulanır.
   - Grupta susturulan üye yazamaz (Faz 6); `admins_only` modu uygulanır.
   - Hız sınırı uygulanır.
-- **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür. Silinen (ya da moderasyonla kaldırılan) mesajın metni 180 gün yalnızca platform yöneticisinin görebileceği arşivde kalır (§ Mesaj kayıtları); fotoğrafı hemen silinir.
+- **Silme:** gönderen kendi mesajını herkesten siler. Kayıt kalır; metin ve fotoğraf temizlenir ve mesaj "Bu mesaj silindi" olarak görünür. Silinen (ya da moderasyonla kaldırılan) mesajın metni ve fotoğrafı hemen silinir; hiçbir yerde arşivlenmez.
 - **Fotoğraf:** özel `message-images` deposunda tutulur (yol `{konuşma}/{dosya}`; JPEG, PNG ya da WebP; en fazla 5 MB).
   - Yalnızca konuşmanın okurları okur; yükleme yalnızca o konuşmanın okurları içindir.
   - İstemci imzalı adresle gösterir.
@@ -1082,32 +1082,27 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 - **Profili gizlenen gönderen:** RLS, banlanan ya da silinme sürecindeki kişinin profilini gizler. Onun mesajları sohbette kalır, "GWAY kullanıcısı" olarak ve profil bağlantısı olmadan görünür; tek bir böyle mesaj sohbetin açılmasını engellemez. Canlı yayın yorumlarında ve anket oy verenler listesinde böyle kişiler gösterilmez (gönderi yorumlarındaki gibi).
 
 ### Şikayet ve moderasyon
-- Mesaj şikayet edilebilir (`reports.target_type = 'message'`; kanıt olarak metin saklanır).
+- Mesaj şikayet edilebilir (`reports.target_type = 'message'`). Kanıt metni yalnızca grup sohbeti mesajında saklanır (grubun moderatörleri sohbeti zaten okur); birebir mesaj şikayetinde metin saklanmaz.
   - Grup sohbetindeki mesaj şikayeti grubun moderasyon masasına gider. `reports.review` yetkilisi mesajı kaldırabilir; rütbe kuralı uygulanır.
   - Birebir mesaj şikayeti platform ekibine gider.
-- **Platform ekibinin gördükleri:** şikayet edilen mesaj ve sohbetteki önceki 5 mesaj (`GET /admin/reports/{id}/message-context`). Her görüntüleme audit log'a yazılır (`message.context_viewed`). Bunun dışında yalnızca platform yöneticisi, gerekçe yazarak mesaj kayıtlarını açar (aşağıda).
-- Platform ekibi (admin, moderatör) mesajı kaldırabilir (`message.removed_by_admin`).
+- Platform ekibi (admin, moderatör) şikayet edilen mesajı içeriğini görmeden, şikayet gerekçesine göre kaldırabilir (`message.removed_by_admin`).
 
-### Mesaj kayıtları (kullanıcı kararı, 2026-10-31)
-Önceki kural ("şikayet dışında hiçbir özel mesaj okunamaz") kullanıcı isteğiyle değişti: platform yöneticisi güvenlik ve hukuki sebeplerle yazışmaları inceleyebilir. Aydınlatma metnine bu işleme eklendi (migration 0062, yeni sürüm; kullanıcılar sonraki girişte kabul eder).
-- **Kim:** yalnızca platform `admin` rolü. Moderatör ve destek göremez. Kontrol hem C#'ta (`RequireStaffFilter`) hem SQL'de (`private.admin_message_*` fonksiyonları `is_platform_staff(array['admin'])` ister) yapılır.
-- **Gerekçe:** her arama ve her sohbet açılışı 10–500 karakterlik gerekçe ister. Gerekçe audit log'a yazılır: arama `message.log_searched` (hedef kullanıcı, varsa ikinci kullanıcı, tür), sohbet `message.log_viewed` (konuşma, sayfa, metin araması).
-- **Arama:** kullanıcı adıyla (büyük/küçük harf duyarsız, `@` atılır). İsteğe bağlı ikinci kullanıcı adı yalnızca ikisinin birlikte bulunduğu sohbetleri getirir. Tür filtresi: birebir, grup, küçük masa. Kişinin sohbetleri: birebir konuşmaları, üyesi olduğu ya da yazdığı grup sohbetleri ve masa sohbetleri. Her satırda karşı taraf / grup / masa, toplam mesaj, kişinin mesajı, silinen mesaj, son mesaj zamanı. Sayfa başına 20, son mesaja göre.
-- **Sohbet:** başlıkta türü ve katılımcılar; mesajlar eskiden yeniye, sayfa başına 50, "Daha eski mesajlar" ile geriye gidilir. Sohbet içinde metin araması yapılır (arşivdeki silinmiş metinler dahil). Her mesajda gönderen, zaman, metin, fotoğraf (C# 10 dakikalık imzalı adres üretir), silinme zamanı ve kimin sildiği (gönderen / moderasyon ve gerekçesi). Silinmiş mesajın metni arşivden gösterilir ve "Silindi" olarak işaretlenir; arşivden düşmüşse "metin saklanmıyor" yazar.
-- **Silinmiş mesaj arşivi (`message_deletion_archive`, owner: messaging):** mesaj silindiğinde ya da kaldırıldığında trigger eski metni ve fotoğraf olup olmadığını yazar; saklama süresi 180 gündür (`purge_after`). Fotoğraf saklanmaz (özel fotoğrafları kişi silince tutmamak için). Süresi dolan satırları `MessageArchivePurger` saatte bir siler (`Messaging:ArchivePurgeInterval`, sıfır kapatır). Hesap silinince mesajlarla birlikte arşiv de silinir (cascade). Bu kuraldan önce silinmiş mesajların metni geri gelmez.
-- **Değiştirmez:** grup disiplin kurulu birebir mesajları yine göremez; yönetici mesajları yalnızca okur, mesaj kaldırma şikayet akışında kalır.
+### Mesaj gizliliği (kullanıcı kararı, 2026-11-01)
+Platform ekibi (admin, moderatör, destek) hiçbir özel mesajı okuyamaz, sesli görüşmeyi dinleyemez ve kimin kimi aradığını göremez. Bu kural değiştirilmeden önce burası güncellenmelidir.
+- Mesaj içeriği hiçbir admin uç noktasında, panel ekranında ya da SQL fonksiyonunda gösterilmez. Şikayet listesinde mesaj şikayetlerinin metni boş döner (`AdminModeration`, yasa dışı faaliyet bildiriminin kanıtı dahil).
+- 2026-10-31'de eklenen "Mesaj kayıtları" (yöneticinin yazışmaları araması ve okuması, silinen metinlerin 180 günlük arşivi) ve şikayet bağlamı (şikayet edilen mesaj ve önceki 5 mesaj) tamamen kaldırıldı. Migration 0070 arşiv tablosunu, trigger'ı ve okuma fonksiyonlarını siler; şikayet ve bildirimlerde saklanan birebir mesaj metinlerini temizler; geçmiş okuma kayıtlarını (`message.log_searched`, `message.log_viewed`, `message.context_viewed`) audit log'dan siler. Aydınlatma metninin yeni sürümü mesajların okunmadığını ve görüşmelerin kaydedilmediğini söyler.
+- Grup disiplin kurulu birebir mesajları göremez; grup yöneticisi grup sohbetini yalnızca üye olarak okur, mesaj kaldırma şikayet akışında kalır.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
-| `message_deletion_archive` | Kimse (RLS, politika yok); platform yöneticisi yalnızca C# üzerinden | Trigger |
 | `conversations` | Konuşmanın okurları | Backend (grup konuşması: trigger) |
 | `conversation_members` | Kişinin kendi satırları; birebirde karşı tarafın satırı | Backend; okuma zamanı kişinin kendisi (RPC) |
 | `messages` | Konuşmanın okurları (engellenenlerin mesajları hariç) | Backend |
 | Storage `message-images` | Konuşmanın okurları | Konuşmanın okurları (kendi klasörlerine değil, konuşmanın klasörüne; sahip kendisi) |
 
 ### Audit log
-`group.chat_mode_changed`, `message.removed` (grup moderasyonu, rapor üzerinden `report.content_removed`), `message.removed_by_admin`, `message.context_viewed`, `message.log_searched`, `message.log_viewed`. Kişinin kendi mesajı ve kendi silmesi yazılmaz.
+`group.chat_mode_changed`, `message.removed` (grup moderasyonu, rapor üzerinden `report.content_removed`), `message.removed_by_admin`. Kişinin kendi mesajı ve kendi silmesi yazılmaz.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -1117,10 +1112,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 | `POST /conversations/{id}/acceptance`, `DELETE /conversations/{id}/acceptance` | Mesaj isteğini kabul etme / reddetme |
 | `DELETE /messages/{id}` | Kendi mesajını herkesten silme |
 | `PUT /groups/{id}/chat` | Grup sohbeti modu (`adminsOnly`; `group.edit`) |
-| `GET /admin/reports/{id}/message-context` | Şikayet edilen mesaj ve önceki 5 mesaj (admin, moderatör; audit log) |
-| `POST /admin/messages/{id}/removal` | Mesajı kaldırma (`reason`; admin, moderatör) |
-| `POST /admin/message-logs/search` | Kullanıcının sohbetleri (`username`, `withUsername?`, `kind?`, `page`, `reason`; yalnızca admin; audit log) |
-| `POST /admin/message-logs/conversations/{id}` | Sohbetin mesajları (`reason`, `before?`, `query?`; yalnızca admin; audit log) |
+| `POST /admin/messages/{id}/removal` | Şikayet edilen mesajı içeriğini görmeden kaldırma (`reason`; admin, moderatör) |
 
 ## 3g. Eşleşme (Faz 15.6)
 
@@ -1405,8 +1397,8 @@ lib/src/presentation/  ekranlar, widget'lar, Riverpod provider'ları
 - Supabase Dart istemcisinde `order()` varsayılan olarak **azalan** sıralar; sıralama yönü her zaman açıkça yazılır.
 - Ekranlarda ham hata metni gösterilmez. `Failure` türü ekranda Türkçe, kullanıcı dostu bir mesaja çevrilir.
 - Durum yönetimi Riverpod 3, yönlendirme go_router ile yapılır.
-- **Önbellek (2026-11-01, hız):** ekran verisi yükleyen `autoDispose` provider'lar ilk satırda `ref.cacheFor()` çağırır (`package:core`, `screen_cache.dart`). Ekrandan çıkınca veri 5 dakika bellekte kalır; ekrana dönünce iskelet yerine anında gösterilir, 30 saniyeden eskiyse eski veri ekrandayken arka planda yeniden çekilir. Giriş ve çıkışta düşer. `loadMore` ile sayfalanan listeler (akış, bildirimler) arka planda yenilenmez (yüklenen sayfalar kaybolmasın diye), aşağı çekerek yenilenir. Her seferinde taze olması gerekenler `cacheFor` kullanmaz: sipariş ve teklif (ödeme), yayın odası, eşleşme destesi, harita noktaları, imzalı ek bağlantıları, geçiş anahtarları, mesaj kaydı araması, son fatura bilgileri.
-- Ağ görselleri gösterildikleri boyutta çözülür (`cacheWidth`, `gwCacheWidth`); avatar ve grup logosu en fazla `GwMedia.avatarMaxSide` (512) yüklenir. Herkese açık görseller (avatar, kapak, gönderi, organizasyon, bildirim) `gwNetworkImage` ile yüklenir: telefonda diske yazılır (`cached_network_image`), her açılışta yeniden inmez; web'de tarayıcı önbelleği kullanılır. İmzalı bağlantılar (destek ekleri, mesaj kayıtları, eşleşme fotoğrafları) her istekte değiştiği için `Image.network` ile kalır.
+- **Önbellek (2026-11-01, hız):** ekran verisi yükleyen `autoDispose` provider'lar ilk satırda `ref.cacheFor()` çağırır (`package:core`, `screen_cache.dart`). Ekrandan çıkınca veri 5 dakika bellekte kalır; ekrana dönünce iskelet yerine anında gösterilir, 30 saniyeden eskiyse eski veri ekrandayken arka planda yeniden çekilir. Giriş ve çıkışta düşer. `loadMore` ile sayfalanan listeler (akış, bildirimler) arka planda yenilenmez (yüklenen sayfalar kaybolmasın diye), aşağı çekerek yenilenir. Her seferinde taze olması gerekenler `cacheFor` kullanmaz: sipariş ve teklif (ödeme), yayın odası, eşleşme destesi, harita noktaları, imzalı ek bağlantıları, geçiş anahtarları, son fatura bilgileri.
+- Ağ görselleri gösterildikleri boyutta çözülür (`cacheWidth`, `gwCacheWidth`); avatar ve grup logosu en fazla `GwMedia.avatarMaxSide` (512) yüklenir. Herkese açık görseller (avatar, kapak, gönderi, organizasyon, bildirim) `gwNetworkImage` ile yüklenir: telefonda diske yazılır (`cached_network_image`), her açılışta yeniden inmez; web'de tarayıcı önbelleği kullanılır. İmzalı bağlantılar (destek ekleri, eşleşme fotoğrafları) her istekte değiştiği için `Image.network` ile kalır.
 - Açılışta giriş kapısı çözülürken token zaten `authenticated` rolündeyse açılış ekranı (`StartupSplash`) Bugün'ün verisini (akış, hikâyeler, canlı yayınlar, yakında başlayanlar, okunmamış bildirim sayısı, gruplar) önceden yükler; ekran önbelleği bu veriyi ana sayfaya devreder.
 - Uygulama kodunda doğrudan renk, boşluk, yarıçap veya yazı boyutu yazılmaz. Tüm değerler `design_system` tokenlarından gelir.
 - Arayüz metinleri Türkçedir. Kod, değişken ve dosya adları İngilizcedir.
@@ -1796,21 +1788,21 @@ Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese aç
 - **Bitiş:** iki taraf da `POST /calls/{id}/end` ile bitirir. Arayan çalarken bitirirse `canceled` olur.
 - **Zaman sınırları:** 30 saniyede açılmayan arama `missed` olur; aranana `call_missed` bildirimi gider. Süren görüşme **60 dakikada** kendiliğinden biter (`ended`, `time_limit`). `CallMonitor` 5 saniyede bir kontrol eder (`Calls:MonitorInterval`, sıfır kapatır) ve LiveKit odasını kapatır.
 - **Oda:** `call-<id>`, en fazla 2 kişi, yalnızca mikrofon. Token 10 dakikalıktır ve yalnızca görüşme `ringing`/`active` iken, yalnızca iki tarafa verilir.
-- Görüşme sesi kaydedilmez; yalnızca kim, kimi, ne zaman, ne kadar aradı tutulur.
+- Görüşme sesi kaydedilmez ve dinlenemez. Kim, kimi, ne zaman, ne kadar aradı yalnızca iki tarafın görebileceği `calls` satırında tutulur (zaman sınırları ve cevapsız arama için); platform ekibi bu satırları göremez (§3f, Mesaj gizliliği).
 
 ### Bildirimler
 `call_incoming` (yalnızca push; uygulamanın listesinde görünmez, RLS), `call_missed` ("seni aradı, açamadın"; listede görünür, dokununca sohbet açılır), `call_permission_granted`, `call_permission_declined`, `call_permission_revoked` (yetki açıldı, reddedildi ya da kapatıldı; listede görünür, dokununca ayarlardaki Sesli görüşme bölümü açılır). Push'a dokununca gelen arama ekranı ya da sohbet açılır.
 
 ### Admin
 - **Sesli görüşme** sayfası: bekleyen talepler (kişi, not, tarih) ve yetkisi açık kişiler; açma, reddetme, kapatma (gerekçe zorunlu: reddetme ve kapatma). Son 24 saatte görüşme sayısı ve toplam dakika.
-- Kullanıcı sayfasında "Sesli görüşme yetkisi" anahtarı ve kişinin son görüşmeleri (karşı taraf, süre, sonuç).
+- Kullanıcı sayfasında "Sesli görüşme yetkisi" anahtarı. Kişinin görüşmeleri (karşı taraf, süre, sonuç) gösterilmez.
 - Rol: `admin` ve `support` açar ve kapatır; `moderator` görür.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
 | `call_permissions` | Kişinin kendisi ve platform ekibi | Talep: `public.request_call_permission(note)` (kendi satırı, yalnızca `requested`); karar: backend |
-| `calls` | İki taraf ve platform ekibi | Backend |
+| `calls` | Yalnızca iki taraf (platform ekibi göremez) | Backend |
 
 ### Audit log
 `call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
@@ -1823,11 +1815,11 @@ Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese aç
 | `POST /calls/{id}/accept`, `POST /calls/{id}/decline`, `POST /calls/{id}/end` | Yanıtlama, reddetme, bitirme |
 | `GET /admin/calls/permissions?status=` | Talepler ve yetkiler. Rol: `admin`, `support`, `moderator` |
 | `PUT /admin/calls/permissions/{userId}` | `{ active, reason? }`: açma ya da kapatma/reddetme. Rol: `admin`, `support` |
-| `GET /admin/calls/users/{userId}` | Kişinin yetki durumu ve son 20 görüşmesi |
+| `GET /admin/calls/users/{userId}` | Kişinin yetki durumu (görüşmeleri değil) |
 
 ## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
 
-Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemleri ayrıntılı ama düzenli gösterir; istatistikler profesyonel grafiklerle sunulur.
+Kullanıcı isteği (2026-10-27): panel her modülü ve işlemleri ayrıntılı ama düzenli gösterir (özel mesajlar ve görüşmeler hariç, §3f); istatistikler profesyonel grafiklerle sunulur.
 
 ### Genel bakış (15.7a)
 - Panelin açılış sayfasıdır (`/overview`). Üstte tarih aralığı: 7, 30, 90 ya da 365 gün (varsayılan 30).
