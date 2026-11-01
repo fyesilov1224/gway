@@ -20,15 +20,14 @@ class MediaImage extends StatelessWidget {
         final cacheWidth = gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context));
         final placeholder = placeholderUrl == null || placeholderUrl == url
             ? const GwSkeleton(height: double.infinity, borderRadius: BorderRadius.zero)
-            : Image.network(placeholderUrl!, fit: fit, width: double.infinity, height: double.infinity, cacheWidth: cacheWidth,
+            : Image(image: gwNetworkImage(placeholderUrl!, cacheWidth: cacheWidth), fit: fit, width: double.infinity, height: double.infinity,
                 errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted));
-        return Image.network(
-          url,
+        return Image(
+          image: gwNetworkImage(url, cacheWidth: cacheWidth),
           fit: fit,
           semanticLabel: semanticLabel,
           width: double.infinity,
           height: double.infinity,
-          cacheWidth: cacheWidth,
           frameBuilder: (context, child, frame, synchronous) => synchronous
               ? child
               : Stack(fit: StackFit.expand, children: [

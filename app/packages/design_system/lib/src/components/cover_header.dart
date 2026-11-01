@@ -6,6 +6,7 @@ import '../tokens/radius.dart';
 import '../tokens/spacing.dart';
 import '../tokens/tones.dart';
 import 'avatar.dart';
+import 'network_image.dart';
 import 'sections.dart';
 import 'skeleton.dart';
 
@@ -85,10 +86,9 @@ class GwHeroCard extends StatelessWidget {
               child: cover == null
                   ? placeholder
                   : LayoutBuilder(
-                      builder: (context, constraints) => Image.network(
-                        cover,
+                      builder: (context, constraints) => Image(
+                        image: gwNetworkImage(cover, cacheWidth: gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context))),
                         fit: BoxFit.cover,
-                        cacheWidth: gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context)),
                         semanticLabel: 'Kapak fotoğrafı',
                         errorBuilder: (_, _, _) => placeholder,
                       ),

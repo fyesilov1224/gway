@@ -230,7 +230,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                               height: GwAvatarSize.lg.dimension,
                               child: group.coverUrl == null
                                   ? const ColoredBox(color: GwColors.primarySoft)
-                                  : Image.network(group.coverUrl!, fit: BoxFit.cover),
+                                  : Image(image: gwNetworkImage(group.coverUrl!), fit: BoxFit.cover),
                             ),
                           ),
                           hasImage: group.coverUrl != null,

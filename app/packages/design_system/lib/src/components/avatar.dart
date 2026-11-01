@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../tokens/media.dart';
 import '../tokens/radius.dart';
 import '../tokens/tones.dart';
+import 'network_image.dart';
 
 enum GwAvatarSize {
   sm(32),
@@ -71,12 +72,11 @@ class GwAvatar extends StatelessWidget {
         decoration: decoration,
         child: url == null
             ? fallback
-            : Image.network(
-                url,
-                fit: BoxFit.cover,
+            : Image(
                 // Twice the box: a wide photo still covers the circle sharply, and a list of avatars never
                 // decodes full-size uploads.
-                cacheWidth: gwCacheWidth(dimension * 2, MediaQuery.devicePixelRatioOf(context)),
+                image: gwNetworkImage(url, cacheWidth: gwCacheWidth(dimension * 2, MediaQuery.devicePixelRatioOf(context))),
+                fit: BoxFit.cover,
                 excludeFromSemantics: true,
                 errorBuilder: (_, _, _) => fallback,
               ),

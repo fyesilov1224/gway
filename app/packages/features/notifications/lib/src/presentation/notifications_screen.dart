@@ -260,10 +260,9 @@ class _NotificationRow extends ConsumerWidget {
                       dimension: _thumb,
                       child: n.thumbUrl == null
                           ? const ColoredBox(color: GwColors.media, child: Icon(Icons.play_arrow_rounded, color: GwColors.onMedia))
-                          : Image.network(
-                              n.thumbUrl!,
+                          : Image(
+                              image: gwNetworkImage(n.thumbUrl!, cacheWidth: gwCacheWidth(_thumb, MediaQuery.devicePixelRatioOf(context))),
                               fit: BoxFit.cover,
-                              cacheWidth: gwCacheWidth(_thumb, MediaQuery.devicePixelRatioOf(context)),
                               errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted),
                             ),
                     ),

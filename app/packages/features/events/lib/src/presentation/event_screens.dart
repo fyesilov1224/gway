@@ -167,12 +167,11 @@ class EventCard extends StatelessWidget {
               const SizedBox(width: GwSpacing.sm),
               ClipRRect(
                 borderRadius: GwRadius.mdAll,
-                child: Image.network(
-                  e.coverUrl!,
+                child: Image(
+                  image: gwNetworkImage(e.coverUrl!, cacheWidth: gwCacheWidth(GwSpacing.xxl * 1.5, MediaQuery.devicePixelRatioOf(context))),
                   width: GwSpacing.xxl * 1.5,
                   height: GwSpacing.xxl * 1.5,
                   fit: BoxFit.cover,
-                  cacheWidth: gwCacheWidth(GwSpacing.xxl * 1.5, MediaQuery.devicePixelRatioOf(context)),
                   errorBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),
@@ -538,7 +537,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
               if (e.coverUrl != null)
                 AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(e.coverUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
+                  child: Image(image: gwNetworkImage(e.coverUrl!), fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
                 ),
               Padding(
                 padding: const EdgeInsets.all(GwSpacing.page),
@@ -1059,7 +1058,7 @@ class _EditorState extends ConsumerState<_Editor> {
                             const SizedBox(height: GwSpacing.xs),
                             Text('Kapak görseli ekle', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
                           ])
-                        : Image.network(_coverUrl!, fit: BoxFit.cover),
+                        : Image(image: gwNetworkImage(_coverUrl!), fit: BoxFit.cover),
                   ),
                 ),
               ),
