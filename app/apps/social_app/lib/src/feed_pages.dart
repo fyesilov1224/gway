@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:live/live.dart';
 import 'package:matching/matching.dart';
+import 'package:messaging/messaging.dart';
 import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
@@ -44,6 +45,8 @@ final notificationLinks = NotificationLinks(
   openMatching: (context) => context.push(MatchingRoutes.home),
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
   openTonight: (context) => context.push(EventRoutes.tonight),
+  openConversation: (context, id) => context.push(MessagingRoutes.chat(id)),
+  openCallSettings: (context) => context.push(MessagingRoutes.callSettings),
 );
 
 Widget peopleResults(BuildContext context, String query, VoidCallback onClear) =>

@@ -30,6 +30,9 @@ class MainActivity : FlutterActivity() {
                 NotificationChannel("gway_messages", "Mesajlar", NotificationManager.IMPORTANCE_HIGH).apply {
                     description = "Sohbetlerine ve grup sohbetlerine gelen mesajlar"
                 },
+                NotificationChannel("gway_calls", "Sesli aramalar", NotificationManager.IMPORTANCE_HIGH).apply {
+                    description = "Eşleştiğin kişilerden gelen sesli aramalar"
+                },
                 NotificationChannel("gway_general", "Bildirimler", NotificationManager.IMPORTANCE_HIGH).apply {
                     description = "Takip, beğeni, yorum, organizasyon ve canlı yayın bildirimleri"
                 },

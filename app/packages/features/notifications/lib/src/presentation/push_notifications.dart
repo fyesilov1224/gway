@@ -12,12 +12,16 @@ class PushNotifications extends ConsumerStatefulWidget {
   const PushNotifications({
     super.key,
     required this.openLive,
+    required this.openCall,
     required this.openConversation,
     required this.openNotifications,
     required this.child,
   });
 
   final void Function(String liveId) openLive;
+
+  /// The ringing push opens the incoming call screen (docs/ARCHITECTURE.md §8c).
+  final void Function(String callId) openCall;
 
   /// A chat message notification opens its chat (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
   final void Function(String conversationId) openConversation;
@@ -39,7 +43,9 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
     _subscriptions
       ..add(push.tokenRefreshes.listen(_register))
       ..add(push.taps.listen((data) {
-        if (data['live_id'] case final String liveId) {
+        if (data case {'type': 'call_incoming', 'call_id': final String callId}) {
+          widget.openCall(callId);
+        } else if (data['live_id'] case final String liveId) {
           widget.openLive(liveId);
         } else if (data['conversation_id'] case final String conversationId) {
           widget.openConversation(conversationId);

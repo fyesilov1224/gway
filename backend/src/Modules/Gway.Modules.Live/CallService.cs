@@ -1,0 +1,390 @@
+using System.Security.Claims;
+using Gway.Modules.Live.Contracts;
+using Gway.SharedKernel;
+using Gway.SharedKernel.Auditing;
+using Gway.SharedKernel.Database;
+using Gway.SharedKernel.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Npgsql;
+
+namespace Gway.Modules.Live;
+
+/// <summary>Can this chat call now; when not, why (a code the app shows as a sentence).</summary>
+public sealed record CallEligibility(bool Allowed, string? Code, string? Message);
+
+/// <summary>What the app needs to join the call's room.</summary>
+public sealed record CallJoin(Guid CallId, string Url, string Token);
+
+public static class CallEndpoints
+{
+    /// <summary>One-to-one voice calls between matched people (docs/ARCHITECTURE.md §8c).</summary>
+    public static IEndpointRouteBuilder MapCallEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/conversations/{id:guid}/calls/eligibility", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            TypedResults.Ok(await calls.EligibilityAsync(user.GetUserId(), id, ct)));
+
+        app.MapPost("/conversations/{id:guid}/calls", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.StartAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
+        app.MapPost("/calls/{id:guid}/accept", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.AcceptAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
+        app.MapPost("/calls/{id:guid}/token", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.RejoinAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
+        app.MapPost("/calls/{id:guid}/decline", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.DeclineAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
+        app.MapPost("/calls/{id:guid}/end", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.EndAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
+        return app;
+    }
+}
+
+/// <summary>
+/// Calls: the database decides who may call (<c>private.call_blocker</c>, <c>private.start_call</c>); LiveKit carries the audio.
+/// No audio is recorded.
+/// </summary>
+internal sealed partial class CallService(
+    NpgsqlDataSource db,
+    ILiveKit liveKit,
+    IOptions<LiveKitOptions> options,
+    ILogger<CallService> log) : ICallAdministration
+{
+    public static readonly TimeSpan RingFor = TimeSpan.FromSeconds(30);
+    public static readonly TimeSpan MaxLength = TimeSpan.FromMinutes(60);
+
+    private static readonly Error NotFound = Error.NotFound("call.not_found", "Görüşme bulunamadı.");
+    private static readonly Error Over = Error.Conflict("call.over", "Bu görüşme sona erdi.");
+    private static readonly Error Unavailable = Error.Unavailable("call.unavailable", "Sesli görüşme şu anda kullanılamıyor. Biraz sonra tekrar dene.");
+
+    internal static Error RuleError(string code) => code switch
+    {
+        "call_no_permission" => Error.RuleViolation("call.no_permission",
+            "Sesli görüşme yetkin yok. Profilindeki Sesli görüşme bölümünden talep edebilirsin."),
+        "call_peer_no_permission" => Error.RuleViolation("call.peer_no_permission", "Bu kişinin sesli görüşme yetkisi yok."),
+        "call_not_matched" => Error.RuleViolation("call.not_matched", "Sesli görüşme yalnızca eşleştiğin kişilerle yapılabilir."),
+        "call_chat_locked" => Error.RuleViolation("call.chat_locked", "Sesli görüşme için Eşleşme Sohbeti paketi gerekir."),
+        "call_peer_chat_locked" => Error.RuleViolation("call.peer_chat_locked", "Bu kişinin Eşleşme Sohbeti paketi olmadığı için aranamıyor."),
+        "call_blocked" => Error.RuleViolation("call.blocked", "Engel olduğu için arama yapılamıyor."),
+        "call_busy" => Error.Conflict("call.busy", "Sen ya da aradığın kişi şu anda başka bir görüşmede."),
+        "call_rate_limited" => Error.RuleViolation("call.rate_limited", "Çok sık arama yapıyorsun. Biraz bekleyip tekrar dene."),
+        "call_forbidden" => Error.Forbidden("call.forbidden", "Bu sohbetten arama yapılamaz."),
+        _ => Error.RuleViolation($"call.{code}", "Arama şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
+    };
+
+    private static string Room(Guid callId) => $"call-{callId}";
+
+    // People ------------------------------------------------------------------------------------
+
+    public async Task<CallEligibility> EligibilityAsync(Guid actor, Guid conversation, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand(
+            """
+            select case
+              when not exists (select 1 from public.conversations c where c.id = @c and c.kind = 'direct' and @me in (c.user_a, c.user_b))
+                then 'call_forbidden'
+              else coalesce(
+                private.call_blocker(@me, private.conversation_peer(@c, @me)),
+                case when private.in_open_call(@me) or private.in_open_call(private.conversation_peer(@c, @me)) then 'call_busy' end)
+            end
+            """);
+        cmd.Parameters.AddWithValue("c", conversation);
+        cmd.Parameters.AddWithValue("me", actor);
+        if (await cmd.ExecuteScalarAsync(ct) is not string code) return new CallEligibility(true, null, null);
+        var error = RuleError(code);
+        return new CallEligibility(false, error.Code, error.Message);
+    }
+
+    public async Task<Result<CallJoin>> StartAsync(Guid actor, Guid conversation, CancellationToken ct)
+    {
+        if (!options.Value.IsConfigured) return Unavailable;
+        var started = await ActingTransaction.RunAsync<Guid>(db, actor, async (conn, tx) =>
+            (Guid)(await ActingTransaction.ScalarAsync(conn, tx, "select private.start_call(@c)", ct, ("c", conversation)))!, RuleError, ct);
+        if (!started.IsSuccess) return started.Error;
+        try
+        {
+            await liveKit.CreateRoomAsync(Room(started.Value), ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            LogLiveKitFailed(log, ex, Room(started.Value));
+            await FinishAsync(started.Value, "canceled", "canceled", actor, ct);
+            return Unavailable;
+        }
+        return await JoinAsync(started.Value, actor, ct);
+    }
+
+    public async Task<Result<CallJoin>> AcceptAsync(Guid actor, Guid callId, CancellationToken ct)
+    {
+        if (!options.Value.IsConfigured) return Unavailable;
+        await using var cmd = db.CreateCommand(
+            """
+            update public.calls set status = 'active', answered_at = now()
+            where id = @id and callee_id = @me and status = 'ringing'
+            returning id
+            """);
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("me", actor);
+        if (await cmd.ExecuteScalarAsync(ct) is null) return await StateErrorAsync(actor, callId, ct);
+        return await JoinAsync(callId, actor, ct);
+    }
+
+    /// <summary>A new token for a participant who lost the connection; the caller also needs it while ringing.</summary>
+    public async Task<Result<CallJoin>> RejoinAsync(Guid actor, Guid callId, CancellationToken ct)
+    {
+        if (!options.Value.IsConfigured) return Unavailable;
+        await using var cmd = db.CreateCommand(
+            """
+            select 1 from public.calls
+            where id = @id and (status = 'active' and @me in (caller_id, callee_id) or status = 'ringing' and caller_id = @me)
+            """);
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("me", actor);
+        if (await cmd.ExecuteScalarAsync(ct) is null) return await StateErrorAsync(actor, callId, ct);
+        return await JoinAsync(callId, actor, ct);
+    }
+
+    public async Task<Result> DeclineAsync(Guid actor, Guid callId, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand("select 1 from public.calls where id = @id and callee_id = @me and status = 'ringing'");
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("me", actor);
+        if (await cmd.ExecuteScalarAsync(ct) is null) return (await StateErrorAsync(actor, callId, ct)).Error!;
+        await FinishAsync(callId, "declined", "declined", actor, ct);
+        return Result.Success();
+    }
+
+    /// <summary>Hanging up: before an answer the caller cancels and the callee declines; afterwards either ends it.</summary>
+    public async Task<Result> EndAsync(Guid actor, Guid callId, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand(
+            "select status, caller_id = @me from public.calls where id = @id and @me in (caller_id, callee_id)");
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("me", actor);
+        string? status = null;
+        var caller = false;
+        await using (var r = await cmd.ExecuteReaderAsync(ct))
+        {
+            if (await r.ReadAsync(ct))
+            {
+                status = r.GetString(0);
+                caller = r.GetBoolean(1);
+            }
+        }
+        switch (status)
+        {
+            case null: return NotFound;
+            case "ringing":
+                await FinishAsync(callId, caller ? "canceled" : "declined", caller ? "canceled" : "declined", actor, ct);
+                return Result.Success();
+            case "active":
+                await FinishAsync(callId, "ended", "hangup", actor, ct);
+                return Result.Success();
+            default:
+                return Result.Success(); // already over: hanging up twice is fine
+        }
+    }
+
+    private async Task<Result<CallJoin>> JoinAsync(Guid callId, Guid actor, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand("select display_name from public.profiles where id = @me");
+        cmd.Parameters.AddWithValue("me", actor);
+        var name = await cmd.ExecuteScalarAsync(ct) as string ?? "";
+        var token = liveKit.CreateJoinToken(Room(callId), actor, name, canPublish: true, new Dictionary<string, string>());
+        return new CallJoin(callId, options.Value.Url, token);
+    }
+
+    private async Task<Result<CallJoin>> StateErrorAsync(Guid actor, Guid callId, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand("select 1 from public.calls where id = @id and @me in (caller_id, callee_id)");
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("me", actor);
+        return await cmd.ExecuteScalarAsync(ct) is null ? NotFound : Over;
+    }
+
+    /// <summary>Ends an open call (ringing or active) and closes its room. False when it was already over.</summary>
+    private async Task<bool> FinishAsync(Guid callId, string status, string reason, Guid? by, CancellationToken ct)
+    {
+        await using var cmd = db.CreateCommand(
+            """
+            update public.calls set status = @status, end_reason = @reason, ended_at = now(), ended_by = @by
+            where id = @id and status in ('ringing', 'active')
+            """);
+        cmd.Parameters.AddWithValue("id", callId);
+        cmd.Parameters.AddWithValue("status", status);
+        cmd.Parameters.AddWithValue("reason", reason);
+        cmd.Parameters.Add(new NpgsqlParameter<Guid?>("by", by));
+        var changed = await cmd.ExecuteNonQueryAsync(ct) == 1;
+        await CloseRoomAsync(callId);
+        return changed;
+    }
+
+    private async Task CloseRoomAsync(Guid callId)
+    {
+        if (!options.Value.IsConfigured) return;
+        try
+        {
+            await liveKit.DeleteRoomAsync(Room(callId), CancellationToken.None);
+        }
+        catch (HttpRequestException ex)
+        {
+            LogLiveKitFailed(log, ex, Room(callId));
+        }
+    }
+
+    /// <summary>
+    /// Unanswered calls become missed after <see cref="RingFor"/>, calls end at <see cref="MaxLength"/>, and a call whose
+    /// people may no longer call (permission closed, match ended, block) ends at once.
+    /// </summary>
+    public async Task SuperviseAsync(CancellationToken ct)
+    {
+        var due = new List<(Guid Id, string Status, string Reason)>();
+        await using (var cmd = db.CreateCommand(
+            """
+            select id,
+                   case when private.call_blocker(caller_id, callee_id) is not null then
+                          case status when 'ringing' then 'canceled' else 'ended' end
+                        when status = 'ringing' then 'missed' else 'ended' end,
+                   case when private.call_blocker(caller_id, callee_id) is not null then 'not_allowed'
+                        when status = 'ringing' then 'missed' else 'time_limit' end
+            from public.calls
+            where status in ('ringing', 'active')
+              and (status = 'ringing' and created_at < now() - @ring
+                   or status = 'active' and answered_at < now() - @max
+                   or private.call_blocker(caller_id, callee_id) is not null)
+            """))
+        {
+            cmd.Parameters.AddWithValue("ring", RingFor);
+            cmd.Parameters.AddWithValue("max", MaxLength);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) due.Add((r.GetGuid(0), r.GetString(1), r.GetString(2)));
+        }
+        foreach (var (id, status, reason) in due) await FinishAsync(id, status, reason, null, ct);
+    }
+
+    // Platform team -----------------------------------------------------------------------------
+
+    private const string PermissionColumns =
+        "p.user_id, pr.username, pr.display_name, pr.avatar_path, p.status, p.note, p.requested_at, p.decided_at, p.reason";
+
+    private static CallPermissionRow ReadPermission(NpgsqlDataReader r) => new(
+        r.GetGuid(0), r.GetString(1), r.GetString(2), r.IsDBNull(3) ? null : r.GetString(3), r.GetString(4),
+        r.IsDBNull(5) ? null : r.GetString(5), r.IsDBNull(6) ? null : r.GetFieldValue<DateTimeOffset>(6),
+        r.IsDBNull(7) ? null : r.GetFieldValue<DateTimeOffset>(7), r.IsDBNull(8) ? null : r.GetString(8));
+
+    public async Task<CallPermissionsPage> PermissionsAsync(string? status, CancellationToken ct)
+    {
+        status = status is "active" or "declined" or "revoked" ? status : "requested";
+        var items = new List<CallPermissionRow>();
+        await using (var cmd = db.CreateCommand(
+            $"""
+            select {PermissionColumns}
+            from public.call_permissions p join public.profiles pr on pr.id = p.user_id
+            where p.status = @status
+            order by coalesce(p.requested_at, p.decided_at) desc nulls last
+            limit 200
+            """))
+        {
+            cmd.Parameters.AddWithValue("status", status);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) items.Add(ReadPermission(r));
+        }
+        await using var stats = db.CreateCommand(
+            """
+            select count(*)::int,
+                   coalesce(sum(extract(epoch from (coalesce(ended_at, now()) - answered_at))) filter (where answered_at is not null), 0)::int / 60
+            from public.calls where created_at > now() - interval '24 hours'
+            """);
+        await using var s = await stats.ExecuteReaderAsync(ct);
+        await s.ReadAsync(ct);
+        return new CallPermissionsPage(items, s.GetInt32(0), s.GetInt32(1));
+    }
+
+    public async Task<Result> SetPermissionAsync(Guid actorId, Guid userId, bool active, string? reason, CancellationToken ct)
+    {
+        reason = reason?.Trim();
+        if (!active && reason is not { Length: >= 3 and <= 500 })
+            return Error.Validation("call.invalid_reason", "Gerekçe 3–500 karakter olmalı.");
+
+        var result = await ActingTransaction.RunAsync(db, actorId, async (conn, tx) =>
+        {
+            var current = await ActingTransaction.ScalarAsync(conn, tx,
+                "select coalesce((select status from public.call_permissions where user_id = @u for update), '') from public.profiles where id = @u",
+                ct, ("u", userId)) as string;
+            if (current is null) return Error.NotFound("call.user_not_found", "Kullanıcı bulunamadı.");
+
+            var next = active ? "active" : current == "requested" ? "declined" : "revoked";
+            if (current == next) return Result.Success();
+            if (!active && current is "" or "declined" or "revoked")
+                return Error.Conflict("call.not_open", "Bu kişinin sesli görüşme yetkisi zaten kapalı.");
+
+            await ActingTransaction.ExecuteAsync(conn, tx,
+                """
+                insert into public.call_permissions (user_id, status, decided_at, decided_by, reason, updated_at)
+                values (@u, @status, now(), @by, @reason, now())
+                on conflict (user_id) do update
+                  set status = excluded.status, decided_at = excluded.decided_at, decided_by = excluded.decided_by,
+                      reason = excluded.reason, updated_at = excluded.updated_at
+                """, ct, ("u", userId), ("status", next), ("by", actorId), ("reason", active ? null : reason));
+            var action = next switch { "active" => "call_permission.granted", "declined" => "call_permission.declined", _ => "call_permission.revoked" };
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, action, "user", userId.ToString(),
+                new { reason = active ? null : reason }), ct);
+            return Result.Success();
+        }, RuleError, ct);
+
+        // A closed permission ends the person's call at once (the monitor would within seconds anyway).
+        if (result.IsSuccess && !active) await SuperviseAsync(ct);
+        return result;
+    }
+
+    public async Task<Result<CallUserDetail>> UserAsync(Guid userId, CancellationToken ct)
+    {
+        CallPermissionRow? permission = null;
+        await using (var cmd = db.CreateCommand(
+            $"select {PermissionColumns} from public.call_permissions p join public.profiles pr on pr.id = p.user_id where p.user_id = @u"))
+        {
+            cmd.Parameters.AddWithValue("u", userId);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            if (await r.ReadAsync(ct)) permission = ReadPermission(r);
+        }
+        return new CallUserDetail(permission);
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "LiveKit call failed for call room {Room}")]
+    private static partial void LogLiveKitFailed(ILogger logger, Exception ex, string room);
+}
+
+/// <summary>Runs <see cref="CallService.SuperviseAsync"/> every <c>Calls:MonitorInterval</c> (default 5 seconds; zero turns it off).</summary>
+internal sealed partial class CallMonitor(CallService calls, IConfiguration configuration, ILogger<CallMonitor> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var interval = configuration.GetValue("Calls:MonitorInterval", TimeSpan.FromSeconds(5));
+        if (interval <= TimeSpan.Zero) return;
+
+        using var timer = new PeriodicTimer(interval);
+        while (await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            // A database or LiveKit outage must not stop the API; the next run retries.
+            try
+            {
+                await calls.SuperviseAsync(stoppingToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                LogRunFailed(logger, ex);
+            }
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Call monitor run failed; will retry on the next run")]
+    private static partial void LogRunFailed(ILogger logger, Exception ex);
+}

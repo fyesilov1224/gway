@@ -29,6 +29,8 @@ abstract final class AdminRoutes {
 
   static const reports = '/reports';
 
+  static const calls = '/calls';
+
   static const goals = '/goals';
 
   static const leagues = '/leagues';

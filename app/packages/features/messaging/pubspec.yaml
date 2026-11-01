@@ -1,5 +1,5 @@
 name: messaging
-description: Direct messages with a request inbox and the group chats.
+description: Direct messages with a request inbox, the group chats and one-to-one voice calls.
 publish_to: none
 resolution: workspace
 
@@ -8,14 +8,20 @@ environment:
   flutter: '>=3.41.0'
 
 dependencies:
+  audioplayers: ^6.7.1
   core:
   design_system:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2
   go_router: ^17.5.0
+  livekit_client: ^2.13.1
   supabase_flutter: ^2.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter:
+  assets:
+    - assets/call_ring.wav

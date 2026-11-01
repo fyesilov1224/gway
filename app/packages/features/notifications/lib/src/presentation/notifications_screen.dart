@@ -23,6 +23,8 @@ class NotificationLinks {
     required this.openMatching,
     required this.openGroup,
     required this.openTonight,
+    required this.openConversation,
+    required this.openCallSettings,
   });
 
   final void Function(BuildContext context, String username) openProfile;
@@ -63,6 +65,12 @@ class NotificationLinks {
 
   /// "Bu akşam", for small table invitations (docs/ARCHITECTURE.md §3d).
   final void Function(BuildContext context) openTonight;
+
+  /// A chat, for call_missed.
+  final void Function(BuildContext context, String conversationId) openConversation;
+
+  /// Settings → Sesli görüşme, for the call permission decisions (docs/ARCHITECTURE.md §8c).
+  final void Function(BuildContext context) openCallSettings;
 }
 
 /// Today / this week / earlier, with pending follow requests gathered on top (docs/ARCHITECTURE.md §3c).
@@ -177,6 +185,10 @@ class _NotificationRow extends ConsumerWidget {
   void _open(BuildContext context) {
     final n = notification;
     if (n.goalId != null) return links.openGoal(context, n.goalId!);
+    if (n.type == NotificationType.callMissed && n.conversationId != null) {
+      return links.openConversation(context, n.conversationId!);
+    }
+    if (n.type.isCallPermission) return links.openCallSettings(context);
     if (n.type == NotificationType.tonightTableInvite || n.type == NotificationType.tonightTableReady) {
       return links.openTonight(context);
     }

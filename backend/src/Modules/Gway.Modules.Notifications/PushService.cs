@@ -105,7 +105,7 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
         }
         // Chat message notices exist only to be pushed (not in the app's list); a week covers the admin counts.
         await using (var notices = db.CreateCommand(
-            "delete from public.notifications where type = 'message' and created_at < now() - interval '7 days'"))
+            "delete from public.notifications where type in ('message', 'call_incoming') and created_at < now() - interval '7 days'"))
         {
             await notices.ExecuteNonQueryAsync(ct);
         }
@@ -193,7 +193,8 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                    m.conversation_id,
                    (select left(msg.body, 120) from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
                    (select msg.image_path is not null from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
-                   (select g.name from public.conversations c join public.groups g on g.id = c.group_id where c.id = m.conversation_id)
+                   (select g.name from public.conversations c join public.groups g on g.id = c.group_id where c.id = m.conversation_id),
+                   m.call_id
             from marked m
             join public.profiles a on a.id = m.actor_id
             order by m.id
@@ -216,7 +217,8 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                     r.IsDBNull(14) ? null : r.GetGuid(14),
                     r.IsDBNull(15) ? null : r.GetString(15),
                     !r.IsDBNull(16) && r.GetBoolean(16),
-                    r.IsDBNull(17) ? null : r.GetString(17)));
+                    r.IsDBNull(17) ? null : r.GetString(17),
+                    r.IsDBNull(18) ? null : r.GetGuid(18)));
             }
         }
         await tx.CommitAsync(ct);

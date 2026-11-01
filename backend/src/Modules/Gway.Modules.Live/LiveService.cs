@@ -36,6 +36,9 @@ public static class LiveModule
         services.AddSingleton<ILiveAdministration>(sp => sp.GetRequiredService<LiveService>());
         services.AddSingleton<ILiveModeration>(sp => sp.GetRequiredService<LiveService>());
         services.AddHostedService<LiveMonitor>();
+        services.AddSingleton<CallService>();
+        services.AddSingleton<ICallAdministration>(sp => sp.GetRequiredService<CallService>());
+        services.AddHostedService<CallMonitor>();
         return services;
     }
 

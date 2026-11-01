@@ -21,7 +21,8 @@ internal sealed record PendingPush(
     Guid? ConversationId = null,
     string? MessageText = null,
     bool MessagePhoto = false,
-    string? ChatGroupName = null);
+    string? ChatGroupName = null,
+    Guid? CallId = null);
 
 /// <summary>The same Turkish sentences as the app's notification list (<c>AppNotification.action</c> in Flutter).</summary>
 internal static class PushTexts
@@ -40,8 +41,16 @@ internal static class PushTexts
             ["notification_id"] = n.Id.ToString(CultureInfo.InvariantCulture),
         };
         if (n.LiveId is { } live) data["live_id"] = live.ToString();
-        if (n.Type == "message") return ForMessage(n, data);
-        return new PushMessage(Lead(n), Action(n), data);
+        if (n.ConversationId is { } chat) data["conversation_id"] = chat.ToString();
+        if (n.CallId is { } call) data["call_id"] = call.ToString();
+        return n.Type switch
+        {
+            "message" => ForMessage(n, data),
+            // The ringing push and its missed-call notice share a tag: the second replaces the first on the phone.
+            "call_incoming" => new PushMessage(n.ActorUsername, "seni sesli arıyor…", data, FcmClient.CallsChannel, $"call-{n.CallId}"),
+            "call_missed" => new PushMessage(n.ActorUsername, "seni aradı, açamadın.", data, FcmClient.MessagesChannel, $"call-{n.CallId}"),
+            _ => new PushMessage(Lead(n), Action(n), data),
+        };
     }
 
     /// <summary>Direct: the sender and the text. Group: the group, then "sender: text" (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).</summary>
@@ -49,10 +58,11 @@ internal static class PushTexts
     {
         var text = !string.IsNullOrWhiteSpace(n.MessageText) ? n.MessageText : n.MessagePhoto ? "📷 Fotoğraf" : null;
         if (text is null || n.ConversationId is not { } conversation) return null;
-        data["conversation_id"] = conversation.ToString();
+        // A chat keeps one notification on the phone: the newest message replaces the previous one.
+        var tag = conversation.ToString();
         return n.ChatGroupName is { } group
-            ? new PushMessage(group, $"{n.ActorUsername}: {text}", data)
-            : new PushMessage(n.ActorUsername, text, data);
+            ? new PushMessage(group, $"{n.ActorUsername}: {text}", data, FcmClient.MessagesChannel, tag)
+            : new PushMessage(n.ActorUsername, text, data, FcmClient.MessagesChannel, tag);
     }
 
     /// <summary>The group for group notices, nobody for a match (who it is needs a package), otherwise the person.</summary>
@@ -61,6 +71,7 @@ internal static class PushTexts
         "sanction_applied" or "appeal_decided" or "league_result" => n.GroupName ?? "",
         "match_created" => "Yeni bir eşleşmen var!",
         "event_series_limit" => "Tekrarlayan organizasyon",
+        "call_permission_granted" or "call_permission_declined" or "call_permission_revoked" => "Sesli görüşme",
         "event_venue_revealed" => "Sürpriz mekan açıklandı",
         _ => n.ActorUsername,
     };
@@ -114,6 +125,9 @@ internal static class PushTexts
         "event_series_limit" => $"\"{n.EventTitle}\" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.",
         "tonight_table_invite" => "bu akşam küçük bir masa kurdu ve seni de çağırıyor.",
         "tonight_table_ready" => "masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.",
+        "call_permission_granted" => "Sesli görüşme yetkin açıldı. Eşleştiğin kişileri sohbetten arayabilirsin.",
+        "call_permission_declined" => "Sesli görüşme talebin şimdilik onaylanmadı. Ayrıntı için dokun.",
+        "call_permission_revoked" => "Sesli görüşme yetkin kapatıldı. Ayrıntı için dokun.",
         _ => "yeni bir bildirim gönderdi.",
     };
 

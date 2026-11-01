@@ -355,11 +355,23 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 2026-10-31'de eklenen mesaj kayıtları kullanıcı kararıyla tamamen kaldırıldı: platform ekibi hiçbir mesajı okuyamaz, görüşmeyi dinleyemez ve kimin kimi aradığını göremez.
 - [x] Yönetim panelinden "Mesaj kayıtları" sayfası, kullanıcı sayfasındaki düğme ve şikayetteki "Mesajı incele" (önceki 5 mesaj) kaldırıldı; mesaj şikayeti içerik gösterilmeden "Mesajı kaldır" ile sonuçlanır
 - [x] Migration 0069: silinen mesaj arşivi (tüm metinleriyle), trigger ve okuma fonksiyonları silindi; şikayet ve bildirimlerdeki birebir mesaj metinleri temizlendi; geçmiş okuma kayıtları silindi; 0062 boşaltıldı
+- [x] Sesli görüşmeler: `calls` yalnızca iki tarafa açık (0071, sesli görüşme dalı), panelde kişinin görüşme listesi yok
 - [x] Aydınlatma metninin yeni sürümü: mesajlar okunmaz, görüşmeler kaydedilmez
 - [x] Aydınlatma metni inceleme sonrası düzeltildi (migration 0070): mutlak "okuyamaz" yerine "araç yok, incelenmez"; grup moderatörleri, Firebase bildirimleri, görüşme bilgisi, yedekler ve yasal zorunluluk eklendi; bulut ve yayın 2026-11-01
 - [x] pgTAP (`57_message_privacy`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-01)
 - [x] Bulut: `0069` migration'ı, API ve yönetim paneli yayında (2026-11-01)
 - [ ] Aydınlatma metni hukuki incelemeden geçmeli
+
+## Faz 15.11 — Birebir Sesli Görüşme (kullanıcı isteği, 2026-11-01; `docs/ARCHITECTURE.md` §8c)
+
+Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibinin açtığı kişilere açıktır.
+- [x] Veritabanı (0071): `call_permissions`, `calls` (yalnızca iki taraf okur), kurallar (`call_blocker`), bildirim türleri, talep RPC'si
+- [x] C#: uygunluk, arama, yanıt, ret, bitirme, yeniden katılma; `CallMonitor` (30 sn cevapsız, 60 dk sınır); admin yetki uç noktaları; arama push'u (`gway_calls`)
+- [x] Uygulama: sohbet başlığında Sesli ara, tam ekran arama (zil, süre, sessize al, hoparlör), gelen arama, Ayarlar → Sesli görüşme talebi, bildirimler
+- [x] Yönetim paneli: Sesli görüşme sayfası (talepler, aç / reddet / kapat, 24 saat toplamı), kullanıcı sayfasında yetki anahtarı; görüşme listesi yok
+- [x] pgTAP (`58_voice_calls`), C# (235/235), Flutter (messaging 22, notifications 14, admin 70); `flutter analyze` ve `dotnet build` temiz (2026-11-01)
+- [ ] Telefonda iki hesapla uçtan uca deneme (LiveKit açık)
+- [ ] Bulut: `0071` migration'ı, API ve uygulama sürümü — kullanıcı onayıyla
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
