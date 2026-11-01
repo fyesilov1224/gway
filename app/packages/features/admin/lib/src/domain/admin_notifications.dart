@@ -84,6 +84,7 @@ String notificationTypeLabel(String type) => switch (type) {
       'event_series_limit' => 'Tekrar limiti',
       'event_venue_revealed' => 'Sürpriz mekan',
       'handshake' => 'El sıkış',
+      'message' => 'Sohbet mesajı',
       _ => type,
     };
 

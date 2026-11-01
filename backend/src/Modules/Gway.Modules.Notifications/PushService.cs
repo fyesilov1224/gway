@@ -45,7 +45,8 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
         foreach (var n in batch)
         {
             if (!devices.TryGetValue(n.RecipientId, out var tokens)) continue;
-            var message = PushTexts.For(n);
+            // A chat message deleted before its push rings nobody.
+            if (PushTexts.For(n) is not { } message) continue;
             foreach (var token in tokens)
             {
                 PushResult result;
@@ -101,6 +102,12 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
         {
             idle.Parameters.AddWithValue("idle", DeviceMaxIdle);
             removed = await idle.ExecuteNonQueryAsync(ct);
+        }
+        // Chat message notices exist only to be pushed (not in the app's list); a week covers the admin counts.
+        await using (var notices = db.CreateCommand(
+            "delete from public.notifications where type = 'message' and created_at < now() - interval '7 days'"))
+        {
+            await notices.ExecuteNonQueryAsync(ct);
         }
 
         var tokens = new List<string>();
@@ -182,7 +189,11 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                    (select e.starts_at from public.events e where e.id = m.event_id),
                    (select g.name from public.groups g where g.id = m.group_id),
                    (select s.type from public.sanctions s where s.id = m.sanction_id),
-                   (select g.title from public.goals g where g.id = m.goal_id)
+                   (select g.title from public.goals g where g.id = m.goal_id),
+                   m.conversation_id,
+                   (select left(msg.body, 120) from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
+                   (select msg.image_path is not null from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
+                   (select g.name from public.conversations c join public.groups g on g.id = c.group_id where c.id = m.conversation_id)
             from marked m
             join public.profiles a on a.id = m.actor_id
             order by m.id
@@ -201,7 +212,11 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                     r.IsDBNull(10) ? null : r.GetFieldValue<DateTimeOffset>(10),
                     r.IsDBNull(11) ? null : r.GetString(11),
                     r.IsDBNull(12) ? null : r.GetString(12),
-                    r.IsDBNull(13) ? null : r.GetString(13)));
+                    r.IsDBNull(13) ? null : r.GetString(13),
+                    r.IsDBNull(14) ? null : r.GetGuid(14),
+                    r.IsDBNull(15) ? null : r.GetString(15),
+                    !r.IsDBNull(16) && r.GetBoolean(16),
+                    r.IsDBNull(17) ? null : r.GetString(17)));
             }
         }
         await tx.CommitAsync(ct);

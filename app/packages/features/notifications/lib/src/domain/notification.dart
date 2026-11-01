@@ -240,7 +240,7 @@ List<(NotificationPeriod, List<AppNotification>)> groupByPeriod(List<AppNotifica
           (period, group),
     ];
 
-/// Which event and live notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
+/// Which event, live, match and message notices the user wants (docs/ARCHITECTURE.md §3c, Tercihler); everything is on by default.
 class NotificationPreferences {
   const NotificationPreferences({
     this.reminderDay = true,
@@ -249,6 +249,7 @@ class NotificationPreferences {
     this.reviewRequests = true,
     this.liveBroadcasts = true,
     this.matchAlerts = true,
+    this.messages = true,
   });
 
   /// "Yarın başlıyor" reminder.
@@ -269,6 +270,9 @@ class NotificationPreferences {
   /// New matches (docs/ARCHITECTURE.md §3g).
   final bool matchAlerts;
 
+  /// Chat messages ring the phone (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
+  final bool messages;
+
   NotificationPreferences copyWith({
     bool? reminderDay,
     bool? reminderHour,
@@ -276,6 +280,7 @@ class NotificationPreferences {
     bool? reviewRequests,
     bool? liveBroadcasts,
     bool? matchAlerts,
+    bool? messages,
   }) =>
       NotificationPreferences(
         reminderDay: reminderDay ?? this.reminderDay,
@@ -284,6 +289,7 @@ class NotificationPreferences {
         reviewRequests: reviewRequests ?? this.reviewRequests,
         liveBroadcasts: liveBroadcasts ?? this.liveBroadcasts,
         matchAlerts: matchAlerts ?? this.matchAlerts,
+        messages: messages ?? this.messages,
       );
 }
 

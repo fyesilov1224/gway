@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:identity/identity.dart';
 import 'package:live/live.dart';
+import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 
 import 'router.dart';
@@ -20,6 +21,7 @@ class SocialApp extends ConsumerWidget {
       routerConfig: router,
       builder: (_, child) => PushNotifications(
         openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
+        openConversation: (id) => router.push(MessagingRoutes.chat(id)),
         openNotifications: () => router.push(NotificationRoutes.list),
         child: LiveNotificationAlerts(
           openLive: (liveId) => router.push(LiveRoutes.room(liveId)),

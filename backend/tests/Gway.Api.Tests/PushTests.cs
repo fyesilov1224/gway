@@ -126,6 +126,51 @@ public sealed class PushTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     }
 
     [Fact]
+    public async Task A_chat_message_rings_the_other_members_phone_and_a_burst_is_one_push()
+    {
+        var (owner, member) = (await _db.CreateUserAsync(Unique("p_")), await _db.CreateUserAsync(Unique("p_")));
+        var created = await factory.ClientFor(owner).PostAsJsonAsync(
+            Path("/groups"), new CreateGroupRequest(Unique("g_"), "Sabah Koşucuları", "running", "open", null), Ct);
+        var group = (await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id;
+        (await factory.ClientFor(member).PostAsync(Path($"/groups/{group}/join"), null, Ct)).EnsureSuccessStatusCode();
+        var chat = await _db.ScalarAsync<Guid>("select id from public.conversations where group_id = @g", ("g", group));
+        var ownerPhone = Unique("phone-of-owner-") + "-token";
+        var memberPhone = Unique("phone-of-member-") + "-token";
+        await RegisterAsync(owner, ownerPhone);
+        await RegisterAsync(member, memberPhone);
+
+        foreach (var text in new[] { "Yarın 7'de parkta mıyız?", "Ben geliyorum" })
+        {
+            (await factory.ClientFor(member).PostAsJsonAsync(
+                Path($"/conversations/{chat}/messages"), new Gway.Modules.Messaging.SendMessageRequest(text, null), Ct)).EnsureSuccessStatusCode();
+        }
+        await DispatchAsync();
+
+        var push = Assert.Single(SentTo(ownerPhone));
+        Assert.Equal("Sabah Koşucuları", push.Title);
+        Assert.EndsWith(": Ben geliyorum", push.Body, StringComparison.Ordinal);
+        Assert.Equal("message", push.Data["type"]);
+        Assert.Equal(chat.ToString(), push.Data["conversation_id"]);
+        Assert.Empty(SentTo(memberPhone));
+    }
+
+    [Fact]
+    public void Message_pushes_show_the_group_and_skip_deleted_messages()
+    {
+        var conversation = Guid.NewGuid();
+        PendingPush Message(string? text, bool photo = false, string? group = null) => new(
+            1, Guid.NewGuid(), "message", DateTimeOffset.UtcNow, "ayse", null, null, null, null, null, null, null, null, null,
+            conversation, text, photo, group);
+
+        var direct = PushTexts.For(Message("Selam!"))!;
+        Assert.Equal(("ayse", "Selam!"), (direct.Title, direct.Body));
+        var inGroup = PushTexts.For(Message("Selam!", group: "Doğa Yürüyüşü"))!;
+        Assert.Equal(("Doğa Yürüyüşü", "ayse: Selam!"), (inGroup.Title, inGroup.Body));
+        Assert.Equal("📷 Fotoğraf", PushTexts.For(Message(null, photo: true))!.Body);
+        Assert.Null(PushTexts.For(Message(null)));
+    }
+
+    [Fact]
     public void Times_are_shown_in_Turkey()
     {
         Assert.Equal("27 Ekim 2026, 20:00", PushTexts.DateTimeTr(new DateTimeOffset(2026, 10, 27, 17, 0, 0, TimeSpan.Zero)));
