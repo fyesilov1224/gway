@@ -243,17 +243,11 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
     final raw = items?.value;
     final loaded = raw == null || radius == null || center == null ? raw : raw.within(center, radius);
 
-    Widget chip(String label, {required bool selected, required VoidCallback onSelected}) => Padding(
-          padding: const EdgeInsets.only(right: GwSpacing.xs),
-          child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected()),
-        );
+    Widget chip(String label, {required bool selected, required VoidCallback onSelected}) =>
+        ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected());
     Widget row(List<Widget> chips) => SizedBox(
           height: GwSpacing.xxl + GwSpacing.xs,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
-            child: Row(children: chips),
-          ),
+          child: Center(child: GwChipRail(children: chips)),
         );
 
     return Scaffold(

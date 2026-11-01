@@ -90,7 +90,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(_queries.last.when, MapWhen.today);
 
-    await tester.ensureVisible(find.text('5 km'));
+    // Centered: at the very edge the chip would sit under the rail's arrow.
+    await Scrollable.ensureVisible(tester.element(find.text('5 km')), alignment: 0.5);
     await tester.pumpAndSettle();
     await tester.tap(find.text('5 km'));
     await tester.pumpAndSettle();

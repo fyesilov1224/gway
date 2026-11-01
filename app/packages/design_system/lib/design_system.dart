@@ -5,6 +5,7 @@ export 'src/components/avatar.dart';
 export 'src/components/backdrop.dart';
 export 'src/components/badge.dart';
 export 'src/components/button.dart';
+export 'src/components/chip_rail.dart';
 export 'src/components/cover_header.dart';
 export 'src/components/empty_state.dart';
 export 'src/components/error_state.dart';
