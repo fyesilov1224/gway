@@ -9,7 +9,7 @@ api.<alan adı>      → C# API
 livekit.<alan adı>  → LiveKit sinyal (WebSocket); ses 7881/tcp ve 7882/udp
 ```
 
-**Durum (2026-11-01):** Yayında. Alan adı `gwayapp.com` (Cloudflare; `app` ve `panel` Pages'e CNAME ve proxy'li, `api` ve `livekit` sunucuya A kaydı ve proxy'siz; LiveKit'in UDP/TCP sesi proxy'den geçemez). Yanlış yazım `gwayaap.com` bir yönlendirme kuralıyla `app.gwayapp.com`'a gider (`@` ve `www` proxy'li yer tutucu kayıt `192.0.2.1`), sunucu Hetzner CX23 Helsinki `gway-1` (CX tipi Almanya'da tükenmişti), dosyalar sunucuda `/opt/gway/deploy`. Supabase Frankfurt'taki `GWAY` projesine taşındı (`ivrfovtlwwffmtlcmqmy`); eski Sidney projesi yedek olarak duruyor. Twilio, Stadia ve ödeme anahtarları boş (ilgili özellikler 503 ile kapalı).
+**Durum (2026-11-01):** Yayında. Alan adı `gwayapp.com` (Cloudflare; `app` ve `panel` Pages'e CNAME ve proxy'li, `api` ve `livekit` sunucuya A kaydı ve proxy'siz; LiveKit'in UDP/TCP sesi proxy'den geçemez)., sunucu Hetzner CX23 Helsinki `gway-1` (CX tipi Almanya'da tükenmişti), dosyalar sunucuda `/opt/gway/deploy`. Supabase Frankfurt'taki `GWAY` projesine taşındı (`ivrfovtlwwffmtlcmqmy`); eski Sidney projesi yedek olarak duruyor. Twilio, Stadia ve ödeme anahtarları boş (ilgili özellikler 503 ile kapalı).
 
 ## 1. Satın alınacaklar
 - **Alan adı**, ör. `gway.app` (yıllık).
