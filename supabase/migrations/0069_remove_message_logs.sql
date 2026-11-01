@@ -1,6 +1,6 @@
--- 0070_remove_message_logs
+-- 0069_remove_message_logs
 -- The platform team never reads private messages or listens to calls (user decision, 2026-11-01; docs/ARCHITECTURE.md
--- §3f and §8c). Removes everything the message logs left behind on databases that ran the old 0062:
+-- §3f). Removes everything the message logs left behind on databases that ran the old 0062:
 -- 1. The deleted message archive (with every archived text), its trigger and the admin read functions.
 -- 2. Message reports keep no message text for the platform team: a direct message report stores no excerpt, and
 --    the text already kept in reports and illegal-activity referrals is cleared.

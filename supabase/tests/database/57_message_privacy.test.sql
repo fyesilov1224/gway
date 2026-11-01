@@ -3,7 +3,7 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(9);
 
--- Nobody on the platform team reads private messages (0070; docs/ARCHITECTURE.md §3f).
+-- Nobody on the platform team reads private messages (0069; docs/ARCHITECTURE.md §3f).
 select hasnt_table('public', 'message_deletion_archive', 'deleted message texts are not archived');
 select hasnt_trigger('public', 'messages', 'messages_archive_deleted', 'deleting a message archives nothing');
 select hasnt_function('private', 'admin_message_log', 'there is no way to read a conversation as staff');
