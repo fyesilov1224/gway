@@ -371,7 +371,8 @@ Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibini
 - [x] Yönetim paneli: Sesli görüşme sayfası (talepler, aç / reddet / kapat, 24 saat toplamı), kullanıcı sayfasında yetki anahtarı; görüşme listesi yok
 - [x] pgTAP (`58_voice_calls`), C# (235/235), Flutter (messaging 22, notifications 14, admin 70); `flutter analyze` ve `dotnet build` temiz (2026-11-01)
 - [ ] Telefonda iki hesapla uçtan uca deneme (LiveKit açık)
-- [ ] Bulut: `0071` migration'ı, API ve uygulama sürümü — kullanıcı onayıyla
+- [x] Bulut: `0071` migration'ı, API, web uygulaması ve panel yayında (2026-11-01, kullanıcı isteğiyle telefonda denemeden önce)
+- [ ] Mobil uygulama sürümü (Play kapalı test) sesli görüşmeyle
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
