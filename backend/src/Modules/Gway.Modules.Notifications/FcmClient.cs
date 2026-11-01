@@ -20,7 +20,12 @@ public sealed class PushOptions
 }
 
 /// <summary>What the phone shows; <see cref="Data"/> tells the app what to open on a tap.</summary>
-internal sealed record PushMessage(string Title, string Body, IReadOnlyDictionary<string, string> Data);
+/// <summary>
+/// What the phone shows; <see cref="Data"/> tells the app what to open on a tap. <see cref="Channel"/> is the Android channel
+/// (default: general); notifications with the same <see cref="Tag"/> replace each other on the phone.
+/// </summary>
+internal sealed record PushMessage(
+    string Title, string Body, IReadOnlyDictionary<string, string> Data, string? Channel = null, string? Tag = null);
 
 internal enum PushResult
 {
@@ -56,17 +61,16 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
 
     public bool IsConfigured => options.Value.IsConfigured;
 
-    /// <summary>Android channels the app creates (MainActivity); both ring with the phone's sound and pop up.</summary>
+    /// <summary>Android channels the app creates (MainActivity); all ring with the phone's sound and pop up.</summary>
     internal const string MessagesChannel = "gway_messages";
     internal const string GeneralChannel = "gway_general";
+    internal const string CallsChannel = "gway_calls";
 
     /// <summary>FCM refuses explicit nulls in some fields (e.g. <c>tag</c>); unset ones are left out.</summary>
     private static readonly JsonSerializerOptions OmitNulls = new() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
 
     public Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct)
     {
-        // A chat keeps one notification on the phone: the newest message replaces the previous one.
-        message.Data.TryGetValue("conversation_id", out var conversation);
         return PostAsync(new
         {
             message = new
@@ -80,8 +84,8 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
                     notification = new
                     {
                         sound = "default",
-                        channel_id = conversation is null ? GeneralChannel : MessagesChannel,
-                        tag = conversation,
+                        channel_id = message.Channel ?? GeneralChannel,
+                        tag = message.Tag,
                     },
                 },
                 apns = new { payload = new { aps = new { sound = "default" } } },

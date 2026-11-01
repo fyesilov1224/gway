@@ -73,6 +73,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("LiveKit:ApiKey", "livekit-test-key");
         builder.UseSetting("LiveKit:ApiSecret", LiveKitSecret);
         builder.UseSetting("Live:MonitorInterval", "00:00:00");
+        builder.UseSetting("Calls:MonitorInterval", "00:00:00");
         builder.UseSetting("Events:ReminderInterval", "00:00:00");
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
         builder.UseSetting("Messaging:ArchivePurgeInterval", "00:00:00");

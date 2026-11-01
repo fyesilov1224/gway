@@ -86,6 +86,7 @@ app.MapProfileEndpoints();
 app.MapFeedEndpoints();
 app.MapEventsEndpoints();
 app.MapLiveEndpoints();
+app.MapCallEndpoints();
 app.MapModerationEndpoints();
 app.MapMessagingEndpoints();
 app.MapMatchingEndpoints();

@@ -25,13 +25,15 @@ internal sealed class FakeLiveKit : ILiveKit
 
     public bool HasRoom(Guid room) => _rooms.ContainsKey(room.ToString());
 
+    public bool HasRoom(string room) => _rooms.ContainsKey(room);
+
     public void CloseRoom(Guid room) => _rooms.TryRemove(room.ToString(), out _);
 
     public Person? Find(Guid room, Guid user) =>
         _rooms.TryGetValue(room.ToString(), out var people) && people.TryGetValue(user.ToString(), out var p) ? p : null;
 
     public string CreateJoinToken(string room, Guid userId, string name, bool canPublish, IReadOnlyDictionary<string, string> attributes) =>
-        $"token:{room}:{userId}:{canPublish}:{attributes["role"]}";
+        $"token:{room}:{userId}:{canPublish}:{attributes.GetValueOrDefault("role")}";
 
     public Task CreateRoomAsync(string room, CancellationToken ct)
     {
