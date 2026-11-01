@@ -51,6 +51,7 @@ deploy/build-web.sh <alan adı> <SUPABASE_URL> <SUPABASE_PUBLISHABLE_KEY>
 cd deploy/www
 npx wrangler pages deploy app --project-name=gway-app --branch=main
 npx wrangler pages deploy panel --project-name=gway-panel --branch=main
+# Cloudflare: Caching > Browser Cache TTL = Respect Existing Headers (Pages max-age=0 gönderir); 4 saat olursa tarayıcılar eski main.dart.js'i saatlerce çalıştırır
 ```
 
 ## 6. Başlatma
