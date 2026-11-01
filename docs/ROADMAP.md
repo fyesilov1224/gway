@@ -357,6 +357,7 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] Migration 0069: silinen mesaj arşivi (tüm metinleriyle), trigger ve okuma fonksiyonları silindi; şikayet ve bildirimlerdeki birebir mesaj metinleri temizlendi; geçmiş okuma kayıtları silindi; 0062 boşaltıldı
 - [x] Sesli görüşmeler: `calls` yalnızca iki tarafa açık (0070, sesli görüşme dalı), panelde kişinin görüşme listesi yok
 - [x] Aydınlatma metninin yeni sürümü: mesajlar okunmaz, görüşmeler kaydedilmez
+- [x] Aydınlatma metni inceleme sonrası düzeltildi (migration 0070): mutlak "okuyamaz" yerine "araç yok, incelenmez"; grup moderatörleri, Firebase bildirimleri, görüşme bilgisi, yedekler ve yasal zorunluluk eklendi; bulut ve yayın 2026-11-01
 - [x] pgTAP (`57_message_privacy`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-01)
 - [x] Bulut: `0069` migration'ı, API ve yönetim paneli yayında (2026-11-01)
 - [ ] Aydınlatma metni hukuki incelemeden geçmeli
