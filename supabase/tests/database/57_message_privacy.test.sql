@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(9);
+select plan(12);
 
 -- Nobody on the platform team reads private messages (0069; docs/ARCHITECTURE.md §3f).
 select hasnt_table('public', 'message_deletion_archive', 'deleted message texts are not archived');
@@ -17,8 +17,14 @@ select is(
 create function pg_temp.notice() returns text language sql as $$
   select body from public.legal_documents where kind = 'privacy_notice' order by version desc limit 1
 $$;
-select ok(pg_temp.notice() like '%platform ekibi özel mesajlarını okuyamaz%', 'the privacy notice says messages are not read');
-select ok(pg_temp.notice() like '%Sesli görüşmeler kaydedilmez%', 'and calls are not recorded');
+select ok(pg_temp.notice() like '%ekip, şikayet edilen mesajlar dahil özel mesajlarının içeriğini incelemez%',
+  'the privacy notice says the team does not review messages (0070)');
+select ok(pg_temp.notice() like '%Google Firebase%' and pg_temp.notice() like '%grubun moderatörlerine%',
+  'and names the push provider and group moderators');
+select ok(pg_temp.notice() like '%Sesli görüşmeler ve canlı yayınlar kaydedilmez%', 'calls and broadcasts are not recorded');
+select ok(pg_temp.notice() like '%yedekleme süresi sonunda%' and pg_temp.notice() like '%yasal bir zorunluluk%',
+  'backups and legal orders are disclosed');
+select ok(pg_temp.notice() not like '%okuyamaz%', 'the absolute "cannot read" claim is gone');
 select ok(pg_temp.notice() not like '%platform yöneticisi tarafından incelenebilir%', 'the message review paragraph is gone');
 
 select finish();
