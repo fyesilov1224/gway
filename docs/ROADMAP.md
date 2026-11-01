@@ -355,7 +355,7 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 2026-10-31'de eklenen mesaj kayıtları kullanıcı kararıyla tamamen kaldırıldı: platform ekibi hiçbir mesajı okuyamaz, görüşmeyi dinleyemez ve kimin kimi aradığını göremez.
 - [x] Yönetim panelinden "Mesaj kayıtları" sayfası, kullanıcı sayfasındaki düğme ve şikayetteki "Mesajı incele" (önceki 5 mesaj) kaldırıldı; mesaj şikayeti içerik gösterilmeden "Mesajı kaldır" ile sonuçlanır
 - [x] Migration 0069: silinen mesaj arşivi (tüm metinleriyle), trigger ve okuma fonksiyonları silindi; şikayet ve bildirimlerdeki birebir mesaj metinleri temizlendi; geçmiş okuma kayıtları silindi; 0062 boşaltıldı
-- [x] Sesli görüşmeler: `calls` yalnızca iki tarafa açık (0070, sesli görüşme dalı), panelde kişinin görüşme listesi yok
+- [x] Sesli görüşmeler: `calls` yalnızca iki tarafa açık (0071, sesli görüşme dalı), panelde kişinin görüşme listesi yok
 - [x] Aydınlatma metninin yeni sürümü: mesajlar okunmaz, görüşmeler kaydedilmez
 - [x] Aydınlatma metni inceleme sonrası düzeltildi (migration 0070): mutlak "okuyamaz" yerine "araç yok, incelenmez"; grup moderatörleri, Firebase bildirimleri, görüşme bilgisi, yedekler ve yasal zorunluluk eklendi; bulut ve yayın 2026-11-01
 - [x] pgTAP (`57_message_privacy`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-01)
