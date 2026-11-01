@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/admin_user.dart';
 import 'admin_shell.dart';
+import 'calls_screen.dart';
 import 'groups_screen.dart' show groupRoleLabels;
 import 'providers.dart';
 import 'routes.dart';
@@ -210,6 +211,8 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
       UserSecurityPanel(userId: u.id),
       const SizedBox(height: GwSpacing.lg),
       UserPackagesPanel(userId: u.id, title: u.title),
+      const SizedBox(height: GwSpacing.lg),
+      UserCallPermissionPanel(userId: u.id, name: u.title),
       const SizedBox(height: GwSpacing.lg),
       _ConsentsPanel(consents: d.consents),
     ];

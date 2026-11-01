@@ -362,6 +362,17 @@ Aynı türdeki gruplar üye "çalınmasından" şikâyet eder; üyeyi kısıtlam
 - [x] Bulut: `0069` migration'ı, API ve yönetim paneli yayında (2026-11-01)
 - [ ] Aydınlatma metni hukuki incelemeden geçmeli
 
+## Faz 15.11 — Birebir Sesli Görüşme (kullanıcı isteği, 2026-11-01; `docs/ARCHITECTURE.md` §8c)
+
+Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibinin açtığı kişilere açıktır.
+- [x] Veritabanı (0071): `call_permissions`, `calls` (yalnızca iki taraf okur), kurallar (`call_blocker`), bildirim türleri, talep RPC'si
+- [x] C#: uygunluk, arama, yanıt, ret, bitirme, yeniden katılma; `CallMonitor` (30 sn cevapsız, 60 dk sınır); admin yetki uç noktaları; arama push'u (`gway_calls`)
+- [x] Uygulama: sohbet başlığında Sesli ara, tam ekran arama (zil, süre, sessize al, hoparlör), gelen arama, Ayarlar → Sesli görüşme talebi, bildirimler
+- [x] Yönetim paneli: Sesli görüşme sayfası (talepler, aç / reddet / kapat, 24 saat toplamı), kullanıcı sayfasında yetki anahtarı; görüşme listesi yok
+- [x] pgTAP (`58_voice_calls`), C# (235/235), Flutter (messaging 22, notifications 14, admin 70); `flutter analyze` ve `dotnet build` temiz (2026-11-01)
+- [ ] Telefonda iki hesapla uçtan uca deneme (LiveKit açık)
+- [ ] Bulut: `0071` migration'ı, API ve uygulama sürümü — kullanıcı onayıyla
+
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
 İnsanları uygulamaya çekecek, gerçek hayatta bir araya getiren özellikler. Sırayla, her biri mobil, web ve yönetim paneliyle birlikte yapılır. Ücretli servis gerektiren kısım onaysız açılmaz.

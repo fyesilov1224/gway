@@ -196,11 +196,11 @@ void main() {
 
   Future<_FakeCalls> pumpChatHeader(WidgetTester tester, CallEligibility eligible) async {
     final calls = _FakeCalls(eligible: eligible);
-    final conversation = Conversation(
+    const conversation = Conversation(
       id: 'c1',
       kind: ConversationKind.direct,
       myState: MemberState.active,
-      peer: const ChatPeer(id: 'deniz', username: 'deniz', displayName: 'Deniz', state: MemberState.active),
+      peer: ChatPeer(id: 'deniz', username: 'deniz', displayName: 'Deniz', state: MemberState.active),
     );
     final router = GoRouter(routes: [
       GoRoute(
@@ -215,7 +215,7 @@ void main() {
       overrides: [
         currentUserIdProvider.overrideWithValue('me'),
         callsRepositoryProvider.overrideWithValue(calls),
-        chatProvider.overrideWith((ref, id) => Stream.value(ChatThread(conversation: conversation, messages: const []))),
+        chatProvider.overrideWith((ref, id) => Stream.value(const ChatThread(conversation: conversation, messages: []))),
         conversationsProvider.overrideWith((ref) => Stream.value(const [])),
       ],
       child: MaterialApp.router(theme: GwTheme.light(), routerConfig: router),
