@@ -145,29 +145,20 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           ),
         ),
       ),
-      SizedBox(
-        height: GwSpacing.minTouchTarget + GwSpacing.xs,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
-          children: [
-            for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)]) ...[
-              Center(
-                child: ChoiceChip(
-                  avatar: slug == null ? null : Icon(categoryIcon(slug), size: GwSpacing.md + GwSpacing.xxs),
-                  label: Text(name),
-                  selected: _category == slug,
-                  showCheckmark: false,
-                  onSelected: (_) => setState(() {
-                    _category = slug;
-                    _limit = GroupsScreen.pageSize;
-                  }),
-                ),
-              ),
-              const SizedBox(width: GwSpacing.xs),
-            ],
-          ],
-        ),
+      GwChipRail(
+        children: [
+          for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)])
+            ChoiceChip(
+              avatar: slug == null ? null : Icon(categoryIcon(slug), size: GwSpacing.md + GwSpacing.xxs),
+              label: Text(name),
+              selected: _category == slug,
+              showCheckmark: false,
+              onSelected: (_) => setState(() {
+                _category = slug;
+                _limit = GroupsScreen.pageSize;
+              }),
+            ),
+        ],
       ),
       const SizedBox(height: GwSpacing.xs),
       switch (result) {

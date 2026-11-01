@@ -117,6 +117,7 @@ Gölge kullanılmaz. Sayfa zemini `GwBackdrop`'tur (§1), içerik beyaz kartlard
 | `GwSectionHeader` | Bölüm başlığı (`titleLarge`), isteğe bağlı alt başlık ve sağda "Tümü ›" türü bağlantı. |
 | `GwDateTile` | Organizasyonların takvim yaprağı: kısa ay (EKİ) üstte, gün büyük; grubun tonunda. |
 | `GwTag` | Yumuşak tonlu, ikonlu hap etiket: kategori, ilgi alanı. |
+| `GwChipRail` | Ekrana sığmayan çip şeridi (kategori, filtre; 2026-11-01). Parmakla, fareyle sürükleyerek ya da dokunmatik yüzeyle yana kayar. Sığmayan çip olan kenar şeffaflaşarak solar ve orada ok düğmesi (32 daire, 48 dokunma alanı, "Öncekiler" / "Sonrakiler") belirir; ok ekranın %80'i kadar kaydırır. Her şey sığarsa ok ve solma yoktur. Grup keşfi ve harita filtreleri kullanır. |
 | `GwBadge` | Durum ve rol etiketi (`neutral`, `primary`, `info`, `danger`), durumlar için noktalı. Sığmayan metin üç noktayla kısalır. |
 | `GwLiveBadge` | Mor→mavi gradyanlı "CANLI" rozeti (canlı yayın kartı, yayın odası, ana sayfa şeridi, admin listesi). |
 | `GwLiveButton` | Gradyanlı "Yayın başlat" düğmesi; dakika bitmişse gri ve pasif. |
