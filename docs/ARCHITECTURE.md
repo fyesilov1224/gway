@@ -1773,6 +1773,58 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 ### Yapılandırma
 `LiveKit:Url` (istemcinin bağlandığı adres, ör. `wss://live.gway.app`), `LiveKit:ApiUrl` (sunucu API'si; boşsa `Url`'in http karşılığı), `LiveKit:ApiKey`, `LiveKit:ApiSecret`. Anahtarlar tanımlı değilse yayın kapalıdır (`live.unavailable`, 503). Yerelde LiveKit Docker'da `--dev` modunda çalışır (§9).
 
+## 8c. Birebir sesli görüşme (Faz 15.11, kullanıcı kararları 2026-11-01)
+
+Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi profilinden **görüşme yetkisi** ister, platform yöneticisi panelden açar ya da kapatır. Görüşmeler Live modülündedir (LiveKit altyapısı orada).
+
+### Kurallar (hepsi sunucuda ve SQL'de, `private.call_blocker(caller, callee)`)
+- **İki tarafın da yetkisi açık** olmalı (`call_permissions.status = 'active'`). Yetkisi olmayan kişi aranamaz; uygulamada arama düğmesi yerine nedeni görünür.
+- **İkisi eşleşmiş** olmalı (`private.are_matched`, Arkadaş ya da Sevgili). Ekip arkadaşları ve grup sohbetleri bu özelliğe dahil değildir.
+- **İkisinin de Eşleşme Sohbeti hakkı** olmalı (`private.has_matching_feature(uid, 'chat')`: `matching_chat`, `matching_premium` ya da hoş geldin denemesi; platform yöneticisi paketsiz).
+- Engel yoktur, iki hesap da aktiftir. Kişinin aynı anda tek görüşmesi olur (çalan ya da süren); meşgul olan aranamaz (`call.busy`).
+- Sınır: kişi dakikada en fazla 3 arama başlatabilir.
+
+### Görüşme yetkisi (`call_permissions`, kişi başına bir satır)
+- Kişi kendi profilinin ayarlarındaki "Sesli görüşme" bölümünden isteğe bağlı kısa bir notla (en fazla 300 karakter) **talep eder** (`requested`). Durumu orada görür: talep edilmedi, inceleniyor, açık, kapalı (gerekçesiyle).
+- Platform yöneticisi panelde bekleyen talepleri görür ve **açar** (`active`) ya da **reddeder** (`declined`, gerekçe). Kullanıcı sayfasından da istediği an açar ya da kapatır (`revoked`, gerekçe). Kapatılan ya da reddedilen kişi 7 gün sonra yeniden talep edebilir.
+- Yetki kapatılınca kişinin süren görüşmesi hemen biter.
+- Kişiye yetki açıldığında, reddedildiğinde ya da kapatıldığında bildirim gider (`call_permission_granted`, `call_permission_declined`, `call_permission_revoked`).
+
+### Akış
+- **Arama:** `POST /conversations/{id}/calls` (birebir eşleşme sohbeti). Kurallar uygunsa `calls` satırı `ringing` olur, arayan LiveKit token'ı alır ve odaya girer. Aranan kişiye `call_incoming` bildirimi push olarak gider (Android kanalı `gway_calls`, yüksek öncelik, telefonun bildirim sesi). Uygulama açıksa aranan kişi `calls` satırını Realtime ile görür ve tam ekran gelen arama ekranı çalar.
+- **Yanıt:** aranan `POST /calls/{id}/accept` ile token alır, durum `active` olur (`answered_at`). `POST /calls/{id}/decline` reddeder (`declined`).
+- **Bitiş:** iki taraf da `POST /calls/{id}/end` ile bitirir. Arayan çalarken bitirirse `canceled` olur.
+- **Zaman sınırları:** 30 saniyede açılmayan arama `missed` olur; aranana `call_missed` bildirimi gider. Süren görüşme **60 dakikada** kendiliğinden biter (`ended`, `time_limit`). `CallMonitor` 5 saniyede bir kontrol eder (`Calls:MonitorInterval`, sıfır kapatır) ve LiveKit odasını kapatır.
+- **Oda:** `call-<id>`, en fazla 2 kişi, yalnızca mikrofon. Token 10 dakikalıktır ve yalnızca görüşme `ringing`/`active` iken, yalnızca iki tarafa verilir.
+- Görüşme sesi kaydedilmez; yalnızca kim, kimi, ne zaman, ne kadar aradı tutulur.
+
+### Bildirimler
+`call_incoming` (yalnızca push; uygulamanın listesinde görünmez, RLS), `call_missed` ("seni aradı, açamadın"; listede görünür, dokununca sohbet açılır), `call_permission_granted`, `call_permission_declined`, `call_permission_revoked` (yetki açıldı, reddedildi ya da kapatıldı; listede görünür, dokununca ayarlardaki Sesli görüşme bölümü açılır). Push'a dokununca gelen arama ekranı ya da sohbet açılır.
+
+### Admin
+- **Sesli görüşme** sayfası: bekleyen talepler (kişi, not, tarih) ve yetkisi açık kişiler; açma, reddetme, kapatma (gerekçe zorunlu: reddetme ve kapatma). Son 24 saatte görüşme sayısı ve toplam dakika.
+- Kullanıcı sayfasında "Sesli görüşme yetkisi" anahtarı ve kişinin son görüşmeleri (karşı taraf, süre, sonuç).
+- Rol: `admin` ve `support` açar ve kapatır; `moderator` görür.
+
+### Veri ve erişim
+| Tablo | Okuma | Yazma |
+|---|---|---|
+| `call_permissions` | Kişinin kendisi ve platform ekibi | Talep: `public.request_call_permission(note)` (kendi satırı, yalnızca `requested`); karar: backend |
+| `calls` | İki taraf ve platform ekibi | Backend |
+
+### Audit log
+`call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
+
+### C# uç noktaları
+| Uç nokta | Açıklama |
+|---|---|
+| `GET /conversations/{id}/calls/eligibility` | Bu sohbette arama yapılabilir mi; yapılamıyorsa neden (`call.no_permission`, `call.peer_no_permission`, `call.not_matched`, `call.chat_locked`, `call.blocked`, `call.busy`) |
+| `POST /conversations/{id}/calls` | Arama başlatma: görüşme kimliği, LiveKit adresi ve token |
+| `POST /calls/{id}/accept`, `POST /calls/{id}/decline`, `POST /calls/{id}/end` | Yanıtlama, reddetme, bitirme |
+| `GET /admin/calls/permissions?status=` | Talepler ve yetkiler. Rol: `admin`, `support`, `moderator` |
+| `PUT /admin/calls/permissions/{userId}` | `{ active, reason? }`: açma ya da kapatma/reddetme. Rol: `admin`, `support` |
+| `GET /admin/calls/users/{userId}` | Kişinin yetki durumu ve son 20 görüşmesi |
+
 ## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
 
 Kullanıcı isteği (2026-10-27): panel her modülü, yazışmaları ve işlemleri ayrıntılı ama düzenli gösterir; istatistikler profesyonel grafiklerle sunulur.
