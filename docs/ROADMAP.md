@@ -372,7 +372,7 @@ Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibini
 - [x] pgTAP (`58_voice_calls`), C# (235/235), Flutter (messaging 22, notifications 14, admin 70); `flutter analyze` ve `dotnet build` temiz (2026-11-01)
 - [ ] Telefonda iki hesapla uçtan uca deneme (LiveKit açık)
 - [x] Bulut: `0071` migration'ı, API, web uygulaması ve panel yayında (2026-11-01, kullanıcı isteğiyle telefonda denemeden önce)
-- [ ] Mobil uygulama sürümü (Play kapalı test) sesli görüşmeyle
+- [x] Mobil uygulama 1.0.0+6 Play kapalı teste (alpha) yüklendi (2026-11-01, hizmet hesabıyla)
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
