@@ -58,8 +58,8 @@ class CallEligibility {
   final String? code;
   final String? message;
 
-  /// Not worth showing a call button at all (not a match chat, or the person has no permission yet).
-  bool get hidden => code == 'call.forbidden' || code == 'call.not_matched';
+  /// Not worth showing a call button at all (not a one-to-one chat, or an account is closed).
+  bool get hidden => code == 'call.forbidden';
 }
 
 class CallJoin {

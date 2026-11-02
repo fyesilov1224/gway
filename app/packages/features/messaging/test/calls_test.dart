@@ -245,8 +245,24 @@ void main() {
     expect(find.text('yetki sayfası'), findsOneWidget);
   });
 
-  testWidgets('a chat that is not a match shows no call button', (tester) async {
-    await pumpChatHeader(tester, const CallEligibility(allowed: false, code: 'call.not_matched'));
+  testWidgets('a chat that is neither a match nor teammates shows a dim button that says why', (tester) async {
+    final calls = await pumpChatHeader(
+      tester,
+      const CallEligibility(
+        allowed: false,
+        code: 'call.not_matched',
+        message: 'Sesli görüşme yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yapılabilir.',
+      ),
+    );
+    await tester.tap(find.byTooltip('Sesli ara'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sesli görüşme yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yapılabilir.'), findsOneWidget);
+    expect(find.text('Talep et'), findsNothing);
+    expect(calls.actions, isEmpty);
+  });
+
+  testWidgets('a chat that cannot call at all shows no call button', (tester) async {
+    await pumpChatHeader(tester, const CallEligibility(allowed: false, code: 'call.forbidden'));
     expect(find.byTooltip('Sesli ara'), findsNothing);
   });
 

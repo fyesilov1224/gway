@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(25);
 
 -- f1 and f2 are matched; f3 is matched with f1 but never asks; f4 is a stranger.
 insert into auth.users (id, email, aud, role)
@@ -96,7 +96,27 @@ reset role;
 -- Without a match, and after being declined ----------------------------------------------------------------
 update public.matches set ended_at = now() where user_b = greatest(pg_temp.u(1), pg_temp.u(2)) and user_a = least(pg_temp.u(1), pg_temp.u(2));
 select pg_temp.act(1);
-select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_not_matched', 'only matched people call');
+select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_not_matched',
+  'only matched people and teammates call');
+
+-- Teammates (0072): they call with the Ekip Arkadaşı package instead of Eşleşme Sohbeti.
+alter table public.teammates disable trigger teammates_guard;
+insert into public.teammates (user_a, user_b) values (least(pg_temp.u(1), pg_temp.u(2)), greatest(pg_temp.u(1), pg_temp.u(2)));
+alter table public.teammates enable trigger teammates_guard;
+select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_teammate_locked',
+  'teammates need the Ekip Arkadaşı package to call');
+alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+insert into public.user_subscriptions (user_id, plan_slug, grant_reason, starts_at, ends_at)
+values (pg_temp.u(1), 'matching_teammates', 'test', now() - interval '1 minute', now() + interval '1 day');
+alter table public.user_subscriptions enable trigger user_subscriptions_guard;
+select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_peer_teammate_locked',
+  'and so does the teammate they call');
+alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+insert into public.user_subscriptions (user_id, plan_slug, grant_reason, starts_at, ends_at)
+values (pg_temp.u(2), 'matching_teammates', 'test', now() - interval '1 minute', now() + interval '1 day');
+alter table public.user_subscriptions enable trigger user_subscriptions_guard;
+select lives_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'two teammates with permission and the package call');
+select is((select count(*)::int from public.calls where caller_id = pg_temp.u(1) and status = 'ringing'), 1, 'the teammate''s phone rings');
 
 insert into public.call_permissions (user_id, status, decided_at, reason) values (pg_temp.u(3), 'declined', now(), 'Şimdilik değil');
 set local role authenticated;

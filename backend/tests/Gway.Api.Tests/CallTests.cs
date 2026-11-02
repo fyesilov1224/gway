@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gway.Api.Tests;
 
-/// <summary>Voice calls between matched people with permission (docs/ARCHITECTURE.md §8c).</summary>
+/// <summary>Voice calls between matched people or teammates with permission (docs/ARCHITECTURE.md §8c).</summary>
 public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();
@@ -23,11 +23,15 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     private static Uri Path(string path) => new(path, UriKind.Relative);
 
     /// <summary>Two matched people with a direct chat and the Eşleşme Sohbeti package; no call permission yet.</summary>
-    private async Task<(Guid A, Guid B, Guid Chat)> MatchedPairAsync()
+    private Task<(Guid A, Guid B, Guid Chat)> MatchedPairAsync() =>
+        PairAsync("insert into public.matches (user_a, user_b, mode) values (@a, @b, 'friend')", "matching_chat");
+
+    /// <summary>A direct chat between two people related by <paramref name="relation"/> (null: none), both with <paramref name="plan"/>.</summary>
+    private async Task<(Guid A, Guid B, Guid Chat)> PairAsync(string? relation, string plan)
     {
         var (a, b) = (await _db.CreateUserAsync(Unique("c_")), await _db.CreateUserAsync(Unique("c_")));
         var (low, high) = a.CompareTo(b) < 0 ? (a, b) : (b, a);
-        await _db.ExecuteAsync("insert into public.matches (user_a, user_b, mode) values (@a, @b, 'friend')", ("a", low), ("b", high));
+        if (relation is not null) await _db.ExecuteAsync(relation, ("a", low), ("b", high));
         var chat = await _db.ScalarAsync<Guid>(
             "insert into public.conversations (kind, user_a, user_b, created_by) values ('direct', @a, @b, @a) returning id", ("a", low), ("b", high));
         await _db.ExecuteAsync(
@@ -37,9 +41,9 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
             """
             alter table public.user_subscriptions disable trigger user_subscriptions_guard;
             insert into public.user_subscriptions (user_id, plan_slug, grant_reason, starts_at, ends_at)
-            select u, 'matching_chat', 'test', now() - interval '1 minute', now() + interval '1 day' from unnest(array[@a, @b]) u;
+            select u, @plan, 'test', now() - interval '1 minute', now() + interval '1 day' from unnest(array[@a, @b]) u;
             alter table public.user_subscriptions enable trigger user_subscriptions_guard;
-            """, ("a", a), ("b", b));
+            """, ("a", a), ("b", b), ("plan", plan));
         return (a, b, chat);
     }
 
@@ -141,6 +145,38 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal("revoked", await _db.ScalarAsync<string>("select status from public.call_permissions where user_id = @a", ("a", a)));
         var after = await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, after.StatusCode);
+    }
+
+    [Fact]
+    public async Task Teammates_call_with_the_teammates_package_and_others_are_told_why_not()
+    {
+        var admin = await StaffAsync("admin");
+        async Task<CallEligibility> EligibilityAsync(Guid user, Guid chat) =>
+            (await factory.ClientFor(user).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct))!;
+
+        // Teammates, not matched: the Eşleşme Sohbeti package is not what opens it.
+        var (a, b, chat) = await PairAsync("alter table public.teammates disable trigger teammates_guard; insert into public.teammates (user_a, user_b) values (@a, @b); alter table public.teammates enable trigger teammates_guard", "matching_chat");
+        (await SetPermissionAsync(admin, a, true)).EnsureSuccessStatusCode();
+        (await SetPermissionAsync(admin, b, true)).EnsureSuccessStatusCode();
+        Assert.Equal("call.teammate_locked", (await EligibilityAsync(a, chat)).Code);
+
+        var (c, d, teamChat) = await PairAsync("alter table public.teammates disable trigger teammates_guard; insert into public.teammates (user_a, user_b) values (@a, @b); alter table public.teammates enable trigger teammates_guard", "matching_teammates");
+        (await SetPermissionAsync(admin, c, true)).EnsureSuccessStatusCode();
+        (await SetPermissionAsync(admin, d, true)).EnsureSuccessStatusCode();
+        Assert.True((await EligibilityAsync(c, teamChat)).Allowed);
+        var started = await factory.ClientFor(c).PostAsync(Path($"/conversations/{teamChat}/calls"), null, Ct);
+        started.EnsureSuccessStatusCode();
+        var call = (await started.Content.ReadFromJsonAsync<CallJoin>(Ct))!;
+        (await factory.ClientFor(d).PostAsync(Path($"/calls/{call.CallId}/accept"), null, Ct)).EnsureSuccessStatusCode();
+
+        // Neither matched nor teammates: the button stays, dim, with the sentence why.
+        var (e, f, strangers) = await PairAsync(null, "matching_premium");
+        (await SetPermissionAsync(admin, e, true)).EnsureSuccessStatusCode();
+        (await SetPermissionAsync(admin, f, true)).EnsureSuccessStatusCode();
+        var none = await EligibilityAsync(e, strangers);
+        Assert.Equal("call.not_matched", none.Code);
+        Assert.Equal("Sesli görüşme yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yapılabilir.", none.Message);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await factory.ClientFor(e).PostAsync(Path($"/conversations/{strangers}/calls"), null, Ct)).StatusCode);
     }
 
     [Fact]

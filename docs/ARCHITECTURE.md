@@ -1765,14 +1765,14 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 ### Yapılandırma
 `LiveKit:Url` (istemcinin bağlandığı adres, ör. `wss://live.gway.app`), `LiveKit:ApiUrl` (sunucu API'si; boşsa `Url`'in http karşılığı), `LiveKit:ApiKey`, `LiveKit:ApiSecret`. Anahtarlar tanımlı değilse yayın kapalıdır (`live.unavailable`, 503). Yerelde LiveKit Docker'da `--dev` modunda çalışır (§9).
 
-## 8c. Birebir sesli görüşme (Faz 15.11, kullanıcı kararları 2026-11-01)
+## 8c. Birebir sesli görüşme (Faz 15.11, kullanıcı kararları 2026-11-01; ekip arkadaşları 2026-11-02)
 
-Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi profilinden **görüşme yetkisi** ister, platform yöneticisi panelden açar ya da kapatır. Görüşmeler Live modülündedir (LiveKit altyapısı orada).
+Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi profilinden **görüşme yetkisi** ister, platform yöneticisi panelden açar ya da kapatır. Görüşmeler Live modülündedir (LiveKit altyapısı orada).
 
 ### Kurallar (hepsi sunucuda ve SQL'de, `private.call_blocker(caller, callee)`)
 - **İki tarafın da yetkisi açık** olmalı (`call_permissions.status = 'active'`). Yetkisi olmayan kişi aranamaz; uygulamada arama düğmesi yerine nedeni görünür.
-- **İkisi eşleşmiş** olmalı (`private.are_matched`, Arkadaş ya da Sevgili). Ekip arkadaşları ve grup sohbetleri bu özelliğe dahil değildir.
-- **İkisinin de Eşleşme Sohbeti hakkı** olmalı (`private.has_matching_feature(uid, 'chat')`: `matching_chat`, `matching_premium` ya da hoş geldin denemesi; platform yöneticisi paketsiz).
+- **İkisi eşleşmiş ya da ekip arkadaşı** olmalı (`private.are_matched`, Arkadaş ya da Sevgili; `private.are_teammates`, kullanıcı kararı 2026-11-02). Grup sohbetleri bu özelliğe dahil değildir.
+- **Paket hakkı, sohbetteki gibi:** eşleşmişlerse ikisinin de Eşleşme Sohbeti hakkı (`private.has_matching_feature(uid, 'chat')`: `matching_chat`, `matching_premium` ya da hoş geldin denemesi), eşleşmemiş ekip arkadaşlarıysa ikisinin de Ekip Arkadaşı hakkı (`'teammates'`: `matching_teammates`, `matching_premium`) olmalı (`call.chat_locked` / `call.peer_chat_locked`, `call.teammate_locked` / `call.peer_teammate_locked`). Platform yöneticisi paketsiz.
 - Engel yoktur, iki hesap da aktiftir. Kişinin aynı anda tek görüşmesi olur (çalan ya da süren); meşgul olan aranamaz (`call.busy`).
 - Sınır: kişi dakikada en fazla 3 arama başlatabilir.
 
@@ -1783,7 +1783,7 @@ Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese aç
 - Kişiye yetki açıldığında, reddedildiğinde ya da kapatıldığında bildirim gider (`call_permission_granted`, `call_permission_declined`, `call_permission_revoked`).
 
 ### Akış
-- **Arama:** `POST /conversations/{id}/calls` (birebir eşleşme sohbeti). Kurallar uygunsa `calls` satırı `ringing` olur, arayan LiveKit token'ı alır ve odaya girer. Aranan kişiye `call_incoming` bildirimi push olarak gider (Android kanalı `gway_calls`, yüksek öncelik, telefonun bildirim sesi). Uygulama açıksa aranan kişi `calls` satırını Realtime ile görür ve tam ekran gelen arama ekranı çalar.
+- **Arama:** `POST /conversations/{id}/calls` (eşleşmenin ya da ekip arkadaşlığının birebir sohbeti). Kurallar uygunsa `calls` satırı `ringing` olur, arayan LiveKit token'ı alır ve odaya girer. Aranan kişiye `call_incoming` bildirimi push olarak gider (Android kanalı `gway_calls`, yüksek öncelik, telefonun bildirim sesi). Uygulama açıksa aranan kişi `calls` satırını Realtime ile görür ve tam ekran gelen arama ekranı çalar.
 - **Yanıt:** aranan `POST /calls/{id}/accept` ile token alır, durum `active` olur (`answered_at`). `POST /calls/{id}/decline` reddeder (`declined`).
 - **Bitiş:** iki taraf da `POST /calls/{id}/end` ile bitirir. Arayan çalarken bitirirse `canceled` olur.
 - **Zaman sınırları:** 30 saniyede açılmayan arama `missed` olur; aranana `call_missed` bildirimi gider. Süren görüşme **60 dakikada** kendiliğinden biter (`ended`, `time_limit`). `CallMonitor` 5 saniyede bir kontrol eder (`Calls:MonitorInterval`, sıfır kapatır) ve LiveKit odasını kapatır.
@@ -1791,7 +1791,7 @@ Eşleşen iki kişi özel sohbetten sesli görüşme yapar. Özellik herkese aç
 - Görüşme sesi kaydedilmez ve dinlenemez. Kim, kimi, ne zaman, ne kadar aradı yalnızca iki tarafın görebileceği `calls` satırında tutulur (zaman sınırları ve cevapsız arama için); platform ekibi bu satırları göremez (§3f, Mesaj gizliliği).
 
 ### Uygulama (messaging modülü)
-- **Sohbet başlığı:** birebir sohbette telefon simgesi (`Sesli ara`). Uygunluk her açılışta sorulur (`GET /conversations/{id}/calls/eligibility`). Eşleşme sohbeti değilse (`call.not_matched`, `call.forbidden`) simge görünmez; başka bir engel varsa soluk görünür ve dokununca nedeni söyler. Kişinin kendi yetkisi yoksa (`call.no_permission`) yanında "Talep et" ile Ayarlar → Sesli görüşme açılır.
+- **Sohbet başlığı:** birebir sohbette telefon simgesi (`Sesli ara`). Uygunluk her açılışta sorulur (`GET /conversations/{id}/calls/eligibility`). Yalnızca `call.forbidden` (birebir sohbet değil, hesap kapalı) iken simge görünmez. Başka bir engel varsa, eşleşmemiş ve ekip arkadaşı olmayan kişi dahil (`call.not_matched`, "Sesli görüşme yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yapılabilir."), simge soluk görünür ve dokununca nedeni söyler. Kişinin kendi yetkisi yoksa (`call.no_permission`) yanında "Talep et" ile Ayarlar → Sesli görüşme açılır.
 - **Arama ekranı** (`/calls/{id}`, tam ekran): durumu `calls` satırı belirler (Realtime). Çalarken arayan "Aranıyor…" görür; aranan "Seni sesli arıyor…" görür, zil (`assets/call_ring.wav`, döngü) çalar, Cevapla / Reddet. Görüşmede süre, "en fazla 60 dakika, kaydedilmez" notu, sessize al, hoparlör ve Bitir. Bitince nedeni yazar (cevapsız, reddedildi, 60 dakika doldu, yetki kapandı) ve 3 saniye sonra kapanır. Geri tuşu açık görüşmeyi bitirir (kendisine çalıyorsa reddeder). Ekran yeniden açılırsa (`POST /calls/{id}/token`) aynı görüşmeye yeni token'la döner.
 - **Gelen arama:** uygulama açıkken `IncomingCallAlerts` çalan aramayı görünce arama ekranını açar; kapalıyken `call_incoming` push'una dokunmak açar. İkisi aynı anda gelirse tek ekran açılır.
 - **Ayarlar → Sesli görüşme** (`/settings/calls`): açıklama, durum rozeti (talep edilmedi, inceleniyor, açık, kapalı), gerekçe, isteğe bağlı notla talep; reddedilen ya da kapatılan kişi 7 gün sonra yeniden talep eder (tarih yazar).
