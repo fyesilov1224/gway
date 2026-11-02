@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/social.dart';
 import '../domain/teammates.dart';
+import 'providers.dart';
 import 'routes.dart';
+import 'social_providers.dart';
 import 'social_widgets.dart';
 import 'teammate_providers.dart';
 
@@ -207,6 +209,88 @@ class _LookingPrompt extends ConsumerWidget {
   }
 }
 
+/// Private accounts never show in suggestions (docs/ARCHITECTURE.md §3c), so "Ekip arıyorum" alone is not enough.
+class _PrivateAccountNotice extends ConsumerStatefulWidget {
+  const _PrivateAccountNotice({required this.looking, this.margin = EdgeInsets.zero});
+
+  final bool looking;
+  final EdgeInsetsGeometry margin;
+
+  @override
+  ConsumerState<_PrivateAccountNotice> createState() => _PrivateAccountNoticeState();
+}
+
+class _PrivateAccountNoticeState extends ConsumerState<_PrivateAccountNotice> {
+  bool _busy = false;
+
+  Future<void> _makePublic() async {
+    setState(() => _busy = true);
+    final result = await ref.read(socialRepositoryProvider).setPrivate(false);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    ref.invalidate(myProfileProvider);
+    final me = ref.read(currentUserIdProvider);
+    if (me != null) refreshRelationship(ref, me);
+    refreshTeammates(ref);
+    _snack(context, switch (result) {
+      Ok() => 'Hesabın artık herkese açık; önerilerde görünebilirsin.',
+      Err(:final failure) => failure.userMessage,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPrivate = ref.watch(myProfileProvider).value?.isPrivate ?? false;
+    if (!widget.looking || !isPrivate) return const SizedBox.shrink();
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      margin: widget.margin,
+      padding: const EdgeInsets.all(GwSpacing.md),
+      decoration: BoxDecoration(
+        color: GwColors.warningSoft,
+        borderRadius: GwRadius.lgAll,
+        border: Border.all(color: GwColors.warning),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.lock_outline_rounded, color: GwColors.warning),
+              const SizedBox(width: GwSpacing.xs),
+              Expanded(child: Text('Hesabın gizli, önerilerde görünmüyorsun', style: textTheme.titleSmall)),
+            ],
+          ),
+          const SizedBox(height: GwSpacing.xxs),
+          Text(
+            'Gizli hesaplar ekip arkadaşı önerilerinde çıkmaz. Hesabını herkese açarsan bekleyen takip istekleri de onaylanır.',
+            style: textTheme.bodySmall?.copyWith(color: GwColors.textPrimary),
+          ),
+          const SizedBox(height: GwSpacing.sm),
+          GwButton(
+            label: 'Hesabımı herkese aç',
+            icon: Icons.lock_open_rounded,
+            variant: GwButtonVariant.secondary,
+            isLoading: _busy,
+            onPressed: _busy ? null : _makePublic,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The notice on the suggestions tab, from the saved preferences.
+class _OwnPrivateNotice extends ConsumerWidget {
+  const _OwnPrivateNotice();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _PrivateAccountNotice(
+        looking: ref.watch(teammatePreferencesProvider).value?.looking ?? false,
+        margin: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
+      );
+}
+
 class _Suggestions extends ConsumerWidget {
   const _Suggestions();
 
@@ -218,6 +302,7 @@ class _Suggestions extends ConsumerWidget {
       child: switch (suggestions) {
         AsyncData(:final value) when value.isEmpty => ListView(children: [
             const _LookingPrompt(),
+              const _OwnPrivateNotice(),
             const SizedBox(height: GwSpacing.lg),
             GwEmptyState(
               icon: Icons.diversity_3_outlined,
@@ -230,6 +315,7 @@ class _Suggestions extends ConsumerWidget {
             padding: const EdgeInsets.only(top: GwSpacing.md),
             children: [
               const _LookingPrompt(),
+              const _OwnPrivateNotice(),
               for (final s in value) _SuggestionCard(suggestion: s),
             ],
           ),
@@ -482,12 +568,14 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
     switch (result) {
       case Ok():
         refreshTeammates(ref);
-        _snack(context, _looking ? 'Tercihlerin kaydedildi. Artık önerilerde görünürsün.' : 'Tercihlerin kaydedildi.');
+        _snack(context, _looking && !_isPrivate ? 'Tercihlerin kaydedildi. Artık önerilerde görünürsün.' : 'Tercihlerin kaydedildi.');
         await Navigator.of(context).maybePop();
       case Err(:final failure):
         _snack(context, failure.userMessage);
     }
   }
+
+  bool get _isPrivate => ref.read(myProfileProvider).value?.isPrivate ?? false;
 
   void _toggle<T>(Set<T> set, T value, bool on) => setState(() => on ? set.add(value) : set.remove(value));
 
@@ -496,6 +584,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
     final textTheme = Theme.of(context).textTheme;
     final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
     final answered = _draft.answered;
+    ref.watch(myProfileProvider);
 
     return Column(
       children: [
@@ -504,6 +593,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
               _VisibilityCard(looking: _looking, onChanged: (v) => setState(() => _looking = v)),
+              _PrivateAccountNotice(looking: _looking, margin: const EdgeInsets.only(top: GwSpacing.sm)),
               const SizedBox(height: GwSpacing.md),
               _Completeness(answered: answered),
               _Section(
@@ -658,7 +748,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 children: [
                   Expanded(
                     child: Text(
-                      _looking ? 'Önerilerde görüneceksin.' : 'Şu an önerilerde görünmüyorsun.',
+                      _looking && !_isPrivate ? 'Önerilerde görüneceksin.' : 'Şu an önerilerde görünmüyorsun.',
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ),

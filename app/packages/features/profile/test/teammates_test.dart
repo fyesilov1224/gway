@@ -47,7 +47,22 @@ class _FakeTeammates implements TeammatesRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Records privacy changes.
+class _FakeSocial implements SocialRepository {
+  final privacy = <bool>[];
+
+  @override
+  Future<Result<void>> setPrivate(bool isPrivate) async {
+    privacy.add(isPrivate);
+    return const Ok(null);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 final _openedPackages = <String>[];
+final _social = _FakeSocial();
 
 Future<_FakeTeammates> _pump(
   WidgetTester tester,
@@ -55,6 +70,7 @@ Future<_FakeTeammates> _pump(
   TeammatePreferences prefs = const TeammatePreferences(),
   MyTeammates mine = const MyTeammates(),
   bool needsPackage = false,
+  bool isPrivate = false,
 }) async {
   tester.view.physicalSize = const Size(1170, 3000);
   tester.view.devicePixelRatio = 3;
@@ -65,6 +81,9 @@ Future<_FakeTeammates> _pump(
       packageOpenerProvider.overrideWithValue((_, slug) => _openedPackages.add(slug)),
       categoriesProvider.overrideWith((ref) async => const [Category(slug: 'running', name: 'Koşu'), Category(slug: 'hiking', name: 'Yürüyüş')]),
       currentUserIdProvider.overrideWithValue('u1'),
+      socialRepositoryProvider.overrideWithValue(_social),
+      myProfileProvider.overrideWith(
+          (ref) async => Profile(id: 'u1', username: 'ben', displayName: 'Ben', bio: '', createdAt: DateTime(2026), isPrivate: isPrivate)),
       teammatesRepositoryProvider.overrideWithValue(fake),
       teammatePreferencesProvider.overrideWith((ref) async => prefs),
       myTeammatesProvider.overrideWith((ref) async => mine),
@@ -143,6 +162,24 @@ void main() {
     expect(find.text('Öneriler'), findsNothing);
     await tester.tap(find.text('Paketi incele'));
     expect(_openedPackages.last, 'matching_teammates');
+  });
+
+  testWidgets('a private account is told it is hidden and can open itself', (tester) async {
+    await _pump(tester, const TeammateSettingsScreen(), prefs: const TeammatePreferences(looking: true), isPrivate: true);
+    expect(find.text('Hesabın gizli, önerilerde görünmüyorsun'), findsOneWidget);
+    expect(find.text('Şu an önerilerde görünmüyorsun.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(GwButton, 'Hesabımı herkese aç'));
+    await tester.pumpAndSettle();
+    expect(_social.privacy, [false]);
+
+    await _pump(tester, const TeammatesScreen(), prefs: const TeammatePreferences(looking: true), isPrivate: true);
+    expect(find.text('Hesabın gizli, önerilerde görünmüyorsun'), findsOneWidget);
+  });
+
+  testWidgets('a public account sees no privacy notice', (tester) async {
+    await _pump(tester, const TeammateSettingsScreen(), prefs: const TeammatePreferences(looking: true));
+    expect(find.text('Hesabın gizli, önerilerde görünmüyorsun'), findsNothing);
+    expect(find.text('Önerilerde görüneceksin.'), findsOneWidget);
   });
 
   testWidgets('people who are not looking are invited to turn it on', (tester) async {
