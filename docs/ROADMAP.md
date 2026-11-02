@@ -374,6 +374,8 @@ Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibini
 - [x] Bulut: `0071` migration'ı, API, web uygulaması ve panel yayında (2026-11-01, kullanıcı isteğiyle telefonda denemeden önce)
 - [x] Mobil uygulama 1.0.0+6 Play kapalı teste (alpha) yüklendi (2026-11-01, hizmet hesabıyla)
 - [x] Ekip arkadaşları da sesli arar, eşleşmemiş sohbette buton soluk görünüp nedenini söyler (kullanıcı kararı 2026-11-02, 0072); ekip arkadaşı tercihlerinde gizli hesap uyarısı. Bulut 0072, API, web, panel ve mobil 1.0.0+7 (alpha) yayında (2026-11-02)
+- [x] Arayan çalma sesi duyar; uygulama kapalıyken gelen arama telefonun kendi arama ekranında çalar (kilit ekranı, zil sesi, Cevapla / Reddet; `flutter_callkit_incoming`), `call_ended` push'u (0073), Ayarlar → Sesli görüşme'de kilit ekranı izni (kullanıcı kararı 2026-11-02, 1.0.0+8)
+- [ ] Play Console: tam ekran bildirim ve arama ön plan hizmeti beyanları
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 

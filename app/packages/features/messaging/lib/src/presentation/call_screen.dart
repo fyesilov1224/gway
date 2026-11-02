@@ -12,10 +12,13 @@ import 'call_session.dart';
 /// A one-to-one voice call (docs/ARCHITECTURE.md §8c): ringing out, ringing in, talking, ended.
 /// The call row decides the state; [join] is the caller's room access from starting the call.
 class CallScreen extends ConsumerStatefulWidget {
-  const CallScreen({super.key, required this.callId, this.join});
+  const CallScreen({super.key, required this.callId, this.join, this.answer = false});
 
   final String callId;
   final CallJoin? join;
+
+  /// Answered on the phone's own call screen: answer as soon as the call is seen ringing.
+  final bool answer;
 
   @override
   ConsumerState<CallScreen> createState() => _CallScreenState();
@@ -30,7 +33,8 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   CallInfo? _call;
   bool _loaded = false;
   bool _busy = false;
-  bool _ringing = false;
+  CallTone? _tone;
+  bool _answered = false;
   String? _error;
 
   CallsRepository get _repo => ref.read(callsRepositoryProvider);
@@ -43,6 +47,8 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   void initState() {
     super.initState();
     _session.addListener(_rebuild);
+    // This screen rings and shows the call now; the phone's own screen or ongoing notice closes.
+    unawaited(ref.read(nativeCallsProvider).end(widget.callId).catchError((Object _) {}));
     if (widget.join case final join?) unawaited(_session.connect(join));
     _subscription = _repo.watch(widget.callId).listen(_onCall, onError: (Object _) {
       if (mounted) setState(() => _error = 'Görüşme bilgisi alınamadı. Bağlantını kontrol et.');
@@ -64,24 +70,37 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     });
     final me = _me;
     if (call == null || !call.status.isOpen) {
-      _setRinging(false);
+      _setTone(null);
       unawaited(_session.leave());
       _closer ??= Timer(const Duration(seconds: 3), () {
         if (mounted) unawaited(Navigator.of(context).maybePop());
       });
       return;
     }
-    _setRinging(call.status == CallStatus.ringing && call.calleeId == me);
+    if (widget.answer && !_answered && call.status == CallStatus.ringing && call.calleeId == me) {
+      _answered = true;
+      unawaited(_accept());
+      return;
+    }
+    _setTone(switch (call.status) {
+      CallStatus.ringing when call.calleeId == me => CallTone.incoming,
+      CallStatus.ringing when call.callerId == me => CallTone.outgoing,
+      _ => null,
+    });
     // Back on a call this device is not connected to: the caller while ringing, either person while talking.
     final mayJoin = call.callerId == me || call.status == CallStatus.active;
     if (mayJoin && _session.connection == CallConnection.idle && !_busy) unawaited(_rejoin());
   }
 
-  void _setRinging(bool on) {
-    if (on == _ringing) return;
-    _ringing = on;
-    // A ring that cannot play must not stop the call.
-    unawaited((on ? _ringer.start() : _ringer.stop()).catchError((Object _) {}));
+  void _setTone(CallTone? tone) {
+    if (tone == _tone) return;
+    final wasPlaying = _tone != null;
+    _tone = tone;
+    // A tone that cannot play must not stop the call.
+    unawaited(() async {
+      if (wasPlaying) await _ringer.stop();
+      if (tone != null) await _ringer.start(tone);
+    }().catchError((Object _) {}));
   }
 
   Future<void> _run(Future<Result<CallJoin?>> Function() action) async {
@@ -105,7 +124,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   Future<void> _rejoin() => _run(() => _repo.rejoin(widget.callId));
 
   Future<void> _accept() {
-    _setRinging(false);
+    _setTone(null);
     return _run(() => _repo.accept(widget.callId));
   }
 
@@ -123,7 +142,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     unawaited(_subscription?.cancel());
     _ticker?.cancel();
     _closer?.cancel();
-    if (_ringing) unawaited(_ringer.stop().catchError((Object _) {}));
+    if (_tone != null) unawaited(_ringer.stop().catchError((Object _) {}));
     _session
       ..removeListener(_rebuild)
       ..dispose();

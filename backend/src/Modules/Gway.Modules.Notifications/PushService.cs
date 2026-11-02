@@ -103,9 +103,9 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
             idle.Parameters.AddWithValue("idle", DeviceMaxIdle);
             removed = await idle.ExecuteNonQueryAsync(ct);
         }
-        // Chat message notices exist only to be pushed (not in the app's list); a week covers the admin counts.
+        // Chat message and ringing notices exist only to be pushed (not in the app's list); a week covers the admin counts.
         await using (var notices = db.CreateCommand(
-            "delete from public.notifications where type in ('message', 'call_incoming') and created_at < now() - interval '7 days'"))
+            "delete from public.notifications where type in ('message', 'call_incoming', 'call_ended') and created_at < now() - interval '7 days'"))
         {
             await notices.ExecuteNonQueryAsync(ct);
         }

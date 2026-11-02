@@ -23,9 +23,12 @@ public sealed class PushOptions
 /// <summary>
 /// What the phone shows; <see cref="Data"/> tells the app what to open on a tap. <see cref="Channel"/> is the Android channel
 /// (default: general); notifications with the same <see cref="Tag"/> replace each other on the phone.
+/// With <see cref="AppHandlesFor"/> Android gets a data-only message, valid that long, that the app turns into its own
+/// screen (the incoming call, docs/ARCHITECTURE.md §8c); <see cref="Silent"/> shows nothing on iOS either.
 /// </summary>
 internal sealed record PushMessage(
-    string Title, string Body, IReadOnlyDictionary<string, string> Data, string? Channel = null, string? Tag = null);
+    string Title, string Body, IReadOnlyDictionary<string, string> Data, string? Channel = null, string? Tag = null,
+    TimeSpan? AppHandlesFor = null, bool Silent = false);
 
 internal enum PushResult
 {
@@ -71,6 +74,25 @@ internal sealed class FcmClient(HttpClient http, IOptions<PushOptions> options, 
 
     public Task<PushResult> SendAsync(string token, PushMessage message, CancellationToken ct)
     {
+        if (message.AppHandlesFor is { } validFor)
+        {
+            return PostAsync(new
+            {
+                message = new
+                {
+                    token,
+                    data = new Dictionary<string, string>(message.Data) { ["title"] = message.Title, ["body"] = message.Body },
+                    android = new
+                    {
+                        priority = "HIGH",
+                        ttl = $"{(int)validFor.TotalSeconds}s",
+                    },
+                    apns = message.Silent
+                        ? null
+                        : new { payload = new { aps = new { alert = new { title = message.Title, body = message.Body }, sound = "default" } } },
+                },
+            }, ct);
+        }
         return PostAsync(new
         {
             message = new

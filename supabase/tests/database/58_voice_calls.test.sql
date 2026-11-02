@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(25);
+select plan(28);
 
 -- f1 and f2 are matched; f3 is matched with f1 but never asks; f4 is a stranger.
 insert into auth.users (id, email, aud, role)
@@ -117,6 +117,19 @@ values (pg_temp.u(2), 'matching_teammates', 'test', now() - interval '1 minute',
 alter table public.user_subscriptions enable trigger user_subscriptions_guard;
 select lives_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'two teammates with permission and the package call');
 select is((select count(*)::int from public.calls where caller_id = pg_temp.u(1) and status = 'ringing'), 1, 'the teammate''s phone rings');
+
+-- 0073: once the ringing push went out, giving up tells the callee's phone to stop ringing.
+update public.notifications set pushed_at = now() where type = 'call_incoming' and recipient_id = pg_temp.u(2) and pushed_at is null;
+update public.calls set status = 'canceled', ended_at = now(), end_reason = 'canceled' where caller_id = pg_temp.u(1) and status = 'ringing';
+select is((select count(*)::int from public.notifications where recipient_id = pg_temp.u(2) and type = 'call_ended'), 1,
+  'a call that stops ringing after its push tells the callee''s phone');
+select is((select count(*)::int from public.notifications where recipient_id = pg_temp.u(2) and type = 'call_missed'), 1,
+  'giving up is not one more missed call');
+set local role authenticated;
+select pg_temp.act(2);
+select is((select count(*)::int from public.notifications where type = 'call_ended'), 0, 'the stop signal is not in the list');
+reset role;
+select pg_temp.act(1);
 
 insert into public.call_permissions (user_id, status, decided_at, reason) values (pg_temp.u(3), 'declined', now(), 'Şimdilik değil');
 set local role authenticated;

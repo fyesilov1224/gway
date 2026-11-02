@@ -336,7 +336,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/live/:id', builder: (_, state) => LiveRoomScreen(broadcastId: state.pathParameters['id']!)),
       GoRoute(
         path: '/calls/:id',
-        builder: (_, state) => CallScreen(callId: state.pathParameters['id']!, join: state.extra as CallJoin?),
+        builder: (_, state) => CallScreen(
+          callId: state.pathParameters['id']!,
+          join: state.extra as CallJoin?,
+          answer: state.uri.queryParameters['answer'] == '1',
+        ),
       ),
       GoRoute(path: FeedRoutes.newStory, builder: (_, _) => const NewStoryScreen()),
       GoRoute(path: '/stories/:userId', builder: (_, state) => StoryViewerScreen(userId: state.pathParameters['userId']!)),

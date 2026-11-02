@@ -16,6 +16,10 @@
     </queries>
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <!-- Incoming voice calls ring on the phone's own call screen (flutter_callkit_incoming, docs/ARCHITECTURE.md §8c).
+         Voice only: the plugin's camera permissions are left out. -->
+    <uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" tools:node="remove"/>
     <application
         android:label="GWAY"
         android:name="${applicationName}"
@@ -57,6 +61,11 @@
         <!-- No background location: the location check runs only while the app is open, so geolocator's
              location foreground service is left out (no Play foreground-service declaration, docs/ARCHITECTURE.md §10). -->
         <service android:name="com.baseflow.geolocator.GeolocatorLocationService" tools:node="remove" />
+        <!-- A voice call notice: phone call and microphone, never the camera. -->
+        <service
+            android:name="com.hiennv.flutter_callkit_incoming.CallkitNotificationService"
+            android:foregroundServiceType="phoneCall|microphone"
+            tools:replace="android:foregroundServiceType" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

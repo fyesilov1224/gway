@@ -100,6 +100,8 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal("call_incoming", ring.Data["type"]);
         Assert.Equal(call.CallId.ToString(), ring.Data["call_id"]);
         Assert.Equal("gway_calls", ring.Channel);
+        // Android opens the phone's own incoming call screen from a data-only push that is useless after the ring.
+        Assert.Equal(TimeSpan.FromSeconds(30), ring.AppHandlesFor);
 
         // A second call while this one rings is refused.
         Assert.Equal(HttpStatusCode.Conflict, (await factory.ClientFor(b).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct)).StatusCode);
@@ -108,6 +110,12 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         var answered = await factory.ClientFor(b).PostAsync(Path($"/calls/{call.CallId}/accept"), null, Ct);
         answered.EnsureSuccessStatusCode();
         Assert.Equal("active", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
+        // The ring went out, so the phone hears that it stopped ringing (and closes its call screen).
+        await factory.Services.GetRequiredService<PushService>().DispatchAsync(Ct);
+        var stop = Assert.Single(factory.Push.Sent,
+            s => s.Token == phone && s.Message.Data.TryGetValue("type", out var type) && type == "call_ended").Message;
+        Assert.Equal(call.CallId.ToString(), stop.Data["call_id"]);
+        Assert.True(stop.Silent);
         (await factory.ClientFor(b).PostAsync(Path($"/calls/{call.CallId}/end"), null, Ct)).EnsureSuccessStatusCode();
         Assert.Equal("ended", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
         Assert.False(factory.LiveKit.HasRoom($"call-{call.CallId}"));

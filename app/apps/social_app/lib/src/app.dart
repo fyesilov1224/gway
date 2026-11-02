@@ -14,10 +14,14 @@ class SocialApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    // The ringing push and the in-app listener can both ask; one call screen is enough.
-    void openCall(String id) {
-      if (router.routerDelegate.currentConfiguration.uri.path != MessagingRoutes.call(id)) {
-        router.push(MessagingRoutes.call(id));
+    // The ringing push, the in-app listener and the phone's call screen can all ask; one call screen is enough.
+    // An answer from the phone's screen replaces a screen that is still ringing.
+    void openCall(String id, {bool answer = false}) {
+      final here = router.routerDelegate.currentConfiguration.uri;
+      if (here.path != MessagingRoutes.call(id)) {
+        router.push(MessagingRoutes.call(id, answer: answer));
+      } else if (answer && here.queryParameters['answer'] != '1') {
+        router.pushReplacement(MessagingRoutes.call(id, answer: true));
       }
     }
 
@@ -33,11 +37,14 @@ class SocialApp extends ConsumerWidget {
         openNotifications: () => router.push(NotificationRoutes.list),
         child: LiveNotificationAlerts(
           openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
-          child: IncomingCallAlerts(
+          child: NativeCallBridge(
             openCall: openCall,
-            child: SecurityHeartbeat(
-              navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,
-              child: child!,
+            child: IncomingCallAlerts(
+              openCall: openCall,
+              child: SecurityHeartbeat(
+                navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,
+                child: child!,
+              ),
             ),
           ),
         ),

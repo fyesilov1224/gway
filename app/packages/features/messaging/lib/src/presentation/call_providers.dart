@@ -3,12 +3,16 @@ import 'package:core/core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/calls_repository_impl.dart';
+import '../data/native_calls.dart';
 import '../domain/calls.dart';
 import 'call_session.dart';
 
 final callsRepositoryProvider = Provider<CallsRepository>(
   (ref) => CallsRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
 );
+
+/// The phone's own incoming call screen (Android).
+final nativeCallsProvider = Provider<NativeCalls>((_) => const CallkitNativeCalls());
 
 /// Whether a chat may call now; asked fresh each time the chat opens (permissions change from the panel).
 final callEligibilityProvider = FutureProvider.autoDispose.family<CallEligibility, String>(
@@ -30,9 +34,12 @@ final callPeerProvider = FutureProvider.autoDispose.family<CallPeer, String>(
   (ref, userId) async => (await ref.watch(callsRepositoryProvider).peer(userId)).getOrThrow(),
 );
 
-/// Plays the ring in a loop until stopped; replaced in tests.
+/// What rings: the callee's ring, or the tone the caller hears while it rings at the other end.
+enum CallTone { incoming, outgoing }
+
+/// Plays a tone in a loop until stopped; replaced in tests.
 abstract interface class CallRinger {
-  Future<void> start();
+  Future<void> start(CallTone tone);
 
   Future<void> stop();
 }
@@ -47,9 +54,9 @@ class _AudioRinger implements CallRinger {
   final _player = AudioPlayer()..audioCache = AudioCache(prefix: 'packages/messaging/assets/');
 
   @override
-  Future<void> start() async {
+  Future<void> start(CallTone tone) async {
     await _player.setReleaseMode(ReleaseMode.loop);
-    await _player.play(AssetSource('call_ring.wav'));
+    await _player.play(AssetSource(tone == CallTone.incoming ? 'call_ring.wav' : 'call_ringback.wav'));
   }
 
   @override

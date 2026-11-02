@@ -20,16 +20,22 @@ class CallPermissionScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(GwSpacing.page),
               children: [
                 GwPanel(
-                  title: 'Eşleştiğin kişilerle sesli konuş',
+                  title: 'Eşleştiğin kişilerle ve ekip arkadaşlarınla sesli konuş',
                   child: Text(
-                    'Sesli görüşme, eşleştiğin kişileri özel sohbetten aramanı sağlar. Herkese açık değildir: talep '
+                    'Sesli görüşme, eşleştiğin kişileri ve ekip arkadaşlarını özel sohbetten aramanı sağlar. Herkese açık değildir: talep '
                     'edersin, GWAY ekibi açar. Görüşmeler kaydedilmez ve dinlenemez; bir görüşme en fazla '
                     '${CallRules.maxLength.inMinutes} dakika sürer.',
                   ),
                 ),
                 const SizedBox(height: GwSpacing.md),
                 switch (ref.watch(myCallPermissionProvider)) {
-                  AsyncData(:final value) => _Status(permission: value),
+                  AsyncData(:final value) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _Status(permission: value),
+                        if (value.status == CallPermissionStatus.active) const _LockScreenCard(),
+                      ],
+                    ),
                   AsyncError(:final error) =>
                     GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myCallPermissionProvider)),
                   _ => const GwSkeleton(height: GwSpacing.xxl * 3),
@@ -153,4 +159,59 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
           GwButton(label: 'Talep et', icon: Icons.call_outlined, isLoading: _sending, onPressed: _send),
         ],
       );
+}
+
+/// Android 14+: without the full-screen permission a call only shows as a notification on the lock screen.
+class _LockScreenCard extends ConsumerStatefulWidget {
+  const _LockScreenCard();
+
+  @override
+  ConsumerState<_LockScreenCard> createState() => _LockScreenCardState();
+}
+
+class _LockScreenCardState extends ConsumerState<_LockScreenCard> {
+  bool? _allowed;
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(onResume: _check);
+
+  Future<void> _check() async {
+    final allowed = await ref.read(nativeCallsProvider).canRingOnLockScreen().catchError((Object _) => true);
+    if (mounted) setState(() => _allowed = allowed);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle;
+    _check();
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_allowed ?? true) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: GwSpacing.md),
+      child: GwPanel(
+        title: 'Kilit ekranında gelen arama',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Telefonun kilitliyken aramaların tam ekran çalması için GWAY'e izin ver."),
+            const SizedBox(height: GwSpacing.sm),
+            GwButton(
+              label: 'İzni aç',
+              icon: Icons.phone_in_talk_outlined,
+              variant: GwButtonVariant.secondary,
+              onPressed: () => ref.read(nativeCallsProvider).openLockScreenSetting(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

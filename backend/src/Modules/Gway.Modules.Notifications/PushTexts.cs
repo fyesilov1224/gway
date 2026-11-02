@@ -32,6 +32,9 @@ internal static class PushTexts
 
     private static readonly TimeZoneInfo Turkey = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
 
+    /// <summary>How long a call rings before it is missed (the live module's <c>CallService.RingFor</c>).</summary>
+    private static readonly TimeSpan RingFor = TimeSpan.FromSeconds(30);
+
     /// <summary>The push for a notification; null for a chat message deleted before it went out.</summary>
     public static PushMessage? For(PendingPush n)
     {
@@ -46,8 +49,10 @@ internal static class PushTexts
         return n.Type switch
         {
             "message" => ForMessage(n, data),
-            // The ringing push and its missed-call notice share a tag: the second replaces the first on the phone.
-            "call_incoming" => new PushMessage(n.ActorUsername, "seni sesli arıyor…", data, FcmClient.CallsChannel, $"call-{n.CallId}"),
+            // Android: the app opens the phone's incoming call screen for 30 seconds; call_ended closes it early.
+            "call_incoming" => new PushMessage(n.ActorUsername, "seni sesli arıyor…", data, FcmClient.CallsChannel, $"call-{n.CallId}",
+                AppHandlesFor: RingFor),
+            "call_ended" => new PushMessage(n.ActorUsername, "aramayı bitirdi.", data, AppHandlesFor: RingFor, Silent: true),
             "call_missed" => new PushMessage(n.ActorUsername, "seni aradı, açamadın.", data, FcmClient.MessagesChannel, $"call-{n.CallId}"),
             _ => new PushMessage(Lead(n), Action(n), data),
         };
