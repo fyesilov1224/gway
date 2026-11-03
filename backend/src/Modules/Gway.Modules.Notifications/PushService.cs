@@ -193,7 +193,8 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                    m.conversation_id,
                    (select left(msg.body, 120) from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
                    (select msg.image_path is not null from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
-                   (select g.name from public.conversations c join public.groups g on g.id = c.group_id where c.id = m.conversation_id),
+                   (select case when c.kind = 'table' then 'Bu akşamın masası' else g.name end
+                    from public.conversations c left join public.groups g on g.id = c.group_id where c.id = m.conversation_id),
                    m.call_id
             from marked m
             join public.profiles a on a.id = m.actor_id
