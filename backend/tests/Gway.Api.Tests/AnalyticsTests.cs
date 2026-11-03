@@ -5,6 +5,8 @@ using Gway.Modules.Groups;
 
 namespace Gway.Api.Tests;
 
+/// <summary>Runs alone: one test compares platform-wide user counts, which other classes change.</summary>
+[Collection(nameof(AnalyticsTests))]
 public sealed class AnalyticsTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();
@@ -62,4 +64,25 @@ public sealed class AnalyticsTests(ApiFactory factory) : IClassFixture<ApiFactor
         Assert.Equal(HttpStatusCode.BadRequest, (await factory.ClientFor(admin).GetAsync(Path("/admin/analytics/overview?days=12"), Ct)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(member).GetAsync(Path("/admin/analytics/overview"), Ct)).StatusCode);
     }
+
+    [Fact]
+    public async Task A_sign_up_without_a_profile_is_counted_like_on_the_users_page()
+    {
+        var admin = await _db.CreateUserAsync(Unique("s_"));
+        await _db.MakeStaffAsync(admin, "admin");
+        var client = factory.ClientFor(admin);
+
+        var before = await client.GetFromJsonAsync<AdminOverview>(Path("/admin/analytics/overview?days=7"), Ct);
+        // Signed up, onboarding not finished yet: an auth user with no profile row.
+        await _db.CreateUserAsync();
+        var after = await client.GetFromJsonAsync<AdminOverview>(Path("/admin/analytics/overview?days=7"), Ct);
+        var stats = await client.GetFromJsonAsync<AdminUserStats>(Path("/admin/users/stats"), Ct);
+
+        Assert.Equal(before!.Snapshot.Users + 1, after!.Snapshot.Users);
+        Assert.Equal(Metric(before, "new_users").Current + 1, Metric(after, "new_users").Current);
+        Assert.Equal(stats!.Total, after.Snapshot.Users);
+    }
 }
+
+[CollectionDefinition(nameof(AnalyticsTests), DisableParallelization = true)]
+public sealed class AnalyticsCollection;

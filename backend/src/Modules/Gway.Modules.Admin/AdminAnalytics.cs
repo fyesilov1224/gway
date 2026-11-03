@@ -40,7 +40,7 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
           union all select swiper_id, created_at from public.match_swipes where created_at >= (select at from since)
           union all select user_id, joined_at from public.group_members where joined_at >= (select at from since)
         ), events (metric, at, value, uid) as (
-          select 'new_users', created_at, 1::bigint, null::uuid from public.profiles where created_at >= (select at from since)
+          select 'new_users', created_at, 1::bigint, null::uuid from auth.users where created_at >= (select at from since)
           union all select 'new_groups', created_at, 1, null from public.groups where created_at >= (select at from since)
           union all select 'posts', created_at, 1, null from public.posts where created_at >= (select at from since)
           union all select 'comments', created_at, 1, null from public.comments where created_at >= (select at from since)
@@ -101,7 +101,7 @@ internal sealed class AdminAnalytics(NpgsqlDataSource db)
 
     private const string SnapshotSql =
         """
-        select (select count(*)::int from public.profiles),
+        select (select count(*)::int from auth.users),
                (select count(*)::int from public.groups where status = 'active'),
                (select count(*)::int from public.reports where status = 'open'),
                (select count(*)::int from public.support_tickets where status in ('open', 'in_progress')),
