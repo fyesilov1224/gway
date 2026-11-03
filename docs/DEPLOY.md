@@ -78,6 +78,14 @@ flutter build appbundle --release --no-tree-shake-icons \
 ```
 Windows'ta kullanıcı adındaki `ı` yüzünden derleme `subst G: <repo>` ile `G:\app\apps\social_app` içinden yapılır.
 
+**Yönetim paneli Android (2026-11-03):** panel Play'e konmaz, APK olarak ekibe dağıtılır (paket `com.gway.admin.admin_panel`, şimdilik debug anahtarıyla imzalı). `G:ppppsdmin_panel` içinden:
+```bash
+flutter build apk --release --split-per-abi --target-platform android-arm64 \
+  --dart-define=SUPABASE_URL=<SUPABASE_URL> --dart-define=SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY> \
+  --dart-define=API_URL=https://api.<alan adı> --dart-define=SHARE_URL=https://app.<alan adı>
+```
+Google ile giriş ve e-posta bağlantıları için Supabase Redirect URLs listesinde `com.gway.admin://auth-callback` da bulunmalıdır.
+
 **İkon fontu (2026-11-03):** Türkçe karakterli yoldan derlenince `assets/fonts` boş çıkar ve bütün ikonlar kare görünür (Cloudflare eksik dosya yerine `index.html` döner). `deploy/build-web.sh` artık ASCII olmayan yolda çalışmaz ve `MaterialIcons-Regular.otf` yoksa yayını durdurur.
 
 **Web hızı (2026-11-01):** `--no-tree-shake-icons` kullanılmaz; ASCII yoldan (`G:`) derlenince ikon fontu 1,6 MB yerine birkaç KB olur. `web/flutter_bootstrap.js` Flutter'ın kullanımdan kalkan service worker'ını kaydetmez (ilk ziyarette uygulama indirilmeden önce bekletiyordu); `index.html` `main.dart.js`'i ve CanvasKit'in sunucusunu (`www.gstatic.com`) baştan istemeye başlar.
