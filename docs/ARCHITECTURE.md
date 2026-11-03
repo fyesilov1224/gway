@@ -747,6 +747,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
   - Döşemeler bellekte önbelleklenir.
   - Kişi başına dakikada 600 istek sınırı vardır.
   - Kaynak `Map:TileUrl` ve `Map:ApiKey` ayarlarıdır. Adres tanımlı değilse harita 503 ile kapalıdır.
+  - **Harita kapalıyken (2026-11-03):** uygulama 503 alınca haritanın üstünde "Harita şu anda kullanılamıyor." uyarısını gösterir; boş gri alan bırakmaz. Tek bir parçanın yüklenememesi (ağ, sağlayıcı hatası) uyarı göstermez. Canlıda Stadia anahtarı kullanıcı kararıyla şimdilik girilmedi (2026-11-03), harita kapalıdır.
   - Yerel geliştirmede OpenStreetMap döşemeleri düşük hacimde kullanılır (`appsettings.Development.json`). Yayında Stadia'nın ücretli planı gerekir ve kullanıcı onayıyla açılır.
 - **Arayüz:**
   - "Harita" ekranı (`/map`): gruplar ve organizasyonlar, kategori filtresi, harita ya da liste görünümü.

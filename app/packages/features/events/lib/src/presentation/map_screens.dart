@@ -42,6 +42,10 @@ final mapTilesProvider = Provider<MapTiles?>((ref) {
 
 /// The map with GWAY tiles and the required attribution; [children] go on top (markers).
 class AppMap extends ConsumerStatefulWidget {
+  /// The API answers 503 while no tile provider is set up (docs/ARCHITECTURE.md §3d, Harita ile keşif); the map then
+  /// says so instead of staying an empty grey area. A single tile lost to the network does not count.
+  static bool tilesUnavailable(Object error) => error is NetworkImageLoadException && error.statusCode == 503;
+
   const AppMap({
     super.key,
     this.controller,
@@ -72,8 +76,10 @@ class AppMap extends ConsumerStatefulWidget {
 class _AppMapState extends ConsumerState<AppMap> {
   // The tile provider keeps this map; the token is refreshed in place.
   final _headers = <String, String>{};
-  late final _tiles = NetworkTileProvider(headers: _headers, silenceExceptions: true);
+  // Errors reach errorTileCallback, which only looks for an unavailable map; failed tiles stay blank as before.
+  late final _tiles = NetworkTileProvider(headers: _headers);
   Timer? _settle;
+  bool _unavailable = false;
 
   @override
   void dispose() {
@@ -113,8 +119,17 @@ class _AppMapState extends ConsumerState<AppMap> {
         onPositionChanged: (camera, _) => _moved(camera),
       ),
       children: [
-        if (tiles != null) TileLayer(urlTemplate: tiles.url, tileProvider: _tiles, userAgentPackageName: 'app.gway'),
+        if (tiles != null)
+          TileLayer(
+            urlTemplate: tiles.url,
+            tileProvider: _tiles,
+            userAgentPackageName: 'app.gway',
+            errorTileCallback: (_, error, _) {
+              if (!_unavailable && AppMap.tilesUnavailable(error) && mounted) setState(() => _unavailable = true);
+            },
+          ),
         ...widget.children,
+        if (_unavailable) const _MapUnavailable(),
         // Required by the tile licence; wraps instead of overflowing on narrow screens.
         Align(
           alignment: Alignment.bottomRight,
@@ -674,6 +689,39 @@ class _MeetingPointPickerState extends State<MeetingPointPicker> {
                 label: 'Bu noktayı seç',
                 expand: true,
                 onPressed: point == null ? null : () => Navigator.of(context).pop(point),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shown over the map while the API has no tile provider.
+class _MapUnavailable extends StatelessWidget {
+  const _MapUnavailable();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.all(GwSpacing.sm),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
+          decoration: BoxDecoration(
+            color: GwColors.background,
+            borderRadius: GwRadius.mdAll,
+            border: Border.all(color: GwColors.border),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.map_outlined, color: GwColors.textSecondary, size: GwSpacing.lg),
+              const SizedBox(width: GwSpacing.xs),
+              Flexible(
+                child: Text('Harita şu anda kullanılamıyor.', style: Theme.of(context).textTheme.bodyMedium),
               ),
             ],
           ),
