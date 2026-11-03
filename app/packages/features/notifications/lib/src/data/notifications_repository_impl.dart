@@ -41,6 +41,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           liveBroadcasts: r['live_broadcasts'] as bool,
           matchAlerts: r['match_alerts'] as bool,
           messages: r['messages'] as bool,
+          groupMessages: r['group_messages'] as bool,
         );
       });
 
@@ -55,6 +56,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'live_broadcasts': p.liveBroadcasts,
           'match_alerts': p.matchAlerts,
           'messages': p.messages,
+          'group_messages': p.groupMessages,
         });
       });
 
