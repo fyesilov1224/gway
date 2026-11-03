@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(17);
+select plan(20);
 
 alter table public.group_members disable trigger group_members_welcome_trial;
 
@@ -122,6 +122,20 @@ insert into public.blocks (blocker_id, blocked_id) values (pg_temp.u(1), pg_temp
 select pg_temp.act(pg_temp.u(2));
 select pg_temp.send(pg_temp.chat(), 'Kimse yok mu?');
 select is(pg_temp.waiting(1), 0, 'a blocked person does not ring you in a group either');
+
+-- Tonight's small table (2026-11-03): everyone at the table but the sender, under the group preference ------
+insert into public.tonight_tables (id, created_by, evening, closes_at)
+values ('00000000-0000-0000-0000-0000000ee301', pg_temp.u(3), current_date, now() + interval '3 hours');
+-- The chat opens as the third person accepts (sync_table_conversation).
+insert into public.tonight_table_invites (table_id, user_id, evening, state)
+select '00000000-0000-0000-0000-0000000ee301', pg_temp.u(i), current_date, 'accepted' from unnest(array[3, 1, 5]) i;
+update public.notifications set pushed_at = now() where type = 'message';
+alter table public.messages disable trigger messages_guard;
+select pg_temp.backend_send((select id from public.conversations where table_id = '00000000-0000-0000-0000-0000000ee301'), 3, 'Masa 8''de kafede');
+alter table public.messages enable trigger messages_guard;
+select is(pg_temp.waiting(1), 1, 'a table message rings the others at the table');
+select is(pg_temp.waiting(3), 0, 'but not the sender');
+select is(pg_temp.waiting(5), 0, 'nor someone who turned group message notices off');
 
 -- Deleting the chat takes its notices along.
 delete from public.conversations where id = pg_temp.direct(1, 4);

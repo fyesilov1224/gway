@@ -155,6 +155,40 @@ public sealed class PushTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     }
 
     [Fact]
+    public async Task A_message_at_tonights_table_rings_the_others_at_the_table()
+    {
+        var people = new List<Guid>();
+        for (var i = 0; i < 3; i++) people.Add(await _db.CreateUserAsync(Unique("t_")));
+        var table = await _db.ScalarAsync<Guid>(
+            "insert into public.tonight_tables (created_by, evening, closes_at) values (@a, current_date, now() + interval '3 hours') returning id",
+            ("a", people[0]));
+        foreach (var person in people)
+        {
+            await _db.ExecuteAsync(
+                "insert into public.tonight_table_invites (table_id, user_id, evening, state) values (@t, @u, current_date, 'accepted')",
+                ("t", table), ("u", person));
+        }
+        var chat = await _db.ScalarAsync<Guid>("select id from public.conversations where table_id = @t", ("t", table));
+        var phones = new List<string>();
+        foreach (var person in people)
+        {
+            phones.Add(Unique("phone-at-table-") + "-token");
+            await RegisterAsync(person, phones[^1]);
+        }
+
+        (await factory.ClientFor(people[1]).PostAsJsonAsync(
+            Path($"/conversations/{chat}/messages"), new Gway.Modules.Messaging.SendMessageRequest("8'de kafede miyiz?", null), Ct)).EnsureSuccessStatusCode();
+        await DispatchAsync();
+
+        var push = Assert.Single(SentTo(phones[0]));
+        Assert.Equal("Bu akşamın masası", push.Title);
+        Assert.EndsWith(": 8'de kafede miyiz?", push.Body, StringComparison.Ordinal);
+        Assert.Equal(chat.ToString(), push.Data["conversation_id"]);
+        Assert.Single(SentTo(phones[2]));
+        Assert.Empty(SentTo(phones[1]));
+    }
+
+    [Fact]
     public void Message_pushes_show_the_group_and_skip_deleted_messages()
     {
         var conversation = Guid.NewGuid();

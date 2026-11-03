@@ -53,7 +53,7 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                   ),
                   toggle('Kişisel mesajlar', 'Birebir sohbetlerine mesaj gelince, uygulama kapalıyken de sesli', p.messages,
                       (v) => p.copyWith(messages: v)),
-                  toggle('Grup mesajları', 'Üyesi olduğun grupların sohbetine mesaj gelince, uygulama kapalıyken de sesli',
+                  toggle('Grup mesajları', 'Grup sohbetlerine ve bu akşamın masasına mesaj gelince, uygulama kapalıyken de sesli',
                       p.groupMessages, (v) => p.copyWith(groupMessages: v)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
