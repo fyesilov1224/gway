@@ -35,6 +35,7 @@ class SocialApp extends ConsumerWidget {
         openCall: openCall,
         openConversation: (id) => router.push(MessagingRoutes.chat(id)),
         openNotifications: () => router.push(NotificationRoutes.list),
+        isConversationOpen: (id) => router.routerDelegate.currentConfiguration.uri.path == MessagingRoutes.chat(id),
         child: LiveNotificationAlerts(
           openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
           child: NativeCallBridge(

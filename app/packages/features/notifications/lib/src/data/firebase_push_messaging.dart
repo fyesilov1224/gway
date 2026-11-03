@@ -36,4 +36,7 @@ class FirebasePushMessaging implements PushMessaging {
     if (await _messaging.getInitialMessage() case final opened?) yield opened.data;
     yield* FirebaseMessaging.onMessageOpenedApp.map((m) => m.data);
   }
+
+  @override
+  Stream<Map<String, Object?>> get arrivals => FirebaseMessaging.onMessage.map((m) => m.data);
 }

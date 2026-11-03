@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers.dart';
 
-/// Registers this phone for push while someone is signed in, forgets it on sign-out,
-/// and opens what a tapped notification is about (docs/ARCHITECTURE.md §3c, Push).
+/// Registers this phone for push while someone is signed in, forgets it on sign-out, opens what a tapped
+/// notification is about, and rings a push that arrives while the app is open (docs/ARCHITECTURE.md §3c, Push).
 class PushNotifications extends ConsumerStatefulWidget {
   const PushNotifications({
     super.key,
@@ -15,6 +15,7 @@ class PushNotifications extends ConsumerStatefulWidget {
     required this.openCall,
     required this.openConversation,
     required this.openNotifications,
+    required this.isConversationOpen,
     required this.child,
   });
 
@@ -26,7 +27,23 @@ class PushNotifications extends ConsumerStatefulWidget {
   /// A chat message notification opens its chat (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
   final void Function(String conversationId) openConversation;
   final void Function() openNotifications;
+
+  /// Whether the person is looking at this chat now; its messages then arrive without a sound.
+  final bool Function(String conversationId) isConversationOpen;
+
   final Widget child;
+
+  /// At most one sound this often, however many pushes arrive together.
+  static const soundGap = Duration(seconds: 2);
+
+  /// Whether a push arriving while the app is open rings the notification sound (docs/ARCHITECTURE.md §3c,
+  /// Uygulama açıkken bildirim sesi). Calls ring on their own screen, live notices play their own alert.
+  static bool rings(Map<String, Object?> data, {required bool Function(String conversationId) isConversationOpen}) =>
+      switch (data) {
+        {'type': 'call_incoming' || 'call_ended' || 'live_scheduled' || 'live_started'} => false,
+        {'type': 'message', 'conversation_id': final String id} => !isConversationOpen(id),
+        _ => true,
+      };
 
   @override
   ConsumerState<PushNotifications> createState() => _PushNotificationsState();
@@ -34,6 +51,15 @@ class PushNotifications extends ConsumerStatefulWidget {
 
 class _PushNotificationsState extends ConsumerState<PushNotifications> {
   final _subscriptions = <StreamSubscription<Object?>>[];
+  Timer? _quiet;
+
+  void _onArrival(Map<String, Object?> data) {
+    if (!PushNotifications.rings(data, isConversationOpen: widget.isConversationOpen)) return;
+    if (_quiet?.isActive ?? false) return;
+    _quiet = Timer(PushNotifications.soundGap, () {});
+    // A sound that cannot play changes nothing else.
+    unawaited(ref.read(notificationSoundProvider)().catchError((Object _) {}));
+  }
 
   @override
   void initState() {
@@ -42,6 +68,7 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
     if (push == null) return;
     _subscriptions
       ..add(push.tokenRefreshes.listen(_register))
+      ..add(push.arrivals.listen(_onArrival))
       ..add(push.taps.listen((data) {
         if (data case {'type': 'call_incoming', 'call_id': final String callId}) {
           widget.openCall(callId);
@@ -77,6 +104,7 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
 
   @override
   void dispose() {
+    _quiet?.cancel();
     for (final s in _subscriptions) {
       unawaited(s.cancel());
     }
