@@ -137,4 +137,6 @@ pip install google-api-python-client google-auth
 python deploy/play-upload.py GWAY-1.0.0-6.aab --track alpha --notes "Türkçe sürüm notu"
 ```
 
+**İzin beyanları (2026-11-03):** Sesli görüşme `FOREGROUND_SERVICE_MICROPHONE` (arka planda ses girişi), `FOREGROUND_SERVICE_PHONE_CALL` (VoIP) ve `USE_FULL_SCREEN_INTENT` (temel işlev "Diğer") kullanır; beyanlar *Uygulama içeriği*'nde kayıtlıdır. Yeni bir izin eklenince komutla yükleme "You must let us know…" hatasıyla reddedilir: paket önce taslak sürüm olarak yüklenir, beyan formu ancak o zaman izinleri listeler. Beyanlardaki video `https://app.gwayapp.com/play/sesli-gorusme.mp4`'tür; kaynağı `deploy/play-assets/` (depoya girmez, yedeği Masaüstü `GWAY-Play`), `deploy/build-web.sh` her derlemede `www/app/play/`'e kopyalar.
+
 Kapalı test kanalı `alpha`, test kullanıcısı listesi `GWAY test`; katılım bağlantısı https://play.google.com/apps/testing/com.gway.app. Play'den kurulan sürüm Play anahtarıyla imzalı olduğu için elle kurulan APK'nın üzerine kurulmaz; önce eski uygulama kaldırılır.

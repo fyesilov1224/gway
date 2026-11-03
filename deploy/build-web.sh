@@ -13,4 +13,8 @@ for app in social_app:app admin_panel:panel; do
   rm -rf "$here/www/$out" && mkdir -p "$here/www/$out"
   cp -r "$here/../app/apps/$src/build/web/." "$here/www/$out/"
 done
+# Play Console declarations link to videos served from app.<domain>/play/ (docs/PLAY_STORE.md).
+if [ -d "$here/play-assets" ]; then
+  mkdir -p "$here/www/app/play" && cp -r "$here/play-assets/." "$here/www/app/play/"
+fi
 echo "Built deploy/www/app and deploy/www/panel for $domain"
