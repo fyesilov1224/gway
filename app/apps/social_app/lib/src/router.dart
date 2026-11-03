@@ -17,7 +17,9 @@ import 'package:support/support.dart';
 
 import 'feed_pages.dart';
 import 'gate.dart';
+import 'group_call_pages.dart';
 import 'group_chat_pages.dart';
+
 import 'group_events_pages.dart';
 import 'group_live_pages.dart';
 import 'group_moderation_pages.dart';
@@ -264,7 +266,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, state) => GroupScreen(
               handle: state.pathParameters['handle']!,
               onOpenProfile: _openProfile,
-              sections: const [groupChatSection, groupModerationSection, groupLiveSection, groupPlanSection, groupSupportSection],
+              sections: const [groupChatSection, groupModerationSection, groupCallRequestsSection, groupLiveSection, groupPlanSection, groupSupportSection],
               contentSections: const [groupWelcomeSection, groupLeagueSection, groupEventsSection, groupGoalsSection, groupPollsSection, groupPostsSection],
             ),
             routes: [
@@ -279,6 +281,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(path: 'edit', builder: (_, state) => EditGroupScreen(handle: state.pathParameters['handle']!)),
               GoRoute(path: 'moderation', builder: (_, state) => GroupModerationPage(handle: state.pathParameters['handle']!)),
+              GoRoute(path: 'calls', builder: (_, state) => GroupCallRequestsPage(handle: state.pathParameters['handle']!)),
               // Payment pages return here with ?order= (docs/ARCHITECTURE.md §7).
               GoRoute(
                 path: 'plan',

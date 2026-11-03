@@ -424,7 +424,8 @@ void main() {
         GroupMembersScreen(
           handle: 'istanbul.kosu',
           onOpenProfile: _onOpenProfile,
-          onOpenCase: (context, group, person, {required canMute}) => opened.add('${person.userId}:$canMute'),
+          onOpenCase: (context, group, person, {required canMute, required canBan}) => opened.add('${person.userId}:$canMute'),
+
         ),
         userId: 'u4',
         group: _group(),

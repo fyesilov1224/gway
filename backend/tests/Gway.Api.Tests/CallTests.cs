@@ -1,14 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
-using Gway.Modules.Admin;
+using Gway.Modules.Groups;
 using Gway.Modules.Live;
-using Gway.Modules.Live.Contracts;
 using Gway.Modules.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gway.Api.Tests;
 
-/// <summary>Voice calls between matched people or teammates with permission (docs/ARCHITECTURE.md §8c).</summary>
+/// <summary>Voice calls between matched people or teammates with permission from a group (docs/ARCHITECTURE.md §8c).</summary>
 public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     private readonly TestDatabase _db = new();
@@ -47,42 +46,69 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         return (a, b, chat);
     }
 
-    private async Task<Guid> StaffAsync(string role)
+    /// <summary>A group whose owner decides the call requests of its members.</summary>
+    private async Task<(Guid Group, Guid Owner)> GroupAsync()
     {
-        var staff = await _db.CreateUserAsync(Unique("s_"));
-        await _db.MakeStaffAsync(staff, role);
-        return staff;
+        var owner = await _db.CreateUserAsync(Unique("o_"));
+        var created = await factory.ClientFor(owner).PostAsJsonAsync(
+            Path("/groups"), new CreateGroupRequest(Unique("g_"), "Arama Kulübü", "running", "open", null), Ct);
+        created.EnsureSuccessStatusCode();
+        return ((await created.Content.ReadFromJsonAsync<CreatedGroup>(Ct))!.Id, owner);
     }
 
-    private Task<HttpResponseMessage> SetPermissionAsync(Guid staff, Guid user, bool active, string? reason = null) =>
-        factory.ClientFor(staff).PutAsJsonAsync(Path($"/admin/calls/permissions/{user}"), new CallPermissionRequest(active, reason), Ct);
+    /// <summary>The person joins the group and asks it for voice calls (their own write through Supabase).</summary>
+    private async Task AskAsync((Guid Group, Guid Owner) group, Guid user, string? note = null)
+    {
+        (await factory.ClientFor(user).PostAsync(Path($"/groups/{group.Group}/join"), null, Ct)).EnsureSuccessStatusCode();
+        // The first group's welcome trial (0050) would open every package; the package rules are tested without it.
+        await _db.ExecuteAsync(
+            """
+            alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+            delete from public.user_subscriptions where user_id = @u and welcome_trial;
+            alter table public.user_subscriptions enable trigger user_subscriptions_guard;
+            """, ("u", user));
+        await _db.ExecuteAsync(
+            "select set_config('request.jwt.claims', json_build_object('sub', @u::text)::text, true); select public.request_call_permission(@g, @n)",
+            ("u", user), ("g", group.Group), ("n", (object?)note ?? DBNull.Value));
+    }
+
+    private Task<HttpResponseMessage> SetPermissionAsync((Guid Group, Guid Owner) group, Guid by, Guid user, bool active, string? reason = null) =>
+        factory.ClientFor(by).PutAsJsonAsync(Path($"/groups/{group.Group}/call-permissions/{user}"), new GroupCallPermissionRequest(active, reason), Ct);
+
+    /// <summary>Asks and has the owner open it.</summary>
+    private async Task GrantAsync((Guid Group, Guid Owner) group, Guid user)
+    {
+        await AskAsync(group, user);
+        (await SetPermissionAsync(group, group.Owner, user, true)).EnsureSuccessStatusCode();
+    }
 
     [Fact]
-    public async Task A_person_asks_the_team_opens_it_and_matched_people_call_each_other()
+    public async Task A_person_asks_a_group_its_owner_opens_it_and_matched_people_call_each_other()
     {
         var (a, b, chat) = await MatchedPairAsync();
-        var admin = await StaffAsync("admin");
+        var group = await GroupAsync();
 
         // Without permission the chat explains why there is no call button.
         var before = await factory.ClientFor(a).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct);
         Assert.False(before!.Allowed);
         Assert.Equal("call.no_permission", before.Code);
 
-        // a asks and the request waits in the panel; a moderator sees it but cannot decide.
-        await _db.ExecuteAsync("select set_config('request.jwt.claims', json_build_object('sub', @a::text)::text, true); select public.request_call_permission('Lütfen')",
-            ("a", a));
-        var requests = await factory.ClientFor(admin).GetFromJsonAsync<CallPermissionsPage>(Path("/admin/calls/permissions"), Ct);
-        Assert.Contains(requests!.Items, p => p.UserId == a && p.Note == "Lütfen");
-        var moderator = await StaffAsync("moderator");
-        Assert.Equal(HttpStatusCode.Forbidden, (await SetPermissionAsync(moderator, a, true)).StatusCode);
+        // a asks the group; a plain member cannot decide, nor can a decide their own request, nor can the platform team.
+        await AskAsync(group, a, "Lütfen");
+        Assert.Equal(HttpStatusCode.Forbidden, (await SetPermissionAsync(group, b, a, true)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await SetPermissionAsync(group, a, a, true)).StatusCode);
+        var staff = await _db.CreateUserAsync(Unique("s_"));
+        await _db.MakeStaffAsync(staff, "admin");
+        Assert.Equal(HttpStatusCode.Forbidden, (await SetPermissionAsync(group, staff, a, true)).StatusCode);
 
-        (await SetPermissionAsync(admin, a, true)).EnsureSuccessStatusCode();
+        (await SetPermissionAsync(group, group.Owner, a, true)).EnsureSuccessStatusCode();
         var peerMissing = await factory.ClientFor(a).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct);
         Assert.Equal("call.peer_no_permission", peerMissing!.Code);
-        (await SetPermissionAsync(admin, b, true)).EnsureSuccessStatusCode();
+        await GrantAsync(group, b);
         Assert.True((await factory.ClientFor(a).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct))!.Allowed);
         Assert.Equal(1L, await _db.ScalarAsync<long>(
-            "select count(*) from public.audit_log where action = 'call_permission.granted' and target_id = @u", ("u", a.ToString())));
+            "select count(*) from public.audit_log where action = 'call_permission.granted' and target_id = @u and group_id = @g",
+            ("u", a.ToString()), ("g", group.Group)));
 
         // a calls: a room opens, b's phone rings with a push naming a.
         var started = await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct);
@@ -120,20 +146,20 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal("ended", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
         Assert.False(factory.LiveKit.HasRoom($"call-{call.CallId}"));
 
-        // The panel shows the person's permission, never their calls.
-        var detail = await factory.ClientFor(admin).GetStringAsync(Path($"/admin/calls/users/{a}"), Ct);
-        Assert.Contains("\"status\":\"active\"", detail, StringComparison.Ordinal);
-        Assert.DoesNotContain(call.CallId.ToString(), detail, StringComparison.Ordinal);
-        Assert.DoesNotContain(b.ToString(), detail, StringComparison.Ordinal);
+        // Leaving the group that gave it closes the permission.
+        (await factory.ClientFor(a).DeleteAsync(Path($"/groups/{group.Group}/membership"), Ct)).EnsureSuccessStatusCode();
+        Assert.Equal("revoked", await _db.ScalarAsync<string>("select status from public.call_permissions where user_id = @a", ("a", a)));
+        Assert.Equal("call.no_permission",
+            (await factory.ClientFor(a).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct))!.Code);
     }
 
     [Fact]
     public async Task An_unanswered_call_is_missed_and_closing_the_permission_ends_a_call()
     {
         var (a, b, chat) = await MatchedPairAsync();
-        var support = await StaffAsync("support");
-        (await SetPermissionAsync(support, a, true)).EnsureSuccessStatusCode();
-        (await SetPermissionAsync(support, b, true)).EnsureSuccessStatusCode();
+        var group = await GroupAsync();
+        await GrantAsync(group, a);
+        await GrantAsync(group, b);
         var calls = factory.Services.GetRequiredService<CallService>();
 
         var first = (await (await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct)).Content.ReadFromJsonAsync<CallJoin>(Ct))!;
@@ -147,8 +173,8 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         (await factory.ClientFor(b).PostAsync(Path($"/calls/{second.CallId}/accept"), null, Ct)).EnsureSuccessStatusCode();
 
         // Closing needs a reason; then the call ends at once and a can no longer call.
-        Assert.Equal(HttpStatusCode.BadRequest, (await SetPermissionAsync(support, a, false)).StatusCode);
-        (await SetPermissionAsync(support, a, false, "Şikayet incelemesi")).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.BadRequest, (await SetPermissionAsync(group, group.Owner, a, false)).StatusCode);
+        (await SetPermissionAsync(group, group.Owner, a, false, "Şikayet incelemesi")).EnsureSuccessStatusCode();
         Assert.Equal("not_allowed", await _db.ScalarAsync<string>("select end_reason from public.calls where id = @id", ("id", second.CallId)));
         Assert.Equal("revoked", await _db.ScalarAsync<string>("select status from public.call_permissions where user_id = @a", ("a", a)));
         var after = await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct);
@@ -158,19 +184,19 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     [Fact]
     public async Task Teammates_call_with_the_teammates_package_and_others_are_told_why_not()
     {
-        var admin = await StaffAsync("admin");
+        var group = await GroupAsync();
         async Task<CallEligibility> EligibilityAsync(Guid user, Guid chat) =>
             (await factory.ClientFor(user).GetFromJsonAsync<CallEligibility>(Path($"/conversations/{chat}/calls/eligibility"), Ct))!;
 
         // Teammates, not matched: the Eşleşme Sohbeti package is not what opens it.
         var (a, b, chat) = await PairAsync("alter table public.teammates disable trigger teammates_guard; insert into public.teammates (user_a, user_b) values (@a, @b); alter table public.teammates enable trigger teammates_guard", "matching_chat");
-        (await SetPermissionAsync(admin, a, true)).EnsureSuccessStatusCode();
-        (await SetPermissionAsync(admin, b, true)).EnsureSuccessStatusCode();
+        await GrantAsync(group, a);
+        await GrantAsync(group, b);
         Assert.Equal("call.teammate_locked", (await EligibilityAsync(a, chat)).Code);
 
         var (c, d, teamChat) = await PairAsync("alter table public.teammates disable trigger teammates_guard; insert into public.teammates (user_a, user_b) values (@a, @b); alter table public.teammates enable trigger teammates_guard", "matching_teammates");
-        (await SetPermissionAsync(admin, c, true)).EnsureSuccessStatusCode();
-        (await SetPermissionAsync(admin, d, true)).EnsureSuccessStatusCode();
+        await GrantAsync(group, c);
+        await GrantAsync(group, d);
         Assert.True((await EligibilityAsync(c, teamChat)).Allowed);
         var started = await factory.ClientFor(c).PostAsync(Path($"/conversations/{teamChat}/calls"), null, Ct);
         started.EnsureSuccessStatusCode();
@@ -179,8 +205,8 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
 
         // Neither matched nor teammates: the button stays, dim, with the sentence why.
         var (e, f, strangers) = await PairAsync(null, "matching_premium");
-        (await SetPermissionAsync(admin, e, true)).EnsureSuccessStatusCode();
-        (await SetPermissionAsync(admin, f, true)).EnsureSuccessStatusCode();
+        await GrantAsync(group, e);
+        await GrantAsync(group, f);
         var none = await EligibilityAsync(e, strangers);
         Assert.Equal("call.not_matched", none.Code);
         Assert.Equal("Sesli görüşme yalnızca eşleştiğin kişilerle ve ekip arkadaşlarınla yapılabilir.", none.Message);
@@ -191,10 +217,11 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     public async Task Strangers_cannot_answer_or_end_someone_elses_call()
     {
         var (a, b, chat) = await MatchedPairAsync();
-        var admin = await StaffAsync("admin");
-        (await SetPermissionAsync(admin, a, true)).EnsureSuccessStatusCode();
-        (await SetPermissionAsync(admin, b, true)).EnsureSuccessStatusCode();
-        var stranger = await _db.CreateUserAsync(Unique("x_"));
+        var group = await GroupAsync();
+        await GrantAsync(group, a);
+        await GrantAsync(group, b);
+        var stranger
+ = await _db.CreateUserAsync(Unique("x_"));
 
         var call = (await (await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct)).Content.ReadFromJsonAsync<CallJoin>(Ct))!;
         Assert.Equal(HttpStatusCode.NotFound, (await factory.ClientFor(stranger).PostAsync(Path($"/calls/{call.CallId}/accept"), null, Ct)).StatusCode);

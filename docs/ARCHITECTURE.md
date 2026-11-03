@@ -258,6 +258,8 @@ Yetkiler `group_permissions`, rol–yetki eşlemesi `group_role_permissions` tab
 | `live.moderate` | Canlı yayın moderasyonu (Faz 7, §8) | admin, discipline, moderator |
 | `reports.review` | Şikayet ön incelemesi, disiplin dosyası açma (Faz 6, §3e) | admin, discipline, moderator |
 | `members.mute` | Acil susturma (Faz 6, §3e) | admin, discipline, moderator |
+| `members.ban` | Kurul oylaması olmadan süreli ya da kalıcı ban (§3e, Oylamasız ban; 2026-11-03) | admin |
+| `calls.manage` | Üyelerin birebir sesli görüşme taleplerini açma, reddetme ve yetkiyi kapatma (§8c; 2026-11-03) | admin |
 
 Kurul oylaması bir yetki değil, Disiplin Kurulu rolüdür (§3e).
 
@@ -805,7 +807,7 @@ Aynı türdeki grupların rekabetini (§3b Gruplar arası denge) sağlıklı bir
 - Grupla ilgili şikayet grubun moderasyonuna, grup dışındaki şikayet platform ekibine gider. Admin paneli hepsini görür.
 - Kurul oylamasını Disiplin Kurulu üyeleri yapar ve oylama 72 saat sürer. Kurulu olmayan grupta sahip tek başına karar verir.
 - İtirazı grup sahibi karara bağlar. Sahip dosyada tarafsa (dosyayı açtıysa ya da oy kullandıysa) itiraz platform ekibine gider.
-- Oylamasız uygulanan tek yaptırım acil susturmadır: en çok 24 saat sürer ve otomatik olarak dosya açar.
+- Oylamasız uygulanan yaptırımlar acil susturma (en çok 24 saat, otomatik olarak dosya açar) ve sahibin ya da Yöneticinin **oylamasız ban**ıdır (kullanıcı kararı 2026-11-03, aşağıda).
 
 Veriler `moderation` modülünün tablolarındadır.
 
@@ -814,6 +816,7 @@ Veriler `moderation` modülünün tablolarındadır.
 |---|---|---|
 | `reports.review` | Grubun şikayetlerini görme ve ön inceleme (reddetme, şikayet edilen yorumu kaldırma), disiplin dosyası açma, dosyaları ve yaptırımları görme | admin, discipline, moderator |
 | `members.mute` | Acil susturma (en çok 24 saat; dosya açılarak) | admin, discipline, moderator |
+| `members.ban` | Oylamasız ban: süreli (1–365 gün) ya da kalıcı, isteğe bağlı yasa dışı faaliyet işaretiyle | admin |
 
 Oy kullanmak bir yetki değildir. Dosya açıldığı anda Disiplin Kurulu rolündeki üyeler o dosyanın oy verenleri olur.
 
@@ -821,6 +824,7 @@ Oy kullanmak bir yetki değildir. Dosya açıldığı anda Disiplin Kurulu rolü
 - Dosyayı açan, acil susturan ve içerik kaldıran kişinin rütbesi hedefinkinden kesinlikle büyük olmalıdır.
 - Karar veren kurulun rütbesi de hedefinkinden büyük olmalıdır: kurul varsa 60, yoksa 100 (sahip).
 - Bu yüzden kurulu olan grupta Yönetici ve Disiplin Kurulu üyesi hakkında dosya açılamaz; sahip önce rolü alır. Grup sahibi hakkında hiç dosya açılamaz.
+- Oylamasız banda kurul karar vermez; yalnızca banlayanın rütbesi hedefinkinden kesinlikle büyük olmalıdır. Yönetici; Disiplin Kurulu üyesini, Moderatörü ve üyeyi banlayabilir, başka bir Yöneticiyi ve sahibi banlayamaz. Sahip Yöneticiyi de banlayabilir.
 
 ### Şikayet
 `reports` tablosunun alanları:
@@ -924,6 +928,15 @@ Aynı hedefin açık şikayetleri ekranda tek satırda toplanır. Ön inceleme k
   - Yaptırım yalnızca onaylanmış dosyadan ya da `members.mute` yetkili ve rütbesi yüksek kişinin açtığı dosyanın acil susturması olarak eklenebilir.
   - Başka bir üyeyi gruptan silmek yalnızca aynı transaction'da eklenen bir `kick` ya da `ban` ile mümkündür.
 
+### Oylamasız ban (kullanıcı kararı, 2026-11-03)
+Grup sahibi ve Yönetici (`members.ban`), kurul oylamasını beklemeden bir kişiyi banlar. Gerekçe serbesttir; yasa dışı faaliyet zorunlu değildir.
+- **Nasıl:** "Disiplin dosyası aç" sayfasında yaptırım ban seçilince `members.ban` yetkilisine "Oylamasız, hemen uygula" seçeneği çıkar. Süre 1–365 gün ya da kalıcıdır, gerekçe 10–1000 karakterdir; isteğe bağlı olarak yasa dışı faaliyet işareti ve kategorisi seçilir. Şikayetten de açılabilir (o hedefin açık şikayetleri `actioned` olur). Acil susturma bununla birlikte seçilmez.
+- **Kayıt:** Bir dosya (`moderation_cases.direct = true`) açılır ve aynı anda onaylanmış olarak kapanır; oy veren yoktur, `case_vote` bildirimi gitmez. Ban aynı transaction'da uygulanır: üyelik silinir, kişi canlı yayından çıkarılır, kişiye `sanction_applied` bildirimi gider.
+- **Yasa dışı faaliyet işaretliyse:** onaylanmış kurul dosyasıyla aynı yol: kişinin hesabı platform incelemesine kadar askıya alınır ve admin paneline bir platform bildirimi (`platform_referrals`) düşer.
+- **Açık dosya varsa:** kişi hakkında oylamada bir dosya varsa oylamasız ban onu reddedilmiş olarak kapatır (`case.decided`, `superseded`); o dosyanın acil susturması kalkar.
+- **İtiraz:** Kişi her banda olduğu gibi 7 gün içinde itiraz eder. Banı sahip attıysa itirazı platform ekibi, Yönetici attıysa sahip karara bağlar (dosyayı açan kuralı).
+- **İkinci katman:** `moderation_cases` trigger'ı oylamasız dosyayı yalnızca `members.ban` yetkilisinden, yalnızca ban için ve rütbesi hedefinkinden büyükse kabul eder ve onaylanmış yazar. Oylamadaki bir dosya yalnızca aynı kişi hakkında sonradan açılmış oylamasız bir banla `superseded` kapanabilir. Yaptırım trigger'ı onaylanmış dosyayı her zamanki gibi ister.
+
 ### İtiraz
 `sanction_appeals` tablosunun alanları:
 - Yaptırım (yaptırım başına tek itiraz).
@@ -985,7 +998,7 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Yaptırımlar ve itirazlar: sahip itirazı karara bağlar.
 
   Grup sayfasında yetkiliye bekleyen işlerin sayısıyla bir giriş kartı gösterilir.
-- **Üye menüsü** (yetkiliye): "Disiplin dosyası aç" (önerilen yaptırım, süre, gerekçe, "Hemen sustur (24 saat)").
+- **Üye menüsü** (yetkiliye): "Disiplin dosyası aç" (önerilen yaptırım, süre, gerekçe, "Hemen sustur (24 saat)"; ban seçilince `members.ban` yetkilisine "Oylamasız, hemen uygula").
 - **Yaptırımlarım** (`/me/sanctions`, ayarlardan): grup, tür, süre, gerekçe, itiraz durumu, "İtiraz et".
 - **Grup ayarı:** Sahip "Kurul karar eşiği"ni moderasyon ekranındaki ayar düğmesinden seçer (`PUT /groups/{id}/case-threshold`). Yeni dosyalarda geçerli olur.
 
@@ -1011,14 +1024,14 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
 - Grup moderasyonu RPC'leri `private` şemasındaki `SECURITY DEFINER` fonksiyonların `security invoker` sarmalayıcılarıdır.
 
 ### Audit log
-`report.dismissed`, `report.content_removed`, `report.resolved` (platform), `case.opened`, `case.decided` (sonuç), `sanction.applied`, `sanction.lifted` (neden), `appeal.decided`, `group.case_threshold_changed`. Kayıtların `group_id` alanı doludur (platform şikayetleri hariç). Şikayet, oy ve itiraz metni kişinin kendi işlemidir; kendi tablolarında durur.
+`report.dismissed`, `report.content_removed`, `report.resolved` (platform), `case.opened` (`direct`: oylamasız ban), `case.decided` (sonuç; oylamasız banın kapattığı dosyada `superseded`), `sanction.applied`, `sanction.lifted` (neden), `appeal.decided`, `group.case_threshold_changed`. Kayıtların `group_id` alanı doludur (platform şikayetleri hariç). Şikayet, oy ve itiraz metni kişinin kendi işlemidir; kendi tablolarında durur.
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
 |---|---|
 | `POST /reports/{id}/dismissal` | Hedefin açık şikayetlerini reddetme (`reports.review`) |
 | `POST /reports/{id}/removal` | Şikayet edilen yorumu ya da canlı yayın yorumunu kaldırma (`reason`, `reports.review` + rütbe) |
-| `POST /groups/{id}/cases` | Dosya açma (`subjectId`, `sanction`, `durationDays?`, `reason`, `reportId?`, `muteNow`). `reports.review` + rütbe; `muteNow` için `members.mute` |
+| `POST /groups/{id}/cases` | Dosya açma (`subjectId`, `sanction`, `durationDays?`, `reason`, `reportId?`, `muteNow`, `illegalCategory?`, `direct`). `reports.review` + rütbe; `muteNow` için `members.mute`; `direct` (oylamasız ban: yalnızca `sanction = ban`, `muteNow` olmadan) için `members.ban` |
 | `PUT /cases/{id}/vote` | Oy verme ya da değiştirme (`approve`) |
 | `POST /appeals/{id}/decision` | Sahibin itiraz kararı (`overturn`, `note`) |
 | `PUT /groups/{id}/case-threshold` | Kurul karar eşiği (`threshold`; groups modülü, `roles.assign` yani sahip) |
@@ -1767,7 +1780,7 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 
 ## 8c. Birebir sesli görüşme (Faz 15.11, kullanıcı kararları 2026-11-01; ekip arkadaşları 2026-11-02)
 
-Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi profilinden **görüşme yetkisi** ister, platform yöneticisi panelden açar ya da kapatır. Görüşmeler Live modülündedir (LiveKit altyapısı orada).
+Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi üyesi olduğu bir gruptan **görüşme yetkisi** ister, o grubun sahibi ya da Yöneticisi açar ya da kapatır (kullanıcı kararı 2026-11-03; önce platform yöneticisi panelden açıyordu, panel bölümü kaldırıldı). Görüşmeler Live modülündedir (LiveKit altyapısı orada).
 
 ### Kurallar (hepsi sunucuda ve SQL'de, `private.call_blocker(caller, callee)`)
 - **İki tarafın da yetkisi açık** olmalı (`call_permissions.status = 'active'`). Yetkisi olmayan kişi aranamaz; uygulamada arama düğmesi yerine nedeni görünür.
@@ -1777,8 +1790,11 @@ Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme y
 - Sınır: kişi dakikada en fazla 3 arama başlatabilir.
 
 ### Görüşme yetkisi (`call_permissions`, kişi başına bir satır)
-- Kişi kendi profilinin ayarlarındaki "Sesli görüşme" bölümünden isteğe bağlı kısa bir notla (en fazla 300 karakter) **talep eder** (`requested`). Durumu orada görür: talep edilmedi, inceleniyor, açık, kapalı (gerekçesiyle).
-- Platform yöneticisi panelde bekleyen talepleri görür ve **açar** (`active`) ya da **reddeder** (`declined`, gerekçe). Kullanıcı sayfasından da istediği an açar ya da kapatır (`revoked`, gerekçe). Kapatılan ya da reddedilen kişi 7 gün sonra yeniden talep edebilir.
+- Kişi kendi profilinin ayarlarındaki "Sesli görüşme" bölümünden **üyesi olduğu bir grubu seçip** isteğe bağlı kısa bir notla (en fazla 300 karakter) **talep eder** (`requested`, `group_id`). Durumu orada görür: talep edilmedi, inceleniyor (grup adıyla), açık, kapalı (gerekçesiyle).
+- Talebi o grubun sahibi ve `calls.manage` yetkilisi (Yönetici) grup sayfasındaki **Sesli görüşme talepleri** ekranında görür; **açar** (`active`) ya da **reddeder** (`declined`, gerekçe). Açık yetkiyi istediği an **kapatır** (`revoked`, gerekçe). Kapatılan ya da reddedilen kişi 7 gün sonra yeniden talep edebilir.
+- **Kurallar** (C#'ta ve `call_permissions` trigger'ında): kişi kendi talebine karar veremez; kişi grubun üyesi olmalıdır. Kapatma ve reddetme yaptırım sayılır, rütbe kuralı uygulanır (karar verenin rütbesi kişininkinden kesinlikle büyük olmalı). Açmak için rütbe aranmaz; Yönetici sahibin talebini de açabilir.
+- Açılan yetki genel geçerlidir: kişi eşleştiği ve ekip arkadaşı olduğu herkesi arar. Yetki bağlı olduğu gruba dayanır: kişi o gruptan ayrılır, çıkarılır ya da banlanırsa yetki ve bekleyen talep kendiliğinden kapanır (`revoked`, "Yetkiyi veren gruptan ayrıldın."); grup askıya alınırsa yetki geçmez.
+- 2026-11-03'ten önce platform ekibinin açtığı (gruba bağlı olmayan) yetkiler sürer; bekleyen talepler kaldırılır, kişi bir grup seçip yeniden talep eder.
 - Yetki kapatılınca kişinin süren görüşmesi hemen biter.
 - Kişiye yetki açıldığında, reddedildiğinde ya da kapatıldığında bildirim gider (`call_permission_granted`, `call_permission_declined`, `call_permission_revoked`).
 
@@ -1796,25 +1812,24 @@ Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme y
 - **Arama ekranı** (`/calls/{id}`, tam ekran; `?answer=1` telefonun arama ekranında Cevapla'ya basılınca açılır ve aramayı hemen cevaplar): durumu `calls` satırı belirler (Realtime). Çalarken arayan "Aranıyor…" görür ve çalma sesi duyar (`assets/call_ringback.wav`, 450 Hz, döngü; karşı taraf açınca ya da arama bitince durur); aranan "Seni sesli arıyor…" görür, zil (`assets/call_ring.wav`, döngü) çalar, Cevapla / Reddet. Görüşmede süre, "en fazla 60 dakika, kaydedilmez" notu, sessize al, hoparlör ve Bitir. Bitince nedeni yazar (cevapsız, reddedildi, 60 dakika doldu, yetki kapandı) ve 3 saniye sonra kapanır. Geri tuşu açık görüşmeyi bitirir (kendisine çalıyorsa reddeder). Ekran yeniden açılırsa (`POST /calls/{id}/token`) aynı görüşmeye yeni token'la döner.
 - **Gelen arama:** uygulama önplandayken `IncomingCallAlerts` çalan aramayı görünce arama ekranını açar (Android'de uygulama arka plandaysa açmaz, telefonun arama ekranı çalar). Telefonun arama ekranında **Cevapla** uygulamayı açar ve aramayı cevaplar; **Reddet** aramayı reddeder (uygulama kapalıyken de: arka planda oturumla `POST /calls/{id}/decline`). Uygulama içindeki arama ekranı açılınca ya da görüşme bitince telefonun arama ekranı ve süren arama bildirimi kapanır. İkisi aynı anda gelirse tek ekran açılır.
 - **Android izinleri:** tam ekran bildirim (`USE_FULL_SCREEN_INTENT`, Play'de beyan gerekir), arama ön plan hizmeti (`FOREGROUND_SERVICE_PHONE_CALL`, `FOREGROUND_SERVICE_MICROPHONE`; Play beyanı), kendi aramalarını yönetme (`MANAGE_OWN_CALLS`). Kamera izinleri paketten çıkarılır (görüntülü arama yok). Android 14 ve sonrasında tam ekran izni kapalıysa Ayarlar → Sesli görüşme'de "Kilit ekranında gelen arama" kartı izni açtırır.
-- **Ayarlar → Sesli görüşme** (`/settings/calls`): açıklama, durum rozeti (talep edilmedi, inceleniyor, açık, kapalı), gerekçe, isteğe bağlı notla talep; reddedilen ya da kapatılan kişi 7 gün sonra yeniden talep eder (tarih yazar).
+- **Ayarlar → Sesli görüşme** (`/settings/calls`): açıklama, durum rozeti (talep edilmedi, inceleniyor, açık, kapalı), talebin gittiği grup, gerekçe, grup seçimi ve isteğe bağlı notla talep; reddedilen ya da kapatılan kişi 7 gün sonra yeniden talep eder (tarih yazar). Hiç grubu olmayan kişiye "Önce bir gruba katıl" yazar.
+- **Grup sayfası → Sesli görüşme talepleri** (`/g/<handle>/calls`, sahip ve `calls.manage`): Bekleyen ve Açık sekmeleri; kişi, not ve tarih; Aç, Reddet (gerekçe), Kapat (gerekçe). Grup sayfasında yetkiliye bekleyen talep sayısıyla bir giriş kartı görünür.
 - Ses LiveKit'ten geçer (`livekit_client`), yalnızca mikrofon; hoparlör `AudioManager.setSpeakerOutputPreferred` ile seçilir.
 
 ### Bildirimler
 `call_incoming` (yalnızca push; uygulamanın listesinde görünmez, RLS), `call_ended` (yalnızca push, telefonun arama ekranını kapatır; listede görünmez, 0073), `call_missed` ("seni aradı, açamadın"; listede görünür, dokununca sohbet açılır), `call_permission_granted`, `call_permission_declined`, `call_permission_revoked` (yetki açıldı, reddedildi ya da kapatıldı; listede görünür, dokununca ayarlardaki Sesli görüşme bölümü açılır). Push'a dokununca gelen arama ekranı ya da sohbet açılır.
 
 ### Admin
-- **Sesli görüşme** sayfası (menüde "Sesli görüşme"): Bekleyen / Açık / Reddedilen / Kapatılan sekmeleri; kişi, not, tarih ve gerekçe; açma, reddetme, kapatma (gerekçe zorunlu: reddetme ve kapatma; meşgul göstergesi yalnızca istek giderken). Son 24 saatte görüşme sayısı ve toplam dakika (platform geneli; kimin kimi aradığı yok).
-- Kullanıcı sayfasında "Sesli görüşme yetkisi" anahtarı. Kişinin görüşmeleri (karşı taraf, süre, sonuç) gösterilmez.
-- Rol: `admin` ve `support` açar ve kapatır; `moderator` görür.
+Panelde sesli görüşme bölümü yoktur (kullanıcı kararı 2026-11-03): yetkiyi grup yöneticileri verir; platform ekibi talepleri ve yetkileri açıp kapatmaz, görüşmeleri görmez. Kötüye kullanımda hesabı askıya almak (§3a) görüşmeyi de kapatır. Yetki kararları `audit_log`'da grubun kaydı olarak görünür.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
-| `call_permissions` | Kişinin kendisi ve platform ekibi | Talep: `public.request_call_permission(note)` (kendi satırı, yalnızca `requested`); karar: backend |
+| `call_permissions` | Kişinin kendisi; talebin gittiği grubun sahibi ve `calls.manage` yetkilileri | Talep: `public.request_call_permission(target_group, request_note)` (kendi satırı, yalnızca `requested`, üyesi olduğu aktif grup); karar: backend |
 | `calls` | Yalnızca iki taraf (platform ekibi göremez) | Backend |
 
 ### Audit log
-`call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
+`call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe; `group_id` dolu, işlemi yapan grup yöneticisi). Gruptan ayrılınca kendiliğinden kapanma audit'e yazılmaz (üyelik kaydı vardır). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -1822,9 +1837,8 @@ Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme y
 | `GET /conversations/{id}/calls/eligibility` | Bu sohbette arama yapılabilir mi; yapılamıyorsa neden (`call.no_permission`, `call.peer_no_permission`, `call.not_matched`, `call.chat_locked`, `call.blocked`, `call.busy`) |
 | `POST /conversations/{id}/calls` | Arama başlatma: görüşme kimliği, LiveKit adresi ve token |
 | `POST /calls/{id}/accept`, `POST /calls/{id}/decline`, `POST /calls/{id}/end` | Yanıtlama, reddetme, bitirme |
-| `GET /admin/calls/permissions?status=` | Talepler ve yetkiler. Rol: `admin`, `support`, `moderator` |
-| `PUT /admin/calls/permissions/{userId}` | `{ active, reason? }`: açma ya da kapatma/reddetme. Rol: `admin`, `support` |
-| `GET /admin/calls/users/{userId}` | Kişinin yetki durumu (görüşmeleri değil) |
+| `PUT /groups/{id}/call-permissions/{userId}` | `{ active, reason? }`: açma ya da kapatma/reddetme (gerekçe 3–500). Sahip ya da `calls.manage`; kapatma ve reddetmede rütbe |
+
 
 ## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
 

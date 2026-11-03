@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Gway.Modules.Live.Contracts;
 using Gway.SharedKernel;
 using Gway.SharedKernel.Auditing;
 using Gway.SharedKernel.Database;
@@ -20,6 +19,9 @@ public sealed record CallEligibility(bool Allowed, string? Code, string? Message
 
 /// <summary>What the app needs to join the call's room.</summary>
 public sealed record CallJoin(Guid CallId, string Url, string Token);
+
+/// <summary>A group manager opens (<c>Active</c>) or closes a member's voice calls; closing needs a reason.</summary>
+public sealed record GroupCallPermissionRequest(bool Active, string? Reason);
 
 public static class CallEndpoints
 {
@@ -44,6 +46,10 @@ public static class CallEndpoints
         app.MapPost("/calls/{id:guid}/end", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
             (await calls.EndAsync(user.GetUserId(), id, ct)).ToHttpResult());
 
+        app.MapPut("/groups/{id:guid}/call-permissions/{userId:guid}", async (
+                Guid id, Guid userId, GroupCallPermissionRequest body, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
+            (await calls.SetPermissionAsync(user.GetUserId(), id, userId, body.Active, body.Reason, ct)).ToHttpResult());
+
         return app;
     }
 }
@@ -56,7 +62,7 @@ internal sealed partial class CallService(
     NpgsqlDataSource db,
     ILiveKit liveKit,
     IOptions<LiveKitOptions> options,
-    ILogger<CallService> log) : ICallAdministration
+    ILogger<CallService> log)
 {
     public static readonly TimeSpan RingFor = TimeSpan.FromSeconds(30);
     public static readonly TimeSpan MaxLength = TimeSpan.FromMinutes(60);
@@ -80,6 +86,7 @@ internal sealed partial class CallService(
         "call_busy" => Error.Conflict("call.busy", "Sen ya da aradığın kişi şu anda başka bir görüşmede."),
         "call_rate_limited" => Error.RuleViolation("call.rate_limited", "Çok sık arama yapıyorsun. Biraz bekleyip tekrar dene."),
         "call_forbidden" => Error.Forbidden("call.forbidden", "Bu sohbetten arama yapılamaz."),
+        "call_rank_violation" => PermissionRank,
         _ => Error.RuleViolation($"call.{code}", "Arama şu anda yapılamıyor. Sayfayı yenileyip tekrar dene."),
     };
 
@@ -273,73 +280,47 @@ internal sealed partial class CallService(
         foreach (var (id, status, reason) in due) await FinishAsync(id, status, reason, null, ct);
     }
 
-    // Platform team -----------------------------------------------------------------------------
+    // Group managers ----------------------------------------------------------------------------
 
-    private const string PermissionColumns =
-        "p.user_id, pr.username, pr.display_name, pr.avatar_path, p.status, p.note, p.requested_at, p.decided_at, p.reason";
+    private static readonly Error PermissionRank = Error.RuleViolation(
+        "call.rank_violation", "Kendinle eşit ya da senden yüksek rütbeli birinin sesli görüşme yetkisini kapatamazsın.");
 
-    private static CallPermissionRow ReadPermission(NpgsqlDataReader r) => new(
-        r.GetGuid(0), r.GetString(1), r.GetString(2), r.IsDBNull(3) ? null : r.GetString(3), r.GetString(4),
-        r.IsDBNull(5) ? null : r.GetString(5), r.IsDBNull(6) ? null : r.GetFieldValue<DateTimeOffset>(6),
-        r.IsDBNull(7) ? null : r.GetFieldValue<DateTimeOffset>(7), r.IsDBNull(8) ? null : r.GetString(8));
-
-    public async Task<CallPermissionsPage> PermissionsAsync(string? status, CancellationToken ct)
-    {
-        status = status is "active" or "declined" or "revoked" ? status : "requested";
-        var items = new List<CallPermissionRow>();
-        await using (var cmd = db.CreateCommand(
-            $"""
-            select {PermissionColumns}
-            from public.call_permissions p join public.profiles pr on pr.id = p.user_id
-            where p.status = @status
-            order by coalesce(p.requested_at, p.decided_at) desc nulls last
-            limit 200
-            """))
-        {
-            cmd.Parameters.AddWithValue("status", status);
-            await using var r = await cmd.ExecuteReaderAsync(ct);
-            while (await r.ReadAsync(ct)) items.Add(ReadPermission(r));
-        }
-        await using var stats = db.CreateCommand(
-            """
-            select count(*)::int,
-                   coalesce(sum(extract(epoch from (coalesce(ended_at, now()) - answered_at))) filter (where answered_at is not null), 0)::int / 60
-            from public.calls where created_at > now() - interval '24 hours'
-            """);
-        await using var s = await stats.ExecuteReaderAsync(ct);
-        await s.ReadAsync(ct);
-        return new CallPermissionsPage(items, s.GetInt32(0), s.GetInt32(1));
-    }
-
-    public async Task<Result> SetPermissionAsync(Guid actorId, Guid userId, bool active, string? reason, CancellationToken ct)
+    /// <summary>
+    /// The owner or a calls.manage holder of the group the request went to opens it, declines it or closes the permission
+    /// (docs/ARCHITECTURE.md §8c). Declining and closing follow the rank rule; the trigger checks it all again.
+    /// </summary>
+    public async Task<Result> SetPermissionAsync(Guid actorId, Guid groupId, Guid userId, bool active, string? reason, CancellationToken ct)
     {
         reason = reason?.Trim();
         if (!active && reason is not { Length: >= 3 and <= 500 })
             return Error.Validation("call.invalid_reason", "Gerekçe 3–500 karakter olmalı.");
+        if (actorId == userId) return Error.Forbidden("call.self", "Kendi sesli görüşme talebine karar veremezsin.");
 
         var result = await ActingTransaction.RunAsync(db, actorId, async (conn, tx) =>
         {
+            if (await ActingTransaction.ScalarAsync(conn, tx, "select private.user_has_group_permission(@a, @g, 'calls.manage')", ct,
+                    ("a", actorId), ("g", groupId)) is not true)
+                return Error.Forbidden("call.manage_forbidden", "Bu grupta sesli görüşme taleplerine karar verme yetkin yok.");
+
             var current = await ActingTransaction.ScalarAsync(conn, tx,
-                "select coalesce((select status from public.call_permissions where user_id = @u for update), '') from public.profiles where id = @u",
-                ct, ("u", userId)) as string;
-            if (current is null) return Error.NotFound("call.user_not_found", "Kullanıcı bulunamadı.");
+                "select status from public.call_permissions where user_id = @u and group_id = @g for update", ct,
+                ("u", userId), ("g", groupId)) as string;
+            if (current is not ("requested" or "active"))
+                return Error.NotFound("call.permission_not_found", "Bu grupta bu kişinin bekleyen talebi ya da açık yetkisi yok.");
 
             var next = active ? "active" : current == "requested" ? "declined" : "revoked";
             if (current == next) return Result.Success();
-            if (!active && current is "" or "declined" or "revoked")
-                return Error.Conflict("call.not_open", "Bu kişinin sesli görüşme yetkisi zaten kapalı.");
+            if (next != "active" && (int)(await ActingTransaction.ScalarAsync(conn, tx, "select private.group_rank(@g, @a)", ct,
+                    ("g", groupId), ("a", actorId)))! <= (int)(await ActingTransaction.ScalarAsync(conn, tx,
+                    "select private.group_rank(@g, @u)", ct, ("g", groupId), ("u", userId)))!)
+                return PermissionRank;
 
             await ActingTransaction.ExecuteAsync(conn, tx,
-                """
-                insert into public.call_permissions (user_id, status, decided_at, decided_by, reason, updated_at)
-                values (@u, @status, now(), @by, @reason, now())
-                on conflict (user_id) do update
-                  set status = excluded.status, decided_at = excluded.decided_at, decided_by = excluded.decided_by,
-                      reason = excluded.reason, updated_at = excluded.updated_at
-                """, ct, ("u", userId), ("status", next), ("by", actorId), ("reason", active ? null : reason));
+                "update public.call_permissions set status = @status, reason = @reason, updated_at = now() where user_id = @u",
+                ct, ("u", userId), ("status", next), ("reason", active ? null : reason));
             var action = next switch { "active" => "call_permission.granted", "declined" => "call_permission.declined", _ => "call_permission.revoked" };
-            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, action, "user", userId.ToString(),
-                new { reason = active ? null : reason }), ct);
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.User, action, "user", userId.ToString(),
+                new { reason = active ? null : reason }, groupId), ct);
             return Result.Success();
         }, RuleError, ct);
 
@@ -348,18 +329,6 @@ internal sealed partial class CallService(
         return result;
     }
 
-    public async Task<Result<CallUserDetail>> UserAsync(Guid userId, CancellationToken ct)
-    {
-        CallPermissionRow? permission = null;
-        await using (var cmd = db.CreateCommand(
-            $"select {PermissionColumns} from public.call_permissions p join public.profiles pr on pr.id = p.user_id where p.user_id = @u"))
-        {
-            cmd.Parameters.AddWithValue("u", userId);
-            await using var r = await cmd.ExecuteReaderAsync(ct);
-            if (await r.ReadAsync(ct)) permission = ReadPermission(r);
-        }
-        return new CallUserDetail(permission);
-    }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "LiveKit call failed for call room {Room}")]
     private static partial void LogLiveKitFailed(ILogger logger, Exception ex, string room);

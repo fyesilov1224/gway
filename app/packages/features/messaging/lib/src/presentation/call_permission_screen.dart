@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/calls.dart';
 import 'call_providers.dart';
 
-/// Settings → Sesli görüşme: ask the platform team for voice calls and see the decision (docs/ARCHITECTURE.md §8c).
+/// Settings → Sesli görüşme: ask one of the person's groups for voice calls and see the decision (docs/ARCHITECTURE.md §8c).
 class CallPermissionScreen extends ConsumerWidget {
   const CallPermissionScreen({super.key});
 
@@ -22,9 +22,9 @@ class CallPermissionScreen extends ConsumerWidget {
                 GwPanel(
                   title: 'Eşleştiğin kişilerle ve ekip arkadaşlarınla sesli konuş',
                   child: Text(
-                    'Sesli görüşme, eşleştiğin kişileri ve ekip arkadaşlarını özel sohbetten aramanı sağlar. Herkese açık değildir: talep '
-                    'edersin, GWAY ekibi açar. Görüşmeler kaydedilmez ve dinlenemez; bir görüşme en fazla '
-                    '${CallRules.maxLength.inMinutes} dakika sürer.',
+                    'Sesli görüşme, eşleştiğin kişileri ve ekip arkadaşlarını özel sohbetten aramanı sağlar. Herkese açık değildir: üyesi '
+                    'olduğun bir gruptan talep edersin, grubun sahibi ya da Yöneticisi açar. Görüşmeler kaydedilmez ve dinlenemez; bir '
+                    'görüşme en fazla ${CallRules.maxLength.inMinutes} dakika sürer.',
                   ),
                 ),
                 const SizedBox(height: GwSpacing.md),
@@ -76,14 +76,17 @@ class _Status extends StatelessWidget {
           Text(
             switch (p.status) {
               CallPermissionStatus.none => 'Henüz talep etmedin.',
-              CallPermissionStatus.requested => 'Talebin GWAY ekibine ulaştı. Karar verilince bildirim gelir.',
-              CallPermissionStatus.active => 'Sesli görüşmen açık. Eşleştiğin kişileri sohbetin üstündeki telefon simgesiyle '
-                  'arayabilirsin; karşı tarafın da yetkisi açık olmalı.',
+              CallPermissionStatus.requested =>
+                'Talebin ${p.groupName ?? 'grubun'} yöneticilerine ulaştı. Karar verilince bildirim gelir.',
+              CallPermissionStatus.active => 'Sesli görüşmen açık${p.groupName == null ? '' : ' (${p.groupName})'}. Eşleştiğin kişileri ve '
+                  'ekip arkadaşlarını sohbetin üstündeki telefon simgesiyle arayabilirsin; karşı tarafın da yetkisi açık olmalı.',
               CallPermissionStatus.declined => 'Talebin şimdilik kabul edilmedi.',
+              CallPermissionStatus.revoked when !p.decidedByPerson =>
+                'Yetkiyi veren gruptan ayrıldığın için sesli görüşmen kapandı. Başka bir grubundan yeniden talep edebilirsin.',
               CallPermissionStatus.revoked => 'Sesli görüşmen kapatıldı.',
             },
           ),
-          if (p.reason case final reason? when p.status != CallPermissionStatus.active) ...[
+          if (p.reason case final reason? when p.status != CallPermissionStatus.active && p.decidedByPerson) ...[
             const SizedBox(height: GwSpacing.xs),
             Text('Gerekçe: $reason', style: secondary),
           ],
@@ -114,6 +117,7 @@ class _RequestForm extends ConsumerStatefulWidget {
 
 class _RequestFormState extends ConsumerState<_RequestForm> {
   final _note = TextEditingController();
+  String? _groupId;
   bool _sending = false;
   String? _error;
 
@@ -123,13 +127,13 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
     super.dispose();
   }
 
-  Future<void> _send() async {
+  Future<void> _send(String groupId) async {
     setState(() {
       _sending = true;
       _error = null;
     });
     final note = _note.text.trim();
-    final result = await ref.read(callsRepositoryProvider).requestPermission(note.isEmpty ? null : note);
+    final result = await ref.read(callsRepositoryProvider).requestPermission(groupId, note.isEmpty ? null : note);
     if (!mounted) return;
     setState(() => _sending = false);
     switch (result) {
@@ -142,9 +146,29 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) => switch (ref.watch(myCallGroupsProvider)) {
+        AsyncData(:final value) when value.isEmpty => const Text(
+            'Sesli görüşmeyi grupların sahipleri ve Yöneticileri açar. Talep edebilmek için önce bir gruba katıl.',
+          ),
+        AsyncData(:final value) => _form(value),
+        AsyncError(:final error) =>
+          GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(myCallGroupsProvider)),
+        _ => const GwSkeleton(height: GwSpacing.xxl * 2),
+      };
+
+  Widget _form(List<CallGroup> groups) {
+    final groupId = groups.any((g) => g.id == _groupId) ? _groupId! : groups.first.id;
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          DropdownButtonFormField<String>(
+            initialValue: groupId,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Talebin gideceği grup'),
+            items: [for (final g in groups) DropdownMenuItem(value: g.id, child: Text(g.name, overflow: TextOverflow.ellipsis))],
+            onChanged: (v) => setState(() => _groupId = v),
+          ),
+          const SizedBox(height: GwSpacing.sm),
           TextField(
             controller: _note,
             maxLength: CallRules.noteMax,
@@ -156,10 +180,12 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
             ),
           ),
           if (_error case final error?) ...[GwFormMessage(error), const SizedBox(height: GwSpacing.xs)],
-          GwButton(label: 'Talep et', icon: Icons.call_outlined, isLoading: _sending, onPressed: _send),
+          GwButton(label: 'Talep et', icon: Icons.call_outlined, isLoading: _sending, onPressed: () => _send(groupId)),
         ],
       );
+  }
 }
+
 
 /// Android 14+: without the full-screen permission a call only shows as a notification on the lock screen.
 class _LockScreenCard extends ConsumerStatefulWidget {

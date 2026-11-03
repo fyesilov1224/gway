@@ -18,9 +18,6 @@ enum StaffRole {
   /// Orders, subscriptions and plans (read).
   bool get canSeeBilling => this == admin || this == support;
 
-  /// Opening and closing voice calls for a person (docs/ARCHITECTURE.md §8c); moderators only view.
-  bool get canManageCalls => this == admin || this == support;
-
   /// Revenue, plan edits and cancellations.
   bool get canManageBilling => this == admin;
 

@@ -14,7 +14,7 @@ final callsRepositoryProvider = Provider<CallsRepository>(
 /// The phone's own incoming call screen (Android).
 final nativeCallsProvider = Provider<NativeCalls>((_) => const CallkitNativeCalls());
 
-/// Whether a chat may call now; asked fresh each time the chat opens (permissions change from the panel).
+/// Whether a chat may call now; asked fresh each time the chat opens (permissions change in the groups).
 final callEligibilityProvider = FutureProvider.autoDispose.family<CallEligibility, String>(
   (ref, conversationId) async => (await ref.watch(callsRepositoryProvider).eligibility(conversationId)).getOrThrow(),
 );
@@ -23,6 +23,18 @@ final myCallPermissionProvider = FutureProvider.autoDispose<CallPermission>((ref
   ref.watch(currentUserIdProvider);
   return (await ref.watch(callsRepositoryProvider).myPermission()).getOrThrow();
 });
+
+/// Groups the signed-in person may send a voice call request to.
+final myCallGroupsProvider = FutureProvider.autoDispose<List<CallGroup>>((ref) async {
+  ref.watch(currentUserIdProvider);
+  return (await ref.watch(callsRepositoryProvider).myGroups()).getOrThrow();
+});
+
+/// A group's voice call requests; null for those who may not decide them.
+final groupCallDeskProvider = FutureProvider.autoDispose.family<GroupCallDesk?, String>(
+  (ref, groupId) async => (await ref.watch(callsRepositoryProvider).groupDesk(groupId)).getOrThrow(),
+);
+
 
 /// Calls ringing for the signed-in person.
 final incomingCallsProvider = StreamProvider.autoDispose<List<CallInfo>>((ref) {

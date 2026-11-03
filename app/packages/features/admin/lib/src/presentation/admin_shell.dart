@@ -172,14 +172,6 @@ class _Sidebar extends ConsumerWidget {
               ),
               const SizedBox(height: GwSpacing.xxs),
               _NavItem(
-                icon: Icons.call_outlined,
-                selectedIcon: Icons.call,
-                label: 'Sesli görüşme',
-                selected: path.startsWith(AdminRoutes.calls),
-                onTap: () => go(AdminRoutes.calls),
-              ),
-              const SizedBox(height: GwSpacing.xxs),
-              _NavItem(
                 icon: Icons.notifications_outlined,
                 selectedIcon: Icons.notifications,
                 label: 'Bildirimler',

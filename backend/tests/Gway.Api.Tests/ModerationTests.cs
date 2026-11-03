@@ -335,4 +335,46 @@ public sealed class ModerationTests(ApiFactory factory) : IClassFixture<ApiFacto
             (await factory.ClientFor(crew.Owner).PutAsJsonAsync(Path($"/groups/{crew.Group}/case-threshold"), request, Ct)).StatusCode);
         Assert.Equal("two_thirds", await _db.ScalarAsync<string>("select case_threshold from public.groups where id = @g", ("g", crew.Group)));
     }
+
+    [Fact]
+    public async Task A_Yonetici_bans_without_a_vote_and_the_open_case_ends()
+    {
+        var crew = await CrewAsync();
+        var manager = await _db.CreateUserAsync(Unique("m_"));
+        (await factory.ClientFor(manager).PostAsync(Path($"/groups/{crew.Group}/join"), null, Ct)).EnsureSuccessStatusCode();
+        (await factory.ClientFor(crew.Owner).PutAsync(Path($"/groups/{crew.Group}/members/{manager}/roles/admin"), null, Ct)).EnsureSuccessStatusCode();
+
+        // The board is voting on a mute, with the emergency mute on.
+        var voting = await CaseAsync(crew.Moderator, crew,
+            new OpenCaseRequest(crew.Offender, "mute", 7, "Yorumlarda üyelere hakaret ediyor.", null, MuteNow: true));
+
+        var ban = new OpenCaseRequest(crew.Offender, "ban", 30, "Grup kurallarını ağır biçimde çiğnedi.", null, MuteNow: false, Direct: true);
+        Assert.Equal(HttpStatusCode.Forbidden, (await OpenCaseAsync(crew.Moderator, crew, ban)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await OpenCaseAsync(crew.Board1, crew, ban)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await OpenCaseAsync(manager, crew, ban with { Sanction = "kick", DurationDays = null })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await OpenCaseAsync(manager, crew, ban with { MuteNow = true })).StatusCode);
+        Assert.False((await OpenCaseAsync(manager, crew, ban with { SubjectId = crew.Owner })).IsSuccessStatusCode);
+
+        var response = await OpenCaseAsync(manager, crew, ban);
+        response.EnsureSuccessStatusCode();
+        var created = (await response.Content.ReadFromJsonAsync<CreatedCase>(Ct))!;
+        Assert.Equal("approved", created.Status);
+        Assert.Equal(0L, await CountAsync("select count(*) from public.case_votes where case_id = @c", ("c", created.Id)));
+        Assert.Equal(0L, await CountAsync("select count(*) from public.group_members where group_id = @g and user_id = @u",
+            ("g", crew.Group), ("u", crew.Offender)));
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.sanctions where case_id = @c and type = 'ban' and ends_at > now() + interval '29 days' and ends_at < now() + interval '31 days'",
+            ("c", created.Id)));
+        Assert.Equal("rejected", await _db.ScalarAsync<string>("select status from public.moderation_cases where id = @c", ("c", voting)));
+        Assert.Equal(0L, await CountAsync("select count(*) from public.sanctions where case_id = @c and interim and lifted_at is null", ("c", voting)));
+        Assert.Equal(1L, await CountAsync(
+            "select count(*) from public.audit_log where action = 'case.opened' and target_id = @c and (data->>'direct')::boolean",
+            ("c", created.Id.ToString())));
+
+        // The owner bans the Yönetici for good as illegal activity: the platform team gets it.
+        var illegal = new OpenCaseRequest(manager, "ban", null, "Üyeleri dolandırmaya çalıştı.", null, MuteNow: false, "fraud", Direct: true);
+        (await OpenCaseAsync(crew.Owner, crew, illegal)).EnsureSuccessStatusCode();
+        Assert.Equal(1L, await CountAsync("select count(*) from public.platform_referrals where subject_id = @u and status = 'pending'", ("u", manager)));
+        Assert.Equal(1L, await CountAsync("select count(*) from public.sanctions where user_id = @u and type = 'ban' and ends_at is null", ("u", manager)));
+    }
 }

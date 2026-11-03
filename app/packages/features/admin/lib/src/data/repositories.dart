@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
-import '../domain/admin_calls.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
@@ -591,33 +590,4 @@ class ApiAdminSupportRepository implements AdminSupportRepository {
       return Err(failureFromSupabase(e));
     }
   }
-}
-
-class ApiAdminCallsRepository implements AdminCallsRepository {
-  ApiAdminCallsRepository(this._api);
-
-  final ApiClient _api;
-
-  @override
-  Future<Result<AdminCallPermissionsPage>> permissions(AdminCallPermissionStatus status) => _api.get(
-        '/admin/calls/permissions',
-        query: {'status': status.code},
-        decode: (json) => AdminCallPermissionsPage.fromJson((json! as Map).cast()),
-      );
-
-  @override
-  Future<Result<void>> setPermission(String userId, {required bool active, String? reason}) => _api.put(
-        '/admin/calls/permissions/$userId',
-        body: {'active': active, 'reason': ?reason},
-        decode: (_) {},
-      );
-
-  @override
-  Future<Result<AdminCallPermission?>> userPermission(String userId) => _api.get(
-        '/admin/calls/users/$userId',
-        decode: (json) => switch ((json! as Map)['permission']) {
-          final Map<dynamic, dynamic> p => AdminCallPermission.fromJson(p.cast()),
-          _ => null,
-        },
-      );
 }
