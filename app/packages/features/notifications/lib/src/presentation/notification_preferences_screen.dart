@@ -51,8 +51,10 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xs),
                     child: Text('Mesajlar', style: textTheme.titleSmall),
                   ),
-                  toggle('Yeni mesajlar', 'Sohbetlerine ve grup sohbetlerine mesaj gelince, uygulama kapalıyken de sesli',
-                      p.messages, (v) => p.copyWith(messages: v)),
+                  toggle('Kişisel mesajlar', 'Birebir sohbetlerine mesaj gelince, uygulama kapalıyken de sesli', p.messages,
+                      (v) => p.copyWith(messages: v)),
+                  toggle('Grup mesajları', 'Üyesi olduğun grupların sohbetine mesaj gelince, uygulama kapalıyken de sesli',
+                      p.groupMessages, (v) => p.copyWith(groupMessages: v)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                     child: Text('Organizasyonlar', style: textTheme.titleSmall),

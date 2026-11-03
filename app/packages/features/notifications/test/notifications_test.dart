@@ -367,7 +367,7 @@ void main() {
     expect(repo.saved.single.liveBroadcasts, isFalse);
     expect(repo.saved.single.reminderDay, isTrue);
   });
-  testWidgets('message notices are on for a new user and can be turned off', (tester) async {
+  testWidgets('direct and group message notices are on for a new user and turn off separately', (tester) async {
     final repo = _FakePreferences();
     await tester.pumpWidget(ProviderScope(
       overrides: [currentUserIdProvider.overrideWithValue('u1'), notificationsRepositoryProvider.overrideWithValue(repo)],
@@ -375,12 +375,21 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    final toggle = find.widgetWithText(SwitchListTile, 'Yeni mesajlar');
-    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
-    await tester.tap(toggle);
+    final direct = find.widgetWithText(SwitchListTile, 'Kişisel mesajlar');
+    final group = find.widgetWithText(SwitchListTile, 'Grup mesajları');
+    expect(tester.widget<SwitchListTile>(direct).value, isTrue);
+    expect(tester.widget<SwitchListTile>(group).value, isTrue);
+
+    await tester.tap(group);
     await tester.pumpAndSettle();
-    expect(repo.saved.single.messages, isFalse);
-    expect(repo.saved.single.liveBroadcasts, isTrue);
+    expect(repo.saved.last.groupMessages, isFalse);
+    expect(repo.saved.last.messages, isTrue, reason: 'direct messages keep ringing');
+
+    await tester.tap(direct);
+    await tester.pumpAndSettle();
+    expect(repo.saved.last.messages, isFalse);
+    expect(repo.saved.last.groupMessages, isFalse);
+    expect(repo.saved.last.liveBroadcasts, isTrue);
   });
   testWidgets('turning a reminder off saves it', (tester) async {
     final repo = _FakePreferences();

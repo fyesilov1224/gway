@@ -1,11 +1,11 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(13);
+select plan(17);
 
 alter table public.group_members disable trigger group_members_welcome_trial;
 
--- e1 owns the group, e2 and e3 are members; e4 sends e1 a message request; e5 has message notices off.
+-- e1 owns the group, e2 and e3 are members; e4 sends e1 a message request; e5 has group message notices off.
 insert into auth.users (id, email, aud, role)
 select ('00000000-0000-0000-0000-0000000ee10' || i)::uuid, 'e' || i || '@test.local', 'authenticated', 'authenticated'
 from generate_series(1, 5) i;
@@ -43,14 +43,14 @@ do $$ declare i int; begin
     insert into public.group_members (group_id, user_id) values (pg_temp.grp(), pg_temp.u(i));
   end loop;
 end $$;
-insert into public.notification_preferences (user_id, messages) values (pg_temp.u(5), false);
+insert into public.notification_preferences (user_id, group_messages) values (pg_temp.u(5), false);
 
 -- Group chat ---------------------------------------------------------------------------------------------
 select pg_temp.act(pg_temp.u(2));
 select pg_temp.send(pg_temp.chat(), 'Cumartesi kim geliyor?');
 select is(pg_temp.waiting(1) + pg_temp.waiting(3), 2, 'a group message rings every member');
 select is(pg_temp.waiting(2), 0, 'but not the sender');
-select is(pg_temp.waiting(5), 0, 'nor someone who turned message notices off');
+select is(pg_temp.waiting(5), 0, 'nor someone who turned group message notices off');
 
 -- A burst stays one notification, carrying the newest message.
 select pg_temp.send(pg_temp.chat(), 'Ben varım');
@@ -92,6 +92,29 @@ select is(pg_temp.waiting(1), 0, 'a message request does not ring');
 update public.conversation_members set state = 'active' where conversation_id = pg_temp.direct(1, 4) and user_id = pg_temp.u(1);
 select pg_temp.backend_send(pg_temp.direct(1, 4), 4, 'Teşekkürler!');
 select is(pg_temp.waiting(1), 1, 'an accepted chat rings');
+
+-- The two preferences are separate (2026-11-03): direct off keeps group messages ringing, and the other way round.
+update public.notifications set pushed_at = now() where recipient_id = pg_temp.u(1);
+set local role authenticated;
+select pg_temp.act(pg_temp.u(1));
+insert into public.notification_preferences (user_id, messages) values (pg_temp.u(1), false)
+on conflict (user_id) do update set messages = excluded.messages;
+reset role;
+select pg_temp.backend_send(pg_temp.direct(1, 4), 4, 'Orada mısın?');
+select is(pg_temp.waiting(1), 0, 'with direct message notices off a direct chat does not ring');
+select pg_temp.backend_send(pg_temp.chat(), 3, 'Grup için saat 9');
+select is(pg_temp.waiting(1), 1, 'but the group chat still rings');
+
+update public.notifications set pushed_at = now() where recipient_id = pg_temp.u(1);
+set local role authenticated;
+select pg_temp.act(pg_temp.u(1));
+update public.notification_preferences set messages = true, group_messages = false where user_id = pg_temp.u(1);
+reset role;
+select pg_temp.backend_send(pg_temp.chat(), 3, 'Saat 10 oldu');
+select is(pg_temp.waiting(1), 0, 'with group message notices off a group chat does not ring');
+select pg_temp.backend_send(pg_temp.direct(1, 4), 4, 'Haber ver');
+select is(pg_temp.waiting(1), 1, 'but the direct chat still rings');
+update public.notification_preferences set group_messages = true where user_id = pg_temp.u(1);
 alter table public.messages enable trigger messages_guard;
 
 update public.notifications set pushed_at = now() where recipient_id = pg_temp.u(1);

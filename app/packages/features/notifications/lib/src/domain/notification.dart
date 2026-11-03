@@ -266,6 +266,7 @@ class NotificationPreferences {
     this.liveBroadcasts = true,
     this.matchAlerts = true,
     this.messages = true,
+    this.groupMessages = true,
   });
 
   /// "Yarın başlıyor" reminder.
@@ -286,8 +287,11 @@ class NotificationPreferences {
   /// New matches (docs/ARCHITECTURE.md §3g).
   final bool matchAlerts;
 
-  /// Chat messages ring the phone (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
+  /// Direct chat messages ring the phone (docs/ARCHITECTURE.md §3c, Mesaj bildirimi).
   final bool messages;
+
+  /// Group chat messages ring the phone; separate from [messages] since 2026-11-03.
+  final bool groupMessages;
 
   NotificationPreferences copyWith({
     bool? reminderDay,
@@ -297,6 +301,7 @@ class NotificationPreferences {
     bool? liveBroadcasts,
     bool? matchAlerts,
     bool? messages,
+    bool? groupMessages,
   }) =>
       NotificationPreferences(
         reminderDay: reminderDay ?? this.reminderDay,
@@ -306,6 +311,7 @@ class NotificationPreferences {
         liveBroadcasts: liveBroadcasts ?? this.liveBroadcasts,
         matchAlerts: matchAlerts ?? this.matchAlerts,
         messages: messages ?? this.messages,
+        groupMessages: groupMessages ?? this.groupMessages,
       );
 }
 
