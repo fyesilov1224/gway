@@ -86,6 +86,8 @@ flutter build apk --release --split-per-abi --target-platform android-arm64 \
 ```
 Google ile giriş ve e-posta bağlantıları için Supabase Redirect URLs listesinde `com.gway.admin://auth-callback` da bulunmalıdır.
 
+**Destek e-postası (2026-11-03):** `destek@gwayapp.com` Cloudflare Email Routing ile kurucunun kişisel adresine yönlenir (alan adında yalnızca Cloudflare'in MX, SPF ve DKIM kayıtları var; posta kutusu yok). Play'de geliştirici ve uygulama destek e-postası olarak bu adres kullanılır, kişisel adres görünmez. Kural Cloudflare panelinde: alan adı → Email → Email Routing.
+
 **İkon fontu (2026-11-03):** Türkçe karakterli yoldan derlenince `assets/fonts` boş çıkar ve bütün ikonlar kare görünür (Cloudflare eksik dosya yerine `index.html` döner). `deploy/build-web.sh` artık ASCII olmayan yolda çalışmaz ve `MaterialIcons-Regular.otf` yoksa yayını durdurur.
 
 **Web hızı (2026-11-01):** `--no-tree-shake-icons` kullanılmaz; ASCII yoldan (`G:`) derlenince ikon fontu 1,6 MB yerine birkaç KB olur. `web/flutter_bootstrap.js` Flutter'ın kullanımdan kalkan service worker'ını kaydetmez (ilk ziyarette uygulama indirilmeden önce bekletiyordu); `index.html` `main.dart.js`'i ve CanvasKit'in sunucusunu (`www.gstatic.com`) baştan istemeye başlar.
