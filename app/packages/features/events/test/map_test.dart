@@ -159,4 +159,12 @@ void main() {
     expect(picked, isNotNull);
     expect(picked!.latitude, closeTo(turkeyCenter.latitude, 2));
   });
+  test('the map says it is unavailable only when the API has no tile provider', () {
+    final uri = Uri.parse('https://api.example/map/tiles/3/4/2.png');
+    expect(AppMap.tilesUnavailable(NetworkImageLoadException(statusCode: 503, uri: uri)), isTrue);
+    expect(AppMap.tilesUnavailable(NetworkImageLoadException(statusCode: 502, uri: uri)), isFalse,
+        reason: 'one tile the provider failed to send');
+    expect(AppMap.tilesUnavailable(NetworkImageLoadException(statusCode: 401, uri: uri)), isFalse);
+    expect(AppMap.tilesUnavailable(Exception('offline')), isFalse);
+  });
 }
