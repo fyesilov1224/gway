@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:core/core.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/firebase_push_messaging.dart';
@@ -40,6 +42,16 @@ final liveAlertSoundProvider = Provider<Future<void> Function()>((ref) {
   return () async {
     await player.setAudioContext(context);
     await player.play(AssetSource('live_alert.wav'));
+  };
+});
+
+/// The phone's notification sound for a push that arrives while the app is open (docs/ARCHITECTURE.md §3c,
+/// Uygulama açıkken bildirim sesi). Android only; silent in silent mode, a buzz on vibrate. Replaced in tests.
+final notificationSoundProvider = Provider<Future<void> Function()>((ref) {
+  const device = MethodChannel('gway/device');
+  return () async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    await device.invokeMethod<void>('notificationSound');
   };
 });
 

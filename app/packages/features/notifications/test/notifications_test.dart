@@ -44,6 +44,7 @@ class _FakeArrivals implements NotificationsRepository {
 class _FakePush implements PushMessaging {
   final refreshes = StreamController<String>.broadcast();
   final tapped = StreamController<Map<String, Object?>>.broadcast();
+  final arrived = StreamController<Map<String, Object?>>.broadcast();
   var deleted = 0;
 
   @override
@@ -60,6 +61,9 @@ class _FakePush implements PushMessaging {
 
   @override
   Stream<Map<String, Object?>> get taps => tapped.stream;
+
+  @override
+  Stream<Map<String, Object?>> get arrivals => arrived.stream;
 }
 
 /// The session's token role: `unverified` during security verification, then `authenticated`.
@@ -275,6 +279,7 @@ void main() {
         openCall: calls.add,
         openConversation: chats.add,
         openNotifications: () => listOpened++,
+        isConversationOpen: (_) => false,
         child: const SizedBox(),
       ),
     ));
@@ -302,6 +307,49 @@ void main() {
     ProviderScope.containerOf(tester.element(find.byType(SizedBox))).read(_signedIn.notifier).signOut();
     await tester.pump();
     expect(push.deleted, 1);
+  });
+  test('a push while the app is open rings unless its own screen already sounds or shows it', () {
+    bool rings(Map<String, Object?> data) => PushNotifications.rings(data, isConversationOpen: (id) => id == 'open');
+    expect(rings({'type': 'follow'}), isTrue);
+    expect(rings({'type': 'like'}), isTrue);
+    expect(rings({'type': 'event_reminder'}), isTrue);
+    expect(rings({'type': 'call_missed', 'call_id': 'k1', 'conversation_id': 'open'}), isTrue);
+    expect(rings({'type': 'message', 'conversation_id': 'other'}), isTrue);
+    expect(rings({'type': 'message', 'conversation_id': 'open'}), isFalse, reason: 'the chat on screen shows it');
+    expect(rings({'type': 'call_incoming', 'call_id': 'k1'}), isFalse, reason: 'the call screen rings');
+    expect(rings({'type': 'call_ended', 'call_id': 'k1'}), isFalse);
+    expect(rings({'type': 'live_started', 'live_id': 'b1'}), isFalse, reason: 'the live alert plays its own sound');
+    expect(rings({'type': 'live_scheduled', 'live_id': 'b1'}), isFalse);
+  });
+  testWidgets('pushes arriving together ring once', (tester) async {
+    final push = _FakePush();
+    var sounds = 0;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        sessionRoleProvider.overrideWith((ref) => null),
+        pushMessagingProvider.overrideWithValue(push),
+        notificationSoundProvider.overrideWithValue(() async => sounds++),
+      ],
+      child: PushNotifications(
+        openLive: (_) {},
+        openCall: (_) {},
+        openConversation: (_) {},
+        openNotifications: () {},
+        isConversationOpen: (id) => id == 'open',
+        child: const SizedBox(),
+      ),
+    ));
+    push.arrived
+      ..add({'type': 'message', 'conversation_id': 'open'})
+      ..add({'type': 'follow'})
+      ..add({'type': 'like'});
+    await tester.pump();
+    expect(sounds, 1);
+
+    await tester.pump(PushNotifications.soundGap);
+    push.arrived.add({'type': 'message', 'conversation_id': 'other'});
+    await tester.pump();
+    expect(sounds, 2);
   });
   testWidgets('turning live broadcast notices off saves it', (tester) async {
     final repo = _FakePreferences();

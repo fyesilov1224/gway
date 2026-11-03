@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- A short buzz for a push while the app is open and the phone is on vibrate (docs/ARCHITECTURE.md 3c). -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- Security verification: location check at sign-in and app start (docs/ARCHITECTURE.md §3h). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

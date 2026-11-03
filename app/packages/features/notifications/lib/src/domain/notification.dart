@@ -345,4 +345,7 @@ abstract interface class PushMessaging {
 
   /// The data of the notification the user tapped, including the one that opened the app.
   Stream<Map<String, Object?>> get taps;
+
+  /// The data of pushes that arrive while the app is in the foreground; the phone shows none of them.
+  Stream<Map<String, Object?>> get arrivals;
 }

@@ -65,8 +65,14 @@ final callRingerProvider = Provider<CallRinger>((ref) {
 class _AudioRinger implements CallRinger {
   final _player = AudioPlayer()..audioCache = AudioCache(prefix: 'packages/messaging/assets/');
 
+  /// The callee's ring sounds like the phone's ringer: at ring volume and not in silent mode (docs/ARCHITECTURE.md
+  /// §3c, Arama zili). The caller's tone stays as it was, beside the call's own audio.
+  static final _ringing = AudioContextConfig(respectSilence: true, focus: AudioContextConfigFocus.gain).build();
+  static final _ringback = AudioContextConfig().build();
+
   @override
   Future<void> start(CallTone tone) async {
+    await _player.setAudioContext(tone == CallTone.incoming ? _ringing : _ringback);
     await _player.setReleaseMode(ReleaseMode.loop);
     await _player.play(AssetSource(tone == CallTone.incoming ? 'call_ring.wav' : 'call_ringback.wav'));
   }

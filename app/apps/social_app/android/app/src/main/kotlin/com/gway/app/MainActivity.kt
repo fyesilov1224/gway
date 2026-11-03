@@ -4,11 +4,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.RingtoneManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.telephony.TelephonyManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -61,7 +66,39 @@ class MainActivity : FlutterActivity() {
                         .distinct()
                         .take(20),
                 )
+                "notificationSound" -> {
+                    playNotificationSound()
+                    result.success(null)
+                }
                 else -> result.notImplemented()
+            }
+        }
+    }
+
+    // A push while the app is open is not shown by Android, so the app rings it here (docs/ARCHITECTURE.md 3c,
+    // Uygulama açıkken bildirim sesi): the phone's notification sound at notification volume, a short buzz in
+    // vibrate mode, nothing in silent mode.
+    private fun playNotificationSound() {
+        when ((getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> RingtoneManager.getRingtone(
+                applicationContext,
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+            )?.apply {
+                audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                play()
+            }
+            AudioManager.RINGER_MODE_VIBRATE -> {
+                @Suppress("DEPRECATION")
+                val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(200)
+                }
             }
         }
     }
