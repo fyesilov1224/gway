@@ -78,6 +78,8 @@ flutter build appbundle --release --no-tree-shake-icons \
 ```
 Windows'ta kullanıcı adındaki `ı` yüzünden derleme `subst G: <repo>` ile `G:\app\apps\social_app` içinden yapılır.
 
+**İkon fontu (2026-11-03):** Türkçe karakterli yoldan derlenince `assets/fonts` boş çıkar ve bütün ikonlar kare görünür (Cloudflare eksik dosya yerine `index.html` döner). `deploy/build-web.sh` artık ASCII olmayan yolda çalışmaz ve `MaterialIcons-Regular.otf` yoksa yayını durdurur.
+
 **Web hızı (2026-11-01):** `--no-tree-shake-icons` kullanılmaz; ASCII yoldan (`G:`) derlenince ikon fontu 1,6 MB yerine birkaç KB olur. `web/flutter_bootstrap.js` Flutter'ın kullanımdan kalkan service worker'ını kaydetmez (ilk ziyarette uygulama indirilmeden önce bekletiyordu); `index.html` `main.dart.js`'i ve CanvasKit'in sunucusunu (`www.gstatic.com`) baştan istemeye başlar.
 
 ## Güncelleme

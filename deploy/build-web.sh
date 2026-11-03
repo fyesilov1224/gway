@@ -4,12 +4,20 @@
 set -euo pipefail
 domain="$1"; supabase_url="$2"; supabase_key="$3"
 here="$(cd "$(dirname "$0")" && pwd)"
+# Flutter's icon subsetter writes an empty fonts folder from a non-ASCII path (the ı in the Windows user name),
+# and every icon then shows as a box. Build from an ASCII path such as `subst G:` (docs/DEPLOY.md).
+if LC_ALL=C grep -q '[^ -~]' <<<"$here"; then
+  echo "Build from an ASCII path (e.g. subst G: <repo>), not $here" >&2; exit 1
+fi
 defines=(--dart-define=SUPABASE_URL="$supabase_url" --dart-define=SUPABASE_PUBLISHABLE_KEY="$supabase_key"
          --dart-define=API_URL="https://api.$domain" --dart-define=SHARE_URL="https://app.$domain")
 
 for app in social_app:app admin_panel:panel; do
   src="${app%%:*}"; out="${app##*:}"
   (cd "$here/../app/apps/$src" && flutter build web --release "${defines[@]}")
+  if [ ! -s "$here/../app/apps/$src/build/web/assets/fonts/MaterialIcons-Regular.otf" ]; then
+    echo "$src: icon font missing from the build; not publishing broken icons" >&2; exit 1
+  fi
   rm -rf "$here/www/$out" && mkdir -p "$here/www/$out"
   cp -r "$here/../app/apps/$src/build/web/." "$here/www/$out/"
 done
