@@ -416,6 +416,7 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
                         subjectId: r.subject!.id,
                         subjectName: r.subject!.displayName,
                         canMute: widget.desk.canMute,
+                        canBan: widget.desk.canBan,
                         reportId: r.id,
                       ),
               ),
@@ -504,7 +505,11 @@ class _CaseCardState extends ConsumerState<CaseCard> {
           trailing: GwBadge(statusLabel, tone: tone, dot: c.isOpen),
         ),
         const SizedBox(height: GwSpacing.sm),
-        Text('Önerilen: ${c.proposal}', style: textTheme.titleSmall),
+        Text(c.direct ? c.proposal : 'Önerilen: ${c.proposal}', style: textTheme.titleSmall),
+        if (c.direct) ...[
+          const SizedBox(height: GwSpacing.xxs),
+          const GwBadge('Oylamasız ban', tone: GwBadgeTone.warning),
+        ],
         if (c.illegalCategory case final illegal?) ...[
           const SizedBox(height: GwSpacing.xxs),
           GwBadge('Yasa dışı faaliyet: ${illegal.label}', tone: GwBadgeTone.danger),
@@ -514,13 +519,13 @@ class _CaseCardState extends ConsumerState<CaseCard> {
         const SizedBox(height: GwSpacing.xs),
         Text(
           [
-            '${c.approvals} onay · ${c.rejections} ret · ${c.voters} oy hakkı',
-            c.threshold.label,
+            if (!c.direct) ...['${c.approvals} onay · ${c.rejections} ret · ${c.voters} oy hakkı', c.threshold.label],
             if (c.isOpen) 'Oylama ${timeLeft(c.votingEndsAt)} sonra biter' else if (c.decidedAt != null) formatDateTimeTr(c.decidedAt!),
           ].join(' · '),
           style: secondary,
         ),
-        if (c.openedBy case final opener?) Text('Dosyayı açan: ${opener.displayName}', style: secondary),
+        if (c.openedBy case final opener?) Text('${c.direct ? 'Banlayan' : 'Dosyayı açan'}: ${opener.displayName}', style: secondary),
+
         if (c.isOpen && c.isVoter) ...[
           const SizedBox(height: GwSpacing.sm),
           if (c.myVote != null) Text(c.myVote! ? 'Oyun: Onay' : 'Oyun: Ret', style: textTheme.labelLarge),

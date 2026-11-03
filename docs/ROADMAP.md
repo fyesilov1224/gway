@@ -377,6 +377,16 @@ Eşleşen iki kişi özel sohbetten sesli görüşür; özellik platform ekibini
 - [x] Arayan çalma sesi duyar; uygulama kapalıyken gelen arama telefonun kendi arama ekranında çalar (kilit ekranı, zil sesi, Cevapla / Reddet; `flutter_callkit_incoming`), `call_ended` push'u (0073), Ayarlar → Sesli görüşme'de kilit ekranı izni (kullanıcı kararı 2026-11-02, 1.0.0+8)
 - [ ] Play Console: tam ekran bildirim ve arama ön plan hizmeti beyanları
 
+## Faz 15.12 — Grup Yöneticisine Yetkiler (kullanıcı isteği, 2026-11-03; dal `gelistirme/grup-yetkileri`; `docs/ARCHITECTURE.md` §3e, §8c)
+
+Sesli görüşme yetkisini platform ekibi yerine grup yöneticileri verir; grup sahibi ve Yönetici kurul oylaması olmadan ban atar.
+- [x] Migration 0074: `members.ban` ve `calls.manage` yetkileri (Yönetici); `moderation_cases.direct`, oylamasız dosya onaylı yazılır, açık oylama `rejected` kapanır; `call_permissions.group_id`, trigger ile ikinci katman (kendi talebi, üyelik, rütbe), gruptan ayrılınca yetki kapanır, `request_call_permission(target_group, note)`, `group_call_permissions`, `my_call_permission`; platform ekibi talepleri görmez, bekleyen eski talepler kaldırıldı
+- [x] C#: `POST /groups/{id}/cases` içinde `direct` (ban, süreli ya da kalıcı, yasa dışı işaretliyse hesap askısı ve platform bildirimi); `PUT /groups/{id}/call-permissions/{userId}`; admin sesli görüşme uç noktaları kaldırıldı
+- [x] Uygulama: "Disiplin dosyası aç"ta "Oylamasız, hemen uygula", moderasyon ekranında "Oylamasız ban" rozeti; Ayarlar → Sesli görüşme'de grup seçerek talep; grup sayfasında "Sesli görüşme talepleri" kartı ve ekranı (`/g/<handle>/calls`)
+- [x] Yönetim paneli: Sesli görüşme sayfası, kullanıcı sayfasındaki yetki paneli ve menü öğesi kaldırıldı (kullanıcı kararı); oylamasız yasa dışı banlar Şikayetler → Yasa dışı sekmesine düşer
+- [x] pgTAP (`58_voice_calls` güncellendi, `59_group_bans_and_call_grants`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-03)
+- [ ] Bulut: `0074` migration'ı, API, web, panel ve mobil sürüm
+
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
 İnsanları uygulamaya çekecek, gerçek hayatta bir araya getiren özellikler. Sırayla, her biri mobil, web ve yönetim paneliyle birlikte yapılır. Ücretli servis gerektiren kısım onaysız açılmaz.

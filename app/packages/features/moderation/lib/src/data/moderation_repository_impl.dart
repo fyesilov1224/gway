@@ -89,6 +89,7 @@ class ModerationRepositoryImpl implements ModerationRepository {
           rank: _int(r['rank']),
           isOwner: r['is_owner'] == true,
           canMute: r['can_mute'] == true,
+          canBan: r['can_ban'] == true,
           threshold: CaseThreshold.parse(r['threshold']),
           reports: [
             for (final x in _list(r['reports']))
@@ -114,6 +115,8 @@ class ModerationRepositoryImpl implements ModerationRepository {
                 sanction: SanctionType.parse(c['sanction']),
                 durationDays: (c['duration_days'] as num?)?.toInt(),
                 illegalCategory: IllegalCategory.parse(c['illegal_category']),
+                direct: c['direct'] == true,
+
                 reason: c['reason'] as String,
                 threshold: CaseThreshold.parse(c['threshold']),
                 status: CaseStatus.parse(c['status']),

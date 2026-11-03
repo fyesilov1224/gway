@@ -10,7 +10,7 @@ import 'providers.dart';
 import 'widgets.dart';
 
 /// Opens a discipline case about a member (the moderation feature, through the app).
-typedef OpenCase = void Function(BuildContext context, Group group, GroupPerson person, {required bool canMute});
+typedef OpenCase = void Function(BuildContext context, Group group, GroupPerson person, {required bool canMute, required bool canBan});
 
 /// A line under a member's name from another feature, e.g. their contributions in the group.
 typedef MemberNote = String? Function(WidgetRef ref, Group group, GroupPerson person);
@@ -103,7 +103,14 @@ class _MembersTab extends ConsumerWidget {
             ),
           if (canOpenCase && me.rank > p.rank)
             PopupMenuItem(
-              onTap: () => onOpenCase!(context, group, p, canMute: me.can(GroupPermission.muteMembers)),
+              onTap: () => onOpenCase!(
+                context,
+                group,
+                p,
+                canMute: me.can(GroupPermission.muteMembers),
+                canBan: me.can(GroupPermission.banMembers),
+              ),
+
               child: const Text('Disiplin dosyası aç'),
             ),
           if (me.isMember)

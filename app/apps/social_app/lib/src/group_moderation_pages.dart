@@ -21,14 +21,16 @@ Widget groupModerationSection(BuildContext context, Group group, MyMembership me
   return GroupModerationEntry(groupId: group.id, onOpen: () => context.push(ModerationRoutes.group(group.handle)));
 }
 
-/// "Disiplin dosyası aç" on the members screen.
-void openCase(BuildContext context, Group group, GroupPerson person, {required bool canMute}) => showCaseSheet(
+/// "Disiplin dosyası aç" on the members screen; members.ban holders may ban there without a vote.
+void openCase(BuildContext context, Group group, GroupPerson person, {required bool canMute, required bool canBan}) => showCaseSheet(
       context,
       groupId: group.id,
       subjectId: person.userId,
       subjectName: person.displayName,
       canMute: canMute,
+      canBan: canBan,
     );
+
 
 /// `/g/<handle>/moderation`: resolves the group, then the moderation desk.
 class GroupModerationPage extends ConsumerWidget {

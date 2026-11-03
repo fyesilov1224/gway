@@ -57,6 +57,9 @@ abstract final class GroupPermission {
   static const moderateLive = 'live.moderate';
   static const reviewReports = 'reports.review';
   static const muteMembers = 'members.mute';
+  static const banMembers = 'members.ban';
+  static const manageCalls = 'calls.manage';
+
 }
 
 class GroupLink {

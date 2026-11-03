@@ -34,9 +34,6 @@ public sealed record RemoveContentRequest(string Reason);
 
 public sealed record EndLiveRequest(string Reason);
 
-/// <summary>Opens (<c>Active</c>) or closes voice calls for a person; closing needs a reason.</summary>
-public sealed record CallPermissionRequest(bool Active, string? Reason);
-
 public sealed record CancelAdminEventRequest(string Reason);
 
 public sealed record AdminAppealDecision(bool Overturn, string? Note);
@@ -388,20 +385,6 @@ public static class AdminModule
                 Guid id, EndLiveRequest body, ClaimsPrincipal user, ILiveAdministration live, CancellationToken ct) =>
                 (await live.ForceEndAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
-
-        // Voice calls (docs/ARCHITECTURE.md §8c): requests and who may call.
-        content.MapGet("/calls/permissions", async (string? status, ICallAdministration calls, CancellationToken ct) =>
-                TypedResults.Ok(await calls.PermissionsAsync(status, ct)))
-            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
-
-        content.MapPut("/calls/permissions/{userId:guid}", async (
-                Guid userId, CallPermissionRequest body, ClaimsPrincipal user, ICallAdministration calls, CancellationToken ct) =>
-                (await calls.SetPermissionAsync(user.GetUserId(), userId, body.Active, body.Reason, ct)).ToHttpResult())
-            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CallPermissions));
-
-        content.MapGet("/calls/users/{userId:guid}", async (Guid userId, ICallAdministration calls, CancellationToken ct) =>
-                (await calls.UserAsync(userId, ct)).ToHttpResult())
-            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
         content.MapGet("/events", async (string? q, string? status, int? page, AdminEvents admin, CancellationToken ct) =>
                 TypedResults.Ok(await admin.SearchAsync(q, status, page ?? 1, ct)))

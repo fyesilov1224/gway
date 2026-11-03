@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories.dart';
 import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
-import '../domain/admin_calls.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_group.dart';
@@ -390,17 +389,4 @@ final ticketDetailProvider = FutureProvider.autoDispose.family<AdminTicketDetail
 
 final supportAttachmentUrlProvider = FutureProvider.autoDispose.family<String, String>(
   (ref, path) async => (await ref.watch(adminSupportRepositoryProvider).attachmentUrl(path)).getOrThrow(),
-);
-
-final adminCallsRepositoryProvider = Provider<AdminCallsRepository>(
-  (ref) => ApiAdminCallsRepository(ref.watch(apiClientProvider)),
-);
-
-/// Always fresh: decisions are made on this list.
-final callPermissionsProvider = FutureProvider.autoDispose.family<AdminCallPermissionsPage, AdminCallPermissionStatus>(
-  (ref, status) async => (await ref.watch(adminCallsRepositoryProvider).permissions(status)).getOrThrow(),
-);
-
-final userCallPermissionProvider = FutureProvider.autoDispose.family<AdminCallPermission?, String>(
-  (ref, userId) async => (await ref.watch(adminCallsRepositoryProvider).userPermission(userId)).getOrThrow(),
 );

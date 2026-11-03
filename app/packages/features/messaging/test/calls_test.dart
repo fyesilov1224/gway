@@ -28,7 +28,11 @@ class _FakeCalls implements CallsRepository {
   final ringing = StreamController<List<CallInfo>>.broadcast();
   final actions = <String>[];
   final notes = <String?>[];
+  final requestedGroups = <String>[];
+  final decisions = <String>[];
   CallPermission permission = const CallPermission();
+  List<CallGroup> groups = const [CallGroup(id: 'g1', name: 'Doğa Yürüyüşü'), CallGroup(id: 'g2', name: 'Koşu Kulübü')];
+  GroupCallDesk? desk;
 
   @override
   Future<Result<CallEligibility>> eligibility(String conversationId) async => Ok(eligible);
@@ -77,9 +81,22 @@ class _FakeCalls implements CallsRepository {
   Future<Result<CallPermission>> myPermission() async => Ok(permission);
 
   @override
-  Future<Result<void>> requestPermission(String? note) async {
+  Future<Result<List<CallGroup>>> myGroups() async => Ok(groups);
+
+  @override
+  Future<Result<void>> requestPermission(String groupId, String? note) async {
+    requestedGroups.add(groupId);
     notes.add(note);
-    permission = const CallPermission(status: CallPermissionStatus.requested);
+    permission = const CallPermission(status: CallPermissionStatus.requested, groupName: 'Koşu Kulübü');
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<GroupCallDesk?>> groupDesk(String groupId) async => Ok(desk);
+
+  @override
+  Future<Result<void>> decide(String groupId, String userId, {required bool active, String? reason}) async {
+    decisions.add('$userId ${active ? 'open' : 'close'} ${reason ?? ''}'.trim());
     return const Ok(null);
   }
 }
@@ -388,22 +405,71 @@ void main() {
     return calls;
   }
 
-  testWidgets('asking for voice calls sends the note and shows it under review', (tester) async {
+  testWidgets('asking a chosen group for voice calls sends the note and shows it under review', (tester) async {
     final calls = await pumpPermission(tester, const CallPermission());
     expect(find.text('Talep edilmedi'), findsOneWidget);
+    await tester.tap(find.text('Doğa Yürüyüşü'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Koşu Kulübü').last);
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Eşleştiğim kişiyle konuşmak istiyorum');
     await tester.ensureVisible(find.text('Talep et'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Talep et'));
     await tester.pumpAndSettle();
+    expect(calls.requestedGroups, ['g2']);
     expect(calls.notes, ['Eşleştiğim kişiyle konuşmak istiyorum']);
     expect(find.text('İnceleniyor'), findsOneWidget);
+    expect(find.textContaining('Koşu Kulübü yöneticilerine'), findsOneWidget);
+  });
+
+  testWidgets('without a group there is nobody to ask', (tester) async {
+    final calls = _FakeCalls()..groups = const [];
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        currentUserIdProvider.overrideWithValue('me'),
+        callsRepositoryProvider.overrideWithValue(calls),
+        nativeCallsProvider.overrideWithValue(_FakeNative()),
+      ],
+      child: MaterialApp(theme: GwTheme.light(), home: const CallPermissionScreen()),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('önce bir gruba katıl'), findsOneWidget);
+    expect(find.text('Talep et'), findsNothing);
+  });
+
+  testWidgets('a group manager opens a request and cannot close a higher rank', (tester) async {
+    final calls = _FakeCalls()
+      ..desk = const GroupCallDesk(rank: 80, items: [
+        GroupCallRequest(userId: 'u1', username: 'ayse', displayName: 'Ayşe', rank: 10, status: CallPermissionStatus.requested, note: 'Lütfen'),
+        GroupCallRequest(userId: 'u2', username: 'sahip', displayName: 'Sahip', rank: 100, status: CallPermissionStatus.requested),
+      ]);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [callsRepositoryProvider.overrideWithValue(calls)],
+      child: MaterialApp(theme: GwTheme.light(), home: const GroupCallRequestsScreen(groupId: 'g1', groupName: 'Koşu Kulübü')),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Notu: Lütfen'), findsOneWidget);
+    expect(find.widgetWithText(GwButton, 'Reddet'), findsOneWidget);
+    expect(find.textContaining('yalnızca açabilirsin'), findsOneWidget);
+    await tester.tap(find.widgetWithText(GwButton, 'Aç').first);
+    await tester.pumpAndSettle();
+    expect(calls.decisions, ['u1 open']);
+
+    await tester.tap(find.widgetWithText(GwButton, 'Reddet'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'Şimdilik değil');
+    await tester.tap(find.widgetWithText(GwButton, 'Reddet').last);
+    await tester.pumpAndSettle();
+    expect(calls.decisions, ['u1 open', 'u1 close Şimdilik değil']);
   });
 
   testWidgets('a closed permission shows the reason and waits a week before asking again', (tester) async {
     await pumpPermission(
       tester,
-      CallPermission(status: CallPermissionStatus.revoked, reason: 'Şikayet üzerine', decidedAt: DateTime.now()),
+      CallPermission(status: CallPermissionStatus.revoked, reason: 'Şikayet üzerine', decidedAt: DateTime.now(), decidedByPerson: true),
     );
+
     expect(find.text('Gerekçe: Şikayet üzerine'), findsOneWidget);
     expect(find.textContaining('sonrasında yeniden talep edebilirsin'), findsOneWidget);
     expect(find.text('Talep et'), findsNothing);

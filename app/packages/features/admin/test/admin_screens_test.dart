@@ -546,39 +546,8 @@ AdminReferral _referral({AdminReferralStatus status = AdminReferralStatus.pendin
 
 var _referralRow = _referral();
 
-/// Two people asking for voice calls; records the decisions.
-class _FakeCalls implements AdminCallsRepository {
-  final decisions = <(String, bool, String?)>[];
-
-  @override
-  Future<Result<AdminCallPermissionsPage>> permissions(AdminCallPermissionStatus status) async => Ok(AdminCallPermissionsPage(
-        items: status == AdminCallPermissionStatus.requested
-            ? [
-                AdminCallPermission(
-                  userId: 'u1', username: 'ayse', displayName: 'Ayşe Yılmaz', status: status,
-                  note: 'Eşleştiğim kişiyle konuşmak istiyorum', requestedAt: DateTime(2026, 11, 1, 10),
-                ),
-              ]
-            : const [],
-        calls24h: 12,
-        minutes24h: 85,
-      ));
-
-  @override
-  Future<Result<void>> setPermission(String userId, {required bool active, String? reason}) async {
-    decisions.add((userId, active, reason));
-    return const Ok(null);
-  }
-
-  @override
-  Future<Result<AdminCallPermission?>> userPermission(String userId) async => const Ok(null);
-}
-
-final _calls = _FakeCalls();
-
 Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
       overrides: [
-        adminCallsRepositoryProvider.overrideWithValue(_calls),
         adminBillingRepositoryProvider.overrideWithValue(_billing),
         adminSupportRepositoryProvider.overrideWithValue(_support),
         adminContentRepositoryProvider.overrideWithValue(_content),
@@ -1407,36 +1376,5 @@ void main() {
     await tester.tap(find.text('Ankara · Yürüyüş'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(GwButton, 'Ligden çıkar'), findsNothing);
-  });
-
-  testWidgets('support opens voice calls for a person and declines with a reason; moderators only view', (tester) async {
-    _calls.decisions.clear();
-    await _pumpAt(tester, const Size(1280, 900), const AdminCallsScreen(), role: StaffRole.support);
-    expect(find.text('Ayşe Yılmaz (@ayse)'), findsOneWidget);
-    expect(find.text('“Eşleştiğim kişiyle konuşmak istiyorum”'), findsOneWidget);
-    expect(find.text('85'), findsOneWidget);
-
-    await tester.tap(find.widgetWithText(GwButton, 'Aç'));
-    await tester.pumpAndSettle();
-    expect(_calls.decisions.single, ('u1', true, null));
-
-    await tester.tap(find.widgetWithText(GwButton, 'Reddet'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Profil bilgileri eksik');
-    await tester.tap(find.widgetWithText(GwButton, 'Reddet').last);
-    await tester.pumpAndSettle();
-    expect(_calls.decisions.last, ('u1', false, 'Profil bilgileri eksik'));
-  });
-
-  testWidgets('moderators see voice call requests but cannot decide', (tester) async {
-    await _pumpAt(tester, const Size(1280, 900), const AdminCallsScreen(), role: StaffRole.moderator);
-    expect(find.text('Ayşe Yılmaz (@ayse)'), findsOneWidget);
-    expect(find.widgetWithText(GwButton, 'Aç'), findsNothing);
-  });
-
-  testWidgets('voice calls lay out on a phone', (tester) async {
-    await _pumpAt(tester, const Size(390, 844), const AdminCallsScreen());
-    expect(tester.takeException(), isNull);
-    expect(find.text('Son 24 saatte görüşme'), findsOneWidget);
   });
 }

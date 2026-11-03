@@ -7,13 +7,15 @@ import '../domain/moderation.dart';
 import 'providers.dart';
 
 /// Opens a discipline case about [subjectName] (docs/ARCHITECTURE.md §3e); true when opened.
-/// [canMute] offers the emergency mute; [reportId] links the case to the reports of a target.
+/// [canMute] offers the emergency mute; [canBan] a ban without the board's vote; [reportId] links the case to the
+/// reports of a target.
 Future<bool> showCaseSheet(
   BuildContext context, {
   required String groupId,
   required String subjectId,
   required String subjectName,
   bool canMute = false,
+  bool canBan = false,
   String? reportId,
 }) async =>
     await showModalBottomSheet<bool>(
@@ -21,17 +23,32 @@ Future<bool> showCaseSheet(
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (_) => _CaseSheet(groupId: groupId, subjectId: subjectId, subjectName: subjectName, canMute: canMute, reportId: reportId),
+      builder: (_) => _CaseSheet(
+        groupId: groupId,
+        subjectId: subjectId,
+        subjectName: subjectName,
+        canMute: canMute,
+        canBan: canBan,
+        reportId: reportId,
+      ),
     ) ??
     false;
 
 class _CaseSheet extends ConsumerStatefulWidget {
-  const _CaseSheet({required this.groupId, required this.subjectId, required this.subjectName, required this.canMute, this.reportId});
+  const _CaseSheet({
+    required this.groupId,
+    required this.subjectId,
+    required this.subjectName,
+    required this.canMute,
+    required this.canBan,
+    this.reportId,
+  });
 
   final String groupId;
   final String subjectId;
   final String subjectName;
   final bool canMute;
+  final bool canBan;
   final String? reportId;
 
   @override
@@ -44,6 +61,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
   SanctionType _sanction = SanctionType.warning;
   int? _days;
   bool _muteNow = false;
+  bool _direct = false;
   IllegalCategory? _illegal;
   bool _busy = false;
   String? _error;
@@ -57,8 +75,13 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
   void _pick(SanctionType type) => setState(() {
         _sanction = type;
         _days = type.durations.firstOrNull;
-        if (type != SanctionType.ban) _illegal = null;
+        if (type != SanctionType.ban) {
+          _illegal = null;
+          _direct = false;
+        }
       });
+
+  bool get _now => _direct && _sanction == SanctionType.ban;
 
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
@@ -74,8 +97,9 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
             durationDays: _days,
             reason: _reason.text,
             reportId: widget.reportId,
-            muteNow: _muteNow,
+            muteNow: _muteNow && !_now,
             illegalCategory: _illegal,
+            direct: _now,
           ),
         );
     if (!mounted) return;
@@ -84,7 +108,13 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
         ref.invalidate(groupModerationProvider(widget.groupId));
         final messenger = ScaffoldMessenger.of(context);
         Navigator.of(context).pop(true);
-        messenger.showSnackBar(const SnackBar(content: Text('Dosya açıldı. Kurul 72 saat içinde oy verecek.')));
+        messenger.showSnackBar(SnackBar(
+          content: Text(_now
+              ? _illegal == null
+                  ? 'Ban uygulandı.'
+                  : 'Ban uygulandı. Kişinin hesabı platform incelemesine kadar askıya alındı.'
+              : 'Dosya açıldı. Kurul 72 saat içinde oy verecek.'),
+        ));
       case Err(:final failure):
         setState(() {
           _busy = false;
@@ -107,7 +137,9 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
             Text('Disiplin dosyası aç', style: textTheme.titleLarge),
             const SizedBox(height: GwSpacing.xxs),
             Text(
-              '${widget.subjectName} hakkında. Önerdiğin yaptırımı disiplin kurulu 72 saat içinde oylar.',
+              _now
+                  ? '${widget.subjectName} hakkında. Ban kurul oylaması olmadan hemen uygulanır.'
+                  : '${widget.subjectName} hakkında. Önerdiğin yaptırımı disiplin kurulu 72 saat içinde oylar.',
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             const SizedBox(height: GwSpacing.md),
@@ -139,13 +171,22 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
               ),
             ],
             if (_sanction == SanctionType.ban) ...[
+              if (widget.canBan)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _direct,
+                  onChanged: (v) => setState(() => _direct = v),
+                  title: const Text('Oylamasız, hemen uygula'),
+                  subtitle: const Text('Kurulun kararını beklemeden banlar. Kişi 7 gün içinde itiraz edebilir.'),
+                ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _illegal != null,
                 onChanged: (v) => setState(() => _illegal = v ? IllegalCategory.values.first : null),
                 title: const Text('Yasa dışı faaliyet'),
-                subtitle: const Text(
-                  'Kurul onaylarsa dosya platform ekibine gider ve hesap incelemeye kadar askıya alınır. Bu işaret sonradan değişmez.',
+                subtitle: Text(
+                  '${_now ? 'Ban uygulanınca' : 'Kurul onaylarsa'} dosya platform ekibine gider ve hesap incelemeye kadar askıya '
+                  'alınır. Bu işaret sonradan değişmez.',
                 ),
               ),
               if (_illegal != null)
@@ -164,10 +205,13 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
               maxLength: 1000,
               minLines: 2,
               maxLines: 5,
-              decoration: const InputDecoration(labelText: 'Gerekçe', hintText: 'Ne oldu? Kurul bu metne bakarak oy verecek.'),
+              decoration: InputDecoration(
+                labelText: 'Gerekçe',
+                hintText: _now ? 'Ne oldu? Kişi ve itirazı inceleyen bu metni görür.' : 'Ne oldu? Kurul bu metne bakarak oy verecek.',
+              ),
               validator: (v) => (v ?? '').trim().length < 10 ? 'Gerekçe en az 10 karakter olmalı.' : null,
             ),
-            if (widget.canMute)
+            if (widget.canMute && !_now)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _muteNow,
@@ -177,7 +221,14 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
               ),
             if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
             const SizedBox(height: GwSpacing.md),
-            GwButton(label: 'Dosyayı aç', icon: Icons.gavel_outlined, isLoading: _busy, expand: true, onPressed: _submit),
+            GwButton(
+              label: _now ? 'Banla' : 'Dosyayı aç',
+              icon: _now ? Icons.block : Icons.gavel_outlined,
+              isLoading: _busy,
+              expand: true,
+              onPressed: _submit,
+            ),
+
           ],
         ),
       ),

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(28);
+select plan(29);
 
 -- f1 and f2 are matched; f3 is matched with f1 but never asks; f4 is a stranger.
 insert into auth.users (id, email, aud, role)
@@ -29,21 +29,40 @@ insert into public.conversations (kind, user_a, user_b, created_by) values
   ('direct', least(pg_temp.u(1), pg_temp.u(2)), greatest(pg_temp.u(1), pg_temp.u(2)), pg_temp.u(1)),
   ('direct', least(pg_temp.u(1), pg_temp.u(3)), greatest(pg_temp.u(1), pg_temp.u(3)), pg_temp.u(1));
 
--- Asking for the feature ----------------------------------------------------------------------------------
+-- Asking for the feature (0074: from a group the person belongs to; 59 covers the group's decision) -----------
+select pg_temp.act(4);
+insert into public.groups (id, handle, name, category_slug, join_policy, owner_id)
+values ('00000000-0000-0000-0000-0000000ff1a0', 'call.group', 'Arama grubu', 'running', 'open', pg_temp.u(4));
+insert into public.group_members (group_id, user_id) values ('00000000-0000-0000-0000-0000000ff1a0', pg_temp.u(4));
+select pg_temp.act(1);
+insert into public.group_members (group_id, user_id) values ('00000000-0000-0000-0000-0000000ff1a0', pg_temp.u(1));
+select pg_temp.act(3);
+insert into public.group_members (group_id, user_id) values ('00000000-0000-0000-0000-0000000ff1a0', pg_temp.u(3));
+-- Their first group gave them the welcome trial (0050); the package rules below are tested without it.
+alter table public.user_subscriptions disable trigger user_subscriptions_guard;
+delete from public.user_subscriptions where welcome_trial;
+alter table public.user_subscriptions enable trigger user_subscriptions_guard;
+
+
 set local role authenticated;
 select pg_temp.act(1);
-select lives_ok($$ select public.request_call_permission('Eşleştiğim kişiyle konuşmak istiyorum') $$, 'a person asks for voice calls');
-select is(pg_temp.call_status(1), 'requested', 'the request waits for the platform team');
-select throws_ok($$ select public.request_call_permission(null) $$, 'P0001', 'call_permission_exists', 'asking twice changes nothing');
+select lives_ok($$ select public.request_call_permission('00000000-0000-0000-0000-0000000ff1a0', 'Eşleştiğim kişiyle konuşmak istiyorum') $$,
+  'a person asks a group for voice calls');
+select is(pg_temp.call_status(1), 'requested', 'the request waits for the group');
+select throws_ok($$ select public.request_call_permission('00000000-0000-0000-0000-0000000ff1a0', null) $$, 'P0001', 'call_permission_exists',
+  'asking twice changes nothing');
 select throws_ok($$ update public.call_permissions set status = 'active' $$, '42501', null, 'nobody grants it to themselves');
 select pg_temp.act(4);
-select is((select count(*)::int from public.call_permissions), 0, 'others do not see the request');
+select is((select count(*)::int from public.call_permissions), 1, 'the group owner sees the request');
+select pg_temp.act(3);
+select is((select count(*)::int from public.call_permissions), 0, 'other members do not');
 reset role;
 
 -- Rules ---------------------------------------------------------------------------------------------------
 select pg_temp.act(1);
 select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_no_permission', 'no permission, no call');
 
+alter table public.call_permissions disable trigger call_permissions_guard;
 update public.call_permissions set status = 'active', decided_at = now() where user_id = pg_temp.u(1);
 select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', 'call_chat_locked',
   'calling needs the Eşleşme Sohbeti package too');
@@ -56,6 +75,7 @@ select throws_ok($$ select private.start_call(pg_temp.chat(1, 2)) $$, 'P0001', '
   'the other person needs permission as well');
 
 insert into public.call_permissions (user_id, status, decided_at) values (pg_temp.u(2), 'active', now());
+alter table public.call_permissions enable trigger call_permissions_guard;
 select is(
   (select count(*)::int from public.notifications where recipient_id = pg_temp.u(2) and type = 'call_permission_granted'), 1,
   'a person hears when the feature is opened for them'
@@ -131,10 +151,14 @@ select is((select count(*)::int from public.notifications where type = 'call_end
 reset role;
 select pg_temp.act(1);
 
-insert into public.call_permissions (user_id, status, decided_at, reason) values (pg_temp.u(3), 'declined', now(), 'Şimdilik değil');
+alter table public.call_permissions disable trigger call_permissions_guard;
+insert into public.call_permissions (user_id, status, decided_at, decided_by, reason)
+values (pg_temp.u(3), 'declined', now(), pg_temp.u(4), 'Şimdilik değil');
+alter table public.call_permissions enable trigger call_permissions_guard;
 set local role authenticated;
 select pg_temp.act(3);
-select throws_ok($$ select public.request_call_permission(null) $$, 'P0001', 'call_permission_cooldown',
+select throws_ok($$ select public.request_call_permission('00000000-0000-0000-0000-0000000ff1a0', null) $$, 'P0001', 'call_permission_cooldown',
+
   'a declined person asks again only after a week');
 reset role;
 select is(

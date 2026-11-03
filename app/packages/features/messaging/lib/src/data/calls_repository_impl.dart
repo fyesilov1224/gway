@@ -92,23 +92,70 @@ class CallsRepositoryImpl implements CallsRepository {
 
   @override
   Future<Result<CallPermission>> myPermission() => _run(() async {
-        final r = await _client.from('call_permissions').select('status, note, reason, decided_at').eq('user_id', _me).maybeSingle();
+        final r = await _client.rpc<Map<String, dynamic>?>('my_call_permission');
         if (r == null) return const CallPermission();
         return CallPermission(
           status: CallPermissionStatus.parse(r['status']),
           note: r['note'] as String?,
           reason: r['reason'] as String?,
           decidedAt: r['decided_at'] is String ? DateTime.parse(r['decided_at'] as String) : null,
+          decidedByPerson: r['decided_by_person'] == true,
+          groupName: (r['group'] as Map<String, dynamic>?)?['name'] as String?,
         );
       });
 
   @override
-  Future<Result<void>> requestPermission(String? note) => _run(() async {
+  Future<Result<List<CallGroup>>> myGroups() => _run(() async {
+        final rows = await _client.from('group_members').select('groups!inner(id, name, status)').eq('user_id', _me);
+        return [
+          for (final g in rows.map((r) => r['groups'] as Map<String, dynamic>))
+            if (g['status'] == 'active') CallGroup(id: g['id'] as String, name: g['name'] as String),
+        ]..sort((a, b) => a.name.compareTo(b.name));
+      });
+
+  @override
+  Future<Result<GroupCallDesk?>> groupDesk(String groupId) => _run(() async {
+        final r = await _client.rpc<Map<String, dynamic>?>('group_call_permissions', params: {'target_group': groupId});
+        if (r == null) return null;
+        DateTime? at(Object? v) => v is String ? DateTime.parse(v) : null;
+        return GroupCallDesk(
+          rank: (r['rank'] as num).toInt(),
+          items: [
+            for (final (i, p) in [
+              for (final i in (r['items'] as List).cast<Map<String, dynamic>>()) (i, i['person'] as Map<String, dynamic>),
+            ])
+              GroupCallRequest(
+                userId: p['id'] as String,
+                username: p['username'] as String,
+                displayName: p['display_name'] as String,
+                avatarUrl: switch (p['avatar_path']) {
+                  final String path => _client.storage.from('avatars').getPublicUrl(path),
+                  _ => null,
+                },
+                rank: (p['rank'] as num).toInt(),
+
+                status: CallPermissionStatus.parse(i['status']),
+                note: i['note'] as String?,
+                requestedAt: at(i['requested_at']),
+                decidedAt: at(i['decided_at']),
+              ),
+          ],
+        );
+      });
+
+  @override
+  Future<Result<void>> decide(String groupId, String userId, {required bool active, String? reason}) =>
+      _api.put('/groups/$groupId/call-permissions/$userId', body: {'active': active, 'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> requestPermission(String groupId, String? note) => _run(() async {
         try {
-          await _client.rpc<void>('request_call_permission', params: {'request_note': note});
+          await _client.rpc<void>('request_call_permission', params: {'target_group': groupId, 'request_note': note});
         } on PostgrestException catch (e) {
           if (e.code != 'P0001') rethrow;
           throw switch (e.message) {
+            'call_group_invalid' => const RuleFailure('call.group_invalid', 'Talebi üyesi olduğun bir gruba gönderebilirsin.'),
+
             'call_permission_exists' => const RuleFailure('call.permission_exists', 'Talebin zaten alındı ya da yetkin açık.'),
             'call_permission_cooldown' =>
               const RuleFailure('call.permission_cooldown', 'Yeni bir talebi son karardan 7 gün sonra gönderebilirsin.'),

@@ -23,10 +23,13 @@ namespace Gway.Modules.Moderation;
 public sealed record RemoveReportedRequest(string Reason);
 
 /// <param name="IllegalCategory">Marks a ban case as illegal activity; once approved it goes to the platform team (§3e).</param>
+/// <param name="Direct">A ban without the board's vote (members.ban, §3e Oylamasız ban): approved and applied at once.</param>
 public sealed record OpenCaseRequest(
-    Guid SubjectId, string? Sanction, int? DurationDays, string? Reason, Guid? ReportId, bool MuteNow, string? IllegalCategory = null);
+    Guid SubjectId, string? Sanction, int? DurationDays, string? Reason, Guid? ReportId, bool MuteNow, string? IllegalCategory = null,
+    bool Direct = false);
 
-public sealed record CreatedCase(Guid Id);
+/// <summary>The case and its status: <c>voting</c>, or <c>approved</c> for a direct ban.</summary>
+public sealed record CreatedCase(Guid Id, string Status);
 
 public sealed record CaseVoteRequest(bool Approve);
 
@@ -205,6 +208,8 @@ internal sealed partial class ModerationService(
             return Error.Validation("case.invalid_duration", "Susturma 1–90 gün, ban 1–365 gün ya da kalıcı olur; uyarı ve çıkarmanın süresi yoktur.");
         if (r.IllegalCategory is { } category && (r.Sanction != "ban" || !IllegalCategories.Contains(category)))
             return Error.Validation("case.invalid_illegal", "Yasa dışı faaliyet yalnızca ban önerisiyle ve listedeki bir kategoriyle işaretlenir.");
+        if (r.Direct && (r.Sanction != "ban" || r.MuteNow))
+            return Error.Validation("case.invalid_direct", "Oylamasız yalnızca ban uygulanır; acil susturma bununla birlikte seçilmez.");
         return reason.Length is < 10 or > 1000 ? Error.Validation("case.invalid_reason", "Gerekçe 10–1000 karakter olmalı.") : null;
     }
 
@@ -220,6 +225,7 @@ internal sealed partial class ModerationService(
             await ActingTransaction.ExecuteAsync(conn, tx, "select 1 from public.groups where id = @g for update", ct, ("g", groupId));
             if (!await HasPermissionAsync(conn, tx, actor, groupId, "reports.review", ct)) return Forbidden;
             if (request.MuteNow && !await HasPermissionAsync(conn, tx, actor, groupId, "members.mute", ct)) return Forbidden;
+            if (request.Direct && !await HasPermissionAsync(conn, tx, actor, groupId, "members.ban", ct)) return Forbidden;
             if (await ActingTransaction.ScalarAsync(conn, tx,
                     "select exists (select 1 from public.group_members where group_id = @g and user_id = @u)", ct,
                     ("g", groupId), ("u", request.SubjectId)) is not true)
@@ -227,12 +233,13 @@ internal sealed partial class ModerationService(
 
             var subjectRank = await RankAsync(conn, tx, groupId, request.SubjectId, ct);
             if (await RankAsync(conn, tx, groupId, actor, ct) <= subjectRank) return RankViolation;
-            if ((int)(await ActingTransaction.ScalarAsync(conn, tx, "select private.case_decider_rank(@g, @u)", ct,
+            if (!request.Direct && (int)(await ActingTransaction.ScalarAsync(conn, tx, "select private.case_decider_rank(@g, @u)", ct,
                     ("g", groupId), ("u", request.SubjectId)))! <= subjectRank)
                 return BoardRank;
-            if (await ActingTransaction.ScalarAsync(conn, tx,
-                    "select exists (select 1 from public.moderation_cases where group_id = @g and subject_id = @u and status = 'voting')", ct,
-                    ("g", groupId), ("u", request.SubjectId)) is true)
+            var openCase = await ActingTransaction.ScalarAsync(conn, tx,
+                "select id from public.moderation_cases where group_id = @g and subject_id = @u and status = 'voting' for update", ct,
+                ("g", groupId), ("u", request.SubjectId)) as Guid?;
+            if (openCase is not null && !request.Direct)
                 return Error.Conflict("case.already_open", "Bu kişi hakkında karar bekleyen bir dosya var.");
 
             ReportRow? report = null;
@@ -246,14 +253,23 @@ internal sealed partial class ModerationService(
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
                 insert into public.moderation_cases
-                  (group_id, subject_id, opened_by, sanction, duration_days, reason, threshold, voting_ends_at, illegal_category)
-                values (@g, @u, @actor, @sanction, @days, @reason, 'majority', now(), @illegal)
+                  (group_id, subject_id, opened_by, sanction, duration_days, reason, threshold, voting_ends_at, illegal_category, direct)
+                values (@g, @u, @actor, @sanction, @days, @reason, 'majority', now(), @illegal, @direct)
                 returning id
                 """, ct, ("g", groupId), ("u", request.SubjectId), ("actor", actor), ("sanction", request.Sanction),
-                ("days", request.DurationDays), ("reason", reason), ("illegal", request.IllegalCategory)))!;
+                ("days", request.DurationDays), ("reason", reason), ("illegal", request.IllegalCategory), ("direct", request.Direct)))!;
             await AuditAsync(conn, tx, actor, AuditActor.User, "case.opened", "moderation_case", id, groupId,
-                new { userId = request.SubjectId, request.Sanction, request.DurationDays, request.IllegalCategory }, ct);
+                new { userId = request.SubjectId, request.Sanction, request.DurationDays, request.IllegalCategory, request.Direct }, ct);
             if (report is not null) await CloseReportsAsync(conn, tx, report, "actioned", id, ct);
+            if (request.Direct)
+            {
+                // The vote about the same person ends (private.case_outcome: superseded), then the ban starts.
+                if (openCase is { } superseded && await LoadCaseAsync(conn, tx, superseded, ct) is { } open)
+                    await DecideAsync(conn, tx, open, actor, AuditActor.User, ct);
+                await ApplyAsync(conn, tx, new CaseRow(id, groupId, request.SubjectId, "ban", "approved", request.IllegalCategory),
+                    actor, AuditActor.User, ct);
+                return new CreatedCase(id, "approved");
+            }
             if (request.MuteNow)
             {
                 await ActingTransaction.ExecuteAsync(conn, tx,
@@ -261,10 +277,10 @@ internal sealed partial class ModerationService(
                 await AuditAsync(conn, tx, actor, AuditActor.User, "sanction.applied", "moderation_case", id, groupId,
                     new { userId = request.SubjectId, type = "mute", interim = true }, ct);
             }
-            return new CreatedCase(id);
+            return new CreatedCase(id, "voting");
         }, RuleError, ct);
 
-        if (opened.IsSuccess && request.MuteNow) await live.EnforceSanctionAsync(groupId, request.SubjectId, ct);
+        if (opened.IsSuccess && (request.MuteNow || request.Direct)) await live.EnforceSanctionAsync(groupId, request.SubjectId, ct);
         return opened;
     }
 
@@ -318,16 +334,21 @@ internal sealed partial class ModerationService(
                 ct, ("c", c.Id)) > 0)
             await AuditAsync(conn, tx, actor, actorKind, "sanction.lifted", "moderation_case", c.Id, c.GroupId,
                 new { userId = c.SubjectId, reason = "decided", interim = true }, ct);
-        if (outcome != "approved") return outcome;
+        if (outcome == "approved") await ApplyAsync(conn, tx, c, actor, actorKind, ct);
+        return outcome;
+    }
 
+    /// <summary>An approved case's sanction starts; a kick or ban removes the membership; illegal activity goes to the platform.</summary>
+    private async Task ApplyAsync(NpgsqlConnection conn, NpgsqlTransaction tx, CaseRow c, Guid? actor, string actorKind, CancellationToken ct)
+    {
         await ActingTransaction.ExecuteAsync(conn, tx, "insert into public.sanctions (case_id, type) values (@c, @type)", ct,
             ("c", c.Id), ("type", c.Sanction));
         var removed = c.Sanction is "kick" or "ban" && await membership.RemoveAsync(conn, tx, c.GroupId, c.SubjectId, ct);
         await AuditAsync(conn, tx, actor, actorKind, "sanction.applied", "moderation_case", c.Id, c.GroupId,
             new { userId = c.SubjectId, type = c.Sanction, removed }, ct);
         if (c.IllegalCategory is not null) await OpenReferralAsync(conn, tx, c, actor, actorKind, ct);
-        return outcome;
     }
+
 
     /// <summary>
     /// An approved illegal-activity case: the platform team gets a referral with the evidence, and the account is suspended

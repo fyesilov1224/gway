@@ -159,6 +159,7 @@ class ModerationCase {
     this.openedBy,
     this.durationDays,
     this.illegalCategory,
+    this.direct = false,
     this.threshold = CaseThreshold.majority,
     this.decidedAt,
     this.approvals = 0,
@@ -175,6 +176,9 @@ class ModerationCase {
 
   /// Set when the case is about illegal activity; approved, it goes to the platform team.
   final IllegalCategory? illegalCategory;
+
+  /// A ban the owner or a Yönetici applied without a vote (§3e, Oylamasız ban).
+  final bool direct;
   final String reason;
   final CaseThreshold threshold;
   final CaseStatus status;
@@ -252,6 +256,7 @@ class GroupModeration {
     required this.rank,
     this.isOwner = false,
     this.canMute = false,
+    this.canBan = false,
     this.threshold = CaseThreshold.majority,
     this.reports = const [],
     this.cases = const [],
@@ -261,6 +266,9 @@ class GroupModeration {
   final int rank;
   final bool isOwner;
   final bool canMute;
+
+  /// members.ban: a ban without the board's vote.
+  final bool canBan;
   final CaseThreshold threshold;
   final List<GroupReport> reports;
   final List<ModerationCase> cases;
@@ -324,6 +332,7 @@ class CaseForm {
     this.reportId,
     this.muteNow = false,
     this.illegalCategory,
+    this.direct = false,
   });
 
   final String subjectId;
@@ -336,6 +345,9 @@ class CaseForm {
   /// Only with a ban.
   final IllegalCategory? illegalCategory;
 
+  /// A ban applied at once, without the board's vote (members.ban).
+  final bool direct;
+
   Map<String, Object?> toJson() => {
         'subjectId': subjectId,
         'sanction': sanction.code,
@@ -344,7 +356,9 @@ class CaseForm {
         'reportId': reportId,
         'muteNow': muteNow,
         'illegalCategory': illegalCategory?.code,
+        'direct': direct,
       };
+
 }
 
 abstract interface class ModerationRepository {
