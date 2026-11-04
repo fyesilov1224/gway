@@ -272,12 +272,14 @@ class FeedRepositoryImpl implements FeedRepository {
             : await table.delete().eq('post_id', postId).eq('user_id', _me);
       });
 
+  static const _commentColumns = 'id, parent_id, body, like_count, created_at, '
+      'author:profiles!comments_author_id_fkey(id, username, display_name, avatar_path)';
+
   @override
   Future<Result<List<Comment>>> comments(String postId) => runFeed(() async {
         final rows = await _client
             .from('comments')
-            .select('id, parent_id, body, like_count, created_at, '
-                'author:profiles!comments_author_id_fkey(id, username, display_name, avatar_path)')
+            .select(_commentColumns)
             .eq('post_id', postId)
             .order('created_at')
             .limit(500);
@@ -306,12 +308,27 @@ class FeedRepositoryImpl implements FeedRepository {
       });
 
   @override
-  Future<Result<void>> addComment(String postId, String body, {String? replyTo}) => runFeed(() async {
+  Future<Result<Comment>> addComment(String postId, String body, {String? replyTo}) => runFeed(() async {
         final text = body.trim();
         if (text.isEmpty || text.length > NewPost.maxCaption) {
           throw const RuleFailure('feed.invalid_comment', 'Yorum 1–2.200 karakter olmalı.');
         }
-        await _client.from('comments').insert({'post_id': postId, 'author_id': _me, 'parent_id': replyTo, 'body': text});
+        // One round trip: the stored row comes back with its author.
+        final r = await _client
+            .from('comments')
+            .insert({'post_id': postId, 'author_id': _me, 'parent_id': replyTo, 'body': text})
+            .select(_commentColumns)
+            .single();
+        return Comment(
+          id: r['id'] as String,
+          postId: postId,
+          author: _map.author((r['author'] as Map).cast()),
+          parentId: r['parent_id'] as String?,
+          body: r['body'] as String,
+          createdAt: DateTime.parse(r['created_at'] as String),
+          likeCount: (r['like_count'] as num).toInt(),
+          liked: false,
+        );
       });
 
   @override

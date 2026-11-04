@@ -139,6 +139,7 @@ class ChatMessage {
     this.imageUrl,
     this.deletedAt,
     this.removed = false,
+    this.pending = false,
   });
 
   final String id;
@@ -153,6 +154,9 @@ class ChatMessage {
 
   /// Taken down by a moderator rather than deleted by the sender.
   final bool removed;
+
+  /// Shown at once while it is on its way; no options yet.
+  final bool pending;
 
   bool get isDeleted => deletedAt != null;
 }
@@ -179,7 +183,8 @@ abstract interface class MessagingRepository {
 
   Future<Result<String?>> groupConversation(String groupId);
 
-  Future<Result<void>> send(String conversationId, {String body = '', ImageUpload? image});
+  /// The new message's id.
+  Future<Result<String>> send(String conversationId, {String body = '', ImageUpload? image});
 
   Future<Result<void>> answerRequest(String conversationId, {required bool accept});
 

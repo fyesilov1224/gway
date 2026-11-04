@@ -475,7 +475,8 @@ abstract interface class FeedRepository {
   /// Top-level comments with their replies, oldest first.
   Future<Result<List<Comment>>> comments(String postId);
 
-  Future<Result<void>> addComment(String postId, String body, {String? replyTo});
+  /// The new comment as the server stored it, so the list shows it without loading again.
+  Future<Result<Comment>> addComment(String postId, String body, {String? replyTo});
 
   Future<Result<void>> deleteComment(String commentId);
 

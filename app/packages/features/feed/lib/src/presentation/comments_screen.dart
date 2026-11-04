@@ -25,6 +25,9 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
   Comment? _replyTo;
   bool _sending = false;
 
+  /// Comments written here, shown at once instead of loading the whole list again.
+  final _added = <Comment>[];
+
   @override
   void dispose() {
     _text.dispose();
@@ -40,22 +43,39 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
     _focus.requestFocus();
   }
 
+  /// The box empties at once; the comment joins the list as soon as the server stored it. If it cannot go, the text
+  /// comes back to the box with the reason.
   Future<void> _send(Post post) async {
     final body = _text.text.trim();
     if (body.isEmpty) return;
-    setState(() => _sending = true);
-    final result = await ref.read(feedRepositoryProvider).addComment(widget.postId, body, replyTo: _replyTo?.id);
+    final replyTo = _replyTo;
+    _text.clear();
+    setState(() {
+      _sending = true;
+      _replyTo = null;
+    });
+    final result = await ref.read(feedRepositoryProvider).addComment(widget.postId, body, replyTo: replyTo?.id);
     if (!mounted) return;
     setState(() => _sending = false);
     switch (result) {
-      case Ok():
-        _text.clear();
-        setState(() => _replyTo = null);
+      case Ok(:final value):
+        setState(() => _added.add(value));
         ref.read(postEditsProvider.notifier).put(post.copyWith(commentCount: post.commentCount + 1));
-        ref.invalidate(commentsProvider(widget.postId));
       case Err(:final failure):
+        setState(() {
+          if (_text.text.isEmpty) _text.text = body;
+          _replyTo ??= replyTo;
+        });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
     }
+  }
+
+  /// The loaded comments with the ones written here, replies under their comment.
+  List<Comment> _withAdded(List<Comment> loaded) {
+    if (_added.isEmpty) return loaded;
+    final flat = [for (final c in loaded) ...[c.copyWith(replies: const []), ...c.replies]];
+    final known = {for (final c in flat) c.id};
+    return threadComments([...flat, ..._added.where((c) => !known.contains(c.id))]);
   }
 
   @override
@@ -76,7 +96,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
           children: [
             Expanded(
               child: switch (comments) {
-                AsyncData(:final value) when value.isEmpty => GwEmptyState(
+                AsyncData(:final value) when value.isEmpty && _added.isEmpty => GwEmptyState(
                     icon: Icons.mode_comment_outlined,
                     message: switch (post) {
                       Post(commentsDisabled: true) => 'Bu gönderide yorumlar kapalı.',
@@ -97,7 +117,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           _CaptionRow(post: post),
                           const Divider(),
                         ],
-                        for (final c in value) ...[
+                        for (final c in _withAdded(value)) ...[
                           _CommentRow(
                             comment: c,
                             canDelete: c.author.id == me || (post?.canManage ?? false),

@@ -244,7 +244,20 @@ class _Chat extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final me = ref.watch(currentUserIdProvider);
     final c = thread.conversation;
-    final messages = thread.messages;
+    // What the user just sent shows at once, until the server's copy arrives (docs/ARCHITECTURE.md §3f, Anında gönderim).
+    final shown = {for (final m in thread.messages) m.id};
+    final messages = [
+      ...thread.messages,
+      for (final p in ref.watch(pendingMessagesProvider(c.id)))
+        if (p.id == null || !shown.contains(p.id))
+          ChatMessage(
+            id: 'pending-${p.localId}',
+            sender: MessageSender(id: me ?? '', username: '', displayName: ''),
+            createdAt: p.createdAt,
+            body: p.body.isEmpty && p.hasImage ? '📷 Fotoğraf gönderiliyor…' : p.body,
+            pending: true,
+          ),
+    ];
     // Several people write: names above their messages.
     final group = c.kind != ConversationKind.direct;
     // "Görüldü" under the newest of my messages the other person has read.
@@ -294,7 +307,9 @@ class _Chat extends ConsumerWidget {
                                       next.sender.id != m.sender.id ||
                                       !DateUtils.isSameDay(next.createdAt.toLocal(), m.createdAt.toLocal())),
                               onOpenSender: m.sender.isHidden ? null : () => onOpenProfile(m.sender.username),
-                              status: m.id == seenId
+                              status: m.pending
+                                  ? 'Gönderiliyor…'
+                                  : m.id == seenId
                                   ? 'Görüldü'
                                   : m.id == lastMine && !group && !m.isDeleted
                                       ? 'Gönderildi'
@@ -416,7 +431,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
 
     final options = SizedBox.square(
       dimension: GwSpacing.minTouchTarget,
-      child: _hovered && !m.isDeleted
+      child: _hovered && !m.isDeleted && !m.pending
           ? IconButton(
               tooltip: 'Mesaj seçenekleri',
               icon: const Icon(Icons.more_horiz, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
@@ -478,7 +493,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
                             child: Semantics(
                               label: '${mine ? 'Sen' : m.sender.displayName}, $time',
                               child: GestureDetector(
-                                onLongPress: m.isDeleted ? null : _actions,
+                                onLongPress: m.isDeleted || m.pending ? null : _actions,
                                 child: bubble,
                               ),
                             ),
@@ -745,8 +760,10 @@ class _Composer extends ConsumerStatefulWidget {
 class _ComposerState extends ConsumerState<_Composer> {
   final _text = TextEditingController();
   ImageUpload? _image;
-  bool _sending = false;
   String? _error;
+
+  /// Sends go out one after another, so quick messages keep their order.
+  Future<void> _queue = Future.value();
 
   @override
   void dispose() {
@@ -759,22 +776,32 @@ class _ComposerState extends ConsumerState<_Composer> {
     if (image != null && mounted) setState(() => _image = image);
   }
 
-  Future<void> _send() async {
+  /// The message shows in the chat at once and the box empties; it is sent behind the scenes. If it cannot go, it
+  /// leaves the chat and comes back to the box with the reason.
+  void _send() {
     final body = _text.text.trim();
-    if (body.isEmpty && _image == null) return;
+    final image = _image;
+    if (body.isEmpty && image == null) return;
+    final pending = ref.read(pendingMessagesProvider(widget.conversationId).notifier);
+    final localId = pending.add(body, hasImage: image != null);
     setState(() {
-      _sending = true;
       _error = null;
+      _text.clear();
+      _image = null;
     });
-    final result = await ref.read(messagingRepositoryProvider).send(widget.conversationId, body: body, image: _image);
-    if (!mounted) return;
-    setState(() {
-      _sending = false;
-      if (result case Err(:final failure)) {
-        _error = failure.userMessage;
-      } else {
-        _text.clear();
-        _image = null;
+    _queue = _queue.then((_) async {
+      final result = await ref.read(messagingRepositoryProvider).send(widget.conversationId, body: body, image: image);
+      if (!mounted) return;
+      switch (result) {
+        case Ok(:final value):
+          pending.sent(localId, value);
+        case Err(:final failure):
+          pending.remove(localId);
+          setState(() {
+            _error = failure.userMessage;
+            if (_text.text.isEmpty) _text.text = body;
+            _image ??= image;
+          });
       }
     });
   }
@@ -807,7 +834,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                         IconButton(
                           tooltip: 'Fotoğrafı kaldır',
                           icon: const Icon(Icons.close),
-                          onPressed: _sending ? null : () => setState(() => _image = null),
+                          onPressed: () => setState(() => _image = null),
                         ),
                       ],
                     ),
@@ -819,7 +846,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                       IconButton(
                         tooltip: 'Fotoğraf ekle',
                         icon: const Icon(Icons.add_photo_alternate_outlined),
-                        onPressed: _sending ? null : _pick,
+                        onPressed: _pick,
                       ),
                       Expanded(
                         child: TextField(
@@ -835,13 +862,8 @@ class _ComposerState extends ConsumerState<_Composer> {
                       const SizedBox(width: GwSpacing.xs),
                       IconButton.filled(
                         tooltip: 'Gönder',
-                        icon: _sending
-                            ? const SizedBox.square(
-                                dimension: GwSpacing.md,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: GwColors.onPrimary),
-                              )
-                            : const Icon(Icons.send),
-                        onPressed: _sending ? null : _send,
+                        icon: const Icon(Icons.send),
+                        onPressed: _send,
                       ),
                     ],
                   ),

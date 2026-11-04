@@ -179,7 +179,7 @@ class MessagingRepositoryImpl implements MessagingRepository {
       _run(() => _client.rpc<String?>('group_conversation', params: {'target_group': groupId}));
 
   @override
-  Future<Result<void>> send(String conversationId, {String body = '', ImageUpload? image}) async {
+  Future<Result<String>> send(String conversationId, {String body = '', ImageUpload? image}) async {
     String? imagePath;
     if (image != null) {
       final type = image.contentType;
@@ -196,7 +196,7 @@ class MessagingRepositoryImpl implements MessagingRepository {
     return _api.post(
       '/conversations/$conversationId/messages',
       body: {'body': body, 'imagePath': imagePath},
-      decode: (_) {},
+      decode: (json) => (json! as Map<String, dynamic>)['id'] as String,
     );
   }
 

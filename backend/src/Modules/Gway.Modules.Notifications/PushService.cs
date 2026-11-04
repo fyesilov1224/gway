@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using Gway.Modules.Notifications.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,9 @@ public static class NotificationsModule
 
 internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sender, ILogger<PushService> log)
 {
+    /// <summary>FCM requests in flight at once.</summary>
+    private const int ParallelSends = 16;
+
     /// <summary>Older notifications are not pushed any more; they are only in the app.</summary>
     private static readonly TimeSpan MaxAge = TimeSpan.FromMinutes(15);
 
@@ -40,30 +44,38 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
         if (batch.Count == 0) return 0;
         var devices = await DevicesAsync([.. batch.Select(n => n.RecipientId).Distinct()], ct);
 
-        var deliveries = new Dictionary<long, int>();
-        var gone = new List<string>();
+        var sends = new List<(long Id, string Token, PushMessage Message)>();
         foreach (var n in batch)
         {
             if (!devices.TryGetValue(n.RecipientId, out var tokens)) continue;
             // A chat message deleted before its push rings nobody.
             if (PushTexts.For(n) is not { } message) continue;
-            foreach (var token in tokens)
+            sends.AddRange(tokens.Select(token => (n.Id, token, message)));
+        }
+
+        // Side by side, not one after another: a busy group chat reaches everyone at about the same time.
+        var deliveries = new Dictionary<long, int>();
+        var gone = new List<string>();
+        await Parallel.ForEachAsync(sends, new ParallelOptions { MaxDegreeOfParallelism = ParallelSends, CancellationToken = ct },
+            async (send, token) =>
             {
                 PushResult result;
                 try
                 {
-                    result = await sender.SendAsync(token, message, ct);
+                    result = await sender.SendAsync(send.Token, send.Message, token);
                 }
                 catch (HttpRequestException ex)
                 {
-                    LogSendFailed(log, ex, n.Id);
-                    continue;
+                    LogSendFailed(log, ex, send.Id);
+                    return;
                 }
-                if (result == PushResult.Sent) deliveries[n.Id] = deliveries.GetValueOrDefault(n.Id) + 1;
-                else if (result == PushResult.Unregistered) gone.Add(token);
-                else LogRejected(log, n.Id);
-            }
-        }
+                lock (deliveries)
+                {
+                    if (result == PushResult.Sent) deliveries[send.Id] = deliveries.GetValueOrDefault(send.Id) + 1;
+                    else if (result == PushResult.Unregistered) gone.Add(send.Token);
+                }
+                if (result == PushResult.Failed) LogRejected(log, send.Id);
+            });
 
         if (deliveries.Count > 0)
         {
@@ -252,20 +264,29 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
 }
 
 /// <summary>
-/// Pushes new notifications every <c>Push:DispatchInterval</c> (default 5 seconds; zero turns it off) and sweeps the
-/// device list every <c>Push:SweepInterval</c> (default 1 hour; zero turns the sweep off).
+/// Pushes new notifications as soon as the database signals one (LISTEN <c>gway_push</c>, migration 0077), and at the
+/// latest every <c>Push:DispatchInterval</c> (default 5 seconds; zero turns it off) should a signal be lost.
+/// <c>Push:Listen</c> (default on) turns the signal off. Sweeps the device list every <c>Push:SweepInterval</c>
+/// (default 1 hour; zero turns the sweep off).
 /// </summary>
-internal sealed partial class PushDispatcher(PushService push, IConfiguration configuration, ILogger<PushDispatcher> logger)
+internal sealed partial class PushDispatcher(
+    PushService push, NpgsqlDataSource db, IConfiguration configuration, ILogger<PushDispatcher> logger)
     : BackgroundService
 {
+    /// <summary>How long the listening connection may stay quiet before it is checked.</summary>
+    private static readonly TimeSpan ListenCheck = TimeSpan.FromMinutes(1);
+
+    private readonly Channel<bool> _wake =
+        Channel.CreateBounded<bool>(new BoundedChannelOptions(1) { FullMode = BoundedChannelFullMode.DropWrite });
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var interval = configuration.GetValue("Push:DispatchInterval", TimeSpan.FromSeconds(5));
         if (interval <= TimeSpan.Zero) return;
         var sweepEvery = configuration.GetValue("Push:SweepInterval", TimeSpan.FromHours(1));
         var nextSweep = DateTimeOffset.UtcNow;
+        var listener = configuration.GetValue("Push:Listen", true) ? ListenAsync(stoppingToken) : Task.CompletedTask;
 
-        using var timer = new PeriodicTimer(interval);
         do
         {
             // A database or FCM outage must not stop the API; the next run retries.
@@ -283,9 +304,71 @@ internal sealed partial class PushDispatcher(PushService push, IConfiguration co
                 LogRunFailed(logger, ex);
             }
         }
-        while (await timer.WaitForNextTickAsync(stoppingToken));
+        while (await WaitAsync(interval, stoppingToken));
+        await listener;
+    }
+
+    /// <summary>Until the next signal or the interval, whichever comes first; false when stopping.</summary>
+    private async Task<bool> WaitAsync(TimeSpan interval, CancellationToken ct)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(interval);
+        try
+        {
+            await _wake.Reader.ReadAsync(timeout.Token);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            // The interval passed without a signal.
+        }
+        return !ct.IsCancellationRequested;
+    }
+
+    /// <summary>One connection held open for the database's signals; reconnects after a failure.</summary>
+    private async Task ListenAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                await using var conn = await db.OpenConnectionAsync(ct);
+                conn.Notification += (_, _) => _wake.Writer.TryWrite(true);
+                await using (var listen = new NpgsqlCommand("listen gway_push", conn))
+                {
+                    await listen.ExecuteNonQueryAsync(ct);
+                }
+                // Anything written while nobody listened goes out now.
+                _wake.Writer.TryWrite(true);
+                while (!ct.IsCancellationRequested)
+                {
+                    if (await conn.WaitAsync(ListenCheck, ct)) continue;
+                    // Quiet for a while: make sure the connection is still alive.
+                    await using var ping = new NpgsqlCommand("select 1", conn);
+                    await ping.ExecuteScalarAsync(ct);
+                }
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                LogListenFailed(logger, ex);
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5), ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+            }
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Push dispatch failed; will retry on the next run")]
     private static partial void LogRunFailed(ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Lost the database's push signal; pushes wait for the next poll until it is back")]
+    private static partial void LogListenFailed(ILogger logger, Exception ex);
 }
