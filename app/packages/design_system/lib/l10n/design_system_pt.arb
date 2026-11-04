@@ -1,0 +1,10 @@
+{
+  "@@locale": "pt",
+  "loadingLabel": "{label}, carregando",
+  "previous": "Anteriores",
+  "next": "Próximos",
+  "coverPhoto": "Foto de capa",
+  "retry": "Tentar novamente",
+  "liveBroadcast": "Transmissão ao vivo",
+  "liveBadge": "AO VIVO"
+}

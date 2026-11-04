@@ -1,9 +1,11 @@
+import '../l10n.dart';
+
 final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
 String? validateEmail(String? value) {
   final email = value?.trim() ?? '';
-  if (email.isEmpty) return 'E-posta adresini gir.';
-  if (!_emailPattern.hasMatch(email)) return 'Geçerli bir e-posta adresi gir.';
+  if (email.isEmpty) return identityL10n.enterEmail;
+  if (!_emailPattern.hasMatch(email)) return identityL10n.authInvalidEmail;
   return null;
 }
 
@@ -11,14 +13,14 @@ String? validateEmail(String? value) {
 /// upper case and digits.
 String? validateNewPassword(String? value) {
   final password = value ?? '';
-  if (password.length < 8) return 'Şifre en az 8 karakter olmalı.';
+  if (password.length < 8) return identityL10n.passwordMin8;
   if (!password.contains(RegExp('[a-z]')) ||
       !password.contains(RegExp('[A-Z]')) ||
       !password.contains(RegExp('[0-9]'))) {
-    return 'Şifre büyük harf, küçük harf ve rakam içermeli.';
+    return identityL10n.passwordMix;
   }
   return null;
 }
 
 String? validatePasswordPresent(String? value) =>
-    (value ?? '').isEmpty ? 'Şifreni gir.' : null;
+    (value ?? '').isEmpty ? identityL10n.enterPassword : null;

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/auth.dart';
+import '../l10n.dart';
 import 'auth_layout.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -66,7 +67,7 @@ class _PasswordFieldState extends State<_PasswordField> {
       decoration: InputDecoration(
         labelText: widget.label,
         suffixIcon: IconButton(
-          tooltip: _obscured ? 'Şifreyi göster' : 'Şifreyi gizle',
+          tooltip: _obscured ? identityL10n.showPassword : identityL10n.hidePassword,
           icon: Icon(_obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined),
           onPressed: () => setState(() => _obscured = !_obscured),
         ),
@@ -88,7 +89,7 @@ class _EmailField extends StatelessWidget {
       autofillHints: const [AutofillHints.email],
       autocorrect: false,
       validator: validateEmail,
-      decoration: const InputDecoration(labelText: 'E-posta'),
+      decoration: InputDecoration(labelText: identityL10n.email),
     );
   }
 }
@@ -100,14 +101,15 @@ const _gap = SizedBox(height: GwSpacing.md);
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({
     super.key,
-    this.title = 'Giriş yap',
-    this.subtitle = 'Gruplarına ve arkadaşlarına kaldığın yerden devam et.',
+    this.title,
+    this.subtitle,
     this.allowSignUp = true,
     this.allowSocial = true,
   });
 
-  final String title;
-  final String subtitle;
+  /// Defaults to the localized "Giriş yap" and its subtitle.
+  final String? title;
+  final String? subtitle;
   final bool allowSignUp;
   final bool allowSocial;
 
@@ -142,8 +144,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
     // No button until the server says which providers it serves (a button that cannot work is worse than none).
     final social = widget.allowSocial ? ref.watch(socialProvidersProvider).value ?? const <SocialProvider>{} : const <SocialProvider>{};
     return AuthLayout(
-      title: widget.title,
-      subtitle: widget.subtitle,
+      title: widget.title ?? identityL10n.signIn,
+      subtitle: widget.subtitle ?? identityL10n.signInSubtitle,
       showPitch: widget.allowSignUp,
       children: [
         Form(
@@ -156,7 +158,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
                 _gap,
                 _PasswordField(
                   controller: _password,
-                  label: 'Şifre',
+                  label: identityL10n.password,
                   validator: validatePasswordPresent,
                   onSubmitted: _signIn,
                 ),
@@ -167,20 +169,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
         Align(
           alignment: Alignment.centerRight,
           child: GwButton(
-            label: 'Şifremi unuttum',
+            label: identityL10n.forgotPassword,
             variant: GwButtonVariant.text,
             onPressed: loading ? null : () => context.push(IdentityRoutes.forgotPassword),
           ),
         ),
         if (error != null) ...[GwFormMessage(error!), _gap],
-        GwButton(label: 'Giriş yap', onPressed: _signIn, isLoading: loading, expand: true),
+        GwButton(label: identityL10n.signIn, onPressed: _signIn, isLoading: loading, expand: true),
         if (widget.allowSocial && social.isNotEmpty) ...[
           const SizedBox(height: GwSpacing.lg),
           const LabeledDivider('veya'),
           const SizedBox(height: GwSpacing.lg),
           if (social.contains(SocialProvider.google))
             GwButton(
-              label: 'Google ile devam et',
+              label: identityL10n.continueWithGoogle,
               icon: Icons.g_mobiledata,
               variant: GwButtonVariant.secondary,
               expand: true,
@@ -189,7 +191,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
           if (social.length == 2) const SizedBox(height: GwSpacing.sm),
           if (social.contains(SocialProvider.apple))
             GwButton(
-              label: 'Apple ile devam et',
+              label: identityL10n.continueWithApple,
               icon: Icons.apple,
               variant: GwButtonVariant.secondary,
               expand: true,
@@ -199,7 +201,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
         if (widget.allowSignUp) ...[
           const SizedBox(height: GwSpacing.lg),
           GwButton(
-            label: 'Hesabın yok mu? Kayıt ol',
+            label: identityL10n.noAccountSignUp,
             variant: GwButtonVariant.text,
             onPressed: loading ? null : () => context.go(IdentityRoutes.signUp),
           ),
@@ -247,8 +249,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Kayıt ol',
-      subtitle: 'Gruplarını bul, organizasyonlara katıl, yeni insanlarla tanış.',
+      title: identityL10n.signUp,
+      subtitle: identityL10n.signUpSubtitle,
       showPitch: true,
       children: [
         Form(
@@ -261,16 +263,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
                 _gap,
                 _PasswordField(
                   controller: _password,
-                  label: 'Şifre',
+                  label: identityL10n.password,
                   validator: validateNewPassword,
                   autofillHints: const [AutofillHints.newPassword],
                 ),
                 _gap,
                 _PasswordField(
                   controller: _confirm,
-                  label: 'Şifre (tekrar)',
+                  label: identityL10n.passwordRepeat,
                   autofillHints: const [AutofillHints.newPassword],
-                  validator: (v) => v == _password.text ? null : 'Şifreler eşleşmiyor.',
+                  validator: (v) => v == _password.text ? null : identityL10n.passwordsDontMatch,
                   onSubmitted: _signUp,
                 ),
               ],
@@ -279,10 +281,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
         ),
         _gap,
         if (error != null) ...[GwFormMessage(error!), _gap],
-        GwButton(label: 'Kayıt ol', onPressed: _signUp, isLoading: loading, expand: true),
+        GwButton(label: identityL10n.signUp, onPressed: _signUp, isLoading: loading, expand: true),
         const SizedBox(height: GwSpacing.lg),
         GwButton(
-          label: 'Zaten hesabın var mı? Giriş yap',
+          label: identityL10n.haveAccountSignIn,
           variant: GwButtonVariant.text,
           onPressed: loading ? null : () => context.go(IdentityRoutes.signIn),
         ),
@@ -313,19 +315,18 @@ class _CheckEmailScreenState extends ConsumerState<CheckEmailScreen> with _Submi
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'E-postanı kontrol et',
-      subtitle: '${widget.email} adresine bir doğrulama bağlantısı gönderdik. '
-          'Bağlantıya tıkladıktan sonra giriş yapabilirsin.',
+      title: identityL10n.checkEmailTitle,
+      subtitle: identityL10n.checkEmailBody(widget.email),
       children: [
         if (_resent) ...[
-          const GwFormMessage('Bağlantıyı yeniden gönderdik.', kind: GwFormMessageKind.info),
+          GwFormMessage(identityL10n.linkResent, kind: GwFormMessageKind.info),
           _gap,
         ],
         if (error != null) ...[GwFormMessage(error!), _gap],
-        GwButton(label: 'Girişe dön', onPressed: () => context.go(IdentityRoutes.signIn), expand: true),
+        GwButton(label: identityL10n.backToSignIn, onPressed: () => context.go(IdentityRoutes.signIn), expand: true),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Bağlantıyı tekrar gönder',
+          label: identityL10n.resendLink,
           variant: GwButtonVariant.secondary,
           onPressed: _resend,
           isLoading: loading,
@@ -365,23 +366,23 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> wit
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Şifreni sıfırla',
-      subtitle: 'E-posta adresini gir, sana şifre sıfırlama bağlantısı gönderelim.',
+      title: identityL10n.resetPasswordTitle,
+      subtitle: identityL10n.resetPasswordSubtitle,
       children: [
         Form(key: _form, child: _EmailField(controller: _email)),
         _gap,
         if (_sent) ...[
-          const GwFormMessage(
-            'Bu adrese kayıtlı bir hesap varsa sıfırlama bağlantısını gönderdik.',
+          GwFormMessage(
+            identityL10n.resetLinkSent,
             kind: GwFormMessageKind.info,
           ),
           _gap,
         ],
         if (error != null) ...[GwFormMessage(error!), _gap],
-        GwButton(label: 'Bağlantı gönder', onPressed: _send, isLoading: loading, expand: true),
+        GwButton(label: identityL10n.sendLink, onPressed: _send, isLoading: loading, expand: true),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Girişe dön',
+          label: identityL10n.backToSignIn,
           variant: GwButtonVariant.text,
           onPressed: () => context.go(IdentityRoutes.signIn),
         ),
@@ -421,7 +422,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with 
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Yeni şifre belirle',
+      title: identityL10n.newPasswordTitle,
       children: [
         Form(
           key: _form,
@@ -430,16 +431,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with 
             children: [
               _PasswordField(
                 controller: _password,
-                label: 'Yeni şifre',
+                label: identityL10n.newPassword,
                 validator: validateNewPassword,
                 autofillHints: const [AutofillHints.newPassword],
               ),
               _gap,
               _PasswordField(
                 controller: _confirm,
-                label: 'Yeni şifre (tekrar)',
+                label: identityL10n.newPasswordRepeat,
                 autofillHints: const [AutofillHints.newPassword],
-                validator: (v) => v == _password.text ? null : 'Şifreler eşleşmiyor.',
+                validator: (v) => v == _password.text ? null : identityL10n.passwordsDontMatch,
                 onSubmitted: _save,
               ),
             ],
@@ -447,7 +448,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with 
         ),
         _gap,
         if (error != null) ...[GwFormMessage(error!), _gap],
-        GwButton(label: 'Şifreyi kaydet', onPressed: _save, isLoading: loading, expand: true),
+        GwButton(label: identityL10n.savePassword, onPressed: _save, isLoading: loading, expand: true),
       ],
     );
   }

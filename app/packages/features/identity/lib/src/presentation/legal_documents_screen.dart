@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/legal.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Full text of a legal document in a scrollable bottom sheet. [onReadToEnd] runs once the reader reaches the
@@ -89,7 +90,7 @@ class _DocumentBodyState extends State<_DocumentBody> {
         Text(document.title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: GwSpacing.xxs),
         Text(
-          'Sürüm ${document.version}',
+          identityL10n.versionLabel(document.version),
           style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
         ),
         const SizedBox(height: GwSpacing.md),
@@ -118,7 +119,7 @@ class LegalDocumentsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final docs = ref.watch(latestLegalDocumentsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Hukuki metinler')),
+      appBar: AppBar(title: Text(identityL10n.legalDocuments)),
       body: switch (docs) {
         AsyncData(:final value) => ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
@@ -127,7 +128,7 @@ class LegalDocumentsScreen extends ConsumerWidget {
             itemBuilder: (context, i) => ListTile(
               minTileHeight: GwSpacing.xxl + GwSpacing.xs,
               title: Text(value[i].title),
-              subtitle: Text('Sürüm ${value[i].version}'),
+              subtitle: Text(identityL10n.versionLabel(value[i].version)),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => showLegalDocument(context, value[i]),
             ),

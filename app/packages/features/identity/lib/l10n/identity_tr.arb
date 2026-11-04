@@ -1,0 +1,755 @@
+{
+  "@@locale": "tr",
+  "authInvalidCredentials": "E-posta adresi veya şifre hatalı.",
+  "@authInvalidCredentials": {
+    "description": ""
+  },
+  "authEmailNotConfirmed": "E-posta adresini henüz doğrulamadın. Gelen kutunu kontrol et.",
+  "@authEmailNotConfirmed": {
+    "description": ""
+  },
+  "authEmailExists": "Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı dene.",
+  "@authEmailExists": {
+    "description": ""
+  },
+  "authWeakPassword": "Şifre en az 8 karakter olmalı ve büyük harf, küçük harf ve rakam içermeli.",
+  "@authWeakPassword": {
+    "description": ""
+  },
+  "authSamePassword": "Yeni şifren eskisinden farklı olmalı.",
+  "@authSamePassword": {
+    "description": ""
+  },
+  "authInvalidEmail": "Geçerli bir e-posta adresi gir.",
+  "@authInvalidEmail": {
+    "description": ""
+  },
+  "authUserBanned": "Hesabın askıya alındığı için giriş yapamazsın.",
+  "@authUserBanned": {
+    "description": ""
+  },
+  "authProviderDisabled": "Bu giriş yöntemi şu anda kullanılamıyor.",
+  "@authProviderDisabled": {
+    "description": ""
+  },
+  "ageMinimum": "GWAY'i kullanmak için en az {age} yaşında olmalısın.",
+  "@ageMinimum": {
+    "description": "",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "deletionPendingTitle": "Hesabın silinmek üzere",
+  "@deletionPendingTitle": {
+    "description": ""
+  },
+  "deletionRequested": "Hesap silme isteğin alındı.",
+  "@deletionRequested": {
+    "description": ""
+  },
+  "deletionScheduled": "Hesabın ve tüm verilerin {date} tarihinde kalıcı olarak silinecek. O zamana kadar fikrini değiştirebilirsin.",
+  "@deletionScheduled": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "undoDeletion": "Silmeyi geri al",
+  "@undoDeletion": {
+    "description": ""
+  },
+  "signOut": "Çıkış yap",
+  "@signOut": {
+    "description": ""
+  },
+  "bannedTitle": "Hesabın kalıcı olarak kapatıldı",
+  "@bannedTitle": {
+    "description": ""
+  },
+  "suspendedTitle": "Hesabın askıya alındı",
+  "@suspendedTitle": {
+    "description": ""
+  },
+  "bannedBody": "Hesabın platform ekibi tarafından kalıcı olarak kapatıldı. Profilin artık kimseye görünmüyor.",
+  "@bannedBody": {
+    "description": ""
+  },
+  "suspendedBody": "Hesabın {date} tarihine kadar askıya alındı. Bu süre boyunca uygulamayı kullanamazsın; profilinde askıda olduğun görünür.",
+  "@suspendedBody": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "banReason": "Ban gerekçesi: {reason}",
+  "@banReason": {
+    "description": "",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "suspensionReason": "Askı gerekçesi: {reason}",
+  "@suspensionReason": {
+    "description": "",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "retry": "Tekrar dene",
+  "@retry": {
+    "description": ""
+  },
+  "deleteAccount": "Hesabı sil",
+  "@deleteAccount": {
+    "description": ""
+  },
+  "beforeDeleting": "Hesabını silmeden önce",
+  "@beforeDeleting": {
+    "description": ""
+  },
+  "deletionHidesNow": "Profilin hemen gizlenir; kimse seni bulamaz.",
+  "@deletionHidesNow": {
+    "description": ""
+  },
+  "deletionGraceRestore": "{days} gün içinde giriş yapıp silmeyi geri alabilirsin.",
+  "@deletionGraceRestore": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "deletionAfterGrace": "Bu sürenin sonunda profilin, fotoğrafların ve tüm verilerin kalıcı olarak silinir.",
+  "@deletionAfterGrace": {
+    "description": ""
+  },
+  "deletionUnderstood": "Anladım, hesabımı silmek istiyorum.",
+  "@deletionUnderstood": {
+    "description": ""
+  },
+  "deleteMyAccount": "Hesabımı sil",
+  "@deleteMyAccount": {
+    "description": ""
+  },
+  "heroTitle": "Topluluğun seni bekliyor.",
+  "@heroTitle": {
+    "description": ""
+  },
+  "heroBody": "Yürüyüşten müziğe, koşudan sanata; grubunu bul, birlikte plan yap, aynı anda orada ol.",
+  "@heroBody": {
+    "description": ""
+  },
+  "heroPointGroups": "Gruplara katıl ya da kendi topluluğunu kur",
+  "@heroPointGroups": {
+    "description": ""
+  },
+  "heroPointEvents": "Organizasyonları takvimine ekle, ekip arkadaşı bul",
+  "@heroPointEvents": {
+    "description": ""
+  },
+  "heroPointLive": "Grubunla canlı sesli sohbetlerde buluş",
+  "@heroPointLive": {
+    "description": ""
+  },
+  "showPassword": "Şifreyi göster",
+  "@showPassword": {
+    "description": ""
+  },
+  "hidePassword": "Şifreyi gizle",
+  "@hidePassword": {
+    "description": ""
+  },
+  "signIn": "Giriş yap",
+  "@signIn": {
+    "description": ""
+  },
+  "signInSubtitle": "Gruplarına ve arkadaşlarına kaldığın yerden devam et.",
+  "@signInSubtitle": {
+    "description": ""
+  },
+  "email": "E-posta",
+  "@email": {
+    "description": ""
+  },
+  "password": "Şifre",
+  "@password": {
+    "description": ""
+  },
+  "forgotPassword": "Şifremi unuttum",
+  "@forgotPassword": {
+    "description": ""
+  },
+  "continueWithGoogle": "Google ile devam et",
+  "@continueWithGoogle": {
+    "description": ""
+  },
+  "continueWithApple": "Apple ile devam et",
+  "@continueWithApple": {
+    "description": ""
+  },
+  "noAccountSignUp": "Hesabın yok mu? Kayıt ol",
+  "@noAccountSignUp": {
+    "description": ""
+  },
+  "signUp": "Kayıt ol",
+  "@signUp": {
+    "description": ""
+  },
+  "signUpSubtitle": "Gruplarını bul, organizasyonlara katıl, yeni insanlarla tanış.",
+  "@signUpSubtitle": {
+    "description": ""
+  },
+  "passwordRepeat": "Şifre (tekrar)",
+  "@passwordRepeat": {
+    "description": ""
+  },
+  "passwordsDontMatch": "Şifreler eşleşmiyor.",
+  "@passwordsDontMatch": {
+    "description": ""
+  },
+  "haveAccountSignIn": "Zaten hesabın var mı? Giriş yap",
+  "@haveAccountSignIn": {
+    "description": ""
+  },
+  "checkEmailTitle": "E-postanı kontrol et",
+  "@checkEmailTitle": {
+    "description": ""
+  },
+  "checkEmailBody": "{email} adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.",
+  "@checkEmailBody": {
+    "description": "",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "linkResent": "Bağlantıyı yeniden gönderdik.",
+  "@linkResent": {
+    "description": ""
+  },
+  "backToSignIn": "Girişe dön",
+  "@backToSignIn": {
+    "description": ""
+  },
+  "resendLink": "Bağlantıyı tekrar gönder",
+  "@resendLink": {
+    "description": ""
+  },
+  "resetPasswordTitle": "Şifreni sıfırla",
+  "@resetPasswordTitle": {
+    "description": ""
+  },
+  "resetPasswordSubtitle": "E-posta adresini gir, sana şifre sıfırlama bağlantısı gönderelim.",
+  "@resetPasswordSubtitle": {
+    "description": ""
+  },
+  "resetLinkSent": "Bu adrese kayıtlı bir hesap varsa sıfırlama bağlantısını gönderdik.",
+  "@resetLinkSent": {
+    "description": ""
+  },
+  "sendLink": "Bağlantı gönder",
+  "@sendLink": {
+    "description": ""
+  },
+  "newPasswordTitle": "Yeni şifre belirle",
+  "@newPasswordTitle": {
+    "description": ""
+  },
+  "newPassword": "Yeni şifre",
+  "@newPassword": {
+    "description": ""
+  },
+  "newPasswordRepeat": "Yeni şifre (tekrar)",
+  "@newPasswordRepeat": {
+    "description": ""
+  },
+  "savePassword": "Şifreyi kaydet",
+  "@savePassword": {
+    "description": ""
+  },
+  "enterEmail": "E-posta adresini gir.",
+  "@enterEmail": {
+    "description": ""
+  },
+  "passwordMin8": "Şifre en az 8 karakter olmalı.",
+  "@passwordMin8": {
+    "description": ""
+  },
+  "passwordMix": "Şifre büyük harf, küçük harf ve rakam içermeli.",
+  "@passwordMix": {
+    "description": ""
+  },
+  "enterPassword": "Şifreni gir.",
+  "@enterPassword": {
+    "description": ""
+  },
+  "birthDateTitle": "Doğum tarihin",
+  "@birthDateTitle": {
+    "description": ""
+  },
+  "chooseBirthDate": "Doğum tarihini seç.",
+  "@chooseBirthDate": {
+    "description": ""
+  },
+  "birthDateExplain": "GWAY {age} yaş ve üstündekiler içindir. Doğum tarihin kimseye gösterilmez ve sonradan değiştirilemez.",
+  "@birthDateExplain": {
+    "description": "",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseDate": "Tarih seç",
+  "@chooseDate": {
+    "description": ""
+  },
+  "continueAction": "Devam et",
+  "@continueAction": {
+    "description": ""
+  },
+  "agreeTerms": "Kullanım Koşulları'nı okudum ve kabul ediyorum.",
+  "@agreeTerms": {
+    "description": ""
+  },
+  "agreePrivacy": "KVKK Aydınlatma Metni'ni okudum.",
+  "@agreePrivacy": {
+    "description": ""
+  },
+  "agreeExplicitConsent": "Kişisel verilerimin yurt dışındaki sunucularda işlenmesine açık rıza veriyorum.",
+  "@agreeExplicitConsent": {
+    "description": ""
+  },
+  "agreeCommunityRules": "Topluluk Kuralları, Yaptırımlar ve Yasal İşlemler Sözleşmesi'ni okudum ve kabul ediyorum.",
+  "@agreeCommunityRules": {
+    "description": ""
+  },
+  "agreeDistanceSales": "Mesafeli Satış Sözleşmesi'ni okudum ve kabul ediyorum.",
+  "@agreeDistanceSales": {
+    "description": ""
+  },
+  "readAndAccept": "Okudum, onaylıyorum",
+  "@readAndAccept": {
+    "description": ""
+  },
+  "readWholeText": "Lütfen metnin tamamını okuyup öyle onaylayın.",
+  "@readWholeText": {
+    "description": ""
+  },
+  "beforeContinue": "Devam etmeden önce",
+  "@beforeContinue": {
+    "description": ""
+  },
+  "consentIntro": "GWAY'i kullanabilmek için aşağıdaki metinleri okuyup onaylaman gerekiyor.",
+  "@consentIntro": {
+    "description": ""
+  },
+  "readText": "Metni oku",
+  "@readText": {
+    "description": ""
+  },
+  "readToEnd": "Onaylamak için metni sonuna kadar oku.",
+  "@readToEnd": {
+    "description": ""
+  },
+  "versionLabel": "Sürüm {version}",
+  "@versionLabel": {
+    "description": "",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "legalDocuments": "Hukuki metinler",
+  "@legalDocuments": {
+    "description": ""
+  },
+  "documentNotPublished": "Bu metin şu anda yayında değil.",
+  "@documentNotPublished": {
+    "description": ""
+  },
+  "deletionInfoTitle": "GWAY hesabını silme",
+  "@deletionInfoTitle": {
+    "description": ""
+  },
+  "deletionInfoIntro": "Hesabını ve verilerini uygulamadan ya da bu web sitesinden silebilirsin:",
+  "@deletionInfoIntro": {
+    "description": ""
+  },
+  "deletionInfoStep1": "GWAY uygulamasına ya da web sitesine giriş yap.",
+  "@deletionInfoStep1": {
+    "description": ""
+  },
+  "deletionInfoStep2": "Ben → Ayarlar → Hesabı sil adımlarını izle.",
+  "@deletionInfoStep2": {
+    "description": ""
+  },
+  "deletionInfoStep3": "Silme isteğini onayla. Profilin hemen gizlenir.",
+  "@deletionInfoStep3": {
+    "description": ""
+  },
+  "deletionInfoWhat": "Ne silinir, ne kalır?",
+  "@deletionInfoWhat": {
+    "description": ""
+  },
+  "deletionInfoBody": "{days} gün içinde giriş yapıp silmeyi geri alabilirsin. Süre dolunca profilin, gönderilerin, fotoğrafların, mesajların, grup üyeliklerin, konum kontrol kayıtların ve doğrulama bilgilerin kalıcı olarak silinir. Yasal saklama yükümlülüğü olan ödeme kayıtları ve kimliksiz işlem kayıtları mevzuatın öngördüğü süre boyunca saklanır. Güvenlik nedeniyle kapatılan hesapların telefon numarası, aynı numarayla yeni hesap açılmasını önlemek için saklanır.",
+  "@deletionInfoBody": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "securityTitle": "Güvenlik doğrulaması",
+  "@securityTitle": {
+    "description": ""
+  },
+  "securityChecking": "Güvenlik kontrol ediliyor",
+  "@securityChecking": {
+    "description": ""
+  },
+  "securityWarning": "Konumunuz, kullandığınız telefon ve VPN tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.",
+  "@securityWarning": {
+    "description": ""
+  },
+  "vpnInstalledWarning": "Cihazınızda VPN uygulaması tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.",
+  "@vpnInstalledWarning": {
+    "description": ""
+  },
+  "securityWarningTitle": "Güvenlik uyarısı",
+  "@securityWarningTitle": {
+    "description": ""
+  },
+  "understood": "Anladım",
+  "@understood": {
+    "description": ""
+  },
+  "passkeyNotAdded": "Parmak izi eklenmedi: işlem iptal edildi ya da bu cihaz zaten kayıtlı.",
+  "@passkeyNotAdded": {
+    "description": ""
+  },
+  "locationDeniedForever": "Konum iznini daha önce reddettin. Cihaz ayarlarından GWAY için konum iznini açıp tekrar dene.",
+  "@locationDeniedForever": {
+    "description": ""
+  },
+  "locationRequired": "Konum izni olmadan devam edemezsin.",
+  "@locationRequired": {
+    "description": ""
+  },
+  "locationServiceOff": "Cihazının konum servisi kapalı. Açıp tekrar dene.",
+  "@locationServiceOff": {
+    "description": ""
+  },
+  "locationTitle": "Konumunu doğrulayalım",
+  "@locationTitle": {
+    "description": ""
+  },
+  "locationBody": "Hesap güvenliği ve sahte hesapların önlenmesi için GWAY, giriş yaparken ve uygulamayı açtığında konumunu kullanır. Konum izni olmadan uygulama açılmaz.",
+  "@locationBody": {
+    "description": ""
+  },
+  "openSettings": "Ayarları aç",
+  "@openSettings": {
+    "description": ""
+  },
+  "grantLocation": "Konum iznini ver",
+  "@grantLocation": {
+    "description": ""
+  },
+  "readPrivacyNotice": "Aydınlatma metnini oku",
+  "@readPrivacyNotice": {
+    "description": ""
+  },
+  "privacyNoticeUnavailable": "Aydınlatma metni şu anda yüklenemedi.",
+  "@privacyNoticeUnavailable": {
+    "description": ""
+  },
+  "enterMobileNumber": "Cep telefonu numaranı gir.",
+  "@enterMobileNumber": {
+    "description": ""
+  },
+  "speedUpTitle": "Girişlerini hızlandır",
+  "@speedUpTitle": {
+    "description": ""
+  },
+  "speedUpBodyPasskey": "Sonraki girişlerinde SMS beklemeden parmak izinle ya da Google Authenticator koduyla doğrulama yapabilirsin.",
+  "@speedUpBodyPasskey": {
+    "description": ""
+  },
+  "speedUpBodyTotp": "Sonraki girişlerinde SMS beklemeden Google Authenticator koduyla doğrulama yapabilirsin.",
+  "@speedUpBodyTotp": {
+    "description": ""
+  },
+  "addFingerprint": "Parmak izi ekle",
+  "@addFingerprint": {
+    "description": ""
+  },
+  "addAuthenticator": "Google Authenticator ekle",
+  "@addAuthenticator": {
+    "description": ""
+  },
+  "notNow": "Şimdi değil",
+  "@notNow": {
+    "description": ""
+  },
+  "fingerprintAdded": "Parmak izi eklendi.",
+  "@fingerprintAdded": {
+    "description": ""
+  },
+  "verifyPhoneTitle": "Telefonunu doğrula",
+  "@verifyPhoneTitle": {
+    "description": ""
+  },
+  "verifyPhoneBody": "Bulunduğun ülkenin cep telefonu numarasıyla doğrulama yapabilirsin. Numaran başkalarına gösterilmez.",
+  "@verifyPhoneBody": {
+    "description": ""
+  },
+  "mobilePhone": "Cep telefonu",
+  "@mobilePhone": {
+    "description": ""
+  },
+  "sendCode": "Kod gönder",
+  "@sendCode": {
+    "description": ""
+  },
+  "verify": "Doğrula",
+  "@verify": {
+    "description": ""
+  },
+  "resendCodeIn": "Kodu yeniden gönder ({seconds} sn)",
+  "@resendCodeIn": {
+    "description": "",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resendCode": "Kodu yeniden gönder",
+  "@resendCode": {
+    "description": ""
+  },
+  "changeNumber": "Numarayı değiştir",
+  "@changeNumber": {
+    "description": ""
+  },
+  "passkeyFailed": "Doğrulama iptal edildi ya da bu cihazda kayıtlı parmak izi yok. Başka bir yöntem seçebilirsin.",
+  "@passkeyFailed": {
+    "description": ""
+  },
+  "verifySignInTitle": "Girişini doğrula",
+  "@verifySignInTitle": {
+    "description": ""
+  },
+  "verifyWithPasskey": "Bu cihazın parmak izi, yüz tanıma ya da ekran kilidiyle girişini doğrula.",
+  "@verifyWithPasskey": {
+    "description": ""
+  },
+  "verifyWithTotp": "Doğrulama uygulamandaki 6 haneli kodu gir.",
+  "@verifyWithTotp": {
+    "description": ""
+  },
+  "smsWillSendTo": "Güvenliğin için bu girişi doğrulaman gerekiyor. {phone} numarasına bir kod göndereceğiz.",
+  "@smsWillSendTo": {
+    "description": "",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "smsWillSendSaved": "Güvenliğin için bu girişi doğrulaman gerekiyor. Kayıtlı numarana bir kod göndereceğiz.",
+  "@smsWillSendSaved": {
+    "description": ""
+  },
+  "methodFingerprint": "Parmak izi",
+  "@methodFingerprint": {
+    "description": ""
+  },
+  "methodApp": "Uygulama",
+  "@methodApp": {
+    "description": ""
+  },
+  "verifyWithFingerprint": "Parmak iziyle doğrula",
+  "@verifyWithFingerprint": {
+    "description": ""
+  },
+  "reviewTitle": "Güvenli giriş yapılamadı",
+  "@reviewTitle": {
+    "description": ""
+  },
+  "reviewBody": "Hesabın güvenlik incelemesine alındı. İnceleme sonuçlanınca uygulamayı kullanmaya kaldığın yerden devam edebilirsin.",
+  "@reviewBody": {
+    "description": ""
+  },
+  "refreshStatus": "Durumu yenile",
+  "@refreshStatus": {
+    "description": ""
+  },
+  "removeTotpTitle": "Doğrulama uygulamasını kaldır",
+  "@removeTotpTitle": {
+    "description": ""
+  },
+  "removeTotpBody": "Bundan sonra yeni girişlerini yalnızca SMS koduyla doğrulayabilirsin.",
+  "@removeTotpBody": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "remove": "Kaldır",
+  "@remove": {
+    "description": ""
+  },
+  "totpRemoved": "Doğrulama uygulaması kaldırıldı.",
+  "@totpRemoved": {
+    "description": ""
+  },
+  "twoFactorTitle": "İki adımlı doğrulama",
+  "@twoFactorTitle": {
+    "description": ""
+  },
+  "phoneNumber": "Telefon numarası",
+  "@phoneNumber": {
+    "description": ""
+  },
+  "notVerifiedYet": "Henüz doğrulanmadı",
+  "@notVerifiedYet": {
+    "description": ""
+  },
+  "authenticatorApp": "Doğrulama uygulaması",
+  "@authenticatorApp": {
+    "description": ""
+  },
+  "totpOn": "Açık. Yeni girişlerini uygulamadaki kodla da doğrulayabilirsin.",
+  "@totpOn": {
+    "description": ""
+  },
+  "totpOff": "Google Authenticator gibi bir uygulamayla SMS beklemeden giriş yap.",
+  "@totpOff": {
+    "description": ""
+  },
+  "addTotp": "Doğrulama uygulaması ekle",
+  "@addTotp": {
+    "description": ""
+  },
+  "signInRequired": "Giriş yapman gerekiyor.",
+  "@signInRequired": {
+    "description": ""
+  },
+  "passkeyRemoved": "{name} kaldırıldı.",
+  "@passkeyRemoved": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passkeysTitle": "Parmak izi ve yüz tanıma",
+  "@passkeysTitle": {
+    "description": ""
+  },
+  "passkeysOff": "Girişlerini cihazının parmak izi, yüz tanıma ya da ekran kilidiyle doğrula.",
+  "@passkeysOff": {
+    "description": ""
+  },
+  "passkeysOn": "{count} cihaz kayıtlı. Girişlerde önce bu yöntem sorulur.",
+  "@passkeysOn": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notUsedYet": "Henüz kullanılmadı",
+  "@notUsedYet": {
+    "description": ""
+  },
+  "lastUsed": "Son kullanım: {date}",
+  "@lastUsed": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "addFingerprintHere": "Bu cihazda parmak izi ekle",
+  "@addFingerprintHere": {
+    "description": ""
+  },
+  "passkeyUnsupported": "Bu cihaz ya da tarayıcı parmak iziyle girişi desteklemiyor.",
+  "@passkeyUnsupported": {
+    "description": ""
+  },
+  "passkeyDefaultName": "Parmak izi · {date}",
+  "@passkeyDefaultName": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "totpAdded": "Doğrulama uygulaması eklendi.",
+  "@totpAdded": {
+    "description": ""
+  },
+  "totpStep1": "1. Doğrulama uygulamanda yeni hesap ekle ve bu kodu tara. Aynı telefondaysan \"Uygulamada aç\"a dokun ya da anahtarı elle gir.",
+  "@totpStep1": {
+    "description": ""
+  },
+  "copyKey": "Anahtarı kopyala",
+  "@copyKey": {
+    "description": ""
+  },
+  "openInApp": "Uygulamada aç",
+  "@openInApp": {
+    "description": ""
+  },
+  "totpStep2": "2. Uygulamanın gösterdiği 6 haneli kodu gir.",
+  "@totpStep2": {
+    "description": ""
+  },
+  "activate": "Etkinleştir",
+  "@activate": {
+    "description": ""
+  },
+  "codeHint": "6 haneli kod",
+  "@codeHint": {
+    "description": ""
+  },
+  "enterCode": "6 haneli kodu gir.",
+  "@enterCode": {
+    "description": ""
+  },
+  "enterSmsCode": "SMS ile gelen 6 haneli kodu gir.",
+  "@enterSmsCode": {
+    "description": ""
+  },
+  "enterAppCode": "Uygulamadaki 6 haneli kodu gir.",
+  "@enterAppCode": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  }
+}

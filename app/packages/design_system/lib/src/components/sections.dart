@@ -1,4 +1,6 @@
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../tokens/borders.dart';
 import '../tokens/colors.dart';
@@ -75,7 +77,10 @@ class GwSectionHeader extends StatelessWidget {
   }
 }
 
-const _monthsShort = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
+String _monthShort(DateTime d) {
+  final code = currentAppLanguage.code;
+  return DateFormat.MMM(code).format(d).replaceAll('.', '').toUpperCase();
+}
 
 /// The calendar leaf of organizations: short month over a large day.
 class GwDateTile extends StatelessWidget {
@@ -99,7 +104,7 @@ class GwDateTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_monthsShort[local.month - 1],
+            Text(_monthShort(local),
                 textScaler: TextScaler.noScaling, style: textTheme.labelMedium?.copyWith(color: tone.strong, fontWeight: FontWeight.w700)),
             Text('${local.day}', textScaler: TextScaler.noScaling, style: textTheme.titleLarge?.copyWith(height: 1.1)),
           ],

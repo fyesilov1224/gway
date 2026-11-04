@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
 import '../tokens/colors.dart';
 import '../tokens/radius.dart';
 import '../tokens/spacing.dart';
 
-/// "CANLI" on the purple→blue gradient; the gradient is reserved for this and [GwLiveButton].
+/// "CANLI" (in the app language) on the purple→blue gradient; the gradient is reserved for this and [GwLiveButton].
 class GwLiveBadge extends StatelessWidget {
-  const GwLiveBadge({super.key, this.label = 'CANLI'});
+  const GwLiveBadge({super.key, this.label});
 
-  final String label;
+  /// Defaults to the localized "LIVE".
+  final String? label;
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Canlı yayın',
+        label: designSystemL10n.liveBroadcast,
         excludeSemantics: true,
         child: DecoratedBox(
           decoration: const BoxDecoration(gradient: GwColors.liveGradient, borderRadius: GwRadius.smAll),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs / 2),
             child: Text(
-              label,
+              label ?? designSystemL10n.liveBadge,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GwColors.onPrimary, fontWeight: FontWeight.w700),
             ),
           ),

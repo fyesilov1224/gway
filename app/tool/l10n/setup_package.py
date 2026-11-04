@@ -2,7 +2,7 @@
 
 Usage: python tool/l10n/setup_package.py <package-dir from app/> <package name> <ClassName>
 Creates l10n.yaml, lib/src/l10n.dart (global getter `<package>L10n`), adds flutter_localizations, intl and
-`flutter: generate: true` to pubspec.yaml. Safe to run twice.
+`flutter: generate: true` to pubspec.yaml (keeping its line endings). Safe to run twice.
 """
 import pathlib, re, sys
 
@@ -10,6 +10,8 @@ root = pathlib.Path(__file__).resolve().parents[2]
 pkg_dir, pkg, cls = sys.argv[1], sys.argv[2], sys.argv[3]
 d = root / pkg_dir
 getter = re.sub(r'_(\w)', lambda m: m.group(1).upper(), pkg) + 'L10n'
+CR = chr(13)
+LF = chr(10)
 
 (d / 'l10n.yaml').write_text(
     f"""arb-dir: lib/l10n
@@ -34,7 +36,9 @@ export 'l10n/{pkg}_l10n.dart' show {cls};
 """, encoding='utf-8')
 
 p = d / 'pubspec.yaml'
-s = p.read_text(encoding='utf-8')
+raw = p.read_bytes().decode('utf-8')
+crlf = CR + LF in raw
+s = raw.replace(CR + LF, LF)
 if 'flutter_localizations:' not in s:
     s = s.replace('  flutter:\n    sdk: flutter\n', '  flutter:\n    sdk: flutter\n  flutter_localizations:\n    sdk: flutter\n', 1)
 if re.search(r'^  intl:', s, re.M) is None:
@@ -43,5 +47,5 @@ if re.search(r'^flutter:', s, re.M) is None:
     s = s.rstrip('\n') + '\n\nflutter:\n  generate: true\n'
 elif 'generate: true' not in s:
     s = re.sub(r'^flutter:\n', 'flutter:\n  generate: true\n', s, count=1, flags=re.M)
-p.write_text(s, encoding='utf-8')
+p.write_bytes((s.replace(LF, CR + LF) if crlf else s).encode('utf-8'))
 print(f'{pkg_dir}: {cls}, getter {getter}')

@@ -1,0 +1,10 @@
+{
+  "@@locale": "ru",
+  "loadingLabel": "{label}, загрузка",
+  "previous": "Назад",
+  "next": "Далее",
+  "coverPhoto": "Обложка",
+  "retry": "Повторить",
+  "liveBroadcast": "Прямой эфир",
+  "liveBadge": "ЭФИР"
+}

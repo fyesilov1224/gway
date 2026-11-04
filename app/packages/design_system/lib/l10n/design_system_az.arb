@@ -1,0 +1,10 @@
+{
+  "@@locale": "az",
+  "loadingLabel": "{label}, yüklənir",
+  "previous": "Əvvəlkilər",
+  "next": "Sonrakılar",
+  "coverPhoto": "Örtük şəkli",
+  "retry": "Yenidən cəhd et",
+  "liveBroadcast": "Canlı yayım",
+  "liveBadge": "CANLI"
+}

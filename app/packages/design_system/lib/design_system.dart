@@ -17,6 +17,7 @@ export 'src/components/panel.dart';
 export 'src/components/sections.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/splash.dart';
+export 'src/l10n.dart';
 export 'src/theme.dart';
 export 'src/tokens/borders.dart';
 export 'src/tokens/colors.dart';

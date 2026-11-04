@@ -12,6 +12,17 @@ LANGS = ['tr', 'en', 'de', 'fr', 'nl', 'es', 'pt', 'it', 'ru', 'ar', 'az', 'uk']
 def main(path):
     spec = importlib.util.spec_from_file_location('table', path)
     t = importlib.util.module_from_spec(spec); spec.loader.exec_module(t)
+    if hasattr(t, 'ROWS'):
+        # ROWS: (key, placeholders, tr, en, de, fr, nl, es, pt, it, ru, ar, az, uk)
+        for r in t.ROWS:
+            if len(r) != 2 + len(LANGS):
+                sys.exit(f'{r[0]}: {len(r) - 2} texts')
+        keys = [r[0] for r in t.ROWS]
+        dup = {k for k in keys if keys.count(k) > 1}
+        if dup:
+            sys.exit(f'duplicate keys: {dup}')
+        t.KEYS = [(r[0], getattr(t, 'DESC', {}).get(r[0], ''), r[1]) for r in t.ROWS]
+        t.T = {lang: [r[2 + i] for r in t.ROWS] for i, lang in enumerate(LANGS)}
     root = pathlib.Path(__file__).resolve().parents[2] / t.DIR / 'lib' / 'l10n'
     root.mkdir(parents=True, exist_ok=True)
     for lang in LANGS:

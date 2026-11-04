@@ -4,19 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/legal.dart';
+import '../l10n.dart';
 import 'auth_layout.dart';
 import 'legal_documents_screen.dart';
 import 'providers.dart';
 
 String _agreementLabel(LegalKind kind) => switch (kind) {
-      LegalKind.terms => "Kullanım Koşulları'nı okudum ve kabul ediyorum.",
-      LegalKind.privacyNotice => "KVKK Aydınlatma Metni'ni okudum.",
+      LegalKind.terms => identityL10n.agreeTerms,
+      LegalKind.privacyNotice => identityL10n.agreePrivacy,
       LegalKind.explicitConsent =>
-        'Kişisel verilerimin yurt dışındaki sunucularda işlenmesine açık rıza veriyorum.',
+        identityL10n.agreeExplicitConsent,
       LegalKind.communityRules =>
-        "Topluluk Kuralları, Yaptırımlar ve Yasal İşlemler Sözleşmesi'ni okudum ve kabul ediyorum.",
+        identityL10n.agreeCommunityRules,
       // Accepted at checkout, never pending here.
-      LegalKind.distanceSales => "Mesafeli Satış Sözleşmesi'ni okudum ve kabul ediyorum.",
+      LegalKind.distanceSales => identityL10n.agreeDistanceSales,
     };
 
 /// Asks for every pending legal document before the app can be used. A box is checked only after its text was
@@ -34,13 +35,13 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   bool _saving = false;
   String? _error;
 
-  /// Opens the text; its closing button ("Okudum, onaylıyorum") both marks it read and ticks the box.
+  /// Opens the text; its closing button (identityL10n.readAndAccept) both marks it read and ticks the box.
   Future<void> _open(LegalDocument doc) async {
     final accepted = await showLegalDocument(
       context,
       doc,
       onReadToEnd: () => setState(() => _read.add(doc.kind)),
-      acceptLabel: 'Okudum, onaylıyorum',
+      acceptLabel: identityL10n.readAndAccept,
     );
     if (accepted == true && mounted) setState(() => _accepted.add(doc.kind));
   }
@@ -50,7 +51,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
     if (_read.contains(doc.kind)) return setState(() => _accepted.add(doc.kind));
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Lütfen metnin tamamını okuyup öyle onaylayın.')));
+      ..showSnackBar(SnackBar(content: Text(identityL10n.readWholeText)));
     _open(doc);
   }
 
@@ -90,8 +91,8 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   Widget _form(List<LegalDocument> docs) {
     final allAccepted = docs.every((d) => _accepted.contains(d.kind));
     return AuthLayout(
-      title: 'Devam etmeden önce',
-      subtitle: 'GWAY\'i kullanabilmek için aşağıdaki metinleri okuyup onaylaman gerekiyor.',
+      title: identityL10n.beforeContinue,
+      subtitle: identityL10n.consentIntro,
       children: [
         for (final doc in docs) ...[
           _ConsentTile(
@@ -106,14 +107,14 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
         const SizedBox(height: GwSpacing.sm),
         if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
         GwButton(
-          label: 'Devam et',
+          label: identityL10n.continueAction,
           onPressed: allAccepted ? () => _continue(docs) : null,
           isLoading: _saving,
           expand: true,
         ),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Çıkış yap',
+          label: identityL10n.signOut,
           variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),
@@ -151,7 +152,7 @@ class _ConsentTile extends StatelessWidget {
                   child: Text(document.title, style: Theme.of(context).textTheme.titleMedium),
                 ),
                 GwButton(
-                  label: 'Metni oku',
+                  label: identityL10n.readText,
                   variant: GwButtonVariant.text,
                   onPressed: onOpen,
                 ),
@@ -169,7 +170,7 @@ class _ConsentTile extends StatelessWidget {
               subtitle: read
                   ? null
                   : Text(
-                      'Onaylamak için metni sonuna kadar oku.',
+                      identityL10n.readToEnd,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
             ),

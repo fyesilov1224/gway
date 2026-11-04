@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/legal.dart';
 import '../domain/security.dart';
+import '../l10n.dart';
 import 'auth_layout.dart';
 import 'providers.dart';
 
@@ -30,24 +31,24 @@ class SecurityScreen extends ConsumerWidget {
       // Still loading, or the status could not be read: never a blank page.
       _ => switch (ref.watch(securityStatusProvider)) {
           AsyncError(:final error) => AuthLayout(
-              title: 'Güvenlik doğrulaması',
+              title: identityL10n.securityTitle,
               children: [
                 GwErrorState(message: userMessageOf(error), onRetry: () => _reload(ref)),
                 const _SignOutButton(),
               ],
             ),
-          _ => const GwSplash(caption: 'Güvenlik kontrol ediliyor'),
+          _ => GwSplash(caption: identityL10n.securityChecking),
         },
     };
   }
 }
 
 /// Shown when a location check is refused or the account is under review (user decision, 2026-10-27).
-const securityWarning = 'Konumunuz, kullandığınız telefon ve VPN tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.';
+/// In the app language; kept as a getter so it follows a language change.
+String get securityWarning => identityL10n.securityWarning;
 
 /// The warning for an installed (not running) VPN app (user decision, 2026-10-27).
-const vpnInstalledWarning =
-    'Cihazınızda VPN uygulaması tespit edilmiştir. Lütfen bulunduğunuz ülkenin kurallarına uyum sağlayarak güvenli giriş yapın.';
+String get vpnInstalledWarning => identityL10n.vpnInstalledWarning;
 
 /// Shows the warnings of a location check's answer, as a dialog.
 Future<void> showSecurityWarnings(BuildContext context, List<String> warnings) async {
@@ -57,9 +58,9 @@ Future<void> showSecurityWarnings(BuildContext context, List<String> warnings) a
     builder: (dialog) => AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
       icon: const Icon(Icons.vpn_lock_outlined),
-      title: const Text('Güvenlik uyarısı'),
-      content: const Text(vpnInstalledWarning),
-      actions: [GwButton(label: 'Anladım', onPressed: () => Navigator.of(dialog).pop())],
+      title: Text(identityL10n.securityWarningTitle),
+      content: Text(vpnInstalledWarning),
+      actions: [GwButton(label: identityL10n.understood, onPressed: () => Navigator.of(dialog).pop())],
     ),
   );
 }
@@ -77,8 +78,8 @@ Future<String?> addPasskey(WidgetRef ref, {bool refreshStatus = true}) async {
       return failure.userMessage;
   }
   final response = await ref.read(passkeyAuthenticatorProvider).create(json);
-  if (response == null) return 'Parmak izi eklenmedi: işlem iptal edildi ya da bu cihaz zaten kayıtlı.';
-  final saved = await repo.registerPasskey('Parmak izi · ${formatDate(DateTime.now())}', response);
+  if (response == null) return identityL10n.passkeyNotAdded;
+  final saved = await repo.registerPasskey(identityL10n.passkeyDefaultName(formatDate(DateTime.now())), response);
   ref.invalidate(passkeysProvider);
   if (refreshStatus) ref.invalidate(securityStatusProvider);
   return switch (saved) { Ok() => null, Err(:final failure) => failure.userMessage };
@@ -99,7 +100,7 @@ class _SignOutButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => GwButton(
-        label: 'Çıkış yap',
+        label: identityL10n.signOut,
         variant: GwButtonVariant.text,
         onPressed: enabled ? () => ref.read(authRepositoryProvider).signOut() : null,
       );
@@ -142,10 +143,10 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
       case LocationDenied(:final permanently):
         _permanentlyDenied = permanently;
         _error = permanently
-            ? 'Konum iznini daha önce reddettin. Cihaz ayarlarından GWAY için konum iznini açıp tekrar dene.'
-            : 'Konum izni olmadan devam edemezsin.';
+            ? identityL10n.locationDeniedForever
+            : identityL10n.locationRequired;
       case LocationServiceOff():
-        _error = 'Cihazının konum servisi kapalı. Açıp tekrar dene.';
+        _error = identityL10n.locationServiceOff;
     }
     if (mounted) setState(() => _busy = false);
   }
@@ -153,25 +154,24 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Konumunu doğrulayalım',
-      subtitle: 'Hesap güvenliği ve sahte hesapların önlenmesi için GWAY, giriş yaparken ve uygulamayı açtığında '
-          'konumunu kullanır. Konum izni olmadan uygulama açılmaz.',
+      title: identityL10n.locationTitle,
+      subtitle: identityL10n.locationBody,
       children: [
         if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (_permanentlyDenied) ...[
           GwButton(
-            label: 'Ayarları aç',
+            label: identityL10n.openSettings,
             icon: Icons.settings_outlined,
             onPressed: _busy ? null : () => ref.read(deviceSignalSourceProvider).openSettings(),
             expand: true,
           ),
           const SizedBox(height: GwSpacing.sm),
-          GwButton(label: 'Tekrar dene', variant: GwButtonVariant.secondary, onPressed: _check, isLoading: _busy, expand: true),
+          GwButton(label: identityL10n.retry, variant: GwButtonVariant.secondary, onPressed: _check, isLoading: _busy, expand: true),
         ] else
-          GwButton(label: 'Konum iznini ver', icon: Icons.my_location, onPressed: _check, isLoading: _busy, expand: true),
+          GwButton(label: identityL10n.grantLocation, icon: Icons.my_location, onPressed: _check, isLoading: _busy, expand: true),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Aydınlatma metnini oku',
+          label: identityL10n.readPrivacyNotice,
           variant: GwButtonVariant.text,
           onPressed: () => _showPrivacyNotice(context),
         ),
@@ -204,7 +204,7 @@ class _LocationStepState extends ConsumerState<_LocationStep> {
                             ],
                           ),
                         ),
-                      null => const Text('Aydınlatma metni şu anda yüklenemedi.'),
+                      null => Text(identityL10n.privacyNoticeUnavailable),
                     },
                   AsyncError(:final error) => GwErrorState(
                       message: userMessageOf(error),
@@ -236,7 +236,7 @@ class _CodeField extends StatelessWidget {
         autofillHints: const [AutofillHints.oneTimeCode],
         inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
         onSubmitted: (_) => onSubmitted(),
-        decoration: const InputDecoration(labelText: '6 haneli kod'),
+        decoration: InputDecoration(labelText: identityL10n.codeHint),
       );
 }
 
@@ -292,7 +292,7 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
 
   Future<void> _send() async {
     if (_number.text.length < 6) {
-      setState(() => _error = 'Cep telefonu numaranı gir.');
+      setState(() => _error = identityL10n.enterMobileNumber);
       return;
     }
     setState(() {
@@ -314,7 +314,7 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
 
   Future<void> _verify() async {
     if (_code.text.length != 6) {
-      setState(() => _error = 'SMS ile gelen 6 haneli kodu gir.');
+      setState(() => _error = identityL10n.enterSmsCode);
       return;
     }
     setState(() {
@@ -343,7 +343,7 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
       builder: (dialog) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         icon: const Icon(Icons.verified_user_outlined),
-        title: const Text('Girişlerini hızlandır'),
+        title: Text(identityL10n.speedUpTitle),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: GwLayout.formMaxWidth),
           child: Column(
@@ -351,12 +351,12 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(passkeys
-                  ? 'Sonraki girişlerinde SMS beklemeden parmak izinle ya da Google Authenticator koduyla doğrulama yapabilirsin.'
-                  : 'Sonraki girişlerinde SMS beklemeden Google Authenticator koduyla doğrulama yapabilirsin.'),
+                  ? identityL10n.speedUpBodyPasskey
+                  : identityL10n.speedUpBodyTotp),
               _gap,
               if (passkeys) ...[
                 GwButton(
-                  label: 'Parmak izi ekle',
+                  label: identityL10n.addFingerprint,
                   icon: Icons.fingerprint,
                   onPressed: () => Navigator.of(dialog).pop('passkey'),
                   expand: true,
@@ -364,13 +364,13 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
                 const SizedBox(height: GwSpacing.sm),
               ],
               GwButton(
-                label: 'Google Authenticator ekle',
+                label: identityL10n.addAuthenticator,
                 icon: Icons.phonelink_lock_outlined,
                 variant: passkeys ? GwButtonVariant.secondary : GwButtonVariant.primary,
                 onPressed: () => Navigator.of(dialog).pop('totp'),
                 expand: true,
               ),
-              GwButton(label: 'Şimdi değil', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+              GwButton(label: identityL10n.notNow, variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
             ],
           ),
         ),
@@ -381,7 +381,7 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
       case 'passkey':
         final error = await addPasskey(ref, refreshStatus: false);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error ?? 'Parmak izi eklendi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error ?? identityL10n.fingerprintAdded)));
       case 'totp':
         await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TotpSetupScreen()));
     }
@@ -390,8 +390,8 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Telefonunu doğrula',
-      subtitle: 'Bulunduğun ülkenin cep telefonu numarasıyla doğrulama yapabilirsin. Numaran başkalarına gösterilmez.',
+      title: identityL10n.verifyPhoneTitle,
+      subtitle: identityL10n.verifyPhoneBody,
       children: [
         TextField(
           controller: _number,
@@ -400,7 +400,7 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
           autofillHints: const [AutofillHints.telephoneNumberNational],
           inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(14)],
           onSubmitted: (_) => _send(),
-          decoration: InputDecoration(labelText: 'Cep telefonu', prefixText: '+${widget.status.callingCode} '),
+          decoration: InputDecoration(labelText: identityL10n.mobilePhone, prefixText: '+${widget.status.callingCode} '),
         ),
         _gap,
         if (_sent) ...[
@@ -409,18 +409,18 @@ class _PhoneStepState extends ConsumerState<_PhoneStep> with _ResendCooldown {
         ],
         if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (!_sent)
-          GwButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
+          GwButton(label: identityL10n.sendCode, onPressed: _send, isLoading: _busy, expand: true)
         else ...[
-          GwButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
+          GwButton(label: identityL10n.verify, onPressed: _verify, isLoading: _busy, expand: true),
           const SizedBox(height: GwSpacing.sm),
           GwButton(
-            label: resendIn > 0 ? 'Kodu yeniden gönder ($resendIn sn)' : 'Kodu yeniden gönder',
+            label: resendIn > 0 ? identityL10n.resendCodeIn(resendIn) : identityL10n.resendCode,
             variant: GwButtonVariant.secondary,
             onPressed: resendIn > 0 || _busy ? null : _send,
             expand: true,
           ),
           GwButton(
-            label: 'Numarayı değiştir',
+            label: identityL10n.changeNumber,
             variant: GwButtonVariant.text,
             onPressed: _busy ? null : () => setState(() => _sent = false),
           ),
@@ -496,7 +496,7 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
         if (response == null) {
           setState(() {
             _busy = false;
-            _error = 'Doğrulama iptal edildi ya da bu cihazda kayıtlı parmak izi yok. Başka bir yöntem seçebilirsin.';
+            _error = identityL10n.passkeyFailed;
           });
           return;
         }
@@ -517,7 +517,7 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
 
   Future<void> _verify() async {
     if (_code.text.length != 6) {
-      setState(() => _error = '6 haneli kodu gir.');
+      setState(() => _error = identityL10n.enterCode);
       return;
     }
     setState(() {
@@ -541,12 +541,11 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
     final sms = _method == 'sms';
     final passkey = _method == 'passkey';
     return AuthLayout(
-      title: 'Girişini doğrula',
+      title: identityL10n.verifySignInTitle,
       subtitle: switch (_method) {
-        'passkey' => 'Bu cihazın parmak izi, yüz tanıma ya da ekran kilidiyle girişini doğrula.',
-        'totp' => 'Doğrulama uygulamandaki 6 haneli kodu gir.',
-        _ => 'Güvenliğin için bu girişi doğrulaman gerekiyor. ${widget.status.phoneMasked ?? 'Kayıtlı numarana'} '
-            'numarasına bir kod göndereceğiz.',
+        'passkey' => identityL10n.verifyWithPasskey,
+        'totp' => identityL10n.verifyWithTotp,
+        _ => (widget.status.phoneMasked == null ? identityL10n.smsWillSendSaved : identityL10n.smsWillSendTo(widget.status.phoneMasked!)),
       },
       children: [
         if (_methods.length > 1) ...[
@@ -554,8 +553,8 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
             segments: [
               for (final m in _methods)
                 switch (m) {
-                  'passkey' => const ButtonSegment(value: 'passkey', label: Text('Parmak izi'), icon: Icon(Icons.fingerprint)),
-                  'totp' => const ButtonSegment(value: 'totp', label: Text('Uygulama'), icon: Icon(Icons.phonelink_lock_outlined)),
+                  'passkey' => ButtonSegment(value: 'passkey', label: Text(identityL10n.methodFingerprint), icon: const Icon(Icons.fingerprint)),
+                  'totp' => ButtonSegment(value: 'totp', label: Text(identityL10n.methodApp), icon: const Icon(Icons.phonelink_lock_outlined)),
                   _ => const ButtonSegment(value: 'sms', label: Text('SMS'), icon: Icon(Icons.sms_outlined)),
                 },
             ],
@@ -577,20 +576,20 @@ class _SecondFactorStepState extends ConsumerState<_SecondFactorStep> with _Rese
         if (_error != null) ...[GwFormMessage(_error!), _gap],
         if (passkey)
           GwButton(
-            label: 'Parmak iziyle doğrula',
+            label: identityL10n.verifyWithFingerprint,
             icon: Icons.fingerprint,
             onPressed: _verifyPasskey,
             isLoading: _busy,
             expand: true,
           )
         else if (sms && !_sent)
-          GwButton(label: 'Kod gönder', onPressed: _send, isLoading: _busy, expand: true)
+          GwButton(label: identityL10n.sendCode, onPressed: _send, isLoading: _busy, expand: true)
         else ...[
-          GwButton(label: 'Doğrula', onPressed: _verify, isLoading: _busy, expand: true),
+          GwButton(label: identityL10n.verify, onPressed: _verify, isLoading: _busy, expand: true),
           if (sms) ...[
             const SizedBox(height: GwSpacing.sm),
             GwButton(
-              label: resendIn > 0 ? 'Kodu yeniden gönder ($resendIn sn)' : 'Kodu yeniden gönder',
+              label: resendIn > 0 ? identityL10n.resendCodeIn(resendIn) : identityL10n.resendCode,
               variant: GwButtonVariant.secondary,
               onPressed: resendIn > 0 || _busy ? null : _send,
               expand: true,
@@ -613,14 +612,13 @@ class _RestrictedStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final refreshing = ref.watch(securityStatusProvider).isLoading;
     return AuthLayout(
-      title: 'Güvenli giriş yapılamadı',
-      subtitle: 'Hesabın güvenlik incelemesine alındı. İnceleme sonuçlanınca uygulamayı kullanmaya kaldığın yerden '
-          'devam edebilirsin.',
+      title: identityL10n.reviewTitle,
+      subtitle: identityL10n.reviewBody,
       children: [
-        const GwFormMessage(securityWarning),
+        GwFormMessage(securityWarning),
         const SizedBox(height: GwSpacing.md),
         GwButton(
-          label: 'Durumu yenile',
+          label: identityL10n.refreshStatus,
           icon: Icons.refresh,
           isLoading: refreshing,
           onPressed: () => _reload(ref),
@@ -644,11 +642,11 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
       context: context,
       builder: (dialog) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Doğrulama uygulamasını kaldır'),
-        content: const Text('Bundan sonra yeni girişlerini yalnızca SMS koduyla doğrulayabilirsin.'),
+        title: Text(identityL10n.removeTotpTitle),
+        content: Text(identityL10n.removeTotpBody),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GwButton(label: 'Kaldır', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: identityL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: identityL10n.remove, onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -657,7 +655,7 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() => 'Doğrulama uygulaması kaldırıldı.',
+        Ok() => identityL10n.totpRemoved,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -669,7 +667,7 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
     final status = ref.watch(securityStatusProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('İki adımlı doğrulama')),
+      appBar: AppBar(title: Text(identityL10n.twoFactorTitle)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -684,16 +682,16 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                       children: [
                         ListTile(
                           leading: const Icon(Icons.sms_outlined),
-                          title: const Text('Telefon numarası'),
-                          subtitle: Text(s.phoneMasked ?? 'Henüz doğrulanmadı'),
+                          title: Text(identityL10n.phoneNumber),
+                          subtitle: Text(s.phoneMasked ?? identityL10n.notVerifiedYet),
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.phonelink_lock_outlined),
-                          title: const Text('Doğrulama uygulaması'),
+                          title: Text(identityL10n.authenticatorApp),
                           subtitle: Text(s.totpEnabled
-                              ? 'Açık. Yeni girişlerini uygulamadaki kodla da doğrulayabilirsin.'
-                              : 'Google Authenticator gibi bir uygulamayla SMS beklemeden giriş yap.'),
+                              ? identityL10n.totpOn
+                              : identityL10n.totpOff),
                         ),
                         const Divider(height: 1),
                         const _PasskeysSection(),
@@ -702,13 +700,13 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.md),
                           child: s.totpEnabled
                               ? GwButton(
-                                  label: 'Kaldır',
+                                  label: identityL10n.remove,
                                   variant: GwButtonVariant.secondary,
                                   onPressed: () => _remove(context, ref),
                                   expand: true,
                                 )
                               : GwButton(
-                                  label: 'Doğrulama uygulaması ekle',
+                                  label: identityL10n.addTotp,
                                   icon: Icons.add,
                                   onPressed: () => Navigator.of(context)
                                       .push(MaterialPageRoute<void>(builder: (_) => const TotpSetupScreen())),
@@ -722,7 +720,7 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
                     message: userMessageOf(error),
                     onRetry: () => ref.invalidate(securityStatusProvider),
                   ),
-                AsyncData() => Text('Giriş yapman gerekiyor.', style: textTheme.bodyMedium),
+                AsyncData() => Text(identityL10n.signInRequired, style: textTheme.bodyMedium),
                 _ => const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
               },
             ),
@@ -751,13 +749,13 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
     final error = await addPasskey(ref);
     if (!mounted) return;
     setState(() => _busy = false);
-    _say(error ?? 'Parmak izi eklendi.');
+    _say(error ?? identityL10n.fingerprintAdded);
   }
 
   Future<void> _remove(PasskeyView p) async {
     final result = await ref.read(securityRepositoryProvider).deletePasskey(p.id);
     if (!mounted) return;
-    _say(switch (result) { Ok() => '${p.name} kaldırıldı.', Err(:final failure) => failure.userMessage });
+    _say(switch (result) { Ok() => identityL10n.passkeyRemoved(p.name), Err(:final failure) => failure.userMessage });
     ref
       ..invalidate(passkeysProvider)
       ..invalidate(securityStatusProvider);
@@ -772,18 +770,18 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
       children: [
         ListTile(
           leading: const Icon(Icons.fingerprint),
-          title: const Text('Parmak izi ve yüz tanıma'),
+          title: Text(identityL10n.passkeysTitle),
           subtitle: Text(passkeys.isEmpty
-              ? 'Girişlerini cihazının parmak izi, yüz tanıma ya da ekran kilidiyle doğrula.'
-              : '${passkeys.length} cihaz kayıtlı. Girişlerde önce bu yöntem sorulur.'),
+              ? identityL10n.passkeysOff
+              : identityL10n.passkeysOn(passkeys.length)),
         ),
         for (final p in passkeys)
           ListTile(
             contentPadding: const EdgeInsets.only(left: GwSpacing.xxl + GwSpacing.md, right: GwSpacing.xs),
             title: Text(p.name),
-            subtitle: Text(p.lastUsedAt == null ? 'Henüz kullanılmadı' : 'Son kullanım: ${formatDateTime(p.lastUsedAt!)}'),
+            subtitle: Text(p.lastUsedAt == null ? identityL10n.notUsedYet : identityL10n.lastUsed(formatDateTime(p.lastUsedAt!))),
             trailing: IconButton(
-              tooltip: 'Kaldır',
+              tooltip: identityL10n.remove,
               icon: const Icon(Icons.delete_outline),
               onPressed: _busy ? null : () => _remove(p),
             ),
@@ -792,7 +790,7 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
           padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.md),
           child: supported
               ? GwButton(
-                  label: 'Bu cihazda parmak izi ekle',
+                  label: identityL10n.addFingerprintHere,
                   icon: Icons.add,
                   variant: GwButtonVariant.secondary,
                   isLoading: _busy,
@@ -800,7 +798,7 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
                   expand: true,
                 )
               : Text(
-                  'Bu cihaz ya da tarayıcı parmak iziyle girişi desteklemiyor.',
+                  identityL10n.passkeyUnsupported,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
         ),
@@ -830,7 +828,7 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
 
   Future<void> _confirm() async {
     if (_code.text.length != 6) {
-      setState(() => _error = 'Uygulamadaki 6 haneli kodu gir.');
+      setState(() => _error = identityL10n.enterAppCode);
       return;
     }
     setState(() {
@@ -843,7 +841,7 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
       case Ok():
         ref.invalidate(securityStatusProvider);
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Doğrulama uygulaması eklendi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(identityL10n.totpAdded)));
       case Err(:final failure):
         setState(() {
           _busy = false;
@@ -856,7 +854,7 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Doğrulama uygulaması')),
+      appBar: AppBar(title: Text(identityL10n.authenticatorApp)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -877,8 +875,7 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            '1. Doğrulama uygulamanda yeni hesap ekle ve bu kodu tara. Aynı telefondaysan '
-                            '"Uygulamada aç"a dokun ya da anahtarı elle gir.',
+                            identityL10n.totpStep1,
                             style: textTheme.bodyMedium,
                           ),
                           _gap,
@@ -901,14 +898,14 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
                             spacing: GwSpacing.xs,
                             children: [
                               GwButton(
-                                label: 'Anahtarı kopyala',
+                                label: identityL10n.copyKey,
                                 icon: Icons.copy,
                                 variant: GwButtonVariant.text,
                                 onPressed: () => Clipboard.setData(ClipboardData(text: setup.secret)),
                               ),
                               if (!kIsWeb)
                                 GwButton(
-                                  label: 'Uygulamada aç',
+                                  label: identityL10n.openInApp,
                                   icon: Icons.open_in_new,
                                   variant: GwButtonVariant.text,
                                   onPressed: () => launchUrl(Uri.parse(setup.uri)),
@@ -916,12 +913,12 @@ class _TotpSetupScreenState extends ConsumerState<TotpSetupScreen> {
                             ],
                           ),
                           _gap,
-                          Text('2. Uygulamanın gösterdiği 6 haneli kodu gir.', style: textTheme.bodyMedium),
+                          Text(identityL10n.totpStep2, style: textTheme.bodyMedium),
                           const SizedBox(height: GwSpacing.sm),
                           _CodeField(controller: _code, onSubmitted: _confirm),
                           _gap,
                           if (_error != null) ...[GwFormMessage(_error!), _gap],
-                          GwButton(label: 'Etkinleştir', onPressed: _confirm, isLoading: _busy, expand: true),
+                          GwButton(label: identityL10n.activate, onPressed: _confirm, isLoading: _busy, expand: true),
                         ],
                       ),
                     ),

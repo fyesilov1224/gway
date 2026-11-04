@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
 import '../tokens/colors.dart';
 import '../tokens/spacing.dart';
 import 'button.dart';
@@ -46,7 +47,7 @@ class GwErrorState extends StatelessWidget {
             ),
             const SizedBox(height: GwSpacing.lg),
             GwButton(
-              label: 'Tekrar dene',
+              label: designSystemL10n.retry,
               onPressed: onRetry,
               variant: GwButtonVariant.secondary,
             ),
