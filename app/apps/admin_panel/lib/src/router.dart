@@ -91,6 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(path: AdminRoutes.overview, builder: (_, _) => const AdminOverviewScreen()),
           GoRoute(path: AdminRoutes.users, builder: (_, _) => const UsersScreen()),
+          GoRoute(path: AdminRoutes.online, builder: (_, _) => const LiveUsersScreen()),
           GoRoute(
             path: '/users/:id',
             builder: (_, state) => UserDetailScreen(userId: state.pathParameters['id']!),

@@ -27,3 +27,6 @@ supabase/all_migrations.sql
 
 # Apple Sign in private key
 AuthKey*.p8
+
+# Claude Code personal settings
+.claude/settings.local.json

@@ -4,7 +4,10 @@ import 'package:core/core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// How often a watched list or counter is fetched again (docs/ARCHITECTURE.md §8b, Canlı yenileme).
-const adminRefreshInterval = Duration(seconds: 15);
+const adminRefreshInterval = Duration(seconds: 5);
+
+/// The live users list, as fresh as the other lists (the app beats every 45 seconds; leaving is immediate).
+const onlineRefreshInterval = Duration(seconds: 5);
 
 extension AdminLiveRefresh on Ref {
   /// [cacheFor], and while a screen shows the value it is fetched again every [every], so new sign-ups, reports

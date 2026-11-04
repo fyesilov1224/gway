@@ -116,6 +116,14 @@ class _Sidebar extends ConsumerWidget {
               ),
               const SizedBox(height: GwSpacing.xxs),
               _NavItem(
+                icon: Icons.wifi_tethering,
+                selectedIcon: Icons.wifi_tethering,
+                label: 'Canlı kullanıcılar',
+                selected: path.startsWith(AdminRoutes.online),
+                onTap: () => go(AdminRoutes.online),
+              ),
+              const SizedBox(height: GwSpacing.xxs),
+              _NavItem(
                 icon: Icons.groups_2_outlined,
                 selectedIcon: Icons.groups_2,
                 label: 'Gruplar',

@@ -43,6 +43,19 @@ final userSearchProvider = FutureProvider.autoDispose.family<UserPage, UserSearc
   },
 );
 
+typedef OnlineSearch = ({String query, AdminPlatform? platform, int page});
+
+/// The live users list (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar): fetched again every 5 seconds while shown.
+final onlineUsersProvider = FutureProvider.autoDispose.family<AdminOnlinePage, OnlineSearch>(
+  (ref, search) async {
+    ref.liveFor(every: onlineRefreshInterval);
+    return (await ref
+          .watch(adminUsersRepositoryProvider)
+          .online(query: search.query, platform: search.platform, page: search.page))
+      .getOrThrow();
+  },
+);
+
 final userStatsProvider = FutureProvider.autoDispose<AdminUserStats>(
   (ref) async {
     ref.liveFor();

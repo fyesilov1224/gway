@@ -9,10 +9,12 @@ import '../data/passkey_authenticator.dart';
 import '../data/supabase_auth_repository.dart';
 import '../data/supabase_birth_date_repository.dart';
 import '../data/supabase_consent_repository.dart';
+import '../data/supabase_presence_repository.dart';
 import '../domain/account.dart';
 import '../domain/age.dart';
 import '../domain/auth.dart';
 import '../domain/legal.dart';
+import '../domain/presence.dart';
 import '../domain/security.dart';
 
 /// Where e-mail links and OAuth return. Overridden by each app.
@@ -87,6 +89,11 @@ Future<void> refreshAccountSession(SupabaseClient Function() client) async {
     // Offline or signed out; the gate still reads the account state.
   }
 }
+
+/// Live users beats (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar); replaced in tests.
+final presenceRepositoryProvider = Provider<PresenceRepository>(
+  (ref) => SupabasePresenceRepository(ref.watch(supabaseClientProvider)),
+);
 
 final securityRepositoryProvider = Provider<SecurityRepository>(
   (ref) => ApiSecurityRepository(ref.watch(apiClientProvider)),

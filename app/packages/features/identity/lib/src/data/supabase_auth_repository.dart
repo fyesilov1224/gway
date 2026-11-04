@@ -81,7 +81,15 @@ class SupabaseAuthRepository implements AuthRepository {
       _run(() => _auth.updateUser(UserAttributes(password: password)));
 
   @override
-  Future<Result<void>> signOut() => _run(_auth.signOut);
+  /// Off the admin panel's live users list first, while the session can still say so (§8b, Canlı kullanıcılar).
+  Future<Result<void>> signOut() => _run(() async {
+        try {
+          await _client.rpc<void>('leave_presence');
+        } on Object {
+          // Signing out never waits on the live list.
+        }
+        return _auth.signOut();
+      });
 
   Future<Result<void>> _run(Future<Object?> Function() action) async {
     try {

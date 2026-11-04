@@ -44,7 +44,7 @@ class SocialApp extends ConsumerWidget {
               openCall: openCall,
               child: SecurityHeartbeat(
                 navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,
-                child: child!,
+                child: PresenceBeacon(child: child!),
               ),
             ),
           ),
