@@ -12,6 +12,8 @@ import 'package:moderation/moderation.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 
+import 'l10n.dart';
+
 /// Feed pages open profiles and groups through the app (features stay independent).
 final feedLinks = FeedLinks(
   openProfile: (context, username) => context.push(ProfileRoutes.user(username)),
@@ -69,12 +71,12 @@ class _ProfilePosts extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GwSectionHeader(title: 'Gönderiler', actionLabel: isOwn ? 'Yeni gönderi' : null, onAction: create),
+        GwSectionHeader(title: socialAppL10n.posts, actionLabel: isOwn ? socialAppL10n.newPost : null, onAction: create),
         HighlightsRow(userId: profile.id, isOwn: isOwn),
         PostsSection(
           source: UserPosts(profile.id),
-          emptyMessage: isOwn ? 'Henüz gönderi paylaşmadın. İlk fotoğrafını ya da videonu paylaş.' : 'Henüz gönderi yok.',
-          emptyAction: isOwn ? (label: 'İlk gönderini paylaş', onPressed: create) : null,
+          emptyMessage: isOwn ? socialAppL10n.noOwnPosts : socialAppL10n.noPosts,
+          emptyAction: isOwn ? (label: socialAppL10n.shareFirstOwn, onPressed: create) : null,
         ),
       ],
     );
@@ -88,11 +90,11 @@ Widget groupPostsSection(BuildContext context, Group group, MyMembership me) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      GwSectionHeader(title: 'Gönderiler', actionLabel: canPublish ? 'Yeni gönderi' : null, onAction: create),
+      GwSectionHeader(title: socialAppL10n.posts, actionLabel: canPublish ? socialAppL10n.newPost : null, onAction: create),
       PostsSection(
         source: GroupPosts(group.id),
-        emptyMessage: canPublish ? 'Grubun akışına ilk gönderiyi sen paylaş.' : 'Bu grupta henüz gönderi yok.',
-        emptyAction: canPublish ? (label: 'İlk gönderiyi paylaş', onPressed: create) : null,
+        emptyMessage: canPublish ? socialAppL10n.groupFirstPost : socialAppL10n.groupNoPosts,
+        emptyAction: canPublish ? (label: socialAppL10n.shareFirstGroup, onPressed: create) : null,
       ),
     ],
   );

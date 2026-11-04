@@ -167,5 +167,9 @@
   "enterCode": "6 rəqəmli kodu daxil et.",
   "enterSmsCode": "SMS ilə gələn 6 rəqəmli kodu daxil et.",
   "enterAppCode": "Tətbiqdəki 6 rəqəmli kodu daxil et.",
-  "refresh": "Yenilə"
+  "refresh": "Yenilə",
+  "language": "Dil",
+  "chooseLanguage": "Dil seç",
+  "languageNote": "Menyular, düymələr, bildirişlər və müqavilələr bu dildə göstərilir. Paylaşımlar, şərhlər və mesajlar yazıldıqları dildə qalır.",
+  "or": "və ya"
 }

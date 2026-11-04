@@ -581,4 +581,17 @@ class IdentityL10nTr extends IdentityL10n {
 
   @override
   String get refresh => 'Yenile';
+
+  @override
+  String get language => 'Dil';
+
+  @override
+  String get chooseLanguage => 'Dil seç';
+
+  @override
+  String get languageNote =>
+      'Menüler, düğmeler, bildirimler ve sözleşmeler bu dilde gösterilir. Gönderiler, yorumlar ve mesajlar yazıldıkları dilde kalır.';
+
+  @override
+  String get or => 'veya';
 }

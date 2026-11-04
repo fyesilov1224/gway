@@ -31,6 +31,9 @@ String formatDateTime(DateTime date) {
   return '${formatDate(d)}, ${DateFormat.jm(_locale).format(d)}';
 }
 
+/// `5 Kasım Perşembe` / `Thursday, November 5` in local time.
+String formatWeekdayDate(DateTime date) => DateFormat.MMMMEEEEd(_locale).format(date.toLocal());
+
 /// `09:05` / `9:05 AM` in local time.
 String formatTime(DateTime date) => DateFormat.jm(_locale).format(date.toLocal());
 

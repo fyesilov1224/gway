@@ -178,7 +178,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
         GwButton(label: identityL10n.signIn, onPressed: _signIn, isLoading: loading, expand: true),
         if (widget.allowSocial && social.isNotEmpty) ...[
           const SizedBox(height: GwSpacing.lg),
-          const LabeledDivider('veya'),
+          LabeledDivider(identityL10n.or),
           const SizedBox(height: GwSpacing.lg),
           if (social.contains(SocialProvider.google))
             GwButton(

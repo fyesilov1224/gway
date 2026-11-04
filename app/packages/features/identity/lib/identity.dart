@@ -10,6 +10,7 @@ export 'src/presentation/account_screens.dart';
 export 'src/presentation/auth_screens.dart';
 export 'src/presentation/birth_date_screen.dart';
 export 'src/presentation/consent_screen.dart';
+export 'src/presentation/language_picker.dart';
 export 'src/presentation/legal_documents_screen.dart';
 export 'src/presentation/presence_beacon.dart';
 export 'src/presentation/providers.dart';

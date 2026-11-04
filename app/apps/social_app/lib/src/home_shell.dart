@@ -11,6 +11,8 @@ import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 
+import 'l10n.dart';
+
 typedef _Destination = ({String path, String label, IconData icon, IconData selectedIcon});
 
 /// Top-level destinations: a floating dock with the create button on phones
@@ -21,11 +23,12 @@ class HomeShell extends StatelessWidget {
 
   final Widget child;
 
-  static const List<_Destination> _destinations = [
-    (path: FeedRoutes.home, label: 'Bugün', icon: Icons.wb_sunny_outlined, selectedIcon: Icons.wb_sunny_rounded),
-    (path: GroupRoutes.discover, label: 'Gruplar', icon: Icons.groups_outlined, selectedIcon: Icons.groups_rounded),
-    (path: EventRoutes.calendar, label: 'Takvim', icon: Icons.calendar_month_outlined, selectedIcon: Icons.calendar_month_rounded),
-    (path: ProfileRoutes.mine, label: 'Ben', icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded),
+  // A getter, so the labels follow the app language.
+  static List<_Destination> get _destinations => [
+    (path: FeedRoutes.home, label: socialAppL10n.tabToday, icon: Icons.wb_sunny_outlined, selectedIcon: Icons.wb_sunny_rounded),
+    (path: GroupRoutes.discover, label: socialAppL10n.tabGroups, icon: Icons.groups_outlined, selectedIcon: Icons.groups_rounded),
+    (path: EventRoutes.calendar, label: socialAppL10n.tabCalendar, icon: Icons.calendar_month_outlined, selectedIcon: Icons.calendar_month_rounded),
+    (path: ProfileRoutes.mine, label: socialAppL10n.tabMe, icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded),
   ];
 
   /// Pages reached from the navigation itself; they get the dock on phones
@@ -93,18 +96,18 @@ class _CreateSheet extends ConsumerWidget {
     final mine = upcoming.where((e) => e.isMine).length;
 
     final tonightNote = switch (tonight) {
-      null => 'Boşsan söyle, masa kur',
-      Tonight(table: _?) => 'Masan kuruldu',
-      Tonight(invites: [_, ...]) => 'Masaya davetin var',
-      Tonight(isFree: true) when free > 0 => '${formatCount(free)} kişi seninle boş',
-      Tonight(isFree: true) => 'Boşsun · 04:00\'e kadar',
-      _ when free > 0 => '${formatCount(free)} kişi bu akşam boş',
-      _ => 'Boşsan söyle, masa kur',
+      null => socialAppL10n.tonightSay,
+      Tonight(table: _?) => socialAppL10n.tonightTableSet,
+      Tonight(invites: [_, ...]) => socialAppL10n.tonightInvited,
+      Tonight(isFree: true) when free > 0 => socialAppL10n.tonightFreeWithYou(free),
+      Tonight(isFree: true) => socialAppL10n.tonightFreeUntil,
+      _ when free > 0 => socialAppL10n.tonightFreeCount(free),
+      _ => socialAppL10n.tonightSay,
     };
     final upcomingNote = switch (upcoming.length) {
-      0 => 'Gruplarının planları',
-      final n when mine > 0 => '${formatCount(n)} plan · ${formatCount(mine)} katılım',
-      final n => '${formatCount(n)} plan, 60 gün',
+      0 => socialAppL10n.upcomingNone,
+      final n when mine > 0 => socialAppL10n.upcomingMine(n, mine),
+      final n => socialAppL10n.upcomingCount(n),
     };
 
     Widget option(IconData icon, GwTone tone, String title, String subtitle, String location) => ListTile(
@@ -124,7 +127,7 @@ class _CreateSheet extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.sm),
-              child: Text('Bugün için', style: textTheme.titleLarge),
+              child: Text(socialAppL10n.forToday, style: textTheme.titleLarge),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
@@ -136,7 +139,7 @@ class _CreateSheet extends ConsumerWidget {
                       child: _PlanTile(
                         icon: Icons.nights_stay_rounded,
                         tone: GwTone.lilac,
-                        title: 'Bu akşam',
+                        title: socialAppL10n.tonight,
                         subtitle: tonightNote,
                         highlight: tonight?.isFree ?? false,
                         onTap: () => open(EventRoutes.tonight),
@@ -147,7 +150,7 @@ class _CreateSheet extends ConsumerWidget {
                       child: _PlanTile(
                         icon: Icons.event_available_rounded,
                         tone: GwTone.sky,
-                        title: 'Yaklaşanlar',
+                        title: socialAppL10n.upcoming,
                         subtitle: upcomingNote,
                         onTap: () => open(EventRoutes.upcoming),
                       ),
@@ -158,11 +161,11 @@ class _CreateSheet extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.lg, GwSpacing.lg, GwSpacing.xs),
-              child: Text('Paylaş', style: textTheme.titleLarge),
+              child: Text(socialAppL10n.share, style: textTheme.titleLarge),
             ),
-            option(Icons.photo_library_outlined, GwTone.lilac, 'Gönderi', '10 fotoğraf ya da videoya kadar', FeedRoutes.create),
-            option(Icons.auto_awesome_outlined, GwTone.sky, 'Hikâye', '24 saat görünür', FeedRoutes.newStory),
-            option(Icons.group_add_outlined, GwTone.mist, 'Grup', 'Kendi topluluğunu kur', GroupRoutes.create),
+            option(Icons.photo_library_outlined, GwTone.lilac, socialAppL10n.post, socialAppL10n.postHint, FeedRoutes.create),
+            option(Icons.auto_awesome_outlined, GwTone.sky, socialAppL10n.story, socialAppL10n.storyHint, FeedRoutes.newStory),
+            option(Icons.group_add_outlined, GwTone.mist, socialAppL10n.group, socialAppL10n.groupHint, GroupRoutes.create),
           ],
         ),
       ),
@@ -277,7 +280,7 @@ class _Dock extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
                 child: IconButton.filled(
-                  tooltip: 'Oluştur',
+                  tooltip: socialAppL10n.create,
                   onPressed: () => showCreateSheet(context),
                   icon: const Icon(Icons.add_rounded),
                   style: IconButton.styleFrom(
@@ -368,28 +371,28 @@ class _Sidebar extends ConsumerWidget {
               ),
             _SideItem(
               icon: NotificationsIcon(selected: path == NotificationRoutes.list),
-              label: 'Bildirimler',
+              label: socialAppL10n.notifications,
               selected: path == NotificationRoutes.list,
               onTap: () => context.go(NotificationRoutes.list),
             ),
             _SideItem(
               icon: const Icon(Icons.chat_bubble_outline_rounded),
-              label: 'Mesajlar',
+              label: socialAppL10n.messages,
               selected: false,
               onTap: () => context.push(MessagingRoutes.list),
             ),
             _SideItem(
               icon: const Icon(Icons.favorite_border_rounded),
-              label: 'Eşleşme',
+              label: socialAppL10n.matching,
               selected: path.startsWith(MatchingRoutes.home),
               onTap: () => context.push(MatchingRoutes.home),
             ),
             const SizedBox(height: GwSpacing.md),
-            GwButton(label: 'Oluştur', icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
+            GwButton(label: socialAppL10n.create, icon: Icons.add_rounded, expand: true, onPressed: () => showCreateSheet(context)),
             if (groups.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),
-                child: Text('Gruplarım', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
+                child: Text(socialAppL10n.myGroups, style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
               ),
               for (final g in groups.take(8))
                 _SideItem(

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 
+import 'l10n.dart';
+
 /// The plan card on the group page: the owner manages the plan, approvers see a full-group warning.
 Widget groupPlanSection(BuildContext context, Group group, MyMembership me) {
   final canManage = me.can(GroupPermission.manageBilling);
@@ -62,7 +64,7 @@ class GroupPlanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _GroupGate(
         handle: handle,
-        title: 'Paket',
+        title: socialAppL10n.plan,
         builder: (group, me) => PlanScreen(
           groupId: group.id,
           handle: group.handle,
@@ -84,15 +86,15 @@ class GroupCheckoutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _GroupGate(
         handle: handle,
-        title: 'Ödeme',
+        title: socialAppL10n.payment,
         builder: (group, me) => me.can(GroupPermission.manageBilling)
             ? CheckoutScreen(groupId: group.id, groupName: group.name, planSlug: planSlug, period: period)
             : Scaffold(
-                appBar: AppBar(title: const Text('Ödeme')),
+                appBar: AppBar(title: Text(socialAppL10n.payment)),
                 body: GwEmptyState(
                   icon: Icons.lock_outline,
-                  message: 'Paket işlemlerini yalnızca grup sahibi yapabilir.',
-                  actionLabel: 'Gruba dön',
+                  message: socialAppL10n.onlyOwnerBilling,
+                  actionLabel: socialAppL10n.backToGroup,
                   onAction: () => context.go(GroupRoutes.group(group.handle)),
                 ),
               ),

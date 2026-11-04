@@ -606,4 +606,17 @@ class IdentityL10nFr extends IdentityL10n {
 
   @override
   String get refresh => 'Actualiser';
+
+  @override
+  String get language => 'Langue';
+
+  @override
+  String get chooseLanguage => 'Choisir la langue';
+
+  @override
+  String get languageNote =>
+      'Les menus, boutons, notifications et contrats s\'affichent dans cette langue. Les publications, commentaires et messages restent dans leur langue d\'origine.';
+
+  @override
+  String get or => 'ou';
 }

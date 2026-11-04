@@ -167,5 +167,9 @@
   "enterCode": "Saisis le code à 6 chiffres.",
   "enterSmsCode": "Saisis le code à 6 chiffres reçu par SMS.",
   "enterAppCode": "Saisis le code à 6 chiffres de l'application.",
-  "refresh": "Actualiser"
+  "refresh": "Actualiser",
+  "language": "Langue",
+  "chooseLanguage": "Choisir la langue",
+  "languageNote": "Les menus, boutons, notifications et contrats s'affichent dans cette langue. Les publications, commentaires et messages restent dans leur langue d'origine.",
+  "or": "ou"
 }

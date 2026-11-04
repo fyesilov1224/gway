@@ -751,5 +751,21 @@
   "refresh": "Yenile",
   "@refresh": {
     "description": ""
+  },
+  "language": "Dil",
+  "@language": {
+    "description": ""
+  },
+  "chooseLanguage": "Dil seç",
+  "@chooseLanguage": {
+    "description": ""
+  },
+  "languageNote": "Menüler, düğmeler, bildirimler ve sözleşmeler bu dilde gösterilir. Gönderiler, yorumlar ve mesajlar yazıldıkları dilde kalır.",
+  "@languageNote": {
+    "description": ""
+  },
+  "or": "veya",
+  "@or": {
+    "description": ""
   }
 }

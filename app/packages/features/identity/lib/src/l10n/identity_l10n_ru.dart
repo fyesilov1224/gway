@@ -596,4 +596,17 @@ class IdentityL10nRu extends IdentityL10n {
 
   @override
   String get refresh => 'Обновить';
+
+  @override
+  String get language => 'Язык';
+
+  @override
+  String get chooseLanguage => 'Выберите язык';
+
+  @override
+  String get languageNote =>
+      'Меню, кнопки, уведомления и соглашения показываются на этом языке. Публикации, комментарии и сообщения остаются на языке оригинала.';
+
+  @override
+  String get or => 'или';
 }

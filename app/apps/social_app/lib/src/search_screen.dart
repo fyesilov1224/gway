@@ -2,6 +2,8 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:profile/profile.dart';
 
+import 'l10n.dart';
+
 /// Account search with follow buttons; suggestions while the field is empty.
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -34,11 +36,11 @@ class _SearchScreenState extends State<SearchScreen> {
           textInputAction: TextInputAction.search,
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
-            hintText: 'Kişi ara',
+            hintText: socialAppL10n.searchPeople,
             prefixIcon: const Icon(Icons.search),
             suffixIcon: _query.isEmpty
                 ? null
-                : IconButton(tooltip: 'Aramayı temizle', icon: const Icon(Icons.close), onPressed: _clear),
+                : IconButton(tooltip: socialAppL10n.clearSearch, icon: const Icon(Icons.close), onPressed: _clear),
           ),
         ),
       ),

@@ -587,4 +587,17 @@ class IdentityL10nAr extends IdentityL10n {
 
   @override
   String get refresh => 'تحديث';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get chooseLanguage => 'اختر اللغة';
+
+  @override
+  String get languageNote =>
+      'تظهر القوائم والأزرار والإشعارات والاتفاقيات بهذه اللغة. تبقى المنشورات والتعليقات والرسائل باللغة التي كُتبت بها.';
+
+  @override
+  String get or => 'أو';
 }

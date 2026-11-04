@@ -108,6 +108,12 @@ for _ in range(12):
             if i >= 0 and i not in removed:
                 removed.add(i)
         for i in sorted(removed, reverse=True):
+            line_start = raw.rfind(chr(10), 0, i) + 1
+            before = raw[line_start:i].strip()
+            if before in ('', 'static') and re.match(r'const\s+[\w<>?, ]*\s*\w+\s*=', raw[i:]):
+                # A const declaration: it must become a getter by hand, or it would freeze the first language.
+                print(f'DECLARATION needs a getter: {f}:{raw.count(chr(10), 0, i) + 1}')
+                continue
             del chars[i:i + 6]
         save(f, ''.join(chars).replace('\r\n', '\n'), nl)
 subprocess.run(['dart', 'fix', '--apply', str(pkg_dir)], capture_output=True, shell=True)

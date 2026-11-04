@@ -603,4 +603,17 @@ class IdentityL10nDe extends IdentityL10n {
 
   @override
   String get refresh => 'Aktualisieren';
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get chooseLanguage => 'Sprache wählen';
+
+  @override
+  String get languageNote =>
+      'Menüs, Schaltflächen, Benachrichtigungen und Vereinbarungen werden in dieser Sprache angezeigt. Beiträge, Kommentare und Nachrichten bleiben in ihrer Originalsprache.';
+
+  @override
+  String get or => 'oder';
 }

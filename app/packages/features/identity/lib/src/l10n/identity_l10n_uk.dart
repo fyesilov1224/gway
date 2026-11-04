@@ -598,4 +598,17 @@ class IdentityL10nUk extends IdentityL10n {
 
   @override
   String get refresh => 'Оновити';
+
+  @override
+  String get language => 'Мова';
+
+  @override
+  String get chooseLanguage => 'Виберіть мову';
+
+  @override
+  String get languageNote =>
+      'Меню, кнопки, сповіщення й угоди показуються цією мовою. Дописи, коментарі та повідомлення залишаються мовою оригіналу.';
+
+  @override
+  String get or => 'або';
 }

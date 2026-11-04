@@ -599,4 +599,17 @@ class IdentityL10nNl extends IdentityL10n {
 
   @override
   String get refresh => 'Vernieuwen';
+
+  @override
+  String get language => 'Taal';
+
+  @override
+  String get chooseLanguage => 'Taal kiezen';
+
+  @override
+  String get languageNote =>
+      'Menu’s, knoppen, meldingen en overeenkomsten worden in deze taal getoond. Berichten, reacties en chats blijven in de taal waarin ze zijn geschreven.';
+
+  @override
+  String get or => 'of';
 }

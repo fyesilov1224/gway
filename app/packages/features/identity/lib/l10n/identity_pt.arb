@@ -167,5 +167,9 @@
   "enterCode": "Digite o código de 6 dígitos.",
   "enterSmsCode": "Digite o código de 6 dígitos do SMS.",
   "enterAppCode": "Digite o código de 6 dígitos do app.",
-  "refresh": "Atualizar"
+  "refresh": "Atualizar",
+  "language": "Idioma",
+  "chooseLanguage": "Escolher idioma",
+  "languageNote": "Menus, botões, notificações e contratos aparecem neste idioma. Publicações, comentários e mensagens ficam no idioma em que foram escritos.",
+  "or": "ou"
 }

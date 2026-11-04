@@ -167,5 +167,9 @@
   "enterCode": "Voer de 6-cijferige code in.",
   "enterSmsCode": "Voer de 6-cijferige code uit de sms in.",
   "enterAppCode": "Voer de 6-cijferige code uit de app in.",
-  "refresh": "Vernieuwen"
+  "refresh": "Vernieuwen",
+  "language": "Taal",
+  "chooseLanguage": "Taal kiezen",
+  "languageNote": "Menu’s, knoppen, meldingen en overeenkomsten worden in deze taal getoond. Berichten, reacties en chats blijven in de taal waarin ze zijn geschreven.",
+  "or": "of"
 }

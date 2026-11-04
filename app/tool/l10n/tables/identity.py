@@ -955,6 +955,26 @@ ROWS = [
      "Saisis le code à 6 chiffres de l'application.", 'Voer de 6-cijferige code uit de app in.', 'Introduce el código de 6 dígitos de la app.',
      'Digite o código de 6 dígitos do app.', "Inserisci il codice a 6 cifre dell'app.", 'Введите 6-значный код из приложения.',
      'أدخل الرمز المكوّن من 6 أرقام من التطبيق.', 'Tətbiqdəki 6 rəqəmli kodu daxil et.', 'Введіть 6-значний код із застосунку.'),
+    ('language', None,
+     'Dil', 'Language', 'Sprache', 'Langue', 'Taal', 'Idioma', 'Idioma', 'Lingua', 'Язык', 'اللغة', 'Dil', 'Мова'),
+    ('chooseLanguage', None,
+     'Dil seç', 'Choose language', 'Sprache wählen', 'Choisir la langue', 'Taal kiezen', 'Elegir idioma', 'Escolher idioma', 'Scegli la lingua',
+     'Выберите язык', 'اختر اللغة', 'Dil seç', 'Виберіть мову'),
+    ('languageNote', None,
+     'Menüler, düğmeler, bildirimler ve sözleşmeler bu dilde gösterilir. Gönderiler, yorumlar ve mesajlar yazıldıkları dilde kalır.',
+     'Menus, buttons, notifications and agreements are shown in this language. Posts, comments and messages stay in the language they were written in.',
+     'Menüs, Schaltflächen, Benachrichtigungen und Vereinbarungen werden in dieser Sprache angezeigt. Beiträge, Kommentare und Nachrichten bleiben in ihrer Originalsprache.',
+     "Les menus, boutons, notifications et contrats s'affichent dans cette langue. Les publications, commentaires et messages restent dans leur langue d'origine.",
+     'Menu’s, knoppen, meldingen en overeenkomsten worden in deze taal getoond. Berichten, reacties en chats blijven in de taal waarin ze zijn geschreven.',
+     'Los menús, botones, notificaciones y acuerdos se muestran en este idioma. Las publicaciones, comentarios y mensajes se mantienen en su idioma original.',
+     'Menus, botões, notificações e contratos aparecem neste idioma. Publicações, comentários e mensagens ficam no idioma em que foram escritos.',
+     'Menu, pulsanti, notifiche e accordi vengono mostrati in questa lingua. Post, commenti e messaggi restano nella lingua in cui sono stati scritti.',
+     'Меню, кнопки, уведомления и соглашения показываются на этом языке. Публикации, комментарии и сообщения остаются на языке оригинала.',
+     'تظهر القوائم والأزرار والإشعارات والاتفاقيات بهذه اللغة. تبقى المنشورات والتعليقات والرسائل باللغة التي كُتبت بها.',
+     'Menyular, düymələr, bildirişlər və müqavilələr bu dildə göstərilir. Paylaşımlar, şərhlər və mesajlar yazıldıqları dildə qalır.',
+     'Меню, кнопки, сповіщення й угоди показуються цією мовою. Дописи, коментарі та повідомлення залишаються мовою оригіналу.'),
+    ('or', None,
+     'veya', 'or', 'oder', 'ou', 'of', 'o', 'ou', 'oppure', 'или', 'أو', 'və ya', 'або'),
     ('refresh', None,
      'Yenile', 'Refresh', 'Aktualisieren', 'Actualiser', 'Vernieuwen', 'Actualizar', 'Atualizar', 'Aggiorna', 'Обновить', 'تحديث', 'Yenilə', 'Оновити'),
 ]
@@ -1020,4 +1040,4 @@ SRC_CALLS = {
     "'GWAY\\'i kullanmak için en az 18 yaşında olmalısın.'": 'identityL10n.ageMinimum(18)',
     "'GWAY\\'i kullanmak için en az $minimumAge yaşında olmalısın.'": 'identityL10n.ageMinimum(minimumAge)',
 }
-SKIP = {'smsWillSendSaved', 'ageMinimum', 'versionLabel'}
+SKIP = {'language', 'chooseLanguage', 'languageNote', 'smsWillSendSaved', 'ageMinimum', 'versionLabel'}

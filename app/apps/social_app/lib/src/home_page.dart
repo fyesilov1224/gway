@@ -11,8 +11,10 @@ import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 
-/// "Bugün": live broadcasts and what starts within hours come before the posts;
-/// "Bu akşam" and "Yaklaşanlar" open from the create button (docs/DESIGN.md §7, Bugün).
+import 'l10n.dart';
+
+/// socialAppL10n.tabToday: live broadcasts and what starts within hours come before the posts;
+/// socialAppL10n.tonight and socialAppL10n.upcoming open from the create button (docs/DESIGN.md §7, Bugün).
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -21,9 +23,9 @@ class HomePage extends StatelessWidget {
         title: const _Greeting(),
         onRefresh: refreshToday,
         actions: [
-          IconButton(tooltip: 'Ara', icon: const Icon(Icons.search_rounded), onPressed: () => context.go(FeedRoutes.explore)),
+          IconButton(tooltip: socialAppL10n.search, icon: const Icon(Icons.search_rounded), onPressed: () => context.go(FeedRoutes.explore)),
           IconButton(
-            tooltip: 'Bildirimler',
+            tooltip: socialAppL10n.notifications,
             icon: const NotificationsIcon(),
             onPressed: () => context.go(NotificationRoutes.list),
           ),
@@ -57,8 +59,6 @@ class StartupSplash extends ConsumerWidget {
   }
 }
 
-const _weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-
 /// "Günaydın, Demo" under today's date.
 class _Greeting extends ConsumerWidget {
   const _Greeting();
@@ -69,24 +69,23 @@ class _Greeting extends ConsumerWidget {
     final now = DateTime.now();
     final name = ref.watch(myProfileProvider).value?.displayName.split(' ').first;
     final hello = switch (now.hour) {
-      < 5 => 'İyi geceler',
-      < 12 => 'Günaydın',
-      < 18 => 'İyi günler',
-      _ => 'İyi akşamlar',
+      < 5 => socialAppL10n.goodNight,
+      < 12 => socialAppL10n.goodMorning,
+      < 18 => socialAppL10n.goodAfternoon,
+      _ => socialAppL10n.goodEvening,
     };
-    final date = formatDate(now);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${date.substring(0, date.lastIndexOf(' '))}, ${_weekdays[now.weekday - 1]}',
+          formatWeekdayDate(now),
           style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
         ),
         // Shrinks instead of cutting the name off at large text sizes.
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
-          child: Text(name == null ? hello : '$hello, $name', maxLines: 1, style: textTheme.headlineMedium),
+          child: Text(name == null ? hello : socialAppL10n.greetingName(hello, name), maxLines: 1, style: textTheme.headlineMedium),
         ),
       ],
     );

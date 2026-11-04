@@ -167,5 +167,9 @@
   "enterCode": "Enter the 6-digit code.",
   "enterSmsCode": "Enter the 6-digit code from the SMS.",
   "enterAppCode": "Enter the 6-digit code from the app.",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "language": "Language",
+  "chooseLanguage": "Choose language",
+  "languageNote": "Menus, buttons, notifications and agreements are shown in this language. Posts, comments and messages stay in the language they were written in.",
+  "or": "or"
 }

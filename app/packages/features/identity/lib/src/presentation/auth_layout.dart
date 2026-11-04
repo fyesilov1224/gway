@@ -2,6 +2,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import 'language_picker.dart';
 
 /// The form on a white card, shared by the auth and account screens. With
 /// [showPitch] on wide screens a brand panel tells what GWAY is about.
@@ -34,6 +35,8 @@ class AuthLayout extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Language choice before signing in; the panel (no pitch) stays Turkish.
+            if (showPitch) const Align(alignment: AlignmentDirectional.centerEnd, child: LanguageButton()),
             if (showBrand && !pitch) ...[
               const Center(child: GwLogo(size: GwSpacing.xl + GwSpacing.xs, wordmark: true)),
               const SizedBox(height: GwSpacing.lg),

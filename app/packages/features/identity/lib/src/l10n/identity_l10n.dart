@@ -1125,6 +1125,30 @@ abstract class IdentityL10n {
   /// In tr, this message translates to:
   /// **'Yenile'**
   String get refresh;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dil'**
+  String get language;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dil seç'**
+  String get chooseLanguage;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Menüler, düğmeler, bildirimler ve sözleşmeler bu dilde gösterilir. Gönderiler, yorumlar ve mesajlar yazıldıkları dilde kalır.'**
+  String get languageNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'veya'**
+  String get or;
 }
 
 class _IdentityL10nDelegate extends LocalizationsDelegate<IdentityL10n> {

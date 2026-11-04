@@ -586,4 +586,17 @@ class IdentityL10nAz extends IdentityL10n {
 
   @override
   String get refresh => 'Yenilə';
+
+  @override
+  String get language => 'Dil';
+
+  @override
+  String get chooseLanguage => 'Dil seç';
+
+  @override
+  String get languageNote =>
+      'Menyular, düymələr, bildirişlər və müqavilələr bu dildə göstərilir. Paylaşımlar, şərhlər və mesajlar yazıldıqları dildə qalır.';
+
+  @override
+  String get or => 'və ya';
 }

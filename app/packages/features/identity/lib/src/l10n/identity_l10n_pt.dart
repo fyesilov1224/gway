@@ -595,4 +595,17 @@ class IdentityL10nPt extends IdentityL10n {
 
   @override
   String get refresh => 'Atualizar';
+
+  @override
+  String get language => 'Idioma';
+
+  @override
+  String get chooseLanguage => 'Escolher idioma';
+
+  @override
+  String get languageNote =>
+      'Menus, botões, notificações e contratos aparecem neste idioma. Publicações, comentários e mensagens ficam no idioma em que foram escritos.';
+
+  @override
+  String get or => 'ou';
 }

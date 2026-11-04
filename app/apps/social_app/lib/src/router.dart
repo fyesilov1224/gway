@@ -19,7 +19,6 @@ import 'feed_pages.dart';
 import 'gate.dart';
 import 'group_call_pages.dart';
 import 'group_chat_pages.dart';
-
 import 'group_events_pages.dart';
 import 'group_live_pages.dart';
 import 'group_moderation_pages.dart';
@@ -27,6 +26,7 @@ import 'group_plan_pages.dart';
 import 'group_support_link.dart';
 import 'home_page.dart';
 import 'home_shell.dart';
+import 'l10n.dart';
 import 'settings_screen.dart';
 
 abstract final class AppRoutes {
@@ -109,8 +109,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       appBar: AppBar(),
       body: GwEmptyState(
         icon: Icons.link_off,
-        message: 'Aradığın sayfa bulunamadı. Bağlantı eski ya da hatalı olabilir.',
-        actionLabel: 'Ana sayfaya dön',
+        message: socialAppL10n.pageNotFound,
+        actionLabel: socialAppL10n.backHome,
         onAction: () => context.go(FeedRoutes.home),
       ),
     ),
@@ -374,7 +374,7 @@ void _openGroup(BuildContext context, String handle) => context.push(GroupRoutes
 
 void _openChat(BuildContext context, String conversationId) => context.push(MessagingRoutes.chat(conversationId));
 
-/// "Eşleşme" on your own profile (docs/ARCHITECTURE.md §3g).
+/// socialAppL10n.matching on your own profile (docs/ARCHITECTURE.md §3g).
 const _matchingButton = _MatchingButton();
 
 class _MatchingButton extends StatelessWidget {
@@ -382,10 +382,10 @@ class _MatchingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-      tooltip: 'Eşleşme', icon: const Icon(Icons.favorite_border_rounded), onPressed: () => context.push(MatchingRoutes.home));
+      tooltip: socialAppL10n.matching, icon: const Icon(Icons.favorite_border_rounded), onPressed: () => context.push(MatchingRoutes.home));
 }
 
-/// "Gruplar Ligi" from the groups page.
+/// socialAppL10n.groupsLeague from the groups page.
 const _leagueButton = _LeagueButton();
 
 class _LeagueButton extends StatelessWidget {
@@ -393,7 +393,7 @@ class _LeagueButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: 'Gruplar Ligi',
+        tooltip: socialAppL10n.groupsLeague,
         icon: const Icon(Icons.emoji_events_outlined),
         onPressed: () => context.push(EventRoutes.league()),
       );
@@ -407,10 +407,10 @@ class _MapButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      IconButton(tooltip: 'Haritada keşfet', icon: const Icon(Icons.map_outlined), onPressed: () => context.push(EventRoutes.map));
+      IconButton(tooltip: socialAppL10n.exploreOnMap, icon: const Icon(Icons.map_outlined), onPressed: () => context.push(EventRoutes.map));
 }
 
-/// "Yılın özeti" and "Keşif haritam" on your own profile (docs/ARCHITECTURE.md §3d), behind one button.
+/// socialAppL10n.yearSummary and socialAppL10n.explorationMap on your own profile (docs/ARCHITECTURE.md §3d), behind one button.
 const _yearButton = _YearButton();
 
 class _YearButton extends StatelessWidget {
@@ -418,7 +418,7 @@ class _YearButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: 'Yılın özeti, keşif haritam ve tanıştıklarım',
+        tooltip: socialAppL10n.yearMenu,
         icon: const Icon(Icons.auto_awesome_outlined),
         onPressed: () => showModalBottomSheet<void>(
           context: context,
@@ -429,8 +429,8 @@ class _YearButton extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.auto_awesome_outlined),
-                  title: const Text('Yılın özeti'),
-                  subtitle: const Text('Bu yılki buluşmaların, paylaşılabilir kart'),
+                  title: Text(socialAppL10n.yearSummary),
+                  subtitle: Text(socialAppL10n.yearSummaryHint),
                   onTap: () {
                     Navigator.of(sheet).pop();
                     context.push(EventRoutes.year());
@@ -438,8 +438,8 @@ class _YearButton extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.travel_explore),
-                  title: const Text('Keşif haritam'),
-                  subtitle: const Text('Katıldığın organizasyonların illeri'),
+                  title: Text(socialAppL10n.explorationMap),
+                  subtitle: Text(socialAppL10n.explorationMapHint),
                   onTap: () {
                     Navigator.of(sheet).pop();
                     context.push(EventRoutes.exploration);
@@ -447,8 +447,8 @@ class _YearButton extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.handshake_outlined),
-                  title: const Text('Tanıştıklarım'),
-                  subtitle: const Text('Organizasyonlarda el sıkıştığın kişiler'),
+                  title: Text(socialAppL10n.metPeople),
+                  subtitle: Text(socialAppL10n.metPeopleHint),
                   onTap: () {
                     Navigator.of(sheet).pop();
                     context.push(EventRoutes.met);
@@ -461,7 +461,7 @@ class _YearButton extends StatelessWidget {
       );
 }
 
-/// "Ekip arkadaşı bul" on your own profile.
+/// socialAppL10n.findTeammates on your own profile.
 const _teammatesButton = _TeammatesButton();
 
 class _TeammatesButton extends StatelessWidget {
@@ -469,10 +469,10 @@ class _TeammatesButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-      tooltip: 'Ekip arkadaşı bul', icon: const Icon(Icons.diversity_3_outlined), onPressed: () => context.push(ProfileRoutes.teammates));
+      tooltip: socialAppL10n.findTeammates, icon: const Icon(Icons.diversity_3_outlined), onPressed: () => context.push(ProfileRoutes.teammates));
 }
 
-/// Notifications with the unread count, on your own profile too (not only on "Bugün").
+/// Notifications with the unread count, on your own profile too (not only on socialAppL10n.tabToday).
 const _notificationsButton = _NotificationsButton();
 
 class _NotificationsButton extends StatelessWidget {
@@ -480,10 +480,10 @@ class _NotificationsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-      tooltip: 'Bildirimler', icon: const NotificationsIcon(), onPressed: () => context.go(NotificationRoutes.list));
+      tooltip: socialAppL10n.notifications, icon: const NotificationsIcon(), onPressed: () => context.go(NotificationRoutes.list));
 }
 
-/// "Kaydedilenler" on your own profile.
+/// socialAppL10n.saved on your own profile.
 const _savedButton = _SavedButton();
 
 class _SavedButton extends StatelessWidget {
@@ -491,7 +491,7 @@ class _SavedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-      tooltip: 'Kaydedilenler', icon: const Icon(Icons.bookmark_border_rounded), onPressed: () => context.push(FeedRoutes.saved));
+      tooltip: socialAppL10n.saved, icon: const Icon(Icons.bookmark_border_rounded), onPressed: () => context.push(FeedRoutes.saved));
 }
 
 class _GateErrorScreen extends ConsumerWidget {
@@ -501,7 +501,7 @@ class _GateErrorScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: GwErrorState(
-        message: 'Bilgilerin yüklenemedi. Bağlantını kontrol edip tekrar dene.',
+        message: socialAppL10n.gateError,
         onRetry: () => refreshGate(ref),
       ),
     );
