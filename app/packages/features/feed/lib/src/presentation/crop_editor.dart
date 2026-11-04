@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/media_crop.dart';
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'media.dart';
 
 /// Shows [media] inside a frame of [ratio]: pinch to zoom, drag to move what is kept.
@@ -56,7 +57,7 @@ class _CropEditorState extends State<CropEditor> {
                         top: -rect.top * scale,
                         width: _source.width * scale,
                         height: _source.height * scale,
-                        child: Image.memory(media.bytes, fit: BoxFit.fill, gaplessPlayback: true, semanticLabel: 'Kırpılacak fotoğraf'),
+                        child: Image.memory(media.bytes, fit: BoxFit.fill, gaplessPlayback: true, semanticLabel: feedL10n.photoToCrop),
                       ),
                       if (_moving) const Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: _ThirdsPainter()))),
                     ],

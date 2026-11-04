@@ -5,21 +5,23 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 
 const mediaBucket = 'media';
 
 /// Trigger codes users can run into, as Turkish messages (docs/ARCHITECTURE.md §3c).
-const _rules = {
-  'comments_disabled': 'Bu gönderide yorumlar kapalı.',
-  'comment_not_allowed': 'Bu paylaşıma şu anda yorum yazılamıyor. Emojiyle tepki bırakabilirsin.',
-  'blocked': 'Bu hesapla etkileşime geçemezsin.',
-  'comment_rate_limited': 'Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.',
-  'muted': 'Bu grupta susturulduğun için şu anda yorum yazamazsın.',
-  'like_rate_limited': 'Kısa sürede çok fazla beğeni yaptın. Biraz bekleyip tekrar dene.',
-  'reply_target_invalid': 'Yanıt verdiğin yorum artık yok.',
-  'story_rate_limited': 'Bugün çok fazla hikaye paylaştın. Yarın tekrar dene.',
-  'highlight_limit': 'En fazla 100 öne çıkan oluşturabilirsin.',
-  'highlight_full': 'Bir öne çıkanda en fazla 100 hikaye olabilir.',
+// A getter, so the messages follow the app language.
+Map<String, String> get _rules => {
+  'comments_disabled': feedL10n.commentsOff,
+  'comment_not_allowed': feedL10n.commentNotAllowed,
+  'blocked': feedL10n.blocked,
+  'comment_rate_limited': feedL10n.commentRate,
+  'muted': feedL10n.muted,
+  'like_rate_limited': feedL10n.likeRate,
+  'reply_target_invalid': feedL10n.replyGone,
+  'story_rate_limited': feedL10n.storyRate,
+  'highlight_limit': feedL10n.highlightLimit,
+  'highlight_full': feedL10n.highlightFull,
 };
 
 /// Maps feed errors; storage size and type errors get media-specific messages.
@@ -27,11 +29,11 @@ Failure failureFromFeed(Object error) => switch (error) {
       Failure() => error,
       PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) =>
         RuleFailure('feed.$message', _rules[message]!),
-      PostgrestException(code: '23505') => const RuleFailure('feed.duplicate', 'Bu işlem zaten yapılmış.'),
+      PostgrestException(code: '23505') => RuleFailure('feed.duplicate', feedL10n.duplicate),
       StorageException(statusCode: '413') =>
-        const RuleFailure('feed.too_large', 'Dosya çok büyük. Fotoğraflar en fazla 10 MB, videolar 50 MB olabilir.'),
+        RuleFailure('feed.too_large', feedL10n.fileTooLarge),
       StorageException(statusCode: '415') =>
-        const RuleFailure('feed.unsupported_type', 'Yalnızca JPEG, PNG, WebP fotoğraf ve MP4, MOV video paylaşılabilir.'),
+        RuleFailure('feed.unsupported_type', feedL10n.unsupportedMedia),
       _ => failureFromSupabase(error),
     };
 
@@ -311,7 +313,7 @@ class FeedRepositoryImpl implements FeedRepository {
   Future<Result<Comment>> addComment(String postId, String body, {String? replyTo}) => runFeed(() async {
         final text = body.trim();
         if (text.isEmpty || text.length > NewPost.maxCaption) {
-          throw const RuleFailure('feed.invalid_comment', 'Yorum 1–2.200 karakter olmalı.');
+          throw RuleFailure('feed.invalid_comment', feedL10n.commentLength);
         }
         // One round trip: the stored row comes back with its author.
         final r = await _client

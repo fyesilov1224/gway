@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 
 /// A network photo filling its box. It is decoded at the box's pixel width
 /// (`cacheWidth`), shows [placeholderUrl] (the small copy) or a skeleton until
@@ -173,7 +174,7 @@ class VideoViewState extends State<VideoView> {
                 bottom: GwSpacing.xs,
                 child: Semantics(
                   button: true,
-                  label: _muted ? 'Sesi aç' : 'Sesi kapat',
+                  label: _muted ? feedL10n.unmute : feedL10n.mute,
                   child: IconButton(
                     onPressed: _toggleMute,
                     style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim, foregroundColor: GwColors.onMedia),

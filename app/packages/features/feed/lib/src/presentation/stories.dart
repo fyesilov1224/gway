@@ -12,6 +12,7 @@ import '../data/media_picker.dart';
 import '../domain/media_crop.dart';
 import '../domain/post.dart';
 import '../domain/story.dart';
+import '../l10n.dart';
 import 'crop_editor.dart';
 import 'media.dart';
 import 'providers.dart';
@@ -62,7 +63,7 @@ class StoryTray extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page),
         children: [
           _TrayItem(
-            label: mine == null ? 'Hikâye ekle' : 'Hikâyen',
+            label: mine == null ? feedL10n.addStory : feedL10n.yourStory,
             ring: mine,
             onTap: () => context.push(mine == null ? FeedRoutes.newStory : FeedRoutes.stories(mine.userId)),
           ),
@@ -158,8 +159,8 @@ class _StoriesLoader extends StatelessWidget {
                 data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: GwColors.onMedia)),
                 child: GwEmptyState(
                   icon: Icons.history_toggle_off,
-                  message: 'Burada görebileceğin bir hikaye kalmadı.',
-                  actionLabel: 'Kapat',
+                  message: feedL10n.noStoriesLeft,
+                  actionLabel: feedL10n.close,
                   onAction: () => context.canPop() ? context.pop() : context.go(FeedRoutes.home),
                 ),
               ),
@@ -261,19 +262,19 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
               if (widget.highlightId case final highlight?)
                 ListTile(
                   leading: const Icon(Icons.remove_circle_outline),
-                  title: const Text('Öne çıkandan çıkar'),
+                  title: Text(feedL10n.removeFromHighlight),
                   onTap: () async {
                     Navigator.of(sheet).pop();
                     final result = await ref.read(storyRepositoryProvider).removeFromHighlight(highlight, _story.id);
                     if (!mounted) return;
-                    _snack(context, result is Ok ? 'Öne çıkandan çıkarıldı.' : userMessageOf((result as Err).failure));
+                    _snack(context, result is Ok ? feedL10n.removedFromHighlight : userMessageOf((result as Err).failure));
                     refreshStories(ref);
                   },
                 )
               else
                 ListTile(
                   leading: const Icon(Icons.bookmark_add_outlined),
-                  title: const Text('Öne çıkanlara ekle'),
+                  title: Text(feedL10n.addToHighlights),
                   onTap: () {
                     Navigator.of(sheet).pop();
                     unawaited(_paused(() => showModalBottomSheet<void>(
@@ -285,12 +286,12 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
                 ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: GwColors.error),
-                title: const Text('Hikayeyi sil', style: TextStyle(color: GwColors.error)),
+                title: Text(feedL10n.deleteStory, style: const TextStyle(color: GwColors.error)),
                 onTap: () async {
                   Navigator.of(sheet).pop();
                   final result = await ref.read(storyRepositoryProvider).delete(_story);
                   if (!mounted) return;
-                  _snack(context, result is Ok ? 'Hikaye silindi.' : userMessageOf((result as Err).failure));
+                  _snack(context, result is Ok ? feedL10n.storyDeleted : userMessageOf((result as Err).failure));
                   refreshStories(ref);
                   if (result is Ok) _close();
                 },
@@ -356,11 +357,11 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
                       const SizedBox(width: GwSpacing.xs),
                       Flexible(child: Text(story.author.username, style: onMedia, maxLines: 1, overflow: TextOverflow.ellipsis)),
                       const SizedBox(width: GwSpacing.xs),
-                      Text(formatAgoTr(story.createdAt), style: textTheme.labelMedium?.copyWith(color: GwColors.onMedia)),
+                      Text(formatAgo(story.createdAt), style: textTheme.labelMedium?.copyWith(color: GwColors.onMedia)),
                       const Spacer(),
                       if (isOwner)
-                        IconButton(tooltip: 'Seçenekler', color: GwColors.onMedia, icon: const Icon(Icons.more_horiz), onPressed: _menu),
-                      IconButton(tooltip: 'Kapat', color: GwColors.onMedia, icon: const Icon(Icons.close), onPressed: _close),
+                        IconButton(tooltip: feedL10n.options, color: GwColors.onMedia, icon: const Icon(Icons.more_horiz), onPressed: _menu),
+                      IconButton(tooltip: feedL10n.close, color: GwColors.onMedia, icon: const Icon(Icons.close), onPressed: _close),
                     ],
                   ),
                 ],
@@ -376,7 +377,7 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
               onPressed: _showViewers,
               style: TextButton.styleFrom(foregroundColor: GwColors.onMedia, backgroundColor: GwColors.mediaScrim),
               icon: const Icon(Icons.visibility_outlined, size: GwSpacing.md + GwSpacing.xxs),
-              label: const Text('Görenler'),
+              label: Text(feedL10n.viewers),
             ),
           ),
       ],
@@ -431,8 +432,8 @@ class _ViewersSheet extends ConsumerWidget {
         child: switch (viewers) {
           AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.visibility_outlined,
-              message: 'Henüz kimse görmedi. Görenler burada yalnızca sana görünür.',
-              actionLabel: 'Yenile',
+              message: feedL10n.noViewers,
+              actionLabel: feedL10n.refresh,
               onAction: () => ref.invalidate(storyViewersProvider(storyId)),
             ),
           AsyncData(:final value) => ListView(
@@ -440,14 +441,14 @@ class _ViewersSheet extends ConsumerWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.xs),
-                  child: Text('${value.length} kişi gördü', style: Theme.of(context).textTheme.titleMedium),
+                  child: Text(feedL10n.viewedBy(value.length), style: Theme.of(context).textTheme.titleMedium),
                 ),
                 for (final v in value)
                   ListTile(
                     leading: GwAvatar(name: v.person.displayName, shape: GwAvatarShape.user, imageUrl: v.person.avatarUrl, size: GwAvatarSize.md),
                     title: Text(v.person.username),
                     subtitle: Text(v.person.displayName),
-                    trailing: Text(formatAgoTr(v.viewedAt)),
+                    trailing: Text(formatAgo(v.viewedAt)),
                     onTap: () {
                       Navigator.of(context).pop();
                       links.openProfile(context, v.person.username);
@@ -495,7 +496,7 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
         _error = picked.first.kind == MediaKind.video ? picked.first.problem : null;
       });
     } on Object {
-      if (mounted) setState(() => _error = 'Seçilen dosya açılamadı. Başka bir fotoğraf ya da video dene.');
+      if (mounted) setState(() => _error = feedL10n.cantOpenFile);
     } finally {
       if (mounted) setState(() => _picking = false);
     }
@@ -518,7 +519,7 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
       if (mounted) {
         setState(() {
           _sharing = false;
-          _error = 'Fotoğraf hazırlanamadı. Başka bir fotoğraf dene.';
+          _error = feedL10n.storyPhotoFailed;
         });
       }
       return;
@@ -529,7 +530,7 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
     switch (result) {
       case Ok():
         refreshStories(ref);
-        _snack(context, 'Hikayen paylaşıldı. 24 saat görünür.');
+        _snack(context, feedL10n.storyShared);
         context.pop();
       case Err(:final failure):
         setState(() => _error = failure.userMessage);
@@ -541,12 +542,12 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
     final media = _media;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yeni hikaye'),
+        title: Text(feedL10n.newStory),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: GwSpacing.sm),
             child: GwButton(
-              label: 'Hikayene ekle',
+              label: feedL10n.addToStory,
               isLoading: _sharing,
               onPressed: media == null || (media.kind == MediaKind.video && media.problem != null) ? null : _share,
             ),
@@ -564,8 +565,8 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
                   ? const AspectRatio(aspectRatio: GwMedia.story, child: GwSkeleton(height: double.infinity, borderRadius: GwRadius.lgAll))
                   : GwEmptyState(
                       icon: Icons.history_toggle_off,
-                      message: 'Hikayen için bir fotoğraf ya da 60 saniyeye kadar video seç.',
-                      actionLabel: 'Galeriden seç',
+                      message: feedL10n.storyPickHint,
+                      actionLabel: feedL10n.pickFromGallery,
                       onAction: _pick,
                     )
             else ...[
@@ -577,7 +578,7 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
                 ),
               ),
               const SizedBox(height: GwSpacing.sm),
-              GwButton(label: 'Başka seç', variant: GwButtonVariant.secondary, onPressed: _sharing ? null : _pick),
+              GwButton(label: feedL10n.pickAnother, variant: GwButtonVariant.secondary, onPressed: _sharing ? null : _pick),
             ],
           ],
         ),
@@ -602,14 +603,14 @@ class AddToHighlightSheet extends ConsumerWidget {
         children: [
           ListTile(
             leading: const CircleAvatar(backgroundColor: GwColors.surfaceMuted, child: Icon(Icons.add, color: GwColors.textPrimary)),
-            title: const Text('Yeni öne çıkan'),
+            title: Text(feedL10n.newHighlight),
             onTap: () async {
               final title = await askHighlightTitle(context);
               if (title == null || !context.mounted) return;
               final result = await ref.read(storyRepositoryProvider).createHighlight(title, storyIds);
               if (!context.mounted) return;
               Navigator.of(context).pop();
-              _snack(context, result is Ok ? '"$title" oluşturuldu.' : userMessageOf((result as Err).failure));
+              _snack(context, result is Ok ? feedL10n.highlightCreated(title) : userMessageOf((result as Err).failure));
               refreshStories(ref);
             },
           ),
@@ -617,12 +618,12 @@ class AddToHighlightSheet extends ConsumerWidget {
             ListTile(
               leading: _HighlightCover(highlight: h, size: GwSpacing.xxl - GwSpacing.xs),
               title: Text(h.title),
-              subtitle: Text('${h.storyCount} hikaye'),
+              subtitle: Text(feedL10n.storyCount(h.storyCount)),
               onTap: () async {
                 final result = await ref.read(storyRepositoryProvider).addToHighlight(h.id, storyIds);
                 if (!context.mounted) return;
                 Navigator.of(context).pop();
-                _snack(context, result is Ok ? '"${h.title}" öne çıkanına eklendi.' : userMessageOf((result as Err).failure));
+                _snack(context, result is Ok ? feedL10n.addedToHighlight(h.title) : userMessageOf((result as Err).failure));
                 refreshStories(ref);
               },
             ),
@@ -638,17 +639,17 @@ Future<String?> askHighlightTitle(BuildContext context, {String initial = ''}) {
     context: context,
     builder: (context) => AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-      title: const Text('Öne çıkan başlığı'),
+      title: Text(feedL10n.highlightTitle),
       content: TextField(
         controller: controller,
         autofocus: true,
         maxLength: 30,
-        decoration: const InputDecoration(hintText: 'Ör. Kamp 2026'),
+        decoration: InputDecoration(hintText: feedL10n.highlightExample),
       ),
       actions: [
-        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+        GwButton(label: feedL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
         GwButton(
-          label: 'Kaydet',
+          label: feedL10n.save,
           onPressed: () {
             final t = controller.text.trim();
             if (t.isNotEmpty) Navigator.of(context).pop(t);
@@ -680,7 +681,7 @@ class _HighlightCover extends StatelessWidget {
       );
 }
 
-/// Highlights on a profile; on your own, an "Öne çıkan ekle" chip leads to the archive.
+/// Highlights on a profile; on your own, an feedL10n.addHighlight chip leads to the archive.
 class HighlightsRow extends ConsumerWidget {
   const HighlightsRow({super.key, required this.userId, required this.isOwn});
 
@@ -740,7 +741,7 @@ class HighlightsRow extends ConsumerWidget {
                 decoration: const ShapeDecoration(color: GwColors.primarySoft, shape: CircleBorder()),
                 child: const Icon(Icons.add_rounded, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.primary),
               ),
-              label: 'Öne çıkan ekle',
+              label: feedL10n.addHighlight,
               onTap: () => context.push(FeedRoutes.archive),
             ),
         ],
@@ -757,7 +758,7 @@ class HighlightsRow extends ConsumerWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit_outlined),
-                title: const Text('Başlığı değiştir'),
+                title: Text(feedL10n.renameHighlight),
                 onTap: () async {
                   Navigator.of(sheet).pop();
                   final title = await askHighlightTitle(context, initial: h.title);
@@ -769,8 +770,8 @@ class HighlightsRow extends ConsumerWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: GwColors.error),
-                title: const Text('Öne çıkanı sil', style: TextStyle(color: GwColors.error)),
-                subtitle: const Text('Hikayeler arşivinde kalır.'),
+                title: Text(feedL10n.deleteHighlight, style: const TextStyle(color: GwColors.error)),
+                subtitle: Text(feedL10n.staysInArchive),
                 onTap: () async {
                   Navigator.of(sheet).pop();
                   final result = await ref.read(storyRepositoryProvider).deleteHighlight(h.id);
@@ -810,12 +811,12 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
     final now = DateTime.now();
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selected.isEmpty ? 'Hikaye arşivi' : '${_selected.length} hikaye seçildi'),
+        title: Text(_selected.isEmpty ? feedL10n.storyArchive : feedL10n.storiesSelected(_selected.length)),
         actions: [
           if (_selected.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(right: GwSpacing.sm),
-              child: GwButton(label: 'Öne çıkar', onPressed: _addSelected),
+              child: GwButton(label: feedL10n.feature, onPressed: _addSelected),
             ),
         ],
       ),
@@ -823,15 +824,15 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
         child: switch (archive) {
           AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.history_toggle_off,
-              message: 'Paylaştığın hikayeler 24 saat sonra burada, yalnızca sana görünür şekilde saklanır.',
-              actionLabel: 'Hikaye paylaş',
+              message: feedL10n.archiveEmpty,
+              actionLabel: feedL10n.shareStory,
               onAction: () => context.push(FeedRoutes.newStory),
             ),
           AsyncData(:final value) => Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(GwSpacing.md),
-                  child: Text('Öne çıkan oluşturmak ya da var olana eklemek için hikayeleri seç.',
+                  child: Text(feedL10n.archiveHint,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 ),
                 Expanded(
@@ -849,7 +850,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                       return Semantics(
                         selected: selected,
                         button: true,
-                        label: 'Hikaye, ${formatDate(s.createdAt)}',
+                        label: feedL10n.storyOn(formatDate(s.createdAt)),
                         child: InkWell(
                           onTap: () => setState(() => selected ? _selected.remove(s.id) : _selected.add(s.id)),
                           child: Stack(
@@ -863,7 +864,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
                                   decoration: const BoxDecoration(color: GwColors.mediaScrim, borderRadius: GwRadius.smAll),
                                   child: Text(
-                                    s.isActive(now) ? 'Yayında' : formatDate(s.createdAt),
+                                    s.isActive(now) ? feedL10n.live : formatDate(s.createdAt),
                                     style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia),
                                   ),
                                 ),

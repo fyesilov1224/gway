@@ -129,10 +129,10 @@ void main() {
 
   test('relative times are short and Turkish', () {
     final now = DateTime(2026, 10, 19, 12);
-    expect(formatAgoTr(now.subtract(const Duration(seconds: 20)), now: now), 'şimdi');
-    expect(formatAgoTr(now.subtract(const Duration(minutes: 5)), now: now), '5 dk');
-    expect(formatAgoTr(now.subtract(const Duration(hours: 3)), now: now), '3 sa');
-    expect(formatAgoTr(now.subtract(const Duration(days: 2)), now: now), '2 g');
+    expect(formatAgo(now.subtract(const Duration(seconds: 20)), now: now), 'şimdi');
+    expect(formatAgo(now.subtract(const Duration(minutes: 5)), now: now), '5 dk');
+    expect(formatAgo(now.subtract(const Duration(hours: 3)), now: now), '3 sa');
+    expect(formatAgo(now.subtract(const Duration(days: 2)), now: now), '2 g');
   });
 
   group('framing and sizing (docs/DESIGN.md §7)', () {

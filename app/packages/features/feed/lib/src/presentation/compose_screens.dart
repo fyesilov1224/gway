@@ -8,6 +8,7 @@ import '../data/image_processing.dart';
 import '../data/media_picker.dart';
 import '../domain/media_crop.dart';
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'crop_editor.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -72,10 +73,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       final room = NewPost.maxMedia - _items.length;
       setState(() {
         _items.addAll(picked.take(room).map(_Item.new));
-        _error = picked.length > room ? 'Bir gönderide en fazla 10 fotoğraf ya da video olabilir.' : null;
+        _error = picked.length > room ? feedL10n.tooManyMedia : null;
       });
     } on Object {
-      if (mounted) setState(() => _error = 'Seçilen dosya açılamadı. Başka bir fotoğraf ya da video dene.');
+      if (mounted) setState(() => _error = feedL10n.cantOpenFile);
     } finally {
       if (mounted) setState(() => _picking = false);
     }
@@ -91,7 +92,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     if (NewPost.captionProblem(_caption.text) ?? videoProblem.firstOrNull case final problem?) return _fail(problem);
     setState(() {
       _error = null;
-      _stage = 'Fotoğraflar hazırlanıyor…';
+      _stage = feedL10n.preparingPhotos;
     });
     final List<NewMedia> media;
     try {
@@ -103,7 +104,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   maxSide: GwMedia.uploadMaxSide, thumbSide: GwMedia.thumbMaxSide),
       ];
     } on Object {
-      if (mounted) _fail('Fotoğraflar hazırlanamadı. Başka bir fotoğraf dene.');
+      if (mounted) _fail(feedL10n.photosFailed);
       return;
     }
     final post = NewPost(
@@ -117,13 +118,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     final result = await ref.read(feedRepositoryProvider).create(
           post,
           onProgress: (done, total) =>
-              mounted ? setState(() => _stage = done < total ? 'Yükleniyor: $done/$total' : 'Paylaşılıyor…') : null,
+              mounted ? setState(() => _stage = done < total ? feedL10n.uploading(done, total) : feedL10n.sharing) : null,
         );
     if (!mounted) return;
     switch (result) {
       case Ok(:final value):
         refreshPostLists(ref);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gönderin paylaşıldı.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(feedL10n.postShared)));
         context.pushReplacement(FeedRoutes.post(value));
       case Err(:final failure):
         _fail(failure.userMessage);
@@ -146,11 +147,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yeni gönderi'),
+        title: Text(feedL10n.newPost),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: GwSpacing.sm),
-            child: GwButton(label: 'Paylaş', isLoading: busy, onPressed: _items.isEmpty ? null : _share),
+            child: GwButton(label: feedL10n.share, isLoading: busy, onPressed: _items.isEmpty ? null : _share),
           ),
         ],
       ),
@@ -163,7 +164,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.sm),
                 child: Text(
-                  'Bu gönderi organizasyonun anıları arasında da görünecek. Yalnızca kendi fotoğraflarını ve izin aldığın kişileri paylaş.',
+                  feedL10n.memoryNotice,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
@@ -177,8 +178,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       )
                     : GwEmptyState(
                         icon: Icons.add_photo_alternate_outlined,
-                        message: 'Paylaşmak için 10 taneye kadar fotoğraf ya da video seç.',
-                        actionLabel: 'Galeriden seç',
+                        message: feedL10n.pickMediaHint,
+                        actionLabel: feedL10n.pickFromGallery,
                         onAction: _pick,
                       ),
               )
@@ -206,7 +207,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.md, 0),
                 child: Text(
-                  'Yakınlaştırmak için iki parmakla aç, kadrajlamak için sürükle. Oran tüm fotoğraflara uygulanır.',
+                  feedL10n.cropHint,
                   style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
@@ -253,9 +254,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     maxLines: 8,
                     maxLength: NewPost.maxCaption,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Açıklama',
-                      hintText: 'Bir şeyler yaz… #etiket ve @kullanıcıadı ekleyebilirsin.',
+                    decoration: InputDecoration(
+                      labelText: feedL10n.caption,
+                      hintText: feedL10n.captionHint,
                       alignLabelWithHint: true,
                     ),
                   ),
@@ -263,10 +264,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     const SizedBox(height: GwSpacing.md),
                     DropdownButtonFormField<String?>(
                       initialValue: groups.any((g) => g.id == _groupId) ? _groupId : null,
-                      decoration: const InputDecoration(labelText: 'Kim adına paylaşılsın?'),
+                      decoration: InputDecoration(labelText: feedL10n.postAs),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Kendi profilim')),
-                        for (final g in groups) DropdownMenuItem(value: g.id, child: Text('${g.name} (grup)')),
+                        DropdownMenuItem(value: null, child: Text(feedL10n.myProfile)),
+                        for (final g in groups) DropdownMenuItem(value: g.id, child: Text(feedL10n.groupOption(g.name))),
                       ],
                       onChanged: busy ? null : (v) => setState(() => _groupId = v),
                     ),
@@ -274,14 +275,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   const SizedBox(height: GwSpacing.sm),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Yorumları kapat'),
+                    title: Text(feedL10n.turnOffComments),
                     value: _commentsDisabled,
                     onChanged: busy ? null : (v) => setState(() => _commentsDisabled = v),
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Beğeni sayısını gizle'),
-                    subtitle: const Text('Sayıyı yalnızca sen görürsün.'),
+                    title: Text(feedL10n.hideLikes),
+                    subtitle: Text(feedL10n.onlyYouSee),
                     value: _hideLikeCount,
                     onChanged: busy ? null : (v) => setState(() => _hideLikeCount = v),
                   ),
@@ -338,7 +339,7 @@ class _MediaStrip extends StatelessWidget {
                   child: Semantics(
                     button: true,
                     selected: i == selected,
-                    label: '${i + 1}. medya',
+                    label: feedL10n.mediaN(i + 1),
                     child: InkWell(
                       onTap: () => onSelect(i),
                       borderRadius: GwRadius.smAll,
@@ -357,24 +358,24 @@ class _MediaStrip extends StatelessWidget {
                             else
                               ColoredBox(
                                 color: GwColors.media,
-                                child: Center(child: Text('▶ ${m.duration?.inSeconds ?? 0} sn', style: label)),
+                                child: Center(child: Text(feedL10n.seconds(m.duration?.inSeconds ?? 0), style: label)),
                               ),
                             if (onRemove != null)
                               Positioned(
                                 right: 0,
                                 top: 0,
                                 child: IconButton(
-                                  tooltip: 'Çıkar',
+                                  tooltip: feedL10n.removeMedia,
                                   onPressed: () => onRemove!(i),
                                   style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim, foregroundColor: GwColors.onMedia),
                                   icon: const Icon(Icons.close, size: GwSpacing.md),
                                 ),
                               ),
                             if (m.kind == MediaKind.video && m.problem != null)
-                              const Positioned(
+                              Positioned(
                                 left: GwSpacing.xxs,
                                 bottom: GwSpacing.xxs,
-                                child: Icon(Icons.error, color: GwColors.error, semanticLabel: 'Paylaşılamaz'),
+                                child: Icon(Icons.error, color: GwColors.error, semanticLabel: feedL10n.cantShare),
                               ),
                           ],
                         ),
@@ -397,7 +398,7 @@ class _MediaStrip extends StatelessWidget {
                     side: const BorderSide(color: GwColors.border),
                     padding: EdgeInsets.zero,
                   ),
-                  child: const Icon(Icons.add, semanticLabel: 'Medya ekle'),
+                  child: Icon(Icons.add, semanticLabel: feedL10n.addMedia),
                 ),
               ),
             ),
@@ -468,12 +469,12 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gönderiyi düzenle'),
+        title: Text(feedL10n.editPost),
         actions: [
           if (post != null && post.canManage)
             Padding(
               padding: const EdgeInsets.only(right: GwSpacing.sm),
-              child: GwButton(label: 'Kaydet', isLoading: _saving, onPressed: () => _save(post)),
+              child: GwButton(label: feedL10n.save, isLoading: _saving, onPressed: () => _save(post)),
             ),
         ],
       ),
@@ -482,8 +483,8 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
         child: switch (loaded) {
           AsyncData(:final value) when !value.canManage => GwEmptyState(
               icon: Icons.lock_outline,
-              message: 'Bu gönderiyi düzenleme yetkin yok.',
-              actionLabel: 'Geri dön',
+              message: feedL10n.noEditPermission,
+              actionLabel: feedL10n.goBack,
               onAction: () => context.pop(),
             ),
           AsyncData() => ListView(
@@ -496,18 +497,18 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
                   maxLines: 8,
                   maxLength: NewPost.maxCaption,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(labelText: 'Açıklama', alignLabelWithHint: true),
+                  decoration: InputDecoration(labelText: feedL10n.caption, alignLabelWithHint: true),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Yorumları kapat'),
+                  title: Text(feedL10n.turnOffComments),
                   value: _commentsDisabled,
                   onChanged: (v) => setState(() => _commentsDisabled = v),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Beğeni sayısını gizle'),
-                  subtitle: const Text('Sayıyı yalnızca sen görürsün.'),
+                  title: Text(feedL10n.hideLikes),
+                  subtitle: Text(feedL10n.onlyYouSee),
                   value: _hideLikeCount,
                   onChanged: (v) => setState(() => _hideLikeCount = v),
                 ),

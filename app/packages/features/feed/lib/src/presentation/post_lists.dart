@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'media.dart';
 import 'post_card.dart';
 import 'providers.dart';
@@ -110,7 +111,7 @@ class PostTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
-        label: post.caption.isEmpty ? 'Gönderi' : 'Gönderi: ${post.caption}',
+        label: post.caption.isEmpty ? feedL10n.post : feedL10n.postWithCaption(post.caption),
         child: Material(
           color: GwColors.surfaceMuted,
           clipBehavior: Clip.antiAlias,
@@ -163,7 +164,7 @@ class PagedPostGrid extends ConsumerWidget {
   }
 }
 
-/// The posts part of a profile or group page: a grid with "Daha fazla göster".
+/// The posts part of a profile or group page: a grid with feedL10n.showMore.
 class PostsSection extends ConsumerWidget {
   const PostsSection({super.key, required this.source, required this.emptyMessage, this.emptyAction});
 
@@ -182,7 +183,7 @@ class PostsSection extends ConsumerWidget {
           child: GwEmptyState(
             icon: Icons.photo_camera_outlined,
             message: emptyMessage,
-            actionLabel: emptyAction?.label ?? 'Yenile',
+            actionLabel: emptyAction?.label ?? feedL10n.refresh,
             onAction: emptyAction?.onPressed ?? () => ref.invalidate(postListProvider(source)),
           ),
         ),
@@ -193,7 +194,7 @@ class PostsSection extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(GwSpacing.md),
                 child: GwButton(
-                  label: 'Daha fazla göster',
+                  label: feedL10n.showMore,
                   variant: GwButtonVariant.secondary,
                   isLoading: value.loadingMore,
                   onPressed: () => ref.read(postListProvider(source).notifier).loadMore(),

@@ -3,16 +3,21 @@ import 'dart:ui' show Offset, Rect, Size;
 
 import 'package:design_system/design_system.dart';
 
+import '../l10n.dart';
+
 /// Frame choices when sharing (docs/DESIGN.md §7, Medya ölçüleri).
 enum MediaAspect {
-  original('Orijinal'),
-  square('1:1'),
-  portrait('4:5'),
-  landscape('1.91:1');
+  original,
+  square,
+  portrait,
+  landscape;
 
-  const MediaAspect(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        original => feedL10n.aspectOriginal,
+        square => '1:1',
+        portrait => '4:5',
+        landscape => '1.91:1',
+      };
 
   /// Width / height of the frame; the original is kept between 4:5 and 1.91:1.
   double ratioFor(Size source) => switch (this) {
