@@ -155,7 +155,7 @@ class _FormState extends ConsumerState<_Form> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.cake_outlined),
-            title: Text(_birthDate == null ? 'Doğum tarihi seç' : formatDateTr(_birthDate!)),
+            title: Text(_birthDate == null ? 'Doğum tarihi seç' : formatDate(_birthDate!)),
             subtitle: _birthDate == null ? null : Text('${ageOn(_birthDate!, DateTime.now())} yaş · kartında yalnızca yaşın görünür'),
             onTap: _pickBirthDate,
           ),

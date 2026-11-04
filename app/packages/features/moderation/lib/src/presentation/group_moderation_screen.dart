@@ -370,7 +370,7 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
             const SizedBox(width: GwSpacing.xs),
             GwBadge(r.count == 1 ? '1 şikayet' : '${r.count} şikayet', tone: r.count > 2 ? GwBadgeTone.danger : GwBadgeTone.warning),
             const Spacer(),
-            Text(formatDateTimeTr(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+            Text(formatDateTime(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
         if (r.subject case final subject?) ...[
@@ -520,7 +520,7 @@ class _CaseCardState extends ConsumerState<CaseCard> {
         Text(
           [
             if (!c.direct) ...['${c.approvals} onay · ${c.rejections} ret · ${c.voters} oy hakkı', c.threshold.label],
-            if (c.isOpen) 'Oylama ${timeLeft(c.votingEndsAt)} sonra biter' else if (c.decidedAt != null) formatDateTimeTr(c.decidedAt!),
+            if (c.isOpen) 'Oylama ${timeLeft(c.votingEndsAt)} sonra biter' else if (c.decidedAt != null) formatDateTime(c.decidedAt!),
           ].join(' · '),
           style: secondary,
         ),
@@ -647,12 +647,12 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
           s.interim
               ? 'Acil susturma · kurul kararına kadar'
               : s.type == SanctionType.mute || s.type == SanctionType.ban
-              ? '${s.type.label} · ${s.endsAt == null ? 'kalıcı' : '${formatDateTimeTr(s.endsAt!)} tarihine kadar'}'
+              ? '${s.type.label} · ${s.endsAt == null ? 'kalıcı' : '${formatDateTime(s.endsAt!)} tarihine kadar'}'
               : s.type.label,
           style: textTheme.titleSmall,
         ),
         if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xxs), Text(s.reason, style: textTheme.bodyMedium)],
-        Text(formatDateTimeTr(s.startsAt), style: secondary),
+        Text(formatDateTime(s.startsAt), style: secondary),
         if (appeal != null) ...[
           const SizedBox(height: GwSpacing.sm),
           Text('İtiraz · ${appeal.status.label}', style: textTheme.labelLarge),

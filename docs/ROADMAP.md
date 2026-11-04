@@ -502,6 +502,19 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 ### 18i — Yoldan Canlı (organizasyondan canlı sesli yayın)
 ### 18j — İyilik Saatleri (doğrulanmış gönüllülük)
 
+## Faz 19 — Çok Dillilik (kullanıcı isteği, onaylandı 2026-11-05; dal `gelistirme/cok-dilli`; `docs/ARCHITECTURE.md` §11)
+
+12 dil; hukuki çeviriler bilgi amaçlı; sunucu metinleri de çevrilir; yönetim paneli Türkçe kalır.
+
+- [ ] 19a — Altyapı: `gen_l10n`, dil seçimi (Ayarlar ve giriş ekranı), `core` (hata mesajları, biçimlendirme), tasarım sistemi, kimlik ekranları, uygulama kabuğu ve Ayarlar
+- [ ] 19b — Profil, akış ve gruplar
+- [ ] 19c — Organizasyonlar, takvim, bildirimler
+- [ ] 19d — Canlı yayın, mesajlaşma, eşleşme, moderasyon, abonelik
+- [ ] 19e — Destek ve kullanma kılavuzu
+- [ ] 19f — Sunucu: `profiles.locale`, push metinleri, API mesajları, kimlik e-postaları
+- [ ] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli)
+- [ ] 19h — Sağdan sola düzen, uzun dil ve %130 yazı ölçeği denetimi, testler
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

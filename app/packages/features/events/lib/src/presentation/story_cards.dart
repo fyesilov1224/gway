@@ -144,7 +144,7 @@ class WasThereCard extends StatelessWidget {
       Row(children: [
         const Icon(Icons.event_outlined, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
         const SizedBox(width: GwSpacing.xs),
-        Expanded(child: Text(formatDateTr(e.startsAt.toLocal()), style: textTheme.bodyLarge)),
+        Expanded(child: Text(formatDate(e.startsAt.toLocal()), style: textTheme.bodyLarge)),
       ]),
       const SizedBox(height: GwSpacing.xxs),
       Row(children: [
@@ -261,7 +261,7 @@ class YearSummaryScreen extends ConsumerWidget {
               if (summary.firstEvent case final first?) ...[
                 const SizedBox(height: GwSpacing.lg),
                 Text(
-                  'Yılın ilk organizasyonu: $first${summary.firstEventAt == null ? '' : ' · ${formatDateTr(summary.firstEventAt!.toLocal())}'}',
+                  'Yılın ilk organizasyonu: $first${summary.firstEventAt == null ? '' : ' · ${formatDate(summary.firstEventAt!.toLocal())}'}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
@@ -404,8 +404,8 @@ class ExplorationScreen extends ConsumerWidget {
                         title: Text(p.name),
                         subtitle: Text(
                           p.events == 1
-                              ? formatDateTr(p.lastAt.toLocal())
-                              : '${p.events} organizasyon · son ${formatDateTr(p.lastAt.toLocal())}',
+                              ? formatDate(p.lastAt.toLocal())
+                              : '${p.events} organizasyon · son ${formatDate(p.lastAt.toLocal())}',
                         ),
                       ),
                     ],

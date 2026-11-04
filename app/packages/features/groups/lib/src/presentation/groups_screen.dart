@@ -347,7 +347,7 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                               children: [
                                 Text(inv.group.name, style: textTheme.labelLarge),
                                 Text(
-                                  inv.invitedBy == null ? formatDateTr(inv.createdAt) : '${inv.invitedBy} davet etti',
+                                  inv.invitedBy == null ? formatDate(inv.createdAt) : '${inv.invitedBy} davet etti',
                                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                                 ),
                               ],

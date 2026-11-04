@@ -134,7 +134,7 @@ class _ProfileBody extends ConsumerWidget {
                 : null,
             children: [
               if (suspendedUntil != null)
-                GwFormMessage('Bu hesap ${formatDateTimeTr(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
+                GwFormMessage('Bu hesap ${formatDateTime(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
               if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
                   (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates)))
                 Wrap(
@@ -150,7 +150,7 @@ class _ProfileBody extends ConsumerWidget {
                   ],
                 ),
               if (profile.bio.isNotEmpty) Text(profile.bio, style: textTheme.bodyLarge),
-              _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYearTr(profile.createdAt)}'),
+              _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYear(profile.createdAt)}'),
               if (!hidden && interests.isNotEmpty)
                 Wrap(
                   spacing: GwSpacing.xs,

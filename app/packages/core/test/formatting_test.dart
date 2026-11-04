@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -5,9 +7,9 @@ void main() {
   test('formats dates in Turkish', () {
     final date = DateTime(2026, 2, 3, 9, 5);
 
-    expect(formatDateTr(date), '3 Şubat 2026');
-    expect(formatDateTimeTr(date), '3 Şubat 2026, 09:05');
-    expect(formatMonthYearTr(date), 'Şubat 2026');
+    expect(formatDate(date), '3 Şubat 2026');
+    expect(formatDateTime(date), '3 Şubat 2026, 09:05');
+    expect(formatMonthYear(date), 'Şubat 2026');
   });
 
   test('formats lira and dollars from minor units', () {
@@ -21,12 +23,31 @@ void main() {
   });
 
   test('chart axes: short counts and short dates', () {
-    expect(formatCompactTr(950), '950');
-    expect(formatCompactTr(1000), '1 B');
-    expect(formatCompactTr(12500), '12,5 B');
-    expect(formatCompactTr(250000), '250 B');
-    expect(formatCompactTr(1200000), '1,2 Mn');
-    expect(formatDayMonthTr(DateTime(2026, 10, 27)), '27 Eki');
-    expect(formatDayMonthTr(DateTime(2026, 8, 3)), '3 Ağu');
+    expect(formatCompact(950), '950');
+    expect(formatCompact(1000), '1 B');
+    expect(formatCompact(12500), '12,5 B');
+    expect(formatCompact(250000), '250 B');
+    expect(formatCompact(1200000), '1,2 Mn');
+    expect(formatDayMonth(DateTime(2026, 10, 27)), '27 Eki');
+    expect(formatDayMonth(DateTime(2026, 8, 3)), '3 Ağu');
+  });
+
+  test('follows the app language', () {
+    final date = DateTime(2026, 2, 3, 9, 5);
+    addTearDown(() => setCurrentAppLanguage(AppLanguage.tr));
+    setCurrentAppLanguage(AppLanguage.en);
+    expect(formatDate(date), 'February 3, 2026');
+    expect(formatMoney(999, 'USD'), r'$9.99');
+    expect(formatCount(10000), '10,000');
+    setCurrentAppLanguage(AppLanguage.de);
+    expect(formatDate(date), '3. Februar 2026');
+    expect(formatMoney(24900, 'TRY'), '249,00 ₺');
+    expect(coreL10n.networkFailure, startsWith('Keine Verbindung'));
+  });
+
+  test('picks the device language or English', () {
+    expect(AppLanguage.fromDevice(const [Locale('ja'), Locale('de', 'AT')]), AppLanguage.de);
+    expect(AppLanguage.fromDevice(const [Locale('ja')]), AppLanguage.en);
+    expect(AppLanguage.parse('pt-BR'), AppLanguage.pt);
   });
 }

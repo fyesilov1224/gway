@@ -394,7 +394,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
     final today = DateUtils.dateOnly(DateTime.now());
     if (day == today) return 'Bugün';
     if (day == today.subtract(const Duration(days: 1))) return 'Dün';
-    return formatDateTr(day);
+    return formatDate(day);
   }
 
   static String _time(DateTime at) {
@@ -499,7 +499,7 @@ class _HistoryRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final kind = _HistoryKind.of(item.action);
     return Tooltip(
-      message: formatDateTimeTr(item.occurredAt),
+      message: formatDateTime(item.occurredAt),
       waitDuration: const Duration(milliseconds: 500),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),

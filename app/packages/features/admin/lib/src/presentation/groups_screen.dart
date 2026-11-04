@@ -280,7 +280,7 @@ class _GroupRow extends ConsumerWidget {
                   Expanded(flex: _columns[2], child: Text(categories[group.categorySlug] ?? group.categorySlug, style: secondary)),
                   Expanded(flex: _columns[3], child: Text('${group.memberCount}', style: textTheme.bodyMedium)),
                   Expanded(flex: _columns[4], child: Align(alignment: Alignment.centerLeft, child: GroupStatusBadge(group.status))),
-                  Expanded(flex: _columns[5], child: Text(formatDateTr(group.createdAt), style: secondary)),
+                  Expanded(flex: _columns[5], child: Text(formatDate(group.createdAt), style: secondary)),
                   const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
                 ],
               )

@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:live/live.dart';
 import 'package:messaging/messaging.dart';
 import 'package:notifications/notifications.dart';
 
+import 'l10n.dart';
 import 'router.dart';
 
 class SocialApp extends ConsumerWidget {
@@ -14,6 +16,10 @@ class SocialApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final language = ref.watch(appLanguageProvider);
+    ref.listen(appLanguageProvider, (_, _) => WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) rebuildAll(context);
+        }));
     // The ringing push, the in-app listener and the phone's call screen can all ask; one call screen is enough.
     // An answer from the phone's screen replaces a screen that is still ringing.
     void openCall(String id, {bool answer = false}) {
@@ -33,6 +39,9 @@ class SocialApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'GWAY',
       debugShowCheckedModeBanner: false,
+      locale: language.locale,
+      supportedLocales: AppLanguage.locales,
+      localizationsDelegates: appLocalizationsDelegates,
       theme: GwTheme.light(),
       routerConfig: router,
       builder: (_, child) => PushNotifications(

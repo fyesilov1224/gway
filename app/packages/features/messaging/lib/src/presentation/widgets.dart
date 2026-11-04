@@ -15,7 +15,7 @@ String formatChatTime(DateTime time, {DateTime? now}) {
   final day = DateUtils.dateOnly(t);
   if (day == today) return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
   if (day == today.subtract(const Duration(days: 1))) return 'Dün';
-  return formatDateTr(t);
+  return formatDate(t);
 }
 
 /// The messages icon with the number of conversations that have unread messages.

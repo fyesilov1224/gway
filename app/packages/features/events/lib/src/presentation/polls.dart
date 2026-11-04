@@ -70,7 +70,7 @@ class _PollCardState extends ConsumerState<PollCard> {
     final textTheme = Theme.of(context).textTheme;
     final showResults = poll.voted || !poll.isOpen;
     final meta = [
-      if (!poll.isOpen) 'Kapandı' else if (poll.closesAt != null) 'Kapanış: ${formatDateTimeTr(poll.closesAt!)}',
+      if (!poll.isOpen) 'Kapandı' else if (poll.closesAt != null) 'Kapanış: ${formatDateTime(poll.closesAt!)}',
       if (poll.allowsMultiple) 'Birden fazla seçilebilir',
       if (poll.isAnonymous) 'Gizli oylama',
       '${formatCount(poll.voters)} kişi oy verdi',
@@ -449,7 +449,7 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.schedule),
-              title: Text(_closesAt == null ? 'Bitiş zamanı yok' : 'Kapanış: ${formatDateTimeTr(_closesAt!)}'),
+              title: Text(_closesAt == null ? 'Bitiş zamanı yok' : 'Kapanış: ${formatDateTime(_closesAt!)}'),
               trailing: _closesAt == null
                   ? TextButton(onPressed: _pickClose, child: const Text('Ekle'))
                   : IconButton(tooltip: 'Bitiş zamanını kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _closesAt = null)),

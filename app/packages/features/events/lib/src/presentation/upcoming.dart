@@ -132,7 +132,7 @@ class _DayGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final date = formatDateTr(day);
+    final date = formatDate(day);
     final label = switch (day.difference(DateUtils.dateOnly(today)).inDays) {
       0 => 'Bugün',
       1 => 'Yarın',

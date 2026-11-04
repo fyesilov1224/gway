@@ -32,8 +32,8 @@ String eventWhen(GroupEvent e) {
   final s = e.startsAt.toLocal();
   final end = e.endsAt?.toLocal();
   final sameDay = end != null && end.year == s.year && end.month == s.month && end.day == s.day;
-  final until = end == null ? '' : sameDay ? '–${_two(end.hour)}:${_two(end.minute)}' : ' – ${formatDateTimeTr(end)}';
-  return '${_weekdays[s.weekday - 1]}, ${formatDateTr(s)} · ${_two(s.hour)}:${_two(s.minute)}$until';
+  final until = end == null ? '' : sameDay ? '–${_two(end.hour)}:${_two(end.minute)}' : ' – ${formatDateTime(end)}';
+  return '${_weekdays[s.weekday - 1]}, ${formatDate(s)} · ${_two(s.hour)}:${_two(s.minute)}$until';
 }
 
 /// "Kask, Su ,, Mont" → ["Kask", "Su", "Mont"].
@@ -249,7 +249,7 @@ class GroupEventsSection extends ConsumerWidget {
                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             for (final e in data.toReview) ...[
               const SizedBox(height: GwSpacing.xs),
-              _ReviewBox(key: ValueKey(e.id), event: e, mine: null, title: '${e.title} · ${formatDateTr(e.startsAt.toLocal())}'),
+              _ReviewBox(key: ValueKey(e.id), event: e, mine: null, title: '${e.title} · ${formatDate(e.startsAt.toLocal())}'),
             ],
             const SizedBox(height: GwSpacing.sm),
           ],
@@ -329,7 +329,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final c in conflicts) Text('• ${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}'),
+            for (final c in conflicts) Text('• ${c.title} · ${formatDateTime(c.startsAt.toLocal())}'),
             const SizedBox(height: GwSpacing.sm),
             Text(
               conflicts.length == 1
@@ -571,7 +571,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         Text(eventWhen(e), style: textTheme.bodyLarge),
                         if (e.series case EventSeries(active: true) && final series)
                           Text(
-                            series.until == null ? series.label : '${series.label} · ${formatDateTr(series.until!)} tarihine kadar',
+                            series.until == null ? series.label : '${series.label} · ${formatDate(series.until!)} tarihine kadar',
                             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                           ),
                         if (!e.isCanceled && open)
@@ -670,7 +670,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               onTap: () => context.push(EventRoutes.event(c.id)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
-                                child: Text('${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}',
+                                child: Text('${c.title} · ${formatDateTime(c.startsAt.toLocal())}',
                                     style: textTheme.bodyMedium?.copyWith(color: GwColors.warning, decoration: TextDecoration.underline)),
                               ),
                             ),
@@ -1074,7 +1074,7 @@ class _EditorState extends ConsumerState<_Editor> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.schedule),
                 title: const Text('Başlangıç'),
-                subtitle: Text(formatDateTimeTr(_startsAt)),
+                subtitle: Text(formatDateTime(_startsAt)),
                 trailing: const Icon(Icons.edit_calendar_outlined),
                 onTap: () async {
                   final at = await _pick(_startsAt);
@@ -1086,7 +1086,7 @@ class _EditorState extends ConsumerState<_Editor> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.timelapse),
                 title: const Text('Bitiş (isteğe bağlı)'),
-                subtitle: Text(_endsAt == null ? 'Belirtilmedi' : formatDateTimeTr(_endsAt!)),
+                subtitle: Text(_endsAt == null ? 'Belirtilmedi' : formatDateTime(_endsAt!)),
                 trailing: _endsAt == null
                     ? const Icon(Icons.add)
                     : IconButton(tooltip: 'Bitişi kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _endsAt = null)),
@@ -1112,7 +1112,7 @@ class _EditorState extends ConsumerState<_Editor> {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.event_repeat_outlined),
                     title: const Text('Son tarih (isteğe bağlı)'),
-                    subtitle: Text(_repeatUntil == null ? 'Sen durdurana kadar' : formatDateTr(_repeatUntil!)),
+                    subtitle: Text(_repeatUntil == null ? 'Sen durdurana kadar' : formatDate(_repeatUntil!)),
                     trailing: _repeatUntil == null
                         ? const Icon(Icons.add)
                         : IconButton(tooltip: 'Son tarihi kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _repeatUntil = null)),
@@ -1476,7 +1476,7 @@ class SurprisePlace extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final revealed = surprise.isRevealed(now);
-    final when = formatDateTimeTr(surprise.revealAt.toLocal());
+    final when = formatDateTime(surprise.revealAt.toLocal());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

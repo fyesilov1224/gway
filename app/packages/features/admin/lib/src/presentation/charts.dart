@@ -24,7 +24,7 @@ String _countFormat(int v) => formatCount(v);
 
 /// A bucket's date: the day, or the week's first and last day.
 String bucketLabel(DateTime start, {required bool weekly}) =>
-    weekly ? '${formatDayMonthTr(start)} – ${formatDayMonthTr(start.add(const Duration(days: 6)))}' : formatDateTr(start);
+    weekly ? '${formatDayMonth(start)} – ${formatDayMonth(start.add(const Duration(days: 6)))}' : formatDate(start);
 
 /// A round top for the y axis and a step that gives four or five grid lines.
 ({double max, double step}) _niceScale(int max) {
@@ -47,7 +47,7 @@ class TrendChart extends StatelessWidget {
     this.previous,
     this.bars = false,
     this.format = _countFormat,
-    this.axisFormat = formatCompactTr,
+    this.axisFormat = formatCompact,
     this.height = GwSpacing.xxl * 5,
   }) : assert(series.length <= 4, 'Fold a fifth series into another chart');
 
@@ -80,7 +80,7 @@ class TrendChart extends StatelessWidget {
       return SideTitleWidget(
         meta: meta,
         fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
-        child: Text(formatDayMonthTr(buckets[i]), style: axisStyle),
+        child: Text(formatDayMonth(buckets[i]), style: axisStyle),
       );
     }
 
@@ -383,7 +383,7 @@ class ChartPanel extends StatefulWidget {
     this.previous,
     this.bars = false,
     this.format = _countFormat,
-    this.axisFormat = formatCompactTr,
+    this.axisFormat = formatCompact,
     this.trailing,
   });
 

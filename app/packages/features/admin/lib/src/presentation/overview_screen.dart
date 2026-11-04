@@ -160,7 +160,7 @@ class _AdminOverviewScreenState extends ConsumerState<AdminOverviewScreen> {
             bars: true,
             series: [ChartSeries('Gelir', m(revenueKey).points)],
             format: money,
-            axisFormat: (v) => '${formatCompactTr(v / 100)}${_currency == 'USD' ? r' $' : ' ₺'}',
+            axisFormat: (v) => '${formatCompact(v / 100)}${_currency == 'USD' ? r' $' : ' ₺'}',
             trailing: SegmentedButton<String>(
               showSelectedIcon: false,
               segments: [for (final c in ['TRY', 'USD']) ButtonSegment(value: c, label: Text(_money(c)))],

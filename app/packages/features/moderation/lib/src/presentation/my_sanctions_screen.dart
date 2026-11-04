@@ -47,12 +47,12 @@ class MySanctionsScreen extends ConsumerWidget {
 /// "3 gün susturma · 24 Ekim 2026, 18:00 tarihine kadar", "Gruptan çıkarma", "Kaldırıldı".
 String mySanctionStatus(MySanction s) {
   if (s.liftedAt != null) return s.interim ? 'Acil susturma sona erdi' : 'Kaldırıldı';
-  if (s.interim) return 'Acil susturma · kurul kararına kadar, en geç ${formatDateTimeTr(s.endsAt!)}';
+  if (s.interim) return 'Acil susturma · kurul kararına kadar, en geç ${formatDateTime(s.endsAt!)}';
   return switch (s.type) {
     SanctionType.mute || SanctionType.ban when s.endsAt != null =>
-      s.endsAt!.isAfter(DateTime.now()) ? '${formatDateTimeTr(s.endsAt!)} tarihine kadar' : 'Sona erdi',
+      s.endsAt!.isAfter(DateTime.now()) ? '${formatDateTime(s.endsAt!)} tarihine kadar' : 'Sona erdi',
     SanctionType.ban => 'Kalıcı',
-    _ => formatDateTimeTr(s.startsAt),
+    _ => formatDateTime(s.startsAt),
   };
 }
 

@@ -165,7 +165,7 @@ class _RevenueTable extends StatelessWidget {
         for (final m in months) ...[
           const Divider(),
           row([
-            Text(formatMonthYearTr(m.month), style: textTheme.bodyMedium),
+            Text(formatMonthYear(m.month), style: textTheme.bodyMedium),
             Text(formatMoney(m.amountIn('TRY'), 'TRY'), style: textTheme.bodyMedium),
             Text(formatMoney(m.amountIn('USD'), 'USD'), style: textTheme.bodyMedium),
             Text('${m.paidOrders}', style: textTheme.bodyMedium),
@@ -435,7 +435,7 @@ class _OrderRow extends StatelessWidget {
     return _ListRow(
       title: order.groupName == null ? '${order.planName} · $buyer' : '${order.groupName} (@${order.groupHandle})',
       subtitle: '${planAndPeriod(order.planName, order.period)} · ${providerLabels[order.provider] ?? order.provider}'
-          '${order.country == null ? '' : ' (${order.country})'} · $buyer · ${formatDateTimeTr(order.paidAt ?? order.createdAt)}$reason',
+          '${order.country == null ? '' : ' (${order.country})'} · $buyer · ${formatDateTime(order.paidAt ?? order.createdAt)}$reason',
       amount: formatMoney(order.amountMinor, order.currency),
       badge: OrderStatusBadge(status: order.status, abandoned: order.isAbandoned(DateTime.now())),
       onTap: order.groupId == null ? null : () => context.go(AdminRoutes.group(order.groupId!)),
@@ -453,7 +453,7 @@ class _SubscriptionRow extends StatelessWidget {
     final s = subscription;
     return _ListRow(
       title: '${s.groupName} (@${s.groupHandle})',
-      subtitle: '${planAndPeriod(s.planName, s.period)} · ${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
+      subtitle: '${planAndPeriod(s.planName, s.period)} · ${formatDate(s.startsAt)} – ${formatDate(s.endsAt)}',
       amount: switch ((s.amountMinor, s.currency)) {
         (final amount?, final currency?) => formatMoney(amount, currency),
         _ => 'Tanımlandı',

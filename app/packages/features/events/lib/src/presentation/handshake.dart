@@ -316,7 +316,7 @@ class MetPeopleScreen extends ConsumerWidget {
                       ListTile(
                         leading: GwAvatar(name: m.person.displayName, shape: GwAvatarShape.user, imageUrl: m.person.avatarUrl),
                         title: Text(m.person.displayName),
-                        subtitle: Text('@${m.person.username} · ${m.eventTitle} · ${formatDateTr(m.eventStartsAt.toLocal())}',
+                        subtitle: Text('@${m.person.username} · ${m.eventTitle} · ${formatDate(m.eventStartsAt.toLocal())}',
                             maxLines: 2, overflow: TextOverflow.ellipsis),
                         onTap: () => context.push(EventRoutes.event(m.eventId)),
                       ),

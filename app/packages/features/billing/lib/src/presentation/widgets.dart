@@ -118,7 +118,7 @@ class _LimitRow extends StatelessWidget {
 String planStatusLine(GroupPlan plan) {
   final until = plan.paidUntil;
   if (plan.plan.isFree || until == null) return '${plan.plan.name} paket';
-  return '${plan.plan.name} paketi · ${formatDateTr(until)} tarihine kadar';
+  return '${plan.plan.name} paketi · ${formatDate(until)} tarihine kadar';
 }
 
 /// "3,6 gün" for an upgrade's carried-over time.

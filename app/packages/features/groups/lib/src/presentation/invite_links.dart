@@ -89,7 +89,7 @@ class _InviteLinksSectionState extends ConsumerState<InviteLinksSection> {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.link),
-                      title: Text('${formatDateTr(link.expiresAt)} tarihine kadar'),
+                      title: Text('${formatDate(link.expiresAt)} tarihine kadar'),
                       subtitle: Text(link.maxUses == null
                           ? '${link.useCount} kişi katıldı'
                           : '${link.useCount} / ${link.maxUses} kişi katıldı'),

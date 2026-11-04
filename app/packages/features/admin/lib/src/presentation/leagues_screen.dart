@@ -76,7 +76,7 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
           children: [
             for (final m in _months)
               ChoiceChip(
-                label: Text(formatMonthYearTr(m)),
+                label: Text(formatMonthYear(m)),
                 selected: _month == m,
                 onSelected: (_) => setState(() {
                   _month = m;
@@ -89,7 +89,7 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
         GwPanel(
           title: 'Ligler',
           subtitle: switch (leagues.value) {
-            final v? when v.finalized => '${formatMonthYearTr(v.month)} sezonu kapandı; sonuçlar kesin.',
+            final v? when v.finalized => '${formatMonthYear(v.month)} sezonu kapandı; sonuçlar kesin.',
             _ => 'Sezon sürüyor; puanlar organizasyonlar bittikçe güncellenir.',
           },
           padding: EdgeInsets.zero,
@@ -128,7 +128,7 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
           switch (ref.watch(adminLeagueTableProvider((month: _month, category: selected.category, province: selected.province)))) {
             AsyncData(:final value) => GwPanel(
                 title: _name(selected),
-                subtitle: '${formatMonthYearTr(_month)} sıralaması',
+                subtitle: '${formatMonthYear(_month)} sıralaması',
                 padding: EdgeInsets.zero,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,7 +161,7 @@ class _AdminLeaguesScreenState extends ConsumerState<AdminLeaguesScreen> {
                           leading: const Icon(Icons.block, color: GwColors.error),
                           title: Text('${x.groupName} (@${x.groupHandle})'),
                           subtitle: Text(
-                            '${x.reason} · ${x.by == null ? '' : '@${x.by} · '}${formatDateTimeTr(x.createdAt.toLocal())}',
+                            '${x.reason} · ${x.by == null ? '' : '@${x.by} · '}${formatDateTime(x.createdAt.toLocal())}',
                             style: secondary,
                           ),
                           trailing: canExclude && !value.finalized

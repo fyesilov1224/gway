@@ -174,7 +174,7 @@ class AppNotification {
         NotificationType.followAccepted => 'takip isteğini kabul etti.',
         NotificationType.liveScheduled => liveScheduledAt == null
             ? 'canlı yayın planladı: ${liveTitle ?? ''}'
-            : '${formatDateTimeTr(liveScheduledAt!)} için canlı yayın planladı: ${liveTitle ?? ''}',
+            : '${formatDateTime(liveScheduledAt!)} için canlı yayın planladı: ${liveTitle ?? ''}',
         NotificationType.liveStarted => 'canlı yayına başladı: ${liveTitle ?? ''}',
         NotificationType.eventPromoted => '"${eventTitle ?? ''}" için yer açıldı, artık katılıyorsun.',
         NotificationType.eventUpdated => '"${eventTitle ?? ''}" organizasyonunun zamanını ya da yerini değiştirdi.',

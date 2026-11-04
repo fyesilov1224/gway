@@ -156,8 +156,8 @@ class _VersionRow extends ConsumerWidget {
                         GwBadge('${formatCount(version.consentCount)} onay · kilitli', tone: GwBadgeTone.info),
                       Text(
                         version.isDraft
-                            ? 'Yürürlük: ${formatDateTimeTr(version.publishedAt)}'
-                            : 'Yayın: ${formatDateTimeTr(version.publishedAt)}',
+                            ? 'Yürürlük: ${formatDateTime(version.publishedAt)}'
+                            : 'Yayın: ${formatDateTime(version.publishedAt)}',
                         style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                       ),
                     ],
@@ -350,7 +350,7 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                           ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.event_outlined),
-                            title: Text('Yürürlük: ${formatDateTimeTr(_publishedAt)}'),
+                            title: Text('Yürürlük: ${formatDateTime(_publishedAt)}'),
                             trailing: GwButton(label: 'Değiştir', variant: GwButtonVariant.text, onPressed: _pickDate),
                           ),
                       ],

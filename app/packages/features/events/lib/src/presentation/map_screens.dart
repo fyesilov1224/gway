@@ -459,7 +459,7 @@ class _SelectedCard extends StatelessWidget {
           children: [
             Text(e.title, style: textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: GwSpacing.xxs),
-            Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}',
+            Text('${formatDateTime(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}',
                 style: textTheme.bodyMedium, maxLines: 2),
             Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.sm),
@@ -561,7 +561,7 @@ class _MapList extends StatelessWidget {
             ),
             title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(
-                '${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}\n${e.group.name} · ${_seats(e)}'),
+                '${formatDateTime(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}\n${e.group.name} · ${_seats(e)}'),
             isThreeLine: true,
             onTap: () => context.push(EventRoutes.event(e.id)),
           ),

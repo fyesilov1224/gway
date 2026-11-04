@@ -160,7 +160,7 @@ class _GroupBody extends ConsumerWidget {
                     onTap: () => context.push(GroupRoutes.members(group.handle)),
                     child: GroupMeta(icon: Icons.people_outline, text: memberCountLabel(group.memberCount)),
                   ),
-                  GroupMeta(icon: Icons.calendar_month_outlined, text: 'Kuruluş: ${formatMonthYearTr(group.createdAt)}'),
+                  GroupMeta(icon: Icons.calendar_month_outlined, text: 'Kuruluş: ${formatMonthYear(group.createdAt)}'),
                 ],
               ),
               // No action until the membership is known, so it never flickers.

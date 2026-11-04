@@ -84,7 +84,7 @@ class GroupPlanCard extends ConsumerWidget {
               const SizedBox(height: GwSpacing.sm),
               PlanNotice(
                 icon: Icons.schedule,
-                text: 'Paketin ${formatDateTr(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
+                text: 'Paketin ${formatDate(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
               ),
             ],
           ],

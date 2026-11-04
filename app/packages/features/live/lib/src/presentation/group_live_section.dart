@@ -150,7 +150,7 @@ class _ScheduledTileState extends ConsumerState<_ScheduledTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
-                Text('Yaklaşan · ${formatDateTimeTr(b.scheduledAt!)}',
+                Text('Yaklaşan · ${formatDateTime(b.scheduledAt!)}',
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
@@ -304,7 +304,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
               OutlinedButton.icon(
                 onPressed: _pickTime,
                 icon: const Icon(Icons.schedule),
-                label: Text(formatDateTimeTr(_at)),
+                label: Text(formatDateTime(_at)),
               ),
             ],
             if (minutes != null) ...[

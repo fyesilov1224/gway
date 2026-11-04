@@ -849,7 +849,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                       return Semantics(
                         selected: selected,
                         button: true,
-                        label: 'Hikaye, ${formatDateTr(s.createdAt)}',
+                        label: 'Hikaye, ${formatDate(s.createdAt)}',
                         child: InkWell(
                           onTap: () => setState(() => selected ? _selected.remove(s.id) : _selected.add(s.id)),
                           child: Stack(
@@ -863,7 +863,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
                                   decoration: const BoxDecoration(color: GwColors.mediaScrim, borderRadius: GwRadius.smAll),
                                   child: Text(
-                                    s.isActive(now) ? 'Yayında' : formatDateTr(s.createdAt),
+                                    s.isActive(now) ? 'Yayında' : formatDate(s.createdAt),
                                     style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.onMedia),
                                   ),
                                 ),

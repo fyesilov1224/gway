@@ -33,7 +33,7 @@ class LiveRoomScreen extends ConsumerWidget {
       AsyncData(:final value) when value.isLive => _Room(broadcast: value),
       AsyncData(:final value) => _Closed(
           message: value.status == LiveStatus.scheduled
-              ? 'Bu yayın ${formatDateTimeTr(value.scheduledAt!)} tarihinde başlayacak.'
+              ? 'Bu yayın ${formatDateTime(value.scheduledAt!)} tarihinde başlayacak.'
               : 'Bu yayın sona erdi.',
         ),
       AsyncError(error: NotFoundFailure()) => const _Closed(message: 'Bu yayın bulunamadı. Grubun üyesi olman gerekiyor olabilir.'),

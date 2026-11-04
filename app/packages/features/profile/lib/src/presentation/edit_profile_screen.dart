@@ -192,7 +192,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           enabled: lockedUntil == null,
                           helperText: lockedUntil == null
                               ? 'Kullanıcı adını 30 günde bir değiştirebilirsin.'
-                              : '${formatDateTr(lockedUntil)} tarihinden sonra değiştirebilirsin.',
+                              : '${formatDate(lockedUntil)} tarihinden sonra değiştirebilirsin.',
                           onAvailabilityChanged: (v) => setState(() => _usernameAvailable = v),
                         ),
                         const SizedBox(height: GwSpacing.md),

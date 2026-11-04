@@ -74,7 +74,7 @@ class _Greeting extends ConsumerWidget {
       < 18 => 'İyi günler',
       _ => 'İyi akşamlar',
     };
-    final date = formatDateTr(now);
+    final date = formatDate(now);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

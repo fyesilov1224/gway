@@ -1928,6 +1928,39 @@ Kullanıcı isteği (2026-10-27): panel her modülü ve işlemleri ayrıntılı 
 - Yayında API, LiveKit, web uygulaması ve panel tek sunucuda, Docker Compose ile çalışır. Caddy otomatik `https` verir.
 - Kurulum dosyaları `deploy/` klasöründe, adımlar `docs/DEPLOY.md`'de.
 
+## 11. Çok dillilik (Faz 19, kullanıcı kararları 2026-11-05)
+
+Kullanıcı isteği: Ayarlar'dan dil seçilince düğmeler, menüler, bağlantılar, sözleşmeler ve bildirimler dahil her şey seçilen dile geçer.
+
+### Kararlar
+- **Diller (12):** Türkçe (`tr`, kaynak dil), İngilizce (`en`), Almanca (`de`), Fransızca (`fr`), Felemenkçe (`nl`), İspanyolca (`es`), Portekizce (`pt`), İtalyanca (`it`), Rusça (`ru`), Arapça (`ar`, sağdan sola), Azerice (`az`), Ukraynaca (`uk`).
+- **Hukuki metinler:** çeviriler bilgi amaçlıdır. Her çevirinin başında "Bağlayıcı metin Türkçedir" notu ve Türkçe asıl metne bağlantı bulunur. Kullanıcı her zaman Türkçe sürümü onaylar (`consents` değişmez).
+- **Sunucu metinleri de çevrilir:** telefon bildirimleri, API hata mesajları ve kimlik e-postaları kişinin dilinde gider.
+- **Yönetim paneli Türkçe kalır.** Panelde yalnızca hukuki metin çevirilerinin yönetimi eklenir.
+- **Hitap:** Türkçe ve Azericede "sen"; Almanca du, Fransızca tu, Felemenkçe je, İspanyolca tú, İtalyanca tu, Portekizce você (Brezilya), Rusça ve Ukraynaca вы; İngilizce ve Arapça yalın. Marka ve özellik adları (GWAY, Bugün sekmesi gibi) her dilde o dilin ekran adıyla yazılır.
+- Çeviriler Claude tarafından yapılır; yayından önce her dil için anadili konuşan birinin kontrolü önerilir. GWAY'e özel hazır dil paketi yoktur; Flutter'ın kendi bileşen metinleri (`flutter_localizations`) SDK ile gelir.
+
+### Uygulama (Flutter)
+- Flutter'ın resmi çeviri sistemi kullanılır: ARB dosyaları ve `gen_l10n`. Her paket kendi metinlerinin sahibidir: `lib/l10n/<paket>_<dil>.arb` (şablon Türkçe), üretilen sınıf `lib/src/l10n/`. Uygulama bütün paketlerin `delegate`'lerini `MaterialApp`'e verir.
+- Yer tutucular ve çoğullar ICU biçimindedir (`{count, plural, ...}`); metin parçaları birleştirilerek cümle kurulmaz.
+- Ekran kodunda `context.<paket>L10n.<anahtar>`; bağlamsız alan kodunda (hata mesajı, enum etiketi, bildirim cümlesi) `core`'daki geçerli dil (`currentAppLocale`) üzerinden aynı sınıf kullanılır. Dil değişince `MaterialApp` yeniden kurulur, bütün metinler yeniden okunur.
+- **Dil seçimi:** Ayarlar → Dil (ve giriş ekranında dil düğmesi). İlk açılışta cihazın dili desteklenen dillerdense o, değilse İngilizce; Türkiye'deki cihazda Türkçe. Seçim cihazda saklanır (`shared_preferences`) ve oturum açıksa profile yazılır (`profiles.locale`, kişinin kendi basit yazması).
+- Tarih, saat, sayı ve para biçimleri `intl` ile seçilen dile göre yapılır. Kullanıcı içeriği (gönderi, yorum, mesaj, grup adı) çevrilmez.
+- **Sağdan sola (Arapça):** düzen `Directionality` ile döner; kenar boşlukları `EdgeInsetsDirectional`, hizalama `AlignmentDirectional` kullanır; yön belirten ikonlar aynalanır.
+- Uzun dillerde (Almanca) ve %130 yazı ölçeğinde düzen bozulmaz; testler en uzun dil ile de çalışır.
+- `CLAUDE.md` kural 9 buna göre değişti: yeni arayüz metni önce Türkçe ARB'ye, aynı değişiklikte 11 dile eklenir.
+
+### Sunucu
+- `profiles.locale` (12 dilden biri, varsayılan `tr`).
+- Push metinleri C#'ta alıcının diline göre kurulur. Uygulama içi bildirim listesi metni zaten uygulamada türden kurulur.
+- API hata yanıtları kod taşır (`code`); uygulama metni koddan, kendi dilinde gösterir. Kodsuz ProblemDetails başlıkları istemcinin `Accept-Language` başlığına göre çevrilir.
+- Kimlik e-postaları (doğrulama, şifre sıfırlama) Supabase şablonunda kullanıcının `locale` meta verisine göre seçilir.
+
+### Hukuki metin çevirileri
+- `legal_document_translations` (identity): belge sürümü, dil, başlık, gövde. Herkes okur; yazma yalnızca C# (platform yöneticisi). Asıl Türkçe sürüm değişmez kuralı (§3a) aynen sürer; çeviri sonradan düzeltilebilir ve `audit_log`'a yazılır.
+- Uygulama metni kişinin dilinde gösterir; çeviri yoksa Türkçe asıl gösterilir. Onay her zaman Türkçe sürüme bağlanır.
+- **Yönetim paneli:** hukuki metin sayfasında her sürümün çevirileri görüntülenir ve düzenlenir.
+
 ## 9. Test ve "bitti" tanımı
 
 Bir faz şu koşullar sağlanınca biter:

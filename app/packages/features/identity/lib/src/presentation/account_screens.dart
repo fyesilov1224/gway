@@ -43,7 +43,7 @@ class _DeletionPendingScreenState extends ConsumerState<DeletionPendingScreen> {
       title: 'Hesabın silinmek üzere',
       subtitle: date == null
           ? 'Hesap silme isteğin alındı.'
-          : 'Hesabın ve tüm verilerin ${formatDateTr(date)} tarihinde kalıcı olarak silinecek. '
+          : 'Hesabın ve tüm verilerin ${formatDate(date)} tarihinde kalıcı olarak silinecek. '
               'O zamana kadar fikrini değiştirebilirsin.',
       children: [
         if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
@@ -73,7 +73,7 @@ class SuspendedScreen extends ConsumerWidget {
       title: banned ? 'Hesabın kalıcı olarak kapatıldı' : 'Hesabın askıya alındı',
       subtitle: until == null
           ? 'Hesabın platform ekibi tarafından kalıcı olarak kapatıldı. Profilin artık kimseye görünmüyor.'
-          : 'Hesabın ${formatDateTimeTr(until)} tarihine kadar askıya alındı. Bu süre boyunca uygulamayı kullanamazsın; '
+          : 'Hesabın ${formatDateTime(until)} tarihine kadar askıya alındı. Bu süre boyunca uygulamayı kullanamazsın; '
               'profilinde askıda olduğun görünür.',
       children: [
         if (account?.suspensionReason case final reason?) ...[

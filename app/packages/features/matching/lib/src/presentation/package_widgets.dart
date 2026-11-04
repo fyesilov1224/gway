@@ -140,7 +140,7 @@ class _PackageTile extends StatelessWidget {
                 Text(package.description, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                 if (until != null) ...[
                   const SizedBox(height: GwSpacing.xxs),
-                  GwBadge('${formatDateTr(until!)} tarihine kadar açık', tone: GwBadgeTone.success),
+                  GwBadge('${formatDate(until!)} tarihine kadar açık', tone: GwBadgeTone.success),
                 ],
               ],
             ),
@@ -188,7 +188,7 @@ class MatchPackageScreen extends ConsumerWidget {
                   Text(package.description, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                   if (until != null) ...[
                     const SizedBox(height: GwSpacing.sm),
-                    GwBadge('${formatDateTr(until)} tarihine kadar açık', tone: GwBadgeTone.success),
+                    GwBadge('${formatDate(until)} tarihine kadar açık', tone: GwBadgeTone.success),
                   ],
                 ],
               ),

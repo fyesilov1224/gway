@@ -57,7 +57,7 @@ class _LockedMatch extends StatelessWidget {
               children: [
                 Text('Biriyle eşleştin!', style: textTheme.titleMedium),
                 Text(
-                  'Kim olduğunu görmek için dokun · ${formatDateTr(match.matchedAt)}',
+                  'Kim olduğunu görmek için dokun · ${formatDate(match.matchedAt)}',
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
                 const SizedBox(height: GwSpacing.xxs),
@@ -193,7 +193,7 @@ class MatchesScreen extends ConsumerWidget {
                             children: [
                               Text('${card.displayName}, ${card.age}', style: textTheme.titleMedium),
                               Text(
-                                '@${m.username} · ${formatDateTr(m.matchedAt)}',
+                                '@${m.username} · ${formatDate(m.matchedAt)}',
                                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                               ),
                               const SizedBox(height: GwSpacing.xxs),

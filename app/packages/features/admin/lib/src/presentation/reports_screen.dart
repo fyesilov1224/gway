@@ -262,7 +262,7 @@ class _ReportRow extends StatelessWidget {
       r.groupName == null ? 'Platform' : '${r.groupName} (@${r.groupHandle})',
       if (r.reporterUsername != null) 'Şikayet eden @${r.reporterUsername}',
       if (r.subjectUsername != null) 'Hedef @${r.subjectUsername}',
-      formatDateTimeTr(r.createdAt),
+      formatDateTime(r.createdAt),
     ].join(' · ');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
@@ -422,7 +422,7 @@ class _AppealList extends ConsumerWidget {
                     const SizedBox(height: GwSpacing.xxs),
                     Text('İtiraz: ${a.body}', style: textTheme.bodyLarge),
                     if (a.decisionNote case final note?) Text('Karar notu: $note', style: secondary),
-                    Text(formatDateTimeTr(a.createdAt), style: secondary),
+                    Text(formatDateTime(a.createdAt), style: secondary),
                     const SizedBox(height: GwSpacing.xs),
                     Wrap(
                       spacing: GwSpacing.xs,
@@ -532,7 +532,7 @@ class _ReferralRow extends StatelessWidget {
     final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final decision = switch (r.status) {
       AdminReferralStatus.pending => null,
-      AdminReferralStatus.banned => r.banUntil == null ? 'Kalıcı ban' : 'Ban, ${formatDateTimeTr(r.banUntil!)} tarihine kadar',
+      AdminReferralStatus.banned => r.banUntil == null ? 'Kalıcı ban' : 'Ban, ${formatDateTime(r.banUntil!)} tarihine kadar',
       AdminReferralStatus.cleared => 'Temize çıktı',
     };
     return Padding(
@@ -570,7 +570,7 @@ class _ReferralRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      [e.targetLabel, if (e.reportedAt != null) formatDateTimeTr(e.reportedAt!)].join(' · '),
+                      [e.targetLabel, if (e.reportedAt != null) formatDateTime(e.reportedAt!)].join(' · '),
                       style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary),
                     ),
                     if (e.excerpt.isNotEmpty) SelectableText(e.excerpt, style: textTheme.bodyMedium),
@@ -582,8 +582,8 @@ class _ReferralRow extends StatelessWidget {
           const SizedBox(height: GwSpacing.xxs),
           if (decision != null) Text('Karar: $decision${r.decisionNote == null ? '' : ' · ${r.decisionNote}'}', style: secondary),
           if (r.authoritiesNote case final note?)
-            Text('Kolluk: $note${r.authoritiesNotifiedAt == null ? '' : ' · ${formatDateTimeTr(r.authoritiesNotifiedAt!)}'}', style: secondary),
-          Text(formatDateTimeTr(r.createdAt), style: secondary),
+            Text('Kolluk: $note${r.authoritiesNotifiedAt == null ? '' : ' · ${formatDateTime(r.authoritiesNotifiedAt!)}'}', style: secondary),
+          Text(formatDateTime(r.createdAt), style: secondary),
           const SizedBox(height: GwSpacing.xs),
           Wrap(
             spacing: GwSpacing.xs,

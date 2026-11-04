@@ -150,7 +150,7 @@ class _CurrentPlan extends ConsumerWidget {
           Text(
             plan.plan.isFree || plan.currentPeriodEndsAt == null
                 ? 'Grup ücretsiz paketi kullanıyor.'
-                : 'Bu dönem ${formatDateTr(plan.currentPeriodEndsAt!)} tarihinde bitiyor.',
+                : 'Bu dönem ${formatDate(plan.currentPeriodEndsAt!)} tarihinde bitiyor.',
             style: textTheme.bodyLarge,
           ),
           const SizedBox(height: GwSpacing.md),
@@ -170,7 +170,7 @@ class _CurrentPlan extends ConsumerWidget {
             const SizedBox(height: GwSpacing.md),
             PlanNotice(
               icon: Icons.schedule,
-              text: 'Paketin ${formatDateTr(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
+              text: 'Paketin ${formatDate(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
             ),
           ],
           if (upcoming.isNotEmpty) ...[
@@ -183,7 +183,7 @@ class _CurrentPlan extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: GwSpacing.xs),
                 child: Text(
                   '${names[s.planSlug] ?? s.planSlug} (${s.period?.label.toLowerCase() ?? 'GWAY tanımladı'}): '
-                  '${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
+                  '${formatDate(s.startsAt)} – ${formatDate(s.endsAt)}',
                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
@@ -420,10 +420,10 @@ class _PlanCard extends StatelessWidget {
     if (!o.available) return 'Paketin bir yıldan uzun süre için ödenmiş. Şimdilik yalnızca üst pakete geçebilirsin.';
     return switch (o.change) {
       PlanChange.upgrade => o.credit > Duration.zero
-          ? 'Hemen başlar; kalan sürenden yaklaşık ${creditLabel(o.credit)} eklenir. Bitiş: ${formatDateTr(o.endsAt)}.'
-          : 'Hemen başlar. Bitiş: ${formatDateTr(o.endsAt)}.',
-      PlanChange.renewal => 'Mevcut dönemin ardından ${formatDateTr(o.startsAt)} tarihinde başlar.',
-      PlanChange.downgrade => 'Mevcut dönem bitince, ${formatDateTr(o.startsAt)} tarihinde başlar.',
+          ? 'Hemen başlar; kalan sürenden yaklaşık ${creditLabel(o.credit)} eklenir. Bitiş: ${formatDate(o.endsAt)}.'
+          : 'Hemen başlar. Bitiş: ${formatDate(o.endsAt)}.',
+      PlanChange.renewal => 'Mevcut dönemin ardından ${formatDate(o.startsAt)} tarihinde başlar.',
+      PlanChange.downgrade => 'Mevcut dönem bitince, ${formatDate(o.startsAt)} tarihinde başlar.',
     };
   }
 }

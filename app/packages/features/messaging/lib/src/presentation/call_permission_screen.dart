@@ -96,7 +96,7 @@ class _Status extends StatelessWidget {
           ],
           if (!mayAsk && waitUntil != null) ...[
             const SizedBox(height: GwSpacing.xs),
-            Text('${formatDateTimeTr(waitUntil)} sonrasında yeniden talep edebilirsin.', style: secondary),
+            Text('${formatDateTime(waitUntil)} sonrasında yeniden talep edebilirsin.', style: secondary),
           ],
           if (mayAsk) ...[
             const SizedBox(height: GwSpacing.md),

@@ -13,8 +13,8 @@ void _snack(BuildContext context, String message) => ScaffoldMessenger.of(contex
 
 /// "21 Ekim – 20 Kasım".
 String goalPeriod(Goal g) {
-  final from = formatDateTr(g.startsAt);
-  final to = formatDateTr(g.endsAt);
+  final from = formatDate(g.startsAt);
+  final to = formatDate(g.endsAt);
   return '${from.substring(0, from.lastIndexOf(' '))} – $to';
 }
 
@@ -480,7 +480,7 @@ class _GoalEditorState extends ConsumerState<_GoalEditor> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.date_range_outlined),
               title: const Text('Dönem'),
-              subtitle: Text('${formatDateTr(_startsAt)} – ${formatDateTr(_endsAt)} (en fazla 92 gün)'),
+              subtitle: Text('${formatDate(_startsAt)} – ${formatDate(_endsAt)} (en fazla 92 gün)'),
               trailing: const Icon(Icons.edit_calendar_outlined),
               onTap: _pickEnd,
             ),

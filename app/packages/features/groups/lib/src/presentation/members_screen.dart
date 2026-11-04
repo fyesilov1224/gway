@@ -322,7 +322,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
             for (final p in value)
               PersonTile(
                 person: p,
-                subtitle: p.since == null ? null : '@${p.username} · ${formatDateTr(p.since!)}',
+                subtitle: p.since == null ? null : '@${p.username} · ${formatDate(p.since!)}',
                 trailing: Wrap(
                   spacing: GwSpacing.xxs,
                   children: [
@@ -449,7 +449,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                 for (final p in value)
                   PersonTile(
                     person: p,
-                    subtitle: p.since == null ? null : '@${p.username} · ${formatDateTr(p.since!)}',
+                    subtitle: p.since == null ? null : '@${p.username} · ${formatDate(p.since!)}',
                     trailing: GwButton(
                       label: 'Geri al',
                       variant: GwButtonVariant.text,

@@ -270,7 +270,7 @@ String formatAgoTr(DateTime time, {DateTime? now}) {
   if (diff.inDays < 1) return '${diff.inHours} sa';
   if (diff.inDays < 7) return '${diff.inDays} g';
   if (diff.inDays < 28) return '${diff.inDays ~/ 7} hf';
-  return formatDateTr(time);
+  return formatDate(time);
 }
 
 /// A photo or video picked on the device, measured and ready to upload.

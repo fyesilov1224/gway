@@ -84,7 +84,7 @@ class _TicketRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final meta = [ticket.kind.label, ?ticket.groupName, formatDateTr(ticket.lastMessageAt)].join(' · ');
+    final meta = [ticket.kind.label, ?ticket.groupName, formatDate(ticket.lastMessageAt)].join(' · ');
     return InkWell(
       onTap: () => context.push(SupportRoutes.ticket(ticket.id)),
       child: Padding(

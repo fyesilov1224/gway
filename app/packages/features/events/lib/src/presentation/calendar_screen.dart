@@ -49,13 +49,13 @@ DateTime shiftFocus(CalendarView view, DateTime focus, int step) => switch (view
 String calendarTitle(CalendarView view, DateTime focus) {
   switch (view) {
     case CalendarView.day:
-      return '${_weekdayNames[focus.weekday - 1]}, ${formatDateTr(focus)}';
+      return '${_weekdayNames[focus.weekday - 1]}, ${formatDate(focus)}';
     case CalendarView.week:
       final from = _monday(focus);
       final to = DateTime(from.year, from.month, from.day + 6);
-      return from.month == to.month ? '${from.day} – ${formatDateTr(to)}' : '${formatDateTr(from)} – ${formatDateTr(to)}';
+      return from.month == to.month ? '${from.day} – ${formatDate(to)}' : '${formatDate(from)} – ${formatDate(to)}';
     case CalendarView.month:
-      return formatMonthYearTr(focus);
+      return formatMonthYear(focus);
   }
 }
 
@@ -173,7 +173,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             onSelect: (d) => setState(() => _focus = d),
           ),
           const SizedBox(height: GwSpacing.md),
-          Text('${_weekdayNames[_focus.weekday - 1]}, ${formatDateTr(_focus)}', style: Theme.of(context).textTheme.titleSmall),
+          Text('${_weekdayNames[_focus.weekday - 1]}, ${formatDate(_focus)}', style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: GwSpacing.xs),
           if (selected.isEmpty)
             Text('Bu günde organizasyon yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
@@ -188,7 +188,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             if (on(DateTime(monday.year, monday.month, monday.day + i)) case final list when list.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.only(top: GwSpacing.sm, bottom: GwSpacing.xs),
-                child: Text('${_weekdayNames[i]}, ${formatDateTr(DateTime(monday.year, monday.month, monday.day + i))}',
+                child: Text('${_weekdayNames[i]}, ${formatDate(DateTime(monday.year, monday.month, monday.day + i))}',
                     style: Theme.of(context).textTheme.titleSmall),
               ),
               cards(list),
@@ -235,7 +235,7 @@ class _MonthGrid extends StatelessWidget {
                   child: Semantics(
                     button: true,
                     selected: _sameDay(d, focus),
-                    label: formatDateTr(d),
+                    label: formatDate(d),
                     child: InkWell(
                       borderRadius: GwRadius.mdAll,
                       onTap: () => onSelect(d),

@@ -151,8 +151,8 @@ class _BroadcastRow extends StatelessWidget {
     final meta = [
       '${b.groupName} (@${b.groupHandle})',
       if (b.hostUsername != null) 'Sunucu @${b.hostUsername}',
-      if (scheduled && b.scheduledAt != null) 'Planlanan ${formatDateTimeTr(b.scheduledAt!)}',
-      if (b.startedAt != null) formatDateTimeTr(b.startedAt!),
+      if (scheduled && b.scheduledAt != null) 'Planlanan ${formatDateTime(b.scheduledAt!)}',
+      if (b.startedAt != null) formatDateTime(b.startedAt!),
       if (!scheduled) _minutes(b.duration(DateTime.now())),
       if (live && b.participants != null) '${formatCount(b.participants!)} kişi',
       if (scheduled) '${formatCount(b.notified)} üyeye duyuruldu',

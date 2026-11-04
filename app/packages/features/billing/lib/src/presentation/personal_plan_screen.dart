@@ -54,7 +54,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
               child: Text(
                 value.activeUntil == null
                     ? 'Bu paket hesabında açık değil.'
-                    : 'Paketin ${formatDateTr(value.activeUntil!)} tarihine kadar açık.',
+                    : 'Paketin ${formatDate(value.activeUntil!)} tarihine kadar açık.',
                 style: textTheme.bodyLarge,
               ),
             ),
@@ -62,7 +62,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
               title: value.activeUntil == null ? 'Satın al' : 'Süreni uzat',
               subtitle: value.activeUntil == null
                   ? 'Tek seferlik ödeme; otomatik yenilenmez.'
-                  : 'Yeni süre, ${formatDateTr(value.activeUntil!)} tarihinden sonra başlar.',
+                  : 'Yeni süre, ${formatDate(value.activeUntil!)} tarihinden sonra başlar.',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -153,7 +153,7 @@ class _PeriodOption extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '${formatDateTr(option.endsAt)} tarihine kadar',
+                      '${formatDate(option.endsAt)} tarihine kadar',
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ],
@@ -250,8 +250,8 @@ class _PersonalSummary extends StatelessWidget {
           Text('${offer.planName} · ${option.period.label}', style: textTheme.titleMedium),
           const SizedBox(height: GwSpacing.sm),
           const Divider(),
-          row('Başlangıç', offer.activeUntil == null ? 'Ödeme onaylanınca' : formatDateTr(option.startsAt)),
-          row('Bitiş (tahmini)', formatDateTr(option.endsAt)),
+          row('Başlangıç', offer.activeUntil == null ? 'Ödeme onaylanınca' : formatDate(option.startsAt)),
+          row('Bitiş (tahmini)', formatDate(option.endsAt)),
           const Divider(),
           const SizedBox(height: GwSpacing.sm),
           Row(

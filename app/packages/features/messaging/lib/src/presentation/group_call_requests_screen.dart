@@ -188,7 +188,7 @@ class _CardState extends ConsumerState<_Card> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(item.displayName, style: Theme.of(context).textTheme.labelLarge),
-                    Text(['@${item.username}', if (at != null) formatDateTimeTr(at)].join(' · '), style: secondary),
+                    Text(['@${item.username}', if (at != null) formatDateTime(at)].join(' · '), style: secondary),
                   ],
                 ),
               ),

@@ -140,7 +140,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                       initialValue: _months.contains(_month) ? _month : _thisMonth,
                       isExpanded: true,
                       decoration: const InputDecoration(labelText: 'Ay'),
-                      items: [for (final m in _months) DropdownMenuItem(value: m, child: Text(formatMonthYearTr(m)))],
+                      items: [for (final m in _months) DropdownMenuItem(value: m, child: Text(formatMonthYear(m)))],
                       onChanged: (v) => setState(() => _month = v ?? _month),
                     ),
                   ),
@@ -187,7 +187,7 @@ class _Table extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: GwSpacing.sm),
           child: Text(
             table.finalized
-                ? '${formatMonthYearTr(table.month)} sezonu kapandı; sıralama kesin.'
+                ? '${formatMonthYear(table.month)} sezonu kapandı; sıralama kesin.'
                 : 'Sezon sürüyor. Puanlar organizasyonlar bittikçe güncellenir; sonuçlar ay bittikten 8 gün sonra kesinleşir.',
             style: secondary,
           ),
@@ -288,7 +288,7 @@ class GroupLeagueSection extends ConsumerWidget {
             const SizedBox(height: GwSpacing.xs),
             Text(
               switch (l.rank) {
-                final rank? => '${formatMonthYearTr(l.month)}: ${formatCount(l.groups)} grup arasında $rank. sırada, '
+                final rank? => '${formatMonthYear(l.month)}: ${formatCount(l.groups)} grup arasında $rank. sırada, '
                     '${formatCount(l.points)} puan.',
                 null => 'Bu ay henüz puan yok. Biten organizasyonlar, gelenler ve karşılamalar puan getirir.',
               },
@@ -302,7 +302,7 @@ class GroupLeagueSection extends ConsumerWidget {
                 children: [
                   for (final t in l.titles)
                     GwBadge(
-                      '${formatMonthYearTr(t.month)} · ${t.rank == 1 ? 'Şampiyon' : '${t.rank}.'}',
+                      '${formatMonthYear(t.month)} · ${t.rank == 1 ? 'Şampiyon' : '${t.rank}.'}',
                       tone: GwBadgeTone.primary,
                       dot: true,
                     ),

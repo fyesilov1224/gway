@@ -78,7 +78,7 @@ Future<String?> addPasskey(WidgetRef ref, {bool refreshStatus = true}) async {
   }
   final response = await ref.read(passkeyAuthenticatorProvider).create(json);
   if (response == null) return 'Parmak izi eklenmedi: işlem iptal edildi ya da bu cihaz zaten kayıtlı.';
-  final saved = await repo.registerPasskey('Parmak izi · ${formatDateTr(DateTime.now())}', response);
+  final saved = await repo.registerPasskey('Parmak izi · ${formatDate(DateTime.now())}', response);
   ref.invalidate(passkeysProvider);
   if (refreshStatus) ref.invalidate(securityStatusProvider);
   return switch (saved) { Ok() => null, Err(:final failure) => failure.userMessage };
@@ -781,7 +781,7 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
           ListTile(
             contentPadding: const EdgeInsets.only(left: GwSpacing.xxl + GwSpacing.md, right: GwSpacing.xs),
             title: Text(p.name),
-            subtitle: Text(p.lastUsedAt == null ? 'Henüz kullanılmadı' : 'Son kullanım: ${formatDateTimeTr(p.lastUsedAt!)}'),
+            subtitle: Text(p.lastUsedAt == null ? 'Henüz kullanılmadı' : 'Son kullanım: ${formatDateTime(p.lastUsedAt!)}'),
             trailing: IconButton(
               tooltip: 'Kaldır',
               icon: const Icon(Icons.delete_outline),

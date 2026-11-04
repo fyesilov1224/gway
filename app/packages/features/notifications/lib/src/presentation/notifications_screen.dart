@@ -294,7 +294,7 @@ String _ago(DateTime time) {
   if (diff.inHours < 1) return '${diff.inMinutes} dk';
   if (diff.inDays < 1) return '${diff.inHours} sa';
   if (diff.inDays < 7) return '${diff.inDays} g';
-  return formatDateTr(time);
+  return formatDate(time);
 }
 
 class _Skeleton extends StatelessWidget {

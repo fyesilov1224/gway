@@ -69,7 +69,7 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
         OutlinedButton.icon(
           onPressed: _saving ? null : _pick,
           icon: const Icon(Icons.cake_outlined),
-          label: Text(_date == null ? 'Tarih seç' : formatDateTr(_date!)),
+          label: Text(_date == null ? 'Tarih seç' : formatDate(_date!)),
           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(GwSpacing.buttonHeight)),
         ),
         const SizedBox(height: GwSpacing.md),

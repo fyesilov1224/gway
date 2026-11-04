@@ -284,7 +284,7 @@ class _UserRow extends ConsumerWidget {
                   ),
                   Expanded(
                     flex: _columns[4],
-                    child: Text(user.createdAt == null ? '—' : formatDateTr(user.createdAt!), style: secondary),
+                    child: Text(user.createdAt == null ? '—' : formatDate(user.createdAt!), style: secondary),
                   ),
                   const Icon(Icons.chevron_right, color: GwColors.textSecondary, size: GwSpacing.lg),
                 ],
