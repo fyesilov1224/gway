@@ -314,6 +314,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: IdentityRoutes.legalDocuments, builder: (_, _) => const LegalDocumentsScreen()),
           GoRoute(path: IdentityRoutes.twoFactor, builder: (_, _) => const TwoFactorSettingsScreen()),
           GoRoute(path: SupportRoutes.list, builder: (_, _) => const SupportScreen()),
+          GoRoute(path: SupportRoutes.guide, builder: (_, _) => const UserGuideScreen()),
+          GoRoute(
+            path: '${SupportRoutes.guide}/:id',
+            builder: (_, state) => GuideChapterScreen(
+              chapterId: state.pathParameters['id']!,
+              openTopic: int.tryParse(state.uri.queryParameters['topic'] ?? ''),
+            ),
+          ),
           GoRoute(
             path: '/support/new',
             builder: (_, state) => NewTicketScreen(groupId: state.uri.queryParameters['group']),

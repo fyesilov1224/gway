@@ -1673,6 +1673,12 @@ Anahtarlar yalnızca ortam değişkeni veya user-secrets ile verilir (yerelde `b
   - Grup yöneticisi grup sayfasından o grup için mesaj açabilir.
 - **Admin paneli:** "Destek" sayfasında türe göre renkli sayaç kartları (Sorunlar kırmızı, Talepler sarı, İstekler yeşil, Yanıt bekleyen) bulunur. Liste arama, tür ve durum filtresi içerir; her satırda tür ikonu ve rengi gösterilir. Detayda yazışma, ekler, gönderen ve grup bağlantıları, yanıt kutusu ve durum seçimi yer alır.
 
+### Kullanma kılavuzu (kullanıcı isteği, 2026-11-05)
+- Ayarlar → "Kullanma kılavuzu" (`/support/guide`): uygulamanın her bölümünü adım adım anlatan, aranabilir kılavuz. Bölümler (`/support/guide/<bölüm>`) konulara ayrılır; her konu açılır bir karttır. Arama, konu başlığında ve metninde geçen kelimeyi bulur; sonuca dokununca konu açık olarak gelir.
+- Kılavuz uygulamanın içindedir (support modülü, `domain/guide_content.dart`); sunucuya istek atmaz, kişisel veri okumaz. Metin yalnızca bu dokümandaki kuralları anlatır; kural değişince kılavuz da aynı değişiklikte güncellenir ve uygulamanın sonraki sürümüyle gelir. Paket fiyatı, ücretsiz hak sayısı gibi panelden değişen değerler kılavuza yazılmaz, ilgili ekrana yönlendirilir.
+- Her bölümün sonunda "Sorunun çözülmedi mi?" kartı yeni destek mesajı açar.
+- Yönetim paneli karşılığı yoktur: yeni veri ya da işlem yoktur.
+
 ### C# uç noktaları
 | Uç nokta | Açıklama |
 |---|---|
@@ -1720,6 +1726,7 @@ Yayın içindeki roller: **Sunucu** (yayını başlatan), **Konuşmacı** (sahne
 ### Akış
 1. **Başlatma:** `live.start` yetkilisi başlığı yazar ve yayını başlatır. Aylık dakika kalmış ve grupta başka canlı yayın olmamalıdır. API kaydı `live` olarak açar ve LiveKit odasını oluşturur. Planlı yayını yalnızca sunucusu, planlanan zamandan en çok 15 dakika önce başlatır.
 2. **Katılma:** Üye yayına girince API token verir: grup üyesi, hesabı aktif, yayın canlı ve kullanıcı bu yayından atılmamış olmalıdır. Token 10 dakika geçerlidir ve odaya girişte kullanılır; bağlı istemcinin token'ını LiveKit yeniler. Kimlik (`identity`) kullanıcı uuid'sidir; görünen ad ve profil fotoğrafının yolu (`avatar` özniteliği) token'la gelir. Dinleyicinin `canPublish` izni yoktur. Herkes veri mesajı (tepki) gönderebilir; kimse kendi özniteliğini değiştiremez.
+   - **Uygulamada gezinme (2026-11-05, kullanıcı isteği):** Bağlantı yayın ekranına değil uygulamaya aittir (`activeLiveProvider`). Geri tuşu ya da başka bir sayfaya geçmek kişiyi yayından çıkarmaz; ses sürer ve her sayfanın üstünde "Canlı yayındasın" şeridi görünür (dokununca yayına döner; sahnedeyse mikrofonu buradan da kapatıp açar). Kişi yalnızca "Ayrıl"a basınca, yayın bitince, atılınca, başka bir yayına girince ya da oturumu kapatınca çıkar. Aynı anda tek yayında bulunulur.
 3. **El kaldırma:** Dinleyici elini kaldırır (`hand` özniteliği). Yayın yöneticileri kaldırılan elleri görür.
 4. **Sahneye alma:** Yayın yöneticisi dinleyiciyi sahneye alır: `canPublish` açılır, rol `speaker` olur, el iner. Sahneden indirme izni geri alır.
 5. **Mikrofon kapatma:** Yayın yöneticisi bir konuşmacının mikrofonunu kapatır: `canPublish` kapanır, `muted` özniteliği konur, kişi sahnede kalır. Mikrofonu yalnızca yayın yöneticisi yeniden açar.

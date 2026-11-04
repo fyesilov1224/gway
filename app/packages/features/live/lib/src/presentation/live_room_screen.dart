@@ -74,6 +74,7 @@ class _Room extends ConsumerStatefulWidget {
 }
 
 class _RoomState extends ConsumerState<_Room> {
+  late final ActiveLive _active;
   late final LiveSession _session;
   final _comments = ValueNotifier<List<LiveComment>>(const []);
   StreamSubscription<LiveCommentChange>? _commentChanges;
@@ -86,13 +87,10 @@ class _RoomState extends ConsumerState<_Room> {
   @override
   void initState() {
     super.initState();
-    final storage = ref.read(supabaseClientProvider).storage;
-    _session = LiveSession(
-      repository: ref.read(liveRepositoryProvider),
-      broadcastId: _id,
-      avatarUrl: (path) => storage.from('avatars').getPublicUrl(path),
-    )..addListener(_onSession);
-    unawaited(_session.connect());
+    // The connection outlives this screen: going back keeps the user in the room.
+    _active = ref.read(activeLiveProvider.notifier);
+    _session = _active.join(_id)..addListener(_onSession);
+    _lastRole = _session.me?.role;
     unawaited(_loadComments());
   }
 
@@ -120,9 +118,8 @@ class _RoomState extends ConsumerState<_Room> {
 
   @override
   void dispose() {
-    _session
-      ..removeListener(_onSession)
-      ..dispose();
+    _session.removeListener(_onSession);
+    _active.releaseIfInactive(_session);
     unawaited(_commentChanges?.cancel());
     _comments.dispose();
     super.dispose();
@@ -167,7 +164,7 @@ class _RoomState extends ConsumerState<_Room> {
       if (end == null) return;
       if (end) await _result(_repo.end(_id));
     }
-    await _session.leave();
+    await _active.leave();
     if (mounted) _close();
   }
 
@@ -364,7 +361,7 @@ class _RoomState extends ConsumerState<_Room> {
 
         return Scaffold(
           appBar: AppBar(
-            leading: IconButton(tooltip: 'Yayından çık', icon: const Icon(Icons.keyboard_arrow_down_rounded), onPressed: () => _leave(isHost: isHost)),
+            leading: IconButton(tooltip: 'Küçült, yayında kal', icon: const Icon(Icons.keyboard_arrow_down_rounded), onPressed: _close),
             titleSpacing: 0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -62,6 +62,8 @@ class SettingsScreen extends ConsumerWidget {
               const Divider(),
               tile(Icons.shield_outlined, 'Grup yaptırımlarım', () => context.push(ModerationRoutes.mySanctions)),
               const Divider(),
+              tile(Icons.menu_book_outlined, 'Kullanma kılavuzu', () => context.push(SupportRoutes.guide)),
+              const Divider(),
               tile(
                 Icons.support_agent_outlined,
                 'Destek ve geri bildirim',

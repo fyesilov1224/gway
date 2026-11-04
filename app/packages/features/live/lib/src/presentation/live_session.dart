@@ -60,6 +60,9 @@ class LiveSession extends ChangeNotifier {
   LiveSessionState state = LiveSessionState.connecting;
   String? errorMessage;
 
+  /// Connected or still connecting.
+  bool get isActive => state == LiveSessionState.connecting || state == LiveSessionState.connected;
+
   /// Emojis as they arrive, including your own.
   Stream<String> get reactions => _reactions.stream;
 
