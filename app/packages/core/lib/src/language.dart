@@ -70,6 +70,9 @@ const _prefsKey = 'gway.language';
 /// Opens the device storage for [languagePreferencesProvider].
 Future<SharedPreferences> openLanguagePreferences() => SharedPreferences.getInstance();
 
+/// The device's preferred languages; tests override it.
+final deviceLocalesProvider = Provider<List<Locale>>((_) => PlatformDispatcher.instance.locales);
+
 /// The chosen language: saved choice, else the device language, else English.
 final appLanguageProvider = NotifierProvider<AppLanguageController, AppLanguage>(AppLanguageController.new);
 
@@ -77,7 +80,7 @@ class AppLanguageController extends Notifier<AppLanguage> {
   @override
   AppLanguage build() {
     final saved = AppLanguage.parse(ref.watch(languagePreferencesProvider)?.getString(_prefsKey));
-    final language = saved ?? AppLanguage.fromDevice(PlatformDispatcher.instance.locales);
+    final language = saved ?? AppLanguage.fromDevice(ref.watch(deviceLocalesProvider));
     setCurrentAppLanguage(language);
     return language;
   }
