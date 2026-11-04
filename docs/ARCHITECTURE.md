@@ -460,7 +460,7 @@ C#'ta `Gway.Modules.Profile` (takip ve engelleme) ve `Gway.Modules.Feed` (gönde
     - Kayıt, token'ı gönderen oturuma bağlıdır (`push_devices.session_id` → `auth.sessions`, `on delete cascade`). Çıkışta, tüm cihazlardan çıkışta ya da oturum iptal edildiğinde kayıt veritabanında kendiliğinden silinir. Bir oturumda tek kayıt tutulur; FCM token'ı yenilenirse eskisinin yerini alır.
     - Sunucu her token'ı günde bir kez FCM'ye deneme gönderimiyle (`validate_only`, telefona bir şey gitmez) sorar; FCM token'ı tanımıyorsa kayıt silinir (`last_checked_at`).
     - Uygulama her açılışta kaydını yeniler (`updated_at`). 60 gün açılmayan cihazın kaydı silinir; uygulama yeniden açılınca kayıt geri gelir.
-  - **Gönderim:** C#'taki `PushDispatcher` birkaç saniyede bir (`Push:DispatchInterval`, varsayılan 5 sn, sıfır kapatır) gönderilmemiş bildirimleri (`notifications.pushed_at` boş, son 15 dakika) işaretler ve alıcının cihazlarına sesli bildirim olarak gönderir. Önce işaretlenir, sonra gönderilir; bir bildirim en fazla bir kez gider. Metin uygulamadaki cümleyle aynıdır.
+  - **Gönderim:** C#'taki `PushDispatcher` yeni bildirim yazıldığı anda uyanır (2026-11-04: `notifications` tablosundaki ekleme tetikleyicisi `pg_notify('gway_push')` yollar, dispatcher `LISTEN` ile bekler; kanal veri taşımaz, migration 0077) ve sinyal kaybolursa en geç birkaç saniyede bir (`Push:DispatchInterval`, varsayılan 5 sn, sıfır kapatır; `Push:Listen=false` sinyali kapatır) gönderilmemiş bildirimleri (`notifications.pushed_at` boş, son 15 dakika) işaretler ve alıcının cihazlarına sesli bildirim olarak gönderir; FCM istekleri sırayla değil, aynı anda en fazla 16 tane gider. Önce işaretlenir, sonra gönderilir; bir bildirim en fazla bir kez gider. Metin uygulamadaki cümleyle aynıdır.
   - **Kimlik bilgisi:** Firebase servis hesabı anahtarı (JSON) yalnızca sunucudadır, repoya girmez: `Push:CredentialsPath`. Tanımlı değilse push kapalıdır, bildirimler yalnızca uygulama içinde kalır.
   - **Platformlar:** Android. iOS için Apple APNs anahtarı, web için Web Push (VAPID) anahtarı bekleniyor.
   - Bildirime dokununca yayın bildirimi yayın odasını, mesaj bildirimi sohbeti, diğerleri bildirimler ekranını açar.
@@ -1103,6 +1103,11 @@ Bildirim kaydında `group_id` ve `sanction_id` bulunur. Yaptırım bildirimlerin
   - Grup sohbetindeki mesaj şikayeti grubun moderasyon masasına gider. `reports.review` yetkilisi mesajı kaldırabilir; rütbe kuralı uygulanır.
   - Birebir mesaj şikayeti platform ekibine gider.
 - Platform ekibi (admin, moderatör) şikayet edilen mesajı içeriğini görmeden, şikayet gerekçesine göre kaldırabilir (`message.removed_by_admin`).
+
+### Anında gönderim (kullanıcı isteği, 2026-11-04)
+- **Mesaj:** Gönder'e dokununca mesaj sohbette hemen görünür ("Gönderiliyor…") ve kutu boşalır; sunucu kabul edince yerini sunucudaki kopyası alır. Gönderilemezse sohbetten kalkar, metin ve fotoğraf kutuya geri döner, neden yazar. Art arda yazılan mesajlar sırayla gider. `POST /conversations/{id}/messages` yeni mesajın kimliğini döner.
+- **Yenileme:** sohbet ve sohbet listesi, değişiklikler bir yenileme sürerken gelirse hepsi için bir kez daha yenilenir (her değişiklik için ayrı değil); sohbetin bilgisi ve mesajları aynı anda çekilir.
+- **Yorum:** yorum tek istekte kaydedilir ve yazarıyla geri döner; liste baştan yüklenmeden eklenir. Gönderilemezse metin kutuya döner.
 
 ### Mesaj gizliliği (kullanıcı kararı, 2026-11-01)
 Platform ekibi (admin, moderatör, destek) hiçbir özel mesajı okuyamaz, sesli görüşmeyi dinleyemez ve kimin kimi aradığını göremez. Bu kural değiştirilmeden önce burası güncellenmelidir.

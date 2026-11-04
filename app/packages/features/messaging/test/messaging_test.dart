@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +37,14 @@ class _FakeMessaging implements MessagingRepository {
   final answers = <(String, bool)>[];
   final reads = <String>[];
 
+  /// When set, a send waits for it: what the chat shows meanwhile.
+  Completer<Result<String>>? hold;
+
   @override
-  Future<Result<void>> send(String conversationId, {String body = '', ImageUpload? image}) async {
+  Future<Result<String>> send(String conversationId, {String body = '', ImageUpload? image}) async {
     sent.add((conversationId, body));
-    return const Ok(null);
+    if (hold case final hold?) return hold.future;
+    return Ok('sent-${sent.length}');
   }
 
   @override
@@ -245,6 +251,27 @@ void main() {
     await tester.tap(find.byTooltip('Gönder'));
     await tester.pumpAndSettle();
     expect(fake.sent.single, ('c1', 'Harika'));
+  });
+
+  testWidgets('a sent message shows at once; one that cannot go comes back to the box', (tester) async {
+    final fake = await _pumpChat(
+      tester,
+      ChatThread(conversation: _direct(), messages: [_message('m1', _deniz, DateTime(2026, 10, 22, 9), body: 'Selam')]),
+    );
+    fake.hold = Completer();
+
+    await tester.enterText(find.byType(TextField), 'Geliyorum');
+    await tester.tap(find.byTooltip('Gönder'));
+    await tester.pump();
+    expect(find.text('Geliyorum'), findsOneWidget, reason: 'in the chat before the server answers');
+    expect(find.textContaining('Gönderiliyor…'), findsOneWidget);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
+
+    fake.hold!.complete(const Err(RuleFailure('message.rate_limited', 'Çok hızlı mesaj gönderiyorsun.')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Gönderiliyor…'), findsNothing);
+    expect(find.text('Çok hızlı mesaj gönderiyorsun.'), findsOneWidget);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'Geliyorum');
   });
 
   testWidgets('a pending request hides read receipts and a blocker replaces the composer', (tester) async {

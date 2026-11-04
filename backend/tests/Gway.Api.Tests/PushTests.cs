@@ -5,7 +5,9 @@ using Gway.Modules.Groups;
 using Gway.Modules.Live;
 using Gway.Modules.Notifications;
 using Gway.Modules.Notifications.Contracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Gway.Api.Tests;
 
@@ -202,6 +204,35 @@ public sealed class PushTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal(("Doğa Yürüyüşü", "ayse: Selam!"), (inGroup.Title, inGroup.Body));
         Assert.Equal("📷 Fotoğraf", PushTexts.For(Message(null, photo: true))!.Body);
         Assert.Null(PushTexts.For(Message(null)));
+    }
+
+    [Fact]
+    public async Task A_new_notification_is_pushed_at_once_not_at_the_next_poll()
+    {
+        var (actor, recipient) = (await _db.CreateUserAsync(Unique("w_")), await _db.CreateUserAsync(Unique("w_")));
+        var phone = Unique("phone-wake-") + "-token";
+        await RegisterAsync(recipient, phone);
+        var sender = new FakePush();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Push:DispatchInterval"] = "00:10:00", ["Push:SweepInterval"] = "00:00:00" })
+            .Build();
+        using var dispatcher = new PushDispatcher(
+            new PushService(_db.Db, sender, NullLogger<PushService>.Instance),
+            _db.Db, config, NullLogger<PushDispatcher>.Instance);
+        await dispatcher.StartAsync(Ct);
+        // The first run and the listening connection settle before the notification is written.
+        await Task.Delay(TimeSpan.FromSeconds(1), Ct);
+
+        await _db.ExecuteAsync("insert into public.notifications (recipient_id, actor_id, type) values (@r, @a, 'follow')",
+            ("r", recipient), ("a", actor));
+
+        var deadline = DateTime.UtcNow.AddSeconds(3);
+        while (DateTime.UtcNow < deadline && await _db.ScalarAsync<long>(
+                   "select count(*) from public.notifications where recipient_id = @r and pushed_at is null", ("r", recipient)) > 0)
+            await Task.Delay(100, Ct);
+        await dispatcher.StopAsync(Ct);
+        Assert.Equal(0L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @r and pushed_at is null", ("r", recipient)));
     }
 
     [Fact]
