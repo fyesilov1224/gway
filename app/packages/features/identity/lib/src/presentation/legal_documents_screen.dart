@@ -8,8 +8,15 @@ import 'providers.dart';
 
 /// Full text of a legal document in a scrollable bottom sheet. [onReadToEnd] runs once the reader reaches the
 /// end of the text (at once when it fits without scrolling): consent needs it (docs/ARCHITECTURE.md §3a, KVKK).
-Future<void> showLegalDocument(BuildContext context, LegalDocument document, {VoidCallback? onReadToEnd}) {
-  return showModalBottomSheet<void>(
+/// With [acceptLabel] a button after the last line closes the sheet with `true`: reaching it means the text was
+/// scrolled through, so it also counts as read.
+Future<bool?> showLegalDocument(
+  BuildContext context,
+  LegalDocument document, {
+  VoidCallback? onReadToEnd,
+  String? acceptLabel,
+}) {
+  return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -25,17 +32,19 @@ Future<void> showLegalDocument(BuildContext context, LegalDocument document, {Vo
         document: document,
         controller: controller,
         onReadToEnd: onReadToEnd,
+        acceptLabel: acceptLabel,
       ),
     ),
   );
 }
 
 class _DocumentBody extends StatefulWidget {
-  const _DocumentBody({required this.document, required this.controller, this.onReadToEnd});
+  const _DocumentBody({required this.document, required this.controller, this.onReadToEnd, this.acceptLabel});
 
   final LegalDocument document;
   final ScrollController controller;
   final VoidCallback? onReadToEnd;
+  final String? acceptLabel;
 
   @override
   State<_DocumentBody> createState() => _DocumentBodyState();
@@ -61,10 +70,13 @@ class _DocumentBodyState extends State<_DocumentBody> {
   void _check() {
     if (_reported || !mounted || !widget.controller.hasClients) return;
     final position = widget.controller.position;
-    if (position.pixels >= position.maxScrollExtent - GwSpacing.md) {
-      _reported = true;
-      widget.onReadToEnd!();
-    }
+    if (position.extentAfter <= GwSpacing.md) _report();
+  }
+
+  void _report() {
+    if (_reported) return;
+    _reported = true;
+    widget.onReadToEnd?.call();
   }
 
   @override
@@ -82,6 +94,17 @@ class _DocumentBodyState extends State<_DocumentBody> {
         ),
         const SizedBox(height: GwSpacing.md),
         SelectableText(document.body, style: Theme.of(context).textTheme.bodyLarge),
+        if (widget.acceptLabel case final label?) ...[
+          const SizedBox(height: GwSpacing.lg),
+          GwButton(
+            label: label,
+            expand: true,
+            onPressed: () {
+              _report();
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
       ],
     );
   }

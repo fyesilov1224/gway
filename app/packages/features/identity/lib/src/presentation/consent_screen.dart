@@ -20,7 +20,7 @@ String _agreementLabel(LegalKind kind) => switch (kind) {
     };
 
 /// Asks for every pending legal document before the app can be used. A box is checked only after its text was
-/// read to the end (docs/ARCHITECTURE.md §3a, KVKK).
+/// read to the end; ticking an unread one warns and opens the text (docs/ARCHITECTURE.md §3a, KVKK).
 class ConsentScreen extends ConsumerStatefulWidget {
   const ConsentScreen({super.key});
 
@@ -33,6 +33,26 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   final _read = <LegalKind>{};
   bool _saving = false;
   String? _error;
+
+  /// Opens the text; its closing button ("Okudum, onaylıyorum") both marks it read and ticks the box.
+  Future<void> _open(LegalDocument doc) async {
+    final accepted = await showLegalDocument(
+      context,
+      doc,
+      onReadToEnd: () => setState(() => _read.add(doc.kind)),
+      acceptLabel: 'Okudum, onaylıyorum',
+    );
+    if (accepted == true && mounted) setState(() => _accepted.add(doc.kind));
+  }
+
+  void _toggle(LegalDocument doc, bool value) {
+    if (!value) return setState(() => _accepted.remove(doc.kind));
+    if (_read.contains(doc.kind)) return setState(() => _accepted.add(doc.kind));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Lütfen metnin tamamını okuyup öyle onaylayın.')));
+    _open(doc);
+  }
 
   Future<void> _continue(List<LegalDocument> docs) async {
     setState(() {
@@ -78,10 +98,8 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
             document: doc,
             accepted: _accepted.contains(doc.kind),
             read: _read.contains(doc.kind),
-            onRead: () => setState(() => _read.add(doc.kind)),
-            onChanged: (value) => setState(
-              () => value ? _accepted.add(doc.kind) : _accepted.remove(doc.kind),
-            ),
+            onOpen: () => _open(doc),
+            onChanged: (value) => _toggle(doc, value),
           ),
           const SizedBox(height: GwSpacing.sm),
         ],
@@ -109,14 +127,14 @@ class _ConsentTile extends StatelessWidget {
     required this.document,
     required this.accepted,
     required this.read,
-    required this.onRead,
+    required this.onOpen,
     required this.onChanged,
   });
 
   final LegalDocument document;
   final bool accepted;
   final bool read;
-  final VoidCallback onRead;
+  final VoidCallback onOpen;
   final ValueChanged<bool> onChanged;
 
   @override
@@ -135,13 +153,13 @@ class _ConsentTile extends StatelessWidget {
                 GwButton(
                   label: 'Metni oku',
                   variant: GwButtonVariant.text,
-                  onPressed: () => showLegalDocument(context, document, onReadToEnd: onRead),
+                  onPressed: onOpen,
                 ),
               ],
             ),
             CheckboxListTile(
               value: accepted,
-              onChanged: read ? (v) => onChanged(v ?? false) : null,
+              onChanged: (v) => onChanged(v ?? false),
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               title: Text(
