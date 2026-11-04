@@ -1,0 +1,828 @@
+{
+  "@@locale": "tr",
+  "unsupportedImage": "Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.",
+  "@unsupportedImage": {
+    "description": ""
+  },
+  "joinOpen": "Serbest katılım",
+  "@joinOpen": {
+    "description": ""
+  },
+  "joinOpenHint": "Herkes doğrudan katılabilir.",
+  "@joinOpenHint": {
+    "description": ""
+  },
+  "joinRequest": "İstekle katılım",
+  "@joinRequest": {
+    "description": ""
+  },
+  "joinRequestHint": "Katılım istekleri yöneticiler tarafından onaylanır.",
+  "@joinRequestHint": {
+    "description": ""
+  },
+  "joinInvite": "Davetle katılım",
+  "@joinInvite": {
+    "description": ""
+  },
+  "joinInviteHint": "Yalnızca davet edilen kişiler katılabilir.",
+  "@joinInviteHint": {
+    "description": ""
+  },
+  "roleOwner": "Grup Sahibi",
+  "@roleOwner": {
+    "description": ""
+  },
+  "roleAdmin": "Yönetici",
+  "@roleAdmin": {
+    "description": ""
+  },
+  "roleDiscipline": "Disiplin Kurulu",
+  "@roleDiscipline": {
+    "description": ""
+  },
+  "roleModerator": "Moderatör",
+  "@roleModerator": {
+    "description": ""
+  },
+  "roleMember": "Üye",
+  "@roleMember": {
+    "description": ""
+  },
+  "handleMin": "Grup adresi en az 3 karakter olmalı.",
+  "@handleMin": {
+    "description": ""
+  },
+  "handleChars": "Yalnızca küçük harf, rakam, alt çizgi ve nokta kullanabilirsin.",
+  "@handleChars": {
+    "description": ""
+  },
+  "handleDots": "Nokta ile başlayamaz, bitemez ve art arda kullanılamaz.",
+  "@handleDots": {
+    "description": ""
+  },
+  "nameMin": "Grup adı en az 3 karakter olmalı.",
+  "@nameMin": {
+    "description": ""
+  },
+  "nameMax": "Grup adı en fazla {max} karakter olabilir.",
+  "@nameMax": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "httpsOnly": "https:// ile başlayan bir adres gir.",
+  "@httpsOnly": {
+    "description": ""
+  },
+  "createGroup": "Grup oluştur",
+  "@createGroup": {
+    "description": ""
+  },
+  "groupInfo": "Grup bilgileri",
+  "@groupInfo": {
+    "description": ""
+  },
+  "groupInfoHint": "Logo, kapak, kurallar ve bağlantıları grubu oluşturduktan sonra ekleyebilirsin.",
+  "@groupInfoHint": {
+    "description": ""
+  },
+  "groupName": "Grup adı",
+  "@groupName": {
+    "description": ""
+  },
+  "about": "Tanıtım",
+  "@about": {
+    "description": ""
+  },
+  "aboutHint": "Grubunuz ne yapar, kimler katılabilir?",
+  "@aboutHint": {
+    "description": ""
+  },
+  "joining": "Katılım",
+  "@joining": {
+    "description": ""
+  },
+  "changeLater": "Bunu daha sonra değiştirebilirsin.",
+  "@changeLater": {
+    "description": ""
+  },
+  "createTheGroup": "Grubu oluştur",
+  "@createTheGroup": {
+    "description": ""
+  },
+  "editGroup": "Grubu düzenle",
+  "@editGroup": {
+    "description": ""
+  },
+  "noEditPermission": "Bu grubu düzenleme yetkin yok.",
+  "@noEditPermission": {
+    "description": ""
+  },
+  "backToGroup": "Gruba dön",
+  "@backToGroup": {
+    "description": ""
+  },
+  "save": "Kaydet",
+  "@save": {
+    "description": ""
+  },
+  "logoAndCover": "Logo ve kapak",
+  "@logoAndCover": {
+    "description": ""
+  },
+  "imageHint": "JPEG, PNG veya WebP · en fazla 5 MB",
+  "@imageHint": {
+    "description": ""
+  },
+  "logo": "Logo",
+  "@logo": {
+    "description": ""
+  },
+  "cover": "Kapak",
+  "@cover": {
+    "description": ""
+  },
+  "groupHandle": "Grup adresi: @{handle}",
+  "@groupHandle": {
+    "description": "",
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "rules": "Kurallar",
+  "@rules": {
+    "description": ""
+  },
+  "rulesHint": "Üyelerden beklentilerin, her satıra bir kural.",
+  "@rulesHint": {
+    "description": ""
+  },
+  "links": "Bağlantılar",
+  "@links": {
+    "description": ""
+  },
+  "linksHint": "Web sitesi, sosyal medya hesapları. En fazla {max} tane.",
+  "@linksHint": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "enterLabel": "Bir etiket yaz.",
+  "@enterLabel": {
+    "description": ""
+  },
+  "label": "Etiket",
+  "@label": {
+    "description": ""
+  },
+  "address": "Adres",
+  "@address": {
+    "description": ""
+  },
+  "removeLink": "Bağlantıyı kaldır",
+  "@removeLink": {
+    "description": ""
+  },
+  "addLink": "Bağlantı ekle",
+  "@addLink": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "saveChanges": "Değişiklikleri kaydet",
+  "@saveChanges": {
+    "description": ""
+  },
+  "deleteGroup": "Grubu sil",
+  "@deleteGroup": {
+    "description": ""
+  },
+  "deleteGroupBody": "Grup, üyelikler, roller, istekler ve davetler kalıcı olarak silinir. Paketin kalan süresi iade edilmez.",
+  "@deleteGroupBody": {
+    "description": ""
+  },
+  "deleteGroupNamed": "{name} grubunu sil",
+  "@deleteGroupNamed": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "changeImage": "{label} değiştir",
+  "@changeImage": {
+    "description": "",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "addImage": "{label} ekle",
+  "@addImage": {
+    "description": "",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "remove": "Kaldır",
+  "@remove": {
+    "description": ""
+  },
+  "deleteForever": "Grubu kalıcı olarak sil",
+  "@deleteForever": {
+    "description": ""
+  },
+  "deleteConfirm": "Bu işlem geri alınamaz. Onaylamak için grup adresini yaz: {handle}",
+  "@deleteConfirm": {
+    "description": "",
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "group": "Grup",
+  "@group": {
+    "description": ""
+  },
+  "share": "Paylaş",
+  "@share": {
+    "description": ""
+  },
+  "shareText": "{name} grubuna GWAY'de göz at:",
+  "@shareText": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moreOptions": "Diğer seçenekler",
+  "@moreOptions": {
+    "description": ""
+  },
+  "leaveGroup": "Gruptan ayrıl",
+  "@leaveGroup": {
+    "description": ""
+  },
+  "groupNotFound": "Bu grup bulunamadı ya da artık görünür değil.",
+  "@groupNotFound": {
+    "description": ""
+  },
+  "backToGroups": "Gruplara dön",
+  "@backToGroups": {
+    "description": ""
+  },
+  "leaveConfirm": "{name} grubundan ayrılmak istiyor musun? Grupta bir rolün varsa o da kaldırılır.",
+  "@leaveConfirm": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "leave": "Ayrıl",
+  "@leave": {
+    "description": ""
+  },
+  "leftGroup": "{name} grubundan ayrıldın.",
+  "@leftGroup": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "suspendedNotice": "Bu grup platform ekibi tarafından askıya alındı. Askı sürerken grup yalnızca üyelerine görünür.",
+  "@suspendedNotice": {
+    "description": ""
+  },
+  "founded": "Kuruluş: {date}",
+  "@founded": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "joinRequestsPending": "{count} katılım isteği onay bekliyor.",
+  "@joinRequestsPending": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "review": "İncele",
+  "@review": {
+    "description": ""
+  },
+  "requestSent": "Katılım isteğin gönderildi.",
+  "@requestSent": {
+    "description": ""
+  },
+  "youAreMember": "Üyesin",
+  "@youAreMember": {
+    "description": ""
+  },
+  "join": "Katıl",
+  "@join": {
+    "description": ""
+  },
+  "joined": "{name} grubuna katıldın.",
+  "@joined": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendJoinRequest": "Katılma isteği gönder",
+  "@sendJoinRequest": {
+    "description": ""
+  },
+  "requestSentShort": "İstek gönderildi",
+  "@requestSentShort": {
+    "description": ""
+  },
+  "withdrawRequest": "İsteği geri al",
+  "@withdrawRequest": {
+    "description": ""
+  },
+  "withdrawConfirm": "Katılım isteğini geri almak istiyor musun?",
+  "@withdrawConfirm": {
+    "description": ""
+  },
+  "undo": "Geri al",
+  "@undo": {
+    "description": ""
+  },
+  "requestWithdrawn": "Katılım isteğin geri alındı.",
+  "@requestWithdrawn": {
+    "description": ""
+  },
+  "decline": "Reddet",
+  "@decline": {
+    "description": ""
+  },
+  "inviteDeclined": "Davet reddedildi.",
+  "@inviteDeclined": {
+    "description": ""
+  },
+  "acceptInvite": "Daveti kabul et",
+  "@acceptInvite": {
+    "description": ""
+  },
+  "followOn": "{name} gönderileri akışında görünecek.",
+  "@followOn": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "followOff": "Grubu takip etmeyi bıraktın.",
+  "@followOff": {
+    "description": ""
+  },
+  "following": "Takiptesin",
+  "@following": {
+    "description": ""
+  },
+  "follow": "Takip et",
+  "@follow": {
+    "description": ""
+  },
+  "managementTeam": "Yönetim ekibi",
+  "@managementTeam": {
+    "description": ""
+  },
+  "allMembers": "Tüm üyeler ({count})",
+  "@allMembers": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groups": "Gruplar",
+  "@groups": {
+    "description": ""
+  },
+  "discover": "Keşfet",
+  "@discover": {
+    "description": ""
+  },
+  "myGroups": "Gruplarım",
+  "@myGroups": {
+    "description": ""
+  },
+  "plans": "Paketler",
+  "@plans": {
+    "description": ""
+  },
+  "searchHint": "Grup adı veya adresi ile ara",
+  "@searchHint": {
+    "description": ""
+  },
+  "clearSearch": "Aramayı temizle",
+  "@clearSearch": {
+    "description": ""
+  },
+  "all": "Tümü",
+  "@all": {
+    "description": ""
+  },
+  "noMatch": "Aramana uygun grup bulunamadı.",
+  "@noMatch": {
+    "description": ""
+  },
+  "clearFilters": "Filtreleri temizle",
+  "@clearFilters": {
+    "description": ""
+  },
+  "noGroupsYet": "Henüz hiç grup yok. İlk grubu sen kur.",
+  "@noGroupsYet": {
+    "description": ""
+  },
+  "showMore": "Daha fazla göster",
+  "@showMore": {
+    "description": ""
+  },
+  "notJoinedYet": "Henüz bir gruba katılmadın.",
+  "@notJoinedYet": {
+    "description": ""
+  },
+  "discoverGroups": "Grupları keşfet",
+  "@discoverGroups": {
+    "description": ""
+  },
+  "plansHint": "Paketleri grup sahipleri alır. Grubunu kurup paketini seçebilirsin.",
+  "@plansHint": {
+    "description": ""
+  },
+  "yourInvitations": "Davetlerin",
+  "@yourInvitations": {
+    "description": ""
+  },
+  "invitationsHint": "Bu gruplar seni üye olmaya davet etti.",
+  "@invitationsHint": {
+    "description": ""
+  },
+  "invitedBy": "{name} davet etti",
+  "@invitedBy": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkCopied": "Bağlantı kopyalandı.",
+  "@linkCopied": {
+    "description": ""
+  },
+  "inviteShareText": "{name} grubuna GWAY'de katıl:",
+  "@inviteShareText": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "revokeLinkTitle": "Bağlantı iptal edilsin mi?",
+  "@revokeLinkTitle": {
+    "description": ""
+  },
+  "revokeLinkBody": "Bu bağlantıyla artık kimse katılamaz. Katılmış olanlar üye olarak kalır.",
+  "@revokeLinkBody": {
+    "description": ""
+  },
+  "revoke": "İptal et",
+  "@revoke": {
+    "description": ""
+  },
+  "inviteLink": "Davet bağlantısı",
+  "@inviteLink": {
+    "description": ""
+  },
+  "inviteLinkHint": "WhatsApp ya da Instagram'da paylaş. Bağlantıyı açan kişi katılım tipine bakılmadan doğrudan üye olur.",
+  "@inviteLinkHint": {
+    "description": ""
+  },
+  "createLink": "Bağlantı oluştur",
+  "@createLink": {
+    "description": ""
+  },
+  "validUntil": "{date} tarihine kadar",
+  "@validUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleJoined": "{count} kişi katıldı",
+  "@peopleJoined": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleJoinedOf": "{count} / {max} kişi katıldı",
+  "@peopleJoinedOf": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "newInviteLink": "Yeni davet bağlantısı",
+  "@newInviteLink": {
+    "description": ""
+  },
+  "validity": "Geçerlilik süresi",
+  "@validity": {
+    "description": ""
+  },
+  "days": "{count} gün",
+  "@days": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "howMany": "Kaç kişi katılabilir?",
+  "@howMany": {
+    "description": ""
+  },
+  "unlimited": "Sınırsız",
+  "@unlimited": {
+    "description": ""
+  },
+  "people": "{count} kişi",
+  "@people": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createAndShare": "Oluştur ve paylaş",
+  "@createAndShare": {
+    "description": ""
+  },
+  "invitation": "Davet",
+  "@invitation": {
+    "description": ""
+  },
+  "linkInvalid": "Bu davet bağlantısı artık geçerli değil. Grubun yöneticisinden yeni bir bağlantı isteyebilirsin.",
+  "@linkInvalid": {
+    "description": ""
+  },
+  "seeGroup": "Grubu gör",
+  "@seeGroup": {
+    "description": ""
+  },
+  "invitedToGroup": "Bu gruba davet edildin.",
+  "@invitedToGroup": {
+    "description": ""
+  },
+  "joinGroup": "Gruba katıl",
+  "@joinGroup": {
+    "description": ""
+  },
+  "members": "Üyeler",
+  "@members": {
+    "description": ""
+  },
+  "requests": "İstekler",
+  "@requests": {
+    "description": ""
+  },
+  "invitations": "Davetler",
+  "@invitations": {
+    "description": ""
+  },
+  "roles": "Roller",
+  "@roles": {
+    "description": ""
+  },
+  "openCase": "Disiplin dosyası aç",
+  "@openCase": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "membersVisibility": "Üye listesinin tamamını grubun üyeleri görür. Burada yönetim ekibi ve gruplarını herkese açan {shown} kişi var; grupta toplam {total} üye var.",
+  "@membersVisibility": {
+    "description": "",
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "optionsFor": "{name} için seçenekler",
+  "@optionsFor": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transferOwnership": "Sahipliği devret",
+  "@transferOwnership": {
+    "description": ""
+  },
+  "transferBody": "{group} grubunun sahipliği {person} kişisine geçecek. Sen normal üye olarak kalacaksın ve bu işlemi geri alamazsın.",
+  "@transferBody": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "person": {
+        "type": "String"
+      }
+    }
+  },
+  "transfer": "Devret",
+  "@transfer": {
+    "description": ""
+  },
+  "transferred": "Sahiplik {name} kişisine devredildi.",
+  "@transferred": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hintAdmin": "Grubu düzenler, katılım isteklerini ve davetleri yönetir.",
+  "@hintAdmin": {
+    "description": ""
+  },
+  "hintDiscipline": "Şikayet dosyalarını inceler ve yaptırım kararı verir.",
+  "@hintDiscipline": {
+    "description": ""
+  },
+  "hintModerator": "İçerikleri ve yorumları denetler.",
+  "@hintModerator": {
+    "description": ""
+  },
+  "personJoined": "{name} gruba katıldı.",
+  "@personJoined": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "requestDeclined": "İstek reddedildi.",
+  "@requestDeclined": {
+    "description": ""
+  },
+  "noPendingRequests": "Bekleyen katılım isteği yok.",
+  "@noPendingRequests": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "approve": "Onayla",
+  "@approve": {
+    "description": ""
+  },
+  "inviteSent": "Davet gönderildi.",
+  "@inviteSent": {
+    "description": ""
+  },
+  "inviteByUsername": "Kullanıcı adıyla davet et",
+  "@inviteByUsername": {
+    "description": ""
+  },
+  "invite": "Davet et",
+  "@invite": {
+    "description": ""
+  },
+  "noPendingInvites": "Bekleyen davet yok.",
+  "@noPendingInvites": {
+    "description": ""
+  },
+  "memberCount": "{count} üye",
+  "@memberCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspended": "Askıda",
+  "@suspended": {
+    "description": ""
+  },
+  "groupsSection": "Gruplar",
+  "@groupsSection": {
+    "description": ""
+  },
+  "groupsOwnHint": "Gruplarını yalnızca aynı gruptaki üyeler görür. Ayarlar'dan herkese açabilirsin.",
+  "@groupsOwnHint": {
+    "description": ""
+  },
+  "groupsOtherHint": "Yalnızca ortak grupların ve yönetim ekibinde olduğu gruplar görünür.",
+  "@groupsOtherHint": {
+    "description": ""
+  },
+  "noGroupsToShow": "Gösterilecek grup yok.",
+  "@noGroupsToShow": {
+    "description": ""
+  },
+  "handleTaken": "Bu grup adresi alınmış. Başka bir tane dene.",
+  "@handleTaken": {
+    "description": ""
+  },
+  "groupAddress": "Grup adresi",
+  "@groupAddress": {
+    "description": ""
+  },
+  "groupAddressHint": "Grup sayfanın adresi. Sonradan değiştirilemez.",
+  "@groupAddressHint": {
+    "description": ""
+  },
+  "available": "Kullanılabilir",
+  "@available": {
+    "description": ""
+  },
+  "taken": "Alınmış",
+  "@taken": {
+    "description": ""
+  },
+  "notSpecified": "Belirtilmedi",
+  "@notSpecified": {
+    "description": ""
+  },
+  "provinceOptional": "İl (isteğe bağlı)",
+  "@provinceOptional": {
+    "description": ""
+  },
+  "provinceHint": "Grup haritada bu ilde görünür.",
+  "@provinceHint": {
+    "description": ""
+  },
+  "chooseCategory": "Bir kategori seç.",
+  "@chooseCategory": {
+    "description": ""
+  },
+  "category": "Kategori",
+  "@category": {
+    "description": ""
+  }
+}

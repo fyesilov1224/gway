@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -81,7 +82,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Grup oluştur')),
+      appBar: AppBar(title: Text(groupsL10n.createGroup)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
         child: Center(
@@ -93,8 +94,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   GwPanel(
-                    title: 'Grup bilgileri',
-                    subtitle: 'Logo, kapak, kurallar ve bağlantıları grubu oluşturduktan sonra ekleyebilirsin.',
+                    title: groupsL10n.groupInfo,
+                    subtitle: groupsL10n.groupInfoHint,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -104,7 +105,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                           textCapitalization: TextCapitalization.words,
                           onChanged: _onNameChanged,
                           validator: GroupRules.validateName,
-                          decoration: const InputDecoration(labelText: 'Grup adı', counterText: ''),
+                          decoration: InputDecoration(labelText: groupsL10n.groupName, counterText: ''),
                         ),
                         const SizedBox(height: GwSpacing.md),
                         HandleField(
@@ -123,9 +124,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                           maxLength: GroupRules.aboutMaxLength,
                           minLines: 3,
                           maxLines: 6,
-                          decoration: const InputDecoration(
-                            labelText: 'Tanıtım',
-                            hintText: 'Grubunuz ne yapar, kimler katılabilir?',
+                          decoration: InputDecoration(
+                            labelText: groupsL10n.about,
+                            hintText: groupsL10n.aboutHint,
                             alignLabelWithHint: true,
                           ),
                         ),
@@ -134,15 +135,15 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'Katılım',
-                    subtitle: 'Bunu daha sonra değiştirebilirsin.',
+                    title: groupsL10n.joining,
+                    subtitle: groupsL10n.changeLater,
                     child: JoinPolicyPicker(value: _policy, onChanged: (p) => setState(() => _policy = p)),
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
                     alignment: Alignment.centerRight,
-                    child: GwButton(label: 'Grubu oluştur', onPressed: _create, isLoading: _saving),
+                    child: GwButton(label: groupsL10n.createTheGroup, onPressed: _create, isLoading: _saving),
                   ),
                 ],
               ),

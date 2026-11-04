@@ -20,7 +20,7 @@ final discoverGroupsProvider = FutureProvider.autoDispose.family<List<Group>, Gr
   },
 );
 
-/// Groups a user belongs to (profile section, "Gruplarım").
+/// Groups a user belongs to (profile section, groupsL10n.myGroups).
 final userGroupsProvider = FutureProvider.autoDispose.family<List<Group>, String>(
   (ref, userId) async {
     ref.cacheFor();

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'group_screen.dart';
 import 'invite_links.dart';
 import 'providers.dart';
@@ -34,7 +35,7 @@ class GroupMembersScreen extends ConsumerWidget {
 
     if (g == null || me == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Üyeler')),
+        appBar: AppBar(title: Text(groupsL10n.members)),
         body: switch (group) {
           AsyncError(:final error) => GwErrorState(
               message: userMessageOf(error),
@@ -46,9 +47,9 @@ class GroupMembersScreen extends ConsumerWidget {
     }
 
     final tabs = [
-      (const Tab(text: 'Üyeler'), _MembersTab(group: g, me: me, onOpenProfile: onOpenProfile, onOpenCase: onOpenCase, memberNote: memberNote)),
-      if (me.can(GroupPermission.approveMembers)) (const Tab(text: 'İstekler'), _RequestsTab(group: g)),
-      if (me.can(GroupPermission.inviteMembers)) (const Tab(text: 'Davetler'), _InvitationsTab(group: g)),
+      (Tab(text: groupsL10n.members), _MembersTab(group: g, me: me, onOpenProfile: onOpenProfile, onOpenCase: onOpenCase, memberNote: memberNote)),
+      if (me.can(GroupPermission.approveMembers)) (Tab(text: groupsL10n.requests), _RequestsTab(group: g)),
+      if (me.can(GroupPermission.inviteMembers)) (Tab(text: groupsL10n.invitations), _InvitationsTab(group: g)),
     ];
 
     return DefaultTabController(
@@ -99,7 +100,7 @@ class _MembersTab extends ConsumerWidget {
                 isScrollControlled: true,
                 builder: (_) => _RolesSheet(group: group, person: p),
               ),
-              child: const Text('Roller'),
+              child: Text(groupsL10n.roles),
             ),
           if (canOpenCase && me.rank > p.rank)
             PopupMenuItem(
@@ -111,12 +112,12 @@ class _MembersTab extends ConsumerWidget {
                 canBan: me.can(GroupPermission.banMembers),
               ),
 
-              child: const Text('Disiplin dosyası aç'),
+              child: Text(groupsL10n.openCase),
             ),
           if (me.isMember)
             PopupMenuItem(
               onTap: () => ref.read(reportLauncherProvider)(context, ReportTarget.user(p.userId, groupId: group.id)),
-              child: const Text('Şikayet et'),
+              child: Text(groupsL10n.report),
             ),
         ];
 
@@ -128,8 +129,7 @@ class _MembersTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
                 child: Text(
-                  'Üye listesinin tamamını grubun üyeleri görür. Burada yönetim ekibi ve gruplarını herkese açan '
-                  '${value.length} kişi var; grupta toplam ${group.memberCount} üye var.',
+                  groupsL10n.membersVisibility(value.length, group.memberCount),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
@@ -143,7 +143,7 @@ class _MembersTab extends ConsumerWidget {
                 onTap: () => onOpenProfile(context, p.username),
                 trailing: p.userId != userId && menu(p).isNotEmpty
                     ? PopupMenuButton<void>(
-                        tooltip: '${p.displayName} için seçenekler',
+                        tooltip: groupsL10n.optionsFor(p.displayName),
                         icon: const Icon(Icons.more_vert),
                         itemBuilder: (_) => menu(p),
                       )
@@ -202,10 +202,9 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
   Future<void> _transfer() async {
     final confirmed = await confirmAction(
       context,
-      title: 'Sahipliği devret',
-      message: '${widget.group.name} grubunun sahipliği ${widget.person.displayName} kişisine geçecek. '
-          'Sen normal üye olarak kalacaksın ve bu işlemi geri alamazsın.',
-      confirmLabel: 'Devret',
+      title: groupsL10n.transferOwnership,
+      message: groupsL10n.transferBody(widget.group.name, widget.person.displayName),
+      confirmLabel: groupsL10n.transfer,
     );
     if (!confirmed || !mounted) return;
     setState(() {
@@ -218,7 +217,7 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
       case Ok():
         refreshGroup(ref, widget.group);
         Navigator.of(context).pop();
-        showGroupMessage(context, 'Sahiplik ${widget.person.displayName} kişisine devredildi.');
+        showGroupMessage(context, groupsL10n.transferred(widget.person.displayName));
       case Err(:final failure):
         setState(() {
           _transferring = false;
@@ -241,7 +240,7 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
             Text(widget.person.displayName, style: textTheme.titleLarge),
             Text('@${widget.person.username}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.md),
-            Text('Roller', style: textTheme.titleMedium),
+            Text(groupsL10n.roles, style: textTheme.titleMedium),
             for (final role in GroupRole.assignable)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -258,7 +257,7 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
             const Divider(),
             const SizedBox(height: GwSpacing.md),
             GwButton(
-              label: 'Sahipliği devret',
+              label: groupsL10n.transferOwnership,
               icon: Icons.swap_horiz,
               variant: GwButtonVariant.secondary,
               isLoading: _transferring,
@@ -271,9 +270,9 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
   }
 
   static String _roleHint(GroupRole role) => switch (role) {
-        GroupRole.admin => 'Grubu düzenler, katılım isteklerini ve davetleri yönetir.',
-        GroupRole.discipline => 'Şikayet dosyalarını inceler ve yaptırım kararı verir.',
-        GroupRole.moderator => 'İçerikleri ve yorumları denetler.',
+        GroupRole.admin => groupsL10n.hintAdmin,
+        GroupRole.discipline => groupsL10n.hintDiscipline,
+        GroupRole.moderator => groupsL10n.hintModerator,
         _ => '',
       };
 }
@@ -301,7 +300,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
     switch (result) {
       case Ok():
         refreshGroup(ref, widget.group);
-        showGroupMessage(context, approve ? '${person.displayName} gruba katıldı.' : 'İstek reddedildi.');
+        showGroupMessage(context, approve ? groupsL10n.personJoined(person.displayName) : groupsL10n.requestDeclined);
       case Err(:final failure):
         showGroupMessage(context, failure.userMessage);
     }
@@ -313,8 +312,8 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
     return switch (ref.watch(joinRequestsProvider(id))) {
       AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.how_to_reg_outlined,
-          message: 'Bekleyen katılım isteği yok.',
-          actionLabel: 'Yenile',
+          message: groupsL10n.noPendingRequests,
+          actionLabel: groupsL10n.refresh,
           onAction: () => ref.invalidate(joinRequestsProvider(id)),
         ),
       AsyncData(:final value) => ListView(
@@ -327,12 +326,12 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                   spacing: GwSpacing.xxs,
                   children: [
                     IconButton(
-                      tooltip: 'Reddet',
+                      tooltip: groupsL10n.decline,
                       icon: const Icon(Icons.close),
                       onPressed: _busy == null ? () => _answer(p, approve: false) : null,
                     ),
                     IconButton.filled(
-                      tooltip: 'Onayla',
+                      tooltip: groupsL10n.approve,
                       icon: _busy == p.userId
                           ? const SizedBox.square(
                               dimension: GwSpacing.md,
@@ -387,7 +386,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
       case Ok():
         _username.clear();
         ref.invalidate(groupInvitationsProvider(widget.group.id));
-        showGroupMessage(context, 'Davet gönderildi.');
+        showGroupMessage(context, groupsL10n.inviteSent);
       case Err(:final failure):
         setState(() => _error = failure.userMessage);
     }
@@ -416,7 +415,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Kullanıcı adıyla davet et', style: textTheme.titleMedium),
+              Text(groupsL10n.inviteByUsername, style: textTheme.titleMedium),
               const SizedBox(height: GwSpacing.xs),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +430,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                     ),
                   ),
                   const SizedBox(width: GwSpacing.xs),
-                  GwButton(label: 'Davet et', isLoading: _sending, onPressed: _invite),
+                  GwButton(label: groupsL10n.invite, isLoading: _sending, onPressed: _invite),
                 ],
               ),
               if (_error != null) ...[const SizedBox(height: GwSpacing.xs), GwFormMessage(_error!)],
@@ -442,7 +441,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
         switch (ref.watch(groupInvitationsProvider(id))) {
           AsyncData(:final value) when value.isEmpty => Padding(
               padding: const EdgeInsets.all(GwSpacing.md),
-              child: Text('Bekleyen davet yok.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+              child: Text(groupsL10n.noPendingInvites, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             ),
           AsyncData(:final value) => Column(
               children: [
@@ -451,7 +450,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                     person: p,
                     subtitle: p.since == null ? null : '@${p.username} · ${formatDate(p.since!)}',
                     trailing: GwButton(
-                      label: 'Geri al',
+                      label: groupsL10n.undo,
                       variant: GwButtonVariant.text,
                       isLoading: _revoking == p.userId,
                       onPressed: _revoking == null ? () => _revoke(p) : null,
