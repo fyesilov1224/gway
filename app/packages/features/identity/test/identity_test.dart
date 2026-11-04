@@ -145,7 +145,12 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    expect(tester.widget<Checkbox>(boxes.at(0)).onChanged, isNull, reason: 'unread text cannot be accepted');
+    await tap(boxes.at(0));
+    expect(find.text('Lütfen metnin tamamını okuyup öyle onaylayın.'), findsOneWidget);
+    expect(find.text(_docs[0].body), findsOneWidget, reason: 'ticking unread text opens it');
+    Navigator.of(tester.element(find.text(_docs[0].body))).pop();
+    await tester.pumpAndSettle();
+    expect(tester.widget<Checkbox>(boxes.at(0)).value, isFalse, reason: 'unread text cannot be accepted');
     for (var i = 0; i < 3; i++) {
       await read(i);
       await tap(boxes.at(i));
@@ -160,6 +165,38 @@ void main() {
     await tester.pump();
 
     expect(consents.accepted, hasLength(4));
+  });
+
+  testWidgets('a long text is accepted with the button after its last line', (tester) async {
+    final doc = LegalDocument(
+      kind: LegalKind.terms,
+      version: 1,
+      title: 'Kullanım Koşulları',
+      body: List.filled(300, 'Uzun bir hukuki metin satırı.').join(' '),
+    );
+    await tester.pumpWidget(
+      _app(const ConsentScreen(), [
+        pendingConsentsProvider.overrideWith((ref) async => [doc]),
+        consentRepositoryProvider.overrideWithValue(_FakeConsents()),
+      ]),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Metni oku'));
+    await tester.pumpAndSettle();
+
+    final accept = find.widgetWithText(FilledButton, 'Okudum, onaylıyorum');
+    expect(accept, findsNothing, reason: 'the button sits after the last line');
+    for (var i = 0; i < 30 && accept.evaluate().isEmpty; i++) {
+      await tester.flingFrom(const Offset(400, 400), const Offset(0, -300), 3000);
+      await tester.pumpAndSettle();
+    }
+    await tester.ensureVisible(accept);
+    await tester.pumpAndSettle();
+    await tester.tap(accept);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Devam et')).onPressed, isNotNull);
   });
 
   testWidgets('sign-in validates before calling the server and shows safe errors', (tester) async {
