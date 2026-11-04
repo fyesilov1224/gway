@@ -25,26 +25,38 @@ class SocialApp extends ConsumerWidget {
       }
     }
 
+    // Opening the room the user is already looking at does nothing; a room left in the background is reopened.
+    void openLive(String id) {
+      if (router.routerDelegate.currentConfiguration.uri.path != LiveRoutes.room(id)) router.push(LiveRoutes.room(id));
+    }
+
     return MaterialApp.router(
       title: 'GWAY',
       debugShowCheckedModeBanner: false,
       theme: GwTheme.light(),
       routerConfig: router,
       builder: (_, child) => PushNotifications(
-        openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
+        openLive: openLive,
         openCall: openCall,
         openConversation: (id) => router.push(MessagingRoutes.chat(id)),
         openNotifications: () => router.push(NotificationRoutes.list),
         isConversationOpen: (id) => router.routerDelegate.currentConfiguration.uri.path == MessagingRoutes.chat(id),
         child: LiveNotificationAlerts(
-          openLive: (liveId) => router.push(LiveRoutes.room(liveId)),
+          openLive: openLive,
           child: NativeCallBridge(
             openCall: openCall,
             child: IncomingCallAlerts(
               openCall: openCall,
               child: SecurityHeartbeat(
                 navigatorContext: () => router.routerDelegate.navigatorKey.currentContext,
-                child: PresenceBeacon(child: child!),
+                child: PresenceBeacon(
+                  child: LiveOngoingBar(
+                    routeChanges: router.routerDelegate,
+                    currentPath: () => router.routerDelegate.currentConfiguration.uri.path,
+                    openLive: openLive,
+                    child: child!,
+                  ),
+                ),
               ),
             ),
           ),
