@@ -68,7 +68,7 @@ class CallSession extends ChangeNotifier {
         ..on<lk.TrackSubscribedEvent>(_checkEncrypted);
       await room.connect(join.url, join.token);
       await room.startAudio();
-      await room.localParticipant?.setAttributes({keyAttribute: agreement.publicKey});
+      _publishKey(room, agreement.publicKey);
       connection = CallConnection.connected;
       await _applyPeerKey();
     } on Object catch (e) {
@@ -76,6 +76,19 @@ class CallSession extends ChangeNotifier {
       connection = CallConnection.failed;
     }
     _notify();
+  }
+
+  /// Writes this phone's public key into its room attributes. The server's acknowledgement is not waited for: LiveKit
+  /// 1.9.1 sent it without the request id, so the wait timed out although the key had arrived, and the call failed
+  /// with "Sese bağlanılamadı" (2026-11-04). One retry covers a request that really got lost.
+  void _publishKey(lk.Room room, String publicKey) {
+    Future<void> publish() async => room.localParticipant?.setAttributes({keyAttribute: publicKey});
+    unawaited(publish().catchError((Object e) async {
+      if (_room != room) return;
+      if (room.localParticipant?.attributes[keyAttribute] == publicKey) return;
+      debugPrint('Call key not confirmed, sending again: $e');
+      await publish().catchError((Object e) => debugPrint('Call key not confirmed: $e'));
+    }));
   }
 
   /// Once the other phone's public key is in the room: derive the audio key, then open the microphone. A new key
