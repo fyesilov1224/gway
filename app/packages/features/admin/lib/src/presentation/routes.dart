@@ -2,6 +2,9 @@ abstract final class AdminRoutes {
   static const overview = '/';
 
   static const users = '/users';
+
+  /// Live users (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar).
+  static const online = '/online';
   static const notAuthorized = '/not-authorized';
 
   static const groups = '/groups';

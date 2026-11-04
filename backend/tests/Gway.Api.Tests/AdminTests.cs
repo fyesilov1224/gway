@@ -49,6 +49,37 @@ public sealed class AdminTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
     }
 
     [Fact]
+    public async Task Live_users_shows_only_people_with_the_app_open_now()
+    {
+        var support = await StaffAsync("support");
+        var tag = $"canli_{Guid.NewGuid():N}"[..16];
+        var (online, left, stale) = (
+            await _db.CreateUserAsync(tag + "a"), await _db.CreateUserAsync(tag + "b"), await _db.CreateUserAsync(tag + "c"));
+        await _db.ExecuteAsync(
+            """
+            insert into public.user_presence (user_id, platform, online_since, last_seen_at, left_at) values
+              (@online, 'android', now() - interval '10 minutes', now() - interval '20 seconds', null),
+              (@left, 'web', now() - interval '5 minutes', now() - interval '10 seconds', now() - interval '10 seconds'),
+              (@stale, 'ios', now() - interval '1 hour', now() - interval '3 minutes', null)
+            """, ("online", online), ("left", left), ("stale", stale));
+
+        var page = await factory.ClientFor(support).GetFromJsonAsync<AdminOnlinePage>($"/admin/users/online?q={tag}", Ct);
+
+        var found = Assert.Single(page!.Users.Items);
+        Assert.Equal((online, "android"), (found.Id, found.Platform));
+        Assert.Equal($"{online:N}@test.local", found.Email);
+        Assert.True(found.OnlineSince < found.LastSeenAt);
+        Assert.True(page.Online >= 1 && page.Android >= 1);
+        Assert.Empty((await factory.ClientFor(support)
+            .GetFromJsonAsync<AdminOnlinePage>($"/admin/users/online?q={tag}&platform=web", Ct))!.Users.Items);
+
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await factory.ClientFor(support).GetAsync(new Uri("/admin/users/online?platform=desktop", UriKind.Relative), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(online).GetAsync(new Uri("/admin/users/online", UriKind.Relative), Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task Search_treats_wildcards_literally()
     {
         var support = await StaffAsync("support");

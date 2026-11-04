@@ -57,6 +57,17 @@ class ApiAdminUsersRepository implements AdminUsersRepository {
       _api.get('/admin/users/stats', decode: (json) => AdminUserStats.fromJson(_map(json)));
 
   @override
+  Future<Result<AdminOnlinePage>> online({String? query, AdminPlatform? platform, int page = 1}) => _api.get(
+        '/admin/users/online',
+        query: {
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          'platform': ?platform?.name,
+          'page': '$page',
+        },
+        decode: (json) => AdminOnlinePage.fromJson(_map(json)),
+      );
+
+  @override
   Future<Result<AdminUserDetail>> get(String id) =>
       _api.get('/admin/users/$id', decode: (json) => AdminUserDetail.fromJson(_map(json)));
 

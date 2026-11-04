@@ -157,6 +157,13 @@ public static class AdminModule
                     : TypedResults.Ok(await admin.SearchAsync(q, status, page ?? 1, ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
 
+        // Live users (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar): the whole platform team.
+        users.MapGet("/online", async (string? q, string? platform, int? page, AdminUsers admin, CancellationToken ct) =>
+                platform is not null && !AdminUsers.Platforms.Contains(platform)
+                    ? Error.Validation("admin.invalid_platform", "Geçersiz platform filtresi.").ToProblem()
+                    : TypedResults.Ok(await admin.OnlineAsync(q, platform, page ?? 1, ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
         users.MapGet("/stats", async (AdminUsers admin, CancellationToken ct) =>
                 TypedResults.Ok(await admin.StatsAsync(ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));

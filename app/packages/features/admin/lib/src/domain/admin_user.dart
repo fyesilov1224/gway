@@ -283,6 +283,80 @@ class PagedList<T> {
 
 typedef UserPage = PagedList<AdminUserSummary>;
 
+/// Where someone has the app open (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar).
+enum AdminPlatform {
+  android('Android'),
+  ios('iOS'),
+  web('Web');
+
+  const AdminPlatform(this.label);
+
+  final String label;
+
+  static AdminPlatform parse(Object? code) => values.firstWhere((p) => p.name == code, orElse: () => web);
+}
+
+/// Someone with the app open now.
+class AdminOnlineUser {
+  const AdminOnlineUser({
+    required this.id,
+    required this.platform,
+    required this.onlineSince,
+    required this.lastSeenAt,
+    this.email,
+    this.username,
+    this.displayName,
+    this.avatarPath,
+  });
+
+  factory AdminOnlineUser.fromJson(Map<String, Object?> j) => AdminOnlineUser(
+        id: j['id']! as String,
+        email: j['email'] as String?,
+        username: j['username'] as String?,
+        displayName: j['displayName'] as String?,
+        avatarPath: j['avatarPath'] as String?,
+        platform: AdminPlatform.parse(j['platform']),
+        onlineSince: DateTime.parse(j['onlineSince']! as String),
+        lastSeenAt: DateTime.parse(j['lastSeenAt']! as String),
+      );
+
+  final String id;
+  final String? email;
+  final String? username;
+  final String? displayName;
+  final String? avatarPath;
+  final AdminPlatform platform;
+  final DateTime onlineSince;
+  final DateTime lastSeenAt;
+
+  String get title => displayName ?? username ?? email ?? 'Adsız kullanıcı';
+}
+
+/// A page of the live list, and everyone online by platform whatever the search.
+class AdminOnlinePage {
+  const AdminOnlinePage({required this.users, required this.online, required this.android, required this.ios, required this.web});
+
+  factory AdminOnlinePage.fromJson(Map<String, Object?> j) => AdminOnlinePage(
+        users: PagedList.fromJson((j['users']! as Map).cast(), AdminOnlineUser.fromJson),
+        online: j['online']! as int,
+        android: j['android']! as int,
+        ios: j['ios']! as int,
+        web: j['web']! as int,
+      );
+
+  final PagedList<AdminOnlineUser> users;
+  final int online;
+  final int android;
+  final int ios;
+  final int web;
+
+  int count(AdminPlatform platform) => switch (platform) {
+        AdminPlatform.android => android,
+        AdminPlatform.ios => ios,
+        AdminPlatform.web => web,
+      };
+}
+
 abstract interface class StaffRepository {
   /// The signed-in user's platform role, or null if they are not staff.
   Future<Result<StaffRole?>> myRole();
@@ -292,6 +366,9 @@ abstract interface class AdminUsersRepository {
   Future<Result<UserPage>> search({String? query, AdminAccountStatus? status, int page = 1});
 
   Future<Result<AdminUserStats>> stats();
+
+  /// Who has the app open now (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar).
+  Future<Result<AdminOnlinePage>> online({String? query, AdminPlatform? platform, int page = 1});
 
   Future<Result<AdminUserDetail>> get(String id);
 

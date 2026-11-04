@@ -23,6 +23,7 @@ export 'src/presentation/groups_screen.dart';
 export 'src/presentation/leagues_screen.dart';
 export 'src/presentation/legal_screen.dart';
 export 'src/presentation/live_screen.dart';
+export 'src/presentation/live_users_screen.dart' show LiveUsersScreen;
 export 'src/presentation/matching_screen.dart';
 export 'src/presentation/not_authorized_screen.dart';
 export 'src/presentation/notifications_screen.dart';

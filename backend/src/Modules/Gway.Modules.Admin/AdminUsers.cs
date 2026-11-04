@@ -49,6 +49,20 @@ public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Total, int Page,
 
 public sealed record AdminUserStats(int Total, int Active, int Suspended, int PendingDeletion);
 
+/// <summary>Someone with the app open now (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar).</summary>
+public sealed record AdminOnlineUser(
+    Guid Id,
+    string? Email,
+    string? Username,
+    string? DisplayName,
+    string? AvatarPath,
+    string Platform,
+    DateTimeOffset OnlineSince,
+    DateTimeOffset LastSeenAt);
+
+/// <summary>A page of the live list and the counts of everyone online, whatever the search.</summary>
+public sealed record AdminOnlinePage(PagedResult<AdminOnlineUser> Users, int Online, int Android, int Ios, int Web);
+
 /// <summary>Read side of admin user management. Joins auth.users for e-mail, which clients cannot read.</summary>
 internal sealed class AdminUsers(NpgsqlDataSource db)
 {
@@ -56,6 +70,11 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
     private const int HistoryLimit = 200;
 
     public static readonly string[] Statuses = ["active", "suspended", "pending_deletion"];
+
+    public static readonly string[] Platforms = ["android", "ios", "web"];
+
+    /// <summary>A person is online while their last beat is this fresh (the app beats every 45 seconds).</summary>
+    private const string OnlineFilter = "pr.left_at is null and pr.last_seen_at > now() - interval '2 minutes'";
 
     /// <summary>Status as users experience it: an expired suspension counts as active.</summary>
     private const string EffectiveStatus =
@@ -139,6 +158,68 @@ internal sealed class AdminUsers(NpgsqlDataSource db)
         }
 
         return new PagedResult<AdminUserSummary>(items, total, page, PageSize);
+    }
+
+    /// <param name="platform">One of <see cref="Platforms"/>, or null for all.</param>
+    public async Task<AdminOnlinePage> OnlineAsync(string? query, string? platform, int page, CancellationToken ct)
+    {
+        page = Math.Max(page, 1);
+        var pattern = string.IsNullOrWhiteSpace(query) ? null : $"%{EscapeLike(query.Trim())}%";
+        const string from =
+            $"""
+            from public.user_presence pr
+            join auth.users u on u.id = pr.user_id
+            left join public.profiles p on p.id = pr.user_id
+            where {OnlineFilter}
+            """;
+        const string search =
+            """
+              and (@q is null or u.email ilike @q escape '\' or p.username ilike @q escape '\' or p.display_name ilike @q escape '\')
+              and (@platform is null or pr.platform = @platform)
+            """;
+
+        await using var conn = await db.OpenConnectionAsync(ct);
+        int online, android, ios, web, total;
+        await using (var counts = new NpgsqlCommand(
+            $"""
+            select count(*)::int,
+                   (count(*) filter (where pr.platform = 'android'))::int,
+                   (count(*) filter (where pr.platform = 'ios'))::int,
+                   (count(*) filter (where pr.platform = 'web'))::int,
+                   (count(*) filter (where true {search}))::int
+            {from}
+            """, conn))
+        {
+            counts.Parameters.Add(new NpgsqlParameter<string?>("q", pattern));
+            counts.Parameters.Add(new NpgsqlParameter<string?>("platform", platform));
+            await using var r = await counts.ExecuteReaderAsync(ct);
+            await r.ReadAsync(ct);
+            (online, android, ios, web, total) = (r.GetInt32(0), r.GetInt32(1), r.GetInt32(2), r.GetInt32(3), r.GetInt32(4));
+        }
+
+        var items = new List<AdminOnlineUser>();
+        await using (var cmd = new NpgsqlCommand(
+            $"""
+            select u.id, u.email, p.username, p.display_name, p.avatar_path, pr.platform, pr.online_since, pr.last_seen_at
+            {from}
+            {search}
+            order by pr.last_seen_at desc, u.id
+            limit {PageSize} offset @offset
+            """, conn))
+        {
+            cmd.Parameters.Add(new NpgsqlParameter<string?>("q", pattern));
+            cmd.Parameters.Add(new NpgsqlParameter<string?>("platform", platform));
+            cmd.Parameters.AddWithValue("offset", (page - 1) * PageSize);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+            {
+                items.Add(new AdminOnlineUser(
+                    r.GetGuid(0), r.IsDBNull(1) ? null : r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2),
+                    r.IsDBNull(3) ? null : r.GetString(3), r.IsDBNull(4) ? null : r.GetString(4), r.GetString(5),
+                    r.GetFieldValue<DateTimeOffset>(6), r.GetFieldValue<DateTimeOffset>(7)));
+            }
+        }
+        return new AdminOnlinePage(new PagedResult<AdminOnlineUser>(items, total, page, PageSize), online, android, ios, web);
     }
 
     public async Task<Result<AdminUserDetail>> GetAsync(Guid userId, CancellationToken ct)
