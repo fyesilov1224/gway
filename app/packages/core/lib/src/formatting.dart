@@ -34,6 +34,9 @@ String formatDateTime(DateTime date) {
 /// `5 Kasım Perşembe` / `Thursday, November 5` in local time.
 String formatWeekdayDate(DateTime date) => DateFormat.MMMMEEEEd(_locale).format(date.toLocal());
 
+/// `a, b, c` with the language's own separator (Arabic `، `).
+String formatList(Iterable<String> items) => items.join(currentAppLanguage == AppLanguage.ar ? '، ' : ', ');
+
 /// `09:05` / `9:05 AM` in local time.
 String formatTime(DateTime date) => DateFormat.jm(_locale).format(date.toLocal());
 

@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/profile.dart';
+import '../l10n.dart';
 
 class SupabaseProfileRepository implements ProfileRepository {
   SupabaseProfileRepository(this._client);
@@ -158,9 +159,9 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<String> _upload(String userId, ProfileImage kind, ImageUpload upload) async {
     final contentType = upload.contentType;
     if (contentType == null) {
-      throw const RuleFailure(
+      throw RuleFailure(
         'storage.unsupported_type',
-        'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.',
+        profileL10n.unsupportedImage,
       );
     }
     // A new name per upload avoids stale cached images.
@@ -209,17 +210,17 @@ Failure failureFromProfile(Object error) {
     RuleFailure rule(String code, String message) => RuleFailure('profile.$code', message);
     switch (error.code) {
       case '23505':
-        return rule('username_taken', 'Bu kullanıcı adı alınmış. Başka bir tane dene.');
+        return rule('username_taken', profileL10n.usernameTaken);
       case '23514':
-        return rule('invalid', 'Girdiğin bilgileri kontrol et.');
+        return rule('invalid', profileL10n.checkInput);
       case 'P0001':
         switch (error.message) {
           case 'username_reserved':
-            return rule('username_reserved', 'Bu kullanıcı adı kullanılamaz. Başka bir tane dene.');
+            return rule('username_reserved', profileL10n.usernameReserved);
           case 'username_change_too_soon':
-            return rule('username_change_too_soon', 'Kullanıcı adını 30 günde yalnızca bir kez değiştirebilirsin.');
+            return rule('username_change_too_soon', profileL10n.usernameCooldown);
           case 'interest_limit_reached':
-            return rule('interest_limit_reached', 'En fazla 10 ilgi alanı seçebilirsin.');
+            return rule('interest_limit_reached', profileL10n.maxInterests10);
         }
     }
   }

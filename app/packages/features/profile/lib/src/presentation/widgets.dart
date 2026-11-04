@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/profile.dart';
 import '../domain/username.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Picks a gallery image sized for [kind]. Null when the user cancels.
@@ -133,9 +134,9 @@ class _UsernameFieldState extends ConsumerState<UsernameField> {
       onChanged: _onChanged,
       validator: (v) =>
           UsernameRules.validate(v) ??
-          (_available == false ? 'Bu kullanıcı adı alınmış. Başka bir tane dene.' : null),
+          (_available == false ? profileL10n.usernameTaken : null),
       decoration: InputDecoration(
-        labelText: 'Kullanıcı adı',
+        labelText: profileL10n.username,
         prefixText: '@',
         helperText: widget.helperText,
         counterText: '',
@@ -148,8 +149,8 @@ class _UsernameFieldState extends ConsumerState<UsernameField> {
                 ),
               )
             : switch (_available) {
-                true => const Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: 'Kullanılabilir'),
-                false => const Icon(Icons.cancel, color: GwColors.error, semanticLabel: 'Alınmış'),
+                true => Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: profileL10n.available),
+                false => Icon(Icons.cancel, color: GwColors.error, semanticLabel: profileL10n.taken),
                 null => null,
               },
       ),

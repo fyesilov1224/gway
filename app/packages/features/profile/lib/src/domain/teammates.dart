@@ -1,39 +1,62 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
 import 'social.dart';
 
 /// How experienced the person is in their activities.
 enum TeammateLevel {
-  beginner('beginner', 'Başlangıç', 'Yeni başlıyorum'),
-  intermediate('intermediate', 'Orta', 'Düzenli yapıyorum'),
-  advanced('advanced', 'İleri', 'Deneyimliyim');
+  beginner('beginner'),
+  intermediate('intermediate'),
+  advanced('advanced');
 
-  const TeammateLevel(this.key, this.label, this.hint);
+  const TeammateLevel(this.key);
 
   final String key;
-  final String label;
-  final String hint;
+
+  String get label => switch (this) {
+        beginner => profileL10n.levelBeginner,
+        intermediate => profileL10n.levelIntermediate,
+        advanced => profileL10n.levelAdvanced,
+      };
+
+  String get hint => switch (this) {
+        beginner => profileL10n.levelBeginnerHint,
+        intermediate => profileL10n.levelIntermediateHint,
+        advanced => profileL10n.levelAdvancedHint,
+      };
 
   static TeammateLevel? parse(Object? key) => values.where((l) => l.key == key).firstOrNull;
 }
 
 /// When the person is usually free: weekday or weekend, by part of the day.
 enum TeammateSlot {
-  weekdayMorning('weekday_morning', 'Hafta içi sabah', weekend: false, part: 'Sabah'),
-  weekdayNoon('weekday_noon', 'Hafta içi öğle', weekend: false, part: 'Öğle'),
-  weekdayEvening('weekday_evening', 'Hafta içi akşam', weekend: false, part: 'Akşam'),
-  weekendMorning('weekend_morning', 'Hafta sonu sabah', weekend: true, part: 'Sabah'),
-  weekendAfternoon('weekend_afternoon', 'Hafta sonu öğleden sonra', weekend: true, part: 'Öğle'),
-  weekendEvening('weekend_evening', 'Hafta sonu akşam', weekend: true, part: 'Akşam');
+  weekdayMorning('weekday_morning', weekend: false),
+  weekdayNoon('weekday_noon', weekend: false),
+  weekdayEvening('weekday_evening', weekend: false),
+  weekendMorning('weekend_morning', weekend: true),
+  weekendAfternoon('weekend_afternoon', weekend: true),
+  weekendEvening('weekend_evening', weekend: true);
 
-  const TeammateSlot(this.key, this.label, {required this.weekend, required this.part});
+  const TeammateSlot(this.key, {required this.weekend});
 
   final String key;
-  final String label;
   final bool weekend;
 
-  /// Sabah, Öğle or Akşam, for the availability grid.
-  final String part;
+  String get label => switch (this) {
+        weekdayMorning => profileL10n.slotWeekdayMorning,
+        weekdayNoon => profileL10n.slotWeekdayNoon,
+        weekdayEvening => profileL10n.slotWeekdayEvening,
+        weekendMorning => profileL10n.slotWeekendMorning,
+        weekendAfternoon => profileL10n.slotWeekendAfternoon,
+        weekendEvening => profileL10n.slotWeekendEvening,
+      };
+
+  /// Morning, midday or evening, for the availability grid.
+  String get part => switch (this) {
+        weekdayMorning || weekendMorning => profileL10n.partMorning,
+        weekdayNoon || weekendAfternoon => profileL10n.partNoon,
+        weekdayEvening || weekendEvening => profileL10n.partEvening,
+      };
 
   static List<TeammateSlot> parseAll(Object? keys) => [
         for (final slot in values)
@@ -43,17 +66,25 @@ enum TeammateSlot {
 
 /// What the person wants out of it.
 enum TeammateGoal {
-  fun('fun', 'Eğlenmek'),
-  fitness('fitness', 'Formda kalmak'),
-  competition('competition', 'Yarışmaya hazırlanmak'),
-  learning('learning', 'Yeni şeyler öğrenmek'),
-  mentoring('mentoring', 'Deneyimimi paylaşmak'),
-  social('social', 'Yeni insanlarla tanışmak');
+  fun('fun'),
+  fitness('fitness'),
+  competition('competition'),
+  learning('learning'),
+  mentoring('mentoring'),
+  social('social');
 
-  const TeammateGoal(this.key, this.label);
+  const TeammateGoal(this.key);
 
   final String key;
-  final String label;
+
+  String get label => switch (this) {
+        fun => profileL10n.goalFun,
+        fitness => profileL10n.goalFitness,
+        competition => profileL10n.goalCompetition,
+        learning => profileL10n.goalLearning,
+        mentoring => profileL10n.goalMentoring,
+        social => profileL10n.goalSocial,
+      };
 
   static List<TeammateGoal> parseAll(Object? keys) => [
         for (final g in values)
@@ -63,29 +94,40 @@ enum TeammateGoal {
 
 /// How often the person wants to meet.
 enum TeammateFrequency {
-  monthly('monthly', 'Ayda birkaç kez'),
-  weekly('weekly', 'Haftada bir'),
-  fewWeekly('few_weekly', 'Haftada 2–3'),
-  daily('daily', 'Neredeyse her gün');
+  monthly('monthly'),
+  weekly('weekly'),
+  fewWeekly('few_weekly'),
+  daily('daily');
 
-  const TeammateFrequency(this.key, this.label);
+  const TeammateFrequency(this.key);
 
   final String key;
-  final String label;
+
+  String get label => switch (this) {
+        monthly => profileL10n.freqMonthly,
+        weekly => profileL10n.freqWeekly,
+        fewWeekly => profileL10n.freqFewWeekly,
+        daily => profileL10n.freqDaily,
+      };
 
   static TeammateFrequency? parse(Object? key) => values.where((f) => f.key == key).firstOrNull;
 }
 
 /// The team the person likes to go with.
 enum TeammateGroupSize {
-  pair('pair', 'Birebir'),
-  small('small', 'Küçük grup (3–6)'),
-  large('large', 'Kalabalık grup');
+  pair('pair'),
+  small('small'),
+  large('large');
 
-  const TeammateGroupSize(this.key, this.label);
+  const TeammateGroupSize(this.key);
 
   final String key;
-  final String label;
+
+  String get label => switch (this) {
+        pair => profileL10n.sizePair,
+        small => profileL10n.sizeSmall,
+        large => profileL10n.sizeLarge,
+      };
 
   static List<TeammateGroupSize> parseAll(Object? keys) => [
         for (final s in values)
@@ -153,7 +195,7 @@ class TeammateStatus {
   final TeammateLevel? level;
   final TeammateRelation relation;
 
-  String get label => level == null ? 'Ekip arıyor' : 'Ekip arıyor · ${level!.label} seviye';
+  String get label => level == null ? profileL10n.looking : profileL10n.lookingWithLevel(level!.label);
 }
 
 /// A suggested person with the reasons they were suggested.
@@ -191,16 +233,16 @@ class TeammateSuggestion {
   final bool hasEquipment;
 
   List<String> get reasons => [
-        if (activities.isNotEmpty) 'Aynı aktivite: ${activities.join(', ')}',
-        if (interests.isNotEmpty) 'Ortak ilgi: ${interests.join(', ')}',
-        if (sameProvince) 'Aynı ildesiniz',
-        if (groups.isNotEmpty) groups.length == 1 ? 'Ortak grup: ${groups.first}' : '${groups.length} ortak grup',
-        if (sameLevel && level != null) 'İkiniz de ${level!.label.toLowerCase()} seviye',
-        if (times.isNotEmpty) 'Uygun zaman: ${times.map((t) => t.label.toLowerCase()).join(', ')}',
-        if (goals.isNotEmpty) 'Ortak hedef: ${goals.map((g) => g.label.toLowerCase()).join(', ')}',
-        if (sameFrequency) 'Aynı sıklıkta buluşmak istiyorsunuz',
-        if (hasVehicle) 'Aracı var',
-        if (hasEquipment) 'Kendi ekipmanı var',
+        if (activities.isNotEmpty) profileL10n.reasonActivities(formatList(activities)),
+        if (interests.isNotEmpty) profileL10n.reasonInterests(formatList(interests)),
+        if (sameProvince) profileL10n.reasonProvince,
+        if (groups.isNotEmpty) groups.length == 1 ? profileL10n.reasonGroup(groups.first) : profileL10n.reasonGroups(groups.length),
+        if (sameLevel && level != null) profileL10n.reasonLevel(level!.label),
+        if (times.isNotEmpty) profileL10n.reasonTimes(formatList(times.map((t) => t.label))),
+        if (goals.isNotEmpty) profileL10n.reasonGoals(formatList(goals.map((g) => g.label))),
+        if (sameFrequency) profileL10n.reasonFrequency,
+        if (hasVehicle) profileL10n.hasVehicle,
+        if (hasEquipment) profileL10n.hasEquipment,
       ];
 }
 

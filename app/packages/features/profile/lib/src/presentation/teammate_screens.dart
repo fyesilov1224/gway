@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/social.dart';
 import '../domain/teammates.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'social_providers.dart';
@@ -40,13 +41,13 @@ Future<void> sendTeammateRequest(BuildContext context, WidgetRef ref, PersonSumm
   if (result case Err(failure: RuleFailure(code: 'profile.teammate_package_required') && final failure)) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(failure.userMessage),
-      action: SnackBarAction(label: 'Paketi incele', onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates')),
+      action: SnackBarAction(label: profileL10n.seePackage, onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates')),
     ));
     return;
   }
   _snack(context, switch (result) {
-    Ok(value: TeammateRelation.teammates) => '${person.displayName} ile artık ekip arkadaşısınız.',
-    Ok() => 'İstek gönderildi. ${person.displayName} kabul edince haber vereceğiz.',
+    Ok(value: TeammateRelation.teammates) => profileL10n.nowTeammates(person.displayName),
+    Ok() => profileL10n.requestSentNotify(person.displayName),
     Err(:final failure) => failure.userMessage,
   });
   refreshTeammates(ref);
@@ -73,17 +74,17 @@ class _RequestDialogState extends State<_RequestDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: Text('${widget.name} ile ekip arkadaşı ol'),
+        title: Text(profileL10n.becomeTeammatesWith(widget.name)),
         content: TextField(
           controller: _controller,
           maxLength: 200,
           maxLines: 3,
           minLines: 2,
-          decoration: const InputDecoration(labelText: 'Kısa bir mesaj (isteğe bağlı)', hintText: 'Cumartesi sabahı Belgrad Ormanı?'),
+          decoration: InputDecoration(labelText: profileL10n.shortMessage, hintText: profileL10n.shortMessageHint),
         ),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-          GwButton(label: 'İstek gönder', onPressed: () => Navigator.of(context).pop(_controller.text)),
+          GwButton(label: profileL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: profileL10n.sendRequest, onPressed: () => Navigator.of(context).pop(_controller.text)),
         ],
       );
 }
@@ -104,18 +105,18 @@ class TeammatesScreen extends ConsumerWidget {
       initialIndex: incoming > 0 ? 1 : 0,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Ekip arkadaşı bul'),
+          title: Text(profileL10n.findTeammates),
           actions: [
             IconButton(
-              tooltip: 'Ekip arkadaşı tercihlerim',
+              tooltip: profileL10n.myTeammatePrefs,
               icon: const Icon(Icons.tune),
               onPressed: () => context.push(ProfileRoutes.teammateSettings),
             ),
           ],
           bottom: TabBar(tabs: [
-            const Tab(text: 'Öneriler'),
-            Tab(text: incoming == 0 ? 'İstekler' : 'İstekler ($incoming)'),
-            const Tab(text: 'Ekibim'),
+            Tab(text: profileL10n.tabSuggestions),
+            Tab(text: incoming == 0 ? profileL10n.tabRequests : profileL10n.tabRequestsCount(incoming)),
+            Tab(text: profileL10n.tabMyTeam),
           ]),
         ),
         body: const GwReadingColumn(child: TabBarView(children: [_Suggestions(), _Requests(), _Teammates()])),
@@ -134,7 +135,7 @@ class _Locked extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Ekip arkadaşı bul')),
+      appBar: AppBar(title: Text(profileL10n.findTeammates)),
       body: GwReadingColumn(
         maxWidth: GwLayout.formMaxWidth,
         child: ListView(
@@ -147,25 +148,25 @@ class _Locked extends ConsumerWidget {
                   const Icon(Icons.groups_2_outlined, size: GwSpacing.xxl, color: GwColors.primary),
                   const SizedBox(height: GwSpacing.sm),
                   Text(
-                    waiting == 0 ? 'Ekip arkadaşını bul' : '$waiting kişi seninle ekip arkadaşı olmak istiyor',
+                    waiting == 0 ? profileL10n.findYourTeammate : profileL10n.waitingForYou(waiting),
                     textAlign: TextAlign.center,
                     style: textTheme.headlineSmall,
                   ),
                   const SizedBox(height: GwSpacing.xs),
                   Text(
-                    'Önerileri görmek, istek gönderip kabul etmek ve ekip arkadaşlarınla yazışmak Ekip Arkadaşı paketiyle açılır.',
+                    profileL10n.teammatesLocked,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
                   const SizedBox(height: GwSpacing.md),
                   GwButton(
-                    label: 'Paketi incele',
+                    label: profileL10n.seePackage,
                     icon: Icons.workspace_premium_outlined,
                     onPressed: () => ref.read(packageOpenerProvider)(context, 'matching_teammates'),
                   ),
                   const SizedBox(height: GwSpacing.xs),
                   GwButton(
-                    label: 'Ekip arkadaşı tercihlerim',
+                    label: profileL10n.myTeammatePrefs,
                     variant: GwButtonVariant.text,
                     onPressed: () => context.push(ProfileRoutes.teammateSettings),
                   ),
@@ -179,7 +180,7 @@ class _Locked extends ConsumerWidget {
   }
 }
 
-/// Invites the user to turn "Ekip arıyorum" on, so others can find and ask them.
+/// Invites the user to turn profileL10n.lookingForTeam on, so others can find and ask them.
 class _LookingPrompt extends ConsumerWidget {
   const _LookingPrompt();
 
@@ -194,12 +195,12 @@ class _LookingPrompt extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Sen de görün', style: Theme.of(context).textTheme.titleSmall),
+          Text(profileL10n.beVisible, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: GwSpacing.xxs),
-          const Text('"Ekip arıyorum"u açarsan seninle aynı şeyleri sevenler sana istek gönderebilir.'),
+          Text(profileL10n.beVisibleBody),
           const SizedBox(height: GwSpacing.sm),
           GwButton(
-            label: 'Tercihlerimi ayarla',
+            label: profileL10n.setPrefs,
             variant: GwButtonVariant.secondary,
             onPressed: () => context.push(ProfileRoutes.teammateSettings),
           ),
@@ -209,7 +210,7 @@ class _LookingPrompt extends ConsumerWidget {
   }
 }
 
-/// Private accounts never show in suggestions (docs/ARCHITECTURE.md §3c), so "Ekip arıyorum" alone is not enough.
+/// Private accounts never show in suggestions (docs/ARCHITECTURE.md §3c), so profileL10n.lookingForTeam alone is not enough.
 class _PrivateAccountNotice extends ConsumerStatefulWidget {
   const _PrivateAccountNotice({required this.looking, this.margin = EdgeInsets.zero});
 
@@ -233,7 +234,7 @@ class _PrivateAccountNoticeState extends ConsumerState<_PrivateAccountNotice> {
     if (me != null) refreshRelationship(ref, me);
     refreshTeammates(ref);
     _snack(context, switch (result) {
-      Ok() => 'Hesabın artık herkese açık; önerilerde görünebilirsin.',
+      Ok() => profileL10n.nowPublicSuggest,
       Err(:final failure) => failure.userMessage,
     });
   }
@@ -258,17 +259,17 @@ class _PrivateAccountNoticeState extends ConsumerState<_PrivateAccountNotice> {
             children: [
               const Icon(Icons.lock_outline_rounded, color: GwColors.warning),
               const SizedBox(width: GwSpacing.xs),
-              Expanded(child: Text('Hesabın gizli, önerilerde görünmüyorsun', style: textTheme.titleSmall)),
+              Expanded(child: Text(profileL10n.privateHidden, style: textTheme.titleSmall)),
             ],
           ),
           const SizedBox(height: GwSpacing.xxs),
           Text(
-            'Gizli hesaplar ekip arkadaşı önerilerinde çıkmaz. Hesabını herkese açarsan bekleyen takip istekleri de onaylanır.',
+            profileL10n.privateHiddenBody,
             style: textTheme.bodySmall?.copyWith(color: GwColors.textPrimary),
           ),
           const SizedBox(height: GwSpacing.sm),
           GwButton(
-            label: 'Hesabımı herkese aç',
+            label: profileL10n.makePublic,
             icon: Icons.lock_open_rounded,
             variant: GwButtonVariant.secondary,
             isLoading: _busy,
@@ -306,8 +307,8 @@ class _Suggestions extends ConsumerWidget {
             const SizedBox(height: GwSpacing.lg),
             GwEmptyState(
               icon: Icons.diversity_3_outlined,
-              message: 'Şimdilik sana uyan biri yok. İlgi alanlarını ve tercihlerini doldurursan öneriler artar.',
-              actionLabel: 'Tercihlerimi ayarla',
+              message: profileL10n.noSuggestions,
+              actionLabel: profileL10n.setPrefs,
               onAction: () => context.push(ProfileRoutes.teammateSettings),
             ),
           ]),
@@ -347,7 +348,7 @@ class _SuggestionCard extends ConsumerWidget {
           PersonRow(
             person: s.person,
             subtitle: s.level == null ? s.person.displayName : '${s.person.displayName} · ${s.level!.label} seviye',
-            trailing: GwButton(label: 'İstek gönder', onPressed: () => sendTeammateRequest(context, ref, s.person)),
+            trailing: GwButton(label: profileL10n.sendRequest, onPressed: () => sendTeammateRequest(context, ref, s.person)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.sm),
@@ -355,10 +356,10 @@ class _SuggestionCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (s.note.isNotEmpty) ...[
-                  Text('"${s.note}"', style: textTheme.bodyMedium),
+                  Text(profileL10n.quoted(s.note), style: textTheme.bodyMedium),
                   const SizedBox(height: GwSpacing.xs),
                 ],
-                Text('Neden önerildi', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                Text(profileL10n.whySuggested, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 const SizedBox(height: GwSpacing.xxs),
                 for (final reason in s.reasons)
                   Padding(
@@ -399,14 +400,14 @@ class _Requests extends ConsumerWidget {
             const SizedBox(height: GwSpacing.xxl),
             GwEmptyState(
               icon: Icons.mark_email_unread_outlined,
-              message: 'Bekleyen ekip arkadaşlığı isteği yok.',
-              actionLabel: 'Önerilere bak',
+              message: profileL10n.noPendingTeammate,
+              actionLabel: profileL10n.seeSuggestions,
               onAction: () => DefaultTabController.of(context).animateTo(0),
             ),
           ]),
         AsyncData(:final value) => ListView(
             children: [
-              if (value.incoming.isNotEmpty) heading('Sana gelenler'),
+              if (value.incoming.isNotEmpty) heading(profileL10n.incoming),
               for (final r in value.incoming) ...[
                 PersonRow(
                   person: r.person,
@@ -414,14 +415,14 @@ class _Requests extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       GwButton(
-                        label: 'Kabul et',
+                        label: profileL10n.accept,
                         onPressed: () => runTeammateAction(
-                            context, ref, (t) => t.accept(r.person.id), '${r.person.displayName} ile artık ekip arkadaşısınız.'),
+                            context, ref, (t) => t.accept(r.person.id), profileL10n.nowTeammates(r.person.displayName)),
                       ),
                       IconButton(
-                        tooltip: 'Reddet',
+                        tooltip: profileL10n.decline,
                         icon: const Icon(Icons.close),
-                        onPressed: () => runTeammateAction(context, ref, (t) => t.decline(r.person.id), 'İstek reddedildi.'),
+                        onPressed: () => runTeammateAction(context, ref, (t) => t.decline(r.person.id), profileL10n.requestDeclined),
                       ),
                     ],
                   ),
@@ -430,18 +431,18 @@ class _Requests extends ConsumerWidget {
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                         GwSpacing.md + GwAvatarSize.md.dimension + GwSpacing.sm, 0, GwSpacing.md, GwSpacing.sm),
-                    child: Text('"${r.message}"', style: textTheme.bodyMedium),
+                    child: Text(profileL10n.quoted(r.message), style: textTheme.bodyMedium),
                   ),
               ],
-              if (value.outgoing.isNotEmpty) heading('Gönderdiklerin'),
+              if (value.outgoing.isNotEmpty) heading(profileL10n.outgoing),
               for (final r in value.outgoing)
                 PersonRow(
                   person: r.person,
-                  subtitle: 'Yanıt bekleniyor',
+                  subtitle: profileL10n.awaitingReply,
                   trailing: GwButton(
-                    label: 'Geri çek',
+                    label: profileL10n.withdraw,
                     variant: GwButtonVariant.secondary,
-                    onPressed: () => runTeammateAction(context, ref, (t) => t.remove(r.person.id), 'İstek geri çekildi.'),
+                    onPressed: () => runTeammateAction(context, ref, (t) => t.remove(r.person.id), profileL10n.requestWithdrawn),
                   ),
                 ),
             ],
@@ -466,8 +467,8 @@ class _Teammates extends ConsumerWidget {
             const SizedBox(height: GwSpacing.xxl),
             GwEmptyState(
               icon: Icons.groups_2_outlined,
-              message: 'Henüz ekip arkadaşın yok. Önerilerden birine istek göndererek başla.',
-              actionLabel: 'Önerilere bak',
+              message: profileL10n.noTeammates,
+              actionLabel: profileL10n.seeSuggestions,
               onAction: () => DefaultTabController.of(context).animateTo(0),
             ),
           ]),
@@ -477,12 +478,12 @@ class _Teammates extends ConsumerWidget {
                 PersonRow(
                   person: p,
                   trailing: PopupMenuButton<void>(
-                    tooltip: '${p.displayName} için seçenekler',
+                    tooltip: profileL10n.optionsFor(p.displayName),
                     icon: const Icon(Icons.more_horiz),
                     itemBuilder: (_) => [
                       PopupMenuItem(
-                        onTap: () => runTeammateAction(context, ref, (t) => t.remove(p.id), 'Ekip arkadaşlığı bitti.'),
-                        child: const Text('Ekip arkadaşlığını bitir'),
+                        onTap: () => runTeammateAction(context, ref, (t) => t.remove(p.id), profileL10n.teammateEnded),
+                        child: Text(profileL10n.endTeammate),
                       ),
                     ],
                   ),
@@ -496,7 +497,7 @@ class _Teammates extends ConsumerWidget {
   }
 }
 
-/// "Ekip arıyorum", level, free times, province (matching only) and a short note.
+/// profileL10n.lookingForTeam, level, free times, province (matching only) and a short note.
 class TeammateSettingsScreen extends ConsumerWidget {
   const TeammateSettingsScreen({super.key});
 
@@ -504,7 +505,7 @@ class TeammateSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(teammatePreferencesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Ekip arkadaşı tercihleri')),
+      appBar: AppBar(title: Text(profileL10n.teammatePrefs)),
       body: GwReadingColumn(
         child: switch (prefs) {
           AsyncData(:final value) => _SettingsForm(initial: value),
@@ -568,7 +569,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
     switch (result) {
       case Ok():
         refreshTeammates(ref);
-        _snack(context, _looking && !_isPrivate ? 'Tercihlerin kaydedildi. Artık önerilerde görünürsün.' : 'Tercihlerin kaydedildi.');
+        _snack(context, _looking && !_isPrivate ? profileL10n.prefsSavedVisible : profileL10n.prefsSaved);
         await Navigator.of(context).maybePop();
       case Err(:final failure):
         _snack(context, failure.userMessage);
@@ -598,8 +599,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               _Completeness(answered: answered),
               _Section(
                 icon: Icons.sports_handball_outlined,
-                title: 'Ne yapmak istiyorsun?',
-                help: 'Ekip arkadaşı aradığın aktiviteler. En fazla ${TeammatePreferences.maxActivities} tane.',
+                title: profileL10n.whatToDo,
+                help: profileL10n.activitiesHint(TeammatePreferences.maxActivities),
                 trailing: '${_activities.length}/${TeammatePreferences.maxActivities}',
                 child: Wrap(
                   spacing: GwSpacing.xs,
@@ -619,7 +620,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.trending_up_rounded,
-                title: 'Seviyen',
+                title: profileL10n.yourLevel,
                 child: Row(
                   children: [
                     for (final (i, l) in TeammateLevel.values.indexed) ...[
@@ -638,8 +639,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.flag_outlined,
-                title: 'Hedeflerin',
-                help: 'Birden fazla seçebilirsin.',
+                title: profileL10n.yourGoals,
+                help: profileL10n.multipleChoice,
                 child: Wrap(
                   spacing: GwSpacing.xs,
                   runSpacing: GwSpacing.xs,
@@ -651,7 +652,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.repeat_rounded,
-                title: 'Ne sıklıkla buluşmak istersin?',
+                title: profileL10n.howOften,
                 child: Wrap(
                   spacing: GwSpacing.xs,
                   runSpacing: GwSpacing.xs,
@@ -667,13 +668,13 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.event_available_outlined,
-                title: 'Ne zaman uygunsun?',
-                help: 'Uygun olduğun zamanlara dokun.',
+                title: profileL10n.whenFree,
+                help: profileL10n.whenFreeHint,
                 child: _AvailabilityGrid(selected: _slots, onToggle: (s) => _toggle(_slots, s, !_slots.contains(s))),
               ),
               _Section(
                 icon: Icons.groups_2_outlined,
-                title: 'Nasıl bir ekip istersin?',
+                title: profileL10n.whatTeam,
                 child: Wrap(
                   spacing: GwSpacing.xs,
                   runSpacing: GwSpacing.xs,
@@ -685,14 +686,14 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.location_on_outlined,
-                title: 'Hangi ildesin?',
-                help: 'Yalnızca eşleştirme için kullanılır, profilinde görünmez.',
+                title: profileL10n.whichProvince,
+                help: profileL10n.provinceHint,
                 child: DropdownButtonFormField<int?>(
                   initialValue: _province,
                   isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'İl', prefixIcon: Icon(Icons.lock_outline_rounded)),
+                  decoration: InputDecoration(labelText: profileL10n.province, prefixIcon: const Icon(Icons.lock_outline_rounded)),
                   items: [
-                    const DropdownMenuItem<int?>(child: Text('Belirtmek istemiyorum')),
+                    DropdownMenuItem<int?>(child: Text(profileL10n.ratherNotSay)),
                     for (var i = 0; i < turkishProvinces.length; i++)
                       DropdownMenuItem<int?>(value: i + 1, child: Text(turkishProvinces[i])),
                   ],
@@ -701,22 +702,22 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.backpack_outlined,
-                title: 'Ek bilgiler',
+                title: profileL10n.extras,
                 child: Column(
                   children: [
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       secondary: const Icon(Icons.directions_car_outlined),
-                      title: const Text('Aracım var'),
-                      subtitle: const Text('Ulaşımda yol arkadaşlığı yapabilirim.'),
+                      title: Text(profileL10n.iHaveVehicle),
+                      subtitle: Text(profileL10n.iHaveVehicleHint),
                       value: _vehicle,
                       onChanged: (v) => setState(() => _vehicle = v),
                     ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       secondary: const Icon(Icons.handyman_outlined),
-                      title: const Text('Kendi ekipmanım var'),
-                      subtitle: const Text('Bisiklet, çadır, raket gibi malzemem hazır.'),
+                      title: Text(profileL10n.iHaveEquipment),
+                      subtitle: Text(profileL10n.iHaveEquipmentHint),
                       value: _equipment,
                       onChanged: (v) => setState(() => _equipment = v),
                     ),
@@ -725,14 +726,14 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
               ),
               _Section(
                 icon: Icons.edit_note_rounded,
-                title: 'Kendini anlat',
-                help: 'Önerilerde adının altında görünür.',
+                title: profileL10n.describeYourself,
+                help: profileL10n.describeHint,
                 child: TextField(
                   controller: _note,
                   maxLength: TeammatePreferences.noteMaxLength,
                   minLines: 2,
                   maxLines: 3,
-                  decoration: const InputDecoration(hintText: 'Hafta sonu sabah yürüyüşü için arkadaş arıyorum.'),
+                  decoration: InputDecoration(hintText: profileL10n.describeExample),
                 ),
               ),
             ],
@@ -748,12 +749,12 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                 children: [
                   Expanded(
                     child: Text(
-                      _looking && !_isPrivate ? 'Önerilerde görüneceksin.' : 'Şu an önerilerde görünmüyorsun.',
+                      _looking && !_isPrivate ? profileL10n.willAppear : profileL10n.notAppearing,
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ),
                   const SizedBox(width: GwSpacing.sm),
-                  GwButton(label: 'Kaydet', icon: Icons.check_rounded, isLoading: _saving, onPressed: _saving ? null : _save),
+                  GwButton(label: profileL10n.save, icon: Icons.check_rounded, isLoading: _saving, onPressed: _saving ? null : _save),
                 ],
               ),
             ),
@@ -764,7 +765,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
   }
 }
 
-/// "Ekip arıyorum": whether the person shows in suggestions.
+/// profileL10n.lookingForTeam: whether the person shows in suggestions.
 class _VisibilityCard extends StatelessWidget {
   const _VisibilityCard({required this.looking, required this.onChanged});
 
@@ -794,11 +795,11 @@ class _VisibilityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ekip arıyorum', style: textTheme.titleMedium),
+                Text(profileL10n.lookingForTeam, style: textTheme.titleMedium),
                 Text(
                   looking
-                      ? 'Önerilerde görünürsün; sana ekip arkadaşlığı isteği gönderilebilir.'
-                      : 'Açarsan seninle aynı şeyleri sevenler seni bulur. Gizli hesaplar önerilerde görünmez.',
+                      ? profileL10n.lookingOn
+                      : profileL10n.lookingOff,
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
@@ -826,7 +827,7 @@ class _Completeness extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Tercihlerin %${(ratio * 100).round()} tamam', style: textTheme.labelLarge)),
+            Expanded(child: Text(profileL10n.prefsComplete((ratio * 100).round()), style: textTheme.labelLarge)),
             Text('$answered/${TeammatePreferences.sections}', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
@@ -837,7 +838,7 @@ class _Completeness extends StatelessWidget {
         ),
         const SizedBox(height: GwSpacing.xxs),
         Text(
-          'Ne kadar çok doldurursan önerilerin o kadar isabetli olur.',
+          profileL10n.prefsCompleteHint,
           style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
         ),
       ],
@@ -987,8 +988,8 @@ class _AvailabilityGrid extends StatelessWidget {
               ),
           ],
         ),
-        row('Hafta içi', false),
-        row('Hafta sonu', true),
+        row(profileL10n.weekday, false),
+        row(profileL10n.weekend, true),
       ],
     );
   }

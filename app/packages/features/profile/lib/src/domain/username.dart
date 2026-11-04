@@ -1,3 +1,5 @@
+import '../l10n.dart';
+
 /// Mirrors the `profiles_username_format` constraint in
 /// supabase/migrations/0002_identity_profile.sql.
 abstract final class UsernameRules {
@@ -11,16 +13,16 @@ abstract final class UsernameRules {
   /// Availability is checked separately against the server.
   static String? validate(String? input) {
     final name = normalize(input ?? '');
-    if (name.isEmpty) return 'Bir kullanıcı adı seç.';
-    if (name.length < minLength) return 'Kullanıcı adı en az $minLength karakter olmalı.';
-    if (name.length > maxLength) return 'Kullanıcı adı en fazla $maxLength karakter olabilir.';
+    if (name.isEmpty) return profileL10n.usernameRequired;
+    if (name.length < minLength) return profileL10n.usernameMin(minLength);
+    if (name.length > maxLength) return profileL10n.usernameMax(maxLength);
     if (!_allowed.hasMatch(name)) {
-      return 'Yalnızca a-z, 0-9, alt çizgi (_) ve nokta (.) kullanabilirsin.';
+      return profileL10n.usernameChars;
     }
     if (name.startsWith('.') || name.endsWith('.')) {
-      return 'Kullanıcı adı nokta ile başlayamaz veya bitemez.';
+      return profileL10n.usernameDots;
     }
-    if (name.contains('..')) return 'Art arda iki nokta kullanılamaz.';
+    if (name.contains('..')) return profileL10n.usernameDoubleDot;
     return null;
   }
 }
@@ -32,9 +34,9 @@ abstract final class ProfileRules {
 
   static String? validateDisplayName(String? input) {
     final name = input?.trim() ?? '';
-    if (name.isEmpty) return 'Adını gir.';
+    if (name.isEmpty) return profileL10n.nameRequired;
     if (name.length > displayNameMaxLength) {
-      return 'Ad en fazla $displayNameMaxLength karakter olabilir.';
+      return profileL10n.nameMax(displayNameMaxLength);
     }
     return null;
   }

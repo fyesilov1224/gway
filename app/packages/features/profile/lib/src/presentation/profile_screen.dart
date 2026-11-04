@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../domain/profile.dart';
 import '../domain/social.dart';
 import '../domain/teammates.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'social_providers.dart';
@@ -37,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
 
   final List<ProfileSectionBuilder> sections;
 
-  /// Other features' buttons next to "Takip et" on someone else's profile (e.g. "Mesaj").
+  /// Other features' buttons next to profileL10n.follow on someone else's profile (e.g. "Mesaj").
   final List<ProfileSectionBuilder> visitorActions;
 
   /// Other features' shortcuts in the app bar of your own profile (e.g. "Kaydedilenler").
@@ -64,14 +65,14 @@ class ProfileScreen extends ConsumerWidget {
                 Text('@${p.username}', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
-          null => const Text('Profil'),
+          null => Text(profileL10n.profile),
         },
         actions: [
           if (isOwn) ...ownActions,
           if (isOwn && onOpenSettings != null)
             Padding(
               padding: const EdgeInsets.only(right: GwSpacing.xs),
-              child: IconButton(tooltip: 'Ayarlar', icon: const Icon(Icons.settings_outlined), onPressed: onOpenSettings),
+              child: IconButton(tooltip: profileL10n.settings, icon: const Icon(Icons.settings_outlined), onPressed: onOpenSettings),
             ),
         ],
       ),
@@ -80,8 +81,8 @@ class ProfileScreen extends ConsumerWidget {
           AsyncData(:final value) => _ProfileBody(profile: value, isOwn: isOwn, sections: sections, visitorActions: visitorActions),
           AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.person_off_outlined,
-              message: 'Bu profil bulunamadı ya da artık görünür değil.',
-              actionLabel: 'Profilime dön',
+              message: profileL10n.profileNotFound,
+              actionLabel: profileL10n.backToMyProfile,
               onAction: () => context.go(ProfileRoutes.mine),
             ),
           AsyncError(:final error) => GwErrorState(
@@ -134,7 +135,7 @@ class _ProfileBody extends ConsumerWidget {
                 : null,
             children: [
               if (suspendedUntil != null)
-                GwFormMessage('Bu hesap ${formatDateTime(suspendedUntil.toLocal())} tarihine kadar askıya alındı.'),
+                GwFormMessage(profileL10n.suspendedUntil(formatDateTime(suspendedUntil.toLocal()))),
               if ((social != null && !isOwn && (social.isFriend || social.followsMe)) ||
                   (teammate != null && (teammate.looking || teammate.relation == TeammateRelation.teammates)))
                 Wrap(
@@ -142,15 +143,15 @@ class _ProfileBody extends ConsumerWidget {
                   runSpacing: GwSpacing.xxs,
                   children: [
                     if (social != null && !isOwn && (social.isFriend || social.followsMe))
-                      GwBadge(social.isFriend ? 'Arkadaşsınız' : 'Seni takip ediyor', tone: GwBadgeTone.primary),
+                      GwBadge(social.isFriend ? profileL10n.friends : profileL10n.followsYou, tone: GwBadgeTone.primary),
                     if (teammate?.relation == TeammateRelation.teammates)
-                      const GwBadge('Ekip arkadaşın', tone: GwBadgeTone.success)
+                      GwBadge(profileL10n.yourTeammate, tone: GwBadgeTone.success)
                     else if (teammate?.looking ?? false)
                       GwBadge(teammate!.label, tone: GwBadgeTone.info),
                   ],
                 ),
               if (profile.bio.isNotEmpty) Text(profile.bio, style: textTheme.bodyLarge),
-              _Meta(icon: Icons.calendar_month_outlined, text: 'Katılım: ${formatMonthYear(profile.createdAt)}'),
+              _Meta(icon: Icons.calendar_month_outlined, text: profileL10n.joined(formatMonthYear(profile.createdAt))),
               if (!hidden && interests.isNotEmpty)
                 Wrap(
                   spacing: GwSpacing.xs,
@@ -171,8 +172,8 @@ class _ProfileBody extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
               child: _Notice(
                 icon: Icons.person_add_alt,
-                text: requests == 1 ? '1 takip isteği onay bekliyor.' : '$requests takip isteği onay bekliyor.',
-                actionLabel: 'İncele',
+                text: profileL10n.followRequestsPending(requests),
+                actionLabel: profileL10n.review,
                 onAction: () => context.push(ProfileRoutes.followRequests),
               ),
             ),
@@ -181,19 +182,17 @@ class _ProfileBody extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
               child: _Notice(
                 icon: Icons.diversity_3_outlined,
-                text: teammateRequests == 1
-                    ? '1 ekip arkadaşlığı isteği seni bekliyor.'
-                    : '$teammateRequests ekip arkadaşlığı isteği seni bekliyor.',
-                actionLabel: 'İncele',
+                text: profileL10n.teammateRequestsPending(teammateRequests),
+                actionLabel: profileL10n.review,
                 onAction: () => context.push(ProfileRoutes.teammates),
               ),
             ),
           if (social != null && social.blockedByMe)
             _Locked(
               icon: Icons.block,
-              title: 'Bu hesabı engelledin',
-              text: 'Engeli kaldırırsan birbirinizin paylaşımlarını yeniden görebilirsiniz.',
-              actionLabel: 'Engeli kaldır',
+              title: profileL10n.youBlocked,
+              text: profileL10n.youBlockedHint,
+              actionLabel: profileL10n.unblock,
               onAction: () async {
                 final result = await ref.read(socialRepositoryProvider).unblock(profile.id);
                 if (result case Err(:final failure) when context.mounted) {
@@ -203,10 +202,10 @@ class _ProfileBody extends ConsumerWidget {
               },
             )
           else if (hidden)
-            const _Locked(
+            _Locked(
               icon: Icons.lock_outline,
-              title: 'Bu hesap gizli',
-              text: 'Fotoğraflarını, videolarını ve hikayelerini görmek için bu hesabı takip et.',
+              title: profileL10n.privateAccount,
+              text: profileL10n.privateAccountHint,
             )
           else ...[
             if (isOwn && interests.isEmpty)
@@ -214,8 +213,8 @@ class _ProfileBody extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.sm, GwSpacing.page, 0),
                 child: _Notice(
                   icon: Icons.interests_outlined,
-                  text: 'İlgi alanlarını ekle, sana uygun grupları ve ekip arkadaşlarını bulalım.',
-                  actionLabel: 'Ekle',
+                  text: profileL10n.addInterestsNudge,
+                  actionLabel: profileL10n.add,
                   onAction: () => context.push(ProfileRoutes.edit),
                 ),
               ),
@@ -227,13 +226,13 @@ class _ProfileBody extends ConsumerWidget {
   }
 }
 
-/// "Profili düzenle" on your own profile.
+/// profileL10n.editProfile on your own profile.
 class _OwnActions extends StatelessWidget {
   const _OwnActions();
 
   @override
   Widget build(BuildContext context) => GwButton(
-        label: 'Profili düzenle',
+        label: profileL10n.editProfile,
         icon: Icons.edit_outlined,
         variant: GwButtonVariant.secondary,
         expand: true,
@@ -265,12 +264,11 @@ class _VisitorActions extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: Text('@${profile.username} engellensin mi?'),
-        content: const Text('Profilini, gönderilerini ve hikayelerini göremez, seni bulamaz ve sana yazamaz. '
-            'Takipleşmeniz sona erer. Engellediğin bildirilmez.'),
+        title: Text(profileL10n.blockTitle(profile.username)),
+        content: Text(profileL10n.blockBody),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GwButton(label: 'Engelle', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: profileL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: profileL10n.block, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -287,25 +285,25 @@ class _VisitorActions extends ConsumerWidget {
     final person = PersonSummary(id: profile.id, username: profile.username, displayName: profile.displayName);
     return switch (t.relation) {
       TeammateRelation.none when t.looking => [
-          PopupMenuItem(onTap: () => sendTeammateRequest(context, ref, person), child: const Text('Ekip arkadaşı ol')),
+          PopupMenuItem(onTap: () => sendTeammateRequest(context, ref, person), child: Text(profileL10n.becomeTeammates)),
         ],
       TeammateRelation.incoming => [
           PopupMenuItem(
             onTap: () => runTeammateAction(
-                context, ref, (r) => r.accept(profile.id), '${profile.displayName} ile artık ekip arkadaşısınız.'),
-            child: const Text('Ekip arkadaşlığı isteğini kabul et'),
+                context, ref, (r) => r.accept(profile.id), profileL10n.nowTeammates(profile.displayName)),
+            child: Text(profileL10n.acceptTeammate),
           ),
         ],
       TeammateRelation.requested => [
           PopupMenuItem(
-            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), 'İstek geri çekildi.'),
-            child: const Text('Ekip arkadaşlığı isteğini geri çek'),
+            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), profileL10n.requestWithdrawn),
+            child: Text(profileL10n.withdrawTeammate),
           ),
         ],
       TeammateRelation.teammates => [
           PopupMenuItem(
-            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), 'Ekip arkadaşlığı bitti.'),
-            child: const Text('Ekip arkadaşlığını bitir'),
+            onTap: () => runTeammateAction(context, ref, (r) => r.remove(profile.id), profileL10n.teammateEnded),
+            child: Text(profileL10n.endTeammate),
           ),
         ],
       _ => const [],
@@ -328,36 +326,36 @@ class _VisitorActions extends ConsumerWidget {
             isPrivate: social.isPrivate,
           ),
         PopupMenuButton<void>(
-          tooltip: 'Diğer seçenekler',
+          tooltip: profileL10n.moreOptions,
           icon: const Icon(Icons.more_horiz),
           itemBuilder: (_) => [
             PopupMenuItem(
               onTap: () => Clipboard.setData(ClipboardData(text: '/#${ProfileRoutes.user(profile.username)}')).then((_) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profil bağlantısı kopyalandı.')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(profileL10n.linkCopied)));
                 }
               }),
-              child: const Text('Profil bağlantısını kopyala'),
+              child: Text(profileL10n.copyLink),
             ),
             ..._teammateItems(context, ref),
             if (social.followsMe && !social.blockedByMe)
               PopupMenuItem(
-                onTap: () => _run(context, ref, (r) => r.removeFollower(profile.id), 'Takipçilerinden çıkarıldı.'),
-                child: const Text('Takipçilerimden çıkar'),
+                onTap: () => _run(context, ref, (r) => r.removeFollower(profile.id), profileL10n.removedFromFollowers),
+                child: Text(profileL10n.removeFromFollowers),
               ),
             PopupMenuItem(
               onTap: () => ref.read(reportLauncherProvider)(context, ReportTarget.user(profile.id)),
-              child: const Text('Şikayet et'),
+              child: Text(profileL10n.report),
             ),
             if (social.blockedByMe)
               PopupMenuItem(
-                onTap: () => _run(context, ref, (r) => r.unblock(profile.id), 'Engel kaldırıldı.'),
-                child: const Text('Engeli kaldır'),
+                onTap: () => _run(context, ref, (r) => r.unblock(profile.id), profileL10n.unblocked),
+                child: Text(profileL10n.unblock),
               )
             else
               PopupMenuItem(
                 onTap: () => _block(context, ref),
-                child: const Text('Engelle', style: TextStyle(color: GwColors.error)),
+                child: Text(profileL10n.block, style: const TextStyle(color: GwColors.error)),
               ),
           ],
         ),
@@ -400,11 +398,11 @@ class _Stats extends StatelessWidget {
     final open = s != null && s.canView && !s.blockedByMe;
     return Row(
       children: [
-        stat('Gönderi', s?.postCount, null),
+        stat(profileL10n.statPosts, s?.postCount, null),
         const SizedBox(width: GwSpacing.xs),
-        stat('Takipçi', s?.followerCount, open ? () => context.push(ProfileRoutes.followers(profile.username)) : null),
+        stat(profileL10n.statFollowers, s?.followerCount, open ? () => context.push(ProfileRoutes.followers(profile.username)) : null),
         const SizedBox(width: GwSpacing.xs),
-        stat('Takip', s?.followingCount, open ? () => context.push(ProfileRoutes.following(profile.username)) : null),
+        stat(profileL10n.statFollowing, s?.followingCount, open ? () => context.push(ProfileRoutes.following(profile.username)) : null),
       ],
     );
   }

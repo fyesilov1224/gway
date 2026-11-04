@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/profile.dart';
 import '../domain/username.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -53,7 +54,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (image == null || !mounted) return;
     setState(() {
       _avatar = image;
-      _error = image.contentType == null ? 'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.' : null;
+      _error = image.contentType == null ? profileL10n.unsupportedImage : null;
       if (_error != null) _avatar = null;
     });
   }
@@ -93,23 +94,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final (title, subtitle) = switch (_step) {
-      0 => ('Seni tanıyalım', 'Profilinde görünecek adını ve kullanıcı adını seç.'),
-      1 => ('Profil fotoğrafı', 'Grupların seni tanısın. İstersen sonra da ekleyebilirsin.'),
-      _ => ('İlgi alanların', 'Sana uygun grupları önerebilmemiz için en fazla ${ProfileRules.maxInterests} tane seç.'),
+      0 => (profileL10n.onboardWho, profileL10n.onboardWhoHint),
+      1 => (profileL10n.onboardPhoto, profileL10n.onboardPhotoHint),
+      _ => (profileL10n.onboardInterests, profileL10n.onboardInterestsHint(ProfileRules.maxInterests)),
     };
 
     return Scaffold(
       appBar: AppBar(
         leading: _step > 0 && !_saving
             ? IconButton(
-                tooltip: 'Geri',
+                tooltip: profileL10n.back,
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => setState(() => _step--),
               )
             : null,
-        title: Text('Adım ${_step + 1} / $_steps'),
+        title: Text(profileL10n.stepOf(_step + 1, _steps)),
         actions: [
-          GwButton(label: 'Çıkış yap', variant: GwButtonVariant.text, onPressed: _saving ? null : widget.onSignOut),
+          GwButton(label: profileL10n.signOut, variant: GwButtonVariant.text, onPressed: _saving ? null : widget.onSignOut),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(GwSpacing.xxs),
@@ -142,12 +143,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   if (_step < _steps - 1)
                     GwButton(
-                      label: _step == 1 && _avatar == null ? 'Şimdilik atla' : 'Devam et',
+                      label: _step == 1 && _avatar == null ? profileL10n.skipForNow : profileL10n.continueAction,
                       onPressed: _next,
                       expand: true,
                     )
                   else
-                    GwButton(label: 'Bitir', onPressed: _finish, isLoading: _saving, expand: true),
+                    GwButton(label: profileL10n.finish, onPressed: _finish, isLoading: _saving, expand: true),
                 ],
               ),
             ),
@@ -169,12 +170,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             textCapitalization: TextCapitalization.words,
             autofillHints: const [AutofillHints.name],
             validator: ProfileRules.validateDisplayName,
-            decoration: const InputDecoration(labelText: 'Adın', counterText: ''),
+            decoration: InputDecoration(labelText: profileL10n.yourName, counterText: ''),
           ),
           const SizedBox(height: GwSpacing.md),
           UsernameField(
             controller: _username,
-            helperText: 'Küçük harf, rakam, _ ve . kullanabilirsin.',
+            helperText: profileL10n.usernameHelper,
             onAvailabilityChanged: (v) => setState(() => _usernameAvailable = v),
           ),
         ],
@@ -189,7 +190,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       children: [
         Semantics(
           image: true,
-          label: 'Profil fotoğrafı önizlemesi',
+          label: profileL10n.avatarPreview,
           child: Container(
             width: size,
             height: size,
@@ -202,7 +203,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: GwSpacing.md),
         GwButton(
-          label: avatar == null ? 'Fotoğraf seç' : 'Başka fotoğraf seç',
+          label: avatar == null ? profileL10n.choosePhoto : profileL10n.chooseAnotherPhoto,
           icon: Icons.photo_library_outlined,
           variant: GwButtonVariant.secondary,
           onPressed: _pickAvatar,
