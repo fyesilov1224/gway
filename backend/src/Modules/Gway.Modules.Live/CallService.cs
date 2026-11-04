@@ -129,7 +129,7 @@ internal sealed partial class CallService(
             await FinishAsync(started.Value, "canceled", "canceled", actor, ct);
             return Unavailable;
         }
-        return await JoinAsync(started.Value, actor, ct);
+        return Join(started.Value, actor);
     }
 
     public async Task<Result<CallJoin>> AcceptAsync(Guid actor, Guid callId, CancellationToken ct)
@@ -144,7 +144,7 @@ internal sealed partial class CallService(
         cmd.Parameters.AddWithValue("id", callId);
         cmd.Parameters.AddWithValue("me", actor);
         if (await cmd.ExecuteScalarAsync(ct) is null) return await StateErrorAsync(actor, callId, ct);
-        return await JoinAsync(callId, actor, ct);
+        return Join(callId, actor);
     }
 
     /// <summary>A new token for a participant who lost the connection; the caller also needs it while ringing.</summary>
@@ -159,7 +159,7 @@ internal sealed partial class CallService(
         cmd.Parameters.AddWithValue("id", callId);
         cmd.Parameters.AddWithValue("me", actor);
         if (await cmd.ExecuteScalarAsync(ct) is null) return await StateErrorAsync(actor, callId, ct);
-        return await JoinAsync(callId, actor, ct);
+        return Join(callId, actor);
     }
 
     public async Task<Result> DeclineAsync(Guid actor, Guid callId, CancellationToken ct)
@@ -203,12 +203,12 @@ internal sealed partial class CallService(
         }
     }
 
-    private async Task<Result<CallJoin>> JoinAsync(Guid callId, Guid actor, CancellationToken ct)
+    /// <summary>No name in the token: LiveKit only learns the user id (§8c, Uçtan uca şifreleme). The app shows names
+    /// from the profile; each phone writes its encryption public key into its own attributes.</summary>
+    private CallJoin Join(Guid callId, Guid actor)
     {
-        await using var cmd = db.CreateCommand("select display_name from public.profiles where id = @me");
-        cmd.Parameters.AddWithValue("me", actor);
-        var name = await cmd.ExecuteScalarAsync(ct) as string ?? "";
-        var token = liveKit.CreateJoinToken(Room(callId), actor, name, canPublish: true, new Dictionary<string, string>());
+        var token = liveKit.CreateJoinToken(
+            Room(callId), actor, name: "", canPublish: true, new Dictionary<string, string>(), canUpdateOwnAttributes: true);
         return new CallJoin(callId, options.Value.Url, token);
     }
 

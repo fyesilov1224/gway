@@ -18,6 +18,10 @@ for app in social_app:app admin_panel:panel; do
   if [ ! -s "$here/../app/apps/$src/build/web/assets/fonts/MaterialIcons-Regular.otf" ]; then
     echo "$src: icon font missing from the build; not publishing broken icons" >&2; exit 1
   fi
+  # Voice calls are end-to-end encrypted; in the browser that runs in this worker (docs/ARCHITECTURE.md §8c).
+  if [ "$src" = social_app ] && [ ! -s "$here/../app/apps/$src/build/web/e2ee.worker.dart.js" ]; then
+    echo "$src: e2ee.worker.dart.js missing; voice calls would not connect" >&2; exit 1
+  fi
   rm -rf "$here/www/$out" && mkdir -p "$here/www/$out"
   cp -r "$here/../app/apps/$src/build/web/." "$here/www/$out/"
 done

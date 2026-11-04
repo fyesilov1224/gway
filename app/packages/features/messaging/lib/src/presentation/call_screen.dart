@@ -5,6 +5,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/call_keep_alive.dart';
 import '../domain/calls.dart';
 import 'call_providers.dart';
 import 'call_session.dart';
@@ -27,6 +28,8 @@ class CallScreen extends ConsumerStatefulWidget {
 class _CallScreenState extends ConsumerState<CallScreen> {
   late final CallSession _session = ref.read(callSessionFactoryProvider)();
   late final CallRinger _ringer = ref.read(callRingerProvider);
+  late final CallKeepAlive _keepAlive = ref.read(callKeepAliveProvider);
+  bool _keptAlive = false;
   StreamSubscription<CallInfo?>? _subscription;
   Timer? _ticker;
   Timer? _closer;
@@ -59,7 +62,28 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 
   void _rebuild() {
+    _syncKeepAlive();
     if (mounted) setState(() {});
+  }
+
+  /// While the audio is connected the call goes on in the background too (docs/ARCHITECTURE.md §8c, Arka planda
+  /// görüşme). Started only here, with the screen in front, as Android requires.
+  void _syncKeepAlive() {
+    final want = _open && _session.connection == CallConnection.connected;
+    if (want == _keptAlive) return;
+    _keptAlive = want;
+    unawaited((want ? _keepAlive.start() : _keepAlive.stop()).catchError((Object e) {
+      debugPrint('Call keep-alive failed: $e');
+    }));
+  }
+
+  /// The back button leaves the call running: the app goes to the background, or the person is told how to end it.
+  Future<void> _leaveScreen() async {
+    final moved = await _keepAlive.toBackground().catchError((Object _) => false);
+    if (moved || !mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text("Görüşmeyi bitirmek için Bitir'e dokun.")));
   }
 
   void _onCall(CallInfo? call) {
@@ -68,6 +92,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       _call = call;
       _loaded = true;
     });
+    _syncKeepAlive();
     final me = _me;
     if (call == null || !call.status.isOpen) {
       _setTone(null);
@@ -143,6 +168,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     _ticker?.cancel();
     _closer?.cancel();
     if (_tone != null) unawaited(_ringer.stop().catchError((Object _) {}));
+    if (_keptAlive) unawaited(_keepAlive.stop().catchError((Object _) {}));
     _session
       ..removeListener(_rebuild)
       ..dispose();
@@ -153,13 +179,11 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   Widget build(BuildContext context) {
     final call = _call;
     final me = _me;
-    final incoming = call != null && call.calleeId == me;
     return PopScope(
-      // Leaving an open call ends it (or declines it while it rings for you).
+      // Back never ends an open call: only Bitir and Reddet do (docs/ARCHITECTURE.md §8c).
       canPop: !_open,
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop || _busy) return;
-        unawaited(incoming && call.status == CallStatus.ringing ? _decline() : _hangUp());
+        if (!didPop) unawaited(_leaveScreen());
       },
       child: Scaffold(
         appBar: AppBar(automaticallyImplyLeading: !_open),
@@ -177,7 +201,15 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                       actionLabel: 'Kapat',
                       onAction: () => Navigator.of(context).maybePop(),
                     ),
-                  _ => _content(call, me ?? ''),
+                  // Scrolls on a small screen or with large text; the spacers fill a tall one.
+                  _ => LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                          child: IntrinsicHeight(child: _content(call, me ?? '')),
+                        ),
+                      ),
+                    ),
                 },
               ),
             ),
@@ -212,6 +244,10 @@ class _CallScreenState extends ConsumerState<CallScreen> {
             child: Text('Görüşme en fazla ${CallRules.maxLength.inMinutes} dakika sürer ve kaydedilmez.',
                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
           ),
+        if (call.status == CallStatus.active && _session.connection == CallConnection.connected) ...[
+          const SizedBox(height: GwSpacing.md),
+          _EncryptionNote(session: _session),
+        ],
         if (_error != null || _session.connection == CallConnection.failed) ...[
           const SizedBox(height: GwSpacing.md),
           GwFormMessage(_error ?? 'Sese bağlanılamadı. Bağlantını kontrol edip tekrar dene.'),
@@ -274,6 +310,47 @@ class _CallScreenState extends ConsumerState<CallScreen> {
             onPressed: () => _session.setSpeaker(!_session.speakerOn),
           ),
       ],
+    );
+  }
+}
+
+/// Whether the sound is end-to-end encrypted, and the code both people can compare (docs/ARCHITECTURE.md §8c).
+class _EncryptionNote extends StatelessWidget {
+  const _EncryptionNote({required this.session});
+
+  final CallSession session;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
+    if (session.peerUnencrypted) {
+      return const GwFormMessage('Karşındakinin uygulaması eski, sesi şifresiz geliyor ve çalınmıyor. '
+          'Uygulamasını güncellemesini iste.');
+    }
+    final code = session.safetyCode;
+    if (!session.secure || code == null) {
+      return Text('Şifreli bağlantı kuruluyor…', style: secondary, textAlign: TextAlign.center);
+    }
+    return Semantics(
+      label: 'Uçtan uca şifreli. Güvenlik kodu $code',
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.lock_outline, size: GwSpacing.md, color: GwColors.success),
+              const SizedBox(width: GwSpacing.xxs),
+              Text('Uçtan uca şifreli', style: textTheme.labelLarge?.copyWith(color: GwColors.success)),
+            ],
+          ),
+          const SizedBox(height: GwSpacing.xxs),
+          Text(code, style: textTheme.titleMedium, textAlign: TextAlign.center),
+          Text('Bu kod karşındakinin ekranındakiyle aynıysa görüşmeyi kimse dinleyemez.',
+              style: secondary, textAlign: TextAlign.center),
+        ],
+      ),
     );
   }
 }

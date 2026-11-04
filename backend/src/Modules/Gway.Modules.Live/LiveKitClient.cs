@@ -48,8 +48,11 @@ internal static class LiveRoles
 /// <summary>LiveKit access tokens and the room service API. Tests replace it with a fake.</summary>
 internal interface ILiveKit
 {
-    /// <summary>A 10-minute join token. Only the server changes permissions and attributes afterwards.</summary>
-    string CreateJoinToken(string room, Guid userId, string name, bool canPublish, IReadOnlyDictionary<string, string> attributes);
+    /// <summary>A 10-minute join token. Only the server changes permissions and attributes afterwards, except with
+    /// <paramref name="canUpdateOwnAttributes"/>: a voice call publishes its encryption public key itself (§8c).</summary>
+    string CreateJoinToken(
+        string room, Guid userId, string name, bool canPublish, IReadOnlyDictionary<string, string> attributes,
+        bool canUpdateOwnAttributes = false);
 
     Task CreateRoomAsync(string room, CancellationToken ct);
 
@@ -77,7 +80,9 @@ internal sealed class LiveKitClient(HttpClient http, IOptions<LiveKitOptions> op
 
     private LiveKitOptions Options => options.Value;
 
-    public string CreateJoinToken(string room, Guid userId, string name, bool canPublish, IReadOnlyDictionary<string, string> attributes) =>
+    public string CreateJoinToken(
+        string room, Guid userId, string name, bool canPublish, IReadOnlyDictionary<string, string> attributes,
+        bool canUpdateOwnAttributes = false) =>
         Sign(JoinTokenLifetime, new Dictionary<string, object>
         {
             ["sub"] = userId.ToString(),
@@ -91,7 +96,7 @@ internal sealed class LiveKitClient(HttpClient http, IOptions<LiveKitOptions> op
                 ["canPublish"] = canPublish,
                 ["canPublishData"] = true,
                 ["canPublishSources"] = MicrophoneOnly,
-                ["canUpdateOwnMetadata"] = false,
+                ["canUpdateOwnMetadata"] = canUpdateOwnAttributes,
             },
         });
 

@@ -90,6 +90,8 @@ Google ile giriş ve e-posta bağlantıları için Supabase Redirect URLs listes
 
 **İkon fontu (2026-11-03):** Türkçe karakterli yoldan derlenince `assets/fonts` boş çıkar ve bütün ikonlar kare görünür (Cloudflare eksik dosya yerine `index.html` döner). `deploy/build-web.sh` artık ASCII olmayan yolda çalışmaz ve `MaterialIcons-Regular.otf` yoksa yayını durdurur.
 
+**Görüşme şifrelemesi (2026-11-04):** web'de sesli görüşmenin uçtan uca şifrelemesi `app/apps/social_app/web/e2ee.worker.dart.js` ile çalışır (repoda; `deploy/build-web.sh` yoksa yayını durdurur). `livekit_client` sürümü değişince yeniden üretilir: paketin `web/*.dart` dosyaları geçici bir klasöre kopyalanır, `G:pp` içinden `dart compile js -m --packages=.dart_tool/package_config.json <klasör>/e2ee.worker.dart -o apps/social_app/web/e2ee.worker.dart.js`. LiveKit sunucusu `logging.level: warn` ile çalışır (katılma günlüğü tutulmaz); `deploy/livekit.yaml` değişince sunucuda `docker compose up -d livekit` gerekir.
+
 **Web hızı (2026-11-01):** `--no-tree-shake-icons` kullanılmaz; ASCII yoldan (`G:`) derlenince ikon fontu 1,6 MB yerine birkaç KB olur. `web/flutter_bootstrap.js` Flutter'ın kullanımdan kalkan service worker'ını kaydetmez (ilk ziyarette uygulama indirilmeden önce bekletiyordu); `index.html` `main.dart.js`'i ve CanvasKit'in sunucusunu (`www.gstatic.com`) baştan istemeye başlar.
 
 ## Güncelleme
