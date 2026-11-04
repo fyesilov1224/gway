@@ -116,6 +116,8 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         var call = (await started.Content.ReadFromJsonAsync<CallJoin>(Ct))!;
         Assert.True(factory.LiveKit.HasRoom($"call-{call.CallId}"));
         Assert.StartsWith($"token:call-{call.CallId}:{a}", call.Token, StringComparison.Ordinal);
+        // The phone publishes its encryption key itself (docs/ARCHITECTURE.md §8c, Uçtan uca şifreleme).
+        Assert.EndsWith(":attrs", call.Token, StringComparison.Ordinal);
 
         var phone = Unique("phone-of-b-") + "-token";
         await _db.ExecuteAsync("insert into public.push_devices (token, user_id, platform) values (@t, @u, 'android')", ("t", phone), ("u", b));

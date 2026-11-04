@@ -68,6 +68,11 @@
             android:name="com.hiennv.flutter_callkit_incoming.CallkitNotificationService"
             android:foregroundServiceType="phoneCall|microphone"
             tools:replace="android:foregroundServiceType" />
+        <!-- A voice call keeps its microphone while the app is in the background (docs/ARCHITECTURE.md §8c). -->
+        <service
+            android:name=".CallAudioService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

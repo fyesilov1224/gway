@@ -119,6 +119,22 @@ class _FakeSession extends CallSession {
   }
 }
 
+class _FakeKeepAlive implements CallKeepAlive {
+  final log = <String>[];
+
+  @override
+  Future<void> start() async => log.add('start');
+
+  @override
+  Future<void> stop() async => log.add('stop');
+
+  @override
+  Future<bool> toBackground() async {
+    log.add('background');
+    return true;
+  }
+}
+
 class _FakeRinger implements CallRinger {
   CallTone? playing;
   final played = <CallTone>[];
@@ -162,10 +178,22 @@ class _FakeNative implements NativeCalls {
   Future<void> openLockScreenSetting() async => log.add('lock screen setting');
 }
 
-typedef _Harness = ({_FakeCalls calls, _FakeSession session, _FakeRinger ringer, _FakeNative native});
+typedef _Harness = ({
+  _FakeCalls calls,
+  _FakeSession session,
+  _FakeRinger ringer,
+  _FakeNative native,
+  _FakeKeepAlive keepAlive,
+});
 
 Future<_Harness> _pumpCall(WidgetTester tester, {CallJoin? join, bool answer = false}) async {
-  final harness = (calls: _FakeCalls(), session: _FakeSession(), ringer: _FakeRinger(), native: _FakeNative());
+  final harness = (
+    calls: _FakeCalls(),
+    session: _FakeSession(),
+    ringer: _FakeRinger(),
+    native: _FakeNative(),
+    keepAlive: _FakeKeepAlive(),
+  );
   await tester.pumpWidget(ProviderScope(
     overrides: [
       currentUserIdProvider.overrideWithValue('me'),
@@ -173,6 +201,7 @@ Future<_Harness> _pumpCall(WidgetTester tester, {CallJoin? join, bool answer = f
       callSessionFactoryProvider.overrideWithValue(() => harness.session),
       callRingerProvider.overrideWithValue(harness.ringer),
       nativeCallsProvider.overrideWithValue(harness.native),
+      callKeepAliveProvider.overrideWithValue(harness.keepAlive),
     ],
     child: MaterialApp(theme: GwTheme.light(), home: CallScreen(callId: 'k1', join: join, answer: answer)),
   ));
@@ -237,6 +266,38 @@ void main() {
     expect(h.calls.actions, ['end']);
     await _emit(tester, h, _call(CallStatus.canceled, caller: 'me', callee: 'deniz'));
     expect(h.ringer.playing, isNull, reason: 'the ringback stops when the call is over');
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('the call goes on in the background; back never hangs up', (tester) async {
+    final h = await _pumpCall(tester, join: _join);
+    await _emit(tester, h, _call(CallStatus.ringing, caller: 'me', callee: 'deniz'));
+    expect(h.keepAlive.log, ['start'], reason: 'the audio is connected while it rings');
+
+    await _emit(tester, h, _call(CallStatus.active, caller: 'me', callee: 'deniz', answeredAt: DateTime.now()));
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(h.keepAlive.log, ['start', 'background']);
+    expect(h.calls.actions, isEmpty, reason: 'back does not end the call');
+    expect(find.byType(CallScreen), findsOneWidget);
+
+    await _emit(tester, h, _call(CallStatus.ended, caller: 'me', callee: 'deniz'));
+    expect(h.keepAlive.log, ['start', 'background', 'stop']);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('the encryption note waits for the key, then shows the safety code', (tester) async {
+    final h = await _pumpCall(tester, join: _join);
+    await _emit(tester, h, _call(CallStatus.active, caller: 'me', callee: 'deniz', answeredAt: DateTime.now()));
+    expect(find.text('Şifreli bağlantı kuruluyor…'), findsOneWidget);
+
+    h.session
+      ..secure = true
+      ..safetyCode = '1234 5678 9012'
+      ..notifyListeners();
+    await tester.pump();
+    expect(find.text('Uçtan uca şifreli'), findsOneWidget);
+    expect(find.text('1234 5678 9012'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 

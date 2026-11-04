@@ -73,6 +73,28 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        // A voice call that goes on in the background (docs/ARCHITECTURE.md §8c, Arka planda görüşme).
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "gway/call").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "keepAlive" -> {
+                    CallAudioService.start(applicationContext)
+                    result.success(null)
+                }
+                "release" -> {
+                    CallAudioService.stop(applicationContext)
+                    result.success(null)
+                }
+                // The back button during a call leaves the call running instead of hanging up.
+                "toBackground" -> result.success(moveTaskToBack(true))
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        // The app's screen is gone for good (not just in the background): its call has ended with it.
+        if (isFinishing) CallAudioService.stop(applicationContext)
+        super.onDestroy()
     }
 
     // A push while the app is open is not shown by Android, so the app rings it here (docs/ARCHITECTURE.md 3c,

@@ -1,5 +1,6 @@
 library;
 
+export 'src/data/call_keep_alive.dart' show CallKeepAlive;
 export 'src/data/native_calls.dart' show NativeCallAction, NativeCallChoice, NativeCalls, handleCallPush, registerNativeDeclineInBackground;
 export 'src/domain/calls.dart';
 export 'src/domain/messaging.dart';

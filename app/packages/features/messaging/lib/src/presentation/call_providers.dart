@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:core/core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/call_keep_alive.dart';
 import '../data/calls_repository_impl.dart';
 import '../data/native_calls.dart';
 import '../domain/calls.dart';
@@ -82,6 +83,9 @@ class _AudioRinger implements CallRinger {
 
   Future<void> dispose() => _player.dispose();
 }
+
+/// Keeps the call's audio going in the background (Android foreground service); replaced in tests.
+final callKeepAliveProvider = Provider<CallKeepAlive>((_) => const PlatformCallKeepAlive());
 
 /// A new audio session for a call screen; replaced in tests.
 final callSessionFactoryProvider = Provider<CallSession Function()>((_) => CallSession.new);
