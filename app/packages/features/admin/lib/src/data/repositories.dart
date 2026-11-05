@@ -5,6 +5,7 @@ import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
+import '../domain/admin_games.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
@@ -362,6 +363,59 @@ class ApiAdminLiveRepository implements AdminLiveRepository {
   @override
   Future<Result<void>> end(String id, {required String reason}) =>
       _api.post('/admin/live/$id/end', body: {'reason': reason}, decode: (_) {});
+}
+
+class ApiAdminGamesRepository implements AdminGamesRepository {
+  ApiAdminGamesRepository(this._api);
+
+  final ApiClient _api;
+
+  @override
+  Future<Result<AdminChessOverview>> chess() =>
+      _api.get('/admin/games/chess', decode: (json) => AdminChessOverview.fromJson((json! as Map).cast()));
+
+  @override
+  Future<Result<void>> abortGame(String gameId, {required String reason}) =>
+      _api.post('/admin/games/chess/$gameId/abort', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> suspendPlayer(String userId, {required String reason, DateTime? until}) => _api.post(
+        '/admin/games/chess/players/$userId/suspension',
+        body: {'reason': reason, 'until': until?.toUtc().toIso8601String()},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<List<AdminTournament>>> tournaments() => _api.get('/admin/games/chess/tournaments',
+      decode: (json) => [for (final t in (json! as List).cast<Map<String, Object?>>()) AdminTournament.fromJson(t)]);
+
+  @override
+  Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,
+          required DateTime startsAt, required int minutes}) =>
+      _api.post('/admin/games/chess/tournaments',
+          body: {
+            'title': title,
+            'baseSeconds': baseSeconds,
+            'incrementSeconds': incrementSeconds,
+            'startsAt': startsAt.toUtc().toIso8601String(),
+            'minutes': minutes,
+          },
+          decode: (_) {});
+
+  @override
+  Future<Result<void>> cancelTournament(String id, {required String reason}) =>
+      _api.post('/admin/games/chess/tournaments/$id/cancel', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<List<AdminTeamMatch>>> teamMatches() => _api.get('/admin/games/chess/team-matches',
+      decode: (json) => [for (final m in (json! as List).cast<Map<String, Object?>>()) AdminTeamMatch.fromJson(m)]);
+
+  @override
+  Future<Result<void>> cancelTeamMatch(String id, {required String reason}) =>
+      _api.post('/admin/games/chess/team-matches/$id/cancel', body: {'reason': reason}, decode: (_) {});
+
+  @override
+  Future<Result<void>> restorePlayer(String userId) => _api.delete('/admin/games/chess/players/$userId/suspension', decode: (_) {});
 }
 
 class ApiAdminMatchingRepository implements AdminMatchingRepository {

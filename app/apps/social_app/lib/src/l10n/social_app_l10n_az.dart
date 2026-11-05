@@ -299,4 +299,11 @@ class SocialAppL10nAz extends SocialAppL10n {
 
   @override
   String get language => 'Dil';
+
+  @override
+  String get games => 'Oyunlar';
+
+  @override
+  String get chessHint =>
+      'Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl.';
 }

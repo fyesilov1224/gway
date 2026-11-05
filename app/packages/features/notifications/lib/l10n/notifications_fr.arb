@@ -87,5 +87,14 @@
   "refresh": "Actualiser",
   "followRequests": "Demandes d'abonnement",
   "andOthers": "{name} et {count, plural, =1{1 autre personne} other{{count} autres}}",
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "actChessChallenge": "t'a défié aux échecs.",
+  "actChessTeamInvite": "a invité ton groupe à un match d’échecs par équipes au nom de {group}.",
+  "actChessTeamAccepted": "a accepté le match par équipes pour {group}. Compose ton équipe.",
+  "actChessTeamDeclined": "a refusé le match par équipes pour {group}.",
+  "actChessTeamStart": "Le match par équipes contre {group} a commencé. À ton échiquier !",
+  "leadTeamMatch": "Match par équipes",
+  "actChessArenaStart": "Le tournoi auquel tu t'es inscrit a commencé. Ouvre-le pour être apparié tout de suite.",
+  "actChessArenaMedal": "Tu as fini le tournoi dans le top 3 ! Ta médaille est sur ton profil d’échecs.",
+  "leadArena": "Tournoi d'échecs"
 }

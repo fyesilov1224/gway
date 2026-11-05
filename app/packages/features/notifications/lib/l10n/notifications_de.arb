@@ -87,5 +87,14 @@
   "refresh": "Aktualisieren",
   "followRequests": "Follower-Anfragen",
   "andOthers": "{name} und {count, plural, =1{1 weitere Person} other{{count} weitere}}",
-  "delete": "Löschen"
+  "delete": "Löschen",
+  "actChessChallenge": "hat dich zu einer Partie Schach eingeladen.",
+  "actChessTeamInvite": "hat deine Gruppe im Namen von {group} zu einem Schach-Mannschaftskampf eingeladen.",
+  "actChessTeamAccepted": "hat den Mannschaftskampf für {group} angenommen. Stelle deine Spieler auf.",
+  "actChessTeamDeclined": "hat den Mannschaftskampf für {group} abgelehnt.",
+  "actChessTeamStart": "Der Mannschaftskampf gegen {group} hat begonnen. Ans Brett!",
+  "leadTeamMatch": "Mannschaftskampf",
+  "actChessArenaStart": "Dein Turnier hat begonnen. Öffne es und du wirst sofort gepaart.",
+  "actChessArenaMedal": "Du hast das Turnier unter den ersten drei beendet! Deine Medaille ist in deinem Schachprofil.",
+  "leadArena": "Schachturnier"
 }

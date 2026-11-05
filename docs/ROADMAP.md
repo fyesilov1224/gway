@@ -515,6 +515,14 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli); yürürlükteki 5 metin 11 dilde (0081)
 - [x] 19h — Sağdan sola düzen, uzun dil ve %130 yazı ölçeği denetimi, testler (390 px genişlikte Arapça ve Almanca gezildi)
 
+## Faz 20 — Oyunlar: Satranç (kullanıcı isteği, 2026-11-05; dal `gelistirme/oyunlar`; `docs/ARCHITECTURE.md` §3i)
+
+Kullanıcı kararları: grup Elo'su takım maçlarından; kişi Elo'su Bullet/Blitz/Rapid ayrı; bayrağı kişi seçer; haftalık ve aylık turnuvalar Arena.
+
+- [x] 20a — Satranç çekirdeği: + düğmesinde Oyunlar bölümü, hızlı oyun (puana yakın eşleşme), arkadaşı davet etme, sunucuda hamle doğrulama (Gera.Chess, MIT) ve sunucu saati, terk, beraberlik, iptal, rövanş, ön hamle, Elo (türe göre), kişi sıralaması (podyum, altın/gümüş/bronz), oyuncu sayfası ve bayrak seçimi (CLDR, 12 dil), `chess_challenge` bildirimi ve push, yönetim paneli (sayılar, süren oyunlar, iptal, uzaklaştırma), migration `0082`, pgTAP (33), C# (21), Flutter (9); tarayıcıda uçtan uca denendi (2026-11-05)
+- [x] 20b — Takım maçı ve grup sıralaması: grup davet eder (`games.team_match` yetkisi), kabul/red, tahtalara üye dizilir, maç kendiliğinden başlar, gelmeyen tahtayı kaybeder, grup Elo'su (K 32), Sıralama'da Gruplar sekmesi ve podyum, 4 bildirim türü, panelde takım maçları; migration `0083`, pgTAP (18), C# (3 senaryo), Flutter (3); tarayıcıda uçtan uca denendi (2026-11-05)
+- [x] 20c — Arena turnuvaları: haftalık (pazar 21:00, 3+2, 60 dk) ve aylık (son pazar 19:00, 5+0, 120 dk) otomatik takvim, önceden kayıt ve başlangıç bildirimi, saniyede bir eşleştirme, 2/1/0 puan ve seride ikiye katlama, performansla sıralama, bitişte madalya ve bildirim, oyuncu sayfasında madalyalar, turnuva listesi ve sayfası, panelde turnuva açma ve iptal; migration `0084`, pgTAP (14), C# (9), Flutter (3); tarayıcıda uçtan uca denendi (2026-11-05)
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

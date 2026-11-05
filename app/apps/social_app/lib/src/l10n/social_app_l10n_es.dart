@@ -335,4 +335,11 @@ class SocialAppL10nEs extends SocialAppL10n {
 
   @override
   String get language => 'Idioma';
+
+  @override
+  String get games => 'Juegos';
+
+  @override
+  String get chessHint =>
+      'Partidas rápidas, desafía a amigos y sube en la clasificación Elo.';
 }

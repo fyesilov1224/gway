@@ -41,7 +41,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 
 ## 3. Modüller
 
-`core, identity, profile, groups, billing, support, feed, notifications, events, moderation, live, messaging, matching, admin`
+`core, identity, profile, groups, billing, support, feed, notifications, events, moderation, live, messaging, matching, games, admin`
 
 - Her modül Flutter'da `app/packages/features/<modül>` olarak, C#'ta `backend/src/Modules/Gway.Modules.<Ad>` olarak **aynı isimle** yaşar.
 - Her modül kendi tablolarının sahibidir. Bir tablonun sahibi migration'daki yorumla belirtilir (`-- owner: <modül>`).
@@ -113,6 +113,9 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.passkeys` | identity | 15.8 |
 | `public.webauthn_challenges` | identity | 15.8 |
 | `public.birth_dates` | identity | 17a |
+| `public.chess_players`, `public.chess_ratings`, `public.chess_games`, `public.chess_seeks`, `public.chess_challenges` | games | 20a |
+| `public.chess_group_ratings`, `public.chess_team_matches`, `public.chess_team_lineups`, `public.chess_team_boards` | games | 20b |
+| `public.chess_tournaments`, `public.chess_tournament_players` | games | 20c |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -1384,6 +1387,98 @@ Kesin sinyaller ve telefonun izinli ülkeye kilidi anahtarlardan etkilenmez. Kap
 | `POST /admin/security/reviews/{id}/ban` | `note`. Rol: `admin`, `moderator` |
 | `GET /admin/users/{id}/security` | Kullanıcının durumu, numara maskesi, son kontroller, inceleme muafiyeti. Rol: `admin`, `moderator`, `support` |
 | `PUT /admin/users/{id}/security/review-exempt` | `exempt`, `note`: inceleme hesabı muafiyeti. Rol: `admin` |
+
+## 3i. Oyunlar: Satranç (Faz 20, kullanıcı kararları 2026-11-05)
+
+Kullanıcı isteği: ortadaki + düğmesinde **Oyunlar** bölümü; ilk oyun profesyonel bir satranç. Kişiler kendi aralarında oynar, gruplar birbirini takım maçına davet eder; kişi ve grup sıralamaları Elo'ya göre ayrı listelenir, ilk üç altın, gümüş ve bronz madalya alır; haftalık ve aylık turnuvalar vardır. Sonradan başka oyunlar da eklenecek: modülün adı `games`, satranç onun ilk oyunudur.
+
+### Kararlar
+- **Grup Elo'su takım maçlarından gelir** (üye ortalaması değil). Takım maçı oynamamış grup sıralamada görünmez.
+- **Kişi Elo'su süre türüne göre ayrıdır:** Bullet, Blitz, Rapid. Her türün kendi sıralaması vardır.
+- **Bayrak:** kişi satranç profilinde ülkesini kendi seçer (varsayılan uygulama dilinin ülkesi, Türkçede TR). Güvenlik doğrulamasının ülkesi gizli kalır, kullanılmaz; aydınlatma metni değişmez.
+- **Turnuva biçimi Arena:** belirli bir zaman penceresinde dilediğin kadar oyun; kazanma 2, beraberlik 1 puan; üst üste iki galibiyetten sonra seri bitene kadar puanlar ikiye katlanır.
+
+### Açık kaynak ve lisanslar
+Uygulama kapalı kaynak olduğu için GPL/AGPL bileşen (Lichess'in `chessground`, `dartchess`, Stockfish, `lila` tasarımları) kullanılmaz.
+| Parça | Kaynak | Lisans |
+|---|---|---|
+| Sunucuda kural ve hamle doğrulaması | `Gera.Chess` (NuGet, Geras1mleo/Chess) | MIT |
+| Uygulamada yasal hamle hesabı (seçim, ipucu, ön hamle) | `chess` (pub.dev, chess.js'in Dart sürümü) | BSD-2 |
+| Taş seti | Chessnut, Alexis Luengas (LexLuengas/chessnut-pieces) | Apache 2.0 (`assets/pieces/LICENSE.txt`, uygulamanın lisanslar sayfasına kaydedilir) |
+| Bayraklar | `country_flags` (flag-icons) | MIT |
+| Ülke adları (12 dil) | Unicode CLDR, `tool/games/countries.py` ile üretilir | Unicode lisansı |
+| Tahta, saat, sesler, madalyalar | GWAY'in kendi çizimi ve kendi ürettiği sesler | — |
+Tahta ve arayüz GWAY tasarım sistemiyle çizilir; başka bir sitenin görünümü kopyalanmaz.
+
+### Süre türleri
+Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'den kısa **Blitz**, diğerleri **Rapid**. Katalog: 1+0, 2+1 (Bullet); 3+0, 3+2, 5+0, 5+3 (Blitz); 10+0, 10+5, 15+10 (Rapid). Katalog dışı süre kabul edilmez (`games.time_control_invalid`).
+
+### Oyun kuralları (sunucu yetkilidir)
+- Her hamle C#'a gider (`POST /games/chess/{id}/moves`, `uci` + `ply`); sunucu oyunu satır kilidiyle açar, sıranın, hamle sırasının (`ply`, tekrar gönderime karşı) ve yasallığın (`Gera.Chess`, hamle listesinden yeniden kurulur) kontrolünü yapar, saati hesaplar ve yazar. Uygulama oyunu Realtime ile izler (`chess_games` yayında). İstemci hiçbir zaman sonuç ya da saat yazmaz.
+- **Saat sunucudadır:** `white_ms`, `black_ms`, `turn_started_at`. Hamle yapanın süresinden geçen süre düşülür, sonra artış eklenir. İlk iki yarım hamlede saat işlemez; ama her taraf ilk hamlesini 30 saniye içinde yapmalıdır, yapmazsa oyun **iptal** olur (puansız).
+- **Bitiş:** mat, terk, süre, pat, yetersiz materyal, 50 hamle kuralı, üç kez tekrar (otomatik), anlaşmalı beraberlik, iptal. Süresi biten tarafın rakibinin mat edecek materyali yoksa (yalnız şah ya da şah + tek hafif taş) sonuç beraberliktir.
+- Süre bitimini `ChessMonitor` saniyede bir yakalar; uygulama saat sıfıra inince `POST /games/chess/{id}/flag` ile hemen bitirmeyi ister (sunucu yine kendisi hesaplar).
+- **Beraberlik teklifi:** iki yarım hamleden sonra; rakip kabul eder ya da hamle yaparak reddeder. Aynı kişi rakip hamle yapmadan yeniden teklif edemez.
+- **Terk:** oyun boyunca; ilk iki yarım hamleden önce terk iptal sayılır.
+- **Rövanş:** biten oyundan renkler değişmiş bir davet olarak gider.
+- **Ön hamle (premove):** yalnızca uygulamadadır; sıra gelince normal hamle olarak gönderilir.
+
+### Eşleşme ve davet
+- **Hızlı oyun:** süre seçilir, `chess_seeks`'e yazılır. Sunucu aynı süreyi arayan, puanı ±200 içinde (her 10 saniyede ±100 genişler, en çok ±600) en eski kişiyle eşleştirir (`for update skip locked`). Bekleme kaydı uygulama açıkken 20 saniyede bir tazelenir; 60 saniye tazelenmeyen kayıt silinir. Eşleşme `chess_seeks.game_id` ile Realtime'dan duyulur.
+- **Davet (meydan okuma):** bir kişiye süre, puanlı/puansız ve renk (rastgele, beyaz, siyah) seçilerek gönderilir. Kişide `chess_challenge` bildirimi (push) çıkar; 10 dakika içinde kabul ya da red. Kişi başına en çok 5 açık giden davet. Engel ilişkisi olan iki kişi birbirini davet edemez, eşleşmez.
+- Satrançtan uzaklaştırılmış kişi (`chess_players.suspended_until`) oynayamaz, sıralamada görünmez.
+
+### Elo
+- Başlangıç 1200; beklenen skor `1 / (1 + 10^((Rb − Ra) / 400))`; K = 40 (ilk 30 puanlı oyun), 20 (2400 altı), 10 (2400 ve üstü). En düşük 100. Puan değişimi oyun satırına yazılır (`white_delta`, `black_delta`), sonuçla aynı işlemde.
+- Kişi sıralaması: türde en az 5 puanlı oyunu olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte oyun sayısına göre. 1, 2, 3 altın, gümüş, bronz madalya.
+
+### Takım maçı ve grup Elo'su (20b)
+- Grup sahibi ya da Yönetici (`games.team_match` yetkisi; sahipte her zaman var, Yönetici rolüne verildi) başka bir grubu davet eder: tahta sayısı (2–10), süre (Blitz ya da Rapid; Bullet yok), başlangıç (en az 15 dakika, en çok 30 gün sonra). Karşı grubun yetkilileri (`chess_team_invite` bildirimi) kabul eder veya reddeder; davet eden kişiye `chess_team_accepted` / `chess_team_declined` gider. Başlangıca kadar yanıtlanmayan davet kendiliğinden iptal olur.
+- İki grup arasında aynı anda tek açık maç olur (kim davet ederse etsin); bir grubun en çok 5 açık maçı olur. Başlamadan önce davet eden taraf daveti geri çekebilir, kabul edilmiş maçı iki taraftan biri iptal edebilir.
+- İki grup da başlangıca kadar tahtalara kendi üyelerini dizer (`PUT .../lineup`); bir kişi maçta yalnızca bir tahtada ve bir tarafta oynar, satrançtan uzaklaştırılmış ya da hesabı askıdaki kişi dizilemez. Aday listesi yalnız o tarafın yetkilisine, maçın türündeki puanlarıyla görünür (`chess_team_candidates`).
+- `ChessMonitor` başlangıç zamanı gelen maçı başlatır (`live`): iki tarafı da dolu her tahtada puanlı bir oyun açılır (`chess_games.team_match_id`); ev sahibi tek numaralı tahtalarda beyazdır. Yalnız bir tarafı dolu tahta o tarafa 1–0 yazılır, iki tarafı boş tahta 0–0'dır. Dizilen oyunculara `chess_team_start` bildirimi gider.
+- Takım tahtasında ilk hamle için 5 dakika beklenir; gelmeyen taraf tahtayı kaybeder (`no_show`, kişisel Elo değişmez). Takım oyunu iptal edilemez; ilk hamleden önce terk de kayıptır. Platform ekibinin iptal ettiği tahta 0–0 sayılır.
+- Son tahta da bitince maç kapanır: maç puanı tahtaların toplamıdır, grup Elo'su (başlangıç 1200, K = 32) skor oranıyla (ev sahibi puanı / toplam) güncellenir, değişim iki grup için eşit ve terstir. Hiç oynanmamış maç (0–0) Elo'yu değiştirmez. Tahtalardaki oyunlar kişilerin de puanlı oyunudur. Sonuç maçla aynı işlemde yazılır.
+- Grup sıralaması: en az bir takım maçı bitmiş, etkin gruplar; Elo'ya göre; ilk üç madalyalı (`chess_group_leaderboard`). Uygulamada Sıralama ekranının "Gruplar" sekmesi.
+- Uygulama: Satranç ana sayfasında "Takım maçları" (grupların maçları ve yetkiliye "Takım maçı düzenle"), maç sayfası (iki grup ve Elo'ları, skor, tahtalar, kabul/red, diziliş, iptal), Realtime ile canlı skor.
+
+### Arena turnuvaları (20c)
+- Platform turnuvalarını veritabanı planlar (`private.chess_schedule_tournaments`, izleyici dakikada bir, 35 gün ileri, tekrar çalışınca bir şey eklemez): **Haftalık** her pazar 21:00 (Türkiye), 60 dakika, 3+2; **Aylık** her ayın son pazarı 19:00, 120 dakika, 5+0. Yönetim paneli (yalnız `admin`) başlık, süre, başlangıç ve uzunlukla (20–360 dk) ek turnuva açar; başlamamış turnuvayı `admin` ya da `moderator` gerekçeyle iptal eder.
+- Başlamadan katılan kişi kayıtlı olur ve başlangıçta `chess_arena_start` bildirimi alır; başlamadan kaydını silebilir. Turnuva açıkken katılan hemen havuza girer; "Ara ver" havuzdan çıkarır, puan kalır.
+- `ChessMonitor` saniyede bir havuzdakileri eşleştirir: puana göre sıralanır, mümkünse son rakiple tekrar eşleşilmez, engel ilişkisi olanlar eşleşmez; renk rastgeledir. Turnuva oyunları puanlıdır, iptal edilemez ve rövanşı yoktur; ilk hamlesini 30 saniyede yapmayan kaybeder (`no_show`, puan almaz, kişisel Elo değişmez) ve havuzdan çıkar. Uygulama turnuva sayfası açıkken yeni eşleşmede oyunu kendiliğinden açar.
+- Puan: kazanma 2, beraberlik 1, kayıp 0; oyuna üst üste iki galibiyetle giren kişinin sonucu ikiye katlanır (4 / 2), seri ilk galibiyetsiz oyunda biter. Puan, oyunun sonucuyla aynı işlemde yazılır. Eşitlikte performans: rakip ortalaması + 400 × (galibiyet − mağlubiyet) / oyun (`chess_tournament_standings`).
+- Süre bitince yeni eşleşme yapılmaz; süre içinde başlamış oyunlar bitince sayılır, son oyun da bitince sıralar (`final_rank`) yazılır ve ilk üç `chess_arena_medal` bildirimi alır. Madalyalar oyuncu sayfasında görünür (`chess_medals`).
+
+### Uygulama
+- `games` paketi: Oyunlar merkezi (+ düğmesinden), Satranç ana sayfası (hızlı oyun ızgarası, davetler, puanlarım, son oyunlar, sıralama özeti), oyun ekranı (tahta, saatler, oyuncu kartları bayrak ve puanla, hamle listesi, beraberlik, terk, iptal, tahtayı çevir, rövanş, sonuç ve puan değişimi), sıralama (türe göre sekmeler, ilk üç podyum), oyuncu sayfası, ülke seçimi.
+- Tahta GWAY'in kendi çizimidir: sürükle-bırak ve dokun-dokun, son hamle ve şah vurgusu, yasal hamle noktaları, terfi seçimi, kenar koordinatları, hamle animasyonu, ses ve titreşim; renkler `design_system` tokenlarından (`GwChessColors`).
+- Bildirim türü `chess_challenge` (davet); dokununca Satranç sayfası açılır.
+
+### Yönetim paneli
+Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekleyen davetler; süren bir oyunu iptal etme (puansız); kişiyi satrançtan uzaklaştırma ve geri alma (gerekçeli). Her işlem `audit_log`'a yazılır (`games.chess_game_aborted`, `games.chess_player_suspended`, `games.chess_player_restored`). 20b'de takım maçları, 20c'de turnuva yönetimi eklenir.
+
+### API
+| Uç | İş |
+|---|---|
+| `POST /games/chess/seeks` | `baseSeconds`, `incrementSeconds`, `rated`: eşleşirse oyun, yoksa bekleme kaydı |
+| `POST /games/chess/seeks/heartbeat`, `DELETE /games/chess/seeks` | Beklemeyi tazeler / bırakır |
+| `POST /games/chess/challenges` | `opponentId`, süre, `rated`, `color` |
+| `POST /games/chess/challenges/{id}/accept`, `/decline`, `DELETE /games/chess/challenges/{id}` | Kabul (oyun açılır), red, geri çekme |
+| `GET /games/chess/{id}` | Oyun ve sunucu saati (`serverNow`) |
+| `POST /games/chess/{id}/moves` | `uci`, `ply` |
+| `POST /games/chess/{id}/resign`, `/draw-offer`, `/draw-accept`, `/draw-decline`, `/abort`, `/flag`, `/rematch` | Oyun işlemleri |
+| `GET /admin/games/chess` | Sayılar ve süren oyunlar. Rol: `admin`, `moderator` |
+| `POST /admin/games/chess/{id}/abort` | `reason`. Rol: `admin`, `moderator` |
+| `POST /admin/games/chess/players/{id}/suspension`, `DELETE` | `reason`, `until?`. Rol: `admin`, `moderator` |
+| `POST /games/chess/team-matches` | `homeGroupId`, `awayGroupId`, `boards`, `baseSeconds`, `incrementSeconds`, `startsAt` |
+| `POST /games/chess/team-matches/{id}/accept`, `/decline`, `DELETE /games/chess/team-matches/{id}` | Yanıt ve iptal (yetkili) |
+| `PUT /games/chess/team-matches/{id}/lineup` | `groupId`, `players` (1. tahtadan başlayarak; `null` boş tahta) |
+| `POST /games/chess/tournaments/{id}/join`, `/pause`, `DELETE /games/chess/tournaments/{id}/registration` | Katılma (önceden kayıt), ara verme, başlamadan kaydı silme |
+| `GET /admin/games/chess/tournaments`, `POST /admin/games/chess/tournaments` (`title`, `baseSeconds`, `incrementSeconds`, `startsAt`, `minutes`; yalnız `admin`), `POST /admin/games/chess/tournaments/{id}/cancel` | Turnuvalar; `games.arena_created`, `games.arena_canceled` |
+| `GET /admin/games/chess/team-matches`, `POST /admin/games/chess/team-matches/{id}/cancel` | Açık maçlar; başlamamış maçı gerekçeyle iptal (`games.team_match_canceled`). Rol: `admin`, `moderator` |
+
+### Tablolar (sahip: games)
+`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#); `chess_tournaments`, `chess_tournament_players` (0084; giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
 
 ## 4. Flutter
 

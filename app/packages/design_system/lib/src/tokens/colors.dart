@@ -58,3 +58,36 @@ abstract final class GwColors {
     end: Alignment.centerRight,
   );
 }
+
+/// The chess board (docs/DESIGN.md §1, Oyunlar): squares tinted from the brand purple, highlights from the brand
+/// blue and the error red. Pieces carry their own outline, so both colors read on both squares.
+abstract final class GwChessColors {
+  static const lightSquare = Color(0xFFF1EDFB);
+  static const darkSquare = Color(0xFF9D8DDB);
+
+  /// Over a square: the last move's two squares, the selected piece, a king in check.
+  static const lastMove = Color(0x592F6FE0);
+  static const selected = Color(0x806E56CF);
+  static const check = Color(0xB3C4314B);
+
+  /// Dots on empty target squares, rings on captures.
+  static const hint = Color(0x401F2033);
+
+  /// A queued premove.
+  static const premove = Color(0x66EB6834);
+}
+
+/// Leaderboard medals for the top three (docs/DESIGN.md §1, Madalyalar): [strong] for the medal, [soft] behind it.
+enum GwMedal {
+  gold(Color(0xFFC9971C), Color(0xFFFFF4D6)),
+  silver(Color(0xFF8C96A6), Color(0xFFF0F2F6)),
+  bronze(Color(0xFFB06A35), Color(0xFFFBECE0));
+
+  const GwMedal(this.strong, this.soft);
+
+  final Color strong;
+  final Color soft;
+
+  /// The medal for a 1-based rank; null below third.
+  static GwMedal? forRank(int rank) => rank >= 1 && rank <= 3 ? values[rank - 1] : null;
+}

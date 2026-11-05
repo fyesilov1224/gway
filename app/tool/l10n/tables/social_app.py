@@ -253,6 +253,13 @@ ROWS = [
      'Bağlı olanda qrupdakı üzvlüyünü yalnız həmin qrupun üzvləri görür; başqa qrupların idarəçiləri görə bilməz.',
      'Якщо вимкнено, про ваше членство в групі знають лише її учасники; адміністратори інших груп його не бачать.'),
     ('language', None, 'Dil', 'Language', 'Sprache', 'Langue', 'Taal', 'Idioma', 'Idioma', 'Lingua', 'Язык', 'اللغة', 'Dil', 'Мова'),
+    ('games', None, 'Oyunlar', 'Games', 'Spiele', 'Jeux', 'Spellen', 'Juegos', 'Jogos', 'Giochi', 'Игры', 'الألعاب', 'Oyunlar', 'Ігри'),
+    ('chessHint', None, 'Hızlı oyun, arkadaşını davet et, Elo sıralamasında yüksel.', 'Quick games, challenge friends, climb the Elo leaderboard.',
+     'Schnelle Partien, Freunde herausfordern, in der Elo-Rangliste aufsteigen.', 'Parties rapides, défis entre amis, grimpe au classement Elo.',
+     'Snelle partijen, daag vrienden uit, klim in de Elo-ranglijst.', 'Partidas rápidas, desafía a amigos y sube en la clasificación Elo.',
+     'Partidas rápidas, desafie amigos e suba no ranking Elo.', 'Partite veloci, sfida gli amici e scala la classifica Elo.',
+     'Быстрые партии, вызовы друзьям и рейтинг Эло.', 'مباريات سريعة، تحدَّ أصدقاءك واصعد في ترتيب Elo.',
+     'Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl.', 'Швидкі партії, виклики друзям і рейтинг Ело.'),
 ]
 
 SRC_CALLS = {

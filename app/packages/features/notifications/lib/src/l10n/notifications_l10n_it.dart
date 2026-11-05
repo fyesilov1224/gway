@@ -355,4 +355,41 @@ class NotificationsL10nIt extends NotificationsL10n {
 
   @override
   String get delete => 'Elimina';
+
+  @override
+  String get actChessChallenge => 'ti ha sfidato a scacchi.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'ha sfidato il tuo gruppo a un incontro di scacchi a squadre per $group.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'ha accettato l’incontro a squadre per $group. Schiera i tuoi giocatori.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'ha rifiutato l’incontro a squadre per $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'L\'incontro a squadre contro $group è iniziato. Alla tua scacchiera!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Incontro a squadre';
+
+  @override
+  String get actChessArenaStart =>
+      'Il torneo a cui ti sei iscritto è iniziato. Aprilo e verrai abbinato subito.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Hai chiuso il torneo tra i primi tre! La tua medaglia è nel profilo scacchistico.';
+
+  @override
+  String get leadArena => 'Torneo di scacchi';
 }

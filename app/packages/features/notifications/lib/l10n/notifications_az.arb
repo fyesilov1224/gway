@@ -87,5 +87,14 @@
   "refresh": "Yenilə",
   "followRequests": "İzləmə istəkləri",
   "andOthers": "{name} və daha {count} nəfər",
-  "delete": "Sil"
+  "delete": "Sil",
+  "actChessChallenge": "səni şahmat oynamağa dəvət etdi.",
+  "actChessTeamInvite": "{group} qrupu adına qrupunu şahmat komanda matçına dəvət etdi.",
+  "actChessTeamAccepted": "{group} qrupu adına komanda matçı dəvətini qəbul etdi. Oyunçularını düz.",
+  "actChessTeamDeclined": "{group} qrupu adına komanda matçı dəvətini rədd etdi.",
+  "actChessTeamStart": "{group} qrupuna qarşı komanda matçı başladı. Taxtana keç!",
+  "leadTeamMatch": "Komanda matçı",
+  "actChessArenaStart": "Qoşulduğun turnir başladı. Açan kimi dərhal cütləşəcəksən.",
+  "actChessArenaMedal": "Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.",
+  "leadArena": "Şahmat turniri"
 }

@@ -43,7 +43,14 @@ enum NotificationType {
   callMissed('call_missed'),
   callPermissionGranted('call_permission_granted'),
   callPermissionDeclined('call_permission_declined'),
-  callPermissionRevoked('call_permission_revoked');
+  callPermissionRevoked('call_permission_revoked'),
+  chessChallenge('chess_challenge'),
+  chessTeamInvite('chess_team_invite'),
+  chessTeamAccepted('chess_team_accepted'),
+  chessTeamDeclined('chess_team_declined'),
+  chessTeamStart('chess_team_start'),
+  chessArenaStart('chess_arena_start'),
+  chessArenaMedal('chess_arena_medal');
 
   const NotificationType(this.code);
 
@@ -62,6 +69,10 @@ enum NotificationType {
 
   /// A decision on the person's voice call permission (docs/ARCHITECTURE.md §8c): named by the feature, not a person.
   bool get isCallPermission => this == callPermissionGranted || this == callPermissionDeclined || this == callPermissionRevoked;
+
+  /// About a chess team match between groups (docs/ARCHITECTURE.md §3i); opens chess.
+  bool get isChess => this == chessChallenge || this == chessTeamInvite || this == chessTeamAccepted || this == chessTeamDeclined || this == chessTeamStart ||
+      this == chessArenaStart || this == chessArenaMedal;
 
   /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
   bool get isLive => this == liveScheduled || this == liveStarted;
@@ -220,6 +231,13 @@ class AppNotification {
       NotificationType.callPermissionDeclined => l.actCallDeclined,
       NotificationType.callPermissionRevoked => l.actCallRevoked,
       NotificationType.eventSeriesLimit => l.actSeriesLimit(event),
+      NotificationType.chessChallenge => l.actChessChallenge,
+      NotificationType.chessTeamInvite => l.actChessTeamInvite(group?.name ?? ''),
+      NotificationType.chessTeamAccepted => l.actChessTeamAccepted(group?.name ?? ''),
+      NotificationType.chessTeamDeclined => l.actChessTeamDeclined(group?.name ?? ''),
+      NotificationType.chessTeamStart => l.actChessTeamStart(group?.name ?? ''),
+      NotificationType.chessArenaStart => l.actChessArenaStart,
+      NotificationType.chessArenaMedal => l.actChessArenaMedal,
     };
   }
 
@@ -228,6 +246,8 @@ class AppNotification {
         _ when type.fromGroup || type == NotificationType.leagueResult => group?.name ?? '',
         NotificationType.matchCreated => notificationsL10n.leadNewMatch,
         NotificationType.eventSeriesLimit => notificationsL10n.leadSeries,
+        NotificationType.chessTeamStart => notificationsL10n.leadTeamMatch,
+        NotificationType.chessArenaStart || NotificationType.chessArenaMedal => notificationsL10n.leadArena,
         NotificationType.eventVenueRevealed => notificationsL10n.leadVenue,
         _ when type.isCallPermission => notificationsL10n.leadCalls,
         _ => actor.username,

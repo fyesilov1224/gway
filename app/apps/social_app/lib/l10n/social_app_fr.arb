@@ -89,5 +89,7 @@
   "groupsNowMembers": "Tes groupes ne sont plus visibles que par les membres du même groupe.",
   "showGroups": "Afficher mes groupes sur mon profil",
   "showGroupsHint": "Désactivé, seuls les membres d'un groupe voient que tu en fais partie ; les admins d'autres groupes ne le voient pas.",
-  "language": "Langue"
+  "language": "Langue",
+  "games": "Jeux",
+  "chessHint": "Parties rapides, défis entre amis, grimpe au classement Elo."
 }

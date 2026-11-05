@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Modules\Gway.Modules.Billing\Gway.Modules.Billing.csproj" />
     <ProjectReference Include="..\Modules\Gway.Modules.Events\Gway.Modules.Events.csproj" />
     <ProjectReference Include="..\Modules\Gway.Modules.Feed\Gway.Modules.Feed.csproj" />
+    <ProjectReference Include="..\Modules\Gway.Modules.Games\Gway.Modules.Games.csproj" />
     <ProjectReference Include="..\Modules\Gway.Modules.Groups\Gway.Modules.Groups.csproj" />
     <ProjectReference Include="..\Modules\Gway.Modules.Profile\Gway.Modules.Profile.csproj" />
     <ProjectReference Include="..\Modules\Gway.Modules.Identity\Gway.Modules.Identity.csproj" />

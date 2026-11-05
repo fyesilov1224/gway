@@ -1,0 +1,563 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'games_l10n.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Azerbaijani (`az`).
+class GamesL10nAz extends GamesL10n {
+  GamesL10nAz([String locale = 'az']) : super(locale);
+
+  @override
+  String get chess => 'Şahmat';
+
+  @override
+  String get bullet => 'Bullet';
+
+  @override
+  String get blitz => 'Blits';
+
+  @override
+  String get rapid => 'Rapid';
+
+  @override
+  String get white => 'Ağ';
+
+  @override
+  String get black => 'Qara';
+
+  @override
+  String get colorRandom => 'Təsadüfi';
+
+  @override
+  String get endCheckmate => 'Mat';
+
+  @override
+  String get endResign => 'Təslim';
+
+  @override
+  String get endTimeout => 'Vaxt bitdi';
+
+  @override
+  String get endTimeoutDraw => 'Vaxt bitdi, rəqibin mat edəcək fiquru yoxdur';
+
+  @override
+  String get endStalemate => 'Pat';
+
+  @override
+  String get endInsufficient => 'Kifayət etməyən material';
+
+  @override
+  String get endFiftyMoves => '50 gediş qaydası';
+
+  @override
+  String get endRepetition => 'Üç dəfə təkrar';
+
+  @override
+  String get endAgreement => 'Razılaşma ilə heç-heçə';
+
+  @override
+  String get endAborted => 'Ləğv edildi';
+
+  @override
+  String get boardLabel => 'Şahmat taxtası';
+
+  @override
+  String get promoteTo => 'Piyada nəyə çevrilsin?';
+
+  @override
+  String get queen => 'Vəzir';
+
+  @override
+  String get rook => 'Top';
+
+  @override
+  String get bishop => 'Fil';
+
+  @override
+  String get knight => 'At';
+
+  @override
+  String get medalGold => 'Qızıl medal';
+
+  @override
+  String get medalSilver => 'Gümüş medal';
+
+  @override
+  String get medalBronze => 'Bürünc medal';
+
+  @override
+  String get youWon => 'Qalib gəldin';
+
+  @override
+  String get youLost => 'Uduzdun';
+
+  @override
+  String get draw => 'Heç-heçə';
+
+  @override
+  String get inProgress => 'Davam edir';
+
+  @override
+  String get whiteWon => 'Ağlar qalib gəldi';
+
+  @override
+  String get blackWon => 'Qaralar qalib gəldi';
+
+  @override
+  String get rated => 'Reytinqli';
+
+  @override
+  String get casual => 'Reytinqsiz';
+
+  @override
+  String get ratedHint => 'Nəticə Elo reytinqini dəyişir.';
+
+  @override
+  String get flipBoard => 'Taxtanı çevir';
+
+  @override
+  String get cancel => 'İmtina';
+
+  @override
+  String get resign => 'Təslim ol';
+
+  @override
+  String get resignTitle => 'Oyundan təslim olursan?';
+
+  @override
+  String get resignBody =>
+      'Rəqibin qalib gəlir; reytinqli oyunda Elo-n azalır.';
+
+  @override
+  String get abort => 'Ləğv et';
+
+  @override
+  String get offerDraw => 'Heç-heçə?';
+
+  @override
+  String get drawOffered => 'Təklif edildi';
+
+  @override
+  String get drawOfferReceived => 'Rəqibin heç-heçə təklif edir.';
+
+  @override
+  String get accept => 'Qəbul et';
+
+  @override
+  String get decline => 'Rədd et';
+
+  @override
+  String get rematch => 'Revanş';
+
+  @override
+  String get rematchSent => 'Revanş istəyi göndərildi.';
+
+  @override
+  String get newGame => 'Yeni oyun';
+
+  @override
+  String newRating(String category, int rating) {
+    return '$category reytinqin: $rating';
+  }
+
+  @override
+  String get deletedPlayer => 'Silinmiş hesab';
+
+  @override
+  String get firstMove => 'İlk gediş: 30 san';
+
+  @override
+  String get noMovesYet => 'Hələ gediş yoxdur. Ağlar başlayır.';
+
+  @override
+  String get watching => 'İzləyirsən';
+
+  @override
+  String get quickGame => 'Sürətli oyun';
+
+  @override
+  String get quickGameHint => 'Vaxtı seç, reytinqinə yaxın biri ilə eşləş.';
+
+  @override
+  String get searching => 'Rəqib axtarılır…';
+
+  @override
+  String waitedSeconds(int count) {
+    return '$count saniyədir gözləyirsən';
+  }
+
+  @override
+  String get chessProfile => 'Şahmat profili';
+
+  @override
+  String get recentGames => 'Son oyunlar';
+
+  @override
+  String get noGamesMine => 'Hələ oyunun yoxdur. İlk oyununu oyna.';
+
+  @override
+  String get noGamesTheirs => 'Hələ oyunu yoxdur. İlk oyununa sən dəvət et.';
+
+  @override
+  String get playNow => 'İndi oyna';
+
+  @override
+  String get challenge => 'Dəvət et';
+
+  @override
+  String get noFlag => 'Bayraq seçilməyib';
+
+  @override
+  String get chooseFlag => 'Bayrağını seç';
+
+  @override
+  String get chooseFlagHint => 'Sıralamada adının yanında görünür.';
+
+  @override
+  String get searchCountry => 'Ölkə axtar';
+
+  @override
+  String get flagSaved => 'Bayrağın yadda saxlanıldı.';
+
+  @override
+  String get pickFlagPrompt => 'Sıralamada görünəcək bayrağını seç.';
+
+  @override
+  String get suspendedNotice => 'Bu şəxs üçün şahmat hazırda bağlıdır.';
+
+  @override
+  String get notPlayed => 'Oynanmayıb';
+
+  @override
+  String gamesCount(int count) {
+    return '$count oyun';
+  }
+
+  @override
+  String rankShort(int rank) {
+    return '$rank-ci yerdə';
+  }
+
+  @override
+  String get leaderboard => 'Sıralama';
+
+  @override
+  String leaderboardEmpty(int count) {
+    return 'Sıralamaya düşmək üçün bu növdə $count reytinqli oyun oyna.';
+  }
+
+  @override
+  String record(int wins, int draws, int losses) {
+    return '${wins}Q · ${draws}H · ${losses}M';
+  }
+
+  @override
+  String get seeAll => 'Hamısına bax';
+
+  @override
+  String get invitations => 'Dəvətlər';
+
+  @override
+  String invitesYou(String what) {
+    return 'Səni oyuna dəvət edir: $what';
+  }
+
+  @override
+  String wantsRematch(String what) {
+    return 'Revanş istəyir: $what';
+  }
+
+  @override
+  String waitingFor(String what) {
+    return 'Cavab gözlənilir: $what';
+  }
+
+  @override
+  String get withdraw => 'Geri çək';
+
+  @override
+  String get gameInProgress => 'Davam edən oyunun var';
+
+  @override
+  String get resume => 'Davam et';
+
+  @override
+  String get challengeFriend => 'Dostunu dəvət et';
+
+  @override
+  String get challengeSent => 'Dəvət göndərildi. Qəbul edilincə oyun başlayır.';
+
+  @override
+  String get challengeTitle => 'Oyuna dəvət et';
+
+  @override
+  String get changePerson => 'Şəxsi dəyiş';
+
+  @override
+  String get searchPerson => 'İstifadəçi adı və ya ad';
+
+  @override
+  String get timeControl => 'Vaxt';
+
+  @override
+  String get yourColor => 'Rəngin';
+
+  @override
+  String get sendChallenge => 'Dəvəti göndər';
+
+  @override
+  String get teamMatch => 'Komanda matçı';
+
+  @override
+  String get teamMatches => 'Komanda matçları';
+
+  @override
+  String get teamMatchesHint =>
+      'Qruplarının şahmat matçları; nəticə qrupun Elo-sunu dəyişir.';
+
+  @override
+  String get noTeamMatches =>
+      'Hələ komanda matçı yoxdur. Qrupun adına başqa qrupu dəvət et.';
+
+  @override
+  String get newTeamMatch => 'Komanda matçı təşkil et';
+
+  @override
+  String get newTeamMatchHint =>
+      'Qarşı qrupun yöneticisi qəbul edəndə iki qrup da oyunçularını düzür.';
+
+  @override
+  String get yourGroup => 'Qrupun';
+
+  @override
+  String get opponentGroup => 'Rəqib qrup';
+
+  @override
+  String get searchGroup => 'Qrup adı və ya istifadəçi adı';
+
+  @override
+  String get startsAt => 'Başlanğıc';
+
+  @override
+  String get sendTeamInvite => 'Qrupu dəvət et';
+
+  @override
+  String get boards => 'Taxtalar';
+
+  @override
+  String get boardsShort => 'taxta';
+
+  @override
+  String boardsCount(int count) {
+    return '$count taxta';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Qrup Elo $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Cavab gözlənilir';
+
+  @override
+  String get teamAccepted => 'Qəbul edildi';
+
+  @override
+  String get teamDeclined => 'Rədd edildi';
+
+  @override
+  String get teamCanceled => 'Ləğv edildi';
+
+  @override
+  String get teamLive => 'Oynanılır';
+
+  @override
+  String get teamFinished => 'Bitdi';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group qrupunuzu komanda matçına dəvət edir.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Matç qəbul edildi. İndi oyunçularınızı düzün.';
+
+  @override
+  String get teamDeclinedDone => 'Dəvət rədd edildi.';
+
+  @override
+  String get teamCanceledDone => 'Matç ləğv edildi.';
+
+  @override
+  String get callOff => 'Matçı ləğv et';
+
+  @override
+  String get lineupHint =>
+      'Başlanğıcda boş qalan taxta rəqibə xal kimi yazılır.';
+
+  @override
+  String get lineupSheetHint =>
+      'Üzvlərə toxunaraq onları sıra ilə taxtalara yerləşdir; 1-ci taxta ən güclü oyunçunundur.';
+
+  @override
+  String editLineup(String group) {
+    return '$group düzülüşü';
+  }
+
+  @override
+  String get saveLineup => 'Düzülüşü yadda saxla';
+
+  @override
+  String get emptyBoard => 'Boş';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games oyun';
+  }
+
+  @override
+  String get groupsTab => 'Qruplar';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Hələ heç bir qrup komanda matçı oynamayıb. İlk sənin qrupun olsun.';
+
+  @override
+  String get backToChess => 'Şahmata qayıt';
+
+  @override
+  String get arena => 'Turnir';
+
+  @override
+  String get tournaments => 'Turnirlər';
+
+  @override
+  String get tournamentsHint =>
+      'Həftəlik və aylıq Arena turnirləri; ilk üçlük medal alır.';
+
+  @override
+  String get weeklyArena => 'Həftəlik Arena';
+
+  @override
+  String get monthlyArena => 'Aylıq Arena';
+
+  @override
+  String get arenaRules =>
+      'Arena: vaxt bitənə qədər istədiyin qədər oyna. Qələbə 2, heç-heçə 1 xal; ardıcıl iki qələbədən sonra seriya bitənə qədər xallar ikiqat olur. Bitmədən başlayan oyunlar sayılır.';
+
+  @override
+  String get arenaLiveNow => 'İndi oynanılır';
+
+  @override
+  String get arenaUpcoming => 'Yaxınlaşan';
+
+  @override
+  String get arenaFinished => 'Bitənlər';
+
+  @override
+  String get registered => 'Qeydiyyatdasan';
+
+  @override
+  String get arenaRegister => 'Qeydiyyatdan keç';
+
+  @override
+  String get arenaRegistered =>
+      'Qeydiyyatdasan. Turnir başlayanda bildiriş alacaqsan; açan kimi cütləşəcəksən.';
+
+  @override
+  String get arenaJoin => 'Qoşul';
+
+  @override
+  String get arenaResume => 'Oynamağa davam et';
+
+  @override
+  String get arenaPause => 'Fasilə ver';
+
+  @override
+  String get arenaWaiting =>
+      'Rəqib gözlənilir; xalı yaxın biri boşalanda oyun özü açılacaq.';
+
+  @override
+  String get backToGame => 'Oyuna qayıt';
+
+  @override
+  String get backToArena => 'Turnirə qayıt';
+
+  @override
+  String get backToTeamMatch => 'Komanda matçına qayıt';
+
+  @override
+  String arenaStartsIn(String time) {
+    return '$time sonra başlayır';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return 'Bitməyə $time';
+  }
+
+  @override
+  String get arenaLastGames => 'Vaxt bitdi; son oyunlar bitir';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'Bitdi · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours saat $minutes dəq';
+  }
+
+  @override
+  String minutesLong(int count) {
+    return '$count dəqiqə';
+  }
+
+  @override
+  String playersCount(int count) {
+    return '$count oyunçu';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return '$points xal · $games oyun';
+  }
+
+  @override
+  String get onFire => 'Seriyada: növbəti nəticə ikiqat xal';
+
+  @override
+  String get standings => 'Turnir cədvəli';
+
+  @override
+  String get arenaEmpty => 'Hələ qoşulan yoxdur. İlk sən qoşul.';
+
+  @override
+  String performance(int value) {
+    return 'Performans $value';
+  }
+
+  @override
+  String get playingNow => 'oynayır';
+
+  @override
+  String get arenaMedals => 'Turnir medalları';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'Medallar: $gold qızıl, $silver gümüş, $bronze bürünc';
+  }
+
+  @override
+  String get firstMoveTeam => 'İlk gediş: 5 dəq';
+}

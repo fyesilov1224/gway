@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:games/games.dart';
 import 'package:go_router/go_router.dart';
 import 'package:identity/identity.dart';
 import 'package:messaging/messaging.dart';
@@ -27,6 +28,7 @@ Future<void> _onBackgroundPush(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerGamesLicenses();
   final config = AppConfig.fromEnvironment();
   await Supabase.initialize(url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
   final languagePreferences = await openLanguagePreferences();

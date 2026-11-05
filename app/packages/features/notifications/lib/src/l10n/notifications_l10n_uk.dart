@@ -345,4 +345,41 @@ class NotificationsL10nUk extends NotificationsL10n {
 
   @override
   String get delete => 'Видалити';
+
+  @override
+  String get actChessChallenge => 'запрошує вас зіграти в шахи.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'від імені $group запросив(-ла) вашу групу на командний шаховий матч.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'прийняв(-ла) командний матч від імені $group. Розставте гравців.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'відхилив(-ла) командний матч від імені $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'Командний матч проти $group почався. До дошки!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Командний матч';
+
+  @override
+  String get actChessArenaStart =>
+      'Турнір, на який ви записалися, почався. Відкрийте його, і вас одразу підберуть.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Ви увійшли до трійки найкращих! Медаль — у вашому шаховому профілі.';
+
+  @override
+  String get leadArena => 'Шаховий турнір';
 }

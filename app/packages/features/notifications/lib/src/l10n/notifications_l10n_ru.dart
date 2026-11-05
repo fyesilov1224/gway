@@ -346,4 +346,41 @@ class NotificationsL10nRu extends NotificationsL10n {
 
   @override
   String get delete => 'Удалить';
+
+  @override
+  String get actChessChallenge => 'приглашает вас сыграть в шахматы.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'от имени $group пригласил(а) вашу группу на командный шахматный матч.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'принял(а) командный матч от имени $group. Расставьте игроков.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'отклонил(а) командный матч от имени $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'Командный матч против $group начался. К доске!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Командный матч';
+
+  @override
+  String get actChessArenaStart =>
+      'Турнир, на который вы записались, начался. Откройте его, и вас сразу подберут.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Вы вошли в тройку лучших! Медаль — в вашем шахматном профиле.';
+
+  @override
+  String get leadArena => 'Шахматный турнир';
 }

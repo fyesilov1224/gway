@@ -352,4 +352,41 @@ class NotificationsL10nEn extends NotificationsL10n {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get actChessChallenge => 'invited you to play chess.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'invited your group to a chess team match for $group.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'accepted the team match for $group. Line up your players.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'declined the team match for $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'The team match against $group has started. Go to your board!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Team match';
+
+  @override
+  String get actChessArenaStart =>
+      'The tournament you joined has started. Open it and you\'ll be paired right away.';
+
+  @override
+  String get actChessArenaMedal =>
+      'You finished the tournament in the top three! Your medal is on your chess profile.';
+
+  @override
+  String get leadArena => 'Chess tournament';
 }

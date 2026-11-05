@@ -507,5 +507,61 @@
   "delete": "Sil",
   "@delete": {
     "description": ""
+  },
+  "actChessChallenge": "seni satranç oynamaya davet etti.",
+  "@actChessChallenge": {
+    "description": ""
+  },
+  "actChessTeamInvite": "{group} grubu adına grubunu satranç takım maçına davet etti.",
+  "@actChessTeamInvite": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamAccepted": "{group} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.",
+  "@actChessTeamAccepted": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamDeclined": "{group} grubu adına takım maçı davetini reddetti.",
+  "@actChessTeamDeclined": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamStart": "{group} grubuna karşı takım maçı başladı. Tahtana geç!",
+  "@actChessTeamStart": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "leadTeamMatch": "Takım maçı",
+  "@leadTeamMatch": {
+    "description": ""
+  },
+  "actChessArenaStart": "Katıldığın turnuva başladı. Açınca hemen eşleşirsin.",
+  "@actChessArenaStart": {
+    "description": ""
+  },
+  "actChessArenaMedal": "Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.",
+  "@actChessArenaMedal": {
+    "description": ""
+  },
+  "leadArena": "Satranç turnuvası",
+  "@leadArena": {
+    "description": ""
   }
 }

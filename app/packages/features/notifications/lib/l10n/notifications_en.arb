@@ -87,5 +87,14 @@
   "refresh": "Refresh",
   "followRequests": "Follow requests",
   "andOthers": "{name} and {count, plural, =1{1 other} other{{count} others}}",
-  "delete": "Delete"
+  "delete": "Delete",
+  "actChessChallenge": "invited you to play chess.",
+  "actChessTeamInvite": "invited your group to a chess team match for {group}.",
+  "actChessTeamAccepted": "accepted the team match for {group}. Line up your players.",
+  "actChessTeamDeclined": "declined the team match for {group}.",
+  "actChessTeamStart": "The team match against {group} has started. Go to your board!",
+  "leadTeamMatch": "Team match",
+  "actChessArenaStart": "The tournament you joined has started. Open it and you'll be paired right away.",
+  "actChessArenaMedal": "You finished the tournament in the top three! Your medal is on your chess profile.",
+  "leadArena": "Chess tournament"
 }

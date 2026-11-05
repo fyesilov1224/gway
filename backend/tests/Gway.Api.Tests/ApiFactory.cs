@@ -76,6 +76,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Calls:MonitorInterval", "00:00:00");
         builder.UseSetting("Events:ReminderInterval", "00:00:00");
         builder.UseSetting("Moderation:MonitorInterval", "00:00:00");
+        builder.UseSetting("Games:MonitorInterval", "00:00:00");
         builder.UseSetting("Push:DispatchInterval", "00:00:00");
         builder.UseSetting("Map:TileUrl", FakeTiles.Url);
         builder.UseSetting("Security:Passkeys:RelyingPartyId", "localhost");

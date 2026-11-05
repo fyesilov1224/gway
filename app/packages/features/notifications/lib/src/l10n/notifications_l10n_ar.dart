@@ -340,4 +340,41 @@ class NotificationsL10nAr extends NotificationsL10n {
 
   @override
   String get delete => 'حذف';
+
+  @override
+  String get actChessChallenge => 'دعاك للعب الشطرنج.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'دعا مجموعتك إلى مواجهة فرق في الشطرنج باسم $group.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'قَبِل مواجهة الفرق باسم $group. رتّب لاعبيك.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'رفض مواجهة الفرق باسم $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'بدأت مواجهة الفرق ضد $group. اذهب إلى رقعتك!';
+  }
+
+  @override
+  String get leadTeamMatch => 'مواجهة فرق';
+
+  @override
+  String get actChessArenaStart =>
+      'بدأت البطولة التي انضممت إليها. افتحها وستُطابق فورًا.';
+
+  @override
+  String get actChessArenaMedal =>
+      'أنهيت البطولة ضمن الثلاثة الأوائل! ميداليتك في ملف الشطرنج.';
+
+  @override
+  String get leadArena => 'بطولة شطرنج';
 }

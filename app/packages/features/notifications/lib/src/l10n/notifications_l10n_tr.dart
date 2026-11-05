@@ -347,4 +347,41 @@ class NotificationsL10nTr extends NotificationsL10n {
 
   @override
   String get delete => 'Sil';
+
+  @override
+  String get actChessChallenge => 'seni satranç oynamaya davet etti.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return '$group grubu adına grubunu satranç takım maçına davet etti.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return '$group grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return '$group grubu adına takım maçı davetini reddetti.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return '$group grubuna karşı takım maçı başladı. Tahtana geç!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Takım maçı';
+
+  @override
+  String get actChessArenaStart =>
+      'Katıldığın turnuva başladı. Açınca hemen eşleşirsin.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.';
+
+  @override
+  String get leadArena => 'Satranç turnuvası';
 }

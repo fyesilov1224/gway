@@ -4,6 +4,7 @@ import 'package:events/events.dart';
 import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:games/games.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:matching/matching.dart';
@@ -166,6 +167,11 @@ class _CreateSheet extends ConsumerWidget {
             option(Icons.photo_library_outlined, GwTone.lilac, socialAppL10n.post, socialAppL10n.postHint, FeedRoutes.create),
             option(Icons.auto_awesome_outlined, GwTone.sky, socialAppL10n.story, socialAppL10n.storyHint, FeedRoutes.newStory),
             option(Icons.group_add_outlined, GwTone.mist, socialAppL10n.group, socialAppL10n.groupHint, GroupRoutes.create),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.lg, GwSpacing.lg, GwSpacing.xs),
+              child: Text(socialAppL10n.games, style: textTheme.titleLarge),
+            ),
+            option(Icons.extension_outlined, GwTone.lilac, gamesL10n.chess, socialAppL10n.chessHint, ChessRoutes.home),
           ],
         ),
       ),

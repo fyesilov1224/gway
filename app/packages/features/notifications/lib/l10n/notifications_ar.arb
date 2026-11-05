@@ -87,5 +87,14 @@
   "refresh": "تحديث",
   "followRequests": "طلبات المتابعة",
   "andOthers": "{name} و{count} آخرون",
-  "delete": "حذف"
+  "delete": "حذف",
+  "actChessChallenge": "دعاك للعب الشطرنج.",
+  "actChessTeamInvite": "دعا مجموعتك إلى مواجهة فرق في الشطرنج باسم {group}.",
+  "actChessTeamAccepted": "قَبِل مواجهة الفرق باسم {group}. رتّب لاعبيك.",
+  "actChessTeamDeclined": "رفض مواجهة الفرق باسم {group}.",
+  "actChessTeamStart": "بدأت مواجهة الفرق ضد {group}. اذهب إلى رقعتك!",
+  "leadTeamMatch": "مواجهة فرق",
+  "actChessArenaStart": "بدأت البطولة التي انضممت إليها. افتحها وستُطابق فورًا.",
+  "actChessArenaMedal": "أنهيت البطولة ضمن الثلاثة الأوائل! ميداليتك في ملف الشطرنج.",
+  "leadArena": "بطولة شطرنج"
 }

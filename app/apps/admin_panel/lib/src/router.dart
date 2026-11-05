@@ -115,6 +115,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: AdminRoutes.legal, builder: (_, _) => const AdminLegalScreen()),
           GoRoute(path: AdminRoutes.securityReviews, builder: (_, _) => const AdminSecurityScreen()),
           GoRoute(path: AdminRoutes.matching, builder: (_, _) => const AdminMatchingScreen()),
+          GoRoute(path: AdminRoutes.games, builder: (_, _) => const AdminGamesScreen()),
           GoRoute(path: AdminRoutes.billing, builder: (_, _) => const AdminBillingScreen()),
           GoRoute(path: AdminRoutes.plans, builder: (_, _) => const AdminPlansScreen()),
           GoRoute(path: AdminRoutes.support, builder: (_, _) => const AdminSupportScreen()),

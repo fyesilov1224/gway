@@ -28,6 +28,9 @@ abstract final class AdminRoutes {
 
   static const matching = '/matching';
 
+  /// Chess and the games to come (docs/ARCHITECTURE.md §3i).
+  static const games = '/games';
+
   static const events = '/events';
 
   static const reports = '/reports';

@@ -645,6 +645,60 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'Sil'**
   String get delete;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'seni satranç oynamaya davet etti.'**
+  String get actChessChallenge;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına grubunu satranç takım maçına davet etti.'**
+  String actChessTeamInvite(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.'**
+  String actChessTeamAccepted(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına takım maçı davetini reddetti.'**
+  String actChessTeamDeclined(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubuna karşı takım maçı başladı. Tahtana geç!'**
+  String actChessTeamStart(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takım maçı'**
+  String get leadTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın turnuva başladı. Açınca hemen eşleşirsin.'**
+  String get actChessArenaStart;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.'**
+  String get actChessArenaMedal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranç turnuvası'**
+  String get leadArena;
 }
 
 class _NotificationsL10nDelegate
