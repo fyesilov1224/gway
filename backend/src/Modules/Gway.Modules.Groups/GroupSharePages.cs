@@ -1,4 +1,5 @@
 using Gway.SharedKernel.Http;
+using Gway.SharedKernel.Localization;
 using Gway.SharedKernel.Supabase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -16,8 +17,8 @@ internal sealed class GroupSharePages(NpgsqlDataSource db, IConfiguration config
     {
         var group = await ActiveGroupAsync("g.handle = @key", handle.Trim().ToLowerInvariant(), ct);
         return group is null
-            ? SharePage.Render(AppUrl, "/groups", SharePage.FallbackTitle, SharePage.FallbackDescription, null)
-            : SharePage.Render(AppUrl, $"/g/{group.Handle}", group.Name, Describe(group), Image(group));
+            ? SharePage.Fallback(AppUrl)
+            : SharePage.Render(AppUrl, $"/g/{group.Handle}", _ => group.Name, language => Describe(group, language), Image(group));
     }
 
     public async Task<IResult> InviteAsync(string code, CancellationToken ct)
@@ -26,9 +27,9 @@ internal sealed class GroupSharePages(NpgsqlDataSource db, IConfiguration config
         var group = await ActiveGroupAsync(
             "g.id = (select l.group_id from public.group_invite_links l where l.code = @key)", code, ct);
         return group is null
-            ? SharePage.Render(AppUrl, "/groups", SharePage.FallbackTitle, SharePage.FallbackDescription, null)
-            : SharePage.Render(AppUrl, $"/i/{Uri.EscapeDataString(code)}", $"{group.Name} grubuna davetlisin",
-                Describe(group), Image(group));
+            ? SharePage.Fallback(AppUrl)
+            : SharePage.Render(AppUrl, $"/i/{Uri.EscapeDataString(code)}", language => ServerText.Format(language, "{0} grubuna davetlisin", group.Name),
+                language => Describe(group, language), Image(group));
     }
 
     private sealed record SharedGroup(string Handle, string Name, string About, int MemberCount, string? LogoPath, string? CoverPath);
@@ -47,8 +48,10 @@ internal sealed class GroupSharePages(NpgsqlDataSource db, IConfiguration config
             : null;
     }
 
-    private static string Describe(SharedGroup g) =>
-        string.IsNullOrWhiteSpace(g.About) ? $"{g.MemberCount} üye · GWAY'de katıl." : $"{g.MemberCount} üye · {g.About.Trim()}";
+    private static string Describe(SharedGroup g, string language) =>
+        string.IsNullOrWhiteSpace(g.About)
+            ? ServerText.Format(language, "{0} üye · GWAY'de katıl.", g.MemberCount)
+            : ServerText.Format(language, "{0} üye · {1}", g.MemberCount, g.About.Trim());
 
     private string? Image(SharedGroup g) =>
         SharePage.PublicImage(supabase.Value.Url, GroupService.ImageBucket, g.CoverPath ?? g.LogoPath);

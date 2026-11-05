@@ -15,13 +15,15 @@ using Gway.Modules.Moderation;
 using Gway.Modules.Notifications;
 using Gway.Modules.Profile;
 using Gway.Modules.Support;
+using Gway.SharedKernel.Localization;
 using Gway.SharedKernel.Supabase;
 using Microsoft.AspNetCore.HttpOverrides;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddProblemDetails();
+// Problem titles in the request's language (docs/ARCHITECTURE.md §11, Sunucu).
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ServerText.LocalizeProblem);
 builder.Services.AddSupabaseAuthentication(builder.Configuration);
 builder.Services.AddApiRateLimiting(builder.Configuration);
 builder.Services.AddHealthChecks();

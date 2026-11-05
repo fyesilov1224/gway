@@ -7,4 +7,8 @@
     <PackageReference Include="MaxMind.Db" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\server_texts.json" LogicalName="Gway.SharedKernel.Localization.server_texts.json" />
+  </ItemGroup>
 </Project>

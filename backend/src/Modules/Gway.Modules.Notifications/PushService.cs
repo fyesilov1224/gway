@@ -207,9 +207,11 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                    (select msg.image_path is not null from public.messages msg where msg.id = m.message_id and msg.deleted_at is null),
                    (select case when c.kind = 'table' then 'Bu akşamın masası' else g.name end
                     from public.conversations c left join public.groups g on g.id = c.group_id where c.id = m.conversation_id),
-                   m.call_id
+                   m.call_id,
+                   r.locale
             from marked m
             join public.profiles a on a.id = m.actor_id
+            join public.profiles r on r.id = m.recipient_id
             order by m.id
             """, conn, tx))
         await using (var r = await cmd.ExecuteReaderAsync(ct))
@@ -231,7 +233,8 @@ internal sealed partial class PushService(NpgsqlDataSource db, IPushSender sende
                     r.IsDBNull(15) ? null : r.GetString(15),
                     !r.IsDBNull(16) && r.GetBoolean(16),
                     r.IsDBNull(17) ? null : r.GetString(17),
-                    r.IsDBNull(18) ? null : r.GetGuid(18)));
+                    r.IsDBNull(18) ? null : r.GetGuid(18),
+                    r.GetString(19)));
             }
         }
         await tx.CommitAsync(ct);
