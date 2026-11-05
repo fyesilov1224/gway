@@ -97,5 +97,10 @@
   "actChessArenaStart": "بدأت البطولة التي انضممت إليها. افتحها وستُطابق فورًا.",
   "actChessArenaMedal": "أنهيت البطولة ضمن الثلاثة الأوائل! ميداليتك في ملف الشطرنج.",
   "leadArena": "بطولة شطرنج",
-  "actMindChallenge": "تحدّاك في مبارزة العقول."
+  "actMindChallenge": "تحدّاك في مبارزة العقول.",
+  "actMindTeamInvite": "تحدّى مجموعتك في مبارزة العقول باسم {group}.",
+  "actMindTeamAccepted": "قَبِل مبارزة المجموعات باسم {group}. رتّب لاعبيك.",
+  "actMindTeamDeclined": "رفض مبارزة المجموعات باسم {group}.",
+  "actMindTeamStart": "بدأت مبارزة المجموعات ضد {group}. انتقل إلى مبارزتك!",
+  "leadGroupDuel": "مبارزة المجموعات"
 }

@@ -97,5 +97,10 @@
   "actChessArenaStart": "Dein Turnier hat begonnen. Öffne es und du wirst sofort gepaart.",
   "actChessArenaMedal": "Du hast das Turnier unter den ersten drei beendet! Deine Medaille ist in deinem Schachprofil.",
   "leadArena": "Schachturnier",
-  "actMindChallenge": "hat dich zu einem Gedankenduell eingeladen."
+  "actMindChallenge": "hat dich zu einem Gedankenduell eingeladen.",
+  "actMindTeamInvite": "hat deine Gruppe im Namen von {group} zu einem Gedankenduell eingeladen.",
+  "actMindTeamAccepted": "hat das Gruppenduell für {group} angenommen. Stelle deine Spieler auf.",
+  "actMindTeamDeclined": "hat das Gruppenduell für {group} abgelehnt.",
+  "actMindTeamStart": "Das Gruppenduell gegen {group} hat begonnen. Ab zu deinem Duell!",
+  "leadGroupDuel": "Gruppenduell"
 }

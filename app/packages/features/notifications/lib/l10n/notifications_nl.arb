@@ -97,5 +97,10 @@
   "actChessArenaStart": "Het toernooi waarvoor je je hebt aangemeld is begonnen. Open het en je wordt meteen gekoppeld.",
   "actChessArenaMedal": "Je eindigde bij de eerste drie! Je medaille staat in je schaakprofiel.",
   "leadArena": "Schaaktoernooi",
-  "actMindChallenge": "heeft je uitgedaagd voor een Breinduel."
+  "actMindChallenge": "heeft je uitgedaagd voor een Breinduel.",
+  "actMindTeamInvite": "heeft je groep namens {group} uitgedaagd voor een Breinduel.",
+  "actMindTeamAccepted": "heeft het groepsduel namens {group} geaccepteerd. Stel je spelers op.",
+  "actMindTeamDeclined": "heeft het groepsduel namens {group} afgewezen.",
+  "actMindTeamStart": "Het groepsduel tegen {group} is begonnen. Naar je duel!",
+  "leadGroupDuel": "Groepsduel"
 }

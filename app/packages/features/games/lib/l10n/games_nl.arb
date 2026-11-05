@@ -257,5 +257,15 @@
   "mindEndTime": "Tijd om",
   "mindNewRating": "Nieuwe rating {rating}",
   "mindNewDuel": "Nieuw duel",
-  "mindBackHome": "Terug naar duels"
+  "mindBackHome": "Terug naar duels",
+  "mindTeamMatches": "Groepsduels",
+  "mindTeamMatchesHint": "Duels van je groepen tegen andere groepen; de uitslag verandert de duel-Elo van de groep.",
+  "mindNoTeamMatches": "Nog geen groepsduels. Daag namens je groep een andere groep uit.",
+  "mindNewTeamMatch": "Groepsduel plannen",
+  "mindNewTeamHint": "Zodra de andere groep accepteert, stellen beide hun spelers op. Bij de start duelleren de twee spelers van elke plek tegelijk.",
+  "mindTeamMatch": "Groepsduel",
+  "mindSeats": "Plekken",
+  "mindSeatsCount": "{count, plural, =1{1 plek} other{{count} plekken}}",
+  "mindLineupHint": "Een lege plek bij de start telt voor de andere kant. Op de eerste vraag wordt 5 minuten gewacht.",
+  "mindGroupLeaderboardEmpty": "Nog geen groep heeft een groepsduel gespeeld. Laat de jouwe het eerste plannen."
 }

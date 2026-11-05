@@ -97,5 +97,10 @@
   "actChessArenaStart": "El torneo al que te uniste empezó. Ábrelo y te emparejaremos enseguida.",
   "actChessArenaMedal": "¡Terminaste el torneo entre los tres primeros! Tu medalla está en tu perfil de ajedrez.",
   "leadArena": "Torneo de ajedrez",
-  "actMindChallenge": "te retó a un Duelo mental."
+  "actMindChallenge": "te retó a un Duelo mental.",
+  "actMindTeamInvite": "retó a tu grupo a un Duelo mental en nombre de {group}.",
+  "actMindTeamAccepted": "aceptó el duelo de grupos en nombre de {group}. Elige tu alineación.",
+  "actMindTeamDeclined": "rechazó el duelo de grupos en nombre de {group}.",
+  "actMindTeamStart": "Empezó el duelo de grupos contra {group}. ¡Ve a tu duelo!",
+  "leadGroupDuel": "Duelo de grupos"
 }

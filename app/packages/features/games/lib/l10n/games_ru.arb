@@ -257,5 +257,15 @@
   "mindEndTime": "Время вышло",
   "mindNewRating": "Новый рейтинг {rating}",
   "mindNewDuel": "Новая дуэль",
-  "mindBackHome": "К дуэлям"
+  "mindBackHome": "К дуэлям",
+  "mindTeamMatches": "Групповые дуэли",
+  "mindTeamMatchesHint": "Дуэли ваших групп с другими; итог меняет дуэльный Эло группы.",
+  "mindNoTeamMatches": "Групповых дуэлей пока нет. Вызовите другую группу от имени своей.",
+  "mindNewTeamMatch": "Устроить групповую дуэль",
+  "mindNewTeamHint": "Когда другая группа примет вызов, обе расставят игроков. В начале двое на каждом месте играют дуэль одновременно.",
+  "mindTeamMatch": "Групповая дуэль",
+  "mindSeats": "Места",
+  "mindSeatsCount": "{count, plural, one{{count} место} few{{count} места} many{{count} мест} other{{count} места}}",
+  "mindLineupHint": "Пустое на старте место засчитывается сопернику. Первого вопроса ждут 5 минут.",
+  "mindGroupLeaderboardEmpty": "Ни одна группа ещё не играла дуэль. Пусть ваша устроит первую."
 }

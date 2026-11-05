@@ -109,6 +109,9 @@ public static class GamesModule
             (await s.AnswerAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
         mind.MapPost("/{id:guid}/resign", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
             (await s.ResignAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapPost("/team-matches", async (MindTeamMatchRequest body, ClaimsPrincipal user, TeamMatchService s, CancellationToken ct) =>
+            (await s.CreateAsync(user.GetUserId(),
+                new TeamMatchRequest(body.HomeGroupId, body.AwayGroupId, body.Boards, 0, 0, body.StartsAt, "mind", body.Length), ct)).ToHttpResult());
         mind.MapPost("/{id:guid}/rematch", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
             (await s.RematchAsync(user.GetUserId(), id, ct)).ToHttpResult());
 

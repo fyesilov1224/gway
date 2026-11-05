@@ -385,4 +385,27 @@ class NotificationsL10nAz extends NotificationsL10n {
 
   @override
   String get actMindChallenge => 'səni Zehin Duelinə dəvət etdi.';
+
+  @override
+  String actMindTeamInvite(String group) {
+    return '$group qrupu adına qrupunu Zehin Duelinə dəvət etdi.';
+  }
+
+  @override
+  String actMindTeamAccepted(String group) {
+    return '$group qrupu adına qrup duelini qəbul etdi. Oyunçularını sırala.';
+  }
+
+  @override
+  String actMindTeamDeclined(String group) {
+    return '$group qrupu adına qrup duelini rədd etdi.';
+  }
+
+  @override
+  String actMindTeamStart(String group) {
+    return '$group qrupuna qarşı qrup dueli başladı. Duelinə keç!';
+  }
+
+  @override
+  String get leadGroupDuel => 'Qrup dueli';
 }

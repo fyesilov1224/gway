@@ -528,7 +528,7 @@ Kullanıcı kararları: grup Elo'su takım maçlarından; kişi Elo'su Bullet/Bl
 Kullanıcı kararları: sorular karışık (matematik, dikkat, hafıza, refleks); Elo 5/10/20/50 soru için ayrı; iki kişi aynı anda canlı oynar; refleks "Hedefe dokun".
 
 - [x] 21a — Çekirdek: sunucuda soru üretimi ve doğrulama, hızlı maç, davet, rövanş, canlı düello ekranı, Elo (soru sayısına göre), sıralama (podyum, madalya, taç), oyuncu sayfası, `mind_challenge` bildirimi ve push, yönetim paneli (sayılar, süren düellolar, iptal), 12 dil (cinsiyete uyan şekil adları), migration `0085`, pgTAP (26), C# (12), Flutter (6); tarayıcıda uçtan uca denendi (2026-11-05)
-- [ ] 21b — Grupların düellosu ve grup sıralaması
+- [x] 21b — Grupların düellosu ve grup sıralaması: satranç takım maçı altyapısı oyun alanıyla iki oyuna açılır (davet, kabul, sıralara diziliş, kendiliğinden başlama, 5 dakika gelmeyen kaybeder), her oyunun grup Elo'su ayrı, Sıralama'da Gruplar sekmesi, 4 bildirim türü, panelde iki oyun birlikte; migration `0086`, pgTAP (14), C# (2 senaryo), Flutter (1); tarayıcıda uçtan uca denendi (2026-11-06)
 - [ ] 21c — Haftalık ve aylık turnuvalar, madalyalar
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi

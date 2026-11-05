@@ -51,7 +51,11 @@ enum NotificationType {
   chessTeamStart('chess_team_start'),
   chessArenaStart('chess_arena_start'),
   chessArenaMedal('chess_arena_medal'),
-  mindChallenge('mind_challenge');
+  mindChallenge('mind_challenge'),
+  mindTeamInvite('mind_team_invite'),
+  mindTeamAccepted('mind_team_accepted'),
+  mindTeamDeclined('mind_team_declined'),
+  mindTeamStart('mind_team_start');
 
   const NotificationType(this.code);
 
@@ -75,8 +79,8 @@ enum NotificationType {
   bool get isChess => this == chessChallenge || this == chessTeamInvite || this == chessTeamAccepted || this == chessTeamDeclined || this == chessTeamStart ||
       this == chessArenaStart || this == chessArenaMedal;
 
-  /// A Zihin Düellosu invitation (docs/ARCHITECTURE.md §3j); opens the duel home with the invitations.
-  bool get isMind => this == mindChallenge;
+  /// A Zihin Düellosu invitation or group duel (docs/ARCHITECTURE.md §3j); opens the duel home.
+  bool get isMind => this == mindChallenge || this == mindTeamInvite || this == mindTeamAccepted || this == mindTeamDeclined || this == mindTeamStart;
 
   /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
   bool get isLive => this == liveScheduled || this == liveStarted;
@@ -243,6 +247,10 @@ class AppNotification {
       NotificationType.chessArenaStart => l.actChessArenaStart,
       NotificationType.chessArenaMedal => l.actChessArenaMedal,
       NotificationType.mindChallenge => l.actMindChallenge,
+      NotificationType.mindTeamInvite => l.actMindTeamInvite(group?.name ?? ''),
+      NotificationType.mindTeamAccepted => l.actMindTeamAccepted(group?.name ?? ''),
+      NotificationType.mindTeamDeclined => l.actMindTeamDeclined(group?.name ?? ''),
+      NotificationType.mindTeamStart => l.actMindTeamStart(group?.name ?? ''),
     };
   }
 
@@ -252,6 +260,7 @@ class AppNotification {
         NotificationType.matchCreated => notificationsL10n.leadNewMatch,
         NotificationType.eventSeriesLimit => notificationsL10n.leadSeries,
         NotificationType.chessTeamStart => notificationsL10n.leadTeamMatch,
+        NotificationType.mindTeamStart => notificationsL10n.leadGroupDuel,
         NotificationType.chessArenaStart || NotificationType.chessArenaMedal => notificationsL10n.leadArena,
         NotificationType.eventVenueRevealed => notificationsL10n.leadVenue,
         _ when type.isCallPermission => notificationsL10n.leadCalls,

@@ -257,5 +257,15 @@
   "mindEndTime": "Час вийшов",
   "mindNewRating": "Новий рейтинг {rating}",
   "mindNewDuel": "Нова дуель",
-  "mindBackHome": "До дуелей"
+  "mindBackHome": "До дуелей",
+  "mindTeamMatches": "Групові дуелі",
+  "mindTeamMatchesHint": "Дуелі ваших груп з іншими; підсумок змінює дуельний Ело групи.",
+  "mindNoTeamMatches": "Групових дуелей поки немає. Викличте іншу групу від імені своєї.",
+  "mindNewTeamMatch": "Влаштувати групову дуель",
+  "mindNewTeamHint": "Коли інша група прийме виклик, обидві розставлять гравців. На старті двоє на кожному місці грають дуель одночасно.",
+  "mindTeamMatch": "Групова дуель",
+  "mindSeats": "Місця",
+  "mindSeatsCount": "{count, plural, one{{count} місце} few{{count} місця} many{{count} місць} other{{count} місця}}",
+  "mindLineupHint": "Порожнє на старті місце зараховується суперникові. Першого запитання чекають 5 хвилин.",
+  "mindGroupLeaderboardEmpty": "Жодна група ще не грала дуель. Нехай ваша влаштує першу."
 }

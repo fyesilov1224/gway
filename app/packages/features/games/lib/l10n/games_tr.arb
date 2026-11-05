@@ -1314,5 +1314,50 @@
   "mindBackHome": "Düello sayfasına dön",
   "@mindBackHome": {
     "description": ""
+  },
+  "mindTeamMatches": "Grup düelloları",
+  "@mindTeamMatches": {
+    "description": ""
+  },
+  "mindTeamMatchesHint": "Grubunun başka gruplarla düelloları; sonuç grubun düello Elo puanını değiştirir.",
+  "@mindTeamMatchesHint": {
+    "description": ""
+  },
+  "mindNoTeamMatches": "Henüz grup düellosu yok. Grubun adına başka bir grubu davet et.",
+  "@mindNoTeamMatches": {
+    "description": ""
+  },
+  "mindNewTeamMatch": "Grup düellosu düzenle",
+  "@mindNewTeamMatch": {
+    "description": ""
+  },
+  "mindNewTeamHint": "Karşı grubun yöneticisi kabul edince iki grup da oyuncularını sıralar. Başlangıçta her sıradaki iki kişi aynı anda düello eder.",
+  "@mindNewTeamHint": {
+    "description": ""
+  },
+  "mindTeamMatch": "Grup düellosu",
+  "@mindTeamMatch": {
+    "description": ""
+  },
+  "mindSeats": "Sıralar",
+  "@mindSeats": {
+    "description": ""
+  },
+  "mindSeatsCount": "{count} sıra",
+  "@mindSeatsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mindLineupHint": "Başlangıçta boş kalan sıra rakibe puan olarak yazılır. Grup düellosunda ilk soru için 5 dakika beklenir.",
+  "@mindLineupHint": {
+    "description": ""
+  },
+  "mindGroupLeaderboardEmpty": "Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.",
+  "@mindGroupLeaderboardEmpty": {
+    "description": ""
   }
 }

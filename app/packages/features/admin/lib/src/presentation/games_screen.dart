@@ -222,7 +222,7 @@ class AdminGamesScreen extends ConsumerWidget {
             const SizedBox(height: GwSpacing.lg),
             GwPanel(
               title: 'Takım maçları',
-              subtitle: 'Gruplar arası açık maçlar. Başlamamış bir maç gerekçeyle iptal edilebilir.',
+              subtitle: 'Gruplar arası açık satranç maçları ve grup düelloları. Başlamamış bir maç gerekçeyle iptal edilebilir.',
               padding: EdgeInsets.zero,
               child: (teams ?? const []).isEmpty
                   ? const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: Text('Açık takım maçı yok.'))
@@ -232,7 +232,7 @@ class AdminGamesScreen extends ConsumerWidget {
                         for (final m in teams!)
                           ListTile(
                             title: Text('${m.home} – ${m.away}'),
-                            subtitle: Text('${m.boards} tahta · ${m.baseSeconds ~/ 60}+${m.incrementSeconds} · '
+                            subtitle: Text('${m.game == 'mind' ? 'Zihin Düellosu · ${m.boards} sıra · ${m.length} soru' : 'Satranç · ${m.boards} tahta · ${m.baseSeconds! ~/ 60}+${m.incrementSeconds}'} · '
                                 '${_teamStatus[m.status] ?? m.status} · ${formatDateTime(m.startsAt)}'),
                             trailing: m.status == 'live'
                                 ? null

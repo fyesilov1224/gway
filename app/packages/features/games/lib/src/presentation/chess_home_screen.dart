@@ -38,7 +38,7 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
       ..invalidate(challengesProvider)
       ..invalidate(recentGamesProvider(me))
       ..invalidate(leaderboardProvider(ChessCategory.blitz))
-      ..invalidate(myTeamMatchesProvider)
+      ..invalidate(myTeamMatchesProvider(TeamGame.chess))
       ..invalidate(captainGroupsProvider)
       ..invalidate(arenasProvider)
       ..invalidate(chessProfileProvider(me));
@@ -55,7 +55,7 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
     final challenges = ref.watch(challengesProvider).value ?? const <ChessChallenge>[];
     final games = ref.watch(recentGamesProvider(me));
     final top = ref.watch(leaderboardProvider(ChessCategory.blitz));
-    final teamMatches = ref.watch(myTeamMatchesProvider).value ?? const <TeamMatch>[];
+    final teamMatches = ref.watch(myTeamMatchesProvider(TeamGame.chess)).value ?? const <TeamMatch>[];
     final captainOf = ref.watch(captainGroupsProvider).value ?? const <ChessGroup>[];
     final arenas = ref.watch(arenasProvider).value;
     final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;

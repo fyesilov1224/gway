@@ -257,5 +257,15 @@
   "mindEndTime": "Vaxt bitdi",
   "mindNewRating": "Yeni reytinqin {rating}",
   "mindNewDuel": "Yeni duel",
-  "mindBackHome": "Duellərə qayıt"
+  "mindBackHome": "Duellərə qayıt",
+  "mindTeamMatches": "Qrup duelləri",
+  "mindTeamMatchesHint": "Qruplarının başqa qruplarla duelləri; nəticə qrupun duel Elo xalını dəyişir.",
+  "mindNoTeamMatches": "Hələ qrup dueli yoxdur. Qrupun adından başqa qrupu dəvət et.",
+  "mindNewTeamMatch": "Qrup dueli təşkil et",
+  "mindNewTeamHint": "Qarşı qrup qəbul edəndə hər iki qrup oyunçularını sıralayır. Başlanğıcda hər sıradakı iki nəfər eyni anda duel edir.",
+  "mindTeamMatch": "Qrup dueli",
+  "mindSeats": "Sıralar",
+  "mindSeatsCount": "{count} sıra",
+  "mindLineupHint": "Başlanğıcda boş qalan sıra rəqibə xal kimi yazılır. İlk sual üçün 5 dəqiqə gözlənilir.",
+  "mindGroupLeaderboardEmpty": "Hələ heç bir qrup qrup dueli oynamayıb. İlkini qrupun təşkil etsin."
 }

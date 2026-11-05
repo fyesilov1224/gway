@@ -21,9 +21,10 @@ public sealed record ChessAdminGame(
 /// <param name="Until">Null: for good.</param>
 public sealed record ChessAdminSuspension(Guid UserId, string Username, DateTimeOffset? Until, string? Reason);
 
-/// <summary>An open team match in the admin panel.</summary>
+/// <summary>An open team match in the admin panel: chess with its time control, or a Zihin Düellosu match with its question count.</summary>
 public sealed record TeamMatchAdminRow(
-    Guid Id, string Home, string Away, int Boards, int BaseSeconds, int IncrementSeconds, string Status, DateTimeOffset StartsAt);
+    Guid Id, string Home, string Away, int Boards, int? BaseSeconds, int? IncrementSeconds, string Status, DateTimeOffset StartsAt, string Game,
+    int? Length);
 
 /// <summary>Platform team actions on team matches. Callers check platform staff roles first; every action is audited.</summary>
 public interface ITeamMatchAdministration

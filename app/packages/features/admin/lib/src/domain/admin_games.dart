@@ -108,6 +108,8 @@ class AdminTeamMatch {
     required this.incrementSeconds,
     required this.status,
     required this.startsAt,
+    this.game = 'chess',
+    this.length,
   });
 
   factory AdminTeamMatch.fromJson(Map<String, Object?> j) => AdminTeamMatch(
@@ -115,18 +117,26 @@ class AdminTeamMatch {
         home: j['home']! as String,
         away: j['away']! as String,
         boards: j['boards']! as int,
-        baseSeconds: j['baseSeconds']! as int,
-        incrementSeconds: j['incrementSeconds']! as int,
+        baseSeconds: j['baseSeconds'] as int?,
+        incrementSeconds: j['incrementSeconds'] as int?,
         status: j['status']! as String,
         startsAt: DateTime.parse(j['startsAt']! as String),
+        game: j['game'] as String? ?? 'chess',
+        length: j['length'] as int?,
       );
 
   final String id;
   final String home;
   final String away;
   final int boards;
-  final int baseSeconds;
-  final int incrementSeconds;
+
+  /// Chess only; a duel match has [length] instead.
+  final int? baseSeconds;
+  final int? incrementSeconds;
+
+  /// `chess` or `mind` (Zihin Düellosu).
+  final String game;
+  final int? length;
 
   /// invited, accepted or live.
   final String status;

@@ -705,6 +705,36 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'seni Zihin Düellosu\'na davet etti.'**
   String get actMindChallenge;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına grubunu Zihin Düellosu\'na davet etti.'**
+  String actMindTeamInvite(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına grup düellosu davetini kabul etti. Oyuncularını sırala.'**
+  String actMindTeamAccepted(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubu adına grup düellosu davetini reddetti.'**
+  String actMindTeamDeclined(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubuna karşı grup düellosu başladı. Düellona geç!'**
+  String actMindTeamStart(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup düellosu'**
+  String get leadGroupDuel;
 }
 
 class _NotificationsL10nDelegate

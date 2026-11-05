@@ -257,5 +257,15 @@
   "mindEndTime": "Zeit abgelaufen",
   "mindNewRating": "Neue Wertung {rating}",
   "mindNewDuel": "Neues Duell",
-  "mindBackHome": "Zurück zu den Duellen"
+  "mindBackHome": "Zurück zu den Duellen",
+  "mindTeamMatches": "Gruppenduelle",
+  "mindTeamMatchesHint": "Duelle deiner Gruppen gegen andere; das Ergebnis ändert die Duell-Elo der Gruppe.",
+  "mindNoTeamMatches": "Noch keine Gruppenduelle. Fordere im Namen deiner Gruppe eine andere heraus.",
+  "mindNewTeamMatch": "Gruppenduell planen",
+  "mindNewTeamHint": "Sobald die andere Gruppe zusagt, stellen beide ihre Spieler auf. Zum Start duellieren sich die beiden Spieler jedes Platzes gleichzeitig.",
+  "mindTeamMatch": "Gruppenduell",
+  "mindSeats": "Plätze",
+  "mindSeatsCount": "{count, plural, =1{1 Platz} other{{count} Plätze}}",
+  "mindLineupHint": "Ein beim Start leerer Platz zählt für die andere Seite. Auf die erste Frage wird 5 Minuten gewartet.",
+  "mindGroupLeaderboardEmpty": "Noch keine Gruppe hat ein Gruppenduell gespielt. Lass deine das erste planen."
 }

@@ -944,4 +944,41 @@ class GamesL10nTr extends GamesL10n {
 
   @override
   String get mindBackHome => 'Düello sayfasına dön';
+
+  @override
+  String get mindTeamMatches => 'Grup düelloları';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Grubunun başka gruplarla düelloları; sonuç grubun düello Elo puanını değiştirir.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Henüz grup düellosu yok. Grubun adına başka bir grubu davet et.';
+
+  @override
+  String get mindNewTeamMatch => 'Grup düellosu düzenle';
+
+  @override
+  String get mindNewTeamHint =>
+      'Karşı grubun yöneticisi kabul edince iki grup da oyuncularını sıralar. Başlangıçta her sıradaki iki kişi aynı anda düello eder.';
+
+  @override
+  String get mindTeamMatch => 'Grup düellosu';
+
+  @override
+  String get mindSeats => 'Sıralar';
+
+  @override
+  String mindSeatsCount(int count) {
+    return '$count sıra';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Başlangıçta boş kalan sıra rakibe puan olarak yazılır. Grup düellosunda ilk soru için 5 dakika beklenir.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.';
 }

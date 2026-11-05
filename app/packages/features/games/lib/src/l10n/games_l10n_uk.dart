@@ -1009,4 +1009,49 @@ class GamesL10nUk extends GamesL10n {
 
   @override
   String get mindBackHome => 'До дуелей';
+
+  @override
+  String get mindTeamMatches => 'Групові дуелі';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Дуелі ваших груп з іншими; підсумок змінює дуельний Ело групи.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Групових дуелей поки немає. Викличте іншу групу від імені своєї.';
+
+  @override
+  String get mindNewTeamMatch => 'Влаштувати групову дуель';
+
+  @override
+  String get mindNewTeamHint =>
+      'Коли інша група прийме виклик, обидві розставлять гравців. На старті двоє на кожному місці грають дуель одночасно.';
+
+  @override
+  String get mindTeamMatch => 'Групова дуель';
+
+  @override
+  String get mindSeats => 'Місця';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count місця',
+      many: '$count місць',
+      few: '$count місця',
+      one: '$count місце',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Порожнє на старті місце зараховується суперникові. Першого запитання чекають 5 хвилин.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Жодна група ще не грала дуель. Нехай ваша влаштує першу.';
 }

@@ -567,5 +567,45 @@
   "actMindChallenge": "seni Zihin Düellosu'na davet etti.",
   "@actMindChallenge": {
     "description": ""
+  },
+  "actMindTeamInvite": "{group} grubu adına grubunu Zihin Düellosu'na davet etti.",
+  "@actMindTeamInvite": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actMindTeamAccepted": "{group} grubu adına grup düellosu davetini kabul etti. Oyuncularını sırala.",
+  "@actMindTeamAccepted": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actMindTeamDeclined": "{group} grubu adına grup düellosu davetini reddetti.",
+  "@actMindTeamDeclined": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actMindTeamStart": "{group} grubuna karşı grup düellosu başladı. Düellona geç!",
+  "@actMindTeamStart": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "leadGroupDuel": "Grup düellosu",
+  "@leadGroupDuel": {
+    "description": ""
   }
 }

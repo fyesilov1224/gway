@@ -64,6 +64,9 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
     /// <summary>Each player must take their first question within this after the start, or the match is aborted.</summary>
     public static readonly TimeSpan JoinWindow = TimeSpan.FromSeconds(30);
 
+    /// <summary>A team match seat waits longer; a side that never comes loses it (no_show).</summary>
+    public static readonly TimeSpan TeamJoinWindow = TimeSpan.FromMinutes(5);
+
     private static Error RuleError(string code) =>
         Error.RuleViolation($"games.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene.");
 
@@ -250,8 +253,10 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
 
     private sealed record MatchRow(
         Guid Id, Guid? A, Guid? B, int Length, bool Rated, string Status, int AAnswered, int BAnswered, int AScore, int BScore,
-        bool AJoined, bool BJoined, DateTimeOffset StartsAt, DateTimeOffset DeadlineAt, DateTimeOffset Now)
+        bool AJoined, bool BJoined, DateTimeOffset StartsAt, DateTimeOffset DeadlineAt, DateTimeOffset Now, Guid? TeamMatchId)
     {
+        public TimeSpan Window => TeamMatchId is null ? JoinWindow : TeamJoinWindow;
+
         public string? SideOf(Guid user) => user == A ? "a" : user == B ? "b" : null;
 
         public int AnsweredBy(string side) => side == "a" ? AAnswered : BAnswered;
@@ -262,7 +267,7 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
         await using var cmd = new NpgsqlCommand(
             """
             select id, a_id, b_id, length, rated, status, cardinality(a_points), cardinality(b_points), a_score, b_score, a_joined, b_joined,
-                   starts_at, deadline_at, now()
+                   starts_at, deadline_at, now(), team_match_id
             from public.mind_matches where id = @id for update
             """, conn, tx);
         cmd.Parameters.AddWithValue("id", id);
@@ -270,7 +275,8 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
         if (!await r.ReadAsync(ct)) return null;
         return new MatchRow(r.GetGuid(0), r.IsDBNull(1) ? null : r.GetGuid(1), r.IsDBNull(2) ? null : r.GetGuid(2), r.GetInt32(3), r.GetBoolean(4),
             r.GetString(5), r.GetInt32(6), r.GetInt32(7), r.GetInt32(8), r.GetInt32(9), r.GetBoolean(10), r.GetBoolean(11),
-            r.GetFieldValue<DateTimeOffset>(12), r.GetFieldValue<DateTimeOffset>(13), r.GetFieldValue<DateTimeOffset>(14));
+            r.GetFieldValue<DateTimeOffset>(12), r.GetFieldValue<DateTimeOffset>(13), r.GetFieldValue<DateTimeOffset>(14),
+            r.IsDBNull(15) ? null : r.GetGuid(15));
     }
 
     private static async Task<(DateTimeOffset Now, JsonElement Match)> ReadViewAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid id, CancellationToken ct)
@@ -426,8 +432,8 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
             if (match is null) return MatchNotFound;
             if (match.SideOf(actor) is not { } side) return NotPlayer;
             if (match.Status != "active" || await SettleAsync(conn, tx, match, ct)) return MatchOver;
-            // Before both took their first question nothing was played: no rating for it.
-            if (!(match.AJoined && match.BJoined)) await FinishAsync(conn, tx, match, null, "aborted", ct);
+            // Before both took their first question nothing was played: no rating for it. A team seat is lost either way.
+            if (!(match.AJoined && match.BJoined) && match.TeamMatchId is null) await FinishAsync(conn, tx, match, null, "aborted", ct);
             else await FinishAsync(conn, tx, match, side == "a" ? "b" : "a", "resign", ct);
             return await ViewAsync(conn, tx, id, ct);
         }, RuleError, ct);
@@ -439,7 +445,7 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
             var match = await LockMatchAsync(conn, tx, id, ct);
             if (match is null) return MatchNotFound;
             if (match.SideOf(actor) is not { } side) return NotPlayer;
-            if (match.Status == "active" || match.A is null || match.B is null) return RematchUnavailable;
+            if (match.Status == "active" || match.A is null || match.B is null || match.TeamMatchId is not null) return RematchUnavailable;
             var opponent = side == "a" ? match.B.Value : match.A.Value;
             var theirs = (Guid?)await ActingTransaction.ScalarAsync(conn, tx,
                 """
@@ -463,19 +469,22 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
 
     /// <summary>Opens a match with all its questions; it starts after <see cref="StartDelay"/>.</summary>
     internal static async Task<Guid> CreateMatchAsync(
-        NpgsqlConnection conn, NpgsqlTransaction tx, Guid a, Guid b, int length, bool rated, string source, Guid? rematchOf, CancellationToken ct)
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid a, Guid b, int length, bool rated, string source, Guid? rematchOf, CancellationToken ct,
+        Guid? teamMatchId = null)
     {
         var questions = MindQuestions.Generate(length, Random.Shared);
         var startsAt = DateTimeOffset.UtcNow + StartDelay;
-        var deadline = startsAt + TimeSpan.FromMilliseconds(questions.Sum(q => q.LimitMs) + 3000L * length);
+        // A team seat may begin as late as its join window allows.
+        var deadline = startsAt + TimeSpan.FromMilliseconds(questions.Sum(q => q.LimitMs) + 3000L * length)
+            + (teamMatchId is null ? TimeSpan.Zero : TeamJoinWindow);
         var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
             """
-            insert into public.mind_matches (a_id, b_id, length, rated, source, a_rating, b_rating, starts_at, deadline_at, rematch_of)
-            values (@a, @b, @length, @rated, @source, @ar, @br, @starts, @deadline, @rematch)
+            insert into public.mind_matches (a_id, b_id, length, rated, source, a_rating, b_rating, starts_at, deadline_at, rematch_of, team_match_id)
+            values (@a, @b, @length, @rated, @source, @ar, @br, @starts, @deadline, @rematch, @team)
             returning id
             """, ct, ("a", a), ("b", b), ("length", length), ("rated", rated), ("source", source),
             ("ar", await RatingAsync(conn, tx, a, length, ct)), ("br", await RatingAsync(conn, tx, b, length, ct)),
-            ("starts", startsAt), ("deadline", deadline), ("rematch", rematchOf)))!;
+            ("starts", startsAt), ("deadline", deadline), ("rematch", rematchOf), ("team", teamMatchId)))!;
         foreach (var q in questions)
         {
             await ActingTransaction.ExecuteAsync(conn, tx,
@@ -505,9 +514,13 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
     private static async Task<bool> SettleAsync(NpgsqlConnection conn, NpgsqlTransaction tx, MatchRow match, CancellationToken ct)
     {
         if (match.Status != "active") return false;
-        if (match.Now > match.StartsAt + JoinWindow && !(match.AJoined && match.BJoined))
+        if (match.Now > match.StartsAt + match.Window && !(match.AJoined && match.BJoined))
         {
-            await FinishAsync(conn, tx, match, null, "aborted", ct);
+            // On a team seat the side that came wins; with nobody there, or off a team, nothing was played.
+            if (match.TeamMatchId is not null && match.AJoined != match.BJoined)
+                await FinishAsync(conn, tx, match, match.AJoined ? "a" : "b", "no_show", ct);
+            else
+                await FinishAsync(conn, tx, match, null, "aborted", ct);
             return true;
         }
         if (match.Now < match.DeadlineAt) return false;
@@ -534,7 +547,9 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
             where id = @id
             """, ct, ("result", result), ("termination", termination), ("id", match.Id));
         await ActingTransaction.ExecuteAsync(conn, tx, "delete from public.mind_seeks where match_id = @id", ct, ("id", match.Id));
-        if (!match.Rated || result is null || match.A is not { } a || match.B is not { } b) return;
+        if (match.TeamMatchId is { } team) await TeamMatchService.RecordMindBoardAsync(conn, tx, team, match.Id, result, ct);
+        // A seat nobody played on one side is not a duel: no rating for a no-show.
+        if (!match.Rated || result is null || termination == "no_show" || match.A is not { } a || match.B is not { } b) return;
 
         await ActingTransaction.ExecuteAsync(conn, tx,
             "insert into public.mind_ratings (user_id, length) values (@a, @l), (@b, @l) on conflict do nothing", ct, ("a", a), ("b", b), ("l", match.Length));
@@ -577,7 +592,8 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
         await using (var cmd = db.CreateCommand(
             """
             select id from public.mind_matches
-            where status = 'active' and (deadline_at <= now() or (starts_at + interval '30 seconds' < now() and not (a_joined and b_joined)))
+            where status = 'active' and (deadline_at <= now() or (not (a_joined and b_joined) and starts_at
+                  + case when team_match_id is null then interval '30 seconds' else interval '5 minutes' end < now()))
             limit 200
             """))
         await using (var r = await cmd.ExecuteReaderAsync(ct))

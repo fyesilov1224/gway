@@ -84,6 +84,8 @@ public sealed class TestDatabase : IAsyncLifetime
               where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
             update public.chess_games set team_match_id = null where team_match_id in (select id from public.chess_team_matches
               where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
+            update public.mind_matches set team_match_id = null where team_match_id in (select id from public.chess_team_matches
+              where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
             delete from public.chess_team_matches where home_group_id in (select id from doomed) or away_group_id in (select id from doomed);
             delete from public.chess_group_ratings where group_id in (select id from doomed);
             delete from public.event_attendees where event_id in (select id from public.events where group_id in (select id from doomed));

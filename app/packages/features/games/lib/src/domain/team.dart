@@ -13,6 +13,18 @@ class ChessGroup {
   final String? logoUrl;
 }
 
+/// The game a team match is played in (docs/ARCHITECTURE.md §3i, §3j 21b); each has its own group Elo.
+enum TeamGame {
+  chess('chess'),
+  mind('mind');
+
+  const TeamGame(this.code);
+
+  final String code;
+
+  static TeamGame parse(Object? code) => code == 'mind' ? mind : chess;
+}
+
 enum TeamMatchStatus {
   invited,
   accepted,
@@ -47,9 +59,11 @@ class TeamMatch {
     required this.home,
     required this.away,
     required this.boards,
-    required this.timeControl,
     required this.startsAt,
     required this.status,
+    this.game = TeamGame.chess,
+    this.timeControl,
+    this.length,
     this.homePoints,
     this.awayPoints,
     this.homeDelta,
@@ -62,7 +76,11 @@ class TeamMatch {
   final ChessGroup home;
   final ChessGroup away;
   final int boards;
-  final TimeControl timeControl;
+  final TeamGame game;
+
+  /// Chess: the time control; a duel: the question count ([length]).
+  final TimeControl? timeControl;
+  final int? length;
   final DateTime startsAt;
   final TeamMatchStatus status;
   final double? homePoints;
@@ -75,12 +93,15 @@ class TeamMatch {
 
 /// One board: who sits there for each side and, once started, its game and points.
 class TeamBoard {
-  const TeamBoard({required this.board, this.home, this.away, this.gameId, this.homePoints, this.awayPoints});
+  const TeamBoard({required this.board, this.home, this.away, this.gameId, this.mindMatchId, this.homePoints, this.awayPoints});
 
   final int board;
   final ChessPlayer? home;
   final ChessPlayer? away;
   final String? gameId;
+
+  /// The duel on this seat of a Zihin Düellosu match.
+  final String? mindMatchId;
   final double? homePoints;
   final double? awayPoints;
 
@@ -132,7 +153,7 @@ class GroupLeaderboardEntry {
 }
 
 abstract interface class TeamMatchRepository {
-  Future<Result<List<GroupLeaderboardEntry>>> groupLeaderboard();
+  Future<Result<List<GroupLeaderboardEntry>>> groupLeaderboard(TeamGame game);
 
   /// Groups the reader may arrange team matches for.
   Future<Result<List<ChessGroup>>> captainGroups();
@@ -140,7 +161,7 @@ abstract interface class TeamMatchRepository {
   Future<Result<List<ChessGroup>>> searchGroups(String query);
 
   /// Recent and upcoming matches of the reader's groups, newest start first.
-  Future<Result<List<TeamMatch>>> myMatches();
+  Future<Result<List<TeamMatch>>> myMatches(TeamGame game);
 
   Future<Result<TeamMatchDetail>> detail(String id);
 
@@ -153,8 +174,10 @@ abstract interface class TeamMatchRepository {
     required String homeGroupId,
     required String awayGroupId,
     required int boards,
-    required TimeControl timeControl,
     required DateTime startsAt,
+    TeamGame game = TeamGame.chess,
+    TimeControl? timeControl,
+    int? length,
   });
 
   Future<Result<void>> respond(String id, {required bool accept});

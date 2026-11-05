@@ -944,4 +944,41 @@ class GamesL10nAz extends GamesL10n {
 
   @override
   String get mindBackHome => 'Duellərə qayıt';
+
+  @override
+  String get mindTeamMatches => 'Qrup duelləri';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Qruplarının başqa qruplarla duelləri; nəticə qrupun duel Elo xalını dəyişir.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Hələ qrup dueli yoxdur. Qrupun adından başqa qrupu dəvət et.';
+
+  @override
+  String get mindNewTeamMatch => 'Qrup dueli təşkil et';
+
+  @override
+  String get mindNewTeamHint =>
+      'Qarşı qrup qəbul edəndə hər iki qrup oyunçularını sıralayır. Başlanğıcda hər sıradakı iki nəfər eyni anda duel edir.';
+
+  @override
+  String get mindTeamMatch => 'Qrup dueli';
+
+  @override
+  String get mindSeats => 'Sıralar';
+
+  @override
+  String mindSeatsCount(int count) {
+    return '$count sıra';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Başlanğıcda boş qalan sıra rəqibə xal kimi yazılır. İlk sual üçün 5 dəqiqə gözlənilir.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Hələ heç bir qrup qrup dueli oynamayıb. İlkini qrupun təşkil etsin.';
 }

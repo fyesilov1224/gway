@@ -6,7 +6,12 @@ using Npgsql;
 
 namespace Gway.Modules.Games;
 
-public sealed record TeamMatchRequest(Guid HomeGroupId, Guid AwayGroupId, int Boards, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt);
+/// <param name="Game"><c>chess</c> (with a time control) or <c>mind</c> (with <paramref name="Length"/>, the question count).</param>
+public sealed record TeamMatchRequest(
+    Guid HomeGroupId, Guid AwayGroupId, int Boards, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, string Game = "chess", int? Length = null);
+
+/// <summary>A Zihin Düellosu team match (docs/ARCHITECTURE.md §3j, 21b).</summary>
+public sealed record MindTeamMatchRequest(Guid HomeGroupId, Guid AwayGroupId, int Boards, int Length, DateTimeOffset StartsAt);
 
 public sealed record TeamMatchCreated(Guid Id);
 
@@ -14,13 +19,14 @@ public sealed record TeamMatchCreated(Guid Id);
 public sealed record LineupRequest(Guid GroupId, IReadOnlyList<Guid?> Players);
 
 /// <summary>
-/// Team matches between groups (docs/ARCHITECTURE.md §3i, Takım maçı ve grup Elo'su). Captains (games.team_match) invite,
+/// Team matches between groups in chess or Zihin Düellosu (docs/ARCHITECTURE.md §3i Takım maçı, §3j 21b). Captains (games.team_match) invite,
 /// answer and line up; the monitor starts due matches; each finished board game writes its points and the last one
 /// settles the match and both groups' Elo, in the same transaction as the game result.
 /// </summary>
 internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdministration
 {
     private static readonly Error TimeControlInvalid = Error.Validation("games.team_time_control", "Takım maçı yalnızca Blitz ya da Rapid oynanır.");
+    private static readonly Error LengthInvalid = Error.Validation("games.mind_length_invalid", "Soru sayısı 5, 10, 20 ya da 50 olmalı.");
     private static readonly Error BoardsInvalid = Error.Validation("games.team_boards", "Tahta sayısı 2 ile 10 arasında olmalı.");
     private static readonly Error StartInvalid = Error.Validation("games.team_start", "Başlangıç en az 15 dakika, en çok 30 gün sonra olmalı.");
     private static readonly Error SameGroup = Error.Validation("games.team_same_group", "Bir grup kendisiyle maç yapamaz.");
@@ -45,26 +51,32 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
         await ActingTransaction.ScalarAsync(conn, tx, "select private.user_has_group_permission(@u, @g, 'games.team_match')", ct,
             ("u", actor), ("g", group)) is true;
 
-    private sealed record MatchRow(Guid Id, Guid Home, Guid Away, int Boards, string Status, DateTimeOffset StartsAt, int BaseSeconds, int IncrementSeconds, bool Due);
+    private sealed record MatchRow(
+        Guid Id, Guid Home, Guid Away, int Boards, string Status, DateTimeOffset StartsAt, int? BaseSeconds, int? IncrementSeconds, bool Due,
+        string Game, int? Length);
 
     private static async Task<MatchRow?> LockAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid id, CancellationToken ct)
     {
         await using var cmd = new NpgsqlCommand(
             """
-            select id, home_group_id, away_group_id, boards, status, starts_at, base_seconds, increment_seconds, starts_at <= now()
+            select id, home_group_id, away_group_id, boards, status, starts_at, base_seconds, increment_seconds, starts_at <= now(), game, length
             from public.chess_team_matches where id = @id for update
             """, conn, tx);
         cmd.Parameters.AddWithValue("id", id);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         if (!await r.ReadAsync(ct)) return null;
         return new MatchRow(r.GetGuid(0), r.GetGuid(1), r.GetGuid(2), r.GetInt32(3), r.GetString(4), r.GetFieldValue<DateTimeOffset>(5),
-            r.GetInt32(6), r.GetInt32(7), r.GetBoolean(8));
+            r.IsDBNull(6) ? null : r.GetInt32(6), r.IsDBNull(7) ? null : r.GetInt32(7), r.GetBoolean(8), r.GetString(9),
+            r.IsDBNull(10) ? null : r.GetInt32(10));
     }
 
     public Task<Result<TeamMatchCreated>> CreateAsync(Guid actor, TeamMatchRequest request, CancellationToken ct)
     {
+        var mind = request.Game == "mind";
         var tc = new TimeControl(request.BaseSeconds, request.IncrementSeconds);
-        if (!tc.IsValid || tc.Category == "bullet") return Task.FromResult<Result<TeamMatchCreated>>(TimeControlInvalid);
+        if (mind && !MindQuestions.Lengths.Contains(request.Length ?? 0))
+            return Task.FromResult<Result<TeamMatchCreated>>(LengthInvalid);
+        if (!mind && (request.Game != "chess" || !tc.IsValid || tc.Category == "bullet")) return Task.FromResult<Result<TeamMatchCreated>>(TimeControlInvalid);
         if (request.Boards is < 2 or > 10) return Task.FromResult<Result<TeamMatchCreated>>(BoardsInvalid);
         if (request.HomeGroupId == request.AwayGroupId) return Task.FromResult<Result<TeamMatchCreated>>(SameGroup);
         var now = DateTimeOffset.UtcNow;
@@ -85,13 +97,15 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
             if (open >= MaxOpenPerGroup) return TooMany;
             var id = (Guid?)await ActingTransaction.ScalarAsync(conn, tx,
                 """
-                insert into public.chess_team_matches (home_group_id, away_group_id, boards, category, base_seconds, increment_seconds, starts_at, created_by)
-                values (@home, @away, @boards, @category, @base, @inc, @starts, @me)
-                on conflict ((least(home_group_id, away_group_id)), (greatest(home_group_id, away_group_id)))
+                insert into public.chess_team_matches
+                  (home_group_id, away_group_id, boards, category, base_seconds, increment_seconds, starts_at, created_by, game, length)
+                values (@home, @away, @boards, @category, @base, @inc, @starts, @me, @game, @length)
+                on conflict (game, (least(home_group_id, away_group_id)), (greatest(home_group_id, away_group_id)))
                   where status in ('invited', 'accepted', 'live') do nothing
                 returning id
-                """, ct, ("home", request.HomeGroupId), ("away", request.AwayGroupId), ("boards", request.Boards), ("category", tc.Category),
-                ("base", tc.BaseSeconds), ("inc", tc.IncrementSeconds), ("starts", request.StartsAt), ("me", actor));
+                """, ct, ("home", request.HomeGroupId), ("away", request.AwayGroupId), ("boards", request.Boards),
+                ("category", mind ? null : tc.Category), ("base", mind ? null : tc.BaseSeconds), ("inc", mind ? null : tc.IncrementSeconds),
+                ("starts", request.StartsAt), ("me", actor), ("game", mind ? "mind" : "chess"), ("length", mind ? request.Length : null));
             return id is { } created ? new TeamMatchCreated(created) : AlreadyOpen;
         }, RuleError, ct);
     }
@@ -196,7 +210,7 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
         return started;
     }
 
-    /// <summary>Opens a game on every board both sides filled; a board with one side forfeits to it, an empty board is 0–0.</summary>
+    /// <summary>Opens a game (or a duel) on every board both sides filled; a board with one side forfeits to it, an empty board is 0–0.</summary>
     private static async Task StartAsync(NpgsqlConnection conn, NpgsqlTransaction tx, MatchRow match, CancellationToken ct)
     {
         var lineup = new Dictionary<(Guid Group, int Board), Guid>();
@@ -207,14 +221,19 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
             while (await r.ReadAsync(ct)) lineup[(r.GetGuid(0), r.GetInt32(1))] = r.GetGuid(2);
         }
         await ActingTransaction.ExecuteAsync(conn, tx, "update public.chess_team_matches set status = 'live' where id = @id", ct, ("id", match.Id));
-        var tc = new TimeControl(match.BaseSeconds, match.IncrementSeconds);
+        var tc = new TimeControl(match.BaseSeconds ?? 0, match.IncrementSeconds ?? 0);
         for (var board = 1; board <= match.Boards; board++)
         {
             Guid? home = lineup.TryGetValue((match.Home, board), out var h) ? h : null;
             Guid? away = lineup.TryGetValue((match.Away, board), out var a) ? a : null;
-            Guid? game = null;
+            Guid? game = null, duel = null;
             decimal? homePoints = null, awayPoints = null;
-            if (home is { } hp && away is { } ap)
+            if (home is { } dh && away is { } da && match.Game == "mind")
+            {
+                // The home side sits as a in every duel.
+                duel = await MindService.CreateMatchAsync(conn, tx, dh, da, match.Length!.Value, true, "team_match", null, ct, match.Id);
+            }
+            else if (home is { } hp && away is { } ap)
             {
                 // Colors alternate: the home side has white on odd boards.
                 var (white, black) = board % 2 == 1 ? (hp, ap) : (ap, hp);
@@ -226,9 +245,10 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
             }
             await ActingTransaction.ExecuteAsync(conn, tx,
                 """
-                insert into public.chess_team_boards (match_id, board, home_id, away_id, game_id, home_points, away_points)
-                values (@m, @b, @home, @away, @game, @hp, @ap)
-                """, ct, ("m", match.Id), ("b", board), ("home", home), ("away", away), ("game", game), ("hp", homePoints), ("ap", awayPoints));
+                insert into public.chess_team_boards (match_id, board, home_id, away_id, game_id, mind_match_id, home_points, away_points)
+                values (@m, @b, @home, @away, @game, @duel, @hp, @ap)
+                """, ct, ("m", match.Id), ("b", board), ("home", home), ("away", away), ("game", game), ("duel", duel), ("hp", homePoints),
+                ("ap", awayPoints));
         }
         await SettleIfDoneAsync(conn, tx, match.Id, ct);
     }
@@ -257,15 +277,29 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
         await SettleIfDoneAsync(conn, tx, match, ct);
     }
 
-    /// <summary>Once every board has points: the score, the result for each group and both groups' new Elo.</summary>
+    /// <summary>A board's duel ended (inside its transaction): the home side is a. An aborted duel counts 0–0.</summary>
+    internal static async Task RecordMindBoardAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid match, Guid duel, string? result, CancellationToken ct)
+    {
+        await ActingTransaction.ExecuteAsync(conn, tx,
+            """
+            update public.chess_team_boards b
+            set home_points = case when @result::text is null then 0 when @result = 'draw' then 0.5 when @result = 'a' then 1 else 0 end,
+                away_points = case when @result::text is null then 0 when @result = 'draw' then 0.5 when @result = 'b' then 1 else 0 end
+            where b.match_id = @m and b.mind_match_id = @d and b.home_points is null
+            """, ct, ("result", result), ("m", match), ("d", duel));
+        await SettleIfDoneAsync(conn, tx, match, ct);
+    }
+
+    /// <summary>Once every board has points: the score, the result for each group and both groups' new Elo in the match's game.</summary>
     private static async Task SettleIfDoneAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid match, CancellationToken ct)
     {
         Guid home, away;
         decimal homePoints, awayPoints;
+        string game;
         await using (var cmd = new NpgsqlCommand(
             """
             select m.home_group_id, m.away_group_id, coalesce(sum(b.home_points), 0), coalesce(sum(b.away_points), 0),
-                   count(*) filter (where b.home_points is null), m.status
+                   count(*) filter (where b.home_points is null), m.status, m.game
             from public.chess_team_matches m left join public.chess_team_boards b on b.match_id = m.id
             where m.id = @m
             group by m.id
@@ -274,13 +308,14 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
             cmd.Parameters.AddWithValue("m", match);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             if (!await r.ReadAsync(ct) || r.GetInt64(4) > 0 || r.GetString(5) != "live") return;
-            (home, away, homePoints, awayPoints) = (r.GetGuid(0), r.GetGuid(1), r.GetDecimal(2), r.GetDecimal(3));
+            (home, away, homePoints, awayPoints, game) = (r.GetGuid(0), r.GetGuid(1), r.GetDecimal(2), r.GetDecimal(3), r.GetString(6));
         }
 
         await ActingTransaction.ExecuteAsync(conn, tx,
-            "insert into public.chess_group_ratings (group_id) values (@h), (@a) on conflict do nothing", ct, ("h", home), ("a", away));
+            "insert into public.chess_group_ratings (group_id, game) values (@h, @game), (@a, @game) on conflict do nothing", ct,
+            ("h", home), ("a", away), ("game", game));
         async Task<int> Rating(Guid g) => (int)(await ActingTransaction.ScalarAsync(conn, tx,
-            "select rating from public.chess_group_ratings where group_id = @g for update", ct, ("g", g)))!;
+            "select rating from public.chess_group_ratings where group_id = @g and game = @game for update", ct, ("g", g), ("game", game)))!;
         var homeRating = await Rating(home);
         var awayRating = await Rating(away);
         var total = homePoints + awayPoints;
@@ -299,14 +334,14 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
                 update public.chess_group_ratings
                 set rating = rating + @d, peak = greatest(peak, rating + @d), matches = matches + 1,
                     wins = wins + @w, draws = draws + @dr, losses = losses + @l, updated_at = now()
-                where group_id = @g
+                where group_id = @g and game = @game
                 """;
             var homeWon = homePoints > awayPoints;
             var drawn = homePoints == awayPoints;
             await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", homeDelta), ("w", homeWon ? 1 : 0), ("dr", drawn ? 1 : 0),
-                ("l", !homeWon && !drawn ? 1 : 0), ("g", home));
+                ("l", !homeWon && !drawn ? 1 : 0), ("g", home), ("game", game));
             await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", awayDelta), ("w", !homeWon && !drawn ? 1 : 0), ("dr", drawn ? 1 : 0),
-                ("l", homeWon ? 1 : 0), ("g", away));
+                ("l", homeWon ? 1 : 0), ("g", away), ("game", game));
         }
         await ActingTransaction.ExecuteAsync(conn, tx,
             """
@@ -327,7 +362,7 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
         var rows = new List<TeamMatchAdminRow>();
         await using var cmd = db.CreateCommand(
             """
-            select m.id, h.name, a.name, m.boards, m.base_seconds, m.increment_seconds, m.status, m.starts_at
+            select m.id, h.name, a.name, m.boards, m.base_seconds, m.increment_seconds, m.status, m.starts_at, m.game, m.length
             from public.chess_team_matches m
             join public.groups h on h.id = m.home_group_id
             join public.groups a on a.id = m.away_group_id
@@ -338,8 +373,8 @@ internal sealed class TeamMatchService(NpgsqlDataSource db) : ITeamMatchAdminist
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct))
         {
-            rows.Add(new TeamMatchAdminRow(r.GetGuid(0), r.GetString(1), r.GetString(2), r.GetInt32(3), r.GetInt32(4), r.GetInt32(5),
-                r.GetString(6), r.GetFieldValue<DateTimeOffset>(7)));
+            rows.Add(new TeamMatchAdminRow(r.GetGuid(0), r.GetString(1), r.GetString(2), r.GetInt32(3), r.IsDBNull(4) ? null : r.GetInt32(4),
+                r.IsDBNull(5) ? null : r.GetInt32(5), r.GetString(6), r.GetFieldValue<DateTimeOffset>(7), r.GetString(8), r.IsDBNull(9) ? null : r.GetInt32(9)));
         }
         return rows;
     }

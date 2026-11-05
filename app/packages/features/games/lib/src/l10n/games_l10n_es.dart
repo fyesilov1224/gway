@@ -998,4 +998,47 @@ class GamesL10nEs extends GamesL10n {
 
   @override
   String get mindBackHome => 'Volver a los duelos';
+
+  @override
+  String get mindTeamMatches => 'Duelos de grupos';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Duelos de tus grupos contra otros; el resultado cambia el Elo de duelo del grupo.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Aún no hay duelos de grupos. Reta a otro grupo en nombre del tuyo.';
+
+  @override
+  String get mindNewTeamMatch => 'Organizar duelo de grupos';
+
+  @override
+  String get mindNewTeamHint =>
+      'Cuando el otro grupo acepte, ambos eligen jugadores. Al empezar, los dos jugadores de cada puesto se enfrentan a la vez.';
+
+  @override
+  String get mindTeamMatch => 'Duelo de grupos';
+
+  @override
+  String get mindSeats => 'Puestos';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puestos',
+      one: '1 puesto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Un puesto vacío al empezar cuenta para el rival. Se esperan 5 minutos para la primera pregunta.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Ningún grupo ha jugado aún un duelo. Que el tuyo organice el primero.';
 }

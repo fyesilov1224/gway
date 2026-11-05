@@ -97,5 +97,10 @@
   "actChessArenaStart": "Le tournoi auquel tu t'es inscrit a commencé. Ouvre-le pour être apparié tout de suite.",
   "actChessArenaMedal": "Tu as fini le tournoi dans le top 3 ! Ta médaille est sur ton profil d’échecs.",
   "leadArena": "Tournoi d'échecs",
-  "actMindChallenge": "t'a défié en Duel mental."
+  "actMindChallenge": "t'a défié en Duel mental.",
+  "actMindTeamInvite": "a défié ton groupe en Duel mental au nom de {group}.",
+  "actMindTeamAccepted": "a accepté le duel de groupes pour {group}. Compose ton équipe.",
+  "actMindTeamDeclined": "a refusé le duel de groupes pour {group}.",
+  "actMindTeamStart": "Le duel de groupes contre {group} a commencé. À ton duel !",
+  "leadGroupDuel": "Duel de groupes"
 }

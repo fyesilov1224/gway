@@ -45,10 +45,16 @@ abstract final class MindRoutes {
 
   static String player(String userId) => '/games/mind/p/$userId';
 
+  /// A group duel (a team match in Zihin Düellosu).
+  static String team(String id) => '/games/mind/team/$id';
+
   /// Quick match for a length, e.g. `/games/mind/seek?n=10`.
   static String seek(int length) => '$seekPath?n=$length';
 
   static String leaderboard(int length) => '$leaderboardPath?n=$length';
+
+  /// The leaderboard on its groups tab.
+  static const leaderboardGroups = '/games/mind/leaderboard?c=groups';
 
   /// A length from a link; the default when missing or unknown.
   static int parseLength(String? n) {

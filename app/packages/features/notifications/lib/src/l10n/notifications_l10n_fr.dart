@@ -396,4 +396,27 @@ class NotificationsL10nFr extends NotificationsL10n {
 
   @override
   String get actMindChallenge => 't\'a défié en Duel mental.';
+
+  @override
+  String actMindTeamInvite(String group) {
+    return 'a défié ton groupe en Duel mental au nom de $group.';
+  }
+
+  @override
+  String actMindTeamAccepted(String group) {
+    return 'a accepté le duel de groupes pour $group. Compose ton équipe.';
+  }
+
+  @override
+  String actMindTeamDeclined(String group) {
+    return 'a refusé le duel de groupes pour $group.';
+  }
+
+  @override
+  String actMindTeamStart(String group) {
+    return 'Le duel de groupes contre $group a commencé. À ton duel !';
+  }
+
+  @override
+  String get leadGroupDuel => 'Duel de groupes';
 }

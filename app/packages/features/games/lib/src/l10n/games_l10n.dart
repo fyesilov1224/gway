@@ -1664,6 +1664,66 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Düello sayfasına dön'**
   String get mindBackHome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup düelloları'**
+  String get mindTeamMatches;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubunun başka gruplarla düelloları; sonuç grubun düello Elo puanını değiştirir.'**
+  String get mindTeamMatchesHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz grup düellosu yok. Grubun adına başka bir grubu davet et.'**
+  String get mindNoTeamMatches;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup düellosu düzenle'**
+  String get mindNewTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşı grubun yöneticisi kabul edince iki grup da oyuncularını sıralar. Başlangıçta her sıradaki iki kişi aynı anda düello eder.'**
+  String get mindNewTeamHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup düellosu'**
+  String get mindTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralar'**
+  String get mindSeats;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} sıra'**
+  String mindSeatsCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıçta boş kalan sıra rakibe puan olarak yazılır. Grup düellosunda ilk soru için 5 dakika beklenir.'**
+  String get mindLineupHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.'**
+  String get mindGroupLeaderboardEmpty;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

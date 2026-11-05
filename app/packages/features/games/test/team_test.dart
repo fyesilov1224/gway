@@ -121,4 +121,36 @@ void main() {
     expect(find.text('½ – ½'), findsOneWidget);
     expect(find.text(gamesL10n.accept), findsNothing);
   });
+
+  testWidgets('a group duel shows seats and the question count, without board colors', (tester) async {
+    final repo = _FakeTeams(TeamMatchDetail(
+      match: TeamMatch(
+        id: 'm2',
+        home: _a,
+        away: _b,
+        boards: 2,
+        game: TeamGame.mind,
+        length: 20,
+        startsAt: DateTime.now().subtract(const Duration(minutes: 3)),
+        status: TeamMatchStatus.live,
+      ),
+      boards: [
+        TeamBoard(board: 1, home: _p('me', 'Deniz'), away: _p('u2', 'Lena'), mindMatchId: 'd1'),
+        TeamBoard(board: 2, home: _p('u3', 'Hugo'), homePoints: 1, awayPoints: 0),
+      ],
+      captainOf: const {},
+      homeRating: 1216,
+      awayRating: 1184,
+    ));
+    await _pump(tester, const TeamMatchScreen(matchId: 'm2'), repo);
+
+    expect(find.text(gamesL10n.mindTeamMatch), findsOneWidget);
+    expect(find.text(gamesL10n.mindQuestions(20)), findsOneWidget);
+    expect(find.text(gamesL10n.mindSeatsCount(2)), findsOneWidget);
+    expect(find.text(gamesL10n.mindSeats), findsOneWidget);
+    // The reader's own seat leads to the duel.
+    expect(find.byIcon(Icons.play_circle_fill_rounded), findsOneWidget);
+    // The match score and seat 2 both read 1–0.
+    expect(find.text('1 – 0'), findsNWidgets(2));
+  });
 }
