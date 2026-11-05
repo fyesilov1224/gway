@@ -2289,6 +2289,960 @@ abstract class EventsL10n {
   /// In tr, this message translates to:
   /// **'\"{text}\"'**
   String quoted(String text);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi katılıyor'**
+  String seatsGoing(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} / {capacity} kişi'**
+  String seatsOf(int count, int capacity);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} / {capacity} kişi · {waiting} bekliyor'**
+  String seatsOfWaiting(int count, int capacity, int waiting);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi katıldı'**
+  String summaryAttended(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{avg} ★ ({count} değerlendirme)'**
+  String summaryRating(String avg, int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekleme listesi · {place}. sıra'**
+  String waitlistPlace(int place);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu organizasyon iptal edildi.'**
+  String get eventCanceled;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu organizasyon iptal edildi: {reason}'**
+  String eventCanceledBecause(String reason);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name}, {stars} yıldız'**
+  String reviewBy(String name, int stars);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Çakışıyor'**
+  String get conflicting;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonlar'**
+  String get events;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oluştur'**
+  String get create;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay {count} organizasyon hakkın kaldı.'**
+  String eventsLeft(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ayın organizasyon hakkı doldu. Paketi yükselterek artırabilirsin.'**
+  String get eventsLimitReached;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{avg} · organizasyonlarına {count} değerlendirme'**
+  String groupRating(String avg, int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Nasıldı?'**
+  String get howWasIt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın organizasyonu puanla; herkes yalnızca ortalamayı görür.'**
+  String get howWasItHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{title} · {date}'**
+  String titleOnDate(String title, String date);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yürüyüş, konser ya da buluşma; ilk organizasyonu oluştur.'**
+  String get eventsEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım isteğin gönderildi. Yönetici karar verince haber vereceğiz.'**
+  String get requestSent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılımın kaydedildi. Başlamadan önce hatırlatacağız.'**
+  String get attendanceSaved;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekleme listesine girdin ({place}. sıra). Yer açılınca haber vereceğiz.'**
+  String waitlistJoined(int place);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Aynı saatte başka organizasyonun var'**
+  String get conflictTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'• {title} · {date}'**
+  String conflictLine(String title, String date);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gidemeyeceksen ondan vazgeçip yerini başkasına bırakabilirsin.'**
+  String get conflictOne;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gidemeyeceksen onlardan vazgeçip yerini başkalarına bırakabilirsin.'**
+  String get conflictMany;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İkisinde de kalsın'**
+  String get keepBoth;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Diğerinden vazgeç'**
+  String get leaveOther;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Diğerlerinden vazgeç'**
+  String get leaveOthers;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Diğer organizasyondan vazgeçtin; yerin boşaldı.'**
+  String get leftOther;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Diğer organizasyonlardan vazgeçtin.'**
+  String get leftOthers;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} katılımcı oldu.'**
+  String approvedPerson(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İstek reddedildi; {name} bilgilendirildi.'**
+  String declinedPerson(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takvim dosyası açılamadı. Tekrar dene.'**
+  String get calendarFailed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar durdurulsun mu?'**
+  String get stopSeriesTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.'**
+  String get stopSeriesBody;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Durdur'**
+  String get stop;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar durduruldu.'**
+  String get seriesStopped;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyon iptal edildi.'**
+  String get eventCanceledToast;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu organizasyon bulunamadı ya da artık görünür değil.'**
+  String get eventNotFound;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri dön'**
+  String get goBack;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} grubuna katıl'**
+  String joinGroupFirst(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım isteği gönder'**
+  String get sendJoinRequest;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekleme listesine gir'**
+  String get joinWaitlist;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılmaktan vazgeç'**
+  String get leaveEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekleme listesinden çık'**
+  String get leaveWaitlist;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım isteğin geri çekildi.'**
+  String get requestWithdrawn;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılımın kaldırıldı.'**
+  String get attendanceRemoved;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{title} · GWAY\'de katıl:'**
+  String eventShareText(String title);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyon bağlantısı kopyalandı.'**
+  String get eventLinkCopied;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şikayet et'**
+  String get report;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyon seçenekleri'**
+  String get eventOptions;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenle'**
+  String get edit;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu tarihi iptal et'**
+  String get cancelThisDate;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarı durdur'**
+  String get stopRepeat;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başladı ya da sona erdi'**
+  String get startedOrEnded;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{label} · {date} tarihine kadar'**
+  String seriesUntil(String label, String date);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takvime ekle'**
+  String get addToCalendar;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım ücreti: {fee}'**
+  String fee(String fee);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ücret organizasyon sahibine ödenir; GWAY ödeme almaz.'**
+  String get feeNotice;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geliyor musun?'**
+  String get areYouComing;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelemeyeceksen yerini bekleme listesindekilere bırak.'**
+  String get areYouComingHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Evet, geliyorum'**
+  String get yesComing;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Teşekkürler, geleceğini organizatöre bildirdik.'**
+  String get confirmThanks;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelemiyorum'**
+  String get cantCome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılımın kaldırıldı; yerin boşaldı.'**
+  String get spotFreed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geleceğini teyit ettin.'**
+  String get confirmedComing;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu saatte başka bir organizasyonun var'**
+  String get otherEventSameTime;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım yönetici onayıyla'**
+  String get needsApproval;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım koşulları'**
+  String get requirements;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerekli ekipman'**
+  String get equipment;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım istekleri ({count})'**
+  String joinRequestsCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılanlar'**
+  String get attendees;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{going} katılandan {confirmed} kişi geleceğini teyit etti.'**
+  String confirmedOf(int going, int confirmed);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} · teyit etti'**
+  String confirmedName(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ben de oradaydım kartını paylaş'**
+  String get shareWasThere;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Nasıl geçti?'**
+  String get howDidItGo;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Değerlendirmeler ({count})'**
+  String reviewsCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Notları yalnızca organizasyonu düzenleyenler görür.'**
+  String get reviewNotesPrivate;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yoklama'**
+  String get attendanceCheck;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelmeyenleri işaretle; katkıya ve rozetlere yalnızca gelenler sayılır. Bitişten sonra 7 gün açık.'**
+  String get attendanceCheckHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} geldi olarak işaretlendi.'**
+  String markedCame(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} gelmedi olarak işaretlendi.'**
+  String markedMissed(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelmedi'**
+  String get didntCome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geldi'**
+  String get came;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anılar'**
+  String get memories;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anı paylaş'**
+  String get shareMemory;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyon anketleri'**
+  String get eventPolls;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu organizasyonu düzenleme yetkin yok.'**
+  String get noEditPermission;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonu düzenle'**
+  String get editEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni organizasyon'**
+  String get newEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapak görseli ekle'**
+  String get addCover;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Belgrad Ormanı yürüyüşü'**
+  String get titleExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç'**
+  String get starts;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş (isteğe bağlı)'**
+  String get endsOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Belirtilmedi'**
+  String get notSpecified;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitişi kaldır'**
+  String get removeEnd;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar'**
+  String get repeat;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar yok'**
+  String get noRepeat;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Her hafta'**
+  String get weekly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İki haftada bir'**
+  String get biweekly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Son tarih (isteğe bağlı)'**
+  String get lastDateOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sen durdurana kadar'**
+  String get untilYouStop;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Son tarihi kaldır'**
+  String get removeLastDate;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonraki tarihler 4 hafta önceden kendiliğinden açılır ve her biri aylık organizasyon hakkından düşer.'**
+  String get repeatHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sürpriz mekan'**
+  String get surpriseVenue;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan, başlamadan önce seçtiğin saatte yalnızca katılanlara açıklanır.'**
+  String get surpriseHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İpucu (herkes görür)'**
+  String get hintPublic;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yer'**
+  String get place;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Kadıköy\'de, deniz kenarında'**
+  String get hintExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Bahçeköy girişi ya da Çevrim içi'**
+  String get placeExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir ipucu yaz.'**
+  String get writeHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeri yaz.'**
+  String get writePlace;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerçek mekan (yalnızca katılanlar görür)'**
+  String get realVenue;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Moda Sahnesi önü'**
+  String get realVenueExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerçek mekanı yaz.'**
+  String get writeRealVenue;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ne zaman açıklansın?'**
+  String get whenReveal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} saat önce'**
+  String hoursBefore(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Harita ya da çevrim içi bağlantı (isteğe bağlı)'**
+  String get linkOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı https:// ile başlamalı.'**
+  String get httpsRequired;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Açıklama'**
+  String get description;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapasite (boş = sınırsız)'**
+  String get capacity;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dolunca yeni katılanlar bekleme listesine girer.'**
+  String get capacityHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapasite 1–10.000 olmalı.'**
+  String get capacityRange;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım koşulları (isteğe bağlı)'**
+  String get requirementsOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. En az 10 km yürüyüş deneyimi'**
+  String get requirementsExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerekli ekipman (isteğe bağlı)'**
+  String get equipmentOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Kask, Su, Yağmurluk'**
+  String get equipmentExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Virgülle ayır; en fazla 10 madde.'**
+  String get equipmentHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En fazla 10 madde, her biri en fazla 60 karakter.'**
+  String get equipmentLimit;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım onayla olsun'**
+  String get approvalRequired;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılmak isteyenler istek gönderir; sen onaylarsın.'**
+  String get approvalHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılım ücreti (isteğe bağlı)'**
+  String get feeOptional;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yalnızca bilgi amaçlı gösterilir; GWAY ödeme almaz.'**
+  String get feeInfoOnly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar'**
+  String get amount;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. 150'**
+  String get amountExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir tutar yaz.'**
+  String get validAmount;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme notu'**
+  String get paymentNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Yerinde nakit ödenir'**
+  String get paymentNoteExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonu oluştur'**
+  String get createEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonu değerlendir'**
+  String get rateEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Değerlendirmen'**
+  String get yourReview;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} yıldız'**
+  String starsLabel(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenleyenlere notun (isteğe bağlı)'**
+  String get noteToOrganizers;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Notunu yalnızca organizasyonu düzenleyenler görür; herkes yalnızca ortalamayı görür.'**
+  String get noteToOrganizersHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Değerlendirmen silindi.'**
+  String get reviewDeleted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sil'**
+  String get delete;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Teşekkürler, değerlendirmen kaydedildi.'**
+  String get reviewSaved;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubun sıradaki organizasyonları'**
+  String get groupNext;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu tarihte ilinde aynı kategoride {count} organizasyon daha var. Üyelerin seçim yapmak zorunda kalmasın istersen başka bir gün seçebilirsin.'**
+  String sameDayOthers(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonu iptal et'**
+  String get cancelEvent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.'**
+  String get cancelEventBody;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerekçe'**
+  String get reason;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal et'**
+  String get cancelAction;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İpucu: {hint}'**
+  String hint(String hint);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İpucu: {hint} · Katılanlara {when} açıklanacak.'**
+  String hintRevealAt(String hint, String when);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan katılanlara açıklandı. Katılırsan görürsün.'**
+  String get venueRevealed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan {when} katılanlara açıklanacak.'**
+  String venueRevealAt(String when);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'₺ TRY'**
+  String get currencyTry;
 }
 
 class _EventsL10nDelegate extends LocalizationsDelegate<EventsL10n> {

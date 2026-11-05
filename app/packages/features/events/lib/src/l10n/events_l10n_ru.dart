@@ -1287,4 +1287,563 @@ class EventsL10nRu extends EventsL10n {
   String quoted(String text) {
     return '«$text»';
   }
+
+  @override
+  String seatsGoing(int count) {
+    return 'Идут: $count';
+  }
+
+  @override
+  String seatsOf(int count, int capacity) {
+    return 'Человек: $count / $capacity';
+  }
+
+  @override
+  String seatsOfWaiting(int count, int capacity, int waiting) {
+    return 'Человек: $count / $capacity · ждут: $waiting';
+  }
+
+  @override
+  String summaryAttended(int count) {
+    return 'Было: $count';
+  }
+
+  @override
+  String summaryRating(String avg, int count) {
+    return '$avg ★ (отзывов: $count)';
+  }
+
+  @override
+  String waitlistPlace(int place) {
+    return 'Лист ожидания · №$place';
+  }
+
+  @override
+  String get eventCanceled => 'Мероприятие отменено.';
+
+  @override
+  String eventCanceledBecause(String reason) {
+    return 'Мероприятие отменено: $reason';
+  }
+
+  @override
+  String reviewBy(String name, int stars) {
+    return '$name, звёзд: $stars';
+  }
+
+  @override
+  String get conflicting => 'Пересекается';
+
+  @override
+  String get events => 'Мероприятия';
+
+  @override
+  String get create => 'Создать';
+
+  @override
+  String eventsLeft(int count) {
+    return 'Осталось мероприятий в этом месяце: $count.';
+  }
+
+  @override
+  String get eventsLimitReached =>
+      'Лимит мероприятий на этот месяц исчерпан. Повысьте тариф, чтобы получить больше.';
+
+  @override
+  String groupRating(String avg, int count) {
+    return '$avg · отзывов о мероприятиях: $count';
+  }
+
+  @override
+  String get howWasIt => 'Как прошло?';
+
+  @override
+  String get howWasItHint =>
+      'Оцените мероприятие, на котором были; все видят только среднюю оценку.';
+
+  @override
+  String titleOnDate(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get eventsEmpty =>
+      'Поход, концерт или встреча — создайте первое мероприятие.';
+
+  @override
+  String get requestSent =>
+      'Запрос отправлен. Сообщим, когда организатор примет решение.';
+
+  @override
+  String get attendanceSaved => 'Вы записаны. Напомним перед началом.';
+
+  @override
+  String waitlistJoined(int place) {
+    return 'Вы в листе ожидания (№$place). Сообщим, когда освободится место.';
+  }
+
+  @override
+  String get conflictTitle => 'У вас другое мероприятие в это же время';
+
+  @override
+  String conflictLine(String title, String date) {
+    return '• $title · $date';
+  }
+
+  @override
+  String get conflictOne =>
+      'Если не сможете пойти, откажитесь и уступите место другому.';
+
+  @override
+  String get conflictMany =>
+      'Если не сможете пойти, откажитесь и уступите места другим.';
+
+  @override
+  String get keepBoth => 'Оставить оба';
+
+  @override
+  String get leaveOther => 'Отказаться от другого';
+
+  @override
+  String get leaveOthers => 'Отказаться от других';
+
+  @override
+  String get leftOther =>
+      'Вы отказались от другого мероприятия; место освободилось.';
+
+  @override
+  String get leftOthers => 'Вы отказались от других мероприятий.';
+
+  @override
+  String approvedPerson(String name) {
+    return '$name теперь участвует.';
+  }
+
+  @override
+  String declinedPerson(String name) {
+    return 'Запрос отклонён; $name уведомлен(а).';
+  }
+
+  @override
+  String get calendarFailed =>
+      'Не удалось открыть файл календаря. Повторите попытку.';
+
+  @override
+  String get stopSeriesTitle => 'Остановить повторение?';
+
+  @override
+  String get stopSeriesBody =>
+      'Новые даты не откроются. Уже открытые останутся; их можно отменить по одной.';
+
+  @override
+  String get stop => 'Остановить';
+
+  @override
+  String get seriesStopped => 'Повторение остановлено.';
+
+  @override
+  String get eventCanceledToast => 'Мероприятие отменено.';
+
+  @override
+  String get eventNotFound => 'Мероприятие не найдено или больше не видно.';
+
+  @override
+  String get goBack => 'Назад';
+
+  @override
+  String joinGroupFirst(String name) {
+    return 'Вступить в «$name»';
+  }
+
+  @override
+  String get sendJoinRequest => 'Отправить запрос на участие';
+
+  @override
+  String get joinWaitlist => 'Встать в лист ожидания';
+
+  @override
+  String get leaveEvent => 'Отказаться';
+
+  @override
+  String get leaveWaitlist => 'Выйти из листа ожидания';
+
+  @override
+  String get requestWithdrawn => 'Запрос отозван.';
+
+  @override
+  String get attendanceRemoved => 'Вы отказались от участия.';
+
+  @override
+  String eventShareText(String title) {
+    return '$title · присоединяйтесь в GWAY:';
+  }
+
+  @override
+  String get eventLinkCopied => 'Ссылка на мероприятие скопирована.';
+
+  @override
+  String get report => 'Пожаловаться';
+
+  @override
+  String get eventOptions => 'Действия с мероприятием';
+
+  @override
+  String get edit => 'Изменить';
+
+  @override
+  String get cancelThisDate => 'Отменить эту дату';
+
+  @override
+  String get stopRepeat => 'Остановить повторение';
+
+  @override
+  String get startedOrEnded => 'Началось или завершилось';
+
+  @override
+  String seriesUntil(String label, String date) {
+    return '$label · до $date';
+  }
+
+  @override
+  String get addToCalendar => 'Добавить в календарь';
+
+  @override
+  String fee(String fee) {
+    return 'Стоимость участия: $fee';
+  }
+
+  @override
+  String get feeNotice =>
+      'Оплата идёт организатору; GWAY платежи не принимает.';
+
+  @override
+  String get areYouComing => 'Вы придёте?';
+
+  @override
+  String get areYouComingHint =>
+      'Если не сможете, уступите место листу ожидания.';
+
+  @override
+  String get yesComing => 'Да, приду';
+
+  @override
+  String get confirmThanks =>
+      'Спасибо, мы сообщили организатору, что вы придёте.';
+
+  @override
+  String get cantCome => 'Не смогу';
+
+  @override
+  String get spotFreed => 'Вы отказались; место освободилось.';
+
+  @override
+  String get confirmedComing => 'Вы подтвердили участие.';
+
+  @override
+  String get otherEventSameTime => 'В это время у вас другое мероприятие';
+
+  @override
+  String get needsApproval => 'Участие с одобрения';
+
+  @override
+  String get requirements => 'Условия участия';
+
+  @override
+  String get equipment => 'Нужное снаряжение';
+
+  @override
+  String joinRequestsCount(int count) {
+    return 'Запросы на участие ($count)';
+  }
+
+  @override
+  String get attendees => 'Участники';
+
+  @override
+  String confirmedOf(int going, int confirmed) {
+    return 'Подтвердили: $confirmed из $going.';
+  }
+
+  @override
+  String confirmedName(String name) {
+    return '$name · подтвердил(а)';
+  }
+
+  @override
+  String get shareWasThere => 'Поделиться карточкой «Я тоже там был(а)»';
+
+  @override
+  String get howDidItGo => 'Как всё прошло?';
+
+  @override
+  String reviewsCount(int count) {
+    return 'Отзывы ($count)';
+  }
+
+  @override
+  String get reviewNotesPrivate => 'Заметки видят только организаторы.';
+
+  @override
+  String get attendanceCheck => 'Отметка присутствия';
+
+  @override
+  String get attendanceCheckHint =>
+      'Отметьте неявившихся: в вклад и значки идут только пришедшие. Доступно 7 дней после окончания.';
+
+  @override
+  String markedCame(String name) {
+    return '$name: отмечен(а) как пришедший(-ая).';
+  }
+
+  @override
+  String markedMissed(String name) {
+    return '$name: отмечен(а) как не пришедший(-ая).';
+  }
+
+  @override
+  String get didntCome => 'Не пришёл';
+
+  @override
+  String get came => 'Пришёл';
+
+  @override
+  String get memories => 'Воспоминания';
+
+  @override
+  String get shareMemory => 'Поделиться воспоминанием';
+
+  @override
+  String get eventPolls => 'Опросы мероприятия';
+
+  @override
+  String get noEditPermission =>
+      'У вас нет прав на редактирование мероприятия.';
+
+  @override
+  String get editEvent => 'Редактировать мероприятие';
+
+  @override
+  String get newEvent => 'Новое мероприятие';
+
+  @override
+  String get addCover => 'Добавить обложку';
+
+  @override
+  String get titleExample => 'Например: прогулка по лесу';
+
+  @override
+  String get starts => 'Начало';
+
+  @override
+  String get endsOptional => 'Окончание (необязательно)';
+
+  @override
+  String get notSpecified => 'Не указано';
+
+  @override
+  String get removeEnd => 'Убрать окончание';
+
+  @override
+  String get repeat => 'Повтор';
+
+  @override
+  String get noRepeat => 'Без повтора';
+
+  @override
+  String get weekly => 'Каждую неделю';
+
+  @override
+  String get biweekly => 'Раз в две недели';
+
+  @override
+  String get lastDateOptional => 'Последняя дата (необязательно)';
+
+  @override
+  String get untilYouStop => 'Пока не остановите';
+
+  @override
+  String get removeLastDate => 'Убрать последнюю дату';
+
+  @override
+  String get repeatHint =>
+      'Следующие даты открываются сами за 4 недели, и каждая учитывается в месячном лимите.';
+
+  @override
+  String get surpriseVenue => 'Место-сюрприз';
+
+  @override
+  String get surpriseHint =>
+      'Место откроется только участникам — в выбранное вами время до начала.';
+
+  @override
+  String get hintPublic => 'Подсказка (видят все)';
+
+  @override
+  String get place => 'Место';
+
+  @override
+  String get hintExample => 'Например: у моря, на азиатском берегу';
+
+  @override
+  String get placeExample => 'Например: вход в парк или онлайн';
+
+  @override
+  String get writeHint => 'Напишите подсказку.';
+
+  @override
+  String get writePlace => 'Укажите место.';
+
+  @override
+  String get realVenue => 'Настоящее место (видят только участники)';
+
+  @override
+  String get realVenueExample => 'Например: у театра';
+
+  @override
+  String get writeRealVenue => 'Укажите настоящее место.';
+
+  @override
+  String get whenReveal => 'Когда открыть?';
+
+  @override
+  String hoursBefore(int count) {
+    return 'За $count ч';
+  }
+
+  @override
+  String get linkOptional => 'Ссылка на карту или онлайн (необязательно)';
+
+  @override
+  String get httpsRequired => 'Ссылка должна начинаться с https://.';
+
+  @override
+  String get description => 'Описание';
+
+  @override
+  String get capacity => 'Мест (пусто = без ограничений)';
+
+  @override
+  String get capacityHint =>
+      'Когда места кончатся, новые попадут в лист ожидания.';
+
+  @override
+  String get capacityRange => 'Мест должно быть от 1 до 10 000.';
+
+  @override
+  String get requirementsOptional => 'Условия участия (необязательно)';
+
+  @override
+  String get requirementsExample => 'Например: опыт походов от 10 км';
+
+  @override
+  String get equipmentOptional => 'Нужное снаряжение (необязательно)';
+
+  @override
+  String get equipmentExample => 'Например: шлем, вода, дождевик';
+
+  @override
+  String get equipmentHint => 'Через запятую; до 10 пунктов.';
+
+  @override
+  String get equipmentLimit => 'До 10 пунктов, каждый до 60 символов.';
+
+  @override
+  String get approvalRequired => 'Участие с одобрения';
+
+  @override
+  String get approvalHint => 'Желающие отправляют запрос, а вы одобряете.';
+
+  @override
+  String get feeOptional => 'Стоимость участия (необязательно)';
+
+  @override
+  String get feeInfoOnly => 'Только для информации; GWAY платежи не принимает.';
+
+  @override
+  String get amount => 'Сумма';
+
+  @override
+  String get amountExample => 'Например, 150';
+
+  @override
+  String get validAmount => 'Введите корректную сумму.';
+
+  @override
+  String get paymentNote => 'Примечание к оплате';
+
+  @override
+  String get paymentNoteExample => 'Например: наличными на месте';
+
+  @override
+  String get createEvent => 'Создать мероприятие';
+
+  @override
+  String get rateEvent => 'Оценить мероприятие';
+
+  @override
+  String get yourReview => 'Ваш отзыв';
+
+  @override
+  String starsLabel(int count) {
+    return 'Звёзд: $count';
+  }
+
+  @override
+  String get noteToOrganizers => 'Заметка организаторам (необязательно)';
+
+  @override
+  String get noteToOrganizersHint =>
+      'Заметку видят только организаторы; остальные — лишь среднюю оценку.';
+
+  @override
+  String get reviewDeleted => 'Ваш отзыв удалён.';
+
+  @override
+  String get delete => 'Удалить';
+
+  @override
+  String get reviewSaved => 'Спасибо, отзыв сохранён.';
+
+  @override
+  String get groupNext => 'Ближайшие мероприятия группы';
+
+  @override
+  String sameDayOthers(int count) {
+    return 'В этот день в вашей провинции ещё $count мероприятий той же категории. Выберите другой день, чтобы участникам не пришлось выбирать.';
+  }
+
+  @override
+  String get cancelEvent => 'Отменить мероприятие';
+
+  @override
+  String get cancelEventBody =>
+      'Участники и лист ожидания получат уведомление. Отменить это нельзя.';
+
+  @override
+  String get reason => 'Причина';
+
+  @override
+  String get cancelAction => 'Отменить';
+
+  @override
+  String hint(String hint) {
+    return 'Подсказка: $hint';
+  }
+
+  @override
+  String hintRevealAt(String hint, String when) {
+    return 'Подсказка: $hint · Участникам откроется $when.';
+  }
+
+  @override
+  String get venueRevealed =>
+      'Место открыто участникам. Запишитесь, чтобы увидеть.';
+
+  @override
+  String venueRevealAt(String when) {
+    return 'Место откроется участникам $when.';
+  }
+
+  @override
+  String get currencyTry => '₺ TRY';
 }

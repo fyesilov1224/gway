@@ -31,14 +31,16 @@ String formatDateTime(DateTime date) {
   return '${formatDate(d)}, ${DateFormat.jm(_locale).format(d)}';
 }
 
-/// `5 Kasım Perşembe` / `Thursday, November 5` in local time.
-String formatWeekdayDate(DateTime date) => DateFormat.MMMMEEEEd(_locale).format(date.toLocal());
+/// `5 Kasım, Perşembe` / `Thursday, November 5` in local time.
+String formatWeekdayDate(DateTime date) =>
+    (_locale == 'tr' ? DateFormat('d MMMM, EEEE', 'tr') : DateFormat.MMMMEEEEd(_locale)).format(date.toLocal());
 
 /// `a, b, c` with the language's own separator (Arabic `، `).
 String formatList(Iterable<String> items) => items.join(currentAppLanguage == AppLanguage.ar ? '، ' : ', ');
 
-/// `21 Ekim 2026 Salı` / `Tuesday, October 21, 2026` in local time.
-String formatWeekdayDateYear(DateTime date) => DateFormat.yMMMMEEEEd(_locale).format(date.toLocal());
+/// `Salı, 21 Ekim 2026` / `Tuesday, October 21, 2026` in local time.
+String formatWeekdayDateYear(DateTime date) =>
+    (_locale == 'tr' ? DateFormat('EEEE, d MMMM y', 'tr') : DateFormat.yMMMMEEEEd(_locale)).format(date.toLocal());
 
 /// `Salı` / `Tuesday`.
 String formatWeekday(DateTime date) => DateFormat.EEEE(_locale).format(date.toLocal());

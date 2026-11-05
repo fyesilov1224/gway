@@ -1285,4 +1285,564 @@ class EventsL10nTr extends EventsL10n {
   String quoted(String text) {
     return '\"$text\"';
   }
+
+  @override
+  String seatsGoing(int count) {
+    return '$count kişi katılıyor';
+  }
+
+  @override
+  String seatsOf(int count, int capacity) {
+    return '$count / $capacity kişi';
+  }
+
+  @override
+  String seatsOfWaiting(int count, int capacity, int waiting) {
+    return '$count / $capacity kişi · $waiting bekliyor';
+  }
+
+  @override
+  String summaryAttended(int count) {
+    return '$count kişi katıldı';
+  }
+
+  @override
+  String summaryRating(String avg, int count) {
+    return '$avg ★ ($count değerlendirme)';
+  }
+
+  @override
+  String waitlistPlace(int place) {
+    return 'Bekleme listesi · $place. sıra';
+  }
+
+  @override
+  String get eventCanceled => 'Bu organizasyon iptal edildi.';
+
+  @override
+  String eventCanceledBecause(String reason) {
+    return 'Bu organizasyon iptal edildi: $reason';
+  }
+
+  @override
+  String reviewBy(String name, int stars) {
+    return '$name, $stars yıldız';
+  }
+
+  @override
+  String get conflicting => 'Çakışıyor';
+
+  @override
+  String get events => 'Organizasyonlar';
+
+  @override
+  String get create => 'Oluştur';
+
+  @override
+  String eventsLeft(int count) {
+    return 'Bu ay $count organizasyon hakkın kaldı.';
+  }
+
+  @override
+  String get eventsLimitReached =>
+      'Bu ayın organizasyon hakkı doldu. Paketi yükselterek artırabilirsin.';
+
+  @override
+  String groupRating(String avg, int count) {
+    return '$avg · organizasyonlarına $count değerlendirme';
+  }
+
+  @override
+  String get howWasIt => 'Nasıldı?';
+
+  @override
+  String get howWasItHint =>
+      'Katıldığın organizasyonu puanla; herkes yalnızca ortalamayı görür.';
+
+  @override
+  String titleOnDate(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get eventsEmpty =>
+      'Yürüyüş, konser ya da buluşma; ilk organizasyonu oluştur.';
+
+  @override
+  String get requestSent =>
+      'Katılım isteğin gönderildi. Yönetici karar verince haber vereceğiz.';
+
+  @override
+  String get attendanceSaved =>
+      'Katılımın kaydedildi. Başlamadan önce hatırlatacağız.';
+
+  @override
+  String waitlistJoined(int place) {
+    return 'Bekleme listesine girdin ($place. sıra). Yer açılınca haber vereceğiz.';
+  }
+
+  @override
+  String get conflictTitle => 'Aynı saatte başka organizasyonun var';
+
+  @override
+  String conflictLine(String title, String date) {
+    return '• $title · $date';
+  }
+
+  @override
+  String get conflictOne =>
+      'Gidemeyeceksen ondan vazgeçip yerini başkasına bırakabilirsin.';
+
+  @override
+  String get conflictMany =>
+      'Gidemeyeceksen onlardan vazgeçip yerini başkalarına bırakabilirsin.';
+
+  @override
+  String get keepBoth => 'İkisinde de kalsın';
+
+  @override
+  String get leaveOther => 'Diğerinden vazgeç';
+
+  @override
+  String get leaveOthers => 'Diğerlerinden vazgeç';
+
+  @override
+  String get leftOther => 'Diğer organizasyondan vazgeçtin; yerin boşaldı.';
+
+  @override
+  String get leftOthers => 'Diğer organizasyonlardan vazgeçtin.';
+
+  @override
+  String approvedPerson(String name) {
+    return '$name katılımcı oldu.';
+  }
+
+  @override
+  String declinedPerson(String name) {
+    return 'İstek reddedildi; $name bilgilendirildi.';
+  }
+
+  @override
+  String get calendarFailed => 'Takvim dosyası açılamadı. Tekrar dene.';
+
+  @override
+  String get stopSeriesTitle => 'Tekrar durdurulsun mu?';
+
+  @override
+  String get stopSeriesBody =>
+      'Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.';
+
+  @override
+  String get stop => 'Durdur';
+
+  @override
+  String get seriesStopped => 'Tekrar durduruldu.';
+
+  @override
+  String get eventCanceledToast => 'Organizasyon iptal edildi.';
+
+  @override
+  String get eventNotFound =>
+      'Bu organizasyon bulunamadı ya da artık görünür değil.';
+
+  @override
+  String get goBack => 'Geri dön';
+
+  @override
+  String joinGroupFirst(String name) {
+    return '$name grubuna katıl';
+  }
+
+  @override
+  String get sendJoinRequest => 'Katılım isteği gönder';
+
+  @override
+  String get joinWaitlist => 'Bekleme listesine gir';
+
+  @override
+  String get leaveEvent => 'Katılmaktan vazgeç';
+
+  @override
+  String get leaveWaitlist => 'Bekleme listesinden çık';
+
+  @override
+  String get requestWithdrawn => 'Katılım isteğin geri çekildi.';
+
+  @override
+  String get attendanceRemoved => 'Katılımın kaldırıldı.';
+
+  @override
+  String eventShareText(String title) {
+    return '$title · GWAY\'de katıl:';
+  }
+
+  @override
+  String get eventLinkCopied => 'Organizasyon bağlantısı kopyalandı.';
+
+  @override
+  String get report => 'Şikayet et';
+
+  @override
+  String get eventOptions => 'Organizasyon seçenekleri';
+
+  @override
+  String get edit => 'Düzenle';
+
+  @override
+  String get cancelThisDate => 'Bu tarihi iptal et';
+
+  @override
+  String get stopRepeat => 'Tekrarı durdur';
+
+  @override
+  String get startedOrEnded => 'Başladı ya da sona erdi';
+
+  @override
+  String seriesUntil(String label, String date) {
+    return '$label · $date tarihine kadar';
+  }
+
+  @override
+  String get addToCalendar => 'Takvime ekle';
+
+  @override
+  String fee(String fee) {
+    return 'Katılım ücreti: $fee';
+  }
+
+  @override
+  String get feeNotice =>
+      'Ücret organizasyon sahibine ödenir; GWAY ödeme almaz.';
+
+  @override
+  String get areYouComing => 'Geliyor musun?';
+
+  @override
+  String get areYouComingHint =>
+      'Gelemeyeceksen yerini bekleme listesindekilere bırak.';
+
+  @override
+  String get yesComing => 'Evet, geliyorum';
+
+  @override
+  String get confirmThanks => 'Teşekkürler, geleceğini organizatöre bildirdik.';
+
+  @override
+  String get cantCome => 'Gelemiyorum';
+
+  @override
+  String get spotFreed => 'Katılımın kaldırıldı; yerin boşaldı.';
+
+  @override
+  String get confirmedComing => 'Geleceğini teyit ettin.';
+
+  @override
+  String get otherEventSameTime => 'Bu saatte başka bir organizasyonun var';
+
+  @override
+  String get needsApproval => 'Katılım yönetici onayıyla';
+
+  @override
+  String get requirements => 'Katılım koşulları';
+
+  @override
+  String get equipment => 'Gerekli ekipman';
+
+  @override
+  String joinRequestsCount(int count) {
+    return 'Katılım istekleri ($count)';
+  }
+
+  @override
+  String get attendees => 'Katılanlar';
+
+  @override
+  String confirmedOf(int going, int confirmed) {
+    return '$going katılandan $confirmed kişi geleceğini teyit etti.';
+  }
+
+  @override
+  String confirmedName(String name) {
+    return '$name · teyit etti';
+  }
+
+  @override
+  String get shareWasThere => 'Ben de oradaydım kartını paylaş';
+
+  @override
+  String get howDidItGo => 'Nasıl geçti?';
+
+  @override
+  String reviewsCount(int count) {
+    return 'Değerlendirmeler ($count)';
+  }
+
+  @override
+  String get reviewNotesPrivate =>
+      'Notları yalnızca organizasyonu düzenleyenler görür.';
+
+  @override
+  String get attendanceCheck => 'Yoklama';
+
+  @override
+  String get attendanceCheckHint =>
+      'Gelmeyenleri işaretle; katkıya ve rozetlere yalnızca gelenler sayılır. Bitişten sonra 7 gün açık.';
+
+  @override
+  String markedCame(String name) {
+    return '$name geldi olarak işaretlendi.';
+  }
+
+  @override
+  String markedMissed(String name) {
+    return '$name gelmedi olarak işaretlendi.';
+  }
+
+  @override
+  String get didntCome => 'Gelmedi';
+
+  @override
+  String get came => 'Geldi';
+
+  @override
+  String get memories => 'Anılar';
+
+  @override
+  String get shareMemory => 'Anı paylaş';
+
+  @override
+  String get eventPolls => 'Organizasyon anketleri';
+
+  @override
+  String get noEditPermission => 'Bu organizasyonu düzenleme yetkin yok.';
+
+  @override
+  String get editEvent => 'Organizasyonu düzenle';
+
+  @override
+  String get newEvent => 'Yeni organizasyon';
+
+  @override
+  String get addCover => 'Kapak görseli ekle';
+
+  @override
+  String get titleExample => 'Ör. Belgrad Ormanı yürüyüşü';
+
+  @override
+  String get starts => 'Başlangıç';
+
+  @override
+  String get endsOptional => 'Bitiş (isteğe bağlı)';
+
+  @override
+  String get notSpecified => 'Belirtilmedi';
+
+  @override
+  String get removeEnd => 'Bitişi kaldır';
+
+  @override
+  String get repeat => 'Tekrar';
+
+  @override
+  String get noRepeat => 'Tekrar yok';
+
+  @override
+  String get weekly => 'Her hafta';
+
+  @override
+  String get biweekly => 'İki haftada bir';
+
+  @override
+  String get lastDateOptional => 'Son tarih (isteğe bağlı)';
+
+  @override
+  String get untilYouStop => 'Sen durdurana kadar';
+
+  @override
+  String get removeLastDate => 'Son tarihi kaldır';
+
+  @override
+  String get repeatHint =>
+      'Sonraki tarihler 4 hafta önceden kendiliğinden açılır ve her biri aylık organizasyon hakkından düşer.';
+
+  @override
+  String get surpriseVenue => 'Sürpriz mekan';
+
+  @override
+  String get surpriseHint =>
+      'Mekan, başlamadan önce seçtiğin saatte yalnızca katılanlara açıklanır.';
+
+  @override
+  String get hintPublic => 'İpucu (herkes görür)';
+
+  @override
+  String get place => 'Yer';
+
+  @override
+  String get hintExample => 'Ör. Kadıköy\'de, deniz kenarında';
+
+  @override
+  String get placeExample => 'Ör. Bahçeköy girişi ya da Çevrim içi';
+
+  @override
+  String get writeHint => 'Bir ipucu yaz.';
+
+  @override
+  String get writePlace => 'Yeri yaz.';
+
+  @override
+  String get realVenue => 'Gerçek mekan (yalnızca katılanlar görür)';
+
+  @override
+  String get realVenueExample => 'Ör. Moda Sahnesi önü';
+
+  @override
+  String get writeRealVenue => 'Gerçek mekanı yaz.';
+
+  @override
+  String get whenReveal => 'Ne zaman açıklansın?';
+
+  @override
+  String hoursBefore(int count) {
+    return '$count saat önce';
+  }
+
+  @override
+  String get linkOptional => 'Harita ya da çevrim içi bağlantı (isteğe bağlı)';
+
+  @override
+  String get httpsRequired => 'Bağlantı https:// ile başlamalı.';
+
+  @override
+  String get description => 'Açıklama';
+
+  @override
+  String get capacity => 'Kapasite (boş = sınırsız)';
+
+  @override
+  String get capacityHint => 'Dolunca yeni katılanlar bekleme listesine girer.';
+
+  @override
+  String get capacityRange => 'Kapasite 1–10.000 olmalı.';
+
+  @override
+  String get requirementsOptional => 'Katılım koşulları (isteğe bağlı)';
+
+  @override
+  String get requirementsExample => 'Ör. En az 10 km yürüyüş deneyimi';
+
+  @override
+  String get equipmentOptional => 'Gerekli ekipman (isteğe bağlı)';
+
+  @override
+  String get equipmentExample => 'Ör. Kask, Su, Yağmurluk';
+
+  @override
+  String get equipmentHint => 'Virgülle ayır; en fazla 10 madde.';
+
+  @override
+  String get equipmentLimit =>
+      'En fazla 10 madde, her biri en fazla 60 karakter.';
+
+  @override
+  String get approvalRequired => 'Katılım onayla olsun';
+
+  @override
+  String get approvalHint =>
+      'Katılmak isteyenler istek gönderir; sen onaylarsın.';
+
+  @override
+  String get feeOptional => 'Katılım ücreti (isteğe bağlı)';
+
+  @override
+  String get feeInfoOnly =>
+      'Yalnızca bilgi amaçlı gösterilir; GWAY ödeme almaz.';
+
+  @override
+  String get amount => 'Tutar';
+
+  @override
+  String get amountExample => 'Ör. 150';
+
+  @override
+  String get validAmount => 'Geçerli bir tutar yaz.';
+
+  @override
+  String get paymentNote => 'Ödeme notu';
+
+  @override
+  String get paymentNoteExample => 'Ör. Yerinde nakit ödenir';
+
+  @override
+  String get createEvent => 'Organizasyonu oluştur';
+
+  @override
+  String get rateEvent => 'Organizasyonu değerlendir';
+
+  @override
+  String get yourReview => 'Değerlendirmen';
+
+  @override
+  String starsLabel(int count) {
+    return '$count yıldız';
+  }
+
+  @override
+  String get noteToOrganizers => 'Düzenleyenlere notun (isteğe bağlı)';
+
+  @override
+  String get noteToOrganizersHint =>
+      'Notunu yalnızca organizasyonu düzenleyenler görür; herkes yalnızca ortalamayı görür.';
+
+  @override
+  String get reviewDeleted => 'Değerlendirmen silindi.';
+
+  @override
+  String get delete => 'Sil';
+
+  @override
+  String get reviewSaved => 'Teşekkürler, değerlendirmen kaydedildi.';
+
+  @override
+  String get groupNext => 'Grubun sıradaki organizasyonları';
+
+  @override
+  String sameDayOthers(int count) {
+    return 'Bu tarihte ilinde aynı kategoride $count organizasyon daha var. Üyelerin seçim yapmak zorunda kalmasın istersen başka bir gün seçebilirsin.';
+  }
+
+  @override
+  String get cancelEvent => 'Organizasyonu iptal et';
+
+  @override
+  String get cancelEventBody =>
+      'Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.';
+
+  @override
+  String get reason => 'Gerekçe';
+
+  @override
+  String get cancelAction => 'İptal et';
+
+  @override
+  String hint(String hint) {
+    return 'İpucu: $hint';
+  }
+
+  @override
+  String hintRevealAt(String hint, String when) {
+    return 'İpucu: $hint · Katılanlara $when açıklanacak.';
+  }
+
+  @override
+  String get venueRevealed =>
+      'Mekan katılanlara açıklandı. Katılırsan görürsün.';
+
+  @override
+  String venueRevealAt(String when) {
+    return 'Mekan $when katılanlara açıklanacak.';
+  }
+
+  @override
+  String get currencyTry => '₺ TRY';
 }

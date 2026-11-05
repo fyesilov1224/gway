@@ -1862,5 +1862,829 @@
         "type": "String"
       }
     }
+  },
+  "seatsGoing": "{count} kişi katılıyor",
+  "@seatsGoing": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seatsOf": "{count} / {capacity} kişi",
+  "@seatsOf": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "seatsOfWaiting": "{count} / {capacity} kişi · {waiting} bekliyor",
+  "@seatsOfWaiting": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryAttended": "{count} kişi katıldı",
+  "@summaryAttended": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryRating": "{avg} ★ ({count} değerlendirme)",
+  "@summaryRating": {
+    "description": "",
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waitlistPlace": "Bekleme listesi · {place}. sıra",
+  "@waitlistPlace": {
+    "description": "",
+    "placeholders": {
+      "place": {
+        "type": "int"
+      }
+    }
+  },
+  "eventCanceled": "Bu organizasyon iptal edildi.",
+  "@eventCanceled": {
+    "description": ""
+  },
+  "eventCanceledBecause": "Bu organizasyon iptal edildi: {reason}",
+  "@eventCanceledBecause": {
+    "description": "",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewBy": "{name}, {stars} yıldız",
+  "@reviewBy": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "conflicting": "Çakışıyor",
+  "@conflicting": {
+    "description": ""
+  },
+  "events": "Organizasyonlar",
+  "@events": {
+    "description": ""
+  },
+  "create": "Oluştur",
+  "@create": {
+    "description": ""
+  },
+  "eventsLeft": "Bu ay {count} organizasyon hakkın kaldı.",
+  "@eventsLeft": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsLimitReached": "Bu ayın organizasyon hakkı doldu. Paketi yükselterek artırabilirsin.",
+  "@eventsLimitReached": {
+    "description": ""
+  },
+  "groupRating": "{avg} · organizasyonlarına {count} değerlendirme",
+  "@groupRating": {
+    "description": "",
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "howWasIt": "Nasıldı?",
+  "@howWasIt": {
+    "description": ""
+  },
+  "howWasItHint": "Katıldığın organizasyonu puanla; herkes yalnızca ortalamayı görür.",
+  "@howWasItHint": {
+    "description": ""
+  },
+  "titleOnDate": "{title} · {date}",
+  "@titleOnDate": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsEmpty": "Yürüyüş, konser ya da buluşma; ilk organizasyonu oluştur.",
+  "@eventsEmpty": {
+    "description": ""
+  },
+  "requestSent": "Katılım isteğin gönderildi. Yönetici karar verince haber vereceğiz.",
+  "@requestSent": {
+    "description": ""
+  },
+  "attendanceSaved": "Katılımın kaydedildi. Başlamadan önce hatırlatacağız.",
+  "@attendanceSaved": {
+    "description": ""
+  },
+  "waitlistJoined": "Bekleme listesine girdin ({place}. sıra). Yer açılınca haber vereceğiz.",
+  "@waitlistJoined": {
+    "description": "",
+    "placeholders": {
+      "place": {
+        "type": "int"
+      }
+    }
+  },
+  "conflictTitle": "Aynı saatte başka organizasyonun var",
+  "@conflictTitle": {
+    "description": ""
+  },
+  "conflictLine": "• {title} · {date}",
+  "@conflictLine": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "conflictOne": "Gidemeyeceksen ondan vazgeçip yerini başkasına bırakabilirsin.",
+  "@conflictOne": {
+    "description": ""
+  },
+  "conflictMany": "Gidemeyeceksen onlardan vazgeçip yerini başkalarına bırakabilirsin.",
+  "@conflictMany": {
+    "description": ""
+  },
+  "keepBoth": "İkisinde de kalsın",
+  "@keepBoth": {
+    "description": ""
+  },
+  "leaveOther": "Diğerinden vazgeç",
+  "@leaveOther": {
+    "description": ""
+  },
+  "leaveOthers": "Diğerlerinden vazgeç",
+  "@leaveOthers": {
+    "description": ""
+  },
+  "leftOther": "Diğer organizasyondan vazgeçtin; yerin boşaldı.",
+  "@leftOther": {
+    "description": ""
+  },
+  "leftOthers": "Diğer organizasyonlardan vazgeçtin.",
+  "@leftOthers": {
+    "description": ""
+  },
+  "approvedPerson": "{name} katılımcı oldu.",
+  "@approvedPerson": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "declinedPerson": "İstek reddedildi; {name} bilgilendirildi.",
+  "@declinedPerson": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarFailed": "Takvim dosyası açılamadı. Tekrar dene.",
+  "@calendarFailed": {
+    "description": ""
+  },
+  "stopSeriesTitle": "Tekrar durdurulsun mu?",
+  "@stopSeriesTitle": {
+    "description": ""
+  },
+  "stopSeriesBody": "Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.",
+  "@stopSeriesBody": {
+    "description": ""
+  },
+  "stop": "Durdur",
+  "@stop": {
+    "description": ""
+  },
+  "seriesStopped": "Tekrar durduruldu.",
+  "@seriesStopped": {
+    "description": ""
+  },
+  "eventCanceledToast": "Organizasyon iptal edildi.",
+  "@eventCanceledToast": {
+    "description": ""
+  },
+  "eventNotFound": "Bu organizasyon bulunamadı ya da artık görünür değil.",
+  "@eventNotFound": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "joinGroupFirst": "{name} grubuna katıl",
+  "@joinGroupFirst": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendJoinRequest": "Katılım isteği gönder",
+  "@sendJoinRequest": {
+    "description": ""
+  },
+  "joinWaitlist": "Bekleme listesine gir",
+  "@joinWaitlist": {
+    "description": ""
+  },
+  "leaveEvent": "Katılmaktan vazgeç",
+  "@leaveEvent": {
+    "description": ""
+  },
+  "leaveWaitlist": "Bekleme listesinden çık",
+  "@leaveWaitlist": {
+    "description": ""
+  },
+  "requestWithdrawn": "Katılım isteğin geri çekildi.",
+  "@requestWithdrawn": {
+    "description": ""
+  },
+  "attendanceRemoved": "Katılımın kaldırıldı.",
+  "@attendanceRemoved": {
+    "description": ""
+  },
+  "eventShareText": "{title} · GWAY'de katıl:",
+  "@eventShareText": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "eventLinkCopied": "Organizasyon bağlantısı kopyalandı.",
+  "@eventLinkCopied": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "eventOptions": "Organizasyon seçenekleri",
+  "@eventOptions": {
+    "description": ""
+  },
+  "edit": "Düzenle",
+  "@edit": {
+    "description": ""
+  },
+  "cancelThisDate": "Bu tarihi iptal et",
+  "@cancelThisDate": {
+    "description": ""
+  },
+  "stopRepeat": "Tekrarı durdur",
+  "@stopRepeat": {
+    "description": ""
+  },
+  "startedOrEnded": "Başladı ya da sona erdi",
+  "@startedOrEnded": {
+    "description": ""
+  },
+  "seriesUntil": "{label} · {date} tarihine kadar",
+  "@seriesUntil": {
+    "description": "",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "addToCalendar": "Takvime ekle",
+  "@addToCalendar": {
+    "description": ""
+  },
+  "fee": "Katılım ücreti: {fee}",
+  "@fee": {
+    "description": "",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "feeNotice": "Ücret organizasyon sahibine ödenir; GWAY ödeme almaz.",
+  "@feeNotice": {
+    "description": ""
+  },
+  "areYouComing": "Geliyor musun?",
+  "@areYouComing": {
+    "description": ""
+  },
+  "areYouComingHint": "Gelemeyeceksen yerini bekleme listesindekilere bırak.",
+  "@areYouComingHint": {
+    "description": ""
+  },
+  "yesComing": "Evet, geliyorum",
+  "@yesComing": {
+    "description": ""
+  },
+  "confirmThanks": "Teşekkürler, geleceğini organizatöre bildirdik.",
+  "@confirmThanks": {
+    "description": ""
+  },
+  "cantCome": "Gelemiyorum",
+  "@cantCome": {
+    "description": ""
+  },
+  "spotFreed": "Katılımın kaldırıldı; yerin boşaldı.",
+  "@spotFreed": {
+    "description": ""
+  },
+  "confirmedComing": "Geleceğini teyit ettin.",
+  "@confirmedComing": {
+    "description": ""
+  },
+  "otherEventSameTime": "Bu saatte başka bir organizasyonun var",
+  "@otherEventSameTime": {
+    "description": ""
+  },
+  "needsApproval": "Katılım yönetici onayıyla",
+  "@needsApproval": {
+    "description": ""
+  },
+  "requirements": "Katılım koşulları",
+  "@requirements": {
+    "description": ""
+  },
+  "equipment": "Gerekli ekipman",
+  "@equipment": {
+    "description": ""
+  },
+  "joinRequestsCount": "Katılım istekleri ({count})",
+  "@joinRequestsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendees": "Katılanlar",
+  "@attendees": {
+    "description": ""
+  },
+  "confirmedOf": "{going} katılandan {confirmed} kişi geleceğini teyit etti.",
+  "@confirmedOf": {
+    "description": "",
+    "placeholders": {
+      "going": {
+        "type": "int"
+      },
+      "confirmed": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmedName": "{name} · teyit etti",
+  "@confirmedName": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWasThere": "Ben de oradaydım kartını paylaş",
+  "@shareWasThere": {
+    "description": ""
+  },
+  "howDidItGo": "Nasıl geçti?",
+  "@howDidItGo": {
+    "description": ""
+  },
+  "reviewsCount": "Değerlendirmeler ({count})",
+  "@reviewsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewNotesPrivate": "Notları yalnızca organizasyonu düzenleyenler görür.",
+  "@reviewNotesPrivate": {
+    "description": ""
+  },
+  "attendanceCheck": "Yoklama",
+  "@attendanceCheck": {
+    "description": ""
+  },
+  "attendanceCheckHint": "Gelmeyenleri işaretle; katkıya ve rozetlere yalnızca gelenler sayılır. Bitişten sonra 7 gün açık.",
+  "@attendanceCheckHint": {
+    "description": ""
+  },
+  "markedCame": "{name} geldi olarak işaretlendi.",
+  "@markedCame": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "markedMissed": "{name} gelmedi olarak işaretlendi.",
+  "@markedMissed": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "didntCome": "Gelmedi",
+  "@didntCome": {
+    "description": ""
+  },
+  "came": "Geldi",
+  "@came": {
+    "description": ""
+  },
+  "memories": "Anılar",
+  "@memories": {
+    "description": ""
+  },
+  "shareMemory": "Anı paylaş",
+  "@shareMemory": {
+    "description": ""
+  },
+  "eventPolls": "Organizasyon anketleri",
+  "@eventPolls": {
+    "description": ""
+  },
+  "noEditPermission": "Bu organizasyonu düzenleme yetkin yok.",
+  "@noEditPermission": {
+    "description": ""
+  },
+  "editEvent": "Organizasyonu düzenle",
+  "@editEvent": {
+    "description": ""
+  },
+  "newEvent": "Yeni organizasyon",
+  "@newEvent": {
+    "description": ""
+  },
+  "addCover": "Kapak görseli ekle",
+  "@addCover": {
+    "description": ""
+  },
+  "titleExample": "Ör. Belgrad Ormanı yürüyüşü",
+  "@titleExample": {
+    "description": ""
+  },
+  "starts": "Başlangıç",
+  "@starts": {
+    "description": ""
+  },
+  "endsOptional": "Bitiş (isteğe bağlı)",
+  "@endsOptional": {
+    "description": ""
+  },
+  "notSpecified": "Belirtilmedi",
+  "@notSpecified": {
+    "description": ""
+  },
+  "removeEnd": "Bitişi kaldır",
+  "@removeEnd": {
+    "description": ""
+  },
+  "repeat": "Tekrar",
+  "@repeat": {
+    "description": ""
+  },
+  "noRepeat": "Tekrar yok",
+  "@noRepeat": {
+    "description": ""
+  },
+  "weekly": "Her hafta",
+  "@weekly": {
+    "description": ""
+  },
+  "biweekly": "İki haftada bir",
+  "@biweekly": {
+    "description": ""
+  },
+  "lastDateOptional": "Son tarih (isteğe bağlı)",
+  "@lastDateOptional": {
+    "description": ""
+  },
+  "untilYouStop": "Sen durdurana kadar",
+  "@untilYouStop": {
+    "description": ""
+  },
+  "removeLastDate": "Son tarihi kaldır",
+  "@removeLastDate": {
+    "description": ""
+  },
+  "repeatHint": "Sonraki tarihler 4 hafta önceden kendiliğinden açılır ve her biri aylık organizasyon hakkından düşer.",
+  "@repeatHint": {
+    "description": ""
+  },
+  "surpriseVenue": "Sürpriz mekan",
+  "@surpriseVenue": {
+    "description": ""
+  },
+  "surpriseHint": "Mekan, başlamadan önce seçtiğin saatte yalnızca katılanlara açıklanır.",
+  "@surpriseHint": {
+    "description": ""
+  },
+  "hintPublic": "İpucu (herkes görür)",
+  "@hintPublic": {
+    "description": ""
+  },
+  "place": "Yer",
+  "@place": {
+    "description": ""
+  },
+  "hintExample": "Ör. Kadıköy'de, deniz kenarında",
+  "@hintExample": {
+    "description": ""
+  },
+  "placeExample": "Ör. Bahçeköy girişi ya da Çevrim içi",
+  "@placeExample": {
+    "description": ""
+  },
+  "writeHint": "Bir ipucu yaz.",
+  "@writeHint": {
+    "description": ""
+  },
+  "writePlace": "Yeri yaz.",
+  "@writePlace": {
+    "description": ""
+  },
+  "realVenue": "Gerçek mekan (yalnızca katılanlar görür)",
+  "@realVenue": {
+    "description": ""
+  },
+  "realVenueExample": "Ör. Moda Sahnesi önü",
+  "@realVenueExample": {
+    "description": ""
+  },
+  "writeRealVenue": "Gerçek mekanı yaz.",
+  "@writeRealVenue": {
+    "description": ""
+  },
+  "whenReveal": "Ne zaman açıklansın?",
+  "@whenReveal": {
+    "description": ""
+  },
+  "hoursBefore": "{count} saat önce",
+  "@hoursBefore": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linkOptional": "Harita ya da çevrim içi bağlantı (isteğe bağlı)",
+  "@linkOptional": {
+    "description": ""
+  },
+  "httpsRequired": "Bağlantı https:// ile başlamalı.",
+  "@httpsRequired": {
+    "description": ""
+  },
+  "description": "Açıklama",
+  "@description": {
+    "description": ""
+  },
+  "capacity": "Kapasite (boş = sınırsız)",
+  "@capacity": {
+    "description": ""
+  },
+  "capacityHint": "Dolunca yeni katılanlar bekleme listesine girer.",
+  "@capacityHint": {
+    "description": ""
+  },
+  "capacityRange": "Kapasite 1–10.000 olmalı.",
+  "@capacityRange": {
+    "description": ""
+  },
+  "requirementsOptional": "Katılım koşulları (isteğe bağlı)",
+  "@requirementsOptional": {
+    "description": ""
+  },
+  "requirementsExample": "Ör. En az 10 km yürüyüş deneyimi",
+  "@requirementsExample": {
+    "description": ""
+  },
+  "equipmentOptional": "Gerekli ekipman (isteğe bağlı)",
+  "@equipmentOptional": {
+    "description": ""
+  },
+  "equipmentExample": "Ör. Kask, Su, Yağmurluk",
+  "@equipmentExample": {
+    "description": ""
+  },
+  "equipmentHint": "Virgülle ayır; en fazla 10 madde.",
+  "@equipmentHint": {
+    "description": ""
+  },
+  "equipmentLimit": "En fazla 10 madde, her biri en fazla 60 karakter.",
+  "@equipmentLimit": {
+    "description": ""
+  },
+  "approvalRequired": "Katılım onayla olsun",
+  "@approvalRequired": {
+    "description": ""
+  },
+  "approvalHint": "Katılmak isteyenler istek gönderir; sen onaylarsın.",
+  "@approvalHint": {
+    "description": ""
+  },
+  "feeOptional": "Katılım ücreti (isteğe bağlı)",
+  "@feeOptional": {
+    "description": ""
+  },
+  "feeInfoOnly": "Yalnızca bilgi amaçlı gösterilir; GWAY ödeme almaz.",
+  "@feeInfoOnly": {
+    "description": ""
+  },
+  "amount": "Tutar",
+  "@amount": {
+    "description": ""
+  },
+  "amountExample": "Ör. 150",
+  "@amountExample": {
+    "description": ""
+  },
+  "validAmount": "Geçerli bir tutar yaz.",
+  "@validAmount": {
+    "description": ""
+  },
+  "paymentNote": "Ödeme notu",
+  "@paymentNote": {
+    "description": ""
+  },
+  "paymentNoteExample": "Ör. Yerinde nakit ödenir",
+  "@paymentNoteExample": {
+    "description": ""
+  },
+  "createEvent": "Organizasyonu oluştur",
+  "@createEvent": {
+    "description": ""
+  },
+  "rateEvent": "Organizasyonu değerlendir",
+  "@rateEvent": {
+    "description": ""
+  },
+  "yourReview": "Değerlendirmen",
+  "@yourReview": {
+    "description": ""
+  },
+  "starsLabel": "{count} yıldız",
+  "@starsLabel": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteToOrganizers": "Düzenleyenlere notun (isteğe bağlı)",
+  "@noteToOrganizers": {
+    "description": ""
+  },
+  "noteToOrganizersHint": "Notunu yalnızca organizasyonu düzenleyenler görür; herkes yalnızca ortalamayı görür.",
+  "@noteToOrganizersHint": {
+    "description": ""
+  },
+  "reviewDeleted": "Değerlendirmen silindi.",
+  "@reviewDeleted": {
+    "description": ""
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "reviewSaved": "Teşekkürler, değerlendirmen kaydedildi.",
+  "@reviewSaved": {
+    "description": ""
+  },
+  "groupNext": "Grubun sıradaki organizasyonları",
+  "@groupNext": {
+    "description": ""
+  },
+  "sameDayOthers": "Bu tarihte ilinde aynı kategoride {count} organizasyon daha var. Üyelerin seçim yapmak zorunda kalmasın istersen başka bir gün seçebilirsin.",
+  "@sameDayOthers": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelEvent": "Organizasyonu iptal et",
+  "@cancelEvent": {
+    "description": ""
+  },
+  "cancelEventBody": "Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.",
+  "@cancelEventBody": {
+    "description": ""
+  },
+  "reason": "Gerekçe",
+  "@reason": {
+    "description": ""
+  },
+  "cancelAction": "İptal et",
+  "@cancelAction": {
+    "description": ""
+  },
+  "hint": "İpucu: {hint}",
+  "@hint": {
+    "description": "",
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "hintRevealAt": "İpucu: {hint} · Katılanlara {when} açıklanacak.",
+  "@hintRevealAt": {
+    "description": "",
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "venueRevealed": "Mekan katılanlara açıklandı. Katılırsan görürsün.",
+  "@venueRevealed": {
+    "description": ""
+  },
+  "venueRevealAt": "Mekan {when} katılanlara açıklanacak.",
+  "@venueRevealAt": {
+    "description": "",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "currencyTry": "₺ TRY",
+  "@currencyTry": {
+    "description": ""
   }
 }

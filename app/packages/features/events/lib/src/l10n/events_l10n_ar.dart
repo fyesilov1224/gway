@@ -1278,4 +1278,552 @@ class EventsL10nAr extends EventsL10n {
   String quoted(String text) {
     return '«$text»';
   }
+
+  @override
+  String seatsGoing(int count) {
+    return 'سيحضر: $count';
+  }
+
+  @override
+  String seatsOf(int count, int capacity) {
+    return 'الأشخاص: $count / $capacity';
+  }
+
+  @override
+  String seatsOfWaiting(int count, int capacity, int waiting) {
+    return 'الأشخاص: $count / $capacity · بالانتظار: $waiting';
+  }
+
+  @override
+  String summaryAttended(int count) {
+    return 'الحضور: $count';
+  }
+
+  @override
+  String summaryRating(String avg, int count) {
+    return '$avg ★ (التقييمات: $count)';
+  }
+
+  @override
+  String waitlistPlace(int place) {
+    return 'قائمة الانتظار · رقم $place';
+  }
+
+  @override
+  String get eventCanceled => 'أُلغيت هذه الفعالية.';
+
+  @override
+  String eventCanceledBecause(String reason) {
+    return 'أُلغيت هذه الفعالية: $reason';
+  }
+
+  @override
+  String reviewBy(String name, int stars) {
+    return '$name، $stars نجوم';
+  }
+
+  @override
+  String get conflicting => 'متعارض';
+
+  @override
+  String get events => 'الفعاليات';
+
+  @override
+  String get create => 'إنشاء';
+
+  @override
+  String eventsLeft(int count) {
+    return 'المتبقّي من الفعاليات هذا الشهر: $count.';
+  }
+
+  @override
+  String get eventsLimitReached =>
+      'بلغت حدّ فعاليات هذا الشهر. رقِّ الباقة للحصول على المزيد.';
+
+  @override
+  String groupRating(String avg, int count) {
+    return '$avg · تقييمات الفعاليات: $count';
+  }
+
+  @override
+  String get howWasIt => 'كيف كانت؟';
+
+  @override
+  String get howWasItHint =>
+      'قيّم الفعالية التي حضرتها؛ لا يرى الجميع إلا المتوسط.';
+
+  @override
+  String titleOnDate(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get eventsEmpty => 'مشي أو حفلة أو لقاء: أنشئ أول فعالية.';
+
+  @override
+  String get requestSent => 'أُرسل طلبك. سنُعلمك عندما يقرّر المنظّم.';
+
+  @override
+  String get attendanceSaved => 'تم تسجيل حضورك. سنذكّرك قبل البدء.';
+
+  @override
+  String waitlistJoined(int place) {
+    return 'أنت على قائمة الانتظار (رقم $place). سنُعلمك عند توفّر مكان.';
+  }
+
+  @override
+  String get conflictTitle => 'لديك فعالية أخرى في الوقت نفسه';
+
+  @override
+  String conflictLine(String title, String date) {
+    return '• $title · $date';
+  }
+
+  @override
+  String get conflictOne => 'إذا لم تستطع الذهاب، انسحب واترك مكانك لغيرك.';
+
+  @override
+  String get conflictMany => 'إذا لم تستطع الذهاب، انسحب واترك أماكنك لغيرك.';
+
+  @override
+  String get keepBoth => 'الإبقاء على الاثنين';
+
+  @override
+  String get leaveOther => 'الانسحاب من الأخرى';
+
+  @override
+  String get leaveOthers => 'الانسحاب من الأخرى';
+
+  @override
+  String get leftOther => 'انسحبت من الفعالية الأخرى؛ وأصبح مكانك متاحًا.';
+
+  @override
+  String get leftOthers => 'انسحبت من الفعاليات الأخرى.';
+
+  @override
+  String approvedPerson(String name) {
+    return 'أصبح $name من الحضور.';
+  }
+
+  @override
+  String declinedPerson(String name) {
+    return 'تم رفض الطلب وإبلاغ $name.';
+  }
+
+  @override
+  String get calendarFailed => 'تعذّر فتح ملف التقويم. حاول مرة أخرى.';
+
+  @override
+  String get stopSeriesTitle => 'إيقاف التكرار؟';
+
+  @override
+  String get stopSeriesBody =>
+      'لن تُفتح تواريخ جديدة. تبقى التواريخ المفتوحة، ويمكنك إلغاؤها واحدًا تلو الآخر.';
+
+  @override
+  String get stop => 'إيقاف';
+
+  @override
+  String get seriesStopped => 'تم إيقاف التكرار.';
+
+  @override
+  String get eventCanceledToast => 'تم إلغاء الفعالية.';
+
+  @override
+  String get eventNotFound => 'لم يُعثر على هذه الفعالية أو لم تعد ظاهرة.';
+
+  @override
+  String get goBack => 'رجوع';
+
+  @override
+  String joinGroupFirst(String name) {
+    return 'انضم إلى $name';
+  }
+
+  @override
+  String get sendJoinRequest => 'طلب الحضور';
+
+  @override
+  String get joinWaitlist => 'الانضمام إلى قائمة الانتظار';
+
+  @override
+  String get leaveEvent => 'إلغاء الحضور';
+
+  @override
+  String get leaveWaitlist => 'الخروج من قائمة الانتظار';
+
+  @override
+  String get requestWithdrawn => 'تم سحب طلبك.';
+
+  @override
+  String get attendanceRemoved => 'تمت إزالة حضورك.';
+
+  @override
+  String eventShareText(String title) {
+    return '$title · انضم على GWAY:';
+  }
+
+  @override
+  String get eventLinkCopied => 'تم نسخ رابط الفعالية.';
+
+  @override
+  String get report => 'إبلاغ';
+
+  @override
+  String get eventOptions => 'خيارات الفعالية';
+
+  @override
+  String get edit => 'تعديل';
+
+  @override
+  String get cancelThisDate => 'إلغاء هذا الموعد';
+
+  @override
+  String get stopRepeat => 'إيقاف التكرار';
+
+  @override
+  String get startedOrEnded => 'بدأت أو انتهت';
+
+  @override
+  String seriesUntil(String label, String date) {
+    return '$label · حتى $date';
+  }
+
+  @override
+  String get addToCalendar => 'إضافة إلى التقويم';
+
+  @override
+  String fee(String fee) {
+    return 'رسوم المشاركة: $fee';
+  }
+
+  @override
+  String get feeNotice => 'تُدفع الرسوم للمنظّم، ولا يتلقّى GWAY أي مدفوعات.';
+
+  @override
+  String get areYouComing => 'هل ستأتي؟';
+
+  @override
+  String get areYouComingHint =>
+      'إذا لم تستطع الحضور، اترك مكانك لقائمة الانتظار.';
+
+  @override
+  String get yesComing => 'نعم، سآتي';
+
+  @override
+  String get confirmThanks => 'شكرًا، أبلغنا المنظّم بأنك ستأتي.';
+
+  @override
+  String get cantCome => 'لا أستطيع الحضور';
+
+  @override
+  String get spotFreed => 'تمت إزالة حضورك؛ وأصبح مكانك متاحًا.';
+
+  @override
+  String get confirmedComing => 'أكّدت حضورك.';
+
+  @override
+  String get otherEventSameTime => 'لديك فعالية أخرى في هذا الوقت';
+
+  @override
+  String get needsApproval => 'الحضور بموافقة المشرف';
+
+  @override
+  String get requirements => 'شروط الحضور';
+
+  @override
+  String get equipment => 'المعدّات المطلوبة';
+
+  @override
+  String joinRequestsCount(int count) {
+    return 'طلبات الحضور ($count)';
+  }
+
+  @override
+  String get attendees => 'الحضور';
+
+  @override
+  String confirmedOf(int going, int confirmed) {
+    return 'أكّد $confirmed من أصل $going حضورهم.';
+  }
+
+  @override
+  String confirmedName(String name) {
+    return '$name · أكّد';
+  }
+
+  @override
+  String get shareWasThere => 'شارك بطاقة «كنت هناك»';
+
+  @override
+  String get howDidItGo => 'كيف جرت؟';
+
+  @override
+  String reviewsCount(int count) {
+    return 'التقييمات ($count)';
+  }
+
+  @override
+  String get reviewNotesPrivate => 'لا يرى الملاحظات إلا المنظّمون.';
+
+  @override
+  String get attendanceCheck => 'الحضور';
+
+  @override
+  String get attendanceCheckHint =>
+      'علّم من لم يحضروا؛ لا يُحتسب للمساهمات والشارات إلا الحاضرون. متاح 7 أيام بعد الانتهاء.';
+
+  @override
+  String markedCame(String name) {
+    return 'تم تعليم $name كحاضر.';
+  }
+
+  @override
+  String markedMissed(String name) {
+    return 'تم تعليم $name كغائب.';
+  }
+
+  @override
+  String get didntCome => 'لم يحضر';
+
+  @override
+  String get came => 'حضر';
+
+  @override
+  String get memories => 'الذكريات';
+
+  @override
+  String get shareMemory => 'شارك ذكرى';
+
+  @override
+  String get eventPolls => 'استطلاعات الفعالية';
+
+  @override
+  String get noEditPermission => 'ليست لديك صلاحية تعديل هذه الفعالية.';
+
+  @override
+  String get editEvent => 'تعديل الفعالية';
+
+  @override
+  String get newEvent => 'فعالية جديدة';
+
+  @override
+  String get addCover => 'إضافة صورة غلاف';
+
+  @override
+  String get titleExample => 'مثال: مشي في الغابة';
+
+  @override
+  String get starts => 'البداية';
+
+  @override
+  String get endsOptional => 'النهاية (اختياري)';
+
+  @override
+  String get notSpecified => 'غير محدّد';
+
+  @override
+  String get removeEnd => 'إزالة النهاية';
+
+  @override
+  String get repeat => 'التكرار';
+
+  @override
+  String get noRepeat => 'بلا تكرار';
+
+  @override
+  String get weekly => 'كل أسبوع';
+
+  @override
+  String get biweekly => 'كل أسبوعين';
+
+  @override
+  String get lastDateOptional => 'آخر موعد (اختياري)';
+
+  @override
+  String get untilYouStop => 'حتى توقفه';
+
+  @override
+  String get removeLastDate => 'إزالة آخر موعد';
+
+  @override
+  String get repeatHint =>
+      'تُفتح المواعيد التالية تلقائيًا قبل 4 أسابيع، ويُحتسب كلٌّ منها من الحدّ الشهري.';
+
+  @override
+  String get surpriseVenue => 'مكان مفاجئ';
+
+  @override
+  String get surpriseHint =>
+      'لا يُكشف المكان إلا للحضور، في الوقت الذي تختاره قبل البدء.';
+
+  @override
+  String get hintPublic => 'تلميح (يراه الجميع)';
+
+  @override
+  String get place => 'المكان';
+
+  @override
+  String get hintExample => 'مثال: على البحر، في الجانب الآسيوي';
+
+  @override
+  String get placeExample => 'مثال: مدخل الحديقة أو عبر الإنترنت';
+
+  @override
+  String get writeHint => 'اكتب تلميحًا.';
+
+  @override
+  String get writePlace => 'أدخل المكان.';
+
+  @override
+  String get realVenue => 'المكان الحقيقي (للحضور فقط)';
+
+  @override
+  String get realVenueExample => 'مثال: أمام المسرح';
+
+  @override
+  String get writeRealVenue => 'أدخل المكان الحقيقي.';
+
+  @override
+  String get whenReveal => 'متى يُكشف؟';
+
+  @override
+  String hoursBefore(int count) {
+    return 'قبل $count ساعة';
+  }
+
+  @override
+  String get linkOptional => 'رابط خريطة أو رابط عبر الإنترنت (اختياري)';
+
+  @override
+  String get httpsRequired => 'يجب أن يبدأ الرابط بـ https://.';
+
+  @override
+  String get description => 'الوصف';
+
+  @override
+  String get capacity => 'السعة (فارغ = غير محدود)';
+
+  @override
+  String get capacityHint => 'عند الامتلاء يُضاف الجدد إلى قائمة الانتظار.';
+
+  @override
+  String get capacityRange => 'يجب أن تكون السعة من 1 إلى 10000.';
+
+  @override
+  String get requirementsOptional => 'شروط الحضور (اختياري)';
+
+  @override
+  String get requirementsExample => 'مثال: خبرة مشي 10 كم على الأقل';
+
+  @override
+  String get equipmentOptional => 'المعدّات المطلوبة (اختياري)';
+
+  @override
+  String get equipmentExample => 'مثال: خوذة، ماء، معطف مطر';
+
+  @override
+  String get equipmentHint => 'افصل بفواصل؛ حتى 10 عناصر.';
+
+  @override
+  String get equipmentLimit => 'حتى 10 عناصر، كلٌّ منها حتى 60 حرفًا.';
+
+  @override
+  String get approvalRequired => 'الحضور بموافقة';
+
+  @override
+  String get approvalHint => 'يرسل الراغبون طلبًا وأنت توافق عليه.';
+
+  @override
+  String get feeOptional => 'رسوم المشاركة (اختياري)';
+
+  @override
+  String get feeInfoOnly => 'للعلم فقط؛ لا يتلقّى GWAY أي مدفوعات.';
+
+  @override
+  String get amount => 'المبلغ';
+
+  @override
+  String get amountExample => 'مثال: 150';
+
+  @override
+  String get validAmount => 'أدخل مبلغًا صالحًا.';
+
+  @override
+  String get paymentNote => 'ملاحظة الدفع';
+
+  @override
+  String get paymentNoteExample => 'مثال: يُدفع نقدًا في المكان';
+
+  @override
+  String get createEvent => 'إنشاء الفعالية';
+
+  @override
+  String get rateEvent => 'تقييم الفعالية';
+
+  @override
+  String get yourReview => 'تقييمك';
+
+  @override
+  String starsLabel(int count) {
+    return 'النجوم: $count';
+  }
+
+  @override
+  String get noteToOrganizers => 'ملاحظة للمنظّمين (اختياري)';
+
+  @override
+  String get noteToOrganizersHint =>
+      'لا يرى ملاحظتك إلا المنظّمون؛ ويرى الآخرون المتوسط فقط.';
+
+  @override
+  String get reviewDeleted => 'تم حذف تقييمك.';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get reviewSaved => 'شكرًا، تم حفظ تقييمك.';
+
+  @override
+  String get groupNext => 'الفعاليات القادمة للمجموعة';
+
+  @override
+  String sameDayOthers(int count) {
+    return 'هناك $count فعاليات أخرى من الفئة نفسها في محافظتك في هذا التاريخ. اختر يومًا آخر إن لم ترد أن يضطر أعضاؤك إلى الاختيار.';
+  }
+
+  @override
+  String get cancelEvent => 'إلغاء الفعالية';
+
+  @override
+  String get cancelEventBody =>
+      'سيُبلَّغ الحضور وقائمة الانتظار. لا يمكن التراجع عن الإلغاء.';
+
+  @override
+  String get reason => 'السبب';
+
+  @override
+  String get cancelAction => 'إلغاء';
+
+  @override
+  String hint(String hint) {
+    return 'تلميح: $hint';
+  }
+
+  @override
+  String hintRevealAt(String hint, String when) {
+    return 'تلميح: $hint · سيُكشف للحضور في $when.';
+  }
+
+  @override
+  String get venueRevealed => 'كُشف المكان للحضور. انضم لتراه.';
+
+  @override
+  String venueRevealAt(String when) {
+    return 'سيُكشف المكان للحضور في $when.';
+  }
+
+  @override
+  String get currencyTry => '₺ TRY';
 }

@@ -1422,4 +1422,593 @@ class EventsL10nEs extends EventsL10n {
   String quoted(String text) {
     return '«$text»';
   }
+
+  @override
+  String seatsGoing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count personas van',
+      one: '1 persona va',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String seatsOf(int count, int capacity) {
+    return '$count / $capacity personas';
+  }
+
+  @override
+  String seatsOfWaiting(int count, int capacity, int waiting) {
+    return '$count / $capacity personas · $waiting en espera';
+  }
+
+  @override
+  String summaryAttended(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Asistieron $count personas',
+      one: 'Asistió 1 persona',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryRating(String avg, int count) {
+    return '$avg ★ ($count valoraciones)';
+  }
+
+  @override
+  String waitlistPlace(int place) {
+    return 'Lista de espera · n.º $place';
+  }
+
+  @override
+  String get eventCanceled => 'Este evento se ha cancelado.';
+
+  @override
+  String eventCanceledBecause(String reason) {
+    return 'Este evento se ha cancelado: $reason';
+  }
+
+  @override
+  String reviewBy(String name, int stars) {
+    return '$name, $stars estrellas';
+  }
+
+  @override
+  String get conflicting => 'Coincide';
+
+  @override
+  String get events => 'Eventos';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String eventsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Te quedan $count eventos este mes.',
+      one: 'Te queda 1 evento este mes.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventsLimitReached =>
+      'Se ha alcanzado el límite de eventos de este mes. Mejora el plan para tener más.';
+
+  @override
+  String groupRating(String avg, int count) {
+    return '$avg · $count valoraciones de sus eventos';
+  }
+
+  @override
+  String get howWasIt => '¿Qué tal fue?';
+
+  @override
+  String get howWasItHint =>
+      'Valora el evento al que fuiste; todos ven solo la media.';
+
+  @override
+  String titleOnDate(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get eventsEmpty =>
+      'Una ruta, un concierto o una quedada: crea el primer evento.';
+
+  @override
+  String get requestSent =>
+      'Tu solicitud se ha enviado. Te avisaremos cuando el organizador decida.';
+
+  @override
+  String get attendanceSaved =>
+      'Te has apuntado. Te lo recordaremos antes de empezar.';
+
+  @override
+  String waitlistJoined(int place) {
+    return 'Estás en lista de espera (n.º $place). Te avisaremos si queda una plaza.';
+  }
+
+  @override
+  String get conflictTitle => 'Tienes otro evento a la misma hora';
+
+  @override
+  String conflictLine(String title, String date) {
+    return '• $title · $date';
+  }
+
+  @override
+  String get conflictOne =>
+      'Si no puedes ir, desapúntate y deja tu plaza a otra persona.';
+
+  @override
+  String get conflictMany =>
+      'Si no puedes ir, desapúntate y deja tus plazas a otras personas.';
+
+  @override
+  String get keepBoth => 'Mantener ambos';
+
+  @override
+  String get leaveOther => 'Dejar el otro';
+
+  @override
+  String get leaveOthers => 'Dejar los otros';
+
+  @override
+  String get leftOther => 'Has dejado el otro evento; tu plaza queda libre.';
+
+  @override
+  String get leftOthers => 'Has dejado los otros eventos.';
+
+  @override
+  String approvedPerson(String name) {
+    return '$name ya está apuntado.';
+  }
+
+  @override
+  String declinedPerson(String name) {
+    return 'Solicitud rechazada; se ha avisado a $name.';
+  }
+
+  @override
+  String get calendarFailed =>
+      'No se pudo abrir el archivo de calendario. Inténtalo de nuevo.';
+
+  @override
+  String get stopSeriesTitle => '¿Detener la repetición?';
+
+  @override
+  String get stopSeriesBody =>
+      'No se abrirán fechas nuevas. Las ya abiertas se mantienen; puedes cancelarlas una a una.';
+
+  @override
+  String get stop => 'Detener';
+
+  @override
+  String get seriesStopped => 'Repetición detenida.';
+
+  @override
+  String get eventCanceledToast => 'Evento cancelado.';
+
+  @override
+  String get eventNotFound => 'Este evento no existe o ya no está visible.';
+
+  @override
+  String get goBack => 'Volver';
+
+  @override
+  String joinGroupFirst(String name) {
+    return 'Unirse a $name';
+  }
+
+  @override
+  String get sendJoinRequest => 'Solicitar asistencia';
+
+  @override
+  String get joinWaitlist => 'Entrar en lista de espera';
+
+  @override
+  String get leaveEvent => 'Desapuntarme';
+
+  @override
+  String get leaveWaitlist => 'Salir de la lista de espera';
+
+  @override
+  String get requestWithdrawn => 'Tu solicitud se ha retirado.';
+
+  @override
+  String get attendanceRemoved => 'Te has desapuntado.';
+
+  @override
+  String eventShareText(String title) {
+    return '$title · únete en GWAY:';
+  }
+
+  @override
+  String get eventLinkCopied => 'Enlace del evento copiado.';
+
+  @override
+  String get report => 'Denunciar';
+
+  @override
+  String get eventOptions => 'Opciones del evento';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get cancelThisDate => 'Cancelar esta fecha';
+
+  @override
+  String get stopRepeat => 'Detener la repetición';
+
+  @override
+  String get startedOrEnded => 'Empezado o terminado';
+
+  @override
+  String seriesUntil(String label, String date) {
+    return '$label · hasta el $date';
+  }
+
+  @override
+  String get addToCalendar => 'Añadir al calendario';
+
+  @override
+  String fee(String fee) {
+    return 'Precio: $fee';
+  }
+
+  @override
+  String get feeNotice => 'Se paga al organizador; GWAY no cobra pagos.';
+
+  @override
+  String get areYouComing => '¿Vienes?';
+
+  @override
+  String get areYouComingHint =>
+      'Si no puedes ir, deja tu plaza a la lista de espera.';
+
+  @override
+  String get yesComing => 'Sí, voy';
+
+  @override
+  String get confirmThanks =>
+      'Gracias, hemos avisado al organizador de que vas.';
+
+  @override
+  String get cantCome => 'No puedo ir';
+
+  @override
+  String get spotFreed => 'Te has desapuntado; tu plaza queda libre.';
+
+  @override
+  String get confirmedComing => 'Has confirmado que vas.';
+
+  @override
+  String get otherEventSameTime => 'Tienes otro evento a esta hora';
+
+  @override
+  String get needsApproval => 'Asistencia con aprobación';
+
+  @override
+  String get requirements => 'Requisitos';
+
+  @override
+  String get equipment => 'Equipo necesario';
+
+  @override
+  String joinRequestsCount(int count) {
+    return 'Solicitudes ($count)';
+  }
+
+  @override
+  String get attendees => 'Asistentes';
+
+  @override
+  String confirmedOf(int going, int confirmed) {
+    return '$confirmed de $going asistentes han confirmado.';
+  }
+
+  @override
+  String confirmedName(String name) {
+    return '$name · confirmado';
+  }
+
+  @override
+  String get shareWasThere => 'Compartir la tarjeta «Yo estuve allí»';
+
+  @override
+  String get howDidItGo => '¿Qué tal fue?';
+
+  @override
+  String reviewsCount(int count) {
+    return 'Valoraciones ($count)';
+  }
+
+  @override
+  String get reviewNotesPrivate => 'Solo los organizadores ven las notas.';
+
+  @override
+  String get attendanceCheck => 'Asistencia';
+
+  @override
+  String get attendanceCheckHint =>
+      'Marca a quienes no vinieron; solo los asistentes cuentan para aportaciones e insignias. Abierto 7 días tras el final.';
+
+  @override
+  String markedCame(String name) {
+    return '$name marcado como asistente.';
+  }
+
+  @override
+  String markedMissed(String name) {
+    return '$name marcado como ausente.';
+  }
+
+  @override
+  String get didntCome => 'No vino';
+
+  @override
+  String get came => 'Vino';
+
+  @override
+  String get memories => 'Recuerdos';
+
+  @override
+  String get shareMemory => 'Compartir un recuerdo';
+
+  @override
+  String get eventPolls => 'Encuestas del evento';
+
+  @override
+  String get noEditPermission => 'No tienes permiso para editar este evento.';
+
+  @override
+  String get editEvent => 'Editar evento';
+
+  @override
+  String get newEvent => 'Nuevo evento';
+
+  @override
+  String get addCover => 'Añadir imagen de portada';
+
+  @override
+  String get titleExample => 'Ej.: Ruta por el bosque';
+
+  @override
+  String get starts => 'Inicio';
+
+  @override
+  String get endsOptional => 'Fin (opcional)';
+
+  @override
+  String get notSpecified => 'Sin especificar';
+
+  @override
+  String get removeEnd => 'Quitar fin';
+
+  @override
+  String get repeat => 'Repetir';
+
+  @override
+  String get noRepeat => 'No se repite';
+
+  @override
+  String get weekly => 'Cada semana';
+
+  @override
+  String get biweekly => 'Cada dos semanas';
+
+  @override
+  String get lastDateOptional => 'Última fecha (opcional)';
+
+  @override
+  String get untilYouStop => 'Hasta que lo detengas';
+
+  @override
+  String get removeLastDate => 'Quitar última fecha';
+
+  @override
+  String get repeatHint =>
+      'Las siguientes fechas se abren solas con 4 semanas de antelación y cada una cuenta para el límite mensual.';
+
+  @override
+  String get surpriseVenue => 'Lugar sorpresa';
+
+  @override
+  String get surpriseHint =>
+      'El lugar se revela solo a los asistentes, a la hora que elijas antes de empezar.';
+
+  @override
+  String get hintPublic => 'Pista (la ven todos)';
+
+  @override
+  String get place => 'Lugar';
+
+  @override
+  String get hintExample => 'Ej.: Junto al mar, en la orilla asiática';
+
+  @override
+  String get placeExample => 'Ej.: Entrada del parque u Online';
+
+  @override
+  String get writeHint => 'Escribe una pista.';
+
+  @override
+  String get writePlace => 'Escribe el lugar.';
+
+  @override
+  String get realVenue => 'Lugar real (solo asistentes)';
+
+  @override
+  String get realVenueExample => 'Ej.: Delante del teatro';
+
+  @override
+  String get writeRealVenue => 'Escribe el lugar real.';
+
+  @override
+  String get whenReveal => '¿Cuándo revelarlo?';
+
+  @override
+  String hoursBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count horas antes',
+      one: '1 hora antes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linkOptional => 'Enlace de mapa u online (opcional)';
+
+  @override
+  String get httpsRequired => 'El enlace debe empezar por https://.';
+
+  @override
+  String get description => 'Descripción';
+
+  @override
+  String get capacity => 'Aforo (vacío = sin límite)';
+
+  @override
+  String get capacityHint =>
+      'Al llenarse, los nuevos van a la lista de espera.';
+
+  @override
+  String get capacityRange => 'El aforo debe ser de 1 a 10.000.';
+
+  @override
+  String get requirementsOptional => 'Requisitos (opcional)';
+
+  @override
+  String get requirementsExample => 'Ej.: Experiencia de al menos 10 km';
+
+  @override
+  String get equipmentOptional => 'Equipo necesario (opcional)';
+
+  @override
+  String get equipmentExample => 'Ej.: Casco, Agua, Chubasquero';
+
+  @override
+  String get equipmentHint => 'Separa con comas; hasta 10 elementos.';
+
+  @override
+  String get equipmentLimit =>
+      'Hasta 10 elementos, de 60 caracteres como máximo.';
+
+  @override
+  String get approvalRequired => 'Asistencia con aprobación';
+
+  @override
+  String get approvalHint =>
+      'Quien quiera ir envía una solicitud; tú la apruebas.';
+
+  @override
+  String get feeOptional => 'Precio (opcional)';
+
+  @override
+  String get feeInfoOnly => 'Solo informativo; GWAY no cobra pagos.';
+
+  @override
+  String get amount => 'Importe';
+
+  @override
+  String get amountExample => 'Ej.: 150';
+
+  @override
+  String get validAmount => 'Introduce un importe válido.';
+
+  @override
+  String get paymentNote => 'Nota de pago';
+
+  @override
+  String get paymentNoteExample => 'Ej.: Se paga en efectivo allí';
+
+  @override
+  String get createEvent => 'Crear evento';
+
+  @override
+  String get rateEvent => 'Valorar el evento';
+
+  @override
+  String get yourReview => 'Tu valoración';
+
+  @override
+  String starsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count estrellas',
+      one: '1 estrella',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noteToOrganizers => 'Nota para los organizadores (opcional)';
+
+  @override
+  String get noteToOrganizersHint =>
+      'Solo los organizadores ven tu nota; los demás solo ven la media.';
+
+  @override
+  String get reviewDeleted => 'Tu valoración se ha eliminado.';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get reviewSaved => 'Gracias, tu valoración se ha guardado.';
+
+  @override
+  String get groupNext => 'Próximos eventos del grupo';
+
+  @override
+  String sameDayOthers(int count) {
+    return 'Hay $count eventos más de la misma categoría en tu provincia ese día. Elige otro día si no quieres que tus miembros tengan que escoger.';
+  }
+
+  @override
+  String get cancelEvent => 'Cancelar evento';
+
+  @override
+  String get cancelEventBody =>
+      'Se avisa a los asistentes y a la lista de espera. No se puede deshacer.';
+
+  @override
+  String get reason => 'Motivo';
+
+  @override
+  String get cancelAction => 'Cancelar';
+
+  @override
+  String hint(String hint) {
+    return 'Pista: $hint';
+  }
+
+  @override
+  String hintRevealAt(String hint, String when) {
+    return 'Pista: $hint · Se revelará a los asistentes el $when.';
+  }
+
+  @override
+  String get venueRevealed =>
+      'El lugar se ha revelado a los asistentes. Apúntate para verlo.';
+
+  @override
+  String venueRevealAt(String when) {
+    return 'El lugar se revelará a los asistentes el $when.';
+  }
+
+  @override
+  String get currencyTry => '₺ TRY';
 }
