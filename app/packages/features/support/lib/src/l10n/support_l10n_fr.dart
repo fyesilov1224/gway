@@ -115,7 +115,7 @@ class SupportL10nFr extends SupportL10n {
 
   @override
   String get notSolvedHint =>
-      'Écris à l\'équipe de la plateforme ; la réponse apparaîtra dans Paramètres → Assistance et avis.';
+      'Écris à l\'équipe de la plateforme ; la réponse apparaîtra dans Paramètres → Assistance et commentaires.';
 
   @override
   String get nextChapter => 'Chapitre suivant';
@@ -158,7 +158,7 @@ class SupportL10nFr extends SupportL10n {
   String get send => 'Envoyer';
 
   @override
-  String get supportTitle => 'Assistance et avis';
+  String get supportTitle => 'Assistance et commentaires';
 
   @override
   String get emptyIntro =>

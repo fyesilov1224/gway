@@ -102,7 +102,7 @@ class SupportL10nUk extends SupportL10n {
 
   @override
   String get notSolvedHint =>
-      'Напишіть команді платформи; відповідь з’явиться в розділі «Налаштування → Підтримка й відгуки».';
+      'Напишіть команді платформи; відповідь з’явиться в розділі «Налаштування → Підтримка та відгуки».';
 
   @override
   String get nextChapter => 'Наступний розділ';
@@ -145,7 +145,7 @@ class SupportL10nUk extends SupportL10n {
   String get send => 'Надіслати';
 
   @override
-  String get supportTitle => 'Підтримка й відгуки';
+  String get supportTitle => 'Підтримка та відгуки';
 
   @override
   String get emptyIntro =>

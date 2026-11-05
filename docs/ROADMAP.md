@@ -510,7 +510,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] 19b — Profil, akış ve gruplar
 - [x] 19c — Organizasyonlar, takvim, bildirimler
 - [x] 19d — Canlı yayın, mesajlaşma, eşleşme, moderasyon, abonelik
-- [ ] 19e — Destek ve kullanma kılavuzu
+- [x] 19e — Destek ve kullanma kılavuzu
 - [ ] 19f — Sunucu: `profiles.locale`, push metinleri, API mesajları, kimlik e-postaları
 - [ ] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli)
 - [ ] 19h — Sağdan sola düzen, uzun dil ve %130 yazı ölçeği denetimi, testler

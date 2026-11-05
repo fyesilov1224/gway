@@ -114,7 +114,7 @@ class SupportL10nNl extends SupportL10n {
 
   @override
   String get notSolvedHint =>
-      'Schrijf het platformteam; het antwoord zie je in Instellingen → Support en feedback.';
+      'Schrijf het platformteam; het antwoord zie je in Instellingen → Ondersteuning en feedback.';
 
   @override
   String get nextChapter => 'Volgend hoofdstuk';
@@ -157,7 +157,7 @@ class SupportL10nNl extends SupportL10n {
   String get send => 'Versturen';
 
   @override
-  String get supportTitle => 'Support en feedback';
+  String get supportTitle => 'Ondersteuning en feedback';
 
   @override
   String get emptyIntro =>
