@@ -715,4 +715,286 @@ class GamesL10nPt extends GamesL10n {
   String pointsShort(int points) {
     return '$points pts';
   }
+
+  @override
+  String mindColorWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'red_m': 'vermelho',
+      'red_f': 'vermelha',
+      'red_n': 'vermelho',
+      'blue_m': 'azul',
+      'blue_f': 'azul',
+      'blue_n': 'azul',
+      'green_m': 'verde',
+      'green_f': 'verde',
+      'green_n': 'verde',
+      'yellow_m': 'amarelo',
+      'yellow_f': 'amarela',
+      'yellow_n': 'amarelo',
+      'purple_m': 'roxo',
+      'purple_f': 'roxa',
+      'purple_n': 'roxo',
+      'orange_m': 'laranja',
+      'orange_f': 'laranja',
+      'orange_n': 'laranja',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindPatternWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'solid_m': 'liso',
+      'solid_f': 'lisa',
+      'solid_n': 'liso',
+      'striped_m': 'listrado',
+      'striped_f': 'listrada',
+      'striped_n': 'listrado',
+      'dotted_m': 'de bolinhas',
+      'dotted_f': 'de bolinhas',
+      'dotted_n': 'de bolinhas',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeWord(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'círculo',
+      'square': 'quadrado',
+      'triangle': 'triângulo',
+      'star': 'estrela',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeGender(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'm',
+      'square': 'm',
+      'triangle': 'm',
+      'star': 'f',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindFigure(String color, String pattern, String shape) {
+    return '$shape $color $pattern';
+  }
+
+  @override
+  String get mindDuel => 'Duelo mental';
+
+  @override
+  String get mindCardText =>
+      'Um duelo ao vivo de cálculo, atenção, memória e reflexos. Elo, rankings e medalhas.';
+
+  @override
+  String get mindPlay => 'Começar um duelo';
+
+  @override
+  String mindBestRating(int rating, int length) {
+    return 'Elo $rating · $length perguntas';
+  }
+
+  @override
+  String mindQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count perguntas',
+      one: '1 pergunta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindHowMany => 'Quantas perguntas?';
+
+  @override
+  String mindRatingAt(int count) {
+    return 'Sua pontuação com $count perguntas';
+  }
+
+  @override
+  String get mindFindOpponent => 'Encontrar adversário';
+
+  @override
+  String get mindSuspended => 'Você não pode jogar agora.';
+
+  @override
+  String get mindActive => 'Você tem um duelo em andamento';
+
+  @override
+  String get mindProfile => 'Perfil de duelo';
+
+  @override
+  String get mindHowTo => 'Como jogar';
+
+  @override
+  String get mindRecent => 'Duelos recentes';
+
+  @override
+  String get mindNoMatchesMine =>
+      'Nenhum duelo ainda. Encontre seu primeiro adversário.';
+
+  @override
+  String get mindNoMatchesTheirs =>
+      'Nenhum duelo ainda. Seja o primeiro a desafiar.';
+
+  @override
+  String mindLeaderboardEmpty(int count) {
+    return 'Jogue $count duelos ranqueados desse tamanho para entrar no ranking.';
+  }
+
+  @override
+  String get mindChallengeTitle => 'Desafiar para um duelo';
+
+  @override
+  String get mindChallengeSent =>
+      'Desafio enviado. O duelo começa quando for aceito.';
+
+  @override
+  String get mindKindMath => 'Cálculo';
+
+  @override
+  String get mindKindAttention => 'Atenção';
+
+  @override
+  String get mindKindMemory => 'Memória';
+
+  @override
+  String get mindKindReflex => 'Reflexos';
+
+  @override
+  String get mindKindMathHint =>
+      'Quatro operações, com precedência. Escolha o resultado certo.';
+
+  @override
+  String get mindKindAttentionHint =>
+      'Ignore a cor do texto: escolha a figura descrita.';
+
+  @override
+  String get mindKindMemoryHint =>
+      'Lembre as letras e números coloridos, na ordem e com a cor.';
+
+  @override
+  String get mindKindReflexHint =>
+      'Toque o alvo assim que aparecer. Tocar antes ou errar tira pontos.';
+
+  @override
+  String get mindScoringHint =>
+      'Respostas certas e rápidas valem mais. Vence o maior total.';
+
+  @override
+  String get mindYou => 'Você';
+
+  @override
+  String get mindOpponent => 'Adversário';
+
+  @override
+  String mindProgress(String who, int done, int total) {
+    return '$who: $done/$total perguntas';
+  }
+
+  @override
+  String mindQuestionOf(int n, int total) {
+    return '$n/$total';
+  }
+
+  @override
+  String get mindGetReady => 'Prepare-se';
+
+  @override
+  String get mindYouFinished => 'Você terminou!';
+
+  @override
+  String mindOpponentAt(int done, int total) {
+    return 'Seu adversário está em $done/$total. O resultado sai quando ele terminar.';
+  }
+
+  @override
+  String get mindMathPrompt => 'Qual é o resultado?';
+
+  @override
+  String get mindAttentionPrompt => 'Escolha a figura descrita';
+
+  @override
+  String get mindMemoryLook => 'Lembre a ordem e as cores';
+
+  @override
+  String get mindMemoryPick => 'Escolha na mesma ordem e cores';
+
+  @override
+  String mindCharLabel(String char, String color) {
+    return '$char $color';
+  }
+
+  @override
+  String get mindUndo => 'Desfazer';
+
+  @override
+  String get mindReflexTarget => 'Alvo';
+
+  @override
+  String get mindReflexWait => 'Espere…';
+
+  @override
+  String get mindReflexTap => 'Toque agora!';
+
+  @override
+  String mindRight(int points) {
+    return 'Certo · +$points';
+  }
+
+  @override
+  String mindPartly(int points) {
+    return 'Parcialmente certo · +$points';
+  }
+
+  @override
+  String get mindWrong => 'Errado';
+
+  @override
+  String mindWrongPenalty(int points) {
+    return 'Errado · −$points';
+  }
+
+  @override
+  String mindTooEarly(int points) {
+    return 'Cedo demais · −$points';
+  }
+
+  @override
+  String get mindResignTitle => 'Desistir do duelo?';
+
+  @override
+  String get mindResignBody =>
+      'Seu adversário vence; em duelo ranqueado seu Elo cai.';
+
+  @override
+  String get mindFinished => 'Duelo encerrado';
+
+  @override
+  String get mindEndCompleted => 'Todas as perguntas respondidas';
+
+  @override
+  String get mindEndTime => 'Tempo esgotado';
+
+  @override
+  String mindNewRating(int rating) {
+    return 'Nova pontuação $rating';
+  }
+
+  @override
+  String get mindNewDuel => 'Novo duelo';
+
+  @override
+  String get mindBackHome => 'Voltar aos duelos';
 }

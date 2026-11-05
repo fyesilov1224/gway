@@ -699,6 +699,12 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'Satranç turnuvası'**
   String get leadArena;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'seni Zihin Düellosu\'na davet etti.'**
+  String get actMindChallenge;
 }
 
 class _NotificationsL10nDelegate

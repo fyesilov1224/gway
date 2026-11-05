@@ -9,7 +9,7 @@ import 'providers.dart';
 import 'suspend_dialog.dart';
 import 'widgets.dart';
 
-/// Games: chess counts, running games and suspended players (docs/ARCHITECTURE.md §3i, Yönetim paneli).
+/// Games: chess and Zihin Düellosu counts, running games and suspended players (docs/ARCHITECTURE.md §3i, §3j, Yönetim paneli).
 /// Aborting a game changes no rating; every action is written to audit_log.
 class AdminGamesScreen extends ConsumerWidget {
   const AdminGamesScreen({super.key});
@@ -88,16 +88,29 @@ class AdminGamesScreen extends ConsumerWidget {
     await _act(context, ref, () => ref.read(adminGamesRepositoryProvider).abortGame(game.id, reason: request.reason), 'Oyun iptal edildi.');
   }
 
+  Future<void> _abortMind(BuildContext context, WidgetRef ref, AdminMindMatch match) async {
+    final request = await showSuspendDialog(
+      context,
+      title: 'Düelloyu iptal et',
+      description: 'Düello sonuçsuz biter; iki oyuncunun puanı değişmez. Gerekçe kayda geçer.',
+      withDuration: false,
+      confirmLabel: 'İptal et',
+    );
+    if (request == null || !context.mounted) return;
+    await _act(context, ref, () => ref.read(adminGamesRepositoryProvider).abortMindMatch(match.id, reason: request.reason), 'Düello iptal edildi.');
+    ref.invalidate(adminMindProvider);
+  }
+
   Future<void> _suspend(BuildContext context, WidgetRef ref, String userId, String username) async {
     final request = await showSuspendDialog(
       context,
-      title: '@$username satrançtan uzaklaştır',
-      description: 'Kişi bu süre boyunca oyun arayamaz, davet gönderemez ve alamaz; sıralamada görünmez. Gerekçe kayda geçer.',
+      title: '@$username oyunlardan uzaklaştır',
+      description: 'Kişi bu süre boyunca satranç ve Zihin Düellosu oynayamaz, davet gönderemez ve alamaz; sıralamalarda görünmez. Gerekçe kayda geçer.',
       confirmLabel: 'Uzaklaştır',
     );
     if (request == null || !context.mounted) return;
     await _act(context, ref,
-        () => ref.read(adminGamesRepositoryProvider).suspendPlayer(userId, reason: request.reason, until: request.until), 'Kişi satrançtan uzaklaştırıldı.');
+        () => ref.read(adminGamesRepositoryProvider).suspendPlayer(userId, reason: request.reason, until: request.until), 'Kişi oyunlardan uzaklaştırıldı.');
   }
 
   @override
@@ -106,15 +119,17 @@ class AdminGamesScreen extends ConsumerWidget {
     final o = result.value;
     final teams = ref.watch(adminTeamMatchesProvider).value;
     final arenas = ref.watch(adminTournamentsProvider).value;
+    final mind = ref.watch(adminMindProvider).value;
     final isAdmin = ref.watch(myStaffRoleProvider).value?.code == 'admin';
     void refresh() => ref
       ..invalidate(adminChessProvider)
       ..invalidate(adminTeamMatchesProvider)
-      ..invalidate(adminTournamentsProvider);
+      ..invalidate(adminTournamentsProvider)
+      ..invalidate(adminMindProvider);
 
     return AdminPage(
       title: 'Oyunlar',
-      subtitle: 'Satranç: oyun sayıları, süren oyunlar ve uzaklaştırılan oyuncular. İptal edilen oyunda puan değişmez.',
+      subtitle: 'Satranç ve Zihin Düellosu: oyun sayıları, süren oyunlar ve uzaklaştırılan oyuncular. İptal edilen oyunda puan değişmez.',
       actions: [
         if (isAdmin)
           GwButton(label: 'Turnuva aç', icon: Icons.emoji_events_outlined, variant: GwButtonVariant.secondary,
@@ -226,6 +241,30 @@ class AdminGamesScreen extends ConsumerWidget {
                                     variant: GwButtonVariant.text,
                                     onPressed: () => _cancelTeam(context, ref, m),
                                   ),
+                          ),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: GwSpacing.lg),
+            GwPanel(
+              title: 'Zihin Düellosu',
+              subtitle: mind == null
+                  ? 'Yükleniyor…'
+                  : 'Bugün ${formatCount(mind.matchesToday)} düello · toplam ${formatCount(mind.matchesTotal)} biten · '
+                      '${formatCount(mind.waitingSeeks)} rakip bekleyen · ${formatCount(mind.pendingChallenges)} açık davet · '
+                      '${formatCount(mind.ratedPlayers)} puanlı oynamış kişi',
+              padding: EdgeInsets.zero,
+              child: (mind?.active ?? const []).isEmpty
+                  ? const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: Text('Şu an süren düello yok.'))
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final m in mind!.active)
+                          ListTile(
+                            title: Text('@${m.a ?? 'silinmiş'} ${m.aScore} – ${m.bScore} @${m.b ?? 'silinmiş'}'),
+                            subtitle: Text('${m.length} soru · ${m.rated ? 'puanlı' : 'puansız'} · '
+                                '${m.aAnswered}/${m.length} ve ${m.bAnswered}/${m.length} cevaplandı · ${formatDateTime(m.createdAt)}'),
+                            trailing: GwButton(label: 'İptal et', variant: GwButtonVariant.text, onPressed: () => _abortMind(context, ref, m)),
                           ),
                       ],
                     ),

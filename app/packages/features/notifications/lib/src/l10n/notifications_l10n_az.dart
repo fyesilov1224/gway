@@ -382,4 +382,7 @@ class NotificationsL10nAz extends NotificationsL10n {
 
   @override
   String get leadArena => 'Şahmat turniri';
+
+  @override
+  String get actMindChallenge => 'səni Zehin Duelinə dəvət etdi.';
 }

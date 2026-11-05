@@ -96,5 +96,6 @@
   "leadTeamMatch": "Match par équipes",
   "actChessArenaStart": "Le tournoi auquel tu t'es inscrit a commencé. Ouvre-le pour être apparié tout de suite.",
   "actChessArenaMedal": "Tu as fini le tournoi dans le top 3 ! Ta médaille est sur ton profil d’échecs.",
-  "leadArena": "Tournoi d'échecs"
+  "leadArena": "Tournoi d'échecs",
+  "actMindChallenge": "t'a défié en Duel mental."
 }

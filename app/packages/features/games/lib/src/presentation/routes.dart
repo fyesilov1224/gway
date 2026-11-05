@@ -1,4 +1,5 @@
 import '../domain/chess.dart';
+import '../domain/mind.dart';
 
 /// The games list (docs/ARCHITECTURE.md §3i): every game has its card there.
 abstract final class GamesRoutes {
@@ -31,5 +32,27 @@ abstract final class ChessRoutes {
     if (parts == null || parts.length != 2) return TimeControl.standard;
     final parsed = TimeControl(int.tryParse(parts[0]) ?? 0, int.tryParse(parts[1]) ?? 0);
     return TimeControl.catalog.contains(parsed) ? parsed : TimeControl.standard;
+  }
+}
+
+/// Zihin Düellosu (docs/ARCHITECTURE.md §3j).
+abstract final class MindRoutes {
+  static const home = '/games/mind';
+  static const seekPath = '/games/mind/seek';
+  static const leaderboardPath = '/games/mind/leaderboard';
+
+  static String match(String id) => '/games/mind/m/$id';
+
+  static String player(String userId) => '/games/mind/p/$userId';
+
+  /// Quick match for a length, e.g. `/games/mind/seek?n=10`.
+  static String seek(int length) => '$seekPath?n=$length';
+
+  static String leaderboard(int length) => '$leaderboardPath?n=$length';
+
+  /// A length from a link; the default when missing or unknown.
+  static int parseLength(String? n) {
+    final parsed = int.tryParse(n ?? '');
+    return mindLengths.contains(parsed) ? parsed! : mindDefaultLength;
   }
 }

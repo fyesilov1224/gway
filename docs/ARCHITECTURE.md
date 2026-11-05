@@ -1480,6 +1480,73 @@ Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekl
 ### Tablolar (sahip: games)
 `chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#); `chess_tournaments`, `chess_tournament_players` (0084; giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
 
+## 3j. Oyunlar: Zihin Düellosu (Faz 21, kullanıcı kararları 2026-11-05)
+
+Kullanıcı isteği: Oyunlar bölümüne satrançtaki her özelliğe sahip ikinci bir oyun: kişi kişiye maç, grupların yarışması, sıralama (bayrak, Elo, avatar, kullanıcı adı), madalyalar ve taçlar, oyuncu sayfası. Sorular karışıktır: **matematik**, **dikkat**, **hafıza** ve **refleks**; maç 5, 10, 20 ya da 50 sorudur. Tasarım sade ve profesyoneldir.
+
+### Kararlar
+- **Karışık sorular:** her maçta dört türden sorular sırayla karışık gelir (her dört soruluk blokta her tür bir kez, blok içi sıra rastgele). Zorluk maç ilerledikçe artar: soru `i` için seviye `1 + ⌊4 · i / soru sayısı⌋` (1–4).
+- **Elo soru sayısına göre ayrıdır:** 5, 10, 20, 50 sorunun her birinin kendi puanı ve sıralaması vardır.
+- **Canlı, aynı anda:** iki kişi aynı soruları aynı anda, kendi hızında çözer; rakibin puanı ve hangi soruda olduğu canlı görünür. Puan doğruluk ve hızdan gelir; maçı toplam puanı yüksek olan kazanır, eşitlik beraberliktir.
+- **Refleks "Hedefe dokun":** hedef şekil gösterilir; ızgarada benzer şekiller arasında hedef kısa bir süre belirir; en hızlı doğru dokunuş puan alır, erken ya da yanlış dokunuş puan kaybettirir.
+- **Bayrak ve uzaklaştırma satrançla ortaktır:** `chess_players` oyunların oyuncu kartıdır (ülke, platform uzaklaştırması); satrançtan uzaklaştırılan kişi Zihin Düellosu da oynayamaz. Panelde "oyunlardan uzaklaştırma" olarak görünür.
+
+### Açık kaynak
+Soru üreticisi, şekiller ve ekranlar GWAY'in kendi kodu ve çizimidir (Flutter `CustomPainter`); dış görsel ya da kod paketi eklenmez. Stroop etkisi (J. R. Stroop, 1935) ve basit tepki süresi ölçümü bilinen psikoloji yöntemleridir, bir lisansa bağlı değildir.
+
+### Sorular (sunucu üretir ve doğrular)
+Maç açılırken C# (`MindQuestions`) bütün soruları üretir ve `mind_questions`'a yazar; bu tabloyu istemci hiç okuyamaz (RLS açık, politika yok). Soru, kişi bir önceki soruyu yanıtlayınca API'den tek tek gelir (`POST .../next`); doğru cevap yalnız yanıttan sonra döner. Metinler uygulamada çevrilir: sunucu yalnız yapı gönderir (sayılar, renk/desen/şekil kodları).
+| Tür | Soru | Seviye | Süre |
+|---|---|---|---|
+| **Matematik** | Dört işlemli ifade (`49 + 9 × 2`), işlem önceliğiyle; sonuç tam sayı, bölmeler kalansız. 4 seçenek: doğru sonuç, soldan sağa hesaplanmış yanlış sonuç (farklıysa) ve yakın sayılar | 1: iki sayı, toplama/çıkarma; 2: çarpma ya da iki basamaklı; 3: üç sayı, iki işlem; 4: dört sayı, üç işlem | 8 + 3 × seviye sn |
+| **Dikkat (Stroop)** | "kırmızı çizgili yuvarlak" yazısı başka bir renkle (ör. mavi) yazılır; doğru seçenek yazının anlattığı şekildir. 4 seçenek: doğru, mürekkep rengindeki aynı şekil (tuzak) ve bir özelliği değişmiş şekiller. Renkler: kırmızı, mavi, yeşil, sarı, mor, turuncu; desen: düz, çizgili, noktalı; şekil: yuvarlak, kare, üçgen, yıldız | Seviye arttıkça seçenekler birbirine benzer (yalnız tek özellik farkı) | 9 − seviye sn |
+| **Hafıza** | 3 + seviye öğe (harf ya da rakam, her biri renkli) `1000 + 600 × öğe` ms gösterilir, sonra "?" olur; kişi doğru öğeleri **doğru renkleriyle ve sırayla** seçer. Seçenekler: öğeler + benzer çeldiriciler (aynı karakter başka renk, benzer karakter aynı renk: O/0/Q, 1/I/7, 5/S, 8/B, 2/Z, 6/G, E/F, M/N, P/R) | 4–7 öğe, seviyeyle çeldirici artar | gösterim + 4000 + 2000 × öğe ms |
+| **Refleks** | Hedef (şekil + renk) gösterilir; ızgarada benzer şekiller durur; 1,5–4 sn sonra hedef bir hücrede `1500 − 200 × (seviye − 1)` ms görünür | 1: 3×3, 2: 3×3, 3–4: 4×4 ızgara | bekleme + görünme + 1 sn |
+
+### Puan
+- Matematik ve dikkat: doğru `100 + ⌊100 × (1 − süre / sınır)⌋`, yanlış ya da süre dolması 0.
+- Hafıza: hepsi doğruysa `100 +` hız payı (cevap aşamasının süresine göre); değilse doğru konum başına `⌊60 × doğru / öğe⌋`.
+- Refleks: doğru dokunuş `100 + ⌊100 × (1 − tepki / görünme süresi)⌋`; erken dokunuş (hedeften önce ya da 120 ms'den kısa tepki) veya yanlış hücre **−50**; dokunmamak 0.
+- **Süre ölçümü:** uygulama kendi ölçtüğü süreyi gönderir; sunucu bunu kendi ölçtüğü sürenin (soru verildiğinden beri) en çok 2 sn altına kadar kabul eder, üstünü kendi süresine indirir. Refleks tepkisi, sunucu süresi `bekleme + tepki − 300 ms`'den kısaysa erken sayılır. Sınırdan 2 sn sonra gelen yanıt süre dolmuş sayılır (0).
+
+### Maç
+- **Hızlı maç:** soru sayısı seçilir, `mind_seeks`'e yazılır; eşleşme satranç gibidir (aynı soru sayısı, puan ±200, her 10 sn ±100 genişler, en çok ±600, engel ilişkisi olanlar eşleşmez, kayıt 20 sn'de bir tazelenir, 60 sn sonra silinir). Hızlı maç puanlıdır.
+- **Davet:** kişiye soru sayısı ve puanlı/puansız seçilerek gönderilir (`mind_challenge` bildirimi, push); 10 dakika geçerli; kişi başına en çok 5 açık davet. **Rövanş** biten maçtan davet olarak gider; iki taraf da isterse maç hemen açılır.
+- Bir kişinin aynı anda tek süren düellosu olur (satranç ayrı sayılır).
+- Maç açıldıktan 5 sn sonra başlar (geri sayım). Her kişi ilk sorusunu başlangıçtan sonra 30 sn içinde almalıdır; almayan olursa maç **iptal** olur (puansız).
+- Maçın bitiş sınırı: başlangıç + soruların süre toplamı + soru başına 3 sn. Sınırda yanıtlanmamış sorular 0 sayılır.
+- **Terk:** maç boyunca; rakip kazanır. İki taraf da ilk sorusunu almadan terk iptaldir.
+- Bitiş: iki taraf da son soruyu yanıtlayınca (`completed`), bitiş sınırında (`time`), terkle (`resign`) ya da iptalle (`aborted`). Sonuç ve Elo aynı işlemde yazılır. Bitişi ve ilk soru penceresini `GamesMonitor` saniyede bir yakalar.
+
+### Elo
+Satrançla aynı hesap (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100). Kişi sıralaması: o soru sayısında en az 5 puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte maç sayısına göre; ilk üç altın, gümüş ve bronz madalya ve taç (`mind_leaderboard`, `mind_ranks`).
+
+### Uygulama
+- Oyunlar ekranında "Zihin Düellosu" kartı. Ana sayfa: soru sayısı seçimi ve puanım, "Rakip bul", "Arkadaşını davet et", davetler, süren maç şeridi, son maçlar, sıralama özeti, dört türün kısa tanıtımı.
+- Maç ekranı: üstte iki oyuncu (avatar, bayrak, Elo), canlı puanlar ve soru noktaları (her soru yeşil/kırmızı/gri); soru alanında süre çubuğu; yanıttan sonra kısa doğru/yanlış gösterimi; bitirince rakip beklenir; sonuçta puanlar, Elo değişimi ve rövanş.
+- Sıralama (5/10/20/50 sekmeleri, podyum), oyuncu sayfası (soru sayısına göre puanlar ve sıralar, son maçlar), bayrak seçimi satrançla ortak.
+- Şekiller ve renkler `design_system` tokenlarından (`GwMindColor`); şekiller `CustomPainter` ile çizilir. Renk dışında desen (düz, çizgili, noktalı) ve şekil de ayırt edici olduğu için ekran okuyucu her şekli sözle okur (`describeFigure`).
+- Dikkat sorusundaki yazı uygulamanın dilinde kurulur: renk ve desen sözcükleri şeklin dilbilgisel cinsiyetine uyar (Almanca, Fransızca, İspanyolca, Portekizce, İtalyanca, Felemenkçe, Rusça, Ukraynaca, Arapça; `tool/l10n/tables/games_mind.py`).
+
+### Yönetim paneli
+Oyunlar sayfasında Zihin Düellosu bölümü: bugünkü ve toplam maç, süren maçlar (iki skor ve kaçıncı soruda oldukları), bekleyenler, açık davetler; süren maçı gerekçeyle iptal (`games.mind_match_aborted`). Uzaklaştırma satrançla ortaktır ("oyunlardan uzaklaştır").
+
+### API
+| Uç | İş |
+|---|---|
+| `POST /games/mind/seeks` | `length` (5, 10, 20, 50): eşleşirse maç, yoksa bekleme |
+| `POST /games/mind/seeks/heartbeat`, `DELETE /games/mind/seeks` | Beklemeyi tazeler / bırakır |
+| `POST /games/mind/challenges` | `opponentId`, `length`, `rated` |
+| `POST /games/mind/challenges/{id}/accept`, `/decline`, `DELETE /games/mind/challenges/{id}` | Kabul (maç açılır), red, geri çekme |
+| `GET /games/mind/{id}` | Maç ve sunucu saati |
+| `POST /games/mind/{id}/next` | Kişinin sıradaki sorusu (aynı soru tekrar istenirse aynı süreyle döner) |
+| `POST /games/mind/{id}/answers` | `index`, `answer` (türe göre), `elapsedMs`: puan, doğru cevap ve maç |
+| `POST /games/mind/{id}/resign`, `/rematch` | Terk, rövanş |
+| `GET /admin/games/mind`, `POST /admin/games/mind/{id}/abort` | Sayılar, süren maçlar, iptal (`reason`). Rol: `admin`, `moderator` |
+
+### Tablolar (sahip: games)
+`mind_ratings`, `mind_matches`, `mind_questions`, `mind_answers`, `mind_seeks`, `mind_challenges` (0085). Maçlar ve puanlar giriş yapmış herkese açıktır (oyuncuların hesabı görünürse); maç satırında her sorunun puanı (`a_points`, `b_points`) Realtime ile yayınlanır, cevaplar değil. `mind_questions` ve `mind_answers`'ı istemci okuyamaz; bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Bütün yazma C#'tadır.
+
 ## 4. Flutter
 
 ### Klasörler

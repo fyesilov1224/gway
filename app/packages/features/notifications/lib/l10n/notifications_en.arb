@@ -96,5 +96,6 @@
   "leadTeamMatch": "Team match",
   "actChessArenaStart": "The tournament you joined has started. Open it and you'll be paired right away.",
   "actChessArenaMedal": "You finished the tournament in the top three! Your medal is on your chess profile.",
-  "leadArena": "Chess tournament"
+  "leadArena": "Chess tournament",
+  "actMindChallenge": "invited you to a Mind Duel."
 }

@@ -726,4 +726,287 @@ class GamesL10nUk extends GamesL10n {
   String pointsShort(int points) {
     return '$points оч.';
   }
+
+  @override
+  String mindColorWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'red_m': 'червоний',
+      'red_f': 'червона',
+      'red_n': 'червоне',
+      'blue_m': 'синій',
+      'blue_f': 'синя',
+      'blue_n': 'синє',
+      'green_m': 'зелений',
+      'green_f': 'зелена',
+      'green_n': 'зелене',
+      'yellow_m': 'жовтий',
+      'yellow_f': 'жовта',
+      'yellow_n': 'жовте',
+      'purple_m': 'фіолетовий',
+      'purple_f': 'фіолетова',
+      'purple_n': 'фіолетове',
+      'orange_m': 'помаранчевий',
+      'orange_f': 'помаранчева',
+      'orange_n': 'помаранчеве',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindPatternWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'solid_m': 'суцільний',
+      'solid_f': 'суцільна',
+      'solid_n': 'суцільне',
+      'striped_m': 'смугастий',
+      'striped_f': 'смугаста',
+      'striped_n': 'смугасте',
+      'dotted_m': 'цятчастий',
+      'dotted_f': 'цятчаста',
+      'dotted_n': 'цятчасте',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeWord(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'коло',
+      'square': 'квадрат',
+      'triangle': 'трикутник',
+      'star': 'зірка',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeGender(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'n',
+      'square': 'm',
+      'triangle': 'm',
+      'star': 'f',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindFigure(String color, String pattern, String shape) {
+    return '$color $pattern $shape';
+  }
+
+  @override
+  String get mindDuel => 'Дуель розуму';
+
+  @override
+  String get mindCardText =>
+      'Жива дуель: рахунок, увага, пам’ять і реакція. Рейтинг Ело, таблиці й медалі.';
+
+  @override
+  String get mindPlay => 'Почати дуель';
+
+  @override
+  String mindBestRating(int rating, int length) {
+    return 'Ело $rating · запитань: $length';
+  }
+
+  @override
+  String mindQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count запитання',
+      many: '$count запитань',
+      few: '$count запитання',
+      one: '$count запитання',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindHowMany => 'Скільки запитань?';
+
+  @override
+  String mindRatingAt(int count) {
+    return 'Ваш рейтинг (запитань: $count)';
+  }
+
+  @override
+  String get mindFindOpponent => 'Знайти суперника';
+
+  @override
+  String get mindSuspended => 'Зараз ви не можете грати.';
+
+  @override
+  String get mindActive => 'У вас триває дуель';
+
+  @override
+  String get mindProfile => 'Профіль дуелей';
+
+  @override
+  String get mindHowTo => 'Як грати';
+
+  @override
+  String get mindRecent => 'Останні дуелі';
+
+  @override
+  String get mindNoMatchesMine =>
+      'Дуелей поки немає. Знайдіть першого суперника.';
+
+  @override
+  String get mindNoMatchesTheirs => 'Дуелей поки немає. Викличте першим.';
+
+  @override
+  String mindLeaderboardEmpty(int count) {
+    return 'Зіграйте рейтингових дуелей цієї довжини: $count, щоб потрапити до таблиці.';
+  }
+
+  @override
+  String get mindChallengeTitle => 'Викликати на дуель';
+
+  @override
+  String get mindChallengeSent =>
+      'Виклик надіслано. Дуель почнеться, коли його приймуть.';
+
+  @override
+  String get mindKindMath => 'Рахунок';
+
+  @override
+  String get mindKindAttention => 'Увага';
+
+  @override
+  String get mindKindMemory => 'Пам’ять';
+
+  @override
+  String get mindKindReflex => 'Реакція';
+
+  @override
+  String get mindKindMathHint =>
+      'Чотири дії з урахуванням порядку. Оберіть правильну відповідь.';
+
+  @override
+  String get mindKindAttentionHint =>
+      'Не зважайте на колір тексту — оберіть описану фігуру.';
+
+  @override
+  String get mindKindMemoryHint =>
+      'Запам’ятайте кольорові літери й цифри за порядком і кольором.';
+
+  @override
+  String get mindKindReflexHint =>
+      'Торкніться цілі, щойно вона з’явиться. Зарано або повз — мінус бали.';
+
+  @override
+  String get mindScoringHint =>
+      'Правильні й швидкі відповіді дають більше балів. Перемагає більша сума.';
+
+  @override
+  String get mindYou => 'Ви';
+
+  @override
+  String get mindOpponent => 'Суперник';
+
+  @override
+  String mindProgress(String who, int done, int total) {
+    return '$who: $done/$total запитань';
+  }
+
+  @override
+  String mindQuestionOf(int n, int total) {
+    return '$n/$total';
+  }
+
+  @override
+  String get mindGetReady => 'Приготуйтеся';
+
+  @override
+  String get mindYouFinished => 'Ви закінчили!';
+
+  @override
+  String mindOpponentAt(int done, int total) {
+    return 'Суперник на $done/$total. Підсумок — коли він закінчить.';
+  }
+
+  @override
+  String get mindMathPrompt => 'Який результат?';
+
+  @override
+  String get mindAttentionPrompt => 'Оберіть описану фігуру';
+
+  @override
+  String get mindMemoryLook => 'Запам’ятайте порядок і кольори';
+
+  @override
+  String get mindMemoryPick => 'Оберіть у тому ж порядку й кольорі';
+
+  @override
+  String mindCharLabel(String char, String color) {
+    return '$color $char';
+  }
+
+  @override
+  String get mindUndo => 'Скасувати';
+
+  @override
+  String get mindReflexTarget => 'Ціль';
+
+  @override
+  String get mindReflexWait => 'Чекайте…';
+
+  @override
+  String get mindReflexTap => 'Тисніть!';
+
+  @override
+  String mindRight(int points) {
+    return 'Правильно · +$points';
+  }
+
+  @override
+  String mindPartly(int points) {
+    return 'Частково правильно · +$points';
+  }
+
+  @override
+  String get mindWrong => 'Неправильно';
+
+  @override
+  String mindWrongPenalty(int points) {
+    return 'Неправильно · −$points';
+  }
+
+  @override
+  String mindTooEarly(int points) {
+    return 'Зарано · −$points';
+  }
+
+  @override
+  String get mindResignTitle => 'Здатися?';
+
+  @override
+  String get mindResignBody =>
+      'Перемога дістанеться суперникові; у рейтинговій дуелі ваш Ело знизиться.';
+
+  @override
+  String get mindFinished => 'Дуель завершено';
+
+  @override
+  String get mindEndCompleted => 'Усі запитання відповіли';
+
+  @override
+  String get mindEndTime => 'Час вийшов';
+
+  @override
+  String mindNewRating(int rating) {
+    return 'Новий рейтинг $rating';
+  }
+
+  @override
+  String get mindNewDuel => 'Нова дуель';
+
+  @override
+  String get mindBackHome => 'До дуелей';
 }

@@ -670,4 +670,278 @@ class GamesL10nAz extends GamesL10n {
   String pointsShort(int points) {
     return '$points xal';
   }
+
+  @override
+  String mindColorWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'red_m': 'qırmızı',
+      'red_f': 'qırmızı',
+      'red_n': 'qırmızı',
+      'blue_m': 'mavi',
+      'blue_f': 'mavi',
+      'blue_n': 'mavi',
+      'green_m': 'yaşıl',
+      'green_f': 'yaşıl',
+      'green_n': 'yaşıl',
+      'yellow_m': 'sarı',
+      'yellow_f': 'sarı',
+      'yellow_n': 'sarı',
+      'purple_m': 'bənövşəyi',
+      'purple_f': 'bənövşəyi',
+      'purple_n': 'bənövşəyi',
+      'orange_m': 'narıncı',
+      'orange_f': 'narıncı',
+      'orange_n': 'narıncı',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindPatternWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'solid_m': 'düz',
+      'solid_f': 'düz',
+      'solid_n': 'düz',
+      'striped_m': 'zolaqlı',
+      'striped_f': 'zolaqlı',
+      'striped_n': 'zolaqlı',
+      'dotted_m': 'xallı',
+      'dotted_f': 'xallı',
+      'dotted_n': 'xallı',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeWord(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'dairə',
+      'square': 'kvadrat',
+      'triangle': 'üçbucaq',
+      'star': 'ulduz',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeGender(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'm',
+      'square': 'm',
+      'triangle': 'm',
+      'star': 'm',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindFigure(String color, String pattern, String shape) {
+    return '$color $pattern $shape';
+  }
+
+  @override
+  String get mindDuel => 'Zehin Dueli';
+
+  @override
+  String get mindCardText =>
+      'Riyaziyyat, diqqət, yaddaş və refleks suallarında canlı duel. Elo reytinqi, sıralama və medallar.';
+
+  @override
+  String get mindPlay => 'Duelə başla';
+
+  @override
+  String mindBestRating(int rating, int length) {
+    return 'Elo $rating · $length sual';
+  }
+
+  @override
+  String mindQuestions(int count) {
+    return '$count sual';
+  }
+
+  @override
+  String get mindHowMany => 'Neçə sual?';
+
+  @override
+  String mindRatingAt(int count) {
+    return '$count sualda reytinqin';
+  }
+
+  @override
+  String get mindFindOpponent => 'Rəqib tap';
+
+  @override
+  String get mindSuspended => 'Hazırda oyun oynaya bilməzsən.';
+
+  @override
+  String get mindActive => 'Davam edən duelin var';
+
+  @override
+  String get mindProfile => 'Duel profili';
+
+  @override
+  String get mindHowTo => 'Necə oynanılır';
+
+  @override
+  String get mindRecent => 'Son duellər';
+
+  @override
+  String get mindNoMatchesMine => 'Hələ duelin yoxdur. İlk rəqibini tap.';
+
+  @override
+  String get mindNoMatchesTheirs => 'Hələ dueli yoxdur. İlk sən dəvət et.';
+
+  @override
+  String mindLeaderboardEmpty(int count) {
+    return 'Sıralamaya düşmək üçün bu sual sayında $count reytinqli duel oyna.';
+  }
+
+  @override
+  String get mindChallengeTitle => 'Duelə dəvət et';
+
+  @override
+  String get mindChallengeSent =>
+      'Dəvət göndərildi. Qəbul edəndə duel başlayır.';
+
+  @override
+  String get mindKindMath => 'Riyaziyyat';
+
+  @override
+  String get mindKindAttention => 'Diqqət';
+
+  @override
+  String get mindKindMemory => 'Yaddaş';
+
+  @override
+  String get mindKindReflex => 'Refleks';
+
+  @override
+  String get mindKindMathHint =>
+      'Dörd əməl, əməl ardıcıllığı ilə. Doğru cavabı seç.';
+
+  @override
+  String get mindKindAttentionHint =>
+      'Yazının rənginə yox, təsvir etdiyi fiqura bax.';
+
+  @override
+  String get mindKindMemoryHint =>
+      'Rəngli hərf və rəqəmləri ardıcıllıqla və rəngləri ilə yadda saxla.';
+
+  @override
+  String get mindKindReflexHint =>
+      'Hədəf görünən kimi ona toxun. Erkən və ya səhv toxunuş xal itirir.';
+
+  @override
+  String get mindScoringHint =>
+      'Doğru və sürətli cavab daha çox xal gətirir. Cəmi yüksək olan qalib gəlir.';
+
+  @override
+  String get mindYou => 'Sən';
+
+  @override
+  String get mindOpponent => 'Rəqib';
+
+  @override
+  String mindProgress(String who, int done, int total) {
+    return '$who: $done/$total sual';
+  }
+
+  @override
+  String mindQuestionOf(int n, int total) {
+    return '$n/$total';
+  }
+
+  @override
+  String get mindGetReady => 'Hazır ol';
+
+  @override
+  String get mindYouFinished => 'Bitirdin!';
+
+  @override
+  String mindOpponentAt(int done, int total) {
+    return 'Rəqibin $done/$total sualdadır. Bitirəndə nəticə çıxacaq.';
+  }
+
+  @override
+  String get mindMathPrompt => 'Nəticə neçədir?';
+
+  @override
+  String get mindAttentionPrompt => 'Təsvir olunan fiquru seç';
+
+  @override
+  String get mindMemoryLook => 'Ardıcıllığı və rəngləri yadda saxla';
+
+  @override
+  String get mindMemoryPick => 'Eyni ardıcıllıqla və rənglərlə seç';
+
+  @override
+  String mindCharLabel(String char, String color) {
+    return '$color $char';
+  }
+
+  @override
+  String get mindUndo => 'Geri al';
+
+  @override
+  String get mindReflexTarget => 'Hədəf';
+
+  @override
+  String get mindReflexWait => 'Gözlə…';
+
+  @override
+  String get mindReflexTap => 'İndi toxun!';
+
+  @override
+  String mindRight(int points) {
+    return 'Doğru · +$points';
+  }
+
+  @override
+  String mindPartly(int points) {
+    return 'Qismən doğru · +$points';
+  }
+
+  @override
+  String get mindWrong => 'Səhv';
+
+  @override
+  String mindWrongPenalty(int points) {
+    return 'Səhv · −$points';
+  }
+
+  @override
+  String mindTooEarly(int points) {
+    return 'Erkən toxundun · −$points';
+  }
+
+  @override
+  String get mindResignTitle => 'Dueldən çəkil?';
+
+  @override
+  String get mindResignBody =>
+      'Rəqibin qalib gəlir; reytinqli dueldə Elo xalın düşür.';
+
+  @override
+  String get mindFinished => 'Duel bitdi';
+
+  @override
+  String get mindEndCompleted => 'Bütün suallar cavablandı';
+
+  @override
+  String get mindEndTime => 'Vaxt bitdi';
+
+  @override
+  String mindNewRating(int rating) {
+    return 'Yeni reytinqin $rating';
+  }
+
+  @override
+  String get mindNewDuel => 'Yeni duel';
+
+  @override
+  String get mindBackHome => 'Duellərə qayıt';
 }

@@ -406,6 +406,15 @@ public static class AdminModule
                 (await games.RestoreChessPlayerAsync(user.GetUserId(), userId, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
+        content.MapGet("/games/mind", async (IMindAdministration mind, CancellationToken ct) =>
+                TypedResults.Ok(await mind.MindOverviewAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/games/mind/{id:guid}/abort", async (
+                Guid id, AbortChessGameRequest body, ClaimsPrincipal user, IMindAdministration mind, CancellationToken ct) =>
+                (await mind.AbortMindMatchAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
         content.MapGet("/matching/stats", async (IMatchingAdministration matching, CancellationToken ct) =>
                 TypedResults.Ok(await matching.StatsAsync(ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));

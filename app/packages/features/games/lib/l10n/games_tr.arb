@@ -956,5 +956,363 @@
         "type": "int"
       }
     }
+  },
+  "mindColorWord": "{key, select, red_m{kırmızı} red_f{kırmızı} red_n{kırmızı} blue_m{mavi} blue_f{mavi} blue_n{mavi} green_m{yeşil} green_f{yeşil} green_n{yeşil} yellow_m{sarı} yellow_f{sarı} yellow_n{sarı} purple_m{mor} purple_f{mor} purple_n{mor} orange_m{turuncu} orange_f{turuncu} orange_n{turuncu} other{}}",
+  "@mindColorWord": {
+    "description": "",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mindPatternWord": "{key, select, solid_m{düz} solid_f{düz} solid_n{düz} striped_m{çizgili} striped_f{çizgili} striped_n{çizgili} dotted_m{noktalı} dotted_f{noktalı} dotted_n{noktalı} other{}}",
+  "@mindPatternWord": {
+    "description": "",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mindShapeWord": "{shape, select, circle{yuvarlak} square{kare} triangle{üçgen} star{yıldız} other{}}",
+  "@mindShapeWord": {
+    "description": "",
+    "placeholders": {
+      "shape": {
+        "type": "String"
+      }
+    }
+  },
+  "mindShapeGender": "{shape, select, circle{m} square{m} triangle{m} star{m} other{}}",
+  "@mindShapeGender": {
+    "description": "",
+    "placeholders": {
+      "shape": {
+        "type": "String"
+      }
+    }
+  },
+  "mindFigure": "{color} {pattern} {shape}",
+  "@mindFigure": {
+    "description": "",
+    "placeholders": {
+      "color": {
+        "type": "String"
+      },
+      "pattern": {
+        "type": "String"
+      },
+      "shape": {
+        "type": "String"
+      }
+    }
+  },
+  "mindDuel": "Zihin Düellosu",
+  "@mindDuel": {
+    "description": ""
+  },
+  "mindCardText": "Matematik, dikkat, hafıza ve refleks sorularında canlı düello. Elo puanı, sıralama ve madalyalar.",
+  "@mindCardText": {
+    "description": ""
+  },
+  "mindPlay": "Düelloya başla",
+  "@mindPlay": {
+    "description": ""
+  },
+  "mindBestRating": "Elo {rating} · {length} soru",
+  "@mindBestRating": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      },
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "mindQuestions": "{count} soru",
+  "@mindQuestions": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mindHowMany": "Kaç soru?",
+  "@mindHowMany": {
+    "description": ""
+  },
+  "mindRatingAt": "{count} soruda puanın",
+  "@mindRatingAt": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mindFindOpponent": "Rakip bul",
+  "@mindFindOpponent": {
+    "description": ""
+  },
+  "mindSuspended": "Oyun oynaman şu anda kapalı.",
+  "@mindSuspended": {
+    "description": ""
+  },
+  "mindActive": "Süren bir düellon var",
+  "@mindActive": {
+    "description": ""
+  },
+  "mindProfile": "Düello profili",
+  "@mindProfile": {
+    "description": ""
+  },
+  "mindHowTo": "Nasıl oynanır",
+  "@mindHowTo": {
+    "description": ""
+  },
+  "mindRecent": "Son düellolar",
+  "@mindRecent": {
+    "description": ""
+  },
+  "mindNoMatchesMine": "Henüz düellon yok. İlk rakibini bul.",
+  "@mindNoMatchesMine": {
+    "description": ""
+  },
+  "mindNoMatchesTheirs": "Henüz düellosu yok. İlk düellosuna sen davet et.",
+  "@mindNoMatchesTheirs": {
+    "description": ""
+  },
+  "mindLeaderboardEmpty": "Sıralamaya girmek için bu soru sayısında {count} puanlı düello oyna.",
+  "@mindLeaderboardEmpty": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mindChallengeTitle": "Düelloya davet et",
+  "@mindChallengeTitle": {
+    "description": ""
+  },
+  "mindChallengeSent": "Davet gönderildi. Kabul edince düello başlar.",
+  "@mindChallengeSent": {
+    "description": ""
+  },
+  "mindKindMath": "Matematik",
+  "@mindKindMath": {
+    "description": ""
+  },
+  "mindKindAttention": "Dikkat",
+  "@mindKindAttention": {
+    "description": ""
+  },
+  "mindKindMemory": "Hafıza",
+  "@mindKindMemory": {
+    "description": ""
+  },
+  "mindKindReflex": "Refleks",
+  "@mindKindReflex": {
+    "description": ""
+  },
+  "mindKindMathHint": "Dört işlem, işlem önceliğiyle. Doğru sonucu seç.",
+  "@mindKindMathHint": {
+    "description": ""
+  },
+  "mindKindAttentionHint": "Yazının rengine değil, anlattığı şekle bak.",
+  "@mindKindAttentionHint": {
+    "description": ""
+  },
+  "mindKindMemoryHint": "Renkli harf ve rakamları sırasıyla ve renkleriyle hatırla.",
+  "@mindKindMemoryHint": {
+    "description": ""
+  },
+  "mindKindReflexHint": "Hedef belirince ona ilk sen dokun. Erken ya da yanlış dokunuş puan kaybettirir.",
+  "@mindKindReflexHint": {
+    "description": ""
+  },
+  "mindScoringHint": "Doğru ve hızlı cevap daha çok puan getirir. Toplam puanı yüksek olan kazanır.",
+  "@mindScoringHint": {
+    "description": ""
+  },
+  "mindYou": "Sen",
+  "@mindYou": {
+    "description": ""
+  },
+  "mindOpponent": "Rakip",
+  "@mindOpponent": {
+    "description": ""
+  },
+  "mindProgress": "{who}: {done}/{total} soru",
+  "@mindProgress": {
+    "description": "",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mindQuestionOf": "{n}/{total}",
+  "@mindQuestionOf": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mindGetReady": "Hazır ol",
+  "@mindGetReady": {
+    "description": ""
+  },
+  "mindYouFinished": "Bitirdin!",
+  "@mindYouFinished": {
+    "description": ""
+  },
+  "mindOpponentAt": "Rakibin {done}/{total}. soruda. Bitirince sonuç çıkar.",
+  "@mindOpponentAt": {
+    "description": "",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mindMathPrompt": "Sonuç kaç?",
+  "@mindMathPrompt": {
+    "description": ""
+  },
+  "mindAttentionPrompt": "Yazının anlattığı şekli seç",
+  "@mindAttentionPrompt": {
+    "description": ""
+  },
+  "mindMemoryLook": "Sırayı ve renkleri aklında tut",
+  "@mindMemoryLook": {
+    "description": ""
+  },
+  "mindMemoryPick": "Aynı sırayla ve renkleriyle seç",
+  "@mindMemoryPick": {
+    "description": ""
+  },
+  "mindCharLabel": "{color} {char}",
+  "@mindCharLabel": {
+    "description": "",
+    "placeholders": {
+      "char": {
+        "type": "String"
+      },
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "mindUndo": "Geri al",
+  "@mindUndo": {
+    "description": ""
+  },
+  "mindReflexTarget": "Hedef",
+  "@mindReflexTarget": {
+    "description": ""
+  },
+  "mindReflexWait": "Bekle…",
+  "@mindReflexWait": {
+    "description": ""
+  },
+  "mindReflexTap": "Şimdi dokun!",
+  "@mindReflexTap": {
+    "description": ""
+  },
+  "mindRight": "Doğru · +{points}",
+  "@mindRight": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mindPartly": "Kısmen doğru · +{points}",
+  "@mindPartly": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mindWrong": "Yanlış",
+  "@mindWrong": {
+    "description": ""
+  },
+  "mindWrongPenalty": "Yanlış · −{points}",
+  "@mindWrongPenalty": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mindTooEarly": "Erken dokundun · −{points}",
+  "@mindTooEarly": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mindResignTitle": "Düellodan çekil?",
+  "@mindResignTitle": {
+    "description": ""
+  },
+  "mindResignBody": "Rakibin kazanır; puanlı düelloda Elo puanın düşer.",
+  "@mindResignBody": {
+    "description": ""
+  },
+  "mindFinished": "Düello bitti",
+  "@mindFinished": {
+    "description": ""
+  },
+  "mindEndCompleted": "Bütün sorular cevaplandı",
+  "@mindEndCompleted": {
+    "description": ""
+  },
+  "mindEndTime": "Süre doldu",
+  "@mindEndTime": {
+    "description": ""
+  },
+  "mindNewRating": "Yeni puanın {rating}",
+  "@mindNewRating": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "mindNewDuel": "Yeni düello",
+  "@mindNewDuel": {
+    "description": ""
+  },
+  "mindBackHome": "Düello sayfasına dön",
+  "@mindBackHome": {
+    "description": ""
   }
 }

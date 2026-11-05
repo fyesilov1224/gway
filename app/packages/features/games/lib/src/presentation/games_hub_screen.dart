@@ -8,11 +8,12 @@ import '../domain/chess.dart';
 import '../l10n.dart';
 import 'appearance.dart';
 import 'chess_board.dart';
+import 'mind_providers.dart';
+import 'mind_screens.dart';
 import 'providers.dart';
 import 'routes.dart';
 
-/// Games (docs/ARCHITECTURE.md §3i, Uygulama): every game GWAY offers, one card each. Chess is the first; new games
-/// add their card here.
+/// Games (docs/ARCHITECTURE.md §3i, §3j): every game GWAY offers, one card each.
 class GamesHubScreen extends ConsumerWidget {
   const GamesHubScreen({super.key});
 
@@ -27,6 +28,8 @@ class GamesHubScreen extends ConsumerWidget {
           Text(gamesL10n.gamesIntro, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
           const SizedBox(height: GwSpacing.lg),
           const _ChessCard(),
+          const SizedBox(height: GwSpacing.md),
+          const _MindCard(),
         ],
       ),
     );
@@ -103,6 +106,65 @@ class _ChessCard extends ConsumerWidget {
                 ],
                 const SizedBox(height: GwSpacing.md),
                 GwButton(label: gamesL10n.playChess, icon: Icons.play_arrow_rounded, expand: true, onPressed: () => context.push(ChessRoutes.home)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The Zihin Düellosu card: one sample of each kind, the person's rating and the way in.
+class _MindCard extends ConsumerWidget {
+  const _MindCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final me = ref.watch(currentUserIdProvider);
+    final profile = me == null ? null : ref.watch(mindProfileProvider(me)).value;
+    final invites = (ref.watch(mindChallengesProvider).value ?? const []).where((c) => c.isIncomingFor(me)).length;
+    final played = profile?.ratings.values.where((r) => r.games > 0).toList() ?? const [];
+    final best = played.isEmpty ? null : played.reduce((a, b) => a.rating >= b.rating ? a : b);
+    final facts = [
+      if (best != null) (Icons.psychology_outlined, gamesL10n.mindBestRating(best.rating, best.length)),
+      if (invites > 0) (Icons.mail_outline_rounded, gamesL10n.invitesWaiting(invites)),
+    ];
+    return GwCard(
+      onTap: () => context.push(MindRoutes.home),
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            color: GwColors.surfaceMuted,
+            padding: const EdgeInsets.all(GwSpacing.md),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: GwLayout.storyCardWidth),
+                child: const MindSampleStrip(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(GwSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(gamesL10n.mindDuel, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: GwSpacing.xxs),
+                Text(gamesL10n.mindCardText, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                if (facts.isNotEmpty) ...[
+                  const SizedBox(height: GwSpacing.sm),
+                  Wrap(
+                    spacing: GwSpacing.xs,
+                    runSpacing: GwSpacing.xs,
+                    children: [for (final (icon, text) in facts) GwTag(label: text, icon: icon, tone: GwTone.lilac)],
+                  ),
+                ],
+                const SizedBox(height: GwSpacing.md),
+                GwButton(label: gamesL10n.mindPlay, icon: Icons.play_arrow_rounded, expand: true, onPressed: () => context.push(MindRoutes.home)),
               ],
             ),
           ),

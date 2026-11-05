@@ -91,6 +91,23 @@ enum GwBoardTheme {
   final Color dark;
 }
 
+/// Zihin Düellosu figure colors (docs/DESIGN.md §1, Oyunlar): six hues far enough apart to tell at a glance, each one
+/// named in the attention questions. Dark enough to read as text ink on white; yellow is a deep mustard for that reason.
+enum GwMindColor {
+  red(Color(0xFFD7263D)),
+  blue(Color(0xFF2F6FE0)),
+  green(Color(0xFF1E8E4E)),
+  yellow(Color(0xFFC79100)),
+  purple(Color(0xFF7E3FC2)),
+  orange(Color(0xFFE5600A));
+
+  const GwMindColor(this.color);
+
+  final Color color;
+
+  static GwMindColor parse(Object? code) => values.firstWhere((c) => c.name == code, orElse: () => blue);
+}
+
 /// Leaderboard medals for the top three (docs/DESIGN.md §1, Madalyalar): [strong] for the medal, [soft] behind it.
 enum GwMedal {
   gold(Color(0xFFC9971C), Color(0xFFFFF4D6), Color(0xFFFBE38A), Color(0xFF8F6508)),

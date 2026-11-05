@@ -384,4 +384,7 @@ class NotificationsL10nTr extends NotificationsL10n {
 
   @override
   String get leadArena => 'Satranç turnuvası';
+
+  @override
+  String get actMindChallenge => 'seni Zihin Düellosu\'na davet etti.';
 }

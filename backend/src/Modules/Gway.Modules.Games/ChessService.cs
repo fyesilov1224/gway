@@ -595,7 +595,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     }
 
     // -----------------------------------------------------------------------
-    // Monitor (ChessMonitor)
+    // Monitor (GamesMonitor)
     // -----------------------------------------------------------------------
 
     /// <summary>Ends games whose clock ran out or whose first move never came, expires challenges, drops stale seeks.</summary>

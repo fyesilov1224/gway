@@ -96,5 +96,6 @@
   "leadTeamMatch": "Mannschaftskampf",
   "actChessArenaStart": "Dein Turnier hat begonnen. Öffne es und du wirst sofort gepaart.",
   "actChessArenaMedal": "Du hast das Turnier unter den ersten drei beendet! Deine Medaille ist in deinem Schachprofil.",
-  "leadArena": "Schachturnier"
+  "leadArena": "Schachturnier",
+  "actMindChallenge": "hat dich zu einem Gedankenduell eingeladen."
 }

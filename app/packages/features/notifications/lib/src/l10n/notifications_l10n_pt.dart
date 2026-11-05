@@ -392,4 +392,7 @@ class NotificationsL10nPt extends NotificationsL10n {
 
   @override
   String get leadArena => 'Torneio de xadrez';
+
+  @override
+  String get actMindChallenge => 'desafiou você para um Duelo mental.';
 }

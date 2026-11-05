@@ -172,7 +172,82 @@ class AdminTournament {
   String get name => title ?? (kind == 'weekly' ? 'Haftalık Arena' : 'Aylık Arena');
 }
 
+/// A running Zihin Düellosu match (docs/ARCHITECTURE.md §3j, Yönetim paneli).
+class AdminMindMatch {
+  const AdminMindMatch({
+    required this.id,
+    required this.a,
+    required this.b,
+    required this.length,
+    required this.rated,
+    required this.aScore,
+    required this.bScore,
+    required this.aAnswered,
+    required this.bAnswered,
+    required this.createdAt,
+  });
+
+  factory AdminMindMatch.fromJson(Map<String, Object?> j) => AdminMindMatch(
+        id: j['id']! as String,
+        a: j['a'] as String?,
+        b: j['b'] as String?,
+        length: j['length']! as int,
+        rated: j['rated']! as bool,
+        aScore: j['aScore']! as int,
+        bScore: j['bScore']! as int,
+        aAnswered: j['aAnswered']! as int,
+        bAnswered: j['bAnswered']! as int,
+        createdAt: DateTime.parse(j['createdAt']! as String),
+      );
+
+  final String id;
+  final String? a;
+  final String? b;
+  final int length;
+  final bool rated;
+  final int aScore;
+  final int bScore;
+  final int aAnswered;
+  final int bAnswered;
+  final DateTime createdAt;
+}
+
+class AdminMindOverview {
+  const AdminMindOverview({
+    required this.matchesToday,
+    required this.matchesTotal,
+    required this.activeMatches,
+    required this.waitingSeeks,
+    required this.pendingChallenges,
+    required this.ratedPlayers,
+    required this.active,
+  });
+
+  factory AdminMindOverview.fromJson(Map<String, Object?> j) => AdminMindOverview(
+        matchesToday: j['matchesToday']! as int,
+        matchesTotal: j['matchesTotal']! as int,
+        activeMatches: j['activeMatches']! as int,
+        waitingSeeks: j['waitingSeeks']! as int,
+        pendingChallenges: j['pendingChallenges']! as int,
+        ratedPlayers: j['ratedPlayers']! as int,
+        active: [for (final m in (j['active']! as List).cast<Map<String, Object?>>()) AdminMindMatch.fromJson(m)],
+      );
+
+  final int matchesToday;
+  final int matchesTotal;
+  final int activeMatches;
+  final int waitingSeeks;
+  final int pendingChallenges;
+  final int ratedPlayers;
+  final List<AdminMindMatch> active;
+}
+
 abstract interface class AdminGamesRepository {
+  Future<Result<AdminMindOverview>> mind();
+
+  /// Ends a running duel without a result or rating change.
+  Future<Result<void>> abortMindMatch(String matchId, {required String reason});
+
   Future<Result<List<AdminTournament>>> tournaments();
 
   Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,

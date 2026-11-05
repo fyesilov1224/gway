@@ -66,3 +66,26 @@ public interface IGamesAdministration
 
     Task<Result> RestoreChessPlayerAsync(Guid actorId, Guid userId, CancellationToken ct);
 }
+
+/// <summary>Zihin Düellosu at a glance for the admin panel (docs/ARCHITECTURE.md §3j, Yönetim paneli).</summary>
+public sealed record MindAdminOverview(
+    int MatchesToday,
+    int MatchesTotal,
+    int ActiveMatches,
+    int WaitingSeeks,
+    int PendingChallenges,
+    int RatedPlayers,
+    IReadOnlyList<MindAdminMatch> Active);
+
+/// <param name="AAnswered">Questions the first player has answered so far.</param>
+public sealed record MindAdminMatch(
+    Guid Id, string? A, string? B, int Length, bool Rated, int AScore, int BScore, int AAnswered, int BAnswered, DateTimeOffset CreatedAt);
+
+/// <summary>Platform team actions on duels. Callers check platform staff roles first; every action is audited.</summary>
+public interface IMindAdministration
+{
+    Task<MindAdminOverview> MindOverviewAsync(CancellationToken ct);
+
+    /// <summary>Ends a running duel without a result or rating change.</summary>
+    Task<Result> AbortMindMatchAsync(Guid actorId, Guid matchId, string reason, CancellationToken ct);
+}
