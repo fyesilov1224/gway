@@ -257,5 +257,15 @@
   "mindEndTime": "Tempo esgotado",
   "mindNewRating": "Nova pontuação {rating}",
   "mindNewDuel": "Novo duelo",
-  "mindBackHome": "Voltar aos duelos"
+  "mindBackHome": "Voltar aos duelos",
+  "mindTeamMatches": "Duelos de grupos",
+  "mindTeamMatchesHint": "Duelos dos seus grupos contra outros; o resultado muda o Elo de duelo do grupo.",
+  "mindNoTeamMatches": "Nenhum duelo de grupos ainda. Desafie outro grupo em nome do seu.",
+  "mindNewTeamMatch": "Marcar duelo de grupos",
+  "mindNewTeamHint": "Quando o outro grupo aceitar, ambos escalam jogadores. No início, os dois jogadores de cada posição duelam ao mesmo tempo.",
+  "mindTeamMatch": "Duelo de grupos",
+  "mindSeats": "Posições",
+  "mindSeatsCount": "{count, plural, =1{1 posição} other{{count} posições}}",
+  "mindLineupHint": "Uma posição vazia no início conta para o adversário. A primeira pergunta espera 5 minutos.",
+  "mindGroupLeaderboardEmpty": "Nenhum grupo jogou um duelo ainda. Que o seu marque o primeiro."
 }

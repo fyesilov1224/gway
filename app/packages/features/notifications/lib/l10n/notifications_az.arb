@@ -97,5 +97,10 @@
   "actChessArenaStart": "Qoşulduğun turnir başladı. Açan kimi dərhal cütləşəcəksən.",
   "actChessArenaMedal": "Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.",
   "leadArena": "Şahmat turniri",
-  "actMindChallenge": "səni Zehin Duelinə dəvət etdi."
+  "actMindChallenge": "səni Zehin Duelinə dəvət etdi.",
+  "actMindTeamInvite": "{group} qrupu adına qrupunu Zehin Duelinə dəvət etdi.",
+  "actMindTeamAccepted": "{group} qrupu adına qrup duelini qəbul etdi. Oyunçularını sırala.",
+  "actMindTeamDeclined": "{group} qrupu adına qrup duelini rədd etdi.",
+  "actMindTeamStart": "{group} qrupuna qarşı qrup dueli başladı. Duelinə keç!",
+  "leadGroupDuel": "Qrup dueli"
 }

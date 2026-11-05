@@ -944,4 +944,47 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get mindBackHome => 'العودة إلى المبارزات';
+
+  @override
+  String get mindTeamMatches => 'مبارزات المجموعات';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'مبارزات مجموعاتك ضد مجموعات أخرى؛ تغيّر النتيجة تصنيف المجموعة.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'لا مبارزات مجموعات بعد. تحدَّ مجموعة أخرى باسم مجموعتك.';
+
+  @override
+  String get mindNewTeamMatch => 'نظّم مبارزة مجموعات';
+
+  @override
+  String get mindNewTeamHint =>
+      'بعد قبول المجموعة الأخرى يرتّب الطرفان لاعبيهما. عند البدء يتبارز لاعبا كل مقعد في الوقت نفسه.';
+
+  @override
+  String get mindTeamMatch => 'مبارزة المجموعات';
+
+  @override
+  String get mindSeats => 'المقاعد';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مقاعد',
+      one: 'مقعد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'المقعد الفارغ عند البدء يُحتسب للخصم. يُنتظر السؤال الأول 5 دقائق.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'لم تلعب أي مجموعة مبارزة بعد. لتنظّم مجموعتك الأولى.';
 }

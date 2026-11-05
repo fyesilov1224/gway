@@ -257,5 +257,15 @@
   "mindEndTime": "Time's up",
   "mindNewRating": "New rating {rating}",
   "mindNewDuel": "New duel",
-  "mindBackHome": "Back to duels"
+  "mindBackHome": "Back to duels",
+  "mindTeamMatches": "Group duels",
+  "mindTeamMatchesHint": "Your groups' duels against other groups; the result moves the group's duel Elo.",
+  "mindNoTeamMatches": "No group duels yet. Challenge another group for yours.",
+  "mindNewTeamMatch": "Arrange a group duel",
+  "mindNewTeamHint": "Once the other group accepts, both line up their players. At the start each seat's two players duel at the same time.",
+  "mindTeamMatch": "Group duel",
+  "mindSeats": "Seats",
+  "mindSeatsCount": "{count, plural, =1{1 seat} other{{count} seats}}",
+  "mindLineupHint": "A seat left empty at the start counts for the other side. A seat waits 5 minutes for the first question.",
+  "mindGroupLeaderboardEmpty": "No group has played a group duel yet. Let yours arrange the first."
 }

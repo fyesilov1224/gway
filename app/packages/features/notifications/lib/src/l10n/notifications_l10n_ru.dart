@@ -386,4 +386,27 @@ class NotificationsL10nRu extends NotificationsL10n {
 
   @override
   String get actMindChallenge => 'вызывает вас на «Дуэль разума».';
+
+  @override
+  String actMindTeamInvite(String group) {
+    return 'от имени $group вызвал(а) вашу группу на «Дуэль разума».';
+  }
+
+  @override
+  String actMindTeamAccepted(String group) {
+    return 'принял(а) групповую дуэль от имени $group. Расставьте игроков.';
+  }
+
+  @override
+  String actMindTeamDeclined(String group) {
+    return 'отклонил(а) групповую дуэль от имени $group.';
+  }
+
+  @override
+  String actMindTeamStart(String group) {
+    return 'Групповая дуэль против $group началась. К своей дуэли!';
+  }
+
+  @override
+  String get leadGroupDuel => 'Групповая дуэль';
 }

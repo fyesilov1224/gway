@@ -7,11 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
+import '../domain/mind.dart';
 import '../domain/team.dart';
 import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
+
+/// The page of a team match in its game.
+String teamMatchPath(TeamMatch m) => m.game == TeamGame.mind ? MindRoutes.team(m.id) : ChessRoutes.team(m.id);
+
+/// "3+2 · Blitz" for chess, "10 soru" for a duel.
+String teamFormat(TeamMatch m) =>
+    m.game == TeamGame.mind ? gamesL10n.mindQuestions(m.length ?? mindDefaultLength) : '${m.timeControl!.label} · ${m.timeControl!.category.label}';
+
+String _boardsCount(TeamMatch m) => m.game == TeamGame.mind ? gamesL10n.mindSeatsCount(m.boards) : gamesL10n.boardsCount(m.boards);
 
 /// "1½" style points.
 String formatPoints(double p) => p == p.roundToDouble() ? '${p.toInt()}' : '${p.floor() == 0 ? '' : p.floor()}½';
@@ -55,7 +65,7 @@ class TeamMatchTile extends StatelessWidget {
           ],
         );
     return GwCard(
-      onTap: () => context.push(ChessRoutes.team(m.id)),
+      onTap: () => context.push(teamMatchPath(m)),
       padding: const EdgeInsets.all(GwSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +80,7 @@ class TeamMatchTile extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               if (m.status == TeamMatchStatus.live) const GwLiveBadge() else GwTag(label: m.status.label, tone: GwTone.mist),
-              Text('${formatDateTime(m.startsAt)} · ${gamesL10n.boardsCount(m.boards)} · ${m.timeControl.label}',
+              Text('${formatDateTime(m.startsAt)} · ${_boardsCount(m)} · ${teamFormat(m)}',
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
@@ -97,7 +107,8 @@ class TeamMatchScreen extends ConsumerWidget {
     ));
     ref
       ..invalidate(teamMatchProvider(matchId))
-      ..invalidate(myTeamMatchesProvider);
+      ..invalidate(myTeamMatchesProvider(TeamGame.chess))
+      ..invalidate(myTeamMatchesProvider(TeamGame.mind));
   }
 
   @override
@@ -105,7 +116,7 @@ class TeamMatchScreen extends ConsumerWidget {
     final detail = ref.watch(teamMatchProvider(matchId));
     final me = ref.watch(currentUserIdProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(gamesL10n.teamMatch)),
+      appBar: AppBar(title: Text(detail.value?.match.game == TeamGame.mind ? gamesL10n.mindTeamMatch : gamesL10n.teamMatch)),
       body: switch (detail) {
         AsyncData(:final value) => _body(context, ref, value, me),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(teamMatchProvider(matchId))),
@@ -174,8 +185,12 @@ class TeamMatchScreen extends ConsumerWidget {
                   runSpacing: GwSpacing.xs,
                   children: [
                     GwTag(label: m.status.label, tone: m.status == TeamMatchStatus.live ? GwTone.lilac : GwTone.mist),
-                    GwTag(label: '${m.timeControl.label} · ${m.timeControl.category.label}', icon: chessCategoryIcon(m.timeControl.category), tone: GwTone.sky),
-                    GwTag(label: gamesL10n.boardsCount(m.boards), tone: GwTone.mist),
+                    GwTag(
+                      label: teamFormat(m),
+                      icon: m.timeControl == null ? Icons.psychology_outlined : chessCategoryIcon(m.timeControl!.category),
+                      tone: GwTone.sky,
+                    ),
+                    GwTag(label: _boardsCount(m), tone: GwTone.mist),
                     GwTag(label: formatDateTime(m.startsAt), icon: Icons.schedule_rounded, tone: GwTone.mist),
                   ],
                 ),
@@ -207,8 +222,8 @@ class TeamMatchScreen extends ConsumerWidget {
           ],
           const SizedBox(height: GwSpacing.lg),
           GwSectionHeader(
-            title: gamesL10n.boards,
-            subtitle: open ? gamesL10n.lineupHint : null,
+            title: m.game == TeamGame.mind ? gamesL10n.mindSeats : gamesL10n.boards,
+            subtitle: open ? (m.game == TeamGame.mind ? gamesL10n.mindLineupHint : gamesL10n.lineupHint) : null,
           ),
           const SizedBox(height: GwSpacing.xs),
           if (open && captainAny)
@@ -234,7 +249,7 @@ class TeamMatchScreen extends ConsumerWidget {
               children: [
                 for (final (i, b) in d.boards.indexed) ...[
                   if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                  _BoardRow(board: b, me: me),
+                  _BoardRow(board: b, me: me, game: m.game),
                 ],
               ],
             ),
@@ -259,18 +274,21 @@ class TeamMatchScreen extends ConsumerWidget {
 }
 
 class _BoardRow extends StatelessWidget {
-  const _BoardRow({required this.board, required this.me});
+  const _BoardRow({required this.board, required this.me, required this.game});
 
   final TeamBoard board;
   final String? me;
+  final TeamGame game;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final b = board;
     final mine = me != null && (b.home?.userId == me || b.away?.userId == me);
+    final chess = game == TeamGame.chess;
+    // A duel seat has no colors: the dot shows only in chess.
     Widget seat(ChessPlayer? p, bool white, bool end) {
-      final dot = Container(
+      final dot = !chess ? const SizedBox.shrink() : Container(
         width: GwSpacing.sm,
         height: GwSpacing.sm,
         decoration: BoxDecoration(
@@ -297,8 +315,13 @@ class _BoardRow extends StatelessWidget {
     }
 
     final result = b.homePoints == null ? null : '${formatPoints(b.homePoints!)} – ${formatPoints(b.awayPoints!)}';
+    final open = switch ((b.gameId, b.mindMatchId)) {
+      (final String g, _) => ChessRoutes.game(g),
+      (_, final String d) => MindRoutes.match(d),
+      _ => null,
+    };
     return InkWell(
-      onTap: b.gameId == null ? null : () => context.push(ChessRoutes.game(b.gameId!)),
+      onTap: open == null ? null : () => context.push(open),
       child: Container(
         color: mine ? GwColors.primarySoft : null,
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
@@ -310,7 +333,7 @@ class _BoardRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
               child: result != null
                   ? Text(result, style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800))
-                  : b.gameId != null
+                  : open != null
                       ? Icon(mine ? Icons.play_circle_fill_rounded : Icons.visibility_outlined, color: GwColors.primary)
                       : Text(gamesL10n.versusShort, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
             ),
@@ -458,19 +481,20 @@ class _LineupSheetState extends ConsumerState<_LineupSheet> {
   }
 }
 
-/// A captain invites another group: which of their groups, the opponent, boards, time control and start.
-Future<void> showCreateTeamMatchSheet(BuildContext context, {required List<ChessGroup> mine}) =>
+/// A captain invites another group: which of their groups, the opponent, boards, the time control (or question count) and start.
+Future<void> showCreateTeamMatchSheet(BuildContext context, {required List<ChessGroup> mine, TeamGame game = TeamGame.chess}) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _CreateTeamMatchSheet(mine: mine),
+      builder: (_) => _CreateTeamMatchSheet(mine: mine, game: game),
     );
 
 class _CreateTeamMatchSheet extends ConsumerStatefulWidget {
-  const _CreateTeamMatchSheet({required this.mine});
+  const _CreateTeamMatchSheet({required this.mine, required this.game});
 
   final List<ChessGroup> mine;
+  final TeamGame game;
 
   @override
   ConsumerState<_CreateTeamMatchSheet> createState() => _CreateTeamMatchSheetState();
@@ -481,6 +505,7 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
   ChessGroup? _away;
   int _boards = 4;
   TimeControl _tc = const TimeControl(300, 3);
+  int _length = mindDefaultLength;
   late DateTime _starts = () {
     final t = DateTime.now().add(const Duration(days: 1));
     return DateTime(t.year, t.month, t.day, 20);
@@ -528,15 +553,17 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
           homeGroupId: _home.id,
           awayGroupId: away.id,
           boards: _boards,
-          timeControl: _tc,
           startsAt: _starts,
+          game: widget.game,
+          timeControl: widget.game == TeamGame.chess ? _tc : null,
+          length: widget.game == TeamGame.mind ? _length : null,
         );
     if (!mounted) return;
     switch (result) {
       case Ok(:final value):
-        ref.invalidate(myTeamMatchesProvider);
+        ref.invalidate(myTeamMatchesProvider(widget.game));
         Navigator.of(context).pop();
-        unawaited(context.push(ChessRoutes.team(value)));
+        unawaited(context.push(widget.game == TeamGame.mind ? MindRoutes.team(value) : ChessRoutes.team(value)));
       case Err(:final failure):
         setState(() {
           _sending = false;
@@ -549,6 +576,7 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final away = _away;
+    final mind = widget.game == TeamGame.mind;
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
@@ -557,9 +585,9 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(gamesL10n.newTeamMatch, style: textTheme.titleLarge),
+              Text(mind ? gamesL10n.mindNewTeamMatch : gamesL10n.newTeamMatch, style: textTheme.titleLarge),
               const SizedBox(height: GwSpacing.xxs),
-              Text(gamesL10n.newTeamMatchHint, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+              Text(mind ? gamesL10n.mindNewTeamHint : gamesL10n.newTeamMatchHint, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               const SizedBox(height: GwSpacing.md),
               if (widget.mine.length > 1)
                 DropdownButtonFormField<String>(
@@ -594,18 +622,26 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
                   ),
               ],
               const SizedBox(height: GwSpacing.md),
-              Text(gamesL10n.boardsCount(_boards), style: textTheme.titleSmall),
+              Text(mind ? gamesL10n.mindSeatsCount(_boards) : gamesL10n.boardsCount(_boards), style: textTheme.titleSmall),
               Slider(value: _boards.toDouble(), min: 2, max: 10, divisions: 8, label: '$_boards', onChanged: (v) => setState(() => _boards = v.round())),
-              Text(gamesL10n.timeControl, style: textTheme.titleSmall),
+              Text(mind ? gamesL10n.mindHowMany : gamesL10n.timeControl, style: textTheme.titleSmall),
               const SizedBox(height: GwSpacing.xs),
-              Wrap(
-                spacing: GwSpacing.xs,
-                runSpacing: GwSpacing.xs,
-                children: [
-                  for (final tc in teamTimeControls)
-                    ChoiceChip(label: Text('${tc.label} · ${tc.category.label}'), selected: tc == _tc, onSelected: (_) => setState(() => _tc = tc)),
-                ],
-              ),
+              if (mind)
+                SegmentedButton<int>(
+                  segments: [for (final n in mindLengths) ButtonSegment(value: n, label: Text('$n'))],
+                  selected: {_length},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (s) => setState(() => _length = s.first),
+                )
+              else
+                Wrap(
+                  spacing: GwSpacing.xs,
+                  runSpacing: GwSpacing.xs,
+                  children: [
+                    for (final tc in teamTimeControls)
+                      ChoiceChip(label: Text('${tc.label} · ${tc.category.label}'), selected: tc == _tc, onSelected: (_) => setState(() => _tc = tc)),
+                  ],
+                ),
               const SizedBox(height: GwSpacing.md),
               ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -626,25 +662,28 @@ class _CreateTeamMatchSheetState extends ConsumerState<_CreateTeamMatchSheet> {
   }
 }
 
-/// The group leaderboard by team-match Elo, with the same podium as the people's.
+/// The group leaderboard by team-match Elo in one game, with the same podium as the people's.
 class GroupLeaderboard extends ConsumerWidget {
-  const GroupLeaderboard({super.key});
+  const GroupLeaderboard({super.key, required this.game});
+
+  final TeamGame game;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final entries = ref.watch(groupLeaderboardProvider);
+    final entries = ref.watch(groupLeaderboardProvider(game));
+    final mind = game == TeamGame.mind;
     final textTheme = Theme.of(context).textTheme;
     return switch (entries) {
       AsyncData(:final value) when value.isEmpty => Center(
           child: GwEmptyState(
             icon: Icons.groups_outlined,
-            message: gamesL10n.groupLeaderboardEmpty,
-            actionLabel: gamesL10n.backToChess,
-            onAction: () => context.canPop() ? context.pop() : context.go(ChessRoutes.home),
+            message: mind ? gamesL10n.mindGroupLeaderboardEmpty : gamesL10n.groupLeaderboardEmpty,
+            actionLabel: mind ? gamesL10n.mindBackHome : gamesL10n.backToChess,
+            onAction: () => context.canPop() ? context.pop() : context.go(mind ? MindRoutes.home : ChessRoutes.home),
           ),
         ),
       AsyncData(:final value) => RefreshIndicator(
-          onRefresh: () => ref.refresh(groupLeaderboardProvider.future),
+          onRefresh: () => ref.refresh(groupLeaderboardProvider(game).future),
           child: ListView(
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
@@ -688,7 +727,7 @@ class GroupLeaderboard extends ConsumerWidget {
             ],
           ),
         ),
-      AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupLeaderboardProvider)),
+      AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupLeaderboardProvider(game))),
       _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4)),
     };
   }

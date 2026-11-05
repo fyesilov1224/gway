@@ -996,4 +996,47 @@ class GamesL10nEn extends GamesL10n {
 
   @override
   String get mindBackHome => 'Back to duels';
+
+  @override
+  String get mindTeamMatches => 'Group duels';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Your groups\' duels against other groups; the result moves the group\'s duel Elo.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'No group duels yet. Challenge another group for yours.';
+
+  @override
+  String get mindNewTeamMatch => 'Arrange a group duel';
+
+  @override
+  String get mindNewTeamHint =>
+      'Once the other group accepts, both line up their players. At the start each seat\'s two players duel at the same time.';
+
+  @override
+  String get mindTeamMatch => 'Group duel';
+
+  @override
+  String get mindSeats => 'Seats';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats',
+      one: '1 seat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'A seat left empty at the start counts for the other side. A seat waits 5 minutes for the first question.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'No group has played a group duel yet. Let yours arrange the first.';
 }

@@ -280,9 +280,9 @@ final teamRepositoryProvider = Provider<TeamMatchRepository>(
   (ref) => TeamMatchRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
 );
 
-final groupLeaderboardProvider = FutureProvider.autoDispose<List<GroupLeaderboardEntry>>((ref) async {
+final groupLeaderboardProvider = FutureProvider.autoDispose.family<List<GroupLeaderboardEntry>, TeamGame>((ref, game) async {
   ref.cacheFor();
-  return (await ref.watch(teamRepositoryProvider).groupLeaderboard()).getOrThrow();
+  return (await ref.watch(teamRepositoryProvider).groupLeaderboard(game)).getOrThrow();
 });
 
 final captainGroupsProvider = FutureProvider.autoDispose<List<ChessGroup>>((ref) async {
@@ -290,9 +290,9 @@ final captainGroupsProvider = FutureProvider.autoDispose<List<ChessGroup>>((ref)
   return (await ref.watch(teamRepositoryProvider).captainGroups()).getOrThrow();
 });
 
-final myTeamMatchesProvider = FutureProvider.autoDispose<List<TeamMatch>>((ref) async {
+final myTeamMatchesProvider = FutureProvider.autoDispose.family<List<TeamMatch>, TeamGame>((ref, game) async {
   ref.watch(currentUserIdProvider);
-  return (await ref.watch(teamRepositoryProvider).myMatches()).getOrThrow();
+  return (await ref.watch(teamRepositoryProvider).myMatches(game)).getOrThrow();
 });
 
 /// One team match, refreshed when it or a board changes.

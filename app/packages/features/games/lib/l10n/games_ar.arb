@@ -257,5 +257,15 @@
   "mindEndTime": "انتهى الوقت",
   "mindNewRating": "التصنيف الجديد {rating}",
   "mindNewDuel": "مبارزة جديدة",
-  "mindBackHome": "العودة إلى المبارزات"
+  "mindBackHome": "العودة إلى المبارزات",
+  "mindTeamMatches": "مبارزات المجموعات",
+  "mindTeamMatchesHint": "مبارزات مجموعاتك ضد مجموعات أخرى؛ تغيّر النتيجة تصنيف المجموعة.",
+  "mindNoTeamMatches": "لا مبارزات مجموعات بعد. تحدَّ مجموعة أخرى باسم مجموعتك.",
+  "mindNewTeamMatch": "نظّم مبارزة مجموعات",
+  "mindNewTeamHint": "بعد قبول المجموعة الأخرى يرتّب الطرفان لاعبيهما. عند البدء يتبارز لاعبا كل مقعد في الوقت نفسه.",
+  "mindTeamMatch": "مبارزة المجموعات",
+  "mindSeats": "المقاعد",
+  "mindSeatsCount": "{count, plural, =1{مقعد واحد} other{{count} مقاعد}}",
+  "mindLineupHint": "المقعد الفارغ عند البدء يُحتسب للخصم. يُنتظر السؤال الأول 5 دقائق.",
+  "mindGroupLeaderboardEmpty": "لم تلعب أي مجموعة مبارزة بعد. لتنظّم مجموعتك الأولى."
 }

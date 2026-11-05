@@ -1521,6 +1521,15 @@ Maç açılırken C# (`MindQuestions`) bütün soruları üretir ve `mind_questi
 ### Elo
 Satrançla aynı hesap (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100). Kişi sıralaması: o soru sayısında en az 5 puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte maç sayısına göre; ilk üç altın, gümüş ve bronz madalya ve taç (`mind_leaderboard`, `mind_ranks`).
 
+### Grupların düellosu ve grup sıralaması (21b)
+- Satrançtaki takım maçının aynısıdır ve aynı tablolarla, aynı kodla çalışır: takım maçı tablolarına oyun alanı eklenir (`chess_team_matches.game`: `chess` ya da `mind`), Zihin Düellosu maçında süre yerine soru sayısı (`length`) seçilir. Davet, kabul/red, diziliş (2–10 sıra), yetki (`games.team_match`), iki grup arasında oyun başına tek açık maç, grup başına en çok 5 açık maç, başlangıçta kendiliğinden başlama ve iptal kuralları aynıdır.
+- Başlangıçta iki tarafı dolu her sırada iki oyuncu arasında puanlı bir düello açılır (`mind_matches.team_match_id`, `source = 'team_match'`; ev sahibi `a` tarafıdır). Düellolar herkesin kendi hızında oynanır; tek tarafı dolu sıra o tarafa 1–0, boş sıra 0–0 yazılır.
+- Takım düellosunda ilk soruyu almak için 5 dakika beklenir. Yalnız biri gelirse gelen kazanır (`no_show`, kişisel Elo değişmez); kimse gelmezse düello iptal olur ve sıra 0–0 sayılır. Takım düellosunda terk her zaman kayıptır, rövanş yoktur. Platform ekibinin iptal ettiği düello 0–0 sayılır.
+- Son sıra da bitince maç kapanır; grup Elo'su satrançtaki gibi hesaplanır (başlangıç 1200, K = 32, skor oranı) ama **her oyunun grup Elo'su ayrıdır** (`chess_group_ratings` birincil anahtarı `group_id, game`). Zihin Düellosu grup sıralaması tek listedir (soru sayısına göre ayrılmaz) ve Sıralama ekranının "Gruplar" sekmesinde görünür (`chess_group_leaderboard(target_game => 'mind')`).
+- Bildirimler: `mind_team_invite`, `mind_team_accepted`, `mind_team_declined`, `mind_team_start` (metinleri satrançtakilerin düello karşılığı; dokununca Zihin Düellosu açılır).
+- Uygulama: Zihin Düellosu ana sayfasında "Grup düelloları" (grupların maçları ve yetkiliye "Grup düellosu düzenle"), satrançtaki maç sayfasının aynısı (sıralar, skor, diziliş; sıraya dokununca düello açılır), sıralamada Gruplar sekmesi. Yönetim panelindeki takım maçı listesi iki oyunu birlikte gösterir.
+- API: `POST /games/mind/team-matches` (`homeGroupId`, `awayGroupId`, `boards`, `length`, `startsAt`); yanıt, iptal ve diziliş satrançtaki uçlarla (`/games/chess/team-matches/{id}/...`) yapılır, maçın oyunu kimlikten bilinir. Migration `0086`.
+
 ### Uygulama
 - Oyunlar ekranında "Zihin Düellosu" kartı. Ana sayfa: soru sayısı seçimi ve puanım, "Rakip bul", "Arkadaşını davet et", davetler, süren maç şeridi, son maçlar, sıralama özeti, dört türün kısa tanıtımı.
 - Maç ekranı: üstte iki oyuncu (avatar, bayrak, Elo), canlı puanlar ve soru noktaları (her soru yeşil/kırmızı/gri); soru alanında süre çubuğu; yanıttan sonra kısa doğru/yanlış gösterimi; bitirince rakip beklenir; sonuçta puanlar, Elo değişimi ve rövanş.

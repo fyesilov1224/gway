@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -35,7 +36,7 @@ class ChessLeaderboardScreen extends StatelessWidget {
               ],
             ),
           ),
-          body: TabBarView(children: [for (final c in ChessCategory.values) _Board(category: c), const GroupLeaderboard()]),
+          body: TabBarView(children: [for (final c in ChessCategory.values) _Board(category: c), const GroupLeaderboard(game: TeamGame.chess)]),
         ),
       );
 }

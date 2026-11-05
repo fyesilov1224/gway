@@ -1010,4 +1010,49 @@ class GamesL10nRu extends GamesL10n {
 
   @override
   String get mindBackHome => 'К дуэлям';
+
+  @override
+  String get mindTeamMatches => 'Групповые дуэли';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Дуэли ваших групп с другими; итог меняет дуэльный Эло группы.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Групповых дуэлей пока нет. Вызовите другую группу от имени своей.';
+
+  @override
+  String get mindNewTeamMatch => 'Устроить групповую дуэль';
+
+  @override
+  String get mindNewTeamHint =>
+      'Когда другая группа примет вызов, обе расставят игроков. В начале двое на каждом месте играют дуэль одновременно.';
+
+  @override
+  String get mindTeamMatch => 'Групповая дуэль';
+
+  @override
+  String get mindSeats => 'Места';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count места',
+      many: '$count мест',
+      few: '$count места',
+      one: '$count место',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Пустое на старте место засчитывается сопернику. Первого вопроса ждут 5 минут.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Ни одна группа ещё не играла дуэль. Пусть ваша устроит первую.';
 }

@@ -995,4 +995,47 @@ class GamesL10nNl extends GamesL10n {
 
   @override
   String get mindBackHome => 'Terug naar duels';
+
+  @override
+  String get mindTeamMatches => 'Groepsduels';
+
+  @override
+  String get mindTeamMatchesHint =>
+      'Duels van je groepen tegen andere groepen; de uitslag verandert de duel-Elo van de groep.';
+
+  @override
+  String get mindNoTeamMatches =>
+      'Nog geen groepsduels. Daag namens je groep een andere groep uit.';
+
+  @override
+  String get mindNewTeamMatch => 'Groepsduel plannen';
+
+  @override
+  String get mindNewTeamHint =>
+      'Zodra de andere groep accepteert, stellen beide hun spelers op. Bij de start duelleren de twee spelers van elke plek tegelijk.';
+
+  @override
+  String get mindTeamMatch => 'Groepsduel';
+
+  @override
+  String get mindSeats => 'Plekken';
+
+  @override
+  String mindSeatsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count plekken',
+      one: '1 plek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindLineupHint =>
+      'Een lege plek bij de start telt voor de andere kant. Op de eerste vraag wordt 5 minuten gewacht.';
+
+  @override
+  String get mindGroupLeaderboardEmpty =>
+      'Nog geen groep heeft een groepsduel gespeeld. Laat de jouwe het eerste plannen.';
 }

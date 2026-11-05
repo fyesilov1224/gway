@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
 import '../domain/mind.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'leaderboard_screen.dart';
 import 'mind_figure.dart';
@@ -16,6 +17,7 @@ import 'mind_providers.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'sheets.dart';
+import 'team_screens.dart';
 import 'widgets.dart';
 
 // ---------------------------------------------------------------------------
@@ -55,7 +57,8 @@ class MindHomeScreen extends ConsumerWidget {
           ref
             ..invalidate(mindActiveProvider)
             ..invalidate(mindChallengesProvider)
-            ..invalidate(mindLeaderboardProvider(length));
+            ..invalidate(mindLeaderboardProvider(length))
+            ..invalidate(myTeamMatchesProvider(TeamGame.mind));
           if (me != null) {
             ref
               ..invalidate(mindProfileProvider(me))
@@ -86,6 +89,7 @@ class MindHomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
+                const _GroupDuels(),
                 GwSectionHeader(
                   title: gamesL10n.leaderboard,
                   subtitle: gamesL10n.mindQuestions(length),
@@ -105,6 +109,33 @@ class MindHomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The reader's groups' duels against other groups; captains arrange new ones.
+class _GroupDuels extends ConsumerWidget {
+  const _GroupDuels();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final matches = ref.watch(myTeamMatchesProvider(TeamGame.mind)).value ?? const <TeamMatch>[];
+    final captainOf = ref.watch(captainGroupsProvider).value ?? const <ChessGroup>[];
+    if (matches.isEmpty && captainOf.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GwSectionHeader(
+          title: gamesL10n.mindTeamMatches,
+          subtitle: gamesL10n.mindTeamMatchesHint,
+          actionLabel: captainOf.isEmpty ? null : gamesL10n.mindNewTeamMatch,
+          onAction: captainOf.isEmpty ? null : () => showCreateTeamMatchSheet(context, mine: captainOf, game: TeamGame.mind),
+          padding: const EdgeInsets.only(top: GwSpacing.lg, bottom: GwSpacing.xs),
+        ),
+        for (final m in matches.take(4)) Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: TeamMatchTile(match: m)),
+        if (matches.isEmpty)
+          Text(gamesL10n.mindNoTeamMatches, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+      ],
     );
   }
 }
@@ -500,22 +531,32 @@ class _MindSeekScreenState extends ConsumerState<MindSeekScreen> with SingleTick
 // Leaderboard
 // ---------------------------------------------------------------------------
 
-/// One tab per length; the top three on the podium with crowns and medals.
+/// One tab per length and one for the groups; the top three on the podium with crowns and medals.
 class MindLeaderboardScreen extends StatelessWidget {
-  const MindLeaderboardScreen({super.key, this.initial = mindDefaultLength});
+  const MindLeaderboardScreen({super.key, this.initial = mindDefaultLength, this.groups = false});
 
   final int initial;
 
+  /// Opens on the groups tab.
+  final bool groups;
+
   @override
   Widget build(BuildContext context) => DefaultTabController(
-        length: mindLengths.length,
-        initialIndex: mindLengths.indexOf(initial).clamp(0, mindLengths.length - 1),
+        length: mindLengths.length + 1,
+        initialIndex: groups ? mindLengths.length : mindLengths.indexOf(initial).clamp(0, mindLengths.length - 1),
         child: Scaffold(
           appBar: AppBar(
             title: Text('${gamesL10n.mindDuel} · ${gamesL10n.leaderboard}'),
-            bottom: TabBar(tabs: [for (final n in mindLengths) Tab(text: gamesL10n.mindQuestions(n))]),
+            bottom: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                for (final n in mindLengths) Tab(text: gamesL10n.mindQuestions(n)),
+                Tab(icon: const Icon(Icons.groups_outlined), text: gamesL10n.groupsTab),
+              ],
+            ),
           ),
-          body: TabBarView(children: [for (final n in mindLengths) _Board(length: n)]),
+          body: TabBarView(children: [for (final n in mindLengths) _Board(length: n), const GroupLeaderboard(game: TeamGame.mind)]),
         ),
       );
 }

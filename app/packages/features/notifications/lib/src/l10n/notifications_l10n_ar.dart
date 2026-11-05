@@ -380,4 +380,27 @@ class NotificationsL10nAr extends NotificationsL10n {
 
   @override
   String get actMindChallenge => 'تحدّاك في مبارزة العقول.';
+
+  @override
+  String actMindTeamInvite(String group) {
+    return 'تحدّى مجموعتك في مبارزة العقول باسم $group.';
+  }
+
+  @override
+  String actMindTeamAccepted(String group) {
+    return 'قَبِل مبارزة المجموعات باسم $group. رتّب لاعبيك.';
+  }
+
+  @override
+  String actMindTeamDeclined(String group) {
+    return 'رفض مبارزة المجموعات باسم $group.';
+  }
+
+  @override
+  String actMindTeamStart(String group) {
+    return 'بدأت مبارزة المجموعات ضد $group. انتقل إلى مبارزتك!';
+  }
+
+  @override
+  String get leadGroupDuel => 'مبارزة المجموعات';
 }

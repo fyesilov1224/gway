@@ -97,5 +97,10 @@
   "actChessArenaStart": "Il torneo a cui ti sei iscritto è iniziato. Aprilo e verrai abbinato subito.",
   "actChessArenaMedal": "Hai chiuso il torneo tra i primi tre! La tua medaglia è nel profilo scacchistico.",
   "leadArena": "Torneo di scacchi",
-  "actMindChallenge": "ti ha sfidato a un Duello mentale."
+  "actMindChallenge": "ti ha sfidato a un Duello mentale.",
+  "actMindTeamInvite": "ha sfidato il tuo gruppo a un Duello mentale per {group}.",
+  "actMindTeamAccepted": "ha accettato il duello di gruppo per {group}. Schiera i tuoi giocatori.",
+  "actMindTeamDeclined": "ha rifiutato il duello di gruppo per {group}.",
+  "actMindTeamStart": "Il duello di gruppo contro {group} è iniziato. Vai al tuo duello!",
+  "leadGroupDuel": "Duello di gruppo"
 }

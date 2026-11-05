@@ -66,7 +66,9 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
         home: groups[m['home_group_id']] ?? ChessGroup(id: m['home_group_id'] as String, handle: '', name: '—'),
         away: groups[m['away_group_id']] ?? ChessGroup(id: m['away_group_id'] as String, handle: '', name: '—'),
         boards: m['boards'] as int,
-        timeControl: TimeControl(m['base_seconds'] as int, m['increment_seconds'] as int),
+        game: TeamGame.parse(m['game']),
+        timeControl: m['base_seconds'] is int ? TimeControl(m['base_seconds'] as int, m['increment_seconds'] as int) : null,
+        length: m['length'] as int?,
         startsAt: DateTime.parse(m['starts_at'] as String).toLocal(),
         status: TeamMatchStatus.parse(m['status']),
         homePoints: _points(m['home_points']),
@@ -76,8 +78,8 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
       );
 
   @override
-  Future<Result<List<GroupLeaderboardEntry>>> groupLeaderboard() => _run(() async {
-        final rows = await _client.rpc<List<dynamic>>('chess_group_leaderboard', params: {'page_size': 100});
+  Future<Result<List<GroupLeaderboardEntry>>> groupLeaderboard(TeamGame game) => _run(() async {
+        final rows = await _client.rpc<List<dynamic>>('chess_group_leaderboard', params: {'page_size': 100, 'target_game': game.code});
         return [
           for (final r in rows.cast<Map<String, dynamic>>())
             GroupLeaderboardEntry(
@@ -113,13 +115,14 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
       });
 
   @override
-  Future<Result<List<TeamMatch>>> myMatches() => _run(() async {
+  Future<Result<List<TeamMatch>>> myMatches(TeamGame game) => _run(() async {
         final mine = [for (final r in await _client.from('group_members').select('group_id').eq('user_id', _me)) r['group_id'] as String];
         if (mine.isEmpty) return const <TeamMatch>[];
         final list = mine.join(',');
         final rows = await _client
             .from('chess_team_matches')
             .select()
+            .eq('game', game.code)
             .or('home_group_id.in.($list),away_group_id.in.($list)')
             .inFilter('status', ['invited', 'accepted', 'live', 'finished'])
             .order('starts_at', ascending: false)
@@ -136,7 +139,11 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
         final groups = await _groups([home, away]);
         final match = _match(m, groups);
         final ratings = {
-          for (final r in await _client.from('chess_group_ratings').select('group_id, rating').inFilter('group_id', [home, away]))
+          for (final r in await _client
+              .from('chess_group_ratings')
+              .select('group_id, rating')
+              .eq('game', match.game.code)
+              .inFilter('group_id', [home, away]))
             r['group_id'] as String: r['rating'] as int,
         };
         final captains = {for (final g in (await captainGroups()).getOrThrow()) g.id}..retainAll({home, away});
@@ -152,6 +159,7 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
                 home: people[b['home_id']],
                 away: people[b['away_id']],
                 gameId: b['game_id'] as String?,
+                mindMatchId: b['mind_match_id'] as String?,
                 homePoints: _points(b['home_points']),
                 awayPoints: _points(b['away_points']),
               ),
@@ -222,17 +230,20 @@ class TeamMatchRepositoryImpl implements TeamMatchRepository {
     required String homeGroupId,
     required String awayGroupId,
     required int boards,
-    required TimeControl timeControl,
     required DateTime startsAt,
+    TeamGame game = TeamGame.chess,
+    TimeControl? timeControl,
+    int? length,
   }) =>
       _api.post(
-        '/games/chess/team-matches',
+        game == TeamGame.mind ? '/games/mind/team-matches' : '/games/chess/team-matches',
         body: {
           'homeGroupId': homeGroupId,
           'awayGroupId': awayGroupId,
           'boards': boards,
-          'baseSeconds': timeControl.baseSeconds,
-          'incrementSeconds': timeControl.incrementSeconds,
+          if (game == TeamGame.mind) 'length': length,
+          if (timeControl != null) 'baseSeconds': timeControl.baseSeconds,
+          if (timeControl != null) 'incrementSeconds': timeControl.incrementSeconds,
           'startsAt': startsAt.toUtc().toIso8601String(),
         },
         decode: (json) => (json! as Map)['id']! as String,
