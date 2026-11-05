@@ -123,7 +123,7 @@ void main() {
 
   testWidgets('tapping a piece and a target proposes the move; the board turns for black', (tester) async {
     late PieceSet pieces;
-    await tester.runAsync(() async => pieces = await loadPieceSet(rootBundle));
+    await tester.runAsync(() async => pieces = await loadPieceSet(rootBundle, 'classic'));
     final moves = <String>[];
 
     Future<void> pump(ChessColor side) => tester.pumpWidget(MaterialApp(

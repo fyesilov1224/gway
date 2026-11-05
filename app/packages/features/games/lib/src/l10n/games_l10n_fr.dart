@@ -595,4 +595,126 @@ class GamesL10nFr extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'Premier coup : 5 min';
+
+  @override
+  String get games => 'Jeux';
+
+  @override
+  String get gamesIntro =>
+      'Joue avec ta communauté : parties rapides, tournois et matchs entre groupes.';
+
+  @override
+  String get chessCardText =>
+      'Classement Elo, tournois hebdomadaires et mensuels, matchs par équipes entre groupes et médailles.';
+
+  @override
+  String get playChess => 'Jouer aux échecs';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Blitz $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Prochain tournoi : $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count défis en attente',
+      one: '1 défi en attente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Jouer en ligne';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Trouver un adversaire · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Choisis la cadence et la couleur';
+
+  @override
+  String get leaderboardHint => 'Classements Elo et médailles';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matchs ouverts',
+      one: '1 match ouvert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Plateau et pièces';
+
+  @override
+  String get boardTheme => 'Plateau';
+
+  @override
+  String get pieceSet => 'Pièces';
+
+  @override
+  String get boardWood => 'Bois';
+
+  @override
+  String get boardGreen => 'Vert';
+
+  @override
+  String get boardBlue => 'Bleu';
+
+  @override
+  String get boardSlate => 'Gris';
+
+  @override
+  String get boardLilac => 'Lilas GWAY';
+
+  @override
+  String get piecesClassic => 'Classique';
+
+  @override
+  String get piecesCeltic => 'Celtique';
+
+  @override
+  String get piecesSpatial => 'Spatial';
+
+  @override
+  String get piecesFantasy => 'Fantaisie';
+
+  @override
+  String get piecesModern => 'Moderne';
+
+  @override
+  String get piecesWarm => 'Chaleureux';
+
+  @override
+  String get firstPosition => 'Début';
+
+  @override
+  String get previousMove => 'Coup précédent';
+
+  @override
+  String get nextMove => 'Coup suivant';
+
+  @override
+  String get lastPosition => 'Position actuelle';
+
+  @override
+  String get backToLive => 'Retour au direct';
+
+  @override
+  String pointsShort(int points) {
+    return '$points pts';
+  }
 }

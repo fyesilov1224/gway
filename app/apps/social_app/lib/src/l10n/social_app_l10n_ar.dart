@@ -326,4 +326,7 @@ class SocialAppL10nAr extends SocialAppL10n {
 
   @override
   String get chessHint => 'مباريات سريعة، تحدَّ أصدقاءك واصعد في ترتيب Elo.';
+
+  @override
+  String get gamesHint => 'الشطرنج: مباريات سريعة وبطولات ومواجهات فرق';
 }

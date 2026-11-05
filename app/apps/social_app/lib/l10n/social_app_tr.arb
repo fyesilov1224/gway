@@ -403,5 +403,9 @@
   "chessHint": "Hızlı oyun, arkadaşını davet et, Elo sıralamasında yüksel.",
   "@chessHint": {
     "description": ""
+  },
+  "gamesHint": "Satranç: hızlı oyun, turnuvalar, takım maçları",
+  "@gamesHint": {
+    "description": ""
   }
 }

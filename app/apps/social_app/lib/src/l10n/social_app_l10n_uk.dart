@@ -326,4 +326,7 @@ class SocialAppL10nUk extends SocialAppL10n {
 
   @override
   String get chessHint => 'Швидкі партії, виклики друзям і рейтинг Ело.';
+
+  @override
+  String get gamesHint => 'Шахи: швидкі партії, турніри, командні матчі';
 }

@@ -595,4 +595,126 @@ class GamesL10nIt extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'Prima mossa: 5 min';
+
+  @override
+  String get games => 'Giochi';
+
+  @override
+  String get gamesIntro =>
+      'Gioca con la tua community: partite veloci, tornei e incontri tra gruppi.';
+
+  @override
+  String get chessCardText =>
+      'Elo, tornei settimanali e mensili, incontri a squadre tra gruppi e medaglie.';
+
+  @override
+  String get playChess => 'Gioca a scacchi';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Blitz $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Prossimo torneo: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count inviti in attesa',
+      one: '1 invito in attesa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Gioca online';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Trova avversario · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Scegli tu tempo e colore';
+
+  @override
+  String get leaderboardHint => 'Classifiche Elo e medaglie';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count incontri aperti',
+      one: '1 incontro aperto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Scacchiera e pezzi';
+
+  @override
+  String get boardTheme => 'Scacchiera';
+
+  @override
+  String get pieceSet => 'Pezzi';
+
+  @override
+  String get boardWood => 'Legno';
+
+  @override
+  String get boardGreen => 'Verde';
+
+  @override
+  String get boardBlue => 'Blu';
+
+  @override
+  String get boardSlate => 'Grigio';
+
+  @override
+  String get boardLilac => 'Lilla GWAY';
+
+  @override
+  String get piecesClassic => 'Classici';
+
+  @override
+  String get piecesCeltic => 'Celtici';
+
+  @override
+  String get piecesSpatial => 'Spaziale';
+
+  @override
+  String get piecesFantasy => 'Fantasy';
+
+  @override
+  String get piecesModern => 'Moderni';
+
+  @override
+  String get piecesWarm => 'Caldi';
+
+  @override
+  String get firstPosition => 'Inizio';
+
+  @override
+  String get previousMove => 'Mossa precedente';
+
+  @override
+  String get nextMove => 'Mossa successiva';
+
+  @override
+  String get lastPosition => 'Posizione attuale';
+
+  @override
+  String get backToLive => 'Torna alla diretta';
+
+  @override
+  String pointsShort(int points) {
+    return '$points pt';
+  }
 }

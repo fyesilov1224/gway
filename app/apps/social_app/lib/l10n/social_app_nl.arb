@@ -91,5 +91,6 @@
   "showGroupsHint": "Als dit uit staat, zien alleen leden van een groep dat je erbij hoort; beheerders van andere groepen niet.",
   "language": "Taal",
   "games": "Spellen",
-  "chessHint": "Snelle partijen, daag vrienden uit, klim in de Elo-ranglijst."
+  "chessHint": "Snelle partijen, daag vrienden uit, klim in de Elo-ranglijst.",
+  "gamesHint": "Schaken: snelle partijen, toernooien, teamwedstrijden"
 }

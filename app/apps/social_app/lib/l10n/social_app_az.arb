@@ -91,5 +91,6 @@
   "showGroupsHint": "Bağlı olanda qrupdakı üzvlüyünü yalnız həmin qrupun üzvləri görür; başqa qrupların idarəçiləri görə bilməz.",
   "language": "Dil",
   "games": "Oyunlar",
-  "chessHint": "Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl."
+  "chessHint": "Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl.",
+  "gamesHint": "Şahmat: sürətli oyunlar, turnirlər, komanda matçları"
 }

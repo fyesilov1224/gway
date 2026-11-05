@@ -167,11 +167,17 @@ class _CreateSheet extends ConsumerWidget {
             option(Icons.photo_library_outlined, GwTone.lilac, socialAppL10n.post, socialAppL10n.postHint, FeedRoutes.create),
             option(Icons.auto_awesome_outlined, GwTone.sky, socialAppL10n.story, socialAppL10n.storyHint, FeedRoutes.newStory),
             option(Icons.group_add_outlined, GwTone.mist, socialAppL10n.group, socialAppL10n.groupHint, GroupRoutes.create),
+            // Games get a card of their own, like today's plans: the games list opens behind it.
             Padding(
-              padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.lg, GwSpacing.lg, GwSpacing.xs),
-              child: Text(socialAppL10n.games, style: textTheme.titleLarge),
+              padding: const EdgeInsets.fromLTRB(GwSpacing.lg, GwSpacing.lg, GwSpacing.lg, 0),
+              child: _PlanTile(
+                icon: Icons.sports_esports_rounded,
+                tone: GwTone.lilac,
+                title: socialAppL10n.games,
+                subtitle: socialAppL10n.gamesHint,
+                onTap: () => open(GamesRoutes.hub),
+              ),
             ),
-            option(Icons.extension_outlined, GwTone.lilac, gamesL10n.chess, socialAppL10n.chessHint, ChessRoutes.home),
           ],
         ),
       ),

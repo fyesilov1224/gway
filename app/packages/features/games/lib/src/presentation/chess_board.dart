@@ -9,15 +9,16 @@ import 'package:jovial_svg/jovial_svg.dart';
 import '../domain/chess.dart';
 import '../l10n.dart';
 
-/// The twelve piece drawings (Chessnut, Apache 2.0), keyed `wK`, `bP`, ….
+/// The twelve piece drawings of one set, keyed `wK`, `bP`, ….
 typedef PieceSet = Map<String, ScalableImage>;
 
 const _pieceKinds = ['K', 'Q', 'R', 'B', 'N', 'P'];
 
-Future<PieceSet> loadPieceSet(AssetBundle bundle) async => {
+/// Loads one set from the folder under assets/pieces.
+Future<PieceSet> loadPieceSet(AssetBundle bundle, String folder) async => {
       for (final color in ['w', 'b'])
         for (final kind in _pieceKinds)
-          '$color$kind': await ScalableImage.fromSvgAsset(bundle, 'packages/games/assets/pieces/$color$kind.svg'),
+          '$color$kind': await ScalableImage.fromSvgAsset(bundle, 'packages/games/assets/pieces/$folder/$color$kind.svg'),
     };
 
 /// A square as file 0–7 (a–h) and rank 0–7 (1–8).
@@ -36,6 +37,7 @@ class ChessBoard extends StatefulWidget {
     required this.fen,
     required this.pieces,
     required this.orientation,
+    this.theme = GwBoardTheme.wood,
     this.movable,
     this.lastMove,
     this.premove,
@@ -48,6 +50,9 @@ class ChessBoard extends StatefulWidget {
 
   /// The side at the bottom.
   final ChessColor orientation;
+
+  /// Square colors.
+  final GwBoardTheme theme;
 
   /// The color the person may move; null makes the board view-only.
   final ChessColor? movable;
@@ -244,14 +249,20 @@ class _ChessBoardState extends State<ChessBoard> with SingleTickerProviderStateM
               _dragFrom = null;
               _dragAt = null;
             }),
-            child: ClipRRect(
-              borderRadius: GwRadius.mdAll,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: GwRadius.smAll,
+                border: Border.all(color: GwChessColors.frame),
+              ),
+              child: ClipRRect(
+              borderRadius: GwRadius.smAll,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Positioned.fill(
                     child: CustomPaint(
                       painter: _BoardPainter(
+                        theme: widget.theme,
                         orientation: widget.orientation,
                         lastMove: widget.lastMove,
                         premove: widget.premove,
@@ -276,6 +287,7 @@ class _ChessBoardState extends State<ChessBoard> with SingleTickerProviderStateM
                     ),
                 ],
               ),
+            ),
             ),
           );
         }),
@@ -308,6 +320,7 @@ class _Piece extends StatelessWidget {
 
 class _BoardPainter extends CustomPainter {
   _BoardPainter({
+    required this.theme,
     required this.orientation,
     required this.lastMove,
     required this.premove,
@@ -318,6 +331,7 @@ class _BoardPainter extends CustomPainter {
     required this.textStyle,
   });
 
+  final GwBoardTheme theme;
   final ChessColor orientation;
   final (String, String)? lastMove;
   final (String, String)? premove;
@@ -338,8 +352,8 @@ class _BoardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size canvasSize) {
     final size = canvasSize.width / 8;
-    final light = Paint()..color = GwChessColors.lightSquare;
-    final dark = Paint()..color = GwChessColors.darkSquare;
+    final light = Paint()..color = theme.light;
+    final dark = Paint()..color = theme.dark;
     for (var rank = 0; rank < 8; rank++) {
       for (var file = 0; file < 8; file++) {
         canvas.drawRect(_rect((file: file, rank: rank), size), (file + rank).isOdd ? light : dark);
@@ -399,7 +413,7 @@ class _BoardPainter extends CustomPainter {
       text: TextSpan(
         text: text,
         style: textStyle.copyWith(
-          color: onLight ? GwChessColors.darkSquare : GwChessColors.lightSquare,
+          color: onLight ? theme.dark : theme.light,
           fontWeight: FontWeight.w700,
           fontSize: square.width * 0.2,
         ),
@@ -415,6 +429,7 @@ class _BoardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BoardPainter old) =>
+      old.theme != theme ||
       old.orientation != orientation ||
       old.lastMove != lastMove ||
       old.premove != premove ||

@@ -5,9 +5,12 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 
 import '../domain/chess.dart';
+import '../domain/position.dart';
 import '../l10n.dart';
+import 'appearance.dart';
 import 'chess_board.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -26,6 +29,9 @@ class ChessGameScreen extends ConsumerStatefulWidget {
 
 class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
   bool _flipped = false;
+
+  /// The half-move being looked at; null follows the game live.
+  int? _viewPly;
   StreamSubscription<String>? _errors;
   bool _resultShown = false;
 
@@ -121,7 +127,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
   @override
   Widget build(BuildContext context) {
     final async = ref.watch(gameControllerProvider(widget.gameId));
-    final pieces = ref.watch(pieceSetProvider);
+    final pieces = ref.watch(currentPieceSetProvider);
     final me = ref.watch(currentUserIdProvider);
     return Scaffold(
       appBar: AppBar(
@@ -130,6 +136,11 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
           null => gamesL10n.chess,
         }),
         actions: [
+          IconButton(
+            tooltip: gamesL10n.appearance,
+            icon: const Icon(Icons.palette_outlined),
+            onPressed: () => showAppearanceSheet(context),
+          ),
           IconButton(
             tooltip: gamesL10n.flipBoard,
             icon: const Icon(Icons.swap_vert_rounded),
@@ -143,7 +154,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
             message: userMessageOf(async.error ?? pieces.error),
             onRetry: () {
               ref.invalidate(gameControllerProvider(widget.gameId));
-              ref.invalidate(pieceSetProvider);
+              ref.invalidate(currentPieceSetProvider);
             },
           ),
         _ => const _GameSkeleton(),
@@ -160,14 +171,26 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
     final top = bottom.opposite;
     final premove = s.premove;
     final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
+    final theme = ref.watch(chessAppearanceProvider).board;
+
+    // Looking back: the board shows an earlier position and takes no moves.
+    final viewPly = _viewPly != null && _viewPly! < game.ply ? _viewPly : null;
+    final fen = viewPly == null ? game.fen : fenAt(game.moves, viewPly);
+    final shownLast = switch (viewPly) {
+      null => game.lastMove,
+      0 => null,
+      final n => (game.moves[n - 1].substring(0, 2), game.moves[n - 1].substring(2, 4)),
+    };
+    final taken = captures(fen);
 
     final board = ChessBoard(
-      fen: game.fen,
+      fen: fen,
       pieces: pieces,
+      theme: theme,
       orientation: bottom,
-      movable: game.isActive ? mine : null,
-      lastMove: game.lastMove,
-      premove: premove == null ? null : (premove.substring(0, 2), premove.substring(2, 4)),
+      movable: game.isActive && viewPly == null ? mine : null,
+      lastMove: shownLast,
+      premove: premove == null || viewPly != null ? null : (premove.substring(0, 2), premove.substring(2, 4)),
       onMove: _controller.move,
       onPremove: _controller.setPremove,
     );
@@ -177,7 +200,14 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
           player: s.players[game.idOf(color)],
           state: s,
           onFlag: _controller.flag,
+          captured: color == ChessColor.white ? taken.white : taken.black,
+          pieces: pieces,
         );
+    final navigator = _MoveNavigator(
+      ply: viewPly ?? game.ply,
+      total: game.ply,
+      onGo: (p) => setState(() => _viewPly = p >= game.ply ? null : p),
+    );
 
     final controls = _Controls(
       game: game,
@@ -197,6 +227,8 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
       board,
       const SizedBox(height: GwSpacing.xs),
       side(bottom),
+      const SizedBox(height: GwSpacing.xs),
+      navigator,
     ];
     if (wide) {
       return Center(
@@ -215,7 +247,11 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
                     padding: const EdgeInsets.all(GwSpacing.md),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [controls, const Divider(height: GwSpacing.lg), _MoveList(san: game.san, vertical: true)],
+                      children: [
+                        controls,
+                        const Divider(height: GwSpacing.lg),
+                        _MoveList(san: game.san, vertical: true, current: viewPly ?? game.ply, onTap: (p) => setState(() => _viewPly = p)),
+                      ],
                     ),
                   ),
                 ),
@@ -231,7 +267,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
         children: [
           ...column,
           const SizedBox(height: GwSpacing.xs),
-          _MoveList(san: game.san, vertical: false),
+          _MoveList(san: game.san, vertical: false, current: viewPly ?? game.ply, onTap: (p) => setState(() => _viewPly = p)),
           const SizedBox(height: GwSpacing.sm),
           Padding(padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs), child: controls),
         ],
@@ -242,9 +278,21 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
 
 /// A player above or below the board: picture, name, flag, rating and the running clock.
 class _PlayerBar extends StatefulWidget {
-  const _PlayerBar({required this.game, required this.color, required this.player, required this.state, required this.onFlag});
+  const _PlayerBar({
+    required this.game,
+    required this.color,
+    required this.player,
+    required this.state,
+    required this.onFlag,
+    required this.captured,
+    required this.pieces,
+  });
 
   final ChessGame game;
+
+  /// What this side has taken and its material lead.
+  final Captures captured;
+  final PieceSet pieces;
   final ChessColor color;
   final ChessPlayer? player;
   final GameState state;
@@ -293,11 +341,18 @@ class _PlayerBarState extends State<_PlayerBar> {
           Expanded(
             child: player == null
                 ? Text(gamesL10n.deletedPlayer, style: textTheme.titleSmall)
-                : ChessPlayerLine(
-                    player: player,
-                    size: GwAvatarSize.sm,
-                    subtitle: '${g.ratingOf(widget.color)}',
-                    trailing: delta == null ? null : RatingDelta(delta),
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ChessPlayerLine(
+                        player: player,
+                        size: GwAvatarSize.sm,
+                        subtitle: '${g.ratingOf(widget.color)}',
+                        trailing: delta == null ? null : RatingDelta(delta),
+                      ),
+                      if (widget.captured.taken.isNotEmpty) _Captured(captures: widget.captured, pieces: widget.pieces),
+                    ],
                   ),
           ),
           if (g.drawOffer == widget.color && g.isActive) ...[
@@ -333,10 +388,16 @@ class _PlayerBarState extends State<_PlayerBar> {
 }
 
 class _MoveList extends StatefulWidget {
-  const _MoveList({required this.san, required this.vertical});
+  const _MoveList({required this.san, required this.vertical, required this.current, required this.onTap});
 
   final List<String> san;
   final bool vertical;
+
+  /// Half-moves played in the shown position: the move at index current − 1 is highlighted.
+  final int current;
+
+  /// Shows the position after the tapped move (its index + 1).
+  final ValueChanged<int> onTap;
 
   @override
   State<_MoveList> createState() => _MoveListState();
@@ -344,6 +405,15 @@ class _MoveList extends StatefulWidget {
 
 class _MoveListState extends State<_MoveList> {
   final _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Opening a running game shows its latest moves.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) _scroll.jumpTo(_scroll.position.maxScrollExtent);
+    });
+  }
 
   @override
   void didUpdateWidget(_MoveList old) {
@@ -371,11 +441,17 @@ class _MoveListState extends State<_MoveList> {
         child: Text(gamesL10n.noMovesYet, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
       );
     }
-    final last = widget.san.length - 1;
-    Widget move(String text, int index) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
-          decoration: index == last ? const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.smAll) : null,
-          child: Text(text, style: textTheme.bodyMedium?.copyWith(fontWeight: index == last ? FontWeight.w700 : null)),
+    final last = widget.current - 1;
+    Widget move(String text, int index) => InkWell(
+          borderRadius: GwRadius.smAll,
+          onTap: () => widget.onTap(index + 1),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: GwSpacing.minTouchTarget - GwSpacing.sm),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
+            decoration: index == last ? const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.smAll) : null,
+            child: Text(text, style: textTheme.bodyMedium?.copyWith(fontWeight: index == last ? FontWeight.w700 : null)),
+          ),
         );
     if (widget.vertical) {
       return ConstrainedBox(
@@ -596,4 +672,61 @@ class _GameSkeleton extends StatelessWidget {
           ],
         ),
       );
+}
+
+
+/// Small images of the pieces a side has taken, and "+3" when it leads in material.
+class _Captured extends StatelessWidget {
+  const _Captured({required this.captures, required this.pieces});
+
+  final Captures captures;
+  final PieceSet pieces;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsetsDirectional.only(start: GwSpacing.xxl - GwSpacing.xs),
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (final p in captures.taken)
+              SizedBox.square(dimension: GwSpacing.md + GwSpacing.xxs, child: ScalableImageWidget(si: pieces[p]!)),
+            if (captures.lead > 0)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: GwSpacing.xxs),
+                child: Text('+${captures.lead}', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
+              ),
+          ],
+        ),
+      );
+}
+
+/// First, back, forward and latest: looking through the game while it goes on.
+class _MoveNavigator extends StatelessWidget {
+  const _MoveNavigator({required this.ply, required this.total, required this.onGo});
+
+  final int ply;
+  final int total;
+  final ValueChanged<int> onGo;
+
+  @override
+  Widget build(BuildContext context) {
+    final behind = ply < total;
+    return Row(
+      children: [
+        IconButton(tooltip: gamesL10n.firstPosition, icon: const Icon(Icons.first_page_rounded), onPressed: ply > 0 ? () => onGo(0) : null),
+        IconButton(tooltip: gamesL10n.previousMove, icon: const Icon(Icons.chevron_left_rounded), onPressed: ply > 0 ? () => onGo(ply - 1) : null),
+        Expanded(
+          child: behind
+              ? TextButton.icon(
+                  onPressed: () => onGo(total),
+                  icon: const Icon(Icons.sensors_rounded),
+                  label: Text(gamesL10n.backToLive),
+                )
+              : const SizedBox.shrink(),
+        ),
+        IconButton(tooltip: gamesL10n.nextMove, icon: const Icon(Icons.chevron_right_rounded), onPressed: behind ? () => onGo(ply + 1) : null),
+        IconButton(tooltip: gamesL10n.lastPosition, icon: const Icon(Icons.last_page_rounded), onPressed: behind ? () => onGo(total) : null),
+      ],
+    );
+  }
 }

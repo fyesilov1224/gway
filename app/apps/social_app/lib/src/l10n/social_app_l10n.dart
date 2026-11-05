@@ -669,6 +669,12 @@ abstract class SocialAppL10n {
   /// In tr, this message translates to:
   /// **'Hızlı oyun, arkadaşını davet et, Elo sıralamasında yüksel.'**
   String get chessHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranç: hızlı oyun, turnuvalar, takım maçları'**
+  String get gamesHint;
 }
 
 class _SocialAppL10nDelegate extends LocalizationsDelegate<SocialAppL10n> {

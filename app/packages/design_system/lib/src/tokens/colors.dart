@@ -59,22 +59,36 @@ abstract final class GwColors {
   );
 }
 
-/// The chess board (docs/DESIGN.md §1, Oyunlar): squares tinted from the brand purple, highlights from the brand
-/// blue and the error red. Pieces carry their own outline, so both colors read on both squares.
+/// Chess board overlays (docs/DESIGN.md §1, Oyunlar), the same on every board theme: the last move in a soft yellow,
+/// the selected piece in green, a king in check in red, move hints in translucent black.
 abstract final class GwChessColors {
-  static const lightSquare = Color(0xFFF1EDFB);
-  static const darkSquare = Color(0xFF9D8DDB);
-
-  /// Over a square: the last move's two squares, the selected piece, a king in check.
-  static const lastMove = Color(0x592F6FE0);
-  static const selected = Color(0x806E56CF);
-  static const check = Color(0xB3C4314B);
+  static const lastMove = Color(0x80F6F669);
+  static const selected = Color(0x8014551E);
+  static const check = Color(0xCCE53935);
 
   /// Dots on empty target squares, rings on captures.
-  static const hint = Color(0x401F2033);
+  static const hint = Color(0x33000000);
 
   /// A queued premove.
-  static const premove = Color(0x66EB6834);
+  static const premove = Color(0x803A6EA5);
+
+  /// The thin frame around the board.
+  static const frame = Color(0x26000000);
+}
+
+/// Board square colors the person can choose (docs/DESIGN.md §1, Oyunlar; user request 2026-11-05). Wood is the default:
+/// the colors chess players know; the GWAY lilac stays as an option.
+enum GwBoardTheme {
+  wood(Color(0xFFF0D9B5), Color(0xFFB58863)),
+  green(Color(0xFFEEEED2), Color(0xFF769656)),
+  blue(Color(0xFFDEE3E6), Color(0xFF8CA2AD)),
+  slate(Color(0xFFE6E6E6), Color(0xFF9B9B9B)),
+  lilac(Color(0xFFF1EDFB), Color(0xFF9D8DDB));
+
+  const GwBoardTheme(this.light, this.dark);
+
+  final Color light;
+  final Color dark;
 }
 
 /// Leaderboard medals for the top three (docs/DESIGN.md §1, Madalyalar): [strong] for the medal, [soft] behind it.

@@ -260,6 +260,10 @@ ROWS = [
      'Partidas rápidas, desafie amigos e suba no ranking Elo.', 'Partite veloci, sfida gli amici e scala la classifica Elo.',
      'Быстрые партии, вызовы друзьям и рейтинг Эло.', 'مباريات سريعة، تحدَّ أصدقاءك واصعد في ترتيب Elo.',
      'Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl.', 'Швидкі партії, виклики друзям і рейтинг Ело.'),
+    ('gamesHint', None, 'Satranç: hızlı oyun, turnuvalar, takım maçları', 'Chess: quick games, tournaments, team matches', 'Schach: schnelle Partien, Turniere, Mannschaftskämpfe',
+     'Échecs : parties rapides, tournois, matchs par équipes', 'Schaken: snelle partijen, toernooien, teamwedstrijden', 'Ajedrez: partidas rápidas, torneos, encuentros por equipos',
+     'Xadrez: partidas rápidas, torneios, confrontos por equipes', 'Scacchi: partite veloci, tornei, incontri a squadre', 'Шахматы: быстрые партии, турниры, командные матчи',
+     'الشطرنج: مباريات سريعة وبطولات ومواجهات فرق', 'Şahmat: sürətli oyunlar, turnirlər, komanda matçları', 'Шахи: швидкі партії, турніри, командні матчі'),
 ]
 
 SRC_CALLS = {

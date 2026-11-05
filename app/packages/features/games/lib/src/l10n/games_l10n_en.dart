@@ -593,4 +593,126 @@ class GamesL10nEn extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'First move: 5 min';
+
+  @override
+  String get games => 'Games';
+
+  @override
+  String get gamesIntro =>
+      'Play with your community: quick games, tournaments and matches between groups.';
+
+  @override
+  String get chessCardText =>
+      'Elo rating, weekly and monthly tournaments, team matches between groups and medals.';
+
+  @override
+  String get playChess => 'Play chess';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Blitz $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Next tournament: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invitations waiting',
+      one: '1 invitation waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Play online';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Find an opponent · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'You pick the time and color';
+
+  @override
+  String get leaderboardHint => 'Elo rankings and medals';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open matches',
+      one: '1 open match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Board and pieces';
+
+  @override
+  String get boardTheme => 'Board';
+
+  @override
+  String get pieceSet => 'Pieces';
+
+  @override
+  String get boardWood => 'Wood';
+
+  @override
+  String get boardGreen => 'Green';
+
+  @override
+  String get boardBlue => 'Blue';
+
+  @override
+  String get boardSlate => 'Gray';
+
+  @override
+  String get boardLilac => 'GWAY lilac';
+
+  @override
+  String get piecesClassic => 'Classic';
+
+  @override
+  String get piecesCeltic => 'Celtic';
+
+  @override
+  String get piecesSpatial => 'Spatial';
+
+  @override
+  String get piecesFantasy => 'Fantasy';
+
+  @override
+  String get piecesModern => 'Modern';
+
+  @override
+  String get piecesWarm => 'Warm';
+
+  @override
+  String get firstPosition => 'Start';
+
+  @override
+  String get previousMove => 'Previous move';
+
+  @override
+  String get nextMove => 'Next move';
+
+  @override
+  String get lastPosition => 'Latest position';
+
+  @override
+  String get backToLive => 'Back to live';
+
+  @override
+  String pointsShort(int points) {
+    return '$points pts';
+  }
 }

@@ -91,5 +91,6 @@
   "showGroupsHint": "When off, only members of a group can see that you belong to it; other groups' admins can't.",
   "language": "Language",
   "games": "Games",
-  "chessHint": "Quick games, challenge friends, climb the Elo leaderboard."
+  "chessHint": "Quick games, challenge friends, climb the Elo leaderboard.",
+  "gamesHint": "Chess: quick games, tournaments, team matches"
 }

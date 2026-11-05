@@ -1106,6 +1106,198 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'İlk hamle: 5 dk'**
   String get firstMoveTeam;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyunlar'**
+  String get games;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Topluluğunla oyna: hızlı oyunlar, turnuvalar ve gruplar arası maçlar.'**
+  String get gamesIntro;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Elo puanı, haftalık ve aylık turnuvalar, gruplar arası takım maçları ve madalyalar.'**
+  String get chessCardText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranç oyna'**
+  String get playChess;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Blitz {rating}'**
+  String blitzRating(int rating);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıradaki turnuva: {time}'**
+  String nextArena(String time);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} davet bekliyor'**
+  String invitesWaiting(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Çevrimiçi oyna'**
+  String get playOnline;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakip bul · {tc}'**
+  String findOpponent(String tc);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Süreyi ve rengi sen seç'**
+  String get challengeFriendHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Elo sıralaması ve madalyalar'**
+  String get leaderboardHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} açık maç'**
+  String openTeamMatches(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tahta ve taşlar'**
+  String get appearance;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tahta'**
+  String get boardTheme;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Taşlar'**
+  String get pieceSet;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ahşap'**
+  String get boardWood;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeşil'**
+  String get boardGreen;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Mavi'**
+  String get boardBlue;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gri'**
+  String get boardSlate;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'GWAY moru'**
+  String get boardLilac;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Klasik'**
+  String get piecesClassic;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelt'**
+  String get piecesCeltic;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uzay'**
+  String get piecesSpatial;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Fantastik'**
+  String get piecesFantasy;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Modern'**
+  String get piecesModern;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıcak'**
+  String get piecesWarm;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç'**
+  String get firstPosition;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Önceki hamle'**
+  String get previousMove;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonraki hamle'**
+  String get nextMove;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Son konum'**
+  String get lastPosition;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Canlıya dön'**
+  String get backToLive;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{points} puan'**
+  String pointsShort(int points);
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

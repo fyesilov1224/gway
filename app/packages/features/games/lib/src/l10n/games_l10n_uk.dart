@@ -600,4 +600,130 @@ class GamesL10nUk extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'Перший хід: 5 хв';
+
+  @override
+  String get games => 'Ігри';
+
+  @override
+  String get gamesIntro =>
+      'Грайте зі своєю спільнотою: швидкі партії, турніри та матчі між групами.';
+
+  @override
+  String get chessCardText =>
+      'Рейтинг Ело, щотижневі та щомісячні турніри, командні матчі між групами й медалі.';
+
+  @override
+  String get playChess => 'Грати в шахи';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Бліц $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Наступний турнір: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count запрошення чекають',
+      many: '$count запрошень чекають',
+      few: '$count запрошення чекають',
+      one: '$count запрошення чекає',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Грати онлайн';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Знайти суперника · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Оберіть час і колір';
+
+  @override
+  String get leaderboardHint => 'Рейтинг Ело й медалі';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count відкритого матчу',
+      many: '$count відкритих матчів',
+      few: '$count відкриті матчі',
+      one: '$count відкритий матч',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Дошка й фігури';
+
+  @override
+  String get boardTheme => 'Дошка';
+
+  @override
+  String get pieceSet => 'Фігури';
+
+  @override
+  String get boardWood => 'Дерево';
+
+  @override
+  String get boardGreen => 'Зелена';
+
+  @override
+  String get boardBlue => 'Синя';
+
+  @override
+  String get boardSlate => 'Сіра';
+
+  @override
+  String get boardLilac => 'Бузкова GWAY';
+
+  @override
+  String get piecesClassic => 'Класика';
+
+  @override
+  String get piecesCeltic => 'Кельтські';
+
+  @override
+  String get piecesSpatial => 'Космос';
+
+  @override
+  String get piecesFantasy => 'Фентезі';
+
+  @override
+  String get piecesModern => 'Модерн';
+
+  @override
+  String get piecesWarm => 'Теплі';
+
+  @override
+  String get firstPosition => 'Початок';
+
+  @override
+  String get previousMove => 'Попередній хід';
+
+  @override
+  String get nextMove => 'Наступний хід';
+
+  @override
+  String get lastPosition => 'Поточна позиція';
+
+  @override
+  String get backToLive => 'До поточної';
+
+  @override
+  String pointsShort(int points) {
+    return '$points оч.';
+  }
 }

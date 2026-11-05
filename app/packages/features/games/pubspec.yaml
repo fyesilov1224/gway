@@ -30,5 +30,11 @@ dev_dependencies:
 flutter:
   generate: true
   assets:
-    - assets/pieces/
+    - assets/pieces/classic/
+    - assets/pieces/celtic/
+    - assets/pieces/spatial/
+    - assets/pieces/fantasy/
+    - assets/pieces/chessnut/
+    - assets/pieces/rhosgfx/
+    - assets/pieces/licenses/
     - assets/sounds/

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chess/chess.dart' as rules;
 import 'package:core/core.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/arena_repository_impl.dart';
@@ -12,14 +11,10 @@ import '../data/team_repository_impl.dart';
 import '../domain/arena.dart';
 import '../domain/chess.dart';
 import '../domain/team.dart';
-import 'chess_board.dart';
 
 final chessRepositoryProvider = Provider<ChessRepository>(
   (ref) => ChessRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
 );
-
-/// The piece drawings, loaded once.
-final pieceSetProvider = FutureProvider<PieceSet>((ref) => loadPieceSet(rootBundle));
 
 final chessProfileProvider = FutureProvider.autoDispose.family<ChessProfile, String>((ref, userId) async {
   ref.cacheFor();
