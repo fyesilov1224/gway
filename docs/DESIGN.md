@@ -75,6 +75,12 @@ Paletten türeyen yumuşak kimlik tonları. Bir kişi, grup ya da kategori her y
 
 `strong` yalnızca ikon ve büyük yazıda (baş harfler, gün numarası) kullanılır; zemin üzerindeki küçük metin `textPrimary` olur.
 
+### Oyunlar — `GwChessColors`, `GwMedal` (Faz 20)
+
+- **Satranç tahtası** markanın morundan türer: açık kare `#F1EDFB`, koyu kare `#9D8DDB`. Son hamle mavi (`#2F6FE0`, %35), seçili taş mor (%50), şah tehdidi kırmızı ışıma, yasal hedefler koyu nokta (taş alma halka), ön hamle turuncu. Koordinatlar kenar karelerin içinde, karşı kare renginde. Taşlar Chessnut setidir (Apache 2.0); kendi dış çizgileri olduğu için iki kare renginde de okunur.
+- **Madalyalar** yalnızca sıralamaların ilk üçünde: altın `#C9971C`, gümüş `#8C96A6`, bronz `#B06A35`; her birinin açık zemini vardır (`GwMedal.soft`). Sarı ve yeşilin yalnızca durumlar için kullanılması kuralının tek istisnasıdır. Podyumda birinci ortada ve en yüksek basamakta durur.
+- Saat: sırası gelen tarafın saati mor zeminde beyaz yazı; 20 saniyenin altında kırmızı. Rakamlar sabit genişlikte (`tabularFigures`).
+
 ## 2. Tipografi — `GwTypography`
 
 Yazı tipi **Plus Jakarta Sans**'tır (OFL). 400, 500, 600 ve 700 ağırlıkları pakete gömülüdür, çalışma anında indirilmez.

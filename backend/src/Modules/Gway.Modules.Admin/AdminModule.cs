@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Gway.Modules.Billing.Contracts;
 using Gway.Modules.Events.Contracts;
 using Gway.Modules.Feed.Contracts;
+using Gway.Modules.Games.Contracts;
 using Gway.Modules.Groups.Contracts;
 using Gway.Modules.Identity.Contracts;
 using Gway.Modules.Live.Contracts;
@@ -47,6 +48,10 @@ public sealed record AdminReferralNote(string Note);
 public sealed record AdminReferralOutcome(bool Banned, DateTimeOffset? Until, int CanceledPlans, IReadOnlyList<Guid> SuspendedGroups);
 
 public sealed record SuspendMatchProfileRequest(string Reason, DateTimeOffset? Until);
+
+public sealed record AbortChessGameRequest(string Reason);
+
+public sealed record SuspendChessPlayerRequest(string Reason, DateTimeOffset? Until);
 
 public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
 
@@ -354,6 +359,25 @@ public static class AdminModule
         content.MapGet("/notifications/stats", async (INotificationsAdministration notifications, CancellationToken ct) =>
                 TypedResults.Ok(await notifications.PushStatsAsync(ct)))
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.All));
+
+        content.MapGet("/games/chess", async (IGamesAdministration games, CancellationToken ct) =>
+                TypedResults.Ok(await games.ChessOverviewAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/games/chess/{id:guid}/abort", async (
+                Guid id, AbortChessGameRequest body, ClaimsPrincipal user, IGamesAdministration games, CancellationToken ct) =>
+                (await games.AbortChessGameAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/games/chess/players/{userId:guid}/suspension", async (
+                Guid userId, SuspendChessPlayerRequest body, ClaimsPrincipal user, IGamesAdministration games, CancellationToken ct) =>
+                (await games.SuspendChessPlayerAsync(user.GetUserId(), userId, body.Reason, body.Until, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapDelete("/games/chess/players/{userId:guid}/suspension", async (
+                Guid userId, ClaimsPrincipal user, IGamesAdministration games, CancellationToken ct) =>
+                (await games.RestoreChessPlayerAsync(user.GetUserId(), userId, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapGet("/matching/stats", async (IMatchingAdministration matching, CancellationToken ct) =>
                 TypedResults.Ok(await matching.StatsAsync(ct)))

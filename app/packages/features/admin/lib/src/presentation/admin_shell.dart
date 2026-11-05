@@ -214,6 +214,16 @@ class _Sidebar extends ConsumerWidget {
                 selected: path.startsWith(AdminRoutes.matching),
                 onTap: () => go(AdminRoutes.matching),
               ),
+              if (role?.canSuspend ?? false) ...[
+                const SizedBox(height: GwSpacing.xxs),
+                _NavItem(
+                  icon: Icons.extension_outlined,
+                  selectedIcon: Icons.extension,
+                  label: 'Oyunlar',
+                  selected: path.startsWith(AdminRoutes.games),
+                  onTap: () => go(AdminRoutes.games),
+                ),
+              ],
               const SizedBox(height: GwSpacing.xxs),
               _NavItem(
                 icon: Icons.support_agent_outlined,

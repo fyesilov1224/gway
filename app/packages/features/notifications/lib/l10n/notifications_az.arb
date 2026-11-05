@@ -87,5 +87,6 @@
   "refresh": "Yenilə",
   "followRequests": "İzləmə istəkləri",
   "andOthers": "{name} və daha {count} nəfər",
-  "delete": "Sil"
+  "delete": "Sil",
+  "actChessChallenge": "səni şahmat oynamağa dəvət etdi."
 }

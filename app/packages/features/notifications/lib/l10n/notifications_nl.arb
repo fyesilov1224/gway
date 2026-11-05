@@ -87,5 +87,6 @@
   "refresh": "Vernieuwen",
   "followRequests": "Volgverzoeken",
   "andOthers": "{name} en {count, plural, =1{1 ander} other{{count} anderen}}",
-  "delete": "Verwijderen"
+  "delete": "Verwijderen",
+  "actChessChallenge": "heeft je uitgedaagd voor een partij schaak."
 }

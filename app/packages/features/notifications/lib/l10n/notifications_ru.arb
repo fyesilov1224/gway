@@ -87,5 +87,6 @@
   "refresh": "Обновить",
   "followRequests": "Запросы на подписку",
   "andOthers": "{name} и ещё {count}",
-  "delete": "Удалить"
+  "delete": "Удалить",
+  "actChessChallenge": "приглашает вас сыграть в шахматы."
 }

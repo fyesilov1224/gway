@@ -320,4 +320,10 @@ class SocialAppL10nAr extends SocialAppL10n {
 
   @override
   String get language => 'اللغة';
+
+  @override
+  String get games => 'الألعاب';
+
+  @override
+  String get chessHint => 'مباريات سريعة، تحدَّ أصدقاءك واصعد في ترتيب Elo.';
 }

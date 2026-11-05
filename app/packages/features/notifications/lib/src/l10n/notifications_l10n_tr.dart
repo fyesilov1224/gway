@@ -347,4 +347,7 @@ class NotificationsL10nTr extends NotificationsL10n {
 
   @override
   String get delete => 'Sil';
+
+  @override
+  String get actChessChallenge => 'seni satranç oynamaya davet etti.';
 }

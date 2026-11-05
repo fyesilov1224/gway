@@ -291,6 +291,9 @@ ROWS = [
       '{name} e mais {count, plural, =1{1 pessoa} other{{count} pessoas}}', '{name} e {count, plural, =1{1 altra persona} other{altre {count}}}', '{name} и ещё {count}', '{name} و{count} آخرون',
       '{name} və daha {count} nəfər', '{name} та ще {count}', ph={'name': 'String', 'count': 'int'}),
     r('delete', 'Sil', 'Delete', 'Löschen', 'Supprimer', 'Verwijderen', 'Eliminar', 'Excluir', 'Elimina', 'Удалить', 'حذف', 'Sil', 'Видалити'),
+    r('actChessChallenge', 'seni satranç oynamaya davet etti.', 'invited you to play chess.', 'hat dich zu einer Partie Schach eingeladen.',
+      "t'a défié aux échecs.", 'heeft je uitgedaagd voor een partij schaak.', 'te invitó a jugar al ajedrez.', 'convidou você para jogar xadrez.',
+      'ti ha sfidato a scacchi.', 'приглашает вас сыграть в шахматы.', 'دعاك للعب الشطرنج.', 'səni şahmat oynamağa dəvət etdi.', 'запрошує вас зіграти в шахи.'),
 ]
 
 SRC_CALLS = {

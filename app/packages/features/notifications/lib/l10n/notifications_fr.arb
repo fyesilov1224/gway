@@ -87,5 +87,6 @@
   "refresh": "Actualiser",
   "followRequests": "Demandes d'abonnement",
   "andOthers": "{name} et {count, plural, =1{1 autre personne} other{{count} autres}}",
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "actChessChallenge": "t'a défié aux échecs."
 }

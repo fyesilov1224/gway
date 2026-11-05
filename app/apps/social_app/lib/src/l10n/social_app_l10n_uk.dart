@@ -320,4 +320,10 @@ class SocialAppL10nUk extends SocialAppL10n {
 
   @override
   String get language => 'Мова';
+
+  @override
+  String get games => 'Ігри';
+
+  @override
+  String get chessHint => 'Швидкі партії, виклики друзям і рейтинг Ело.';
 }

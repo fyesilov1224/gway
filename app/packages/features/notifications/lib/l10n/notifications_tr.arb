@@ -507,5 +507,9 @@
   "delete": "Sil",
   "@delete": {
     "description": ""
+  },
+  "actChessChallenge": "seni satranç oynamaya davet etti.",
+  "@actChessChallenge": {
+    "description": ""
   }
 }

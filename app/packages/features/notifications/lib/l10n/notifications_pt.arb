@@ -87,5 +87,6 @@
   "refresh": "Atualizar",
   "followRequests": "Solicitações para seguir",
   "andOthers": "{name} e mais {count, plural, =1{1 pessoa} other{{count} pessoas}}",
-  "delete": "Excluir"
+  "delete": "Excluir",
+  "actChessChallenge": "convidou você para jogar xadrez."
 }

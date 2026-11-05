@@ -1,0 +1,307 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'games_l10n.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Turkish (`tr`).
+class GamesL10nTr extends GamesL10n {
+  GamesL10nTr([String locale = 'tr']) : super(locale);
+
+  @override
+  String get chess => 'Satranç';
+
+  @override
+  String get bullet => 'Bullet';
+
+  @override
+  String get blitz => 'Blitz';
+
+  @override
+  String get rapid => 'Rapid';
+
+  @override
+  String get white => 'Beyaz';
+
+  @override
+  String get black => 'Siyah';
+
+  @override
+  String get colorRandom => 'Rastgele';
+
+  @override
+  String get endCheckmate => 'Mat';
+
+  @override
+  String get endResign => 'Terk';
+
+  @override
+  String get endTimeout => 'Süre bitti';
+
+  @override
+  String get endTimeoutDraw => 'Süre bitti, rakibin mat edecek taşı yok';
+
+  @override
+  String get endStalemate => 'Pat';
+
+  @override
+  String get endInsufficient => 'Yetersiz materyal';
+
+  @override
+  String get endFiftyMoves => '50 hamle kuralı';
+
+  @override
+  String get endRepetition => 'Üç kez tekrar';
+
+  @override
+  String get endAgreement => 'Anlaşmalı beraberlik';
+
+  @override
+  String get endAborted => 'İptal edildi';
+
+  @override
+  String get boardLabel => 'Satranç tahtası';
+
+  @override
+  String get promoteTo => 'Piyon neye dönüşsün?';
+
+  @override
+  String get queen => 'Vezir';
+
+  @override
+  String get rook => 'Kale';
+
+  @override
+  String get bishop => 'Fil';
+
+  @override
+  String get knight => 'At';
+
+  @override
+  String get medalGold => 'Altın madalya';
+
+  @override
+  String get medalSilver => 'Gümüş madalya';
+
+  @override
+  String get medalBronze => 'Bronz madalya';
+
+  @override
+  String get youWon => 'Kazandın';
+
+  @override
+  String get youLost => 'Kaybettin';
+
+  @override
+  String get draw => 'Berabere';
+
+  @override
+  String get inProgress => 'Sürüyor';
+
+  @override
+  String get whiteWon => 'Beyaz kazandı';
+
+  @override
+  String get blackWon => 'Siyah kazandı';
+
+  @override
+  String get rated => 'Puanlı';
+
+  @override
+  String get casual => 'Puansız';
+
+  @override
+  String get ratedHint => 'Sonuç Elo puanını değiştirir.';
+
+  @override
+  String get flipBoard => 'Tahtayı çevir';
+
+  @override
+  String get cancel => 'Vazgeç';
+
+  @override
+  String get resign => 'Terk et';
+
+  @override
+  String get resignTitle => 'Oyunu terk et?';
+
+  @override
+  String get resignBody => 'Rakibin kazanır; puanlı oyunda Elo puanın düşer.';
+
+  @override
+  String get abort => 'İptal et';
+
+  @override
+  String get offerDraw => 'Berabere?';
+
+  @override
+  String get drawOffered => 'Teklif edildi';
+
+  @override
+  String get drawOfferReceived => 'Rakibin beraberlik teklif ediyor.';
+
+  @override
+  String get accept => 'Kabul et';
+
+  @override
+  String get decline => 'Reddet';
+
+  @override
+  String get rematch => 'Rövanş';
+
+  @override
+  String get rematchSent => 'Rövanş isteği gönderildi.';
+
+  @override
+  String get newGame => 'Yeni oyun';
+
+  @override
+  String newRating(String category, int rating) {
+    return '$category puanın: $rating';
+  }
+
+  @override
+  String get deletedPlayer => 'Silinmiş hesap';
+
+  @override
+  String get firstMove => 'İlk hamle: 30 sn';
+
+  @override
+  String get noMovesYet => 'Henüz hamle yok. Beyaz başlar.';
+
+  @override
+  String get watching => 'İzliyorsun';
+
+  @override
+  String get quickGame => 'Hızlı oyun';
+
+  @override
+  String get quickGameHint => 'Süreyi seç, sana yakın puanda biriyle eşleş.';
+
+  @override
+  String get searching => 'Rakip aranıyor…';
+
+  @override
+  String waitedSeconds(int count) {
+    return '$count saniyedir bekliyorsun';
+  }
+
+  @override
+  String get chessProfile => 'Satranç profili';
+
+  @override
+  String get recentGames => 'Son oyunlar';
+
+  @override
+  String get noGamesMine => 'Henüz oyunun yok. İlk oyununu oyna.';
+
+  @override
+  String get noGamesTheirs => 'Henüz oyunu yok. İlk oyununa sen davet et.';
+
+  @override
+  String get playNow => 'Hemen oyna';
+
+  @override
+  String get challenge => 'Davet et';
+
+  @override
+  String get noFlag => 'Bayrak seçilmedi';
+
+  @override
+  String get chooseFlag => 'Bayrağını seç';
+
+  @override
+  String get chooseFlagHint => 'Sıralamada adının yanında görünür.';
+
+  @override
+  String get searchCountry => 'Ülke ara';
+
+  @override
+  String get flagSaved => 'Bayrağın kaydedildi.';
+
+  @override
+  String get pickFlagPrompt => 'Sıralamada görünecek bayrağını seç.';
+
+  @override
+  String get suspendedNotice => 'Satranç oynaması şu anda kapalı.';
+
+  @override
+  String get notPlayed => 'Oynanmadı';
+
+  @override
+  String gamesCount(int count) {
+    return '$count oyun';
+  }
+
+  @override
+  String rankShort(int rank) {
+    return '$rank. sırada';
+  }
+
+  @override
+  String get leaderboard => 'Sıralama';
+
+  @override
+  String leaderboardEmpty(int count) {
+    return 'Sıralamaya girmek için bu türde $count puanlı oyun oyna.';
+  }
+
+  @override
+  String record(int wins, int draws, int losses) {
+    return '${wins}G · ${draws}B · ${losses}M';
+  }
+
+  @override
+  String get seeAll => 'Tümünü gör';
+
+  @override
+  String get invitations => 'Davetler';
+
+  @override
+  String invitesYou(String what) {
+    return 'Seni oyuna davet ediyor: $what';
+  }
+
+  @override
+  String wantsRematch(String what) {
+    return 'Rövanş istiyor: $what';
+  }
+
+  @override
+  String waitingFor(String what) {
+    return 'Yanıt bekleniyor: $what';
+  }
+
+  @override
+  String get withdraw => 'Geri çek';
+
+  @override
+  String get gameInProgress => 'Süren oyunun var';
+
+  @override
+  String get resume => 'Devam et';
+
+  @override
+  String get challengeFriend => 'Bir arkadaşını davet et';
+
+  @override
+  String get challengeSent => 'Davet gönderildi. Kabul edince oyun başlar.';
+
+  @override
+  String get challengeTitle => 'Oyuna davet et';
+
+  @override
+  String get changePerson => 'Kişiyi değiştir';
+
+  @override
+  String get searchPerson => 'Kullanıcı adı ya da isim';
+
+  @override
+  String get timeControl => 'Süre';
+
+  @override
+  String get yourColor => 'Rengin';
+
+  @override
+  String get sendChallenge => 'Daveti gönder';
+}

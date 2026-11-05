@@ -657,6 +657,18 @@ abstract class SocialAppL10n {
   /// In tr, this message translates to:
   /// **'Dil'**
   String get language;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyunlar'**
+  String get games;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hızlı oyun, arkadaşını davet et, Elo sıralamasında yüksel.'**
+  String get chessHint;
 }
 
 class _SocialAppL10nDelegate extends LocalizationsDelegate<SocialAppL10n> {

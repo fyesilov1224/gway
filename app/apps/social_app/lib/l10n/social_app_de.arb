@@ -89,5 +89,7 @@
   "groupsNowMembers": "Deine Gruppen sind jetzt nur noch für Mitglieder derselben Gruppe sichtbar.",
   "showGroups": "Meine Gruppen im Profil zeigen",
   "showGroupsHint": "Wenn aus, sehen nur die Mitglieder einer Gruppe, dass du dazugehörst; Admins anderer Gruppen nicht.",
-  "language": "Sprache"
+  "language": "Sprache",
+  "games": "Spiele",
+  "chessHint": "Schnelle Partien, Freunde herausfordern, in der Elo-Rangliste aufsteigen."
 }

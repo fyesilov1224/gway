@@ -126,6 +126,7 @@ internal static class PushTexts
         "teammate_accepted" => t["ekip arkadaşlığı isteğini kabul etti."],
         "match_created" => t["Kim olduğunu Eşleşmelerim'de gör."],
         "match_super_liked" => t["seni süper beğendi! Destende ilk o görünüyor."],
+        "chess_challenge" => t["seni satranç oynamaya davet etti."],
         "welcome_requested" => t.Format("\"{0}\" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.", n.EventTitle),
         "welcome_matched" => t.Format("\"{0}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.", n.EventTitle),
         "welcome_released" => t.Format("\"{0}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.", n.EventTitle),

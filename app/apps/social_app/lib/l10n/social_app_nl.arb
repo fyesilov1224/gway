@@ -89,5 +89,7 @@
   "groupsNowMembers": "Je groepen zijn nu alleen zichtbaar voor leden van dezelfde groep.",
   "showGroups": "Mijn groepen op mijn profiel tonen",
   "showGroupsHint": "Als dit uit staat, zien alleen leden van een groep dat je erbij hoort; beheerders van andere groepen niet.",
-  "language": "Taal"
+  "language": "Taal",
+  "games": "Spellen",
+  "chessHint": "Snelle partijen, daag vrienden uit, klim in de Elo-ranglijst."
 }

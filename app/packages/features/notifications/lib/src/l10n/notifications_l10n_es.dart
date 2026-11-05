@@ -355,4 +355,7 @@ class NotificationsL10nEs extends NotificationsL10n {
 
   @override
   String get delete => 'Eliminar';
+
+  @override
+  String get actChessChallenge => 'te invitó a jugar al ajedrez.';
 }

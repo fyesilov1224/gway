@@ -4,6 +4,7 @@ import 'package:events/events.dart';
 import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:games/games.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:identity/identity.dart';
@@ -229,6 +230,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: ProfileRoutes.blocked, builder: (_, _) => const BlockedAccountsScreen()),
           GoRoute(path: ProfileRoutes.teammates, builder: (_, _) => const TeammatesScreen()),
           GoRoute(path: ProfileRoutes.teammateSettings, builder: (_, _) => const TeammateSettingsScreen()),
+          GoRoute(path: ChessRoutes.home, builder: (_, _) => const ChessHomeScreen()),
+          GoRoute(
+            path: ChessRoutes.leaderboard,
+            builder: (_, state) => ChessLeaderboardScreen(initial: ChessCategory.parse(state.uri.queryParameters['c'])),
+          ),
+          GoRoute(
+            path: ChessRoutes.seekPath,
+            builder: (_, state) => ChessSeekScreen(timeControl: ChessRoutes.parseSeek(state.uri.queryParameters['tc'])),
+          ),
+          GoRoute(path: '/games/chess/g/:id', builder: (_, state) => ChessGameScreen(gameId: state.pathParameters['id']!)),
+          GoRoute(path: '/games/chess/p/:id', builder: (_, state) => ChessPlayerScreen(userId: state.pathParameters['id']!)),
           GoRoute(path: MatchingRoutes.home, builder: (_, _) => const MatchingScreen(openChat: _openChat)),
           GoRoute(path: MatchingRoutes.matches, builder: (_, _) => const MatchesScreen(openChat: _openChat)),
           GoRoute(path: MatchingRoutes.profile, builder: (_, _) => const MatchProfileScreen()),

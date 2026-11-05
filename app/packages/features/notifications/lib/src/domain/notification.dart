@@ -43,7 +43,8 @@ enum NotificationType {
   callMissed('call_missed'),
   callPermissionGranted('call_permission_granted'),
   callPermissionDeclined('call_permission_declined'),
-  callPermissionRevoked('call_permission_revoked');
+  callPermissionRevoked('call_permission_revoked'),
+  chessChallenge('chess_challenge');
 
   const NotificationType(this.code);
 
@@ -220,6 +221,7 @@ class AppNotification {
       NotificationType.callPermissionDeclined => l.actCallDeclined,
       NotificationType.callPermissionRevoked => l.actCallRevoked,
       NotificationType.eventSeriesLimit => l.actSeriesLimit(event),
+      NotificationType.chessChallenge => l.actChessChallenge,
     };
   }
 

@@ -645,6 +645,12 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'Sil'**
   String get delete;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'seni satranç oynamaya davet etti.'**
+  String get actChessChallenge;
 }
 
 class _NotificationsL10nDelegate

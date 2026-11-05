@@ -11,6 +11,8 @@
     <Project Path="src/Modules/Gway.Modules.Events.Contracts/Gway.Modules.Events.Contracts.csproj" />
     <Project Path="src/Modules/Gway.Modules.Feed/Gway.Modules.Feed.csproj" />
     <Project Path="src/Modules/Gway.Modules.Feed.Contracts/Gway.Modules.Feed.Contracts.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Games/Gway.Modules.Games.csproj" />
+    <Project Path="src/Modules/Gway.Modules.Games.Contracts/Gway.Modules.Games.Contracts.csproj" />
     <Project Path="src/Modules/Gway.Modules.Groups/Gway.Modules.Groups.csproj" />
     <Project Path="src/Modules/Gway.Modules.Groups.Contracts/Gway.Modules.Groups.Contracts.csproj" />
     <Project Path="src/Modules/Gway.Modules.Identity/Gway.Modules.Identity.csproj" />

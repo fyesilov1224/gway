@@ -89,5 +89,7 @@
   "groupsNowMembers": "Your groups are now visible only to members of the same group.",
   "showGroups": "Show my groups on my profile",
   "showGroupsHint": "When off, only members of a group can see that you belong to it; other groups' admins can't.",
-  "language": "Language"
+  "language": "Language",
+  "games": "Games",
+  "chessHint": "Quick games, challenge friends, climb the Elo leaderboard."
 }

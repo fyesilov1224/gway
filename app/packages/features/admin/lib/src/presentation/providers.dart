@@ -6,6 +6,7 @@ import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
+import '../domain/admin_games.dart';
 import '../domain/admin_group.dart';
 import '../domain/admin_legal.dart';
 import '../domain/admin_live.dart';
@@ -228,6 +229,12 @@ final broadcastSearchProvider = FutureProvider.autoDispose.family<BroadcastPage,
     ref.liveFor();
     return (await ref.watch(adminLiveRepositoryProvider).search(status: search.status, page: search.page)).getOrThrow();
   },
+);
+
+final adminGamesRepositoryProvider = Provider<AdminGamesRepository>((ref) => ApiAdminGamesRepository(ref.watch(apiClientProvider)));
+
+final adminChessProvider = FutureProvider.autoDispose<AdminChessOverview>(
+  (ref) async => (await ref.watch(adminGamesRepositoryProvider).chess()).getOrThrow(),
 );
 
 final adminMatchingRepositoryProvider = Provider<AdminMatchingRepository>(

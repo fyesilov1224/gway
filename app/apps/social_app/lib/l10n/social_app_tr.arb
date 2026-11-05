@@ -395,5 +395,13 @@
   "language": "Dil",
   "@language": {
     "description": ""
+  },
+  "games": "Oyunlar",
+  "@games": {
+    "description": ""
+  },
+  "chessHint": "Hızlı oyun, arkadaşını davet et, Elo sıralamasında yüksel.",
+  "@chessHint": {
+    "description": ""
   }
 }

@@ -87,5 +87,6 @@
   "refresh": "Refresh",
   "followRequests": "Follow requests",
   "andOthers": "{name} and {count, plural, =1{1 other} other{{count} others}}",
-  "delete": "Delete"
+  "delete": "Delete",
+  "actChessChallenge": "invited you to play chess."
 }

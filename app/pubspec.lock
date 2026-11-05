@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.4"
+  chess:
+    dependency: transitive
+    description:
+      name: chess
+      sha256: "6e5a8222931bfb5cd14a4bb9b030c24e257e23957ec3c533fb0ff74a48984ddb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.1"
   cli_config:
     dependency: transitive
     description:
@@ -289,6 +297,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  country_flags:
+    dependency: transitive
+    description:
+      name: country_flags
+      sha256: f022d18337f3861f1f4e319b936cb53920de9259f38cb09e169eace9942e2b79
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.2"
   coverage:
     dependency: transitive
     description:
@@ -845,6 +861,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  jovial_misc:
+    dependency: transitive
+    description:
+      name: jovial_misc
+      sha256: "065b5240badae6b13472efdea28fffe8baf914a7831361469a95c6456d9b8dc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0"
+  jovial_svg:
+    dependency: transitive
+    description:
+      name: jovial_svg
+      sha256: "99e9c3afcf7371ae38083ad52de23677d6d751f46150c3c6ae842e009e84d9f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.29"
   json_annotation:
     dependency: transitive
     description:
@@ -1774,10 +1806,10 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: "67f0aff7be013d107995e9b75bf4e7f2c3ef2dfdb2c8e68024bba0a7fd5756a4"
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.1"
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:

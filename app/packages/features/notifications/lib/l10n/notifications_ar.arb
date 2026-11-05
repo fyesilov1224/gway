@@ -87,5 +87,6 @@
   "refresh": "تحديث",
   "followRequests": "طلبات المتابعة",
   "andOthers": "{name} و{count} آخرون",
-  "delete": "حذف"
+  "delete": "حذف",
+  "actChessChallenge": "دعاك للعب الشطرنج."
 }

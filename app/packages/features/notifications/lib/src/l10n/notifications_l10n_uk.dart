@@ -345,4 +345,7 @@ class NotificationsL10nUk extends NotificationsL10n {
 
   @override
   String get delete => 'Видалити';
+
+  @override
+  String get actChessChallenge => 'запрошує вас зіграти в шахи.';
 }

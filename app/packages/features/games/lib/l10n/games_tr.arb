@@ -1,0 +1,429 @@
+{
+  "@@locale": "tr",
+  "chess": "Satranç",
+  "@chess": {
+    "description": ""
+  },
+  "bullet": "Bullet",
+  "@bullet": {
+    "description": ""
+  },
+  "blitz": "Blitz",
+  "@blitz": {
+    "description": ""
+  },
+  "rapid": "Rapid",
+  "@rapid": {
+    "description": ""
+  },
+  "white": "Beyaz",
+  "@white": {
+    "description": ""
+  },
+  "black": "Siyah",
+  "@black": {
+    "description": ""
+  },
+  "colorRandom": "Rastgele",
+  "@colorRandom": {
+    "description": ""
+  },
+  "endCheckmate": "Mat",
+  "@endCheckmate": {
+    "description": ""
+  },
+  "endResign": "Terk",
+  "@endResign": {
+    "description": ""
+  },
+  "endTimeout": "Süre bitti",
+  "@endTimeout": {
+    "description": ""
+  },
+  "endTimeoutDraw": "Süre bitti, rakibin mat edecek taşı yok",
+  "@endTimeoutDraw": {
+    "description": ""
+  },
+  "endStalemate": "Pat",
+  "@endStalemate": {
+    "description": ""
+  },
+  "endInsufficient": "Yetersiz materyal",
+  "@endInsufficient": {
+    "description": ""
+  },
+  "endFiftyMoves": "50 hamle kuralı",
+  "@endFiftyMoves": {
+    "description": ""
+  },
+  "endRepetition": "Üç kez tekrar",
+  "@endRepetition": {
+    "description": ""
+  },
+  "endAgreement": "Anlaşmalı beraberlik",
+  "@endAgreement": {
+    "description": ""
+  },
+  "endAborted": "İptal edildi",
+  "@endAborted": {
+    "description": ""
+  },
+  "boardLabel": "Satranç tahtası",
+  "@boardLabel": {
+    "description": ""
+  },
+  "promoteTo": "Piyon neye dönüşsün?",
+  "@promoteTo": {
+    "description": ""
+  },
+  "queen": "Vezir",
+  "@queen": {
+    "description": ""
+  },
+  "rook": "Kale",
+  "@rook": {
+    "description": ""
+  },
+  "bishop": "Fil",
+  "@bishop": {
+    "description": ""
+  },
+  "knight": "At",
+  "@knight": {
+    "description": ""
+  },
+  "medalGold": "Altın madalya",
+  "@medalGold": {
+    "description": ""
+  },
+  "medalSilver": "Gümüş madalya",
+  "@medalSilver": {
+    "description": ""
+  },
+  "medalBronze": "Bronz madalya",
+  "@medalBronze": {
+    "description": ""
+  },
+  "youWon": "Kazandın",
+  "@youWon": {
+    "description": ""
+  },
+  "youLost": "Kaybettin",
+  "@youLost": {
+    "description": ""
+  },
+  "draw": "Berabere",
+  "@draw": {
+    "description": ""
+  },
+  "inProgress": "Sürüyor",
+  "@inProgress": {
+    "description": ""
+  },
+  "whiteWon": "Beyaz kazandı",
+  "@whiteWon": {
+    "description": ""
+  },
+  "blackWon": "Siyah kazandı",
+  "@blackWon": {
+    "description": ""
+  },
+  "rated": "Puanlı",
+  "@rated": {
+    "description": ""
+  },
+  "casual": "Puansız",
+  "@casual": {
+    "description": ""
+  },
+  "ratedHint": "Sonuç Elo puanını değiştirir.",
+  "@ratedHint": {
+    "description": ""
+  },
+  "flipBoard": "Tahtayı çevir",
+  "@flipBoard": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "resign": "Terk et",
+  "@resign": {
+    "description": ""
+  },
+  "resignTitle": "Oyunu terk et?",
+  "@resignTitle": {
+    "description": ""
+  },
+  "resignBody": "Rakibin kazanır; puanlı oyunda Elo puanın düşer.",
+  "@resignBody": {
+    "description": ""
+  },
+  "abort": "İptal et",
+  "@abort": {
+    "description": ""
+  },
+  "offerDraw": "Berabere?",
+  "@offerDraw": {
+    "description": ""
+  },
+  "drawOffered": "Teklif edildi",
+  "@drawOffered": {
+    "description": ""
+  },
+  "drawOfferReceived": "Rakibin beraberlik teklif ediyor.",
+  "@drawOfferReceived": {
+    "description": ""
+  },
+  "accept": "Kabul et",
+  "@accept": {
+    "description": ""
+  },
+  "decline": "Reddet",
+  "@decline": {
+    "description": ""
+  },
+  "rematch": "Rövanş",
+  "@rematch": {
+    "description": ""
+  },
+  "rematchSent": "Rövanş isteği gönderildi.",
+  "@rematchSent": {
+    "description": ""
+  },
+  "newGame": "Yeni oyun",
+  "@newGame": {
+    "description": ""
+  },
+  "newRating": "{category} puanın: {rating}",
+  "@newRating": {
+    "description": "",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "deletedPlayer": "Silinmiş hesap",
+  "@deletedPlayer": {
+    "description": ""
+  },
+  "firstMove": "İlk hamle: 30 sn",
+  "@firstMove": {
+    "description": ""
+  },
+  "noMovesYet": "Henüz hamle yok. Beyaz başlar.",
+  "@noMovesYet": {
+    "description": ""
+  },
+  "watching": "İzliyorsun",
+  "@watching": {
+    "description": ""
+  },
+  "quickGame": "Hızlı oyun",
+  "@quickGame": {
+    "description": ""
+  },
+  "quickGameHint": "Süreyi seç, sana yakın puanda biriyle eşleş.",
+  "@quickGameHint": {
+    "description": ""
+  },
+  "searching": "Rakip aranıyor…",
+  "@searching": {
+    "description": ""
+  },
+  "waitedSeconds": "{count} saniyedir bekliyorsun",
+  "@waitedSeconds": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chessProfile": "Satranç profili",
+  "@chessProfile": {
+    "description": ""
+  },
+  "recentGames": "Son oyunlar",
+  "@recentGames": {
+    "description": ""
+  },
+  "noGamesMine": "Henüz oyunun yok. İlk oyununu oyna.",
+  "@noGamesMine": {
+    "description": ""
+  },
+  "noGamesTheirs": "Henüz oyunu yok. İlk oyununa sen davet et.",
+  "@noGamesTheirs": {
+    "description": ""
+  },
+  "playNow": "Hemen oyna",
+  "@playNow": {
+    "description": ""
+  },
+  "challenge": "Davet et",
+  "@challenge": {
+    "description": ""
+  },
+  "noFlag": "Bayrak seçilmedi",
+  "@noFlag": {
+    "description": ""
+  },
+  "chooseFlag": "Bayrağını seç",
+  "@chooseFlag": {
+    "description": ""
+  },
+  "chooseFlagHint": "Sıralamada adının yanında görünür.",
+  "@chooseFlagHint": {
+    "description": ""
+  },
+  "searchCountry": "Ülke ara",
+  "@searchCountry": {
+    "description": ""
+  },
+  "flagSaved": "Bayrağın kaydedildi.",
+  "@flagSaved": {
+    "description": ""
+  },
+  "pickFlagPrompt": "Sıralamada görünecek bayrağını seç.",
+  "@pickFlagPrompt": {
+    "description": ""
+  },
+  "suspendedNotice": "Satranç oynaması şu anda kapalı.",
+  "@suspendedNotice": {
+    "description": ""
+  },
+  "notPlayed": "Oynanmadı",
+  "@notPlayed": {
+    "description": ""
+  },
+  "gamesCount": "{count} oyun",
+  "@gamesCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rankShort": "{rank}. sırada",
+  "@rankShort": {
+    "description": "",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "leaderboard": "Sıralama",
+  "@leaderboard": {
+    "description": ""
+  },
+  "leaderboardEmpty": "Sıralamaya girmek için bu türde {count} puanlı oyun oyna.",
+  "@leaderboardEmpty": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "record": "{wins}G · {draws}B · {losses}M",
+  "@record": {
+    "description": "",
+    "placeholders": {
+      "wins": {
+        "type": "int"
+      },
+      "draws": {
+        "type": "int"
+      },
+      "losses": {
+        "type": "int"
+      }
+    }
+  },
+  "seeAll": "Tümünü gör",
+  "@seeAll": {
+    "description": ""
+  },
+  "invitations": "Davetler",
+  "@invitations": {
+    "description": ""
+  },
+  "invitesYou": "Seni oyuna davet ediyor: {what}",
+  "@invitesYou": {
+    "description": "",
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "wantsRematch": "Rövanş istiyor: {what}",
+  "@wantsRematch": {
+    "description": "",
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingFor": "Yanıt bekleniyor: {what}",
+  "@waitingFor": {
+    "description": "",
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "withdraw": "Geri çek",
+  "@withdraw": {
+    "description": ""
+  },
+  "gameInProgress": "Süren oyunun var",
+  "@gameInProgress": {
+    "description": ""
+  },
+  "resume": "Devam et",
+  "@resume": {
+    "description": ""
+  },
+  "challengeFriend": "Bir arkadaşını davet et",
+  "@challengeFriend": {
+    "description": ""
+  },
+  "challengeSent": "Davet gönderildi. Kabul edince oyun başlar.",
+  "@challengeSent": {
+    "description": ""
+  },
+  "challengeTitle": "Oyuna davet et",
+  "@challengeTitle": {
+    "description": ""
+  },
+  "changePerson": "Kişiyi değiştir",
+  "@changePerson": {
+    "description": ""
+  },
+  "searchPerson": "Kullanıcı adı ya da isim",
+  "@searchPerson": {
+    "description": ""
+  },
+  "timeControl": "Süre",
+  "@timeControl": {
+    "description": ""
+  },
+  "yourColor": "Rengin",
+  "@yourColor": {
+    "description": ""
+  },
+  "sendChallenge": "Daveti gönder",
+  "@sendChallenge": {
+    "description": ""
+  }
+}

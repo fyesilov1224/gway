@@ -3,6 +3,7 @@ import 'package:events/events.dart';
 import 'package:feed/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:games/games.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:live/live.dart';
@@ -44,6 +45,7 @@ final notificationLinks = NotificationLinks(
   openGoal: (context, goalId) => context.push(EventRoutes.goal(goalId)),
   openTeammates: (context) => context.push(ProfileRoutes.teammates),
   openMatches: (context) => context.push(MatchingRoutes.matches),
+  openChess: (context) => context.push(ChessRoutes.home),
   openMatching: (context) => context.push(MatchingRoutes.home),
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
   openTonight: (context) => context.push(EventRoutes.tonight),

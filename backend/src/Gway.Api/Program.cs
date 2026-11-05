@@ -6,6 +6,7 @@ using Gway.Modules.Admin;
 using Gway.Modules.Billing;
 using Gway.Modules.Events;
 using Gway.Modules.Feed;
+using Gway.Modules.Games;
 using Gway.Modules.Groups;
 using Gway.Modules.Identity;
 using Gway.Modules.Messaging;
@@ -64,6 +65,7 @@ builder.Services.AddLiveModule();
 builder.Services.AddModerationModule();
 builder.Services.AddMessagingModule();
 builder.Services.AddMatchingModule();
+builder.Services.AddGamesModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddAdminModule();
 
@@ -92,6 +94,7 @@ app.MapCallEndpoints();
 app.MapModerationEndpoints();
 app.MapMessagingEndpoints();
 app.MapMatchingEndpoints();
+app.MapGamesEndpoints();
 app.MapAdminEndpoints();
 app.MapMapTileEndpoints();
 
