@@ -1845,4 +1845,112 @@ class EventsL10nTr extends EventsL10n {
 
   @override
   String get currencyTry => '₺ TRY';
+
+  @override
+  String get badgeFirstStep => 'İlk adım';
+
+  @override
+  String get badgeFirstStepText => 'İlk organizasyonuna katıl.';
+
+  @override
+  String get badgeRegular => 'Müdavim';
+
+  @override
+  String get badgeRegularText => '10 organizasyona katıl.';
+
+  @override
+  String get badgeCompanion => 'Yol arkadaşı';
+
+  @override
+  String get badgeCompanionText => '25 organizasyona katıl.';
+
+  @override
+  String get badgeExplorer => 'Kâşif';
+
+  @override
+  String get badgeExplorerText => '3 farklı grubun organizasyonuna katıl.';
+
+  @override
+  String get badgeOrganizer => 'Düzenleyici';
+
+  @override
+  String get badgeOrganizerText =>
+      'En az 2 kişinin katıldığı bir organizasyon düzenle.';
+
+  @override
+  String get badgeMasterOrganizer => 'Usta düzenleyici';
+
+  @override
+  String get badgeMasterOrganizerText =>
+      'En az 2 kişinin katıldığı 10 organizasyon düzenle.';
+
+  @override
+  String get badgeStoryteller => 'Anı biriktiren';
+
+  @override
+  String get badgeStorytellerText => 'Katıldığın organizasyonlara 5 anı ekle.';
+
+  @override
+  String get badgeFeedback => 'Geri bildirimci';
+
+  @override
+  String get badgeFeedbackText => 'Katıldığın 5 organizasyonu değerlendir.';
+
+  @override
+  String get badgeDoorOpener => 'Kapı açan';
+
+  @override
+  String get badgeDoorOpenerText =>
+      'Bir organizasyonda ilk kez gelen birini karşıla.';
+
+  @override
+  String get badgeHost => 'Ev sahibi';
+
+  @override
+  String get badgeHostText => 'İlk kez gelen 5 kişiyi karşıla.';
+
+  @override
+  String get badgeCommunityHeart => 'Topluluğun kalbi';
+
+  @override
+  String get badgeCommunityHeartText => 'İlk kez gelen 20 kişiyi karşıla.';
+
+  @override
+  String get badgeFriendly => 'Tanışkan';
+
+  @override
+  String get badgeFriendlyText => 'Organizasyonlarda 5 kişiyle el sıkış.';
+
+  @override
+  String get badgeSocialButterfly => 'Sosyal kelebek';
+
+  @override
+  String get badgeSocialButterflyText =>
+      'Organizasyonlarda 25 kişiyle el sıkış.';
+
+  @override
+  String get badgeCategory => 'Kategori tutkunu';
+
+  @override
+  String get badgeCategoryText => 'Bir kategoride 5 organizasyona katıl.';
+
+  @override
+  String badgeCategoryOf(String category) {
+    return '$category tutkunu';
+  }
+
+  @override
+  String badgeCategoryOfText(String category) {
+    return '$category kategorisinde 5 organizasyona katıldı.';
+  }
+
+  @override
+  String badgeGoal(String goal) {
+    return 'Hedef: $goal';
+  }
+
+  @override
+  String badgeGoalText(String group) {
+    return '$group grubunun hedefini tamamladı.';
+  }
 }

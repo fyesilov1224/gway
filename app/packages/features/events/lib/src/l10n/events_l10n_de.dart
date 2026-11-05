@@ -2021,4 +2021,114 @@ class EventsL10nDe extends EventsL10n {
 
   @override
   String get currencyTry => '₺ TRY';
+
+  @override
+  String get badgeFirstStep => 'Erster Schritt';
+
+  @override
+  String get badgeFirstStepText => 'Nimm an deinem ersten Event teil.';
+
+  @override
+  String get badgeRegular => 'Stammgast';
+
+  @override
+  String get badgeRegularText => 'Nimm an 10 Events teil.';
+
+  @override
+  String get badgeCompanion => 'Weggefährte';
+
+  @override
+  String get badgeCompanionText => 'Nimm an 25 Events teil.';
+
+  @override
+  String get badgeExplorer => 'Entdecker';
+
+  @override
+  String get badgeExplorerText =>
+      'Nimm an Events von 3 verschiedenen Gruppen teil.';
+
+  @override
+  String get badgeOrganizer => 'Organisator';
+
+  @override
+  String get badgeOrganizerText =>
+      'Organisiere ein Event mit mindestens 2 Teilnehmenden.';
+
+  @override
+  String get badgeMasterOrganizer => 'Meisterorganisator';
+
+  @override
+  String get badgeMasterOrganizerText =>
+      'Organisiere 10 Events mit jeweils mindestens 2 Teilnehmenden.';
+
+  @override
+  String get badgeStoryteller => 'Erinnerungssammler';
+
+  @override
+  String get badgeStorytellerText =>
+      'Füge 5 Erinnerungen zu besuchten Events hinzu.';
+
+  @override
+  String get badgeFeedback => 'Feedbackgeber';
+
+  @override
+  String get badgeFeedbackText => 'Bewerte 5 besuchte Events.';
+
+  @override
+  String get badgeDoorOpener => 'Türöffner';
+
+  @override
+  String get badgeDoorOpenerText =>
+      'Empfange bei einem Event jemanden, der zum ersten Mal kommt.';
+
+  @override
+  String get badgeHost => 'Gastgeber';
+
+  @override
+  String get badgeHostText => 'Empfange 5 Personen, die zum ersten Mal kommen.';
+
+  @override
+  String get badgeCommunityHeart => 'Herz der Community';
+
+  @override
+  String get badgeCommunityHeartText =>
+      'Empfange 20 Personen, die zum ersten Mal kommen.';
+
+  @override
+  String get badgeFriendly => 'Kontaktfreudig';
+
+  @override
+  String get badgeFriendlyText => 'Gib bei Events 5 Personen die Hand.';
+
+  @override
+  String get badgeSocialButterfly => 'Sozialer Schmetterling';
+
+  @override
+  String get badgeSocialButterflyText => 'Gib bei Events 25 Personen die Hand.';
+
+  @override
+  String get badgeCategory => 'Kategorie-Fan';
+
+  @override
+  String get badgeCategoryText => 'Nimm an 5 Events einer Kategorie teil.';
+
+  @override
+  String badgeCategoryOf(String category) {
+    return '$category-Fan';
+  }
+
+  @override
+  String badgeCategoryOfText(String category) {
+    return 'Hat an 5 Events in $category teilgenommen.';
+  }
+
+  @override
+  String badgeGoal(String goal) {
+    return 'Ziel: $goal';
+  }
+
+  @override
+  String badgeGoalText(String group) {
+    return 'Hat ein Ziel von $group erreicht.';
+  }
 }

@@ -9,10 +9,12 @@ import '../data/passkey_authenticator.dart';
 import '../data/supabase_auth_repository.dart';
 import '../data/supabase_birth_date_repository.dart';
 import '../data/supabase_consent_repository.dart';
+import '../data/supabase_language_repository.dart';
 import '../data/supabase_presence_repository.dart';
 import '../domain/account.dart';
 import '../domain/age.dart';
 import '../domain/auth.dart';
+import '../domain/language.dart';
 import '../domain/legal.dart';
 import '../domain/presence.dart';
 import '../domain/security.dart';
@@ -91,6 +93,10 @@ Future<void> refreshAccountSession(SupabaseClient Function() client) async {
 }
 
 /// Live users beats (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar); replaced in tests.
+final serverLanguageRepositoryProvider = Provider<ServerLanguageRepository>(
+  (ref) => SupabaseLanguageRepository(ref.watch(supabaseClientProvider)),
+);
+
 final presenceRepositoryProvider = Provider<PresenceRepository>(
   (ref) => SupabasePresenceRepository(ref.watch(supabaseClientProvider)),
 );

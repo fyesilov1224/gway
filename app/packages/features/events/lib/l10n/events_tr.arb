@@ -2686,5 +2686,153 @@
   "currencyTry": "₺ TRY",
   "@currencyTry": {
     "description": ""
+  },
+  "badgeFirstStep": "İlk adım",
+  "@badgeFirstStep": {
+    "description": ""
+  },
+  "badgeFirstStepText": "İlk organizasyonuna katıl.",
+  "@badgeFirstStepText": {
+    "description": ""
+  },
+  "badgeRegular": "Müdavim",
+  "@badgeRegular": {
+    "description": ""
+  },
+  "badgeRegularText": "10 organizasyona katıl.",
+  "@badgeRegularText": {
+    "description": ""
+  },
+  "badgeCompanion": "Yol arkadaşı",
+  "@badgeCompanion": {
+    "description": ""
+  },
+  "badgeCompanionText": "25 organizasyona katıl.",
+  "@badgeCompanionText": {
+    "description": ""
+  },
+  "badgeExplorer": "Kâşif",
+  "@badgeExplorer": {
+    "description": ""
+  },
+  "badgeExplorerText": "3 farklı grubun organizasyonuna katıl.",
+  "@badgeExplorerText": {
+    "description": ""
+  },
+  "badgeOrganizer": "Düzenleyici",
+  "@badgeOrganizer": {
+    "description": ""
+  },
+  "badgeOrganizerText": "En az 2 kişinin katıldığı bir organizasyon düzenle.",
+  "@badgeOrganizerText": {
+    "description": ""
+  },
+  "badgeMasterOrganizer": "Usta düzenleyici",
+  "@badgeMasterOrganizer": {
+    "description": ""
+  },
+  "badgeMasterOrganizerText": "En az 2 kişinin katıldığı 10 organizasyon düzenle.",
+  "@badgeMasterOrganizerText": {
+    "description": ""
+  },
+  "badgeStoryteller": "Anı biriktiren",
+  "@badgeStoryteller": {
+    "description": ""
+  },
+  "badgeStorytellerText": "Katıldığın organizasyonlara 5 anı ekle.",
+  "@badgeStorytellerText": {
+    "description": ""
+  },
+  "badgeFeedback": "Geri bildirimci",
+  "@badgeFeedback": {
+    "description": ""
+  },
+  "badgeFeedbackText": "Katıldığın 5 organizasyonu değerlendir.",
+  "@badgeFeedbackText": {
+    "description": ""
+  },
+  "badgeDoorOpener": "Kapı açan",
+  "@badgeDoorOpener": {
+    "description": ""
+  },
+  "badgeDoorOpenerText": "Bir organizasyonda ilk kez gelen birini karşıla.",
+  "@badgeDoorOpenerText": {
+    "description": ""
+  },
+  "badgeHost": "Ev sahibi",
+  "@badgeHost": {
+    "description": ""
+  },
+  "badgeHostText": "İlk kez gelen 5 kişiyi karşıla.",
+  "@badgeHostText": {
+    "description": ""
+  },
+  "badgeCommunityHeart": "Topluluğun kalbi",
+  "@badgeCommunityHeart": {
+    "description": ""
+  },
+  "badgeCommunityHeartText": "İlk kez gelen 20 kişiyi karşıla.",
+  "@badgeCommunityHeartText": {
+    "description": ""
+  },
+  "badgeFriendly": "Tanışkan",
+  "@badgeFriendly": {
+    "description": ""
+  },
+  "badgeFriendlyText": "Organizasyonlarda 5 kişiyle el sıkış.",
+  "@badgeFriendlyText": {
+    "description": ""
+  },
+  "badgeSocialButterfly": "Sosyal kelebek",
+  "@badgeSocialButterfly": {
+    "description": ""
+  },
+  "badgeSocialButterflyText": "Organizasyonlarda 25 kişiyle el sıkış.",
+  "@badgeSocialButterflyText": {
+    "description": ""
+  },
+  "badgeCategory": "Kategori tutkunu",
+  "@badgeCategory": {
+    "description": ""
+  },
+  "badgeCategoryText": "Bir kategoride 5 organizasyona katıl.",
+  "@badgeCategoryText": {
+    "description": ""
+  },
+  "badgeCategoryOf": "{category} tutkunu",
+  "@badgeCategoryOf": {
+    "description": "",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeCategoryOfText": "{category} kategorisinde 5 organizasyona katıldı.",
+  "@badgeCategoryOfText": {
+    "description": "",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeGoal": "Hedef: {goal}",
+  "@badgeGoal": {
+    "description": "",
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeGoalText": "{group} grubunun hedefini tamamladı.",
+  "@badgeGoalText": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -3243,6 +3243,198 @@ abstract class EventsL10n {
   /// In tr, this message translates to:
   /// **'₺ TRY'**
   String get currencyTry;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk adım'**
+  String get badgeFirstStep;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk organizasyonuna katıl.'**
+  String get badgeFirstStepText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Müdavim'**
+  String get badgeRegular;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'10 organizasyona katıl.'**
+  String get badgeRegularText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yol arkadaşı'**
+  String get badgeCompanion;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'25 organizasyona katıl.'**
+  String get badgeCompanionText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kâşif'**
+  String get badgeExplorer;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'3 farklı grubun organizasyonuna katıl.'**
+  String get badgeExplorerText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenleyici'**
+  String get badgeOrganizer;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En az 2 kişinin katıldığı bir organizasyon düzenle.'**
+  String get badgeOrganizerText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Usta düzenleyici'**
+  String get badgeMasterOrganizer;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En az 2 kişinin katıldığı 10 organizasyon düzenle.'**
+  String get badgeMasterOrganizerText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anı biriktiren'**
+  String get badgeStoryteller;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın organizasyonlara 5 anı ekle.'**
+  String get badgeStorytellerText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri bildirimci'**
+  String get badgeFeedback;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın 5 organizasyonu değerlendir.'**
+  String get badgeFeedbackText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapı açan'**
+  String get badgeDoorOpener;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir organizasyonda ilk kez gelen birini karşıla.'**
+  String get badgeDoorOpenerText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ev sahibi'**
+  String get badgeHost;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk kez gelen 5 kişiyi karşıla.'**
+  String get badgeHostText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Topluluğun kalbi'**
+  String get badgeCommunityHeart;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk kez gelen 20 kişiyi karşıla.'**
+  String get badgeCommunityHeartText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tanışkan'**
+  String get badgeFriendly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonlarda 5 kişiyle el sıkış.'**
+  String get badgeFriendlyText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sosyal kelebek'**
+  String get badgeSocialButterfly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Organizasyonlarda 25 kişiyle el sıkış.'**
+  String get badgeSocialButterflyText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori tutkunu'**
+  String get badgeCategory;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir kategoride 5 organizasyona katıl.'**
+  String get badgeCategoryText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{category} tutkunu'**
+  String badgeCategoryOf(String category);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{category} kategorisinde 5 organizasyona katıldı.'**
+  String badgeCategoryOfText(String category);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hedef: {goal}'**
+  String badgeGoal(String goal);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubunun hedefini tamamladı.'**
+  String badgeGoalText(String group);
 }
 
 class _EventsL10nDelegate extends LocalizationsDelegate<EventsL10n> {

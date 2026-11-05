@@ -9,4 +9,4 @@ alter table public.profiles add column locale text not null default 'tr'
 comment on column public.profiles.locale is
   'App language (one of the 12); push texts and server messages use it.';
 
-grant update (locale) on public.profiles to authenticated;
+grant insert (locale), update (locale) on public.profiles to authenticated;

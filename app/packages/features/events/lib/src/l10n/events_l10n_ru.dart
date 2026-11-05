@@ -1846,4 +1846,113 @@ class EventsL10nRu extends EventsL10n {
 
   @override
   String get currencyTry => '₺ TRY';
+
+  @override
+  String get badgeFirstStep => 'Первый шаг';
+
+  @override
+  String get badgeFirstStepText => 'Посетите первое мероприятие.';
+
+  @override
+  String get badgeRegular => 'Завсегдатай';
+
+  @override
+  String get badgeRegularText => 'Посетите 10 мероприятий.';
+
+  @override
+  String get badgeCompanion => 'Попутчик';
+
+  @override
+  String get badgeCompanionText => 'Посетите 25 мероприятий.';
+
+  @override
+  String get badgeExplorer => 'Исследователь';
+
+  @override
+  String get badgeExplorerText => 'Посетите мероприятия 3 разных групп.';
+
+  @override
+  String get badgeOrganizer => 'Организатор';
+
+  @override
+  String get badgeOrganizerText =>
+      'Организуйте мероприятие, где будет хотя бы 2 человека.';
+
+  @override
+  String get badgeMasterOrganizer => 'Мастер-организатор';
+
+  @override
+  String get badgeMasterOrganizerText =>
+      'Организуйте 10 мероприятий, где будет хотя бы 2 человека.';
+
+  @override
+  String get badgeStoryteller => 'Хранитель воспоминаний';
+
+  @override
+  String get badgeStorytellerText =>
+      'Добавьте 5 воспоминаний к посещённым мероприятиям.';
+
+  @override
+  String get badgeFeedback => 'Отзывчивый';
+
+  @override
+  String get badgeFeedbackText => 'Оцените 5 посещённых мероприятий.';
+
+  @override
+  String get badgeDoorOpener => 'Открывающий двери';
+
+  @override
+  String get badgeDoorOpenerText => 'Встретьте новичка на мероприятии.';
+
+  @override
+  String get badgeHost => 'Хозяин';
+
+  @override
+  String get badgeHostText => 'Встретьте 5 новичков.';
+
+  @override
+  String get badgeCommunityHeart => 'Сердце сообщества';
+
+  @override
+  String get badgeCommunityHeartText => 'Встретьте 20 новичков.';
+
+  @override
+  String get badgeFriendly => 'Общительный';
+
+  @override
+  String get badgeFriendlyText =>
+      'Обменяйтесь рукопожатием с 5 людьми на мероприятиях.';
+
+  @override
+  String get badgeSocialButterfly => 'Душа компании';
+
+  @override
+  String get badgeSocialButterflyText =>
+      'Обменяйтесь рукопожатием с 25 людьми на мероприятиях.';
+
+  @override
+  String get badgeCategory => 'Любитель категории';
+
+  @override
+  String get badgeCategoryText => 'Посетите 5 мероприятий одной категории.';
+
+  @override
+  String badgeCategoryOf(String category) {
+    return 'Любитель: $category';
+  }
+
+  @override
+  String badgeCategoryOfText(String category) {
+    return 'Посетил(а) 5 мероприятий категории «$category».';
+  }
+
+  @override
+  String badgeGoal(String goal) {
+    return 'Цель: $goal';
+  }
+
+  @override
+  String badgeGoalText(String group) {
+    return 'Выполнил(а) цель группы «$group».';
+  }
 }

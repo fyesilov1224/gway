@@ -53,6 +53,7 @@ class SupabaseProfileRepository implements ProfileRepository {
         'display_name': draft.displayName,
         'bio': draft.bio,
         'avatar_path': avatarPath,
+        'locale': currentAppLanguage.code,
       });
       if (draft.interests.isNotEmpty) {
         await _client.from('profile_interests').insert([

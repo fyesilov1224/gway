@@ -1,0 +1,86 @@
+{{ $l := or .Data.locale "tr" }}
+{{ if eq $l "en" }}
+<div lang="en" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Confirm your email change</h2>
+  <p style="color:#5C5F77">Confirm to change your account&#x27;s email address.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirm the change</a></p>
+  <p style="color:#5C5F77;font-size:13px">If you didn&#x27;t ask for this, write to the support team.</p>
+</div>
+{{ else if eq $l "de" }}
+<div lang="de" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">E-Mail-Änderung bestätigen</h2>
+  <p style="color:#5C5F77">Bestätige, um die E-Mail-Adresse deines Kontos zu ändern.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Änderung bestätigen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Wenn du das nicht angefordert hast, schreib dem Support.</p>
+</div>
+{{ else if eq $l "fr" }}
+<div lang="fr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Confirme le changement d&#x27;e-mail</h2>
+  <p style="color:#5C5F77">Confirme pour changer l&#x27;adresse e-mail de ton compte.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirmer le changement</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si tu n&#x27;as rien demandé, écris à l&#x27;assistance.</p>
+</div>
+{{ else if eq $l "nl" }}
+<div lang="nl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Bevestig je e-mailwijziging</h2>
+  <p style="color:#5C5F77">Bevestig om het e-mailadres van je account te wijzigen.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Wijziging bevestigen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Heb je dit niet gevraagd? Schrijf dan support.</p>
+</div>
+{{ else if eq $l "es" }}
+<div lang="es" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Confirma el cambio de correo</h2>
+  <p style="color:#5C5F77">Confirma para cambiar el correo de tu cuenta.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirmar el cambio</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si no lo pediste, escribe a soporte.</p>
+</div>
+{{ else if eq $l "pt" }}
+<div lang="pt" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Confirme a troca de e-mail</h2>
+  <p style="color:#5C5F77">Confirme para trocar o e-mail da sua conta.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirmar a troca</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se você não pediu isso, escreva para o suporte.</p>
+</div>
+{{ else if eq $l "it" }}
+<div lang="it" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Conferma il cambio di email</h2>
+  <p style="color:#5C5F77">Conferma per cambiare l&#x27;indirizzo email dell&#x27;account.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Conferma il cambio</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se non l’hai chiesto tu, scrivi al supporto.</p>
+</div>
+{{ else if eq $l "ru" }}
+<div lang="ru" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Подтвердите смену почты</h2>
+  <p style="color:#5C5F77">Подтвердите, чтобы изменить адрес почты аккаунта.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Подтвердить смену</a></p>
+  <p style="color:#5C5F77;font-size:13px">Если вы этого не запрашивали, напишите в поддержку.</p>
+</div>
+{{ else if eq $l "ar" }}
+<div lang="ar" dir="rtl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">أكّد تغيير البريد الإلكتروني</h2>
+  <p style="color:#5C5F77">أكّد لتغيير البريد الإلكتروني لحسابك.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">تأكيد التغيير</a></p>
+  <p style="color:#5C5F77;font-size:13px">إن لم تطلب ذلك فراسل فريق الدعم.</p>
+</div>
+{{ else if eq $l "az" }}
+<div lang="az" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">E-poçt dəyişikliyini təsdiqlə</h2>
+  <p style="color:#5C5F77">Hesabının e-poçt ünvanını dəyişmək üçün təsdiqlə.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Dəyişikliyi təsdiqlə</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu istəyi sən etməmisənsə, dəstək komandasına yaz.</p>
+</div>
+{{ else if eq $l "uk" }}
+<div lang="uk" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Підтвердьте зміну пошти</h2>
+  <p style="color:#5C5F77">Підтвердьте, щоб змінити адресу пошти облікового запису.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Підтвердити зміну</a></p>
+  <p style="color:#5C5F77;font-size:13px">Якщо ви цього не запитували, напишіть у підтримку.</p>
+</div>
+{{ else }}
+<div lang="tr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">E-posta değişikliğini onayla</h2>
+  <p style="color:#5C5F77">Hesabının e-posta adresini değiştirmek için onayla.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Değişikliği onayla</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu isteği sen yapmadıysan destek ekibine yaz.</p>
+</div>
+{{ end }}

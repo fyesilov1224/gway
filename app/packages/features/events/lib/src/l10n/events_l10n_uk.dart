@@ -1841,4 +1841,113 @@ class EventsL10nUk extends EventsL10n {
 
   @override
   String get currencyTry => '₺ TRY';
+
+  @override
+  String get badgeFirstStep => 'Перший крок';
+
+  @override
+  String get badgeFirstStepText => 'Відвідайте перший захід.';
+
+  @override
+  String get badgeRegular => 'Завсідник';
+
+  @override
+  String get badgeRegularText => 'Відвідайте 10 заходів.';
+
+  @override
+  String get badgeCompanion => 'Попутник';
+
+  @override
+  String get badgeCompanionText => 'Відвідайте 25 заходів.';
+
+  @override
+  String get badgeExplorer => 'Дослідник';
+
+  @override
+  String get badgeExplorerText => 'Відвідайте заходи 3 різних груп.';
+
+  @override
+  String get badgeOrganizer => 'Організатор';
+
+  @override
+  String get badgeOrganizerText =>
+      'Організуйте захід, де буде хоча б 2 людини.';
+
+  @override
+  String get badgeMasterOrganizer => 'Майстер-організатор';
+
+  @override
+  String get badgeMasterOrganizerText =>
+      'Організуйте 10 заходів, де буде хоча б 2 людини.';
+
+  @override
+  String get badgeStoryteller => 'Хранитель спогадів';
+
+  @override
+  String get badgeStorytellerText =>
+      'Додайте 5 спогадів до відвіданих заходів.';
+
+  @override
+  String get badgeFeedback => 'Відгукувач';
+
+  @override
+  String get badgeFeedbackText => 'Оцініть 5 відвіданих заходів.';
+
+  @override
+  String get badgeDoorOpener => 'Той, хто відчиняє двері';
+
+  @override
+  String get badgeDoorOpenerText => 'Зустріньте новачка на заході.';
+
+  @override
+  String get badgeHost => 'Господар';
+
+  @override
+  String get badgeHostText => 'Зустріньте 5 новачків.';
+
+  @override
+  String get badgeCommunityHeart => 'Серце спільноти';
+
+  @override
+  String get badgeCommunityHeartText => 'Зустріньте 20 новачків.';
+
+  @override
+  String get badgeFriendly => 'Товариський';
+
+  @override
+  String get badgeFriendlyText =>
+      'Обміняйтеся рукостисканням із 5 людьми на заходах.';
+
+  @override
+  String get badgeSocialButterfly => 'Душа компанії';
+
+  @override
+  String get badgeSocialButterflyText =>
+      'Обміняйтеся рукостисканням із 25 людьми на заходах.';
+
+  @override
+  String get badgeCategory => 'Шанувальник категорії';
+
+  @override
+  String get badgeCategoryText => 'Відвідайте 5 заходів однієї категорії.';
+
+  @override
+  String badgeCategoryOf(String category) {
+    return 'Шанувальник: $category';
+  }
+
+  @override
+  String badgeCategoryOfText(String category) {
+    return 'Відвідав(-ла) 5 заходів категорії «$category».';
+  }
+
+  @override
+  String badgeGoal(String goal) {
+    return 'Ціль: $goal';
+  }
+
+  @override
+  String badgeGoalText(String group) {
+    return 'Виконав(-ла) ціль групи «$group».';
+  }
 }

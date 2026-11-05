@@ -1,0 +1,86 @@
+{{ $l := or .Data.locale "tr" }}
+{{ if eq $l "en" }}
+<div lang="en" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Reset your password</h2>
+  <p style="color:#5C5F77">Use the link below to set a new password.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Set a new password</a></p>
+  <p style="color:#5C5F77;font-size:13px">If you didn&#x27;t ask for this, ignore this email; your password won&#x27;t change.</p>
+</div>
+{{ else if eq $l "de" }}
+<div lang="de" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Passwort zurücksetzen</h2>
+  <p style="color:#5C5F77">Lege über den Link unten ein neues Passwort fest.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Neues Passwort festlegen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Wenn du das nicht angefordert hast, ignoriere diese E-Mail; dein Passwort bleibt.</p>
+</div>
+{{ else if eq $l "fr" }}
+<div lang="fr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Réinitialise ton mot de passe</h2>
+  <p style="color:#5C5F77">Utilise le lien ci-dessous pour choisir un nouveau mot de passe.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Choisir un nouveau mot de passe</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si tu n&#x27;as rien demandé, ignore cet e-mail ; ton mot de passe ne change pas.</p>
+</div>
+{{ else if eq $l "nl" }}
+<div lang="nl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Stel je wachtwoord opnieuw in</h2>
+  <p style="color:#5C5F77">Gebruik de link hieronder om een nieuw wachtwoord in te stellen.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Nieuw wachtwoord instellen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Heb je dit niet gevraagd? Negeer deze e-mail; je wachtwoord blijft hetzelfde.</p>
+</div>
+{{ else if eq $l "es" }}
+<div lang="es" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Restablece tu contraseña</h2>
+  <p style="color:#5C5F77">Usa el enlace de abajo para crear una contraseña nueva.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Crear contraseña nueva</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si no lo pediste, ignora este correo; tu contraseña no cambiará.</p>
+</div>
+{{ else if eq $l "pt" }}
+<div lang="pt" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Redefina sua senha</h2>
+  <p style="color:#5C5F77">Use o link abaixo para criar uma nova senha.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Criar nova senha</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se você não pediu isso, ignore este e-mail; sua senha não muda.</p>
+</div>
+{{ else if eq $l "it" }}
+<div lang="it" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Reimposta la password</h2>
+  <p style="color:#5C5F77">Usa il link qui sotto per impostare una nuova password.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Imposta nuova password</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se non l’hai chiesto tu, ignora questa email; la password non cambia.</p>
+</div>
+{{ else if eq $l "ru" }}
+<div lang="ru" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Сброс пароля</h2>
+  <p style="color:#5C5F77">Перейдите по ссылке ниже, чтобы задать новый пароль.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Задать новый пароль</a></p>
+  <p style="color:#5C5F77;font-size:13px">Если вы не запрашивали сброс, проигнорируйте письмо — пароль не изменится.</p>
+</div>
+{{ else if eq $l "ar" }}
+<div lang="ar" dir="rtl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">إعادة تعيين كلمة المرور</h2>
+  <p style="color:#5C5F77">استخدم الرابط أدناه لتعيين كلمة مرور جديدة.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">تعيين كلمة مرور جديدة</a></p>
+  <p style="color:#5C5F77;font-size:13px">إن لم تطلب ذلك فتجاهل هذه الرسالة؛ لن تتغير كلمة مرورك.</p>
+</div>
+{{ else if eq $l "az" }}
+<div lang="az" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Şifrəni yenilə</h2>
+  <p style="color:#5C5F77">Yeni şifrə təyin etmək üçün aşağıdakı linkdən istifadə et.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Yeni şifrə təyin et</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu istəyi sən etməmisənsə, bu e-poçtu nəzərə alma; şifrən dəyişmir.</p>
+</div>
+{{ else if eq $l "uk" }}
+<div lang="uk" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Скидання пароля</h2>
+  <p style="color:#5C5F77">Перейдіть за посиланням нижче, щоб задати новий пароль.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Задати новий пароль</a></p>
+  <p style="color:#5C5F77;font-size:13px">Якщо ви не запитували скидання, проігноруйте лист — пароль не зміниться.</p>
+</div>
+{{ else }}
+<div lang="tr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Şifreni yenile</h2>
+  <p style="color:#5C5F77">Yeni bir şifre belirlemek için aşağıdaki bağlantıyı kullan.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Yeni şifre belirle</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin; şifren değişmez.</p>
+</div>
+{{ end }}

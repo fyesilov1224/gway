@@ -1,11 +1,11 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(6);
+select plan(8);
 
 insert into auth.users (id, email, aud, role)
 select ('00000000-0000-0000-0000-00000007900' || i)::uuid, 'locale' || i || '@test.local', 'authenticated', 'authenticated'
-from generate_series(1, 2) i;
+from generate_series(1, 3) i;
 insert into public.profiles (id, username, display_name)
 select ('00000000-0000-0000-0000-00000007900' || i)::uuid, 'locale_user' || i, 'Locale ' || i
 from generate_series(1, 2) i;
@@ -32,6 +32,13 @@ select is((select locale from public.profiles where id = pg_temp.u(2)), 'tr', 'n
 set local role anon;
 select throws_ok($$update public.profiles set locale = 'en'$$, '42501', null, 'anonymous visitors cannot write it');
 reset role;
+
+select pg_temp.act(pg_temp.u(3));
+set local role authenticated;
+select lives_ok($$insert into public.profiles (id, username, display_name, locale)
+  values ('00000000-0000-0000-0000-000000079003', 'locale_user3', 'Locale 3', 'ar')$$, 'a new profile can start in the chosen language');
+reset role;
+select is((select locale from public.profiles where id = pg_temp.u(3)), 'ar', 'the chosen language is stored at creation');
 
 select * from finish();
 rollback;

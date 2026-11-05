@@ -244,6 +244,20 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Sign-in e-mails in the account's language (app/tool/l10n/email_write.py; docs/ARCHITECTURE.md §11).
+# The subject cannot change with the language, so it is the app name.
+[auth.email.template.confirmation]
+subject = "GWAY"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "GWAY"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "GWAY"
+content_path = "./supabase/templates/email_change.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

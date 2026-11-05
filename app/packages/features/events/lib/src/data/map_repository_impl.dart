@@ -19,7 +19,10 @@ class MapRepositoryImpl implements MapRepository {
 
   static LatLng _point(Map<String, dynamic> r) => LatLng((r['lat'] as num).toDouble(), (r['lng'] as num).toDouble());
 
-  static String? _category(Map<String, dynamic> r) => (r['category'] as Map?)?['name'] as String?;
+  static String? _category(Map<String, dynamic> r) => switch (r['category']) {
+        {'slug': final String slug, 'name': final String name} => categoryLabel(slug, fallback: name),
+        _ => null,
+      };
 
   @override
   Future<Result<MapItems>> items(MapArea area, {String? category, DateTime? startsBefore}) async {

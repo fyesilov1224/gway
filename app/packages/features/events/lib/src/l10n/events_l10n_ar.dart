@@ -1826,4 +1826,109 @@ class EventsL10nAr extends EventsL10n {
 
   @override
   String get currencyTry => '₺ TRY';
+
+  @override
+  String get badgeFirstStep => 'الخطوة الأولى';
+
+  @override
+  String get badgeFirstStepText => 'احضر فعاليتك الأولى.';
+
+  @override
+  String get badgeRegular => 'المداوم';
+
+  @override
+  String get badgeRegularText => 'احضر 10 فعاليات.';
+
+  @override
+  String get badgeCompanion => 'رفيق الدرب';
+
+  @override
+  String get badgeCompanionText => 'احضر 25 فعالية.';
+
+  @override
+  String get badgeExplorer => 'المستكشف';
+
+  @override
+  String get badgeExplorerText => 'احضر فعاليات 3 مجموعات مختلفة.';
+
+  @override
+  String get badgeOrganizer => 'المنظِّم';
+
+  @override
+  String get badgeOrganizerText => 'نظّم فعالية يحضرها شخصان على الأقل.';
+
+  @override
+  String get badgeMasterOrganizer => 'المنظِّم المحترف';
+
+  @override
+  String get badgeMasterOrganizerText =>
+      'نظّم 10 فعاليات يحضر كلًّا منها شخصان على الأقل.';
+
+  @override
+  String get badgeStoryteller => 'جامع الذكريات';
+
+  @override
+  String get badgeStorytellerText => 'أضف 5 ذكريات إلى فعاليات حضرتها.';
+
+  @override
+  String get badgeFeedback => 'صاحب الرأي';
+
+  @override
+  String get badgeFeedbackText => 'قيّم 5 فعاليات حضرتها.';
+
+  @override
+  String get badgeDoorOpener => 'فاتح الأبواب';
+
+  @override
+  String get badgeDoorOpenerText => 'استقبل شخصًا يحضر للمرة الأولى.';
+
+  @override
+  String get badgeHost => 'المضيف';
+
+  @override
+  String get badgeHostText => 'استقبل 5 أشخاص يحضرون للمرة الأولى.';
+
+  @override
+  String get badgeCommunityHeart => 'قلب المجتمع';
+
+  @override
+  String get badgeCommunityHeartText => 'استقبل 20 شخصًا يحضرون للمرة الأولى.';
+
+  @override
+  String get badgeFriendly => 'الودود';
+
+  @override
+  String get badgeFriendlyText => 'صافح 5 أشخاص في الفعاليات.';
+
+  @override
+  String get badgeSocialButterfly => 'الفراشة الاجتماعية';
+
+  @override
+  String get badgeSocialButterflyText => 'صافح 25 شخصًا في الفعاليات.';
+
+  @override
+  String get badgeCategory => 'محب الفئة';
+
+  @override
+  String get badgeCategoryText => 'احضر 5 فعاليات في فئة واحدة.';
+
+  @override
+  String badgeCategoryOf(String category) {
+    return 'محب $category';
+  }
+
+  @override
+  String badgeCategoryOfText(String category) {
+    return 'حضر 5 فعاليات في فئة $category.';
+  }
+
+  @override
+  String badgeGoal(String goal) {
+    return 'الهدف: $goal';
+  }
+
+  @override
+  String badgeGoalText(String group) {
+    return 'أكمل هدفًا لمجموعة $group.';
+  }
 }

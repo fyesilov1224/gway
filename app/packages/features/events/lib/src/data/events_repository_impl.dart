@@ -85,7 +85,7 @@ class EventsRepositoryImpl implements EventsRepository {
       cancelReason: r['cancel_reason'] as String?,
       myStatus: AttendanceStatus.tryParse(r['my_status']),
       myPlace: (r['my_place'] as num?)?.toInt(),
-      categoryName: (r['category'] as Map?)?['name'] as String?,
+      categoryName: _categoryName(r['category']),
       requirements: r['requirements'] as String? ?? '',
       equipment: [for (final e in (r['equipment'] as List? ?? const [])) e as String],
       approvalRequired: r['approval_required'] == true,
@@ -292,7 +292,7 @@ class EventsRepositoryImpl implements EventsRepository {
           welcomed: n('welcomed'),
           categories: [
             for (final c in (r['categories'] as List? ?? const []).cast<Map<String, dynamic>>())
-              (c['name'] as String, (c['count'] as num).toInt()),
+              (categoryLabel(c['slug'] as String, fallback: c['name'] as String), (c['count'] as num).toInt()),
           ],
           topGroup: top?['name'] as String?,
           topGroupCount: (top?['count'] as num?)?.toInt() ?? 0,
@@ -532,7 +532,10 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<List<LeagueCategory>>> leagueCategories() => _run(() async {
         final rows = await _client.from('categories').select('slug, name').order('sort_order');
-        return [for (final r in rows) LeagueCategory(slug: r['slug'] as String, name: r['name'] as String)];
+        return [
+          for (final r in rows)
+            LeagueCategory(slug: r['slug'] as String, name: categoryLabel(r['slug'] as String, fallback: r['name'] as String)),
+        ];
       });
 
   @override
@@ -575,8 +578,42 @@ class EventsRepositoryImpl implements EventsRepository {
       ? _api.put('/events/$eventId/no-shows/$userId', decode: (_) {})
       : _api.delete('/events/$eventId/no-shows/$userId', decode: (_) {});
 
-  ContributionBadge _badge(Map<String, dynamic> b) =>
-      ContributionBadge(slug: b['slug'] as String, name: b['name'] as String, description: b['description'] as String);
+  /// The server keeps badge texts in Turkish; the app names them by slug in its own language (docs/ARCHITECTURE.md §11).
+  ContributionBadge _badge(Map<String, dynamic> b) {
+    final slug = b['slug'] as String;
+    final (name, description) = (b['name'] as String, b['description'] as String);
+    final l = eventsL10n;
+    final (localName, localDescription) = switch (slug) {
+      'first_step' => (l.badgeFirstStep, l.badgeFirstStepText),
+      'regular' => (l.badgeRegular, l.badgeRegularText),
+      'companion' => (l.badgeCompanion, l.badgeCompanionText),
+      'explorer' => (l.badgeExplorer, l.badgeExplorerText),
+      'organizer' => (l.badgeOrganizer, l.badgeOrganizerText),
+      'master_organizer' => (l.badgeMasterOrganizer, l.badgeMasterOrganizerText),
+      'storyteller' => (l.badgeStoryteller, l.badgeStorytellerText),
+      'feedback' => (l.badgeFeedback, l.badgeFeedbackText),
+      'door_opener' => (l.badgeDoorOpener, l.badgeDoorOpenerText),
+      'host' => (l.badgeHost, l.badgeHostText),
+      'community_heart' => (l.badgeCommunityHeart, l.badgeCommunityHeartText),
+      'friendly' => (l.badgeFriendly, l.badgeFriendlyText),
+      'social_butterfly' => (l.badgeSocialButterfly, l.badgeSocialButterflyText),
+      'category' => (l.badgeCategory, l.badgeCategoryText),
+      _ when slug.startsWith('category:') => () {
+          final category = categoryLabel(slug.substring('category:'.length), fallback: name.replaceFirst(RegExp(r' tutkunu$'), ''));
+          return (l.badgeCategoryOf(category), l.badgeCategoryOfText(category));
+        }(),
+      _ when slug.startsWith('goal:') => (
+          l.badgeGoal(name.replaceFirst('Hedef: ', '')),
+          l.badgeGoalText(description.replaceFirst(RegExp(r' grubunun hedefini tamamladı\.$'), '')),
+        ),
+      _ => (name, description),
+    };
+    return ContributionBadge(slug: slug, name: localName, description: localDescription);
+  }
+
+  static String? _categoryName(Object? category) => category is Map
+      ? categoryLabel(category['slug'] as String? ?? '', fallback: category['name'] as String? ?? '')
+      : null;
 
   @override
   Future<Result<Contributions?>> contributions(String userId) => _run(() async {

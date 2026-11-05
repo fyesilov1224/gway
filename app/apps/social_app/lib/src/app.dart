@@ -63,7 +63,7 @@ class SocialApp extends ConsumerWidget {
                     routeChanges: router.routerDelegate,
                     currentPath: () => router.routerDelegate.currentConfiguration.uri.path,
                     openLive: openLive,
-                    child: child!,
+                    child: LanguageSync(child: child!),
                   ),
                 ),
               ),

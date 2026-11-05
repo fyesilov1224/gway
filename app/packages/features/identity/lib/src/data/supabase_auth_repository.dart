@@ -32,6 +32,8 @@ class SupabaseAuthRepository implements AuthRepository {
           email: email.trim(),
           password: password,
           emailRedirectTo: redirectUrl,
+          // The confirmation e-mail is written in this language (supabase/templates).
+          data: {'locale': currentAppLanguage.code},
         ),
       );
 

@@ -1,0 +1,86 @@
+{{ $l := or .Data.locale "tr" }}
+{{ if eq $l "en" }}
+<div lang="en" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Welcome to GWAY</h2>
+  <p style="color:#5C5F77">Verify your email address to open your account.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Verify my email</a></p>
+  <p style="color:#5C5F77;font-size:13px">If you didn&#x27;t create this account, you can ignore this email.</p>
+</div>
+{{ else if eq $l "de" }}
+<div lang="de" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Willkommen bei GWAY</h2>
+  <p style="color:#5C5F77">Bestätige deine E-Mail-Adresse, um dein Konto zu eröffnen.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">E-Mail bestätigen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Wenn du dieses Konto nicht erstellt hast, ignoriere diese E-Mail.</p>
+</div>
+{{ else if eq $l "fr" }}
+<div lang="fr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Bienvenue sur GWAY</h2>
+  <p style="color:#5C5F77">Confirme ton adresse e-mail pour ouvrir ton compte.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirmer mon e-mail</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si tu n&#x27;as pas créé ce compte, ignore cet e-mail.</p>
+</div>
+{{ else if eq $l "nl" }}
+<div lang="nl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Welkom bij GWAY</h2>
+  <p style="color:#5C5F77">Bevestig je e-mailadres om je account te openen.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Mijn e-mail bevestigen</a></p>
+  <p style="color:#5C5F77;font-size:13px">Heb je dit account niet gemaakt? Negeer deze e-mail dan.</p>
+</div>
+{{ else if eq $l "es" }}
+<div lang="es" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Te damos la bienvenida a GWAY</h2>
+  <p style="color:#5C5F77">Verifica tu correo para abrir tu cuenta.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Verificar mi correo</a></p>
+  <p style="color:#5C5F77;font-size:13px">Si no creaste esta cuenta, ignora este correo.</p>
+</div>
+{{ else if eq $l "pt" }}
+<div lang="pt" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Boas-vindas ao GWAY</h2>
+  <p style="color:#5C5F77">Confirme seu e-mail para abrir sua conta.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Confirmar meu e-mail</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se você não criou esta conta, ignore este e-mail.</p>
+</div>
+{{ else if eq $l "it" }}
+<div lang="it" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Benvenuto su GWAY</h2>
+  <p style="color:#5C5F77">Conferma il tuo indirizzo email per aprire l’account.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Conferma la mia email</a></p>
+  <p style="color:#5C5F77;font-size:13px">Se non hai creato tu questo account, ignora questa email.</p>
+</div>
+{{ else if eq $l "ru" }}
+<div lang="ru" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Добро пожаловать в GWAY</h2>
+  <p style="color:#5C5F77">Подтвердите адрес почты, чтобы открыть аккаунт.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Подтвердить почту</a></p>
+  <p style="color:#5C5F77;font-size:13px">Если вы не создавали аккаунт, просто проигнорируйте письмо.</p>
+</div>
+{{ else if eq $l "ar" }}
+<div lang="ar" dir="rtl" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">مرحبًا بك في GWAY</h2>
+  <p style="color:#5C5F77">أكّد بريدك الإلكتروني لفتح حسابك.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">تأكيد بريدي</a></p>
+  <p style="color:#5C5F77;font-size:13px">إن لم تنشئ هذا الحساب فتجاهل هذه الرسالة.</p>
+</div>
+{{ else if eq $l "az" }}
+<div lang="az" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">GWAY-ə xoş gəldin</h2>
+  <p style="color:#5C5F77">Hesabını açmaq üçün e-poçt ünvanını təsdiqlə.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">E-poçtumu təsdiqlə</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu hesabı sən açmamısansa, bu e-poçtu nəzərə alma.</p>
+</div>
+{{ else if eq $l "uk" }}
+<div lang="uk" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">Ласкаво просимо до GWAY</h2>
+  <p style="color:#5C5F77">Підтвердьте адресу пошти, щоб відкрити обліковий запис.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">Підтвердити пошту</a></p>
+  <p style="color:#5C5F77;font-size:13px">Якщо ви не створювали обліковий запис, просто проігноруйте лист.</p>
+</div>
+{{ else }}
+<div lang="tr" style="font-family:sans-serif;color:#1F2033;max-width:480px;margin:0 auto;padding:24px">
+  <h2 style="font-size:20px">GWAY&#x27;e hoş geldin</h2>
+  <p style="color:#5C5F77">Hesabını açmak için e-posta adresini doğrula.</p>
+  <p><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6E56CF;color:#FFFFFF;padding:12px 20px;border-radius:12px;text-decoration:none">E-postamı doğrula</a></p>
+  <p style="color:#5C5F77;font-size:13px">Bu hesabı sen açmadıysan bu e-postayı yok sayabilirsin.</p>
+</div>
+{{ end }}
