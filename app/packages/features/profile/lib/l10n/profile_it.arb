@@ -85,7 +85,7 @@
   "noFollowing": "Non segue ancora nessuno.",
   "refresh": "Aggiorna",
   "removeFollower": "Rimuovi follower",
-  "removeFollowerBody": "Rimuovere @{username} dai tuoi follower? Non riceverà alcuna notifica.",
+  "removeFollowerBody": "Rimuovere {username} dai tuoi follower? Non riceverà alcuna notifica.",
   "removeAction": "Rimuovi",
   "friends": "Siete amici",
   "followRequests": "Richieste di follow",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Segui questo account per vedere foto, video e storie.",
   "addInterestsNudge": "Aggiungi i tuoi interessi e ti troveremo gruppi e compagni di squadra.",
   "add": "Aggiungi",
-  "blockTitle": "Bloccare @{username}?",
+  "blockTitle": "Bloccare {username}?",
   "blockBody": "Non vedrà il tuo profilo, i post e le storie, non potrà trovarti né scriverti. Smetterete di seguirvi. Non saprà di essere stata bloccata.",
   "block": "Blocca",
   "becomeTeammates": "Diventa compagno di squadra",
@@ -148,9 +148,9 @@
   "statPosts": "Post",
   "statFollowers": "Follower",
   "statFollowing": "Seguiti",
-  "withdrawFollowBody": "Ritirare la richiesta di follow a @{username}?",
-  "unfollowBody": "Smettere di seguire @{username}?",
-  "unfollowPrivateBody": "Smettere di seguire @{username}? L’account è privato, quindi per vedere i post dovrai inviare di nuovo la richiesta.",
+  "withdrawFollowBody": "Ritirare la richiesta di follow a {username}?",
+  "unfollowBody": "Smettere di seguire {username}?",
+  "unfollowPrivateBody": "Smettere di seguire {username}? L’account è privato, quindi per vedere i post dovrai inviare di nuovo la richiesta.",
   "withdrawRequest": "Ritira richiesta",
   "unfollow": "Non seguire più",
   "followBack": "Ricambia",
@@ -235,5 +235,6 @@
   "weekend": "Weekend",
   "username": "Nome utente",
   "available": "Disponibile",
-  "taken": "Già in uso"
+  "taken": "Già in uso",
+  "blockedUser": "{username} è bloccato."
 }

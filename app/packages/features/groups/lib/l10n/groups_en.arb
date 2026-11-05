@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG or WebP · up to 5 MB",
   "logo": "Logo",
   "cover": "Cover",
-  "groupHandle": "Group address: @{handle}",
+  "groupHandle": "Group address: {handle}",
   "rules": "Rules",
   "rulesHint": "What you expect from members, one rule per line.",
   "links": "Links",

@@ -142,7 +142,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: GwButton(label: groupsL10n.createTheGroup, onPressed: _create, isLoading: _saving),
                   ),
                 ],

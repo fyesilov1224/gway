@@ -513,9 +513,9 @@ class _Tile extends StatelessWidget {
               ),
             ),
             if (card.superLikedMe)
-              const Positioned(
+              const PositionedDirectional(
                 top: GwSpacing.xs,
-                right: GwSpacing.xs,
+                end: GwSpacing.xs,
                 child: Icon(Icons.star_rounded, color: GwColors.onMedia),
               ),
             Positioned(

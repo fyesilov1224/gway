@@ -405,7 +405,7 @@
   "@removeFollower": {
     "description": ""
   },
-  "removeFollowerBody": "@{username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.",
+  "removeFollowerBody": "{username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.",
   "@removeFollowerBody": {
     "description": "",
     "placeholders": {
@@ -615,7 +615,7 @@
   "@add": {
     "description": ""
   },
-  "blockTitle": "@{username} engellensin mi?",
+  "blockTitle": "{username} engellensin mi?",
   "@blockTitle": {
     "description": "",
     "placeholders": {
@@ -705,7 +705,7 @@
   "@statFollowing": {
     "description": ""
   },
-  "withdrawFollowBody": "@{username} için gönderdiğin takip isteğini geri almak istiyor musun?",
+  "withdrawFollowBody": "{username} için gönderdiğin takip isteğini geri almak istiyor musun?",
   "@withdrawFollowBody": {
     "description": "",
     "placeholders": {
@@ -714,7 +714,7 @@
       }
     }
   },
-  "unfollowBody": "@{username} takibini bırakmak istiyor musun?",
+  "unfollowBody": "{username} takibini bırakmak istiyor musun?",
   "@unfollowBody": {
     "description": "",
     "placeholders": {
@@ -723,7 +723,7 @@
       }
     }
   },
-  "unfollowPrivateBody": "@{username} takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.",
+  "unfollowPrivateBody": "{username} takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.",
   "@unfollowPrivateBody": {
     "description": "",
     "placeholders": {
@@ -1121,5 +1121,14 @@
   "taken": "Alınmış",
   "@taken": {
     "description": ""
+  },
+  "blockedUser": "{username} engellendi.",
+  "@blockedUser": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
   }
 }

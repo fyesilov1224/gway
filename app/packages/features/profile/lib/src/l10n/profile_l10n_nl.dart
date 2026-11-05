@@ -302,7 +302,7 @@ class ProfileL10nNl extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return '@$username uit je volgers verwijderen? Diegene krijgt geen melding.';
+    return '$username uit je volgers verwijderen? Diegene krijgt geen melding.';
   }
 
   @override
@@ -465,7 +465,7 @@ class ProfileL10nNl extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return '@$username blokkeren?';
+    return '$username blokkeren?';
   }
 
   @override
@@ -530,17 +530,17 @@ class ProfileL10nNl extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return 'Je volgverzoek aan @$username intrekken?';
+    return 'Je volgverzoek aan $username intrekken?';
   }
 
   @override
   String unfollowBody(String username) {
-    return '@$username ontvolgen?';
+    return '$username ontvolgen?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return '@$username ontvolgen? Het account is privé, dus je moet opnieuw een verzoek sturen om de berichten te zien.';
+    return '$username ontvolgen? Het account is privé, dus je moet opnieuw een verzoek sturen om de berichten te zien.';
   }
 
   @override
@@ -843,4 +843,9 @@ class ProfileL10nNl extends ProfileL10n {
 
   @override
   String get taken => 'Bezet';
+
+  @override
+  String blockedUser(String username) {
+    return '$username is geblokkeerd.';
+  }
 }

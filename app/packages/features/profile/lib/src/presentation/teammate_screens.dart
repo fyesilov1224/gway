@@ -429,7 +429,7 @@ class _Requests extends ConsumerWidget {
                 ),
                 if (r.message.isNotEmpty)
                   Padding(
-                    padding: EdgeInsets.fromLTRB(
+                    padding: EdgeInsetsDirectional.fromSTEB(
                         GwSpacing.md + GwAvatarSize.md.dimension + GwSpacing.sm, 0, GwSpacing.md, GwSpacing.sm),
                     child: Text(profileL10n.quoted(r.message), style: textTheme.bodyMedium),
                   ),
@@ -947,7 +947,7 @@ class _AvailabilityGrid extends StatelessWidget {
               for (final slot in TeammateSlot.values.where((s) => s.weekend == weekend))
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: GwSpacing.xs),
+                    padding: const EdgeInsetsDirectional.only(start: GwSpacing.xs),
                     child: Semantics(
                       button: true,
                       selected: selected.contains(slot),
@@ -982,7 +982,7 @@ class _AvailabilityGrid extends StatelessWidget {
             for (final p in parts)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: GwSpacing.xs),
+                  padding: const EdgeInsetsDirectional.only(start: GwSpacing.xs),
                   child: Text(p, textAlign: TextAlign.center, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 ),
               ),

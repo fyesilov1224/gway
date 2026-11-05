@@ -392,4 +392,13 @@ class BillingL10nUk extends BillingL10n {
 
   @override
   String get showTranslation => 'Показати переклад';
+
+  @override
+  String get planNameFree => 'Безкоштовний';
+
+  @override
+  String get planNameStarter => 'Стартовий';
+
+  @override
+  String get planNameCommunity => 'Спільнота';
 }

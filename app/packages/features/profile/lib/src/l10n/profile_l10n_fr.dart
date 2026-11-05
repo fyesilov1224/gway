@@ -302,7 +302,7 @@ class ProfileL10nFr extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return 'Retirer @$username de tes abonnés ? La personne ne sera pas prévenue.';
+    return 'Retirer $username de tes abonnés ? La personne ne sera pas prévenue.';
   }
 
   @override
@@ -465,7 +465,7 @@ class ProfileL10nFr extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return 'Bloquer @$username ?';
+    return 'Bloquer $username ?';
   }
 
   @override
@@ -530,17 +530,17 @@ class ProfileL10nFr extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return 'Retirer ta demande d\'abonnement à @$username ?';
+    return 'Retirer ta demande d\'abonnement à $username ?';
   }
 
   @override
   String unfollowBody(String username) {
-    return 'Ne plus suivre @$username ?';
+    return 'Ne plus suivre $username ?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return 'Ne plus suivre @$username ? Le compte est privé : tu devras renvoyer une demande pour voir ses publications.';
+    return 'Ne plus suivre $username ? Le compte est privé : tu devras renvoyer une demande pour voir ses publications.';
   }
 
   @override
@@ -845,4 +845,9 @@ class ProfileL10nFr extends ProfileL10n {
 
   @override
   String get taken => 'Déjà pris';
+
+  @override
+  String blockedUser(String username) {
+    return '$username est bloqué.';
+  }
 }

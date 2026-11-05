@@ -324,7 +324,7 @@ class _TeamSheetState extends State<_TeamSheet> {
               value: _picked.contains(p.id),
               onChanged: (v) => setState(() => v == true ? _picked.add(p.id) : _picked.remove(p.id)),
               title: Text(p.displayName),
-              subtitle: Text('@${p.username}'),
+              subtitle: Text(atName(p.username)),
             ),
           const SizedBox(height: GwSpacing.sm),
           GwButton(

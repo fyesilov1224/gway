@@ -123,7 +123,7 @@ class GroupsL10nPt extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'Endereço do grupo: @$handle';
+    return 'Endereço do grupo: $handle';
   }
 
   @override

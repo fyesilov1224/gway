@@ -59,6 +59,7 @@ Locale get currentAppLocale => _current.locale;
 void setCurrentAppLanguage(AppLanguage language) {
   _current = language;
   Intl.defaultLocale = language.code;
+  DateFormat.useNativeDigitsByDefaultFor('ar', false);
 }
 
 /// Device storage for the chosen language; each app overrides it in `main` after

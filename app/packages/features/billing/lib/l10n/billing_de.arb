@@ -104,5 +104,8 @@
   "creditDays": "{days} Tage",
   "termsTranslationNote": "Diese Übersetzung dient nur zur Information. Verbindlich ist der türkische Originalvertrag; ihm stimmst du zu.",
   "showOriginal": "Türkisches Original anzeigen",
-  "showTranslation": "Übersetzung anzeigen"
+  "showTranslation": "Übersetzung anzeigen",
+  "planNameFree": "Kostenlos",
+  "planNameStarter": "Starter",
+  "planNameCommunity": "Community"
 }

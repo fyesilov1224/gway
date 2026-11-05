@@ -83,7 +83,7 @@ class _TrayItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(right: GwSpacing.xs),
+        padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
         child: Center(
           child: Material(
             color: GwColors.background,
@@ -92,7 +92,7 @@ class _TrayItem extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
+                padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -328,7 +328,7 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
               gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [GwColors.mediaScrim, Color(0x00000000)]),
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xs, GwSpacing.xxs, GwSpacing.md),
+              padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.xs, GwSpacing.xs, GwSpacing.xxs, GwSpacing.md),
               child: Column(
                 children: [
                   Row(
@@ -370,8 +370,8 @@ class _StoryPlayerState extends ConsumerState<StoryPlayer> with SingleTickerProv
           ),
         ),
         if (isOwner)
-          Positioned(
-            left: GwSpacing.md,
+          PositionedDirectional(
+            start: GwSpacing.md,
             bottom: GwSpacing.md,
             child: TextButton.icon(
               onPressed: _showViewers,
@@ -545,7 +545,7 @@ class _NewStoryScreenState extends ConsumerState<NewStoryScreen> {
         title: Text(feedL10n.newStory),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
             child: GwButton(
               label: feedL10n.addToStory,
               isLoading: _sharing,
@@ -696,7 +696,7 @@ class HighlightsRow extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     // Chips like the home story row, so highlights read as a shelf, not a row of circles.
     Widget item({required Widget cover, required String label, required VoidCallback onTap, VoidCallback? onLongPress}) => Padding(
-          padding: const EdgeInsets.only(right: GwSpacing.xs),
+          padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
           child: Center(
             child: Material(
               color: GwColors.background,
@@ -706,7 +706,7 @@ class HighlightsRow extends ConsumerWidget {
                 onTap: onTap,
                 onLongPress: onLongPress,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
+                  padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.xxs, GwSpacing.xxs, GwSpacing.md, GwSpacing.xxs),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -815,7 +815,7 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
         actions: [
           if (_selected.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.sm),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
               child: GwButton(label: feedL10n.feature, onPressed: _addSelected),
             ),
         ],
@@ -857,8 +857,8 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                             fit: StackFit.expand,
                             children: [
                               MediaThumb(media: s.media),
-                              Positioned(
-                                left: GwSpacing.xxs,
+                              PositionedDirectional(
+                                start: GwSpacing.xxs,
                                 bottom: GwSpacing.xxs,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
@@ -869,8 +869,8 @@ class _StoryArchiveScreenState extends ConsumerState<StoryArchiveScreen> {
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                right: GwSpacing.xxs,
+                              PositionedDirectional(
+                                end: GwSpacing.xxs,
                                 top: GwSpacing.xxs,
                                 child: Icon(
                                   selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked,

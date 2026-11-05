@@ -297,7 +297,7 @@ class ProfileL10nTr extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return '@$username takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.';
+    return '$username takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.';
   }
 
   @override
@@ -448,7 +448,7 @@ class ProfileL10nTr extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return '@$username engellensin mi?';
+    return '$username engellensin mi?';
   }
 
   @override
@@ -513,17 +513,17 @@ class ProfileL10nTr extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return '@$username için gönderdiğin takip isteğini geri almak istiyor musun?';
+    return '$username için gönderdiğin takip isteğini geri almak istiyor musun?';
   }
 
   @override
   String unfollowBody(String username) {
-    return '@$username takibini bırakmak istiyor musun?';
+    return '$username takibini bırakmak istiyor musun?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return '@$username takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.';
+    return '$username takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.';
   }
 
   @override
@@ -813,4 +813,9 @@ class ProfileL10nTr extends ProfileL10n {
 
   @override
   String get taken => 'Alınmış';
+
+  @override
+  String blockedUser(String username) {
+    return '$username engellendi.';
+  }
 }

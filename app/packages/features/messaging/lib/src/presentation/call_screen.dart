@@ -236,7 +236,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
         ),
         const SizedBox(height: GwSpacing.lg),
         Text(peer?.displayName ?? '', style: textTheme.headlineSmall, textAlign: TextAlign.center),
-        if (peer != null) Text('@${peer.username}', style: secondary, textAlign: TextAlign.center),
+        if (peer != null) Text(atName(peer.username), style: secondary, textAlign: TextAlign.center),
         const SizedBox(height: GwSpacing.md),
         Text(_statusText(call, me), style: textTheme.titleMedium, textAlign: TextAlign.center),
         if (call.status == CallStatus.active)

@@ -672,7 +672,7 @@
   "@metNow": {
     "description": ""
   },
-  "personWithUsername": "{name} (@{username})",
+  "personWithUsername": "{name} ({username})",
   "@personWithUsername": {
     "description": "",
     "placeholders": {
@@ -704,7 +704,7 @@
   "@metPrivacy": {
     "description": ""
   },
-  "metRow": "@{username} · {event} · {date}",
+  "metRow": "{username} · {event} · {date}",
   "@metRow": {
     "description": "",
     "placeholders": {

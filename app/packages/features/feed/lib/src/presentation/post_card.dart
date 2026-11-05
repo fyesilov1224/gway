@@ -176,12 +176,12 @@ class _Header extends ConsumerWidget {
     final author = post.author;
     final name = group?.name ?? author?.displayName ?? feedL10n.deletedAccount;
     final meta = [
-      if (author != null) '@${author.username}' else if (group != null) feedL10n.groupPost,
+      if (author != null) atName(author.username) else if (group != null) feedL10n.groupPost,
       formatAgo(post.createdAt),
       if (post.editedAt != null) feedL10n.edited,
     ].join(' · ');
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm),
+      padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.sm, GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm),
       child: Row(
         children: [
           Expanded(
@@ -250,7 +250,7 @@ class _Actions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Padding(
-        padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xxs, GwSpacing.xxs, GwSpacing.xxs),
+        padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.xs, GwSpacing.xxs, GwSpacing.xxs, GwSpacing.xxs),
         child: Row(
           children: [
             _Counter(
@@ -297,7 +297,7 @@ class PostReactions extends ConsumerWidget {
         children: [
           for (final emoji in postReactionEmojis)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.xs),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
               child: Semantics(
                 button: true,
                 selected: post.myReaction == emoji,

@@ -359,8 +359,8 @@ class _Sidebar extends ConsumerWidget {
           padding: const EdgeInsets.all(GwSpacing.md),
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xs, 0, GwSpacing.lg),
-              child: Align(alignment: Alignment.centerLeft, child: GwLogo(size: GwSpacing.lg + GwSpacing.xxs, wordmark: true)),
+              padding: EdgeInsetsDirectional.fromSTEB(GwSpacing.xs, GwSpacing.xs, 0, GwSpacing.lg),
+              child: Align(alignment: AlignmentDirectional.centerStart, child: GwLogo(size: GwSpacing.lg + GwSpacing.xxs, wordmark: true)),
             ),
             for (final (i, d) in HomeShell._destinations.indexed)
               _SideItem(

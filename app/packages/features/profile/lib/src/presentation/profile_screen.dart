@@ -62,7 +62,7 @@ class ProfileScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(p.displayName, style: textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('@${p.username}', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                Text(atName(p.username), style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           null => Text(profileL10n.profile),
@@ -71,7 +71,7 @@ class ProfileScreen extends ConsumerWidget {
           if (isOwn) ...ownActions,
           if (isOwn && onOpenSettings != null)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.xs),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
               child: IconButton(tooltip: profileL10n.settings, icon: const Icon(Icons.settings_outlined), onPressed: onOpenSettings),
             ),
         ],
@@ -125,7 +125,7 @@ class _ProfileBody extends ConsumerWidget {
         children: [
           GwHeroCard(
             name: profile.displayName,
-            subtitle: '@${profile.username}',
+            subtitle: atName(profile.username),
             shape: GwAvatarShape.user,
             coverUrl: profile.coverUrl,
             avatarUrl: profile.avatarUrl,
@@ -264,7 +264,7 @@ class _VisitorActions extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: Text(profileL10n.blockTitle(profile.username)),
+        title: Text(profileL10n.blockTitle(atName(profile.username))),
         content: Text(profileL10n.blockBody),
         actions: [
           GwButton(label: profileL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
@@ -273,7 +273,7 @@ class _VisitorActions extends ConsumerWidget {
       ),
     );
     if (confirmed == true && context.mounted) {
-      await _run(context, ref, (r) => r.block(profile.id), '@${profile.username} engellendi.');
+      await _run(context, ref, (r) => r.block(profile.id), profileL10n.blockedUser(atName(profile.username)));
       refreshTeammates(ref);
     }
   }

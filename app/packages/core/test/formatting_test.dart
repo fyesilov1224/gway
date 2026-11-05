@@ -45,6 +45,13 @@ void main() {
     expect(coreL10n.networkFailure, startsWith('Keine Verbindung'));
   });
 
+  test('Arabic: 0-9 digits like the rest of the app, @names kept whole in right-to-left text', () {
+    addTearDown(() => setCurrentAppLanguage(AppLanguage.tr));
+    setCurrentAppLanguage(AppLanguage.ar);
+    expect(formatDate(DateTime(2026, 11, 5)), contains('2026'));
+    expect(atName('demo'), '\u{2066}@demo\u{2069}');
+  });
+
   test('picks the device language or English', () {
     expect(AppLanguage.fromDevice(const [Locale('ja'), Locale('de', 'AT')]), AppLanguage.de);
     expect(AppLanguage.fromDevice(const [Locale('ja')]), AppLanguage.en);

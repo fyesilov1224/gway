@@ -32,7 +32,7 @@ class _StoryFrame extends StatelessWidget {
               padding: const EdgeInsets.all(GwSpacing.lg),
               child: Column(
                 children: [
-                  const Align(alignment: Alignment.centerLeft, child: GwLogo(size: GwSpacing.xl, wordmark: true)),
+                  const Align(alignment: AlignmentDirectional.centerStart, child: GwLogo(size: GwSpacing.xl, wordmark: true)),
                   // A long year or a large text size shrinks the card instead of cutting it off.
                   Expanded(
                     child: LayoutBuilder(

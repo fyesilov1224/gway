@@ -777,7 +777,7 @@ class _PasskeysSectionState extends ConsumerState<_PasskeysSection> {
         ),
         for (final p in passkeys)
           ListTile(
-            contentPadding: const EdgeInsets.only(left: GwSpacing.xxl + GwSpacing.md, right: GwSpacing.xs),
+            contentPadding: const EdgeInsetsDirectional.only(start: GwSpacing.xxl + GwSpacing.md, end: GwSpacing.xs),
             title: Text(p.name),
             subtitle: Text(p.lastUsedAt == null ? identityL10n.notUsedYet : identityL10n.lastUsed(formatDateTime(p.lastUsedAt!))),
             trailing: IconButton(

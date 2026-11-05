@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG of WebP · max. 5 MB",
   "logo": "Logo",
   "cover": "Omslag",
-  "groupHandle": "Groepsadres: @{handle}",
+  "groupHandle": "Groepsadres: {handle}",
   "rules": "Regels",
   "rulesHint": "Wat je van leden verwacht, één regel per lijn.",
   "links": "Links",

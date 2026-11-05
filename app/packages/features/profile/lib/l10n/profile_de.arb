@@ -85,7 +85,7 @@
   "noFollowing": "Folgt noch niemandem.",
   "refresh": "Aktualisieren",
   "removeFollower": "Follower entfernen",
-  "removeFollowerBody": "@{username} aus deinen Followern entfernen? Die Person wird nicht benachrichtigt.",
+  "removeFollowerBody": "{username} aus deinen Followern entfernen? Die Person wird nicht benachrichtigt.",
   "removeAction": "Entfernen",
   "friends": "Ihr seid befreundet",
   "followRequests": "Follower-Anfragen",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Folge diesem Konto, um Fotos, Videos und Storys zu sehen.",
   "addInterestsNudge": "Füge deine Interessen hinzu, dann finden wir passende Gruppen und Teammitglieder.",
   "add": "Hinzufügen",
-  "blockTitle": "@{username} blockieren?",
+  "blockTitle": "{username} blockieren?",
   "blockBody": "Die Person sieht dein Profil, deine Beiträge und Storys nicht mehr, findet dich nicht und kann dir nicht schreiben. Ihr folgt euch nicht mehr. Sie erfährt nicht, dass du sie blockiert hast.",
   "block": "Blockieren",
   "becomeTeammates": "Teammitglied werden",
@@ -148,9 +148,9 @@
   "statPosts": "Beiträge",
   "statFollowers": "Follower",
   "statFollowing": "Folgt",
-  "withdrawFollowBody": "Deine Follower-Anfrage an @{username} zurückziehen?",
-  "unfollowBody": "@{username} nicht mehr folgen?",
-  "unfollowPrivateBody": "@{username} nicht mehr folgen? Das Konto ist privat; um die Beiträge zu sehen, müsstest du erneut anfragen.",
+  "withdrawFollowBody": "Deine Follower-Anfrage an {username} zurückziehen?",
+  "unfollowBody": "{username} nicht mehr folgen?",
+  "unfollowPrivateBody": "{username} nicht mehr folgen? Das Konto ist privat; um die Beiträge zu sehen, müsstest du erneut anfragen.",
   "withdrawRequest": "Anfrage zurückziehen",
   "unfollow": "Nicht mehr folgen",
   "followBack": "Zurückfolgen",
@@ -235,5 +235,6 @@
   "weekend": "Wochenende",
   "username": "Benutzername",
   "available": "Verfügbar",
-  "taken": "Vergeben"
+  "taken": "Vergeben",
+  "blockedUser": "{username} ist blockiert."
 }

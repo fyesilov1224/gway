@@ -91,15 +91,15 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                 ),
               ),
             if (c.superLikedMe)
-              Positioned(
+              PositionedDirectional(
                 top: GwSpacing.lg,
-                left: GwSpacing.sm,
+                start: GwSpacing.sm,
                 child: _Pill(icon: Icons.star_rounded, label: matchingL10n.superLikedYou, color: GwColors.secondary),
               ),
             if (widget.onMenu != null)
-              Positioned(
+              PositionedDirectional(
                 top: GwSpacing.sm,
-                right: GwSpacing.xxs,
+                end: GwSpacing.xxs,
                 child: IconButton(
                   tooltip: matchingL10n.options,
                   color: GwColors.onMedia,
@@ -120,7 +120,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xxl, GwSpacing.xs, GwSpacing.md),
+                  padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xxl, GwSpacing.xs, GwSpacing.md),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -400,7 +400,7 @@ class _Details extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                     leading: GwAvatar(name: g.name, shape: GwAvatarShape.group),
                     title: Text(g.name),
-                    subtitle: Text('@${g.handle}'),
+                    subtitle: Text(atName(g.handle)),
                   ),
               ],
             ),

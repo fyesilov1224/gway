@@ -152,7 +152,7 @@
   "@writeComment": {
     "description": ""
   },
-  "replyingTo": "@{username} kullanıcısına yanıt veriyorsun",
+  "replyingTo": "{username} kullanıcısına yanıt veriyorsun",
   "@replyingTo": {
     "description": "",
     "placeholders": {

@@ -133,12 +133,12 @@ class _AppMapState extends ConsumerState<AppMap> {
         if (_unavailable) const _MapUnavailable(),
         // Required by the tile licence; wraps instead of overflowing on narrow screens.
         Align(
-          alignment: Alignment.bottomRight,
+          alignment: AlignmentDirectional.bottomEnd,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
             color: GwColors.surface,
             child: Text(eventsL10n.mapAttribution,
-                textAlign: TextAlign.right, style: Theme.of(context).textTheme.labelSmall),
+                textAlign: TextAlign.end, style: Theme.of(context).textTheme.labelSmall),
           ),
         ),
       ],
@@ -424,7 +424,7 @@ class _MapNotice extends StatelessWidget {
         left: GwSpacing.md,
         right: GwSpacing.md,
         child: Container(
-          padding: const EdgeInsets.only(left: GwSpacing.md),
+          padding: const EdgeInsetsDirectional.only(start: GwSpacing.md),
           decoration: const BoxDecoration(
             color: GwColors.background,
             borderRadius: GwRadius.lgAll,

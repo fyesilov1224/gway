@@ -126,7 +126,7 @@ class FeedL10nIt extends FeedL10n {
 
   @override
   String replyingTo(String username) {
-    return 'Rispondi a @$username';
+    return 'Rispondi a $username';
   }
 
   @override

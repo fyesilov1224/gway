@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG o WebP · hasta 5 MB",
   "logo": "Logotipo",
   "cover": "Portada",
-  "groupHandle": "Dirección del grupo: @{handle}",
+  "groupHandle": "Dirección del grupo: {handle}",
   "rules": "Normas",
   "rulesHint": "Lo que esperas de los miembros, una norma por línea.",
   "links": "Enlaces",

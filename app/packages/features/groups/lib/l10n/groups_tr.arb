@@ -145,7 +145,7 @@
   "@cover": {
     "description": ""
   },
-  "groupHandle": "Grup adresi: @{handle}",
+  "groupHandle": "Grup adresi: {handle}",
   "@groupHandle": {
     "description": "",
     "placeholders": {

@@ -124,10 +124,10 @@ class _Bubble extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final staff = message.fromStaff;
     return Align(
-      alignment: staff ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: staff ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
       child: FractionallySizedBox(
         widthFactor: 0.85,
-        alignment: staff ? Alignment.centerLeft : Alignment.centerRight,
+        alignment: staff ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
         child: Container(
           margin: const EdgeInsets.only(bottom: GwSpacing.sm),
           padding: const EdgeInsets.all(GwSpacing.sm),

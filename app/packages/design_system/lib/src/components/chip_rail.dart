@@ -109,15 +109,15 @@ class _GwChipRailState extends State<GwChipRail> {
             }),
           ),
           if (_canBack)
-            Positioned(
-              left: 0,
+            PositionedDirectional(
+              start: 0,
               top: 0,
               bottom: 0,
               child: _Arrow(icon: Icons.chevron_left_rounded, tooltip: designSystemL10n.previous, onPressed: () => _scroll(-1)),
             ),
           if (_canForward)
-            Positioned(
-              right: 0,
+            PositionedDirectional(
+              end: 0,
               top: 0,
               bottom: 0,
               child: _Arrow(icon: Icons.chevron_right_rounded, tooltip: designSystemL10n.next, onPressed: () => _scroll(1)),

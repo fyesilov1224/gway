@@ -297,7 +297,7 @@ class ProfileL10nRu extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return 'Удалить @$username из подписчиков? Человек не получит уведомления.';
+    return 'Удалить $username из подписчиков? Человек не получит уведомления.';
   }
 
   @override
@@ -460,7 +460,7 @@ class ProfileL10nRu extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return 'Заблокировать @$username?';
+    return 'Заблокировать $username?';
   }
 
   @override
@@ -525,17 +525,17 @@ class ProfileL10nRu extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return 'Отозвать запрос на подписку на @$username?';
+    return 'Отозвать запрос на подписку на $username?';
   }
 
   @override
   String unfollowBody(String username) {
-    return 'Отписаться от @$username?';
+    return 'Отписаться от $username?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return 'Отписаться от @$username? Аккаунт закрытый: чтобы снова видеть публикации, придётся отправить новый запрос.';
+    return 'Отписаться от $username? Аккаунт закрытый: чтобы снова видеть публикации, придётся отправить новый запрос.';
   }
 
   @override
@@ -839,4 +839,9 @@ class ProfileL10nRu extends ProfileL10n {
 
   @override
   String get taken => 'Занято';
+
+  @override
+  String blockedUser(String username) {
+    return '$username заблокирован(а).';
+  }
 }

@@ -396,4 +396,13 @@ class BillingL10nAz extends BillingL10n {
 
   @override
   String get showTranslation => 'Tərcüməni göstər';
+
+  @override
+  String get planNameFree => 'Pulsuz';
+
+  @override
+  String get planNameStarter => 'Başlanğıc';
+
+  @override
+  String get planNameCommunity => 'İcma';
 }

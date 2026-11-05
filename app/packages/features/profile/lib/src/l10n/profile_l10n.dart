@@ -631,7 +631,7 @@ abstract class ProfileL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.'**
+  /// **'{username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.'**
   String removeFollowerBody(String username);
 
   ///
@@ -889,7 +889,7 @@ abstract class ProfileL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} engellensin mi?'**
+  /// **'{username} engellensin mi?'**
   String blockTitle(String username);
 
   ///
@@ -1009,19 +1009,19 @@ abstract class ProfileL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} için gönderdiğin takip isteğini geri almak istiyor musun?'**
+  /// **'{username} için gönderdiğin takip isteğini geri almak istiyor musun?'**
   String withdrawFollowBody(String username);
 
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} takibini bırakmak istiyor musun?'**
+  /// **'{username} takibini bırakmak istiyor musun?'**
   String unfollowBody(String username);
 
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.'**
+  /// **'{username} takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.'**
   String unfollowPrivateBody(String username);
 
   ///
@@ -1533,6 +1533,12 @@ abstract class ProfileL10n {
   /// In tr, this message translates to:
   /// **'Alınmış'**
   String get taken;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{username} engellendi.'**
+  String blockedUser(String username);
 }
 
 class _ProfileL10nDelegate extends LocalizationsDelegate<ProfileL10n> {

@@ -201,7 +201,7 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
       _PersonRow(
         entry: WelcomeEntry(person: greeter),
         links: widget.links,
-        subtitle: mine.greeterNote == null ? '@${greeter.username}' : eventsL10n.meetingAt(mine.greeterNote!),
+        subtitle: mine.greeterNote == null ? atName(greeter.username) : eventsL10n.meetingAt(mine.greeterNote!),
       ),
       if (mine.canThank) ...[
         const SizedBox(height: GwSpacing.xs),

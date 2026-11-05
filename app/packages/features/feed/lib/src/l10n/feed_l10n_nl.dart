@@ -125,7 +125,7 @@ class FeedL10nNl extends FeedL10n {
 
   @override
   String replyingTo(String username) {
-    return 'Antwoord aan @$username';
+    return 'Antwoord aan $username';
   }
 
   @override

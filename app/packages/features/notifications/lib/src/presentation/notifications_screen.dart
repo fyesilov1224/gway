@@ -214,7 +214,7 @@ class _NotificationRow extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       background: Container(
         color: GwColors.errorSoft,
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
         child: Icon(Icons.delete_outline, color: GwColors.error, semanticLabel: notificationsL10n.delete),
       ),

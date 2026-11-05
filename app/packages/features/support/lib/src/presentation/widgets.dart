@@ -90,9 +90,9 @@ class ImageAttachments extends StatelessWidget {
                 borderRadius: GwRadius.mdAll,
                 child: Image.memory(image.bytes, width: size, height: size, fit: BoxFit.cover),
               ),
-              Positioned(
+              PositionedDirectional(
                 top: 0,
-                right: 0,
+                end: 0,
                 child: IconButton.filledTonal(
                   tooltip: supportL10n.removeImage,
                   visualDensity: VisualDensity.compact,

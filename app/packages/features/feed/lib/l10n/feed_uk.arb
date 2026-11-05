@@ -33,7 +33,7 @@
   "noCommentsFirst": "Коментарів поки немає. Напишіть першим.",
   "goBack": "Назад",
   "writeComment": "Написати коментар",
-  "replyingTo": "Відповідь для @{username}",
+  "replyingTo": "Відповідь для {username}",
   "cancelReply": "Скасувати відповідь",
   "addComment": "Додайте коментар…",
   "share": "Опублікувати",

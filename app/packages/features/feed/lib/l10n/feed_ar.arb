@@ -33,7 +33,7 @@
   "noCommentsFirst": "لا توجد تعليقات بعد. كن أول من يعلّق.",
   "goBack": "رجوع",
   "writeComment": "اكتب تعليقًا",
-  "replyingTo": "ردًا على ‎@{username}",
+  "replyingTo": "ردًا على ‎{username}",
   "cancelReply": "إلغاء الرد",
   "addComment": "أضف تعليقًا…",
   "share": "نشر",

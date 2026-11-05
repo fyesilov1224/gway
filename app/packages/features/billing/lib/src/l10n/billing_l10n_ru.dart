@@ -393,4 +393,13 @@ class BillingL10nRu extends BillingL10n {
 
   @override
   String get showTranslation => 'Показать перевод';
+
+  @override
+  String get planNameFree => 'Бесплатный';
+
+  @override
+  String get planNameStarter => 'Стартовый';
+
+  @override
+  String get planNameCommunity => 'Сообщество';
 }

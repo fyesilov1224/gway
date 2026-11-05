@@ -295,7 +295,7 @@ class ProfileL10nAr extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return 'إزالة ‎@$username من متابِعيك؟ لن يُبلَّغ بذلك.';
+    return 'إزالة ‎$username من متابِعيك؟ لن يُبلَّغ بذلك.';
   }
 
   @override
@@ -459,7 +459,7 @@ class ProfileL10nAr extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return 'حظر ‎@$username؟';
+    return 'حظر ‎$username؟';
   }
 
   @override
@@ -524,17 +524,17 @@ class ProfileL10nAr extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return 'هل تريد سحب طلب متابعة ‎@$username؟';
+    return 'هل تريد سحب طلب متابعة ‎$username؟';
   }
 
   @override
   String unfollowBody(String username) {
-    return 'إلغاء متابعة ‎@$username؟';
+    return 'إلغاء متابعة ‎$username؟';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return 'إلغاء متابعة ‎@$username؟ الحساب خاص، لذا ستحتاج إلى إرسال طلب جديد لرؤية منشوراته.';
+    return 'إلغاء متابعة ‎$username؟ الحساب خاص، لذا ستحتاج إلى إرسال طلب جديد لرؤية منشوراته.';
   }
 
   @override
@@ -835,4 +835,9 @@ class ProfileL10nAr extends ProfileL10n {
 
   @override
   String get taken => 'مأخوذ';
+
+  @override
+  String blockedUser(String username) {
+    return 'تم حظر $username.';
+  }
 }

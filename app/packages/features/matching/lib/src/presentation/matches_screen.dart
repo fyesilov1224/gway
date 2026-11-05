@@ -195,7 +195,7 @@ class MatchesScreen extends ConsumerWidget {
                             children: [
                               Text('${card.displayName}, ${card.age}', style: textTheme.titleMedium),
                               Text(
-                                '@${m.username} · ${formatDate(m.matchedAt)}',
+                                [if (m.username case final u?) atName(u), formatDate(m.matchedAt)].join(' · '),
                                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                               ),
                               const SizedBox(height: GwSpacing.xxs),

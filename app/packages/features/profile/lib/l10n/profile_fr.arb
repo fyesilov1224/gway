@@ -85,7 +85,7 @@
   "noFollowing": "Aucun abonnement pour l'instant.",
   "refresh": "Actualiser",
   "removeFollower": "Retirer l'abonné",
-  "removeFollowerBody": "Retirer @{username} de tes abonnés ? La personne ne sera pas prévenue.",
+  "removeFollowerBody": "Retirer {username} de tes abonnés ? La personne ne sera pas prévenue.",
   "removeAction": "Retirer",
   "friends": "Vous êtes amis",
   "followRequests": "Demandes d'abonnement",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Abonne-toi à ce compte pour voir ses photos, vidéos et stories.",
   "addInterestsNudge": "Ajoute tes centres d'intérêt et nous te trouverons des groupes et des coéquipiers.",
   "add": "Ajouter",
-  "blockTitle": "Bloquer @{username} ?",
+  "blockTitle": "Bloquer {username} ?",
   "blockBody": "La personne ne verra plus ton profil, tes publications ni tes stories, ne pourra pas te trouver ni t'écrire. Vous ne vous suivrez plus. Elle ne sera pas prévenue.",
   "block": "Bloquer",
   "becomeTeammates": "Devenir coéquipiers",
@@ -148,9 +148,9 @@
   "statPosts": "Publications",
   "statFollowers": "Abonnés",
   "statFollowing": "Abonnements",
-  "withdrawFollowBody": "Retirer ta demande d'abonnement à @{username} ?",
-  "unfollowBody": "Ne plus suivre @{username} ?",
-  "unfollowPrivateBody": "Ne plus suivre @{username} ? Le compte est privé : tu devras renvoyer une demande pour voir ses publications.",
+  "withdrawFollowBody": "Retirer ta demande d'abonnement à {username} ?",
+  "unfollowBody": "Ne plus suivre {username} ?",
+  "unfollowPrivateBody": "Ne plus suivre {username} ? Le compte est privé : tu devras renvoyer une demande pour voir ses publications.",
   "withdrawRequest": "Retirer la demande",
   "unfollow": "Ne plus suivre",
   "followBack": "S'abonner en retour",
@@ -235,5 +235,6 @@
   "weekend": "Week-end",
   "username": "Nom d'utilisateur",
   "available": "Disponible",
-  "taken": "Déjà pris"
+  "taken": "Déjà pris",
+  "blockedUser": "{username} est bloqué."
 }

@@ -80,7 +80,7 @@ class _InviteLinksSectionState extends ConsumerState<InviteLinksSection> {
           ),
           const SizedBox(height: GwSpacing.sm),
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: GwButton(label: groupsL10n.createLink, icon: Icons.add_link, onPressed: _create),
           ),
           switch (ref.watch(inviteLinksProvider(widget.group.id))) {
@@ -253,7 +253,7 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
             children: [
               GwHeroCard(
                 name: preview.name,
-                subtitle: '@${preview.handle}',
+                subtitle: atName(preview.handle),
                 shape: GwAvatarShape.group,
                 coverUrl: preview.coverUrl,
                 avatarUrl: preview.logoUrl,

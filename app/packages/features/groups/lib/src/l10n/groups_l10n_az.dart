@@ -121,7 +121,7 @@ class GroupsL10nAz extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'Qrup ünvanı: @$handle';
+    return 'Qrup ünvanı: $handle';
   }
 
   @override

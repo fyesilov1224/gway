@@ -907,7 +907,7 @@ abstract class EventsL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'{name} (@{username})'**
+  /// **'{name} ({username})'**
   String personWithUsername(String name, String username);
 
   ///
@@ -943,7 +943,7 @@ abstract class EventsL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} · {event} · {date}'**
+  /// **'{username} · {event} · {date}'**
   String metRow(String username, String event, String date);
 
   ///

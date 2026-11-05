@@ -76,7 +76,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         actions: [
           ...widget.actions,
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
             child: GwButton(label: groupsL10n.createGroup, icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),
           ),
         ],

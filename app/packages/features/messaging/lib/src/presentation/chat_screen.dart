@@ -159,7 +159,7 @@ class _Title extends StatelessWidget {
       Conversation(kind: ConversationKind.group, adminsOnly: true) => messagingL10n.groupChatAdminsOnly,
       Conversation(kind: ConversationKind.group) => messagingL10n.groupChat,
       Conversation(kind: ConversationKind.table) => messagingL10n.smallTableMembers(c.tableMembers),
-      Conversation(:final peer?) => '@${peer.username}',
+      Conversation(:final peer?) => atName(peer.username),
       _ => '',
     };
     return InkWell(
@@ -461,7 +461,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
                     children: [
                       if (showSender)
                         Padding(
-                          padding: EdgeInsets.only(left: avatarRoom + GwSpacing.xs, bottom: GwSpacing.xxs),
+                          padding: EdgeInsetsDirectional.only(start: avatarRoom + GwSpacing.xs, bottom: GwSpacing.xxs),
                           child: Text(m.sender.displayName, style: textTheme.labelMedium?.copyWith(color: GwColors.primary)),
                         ),
                       Row(
@@ -473,7 +473,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
                               width: avatarRoom,
                               child: widget.showAvatar
                                   ? Align(
-                                      alignment: Alignment.bottomLeft,
+                                      alignment: AlignmentDirectional.bottomStart,
                                       child: Semantics(
                                         button: true,
                                         label: messagingL10n.profileOf(m.sender.displayName),
@@ -502,9 +502,9 @@ class _BubbleState extends ConsumerState<_Bubble> {
                         ],
                       ),
                       Padding(
-                        padding: EdgeInsets.only(
-                          left: (mine ? 0 : avatarRoom) + GwSpacing.xs,
-                          right: GwSpacing.xs,
+                        padding: EdgeInsetsDirectional.only(
+                          start: (mine ? 0 : avatarRoom) + GwSpacing.xs,
+                          end: GwSpacing.xs,
                           top: GwSpacing.xxs,
                           bottom: GwSpacing.xxs,
                         ),
@@ -887,7 +887,7 @@ class _Skeleton extends StatelessWidget {
         children: [
           for (var i = 0; i < 6; i++)
             Align(
-              alignment: i.isEven ? Alignment.centerLeft : Alignment.centerRight,
+              alignment: i.isEven ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
               child: const Padding(
                 padding: EdgeInsets.only(bottom: GwSpacing.sm),
                 child: GwSkeleton(width: GwSpacing.xxl * 4, height: GwSpacing.xl + GwSpacing.xs, borderRadius: GwRadius.lgAll),

@@ -104,5 +104,8 @@
   "creditDays": "{days} giorni",
   "termsTranslationNote": "Questa traduzione è informativa. Il contratto vincolante, e quello che accetti, è l'originale in turco.",
   "showOriginal": "Mostra l'originale in turco",
-  "showTranslation": "Mostra la traduzione"
+  "showTranslation": "Mostra la traduzione",
+  "planNameFree": "Gratuito",
+  "planNameStarter": "Base",
+  "planNameCommunity": "Community"
 }

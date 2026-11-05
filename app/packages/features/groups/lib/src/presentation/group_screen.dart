@@ -136,7 +136,7 @@ class _GroupBody extends ConsumerWidget {
         children: [
           GwHeroCard(
             name: group.name,
-            subtitle: '@${group.handle}',
+            subtitle: atName(group.handle),
             shape: GwAvatarShape.group,
             coverUrl: group.coverUrl,
             avatarUrl: group.logoUrl,
@@ -410,7 +410,7 @@ class PersonTile extends StatelessWidget {
                 children: [
                   Text(person.displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                   Text(
-                    subtitle ?? '@${person.username}',
+                    subtitle ?? atName(person.username),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
@@ -453,7 +453,7 @@ class _Section extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: GwSpacing.md, right: trailing == null ? GwSpacing.md : GwSpacing.xs),
+              padding: EdgeInsetsDirectional.only(start: GwSpacing.md, end: trailing == null ? GwSpacing.md : GwSpacing.xs),
               child: Row(
                 children: [
                   Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),

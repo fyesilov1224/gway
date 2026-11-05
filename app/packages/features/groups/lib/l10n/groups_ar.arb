@@ -35,7 +35,7 @@
   "imageHint": "JPEG أو PNG أو WebP · حتى 5 ميغابايت",
   "logo": "الشعار",
   "cover": "الغلاف",
-  "groupHandle": "عنوان المجموعة: ‎@{handle}",
+  "groupHandle": "عنوان المجموعة: ‎{handle}",
   "rules": "القواعد",
   "rulesHint": "ما تتوقّعه من الأعضاء، قاعدة في كل سطر.",
   "links": "الروابط",

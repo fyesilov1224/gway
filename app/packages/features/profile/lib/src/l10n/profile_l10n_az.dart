@@ -299,7 +299,7 @@ class ProfileL10nAz extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return '@$username izləyicilərindən çıxarılsın? Bu barədə ona bildiriş getməyəcək.';
+    return '$username izləyicilərindən çıxarılsın? Bu barədə ona bildiriş getməyəcək.';
   }
 
   @override
@@ -450,7 +450,7 @@ class ProfileL10nAz extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return '@$username bloklansın?';
+    return '$username bloklansın?';
   }
 
   @override
@@ -515,17 +515,17 @@ class ProfileL10nAz extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return '@$username üçün göndərdiyin izləmə istəyini geri götürmək istəyirsən?';
+    return '$username üçün göndərdiyin izləmə istəyini geri götürmək istəyirsən?';
   }
 
   @override
   String unfollowBody(String username) {
-    return '@$username izləməyi dayandırmaq istəyirsən?';
+    return '$username izləməyi dayandırmaq istəyirsən?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return '@$username izləməyi dayandırmaq istəyirsən? Hesab gizli olduğu üçün paylaşımlarını görmək üçün yenidən istək göndərməlisən.';
+    return '$username izləməyi dayandırmaq istəyirsən? Hesab gizli olduğu üçün paylaşımlarını görmək üçün yenidən istək göndərməlisən.';
   }
 
   @override
@@ -815,4 +815,9 @@ class ProfileL10nAz extends ProfileL10n {
 
   @override
   String get taken => 'Götürülüb';
+
+  @override
+  String blockedUser(String username) {
+    return '$username bloklandı.';
+  }
 }

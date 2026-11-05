@@ -256,7 +256,7 @@ class _PersonRow extends StatelessWidget {
               children: [
                 Text(person.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
                 if (person.username.isNotEmpty)
-                  Text('@${person.username}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                  Text(atName(person.username), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),

@@ -130,7 +130,7 @@ class _PollCardState extends ConsumerState<PollCard> {
             ),
           if (poll.allowsMultiple && poll.isOpen && pendingChange)
             Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               child: GwButton(
                 label: eventsL10n.vote,
                 isLoading: _busy,
@@ -184,7 +184,7 @@ class _OptionRow extends StatelessWidget {
               if (showResult)
                 Positioned.fill(
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: FractionallySizedBox(
                       widthFactor: share,
                       heightFactor: 1,
@@ -256,7 +256,7 @@ class _Voters extends ConsumerWidget {
                 ListTile(
                   leading: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
                   title: Text(p.displayName),
-                  subtitle: Text('@${p.username}'),
+                  subtitle: Text(atName(p.username)),
                 ),
             ],
           ),
@@ -429,7 +429,7 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
               ),
             if (_options.length < 10)
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: TextButton.icon(
                   onPressed: () => setState(() => _options.add(TextEditingController())),
                   icon: const Icon(Icons.add),

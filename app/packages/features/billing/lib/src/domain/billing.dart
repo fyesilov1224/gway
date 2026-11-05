@@ -29,18 +29,26 @@ enum PlanPeriod {
 class Plan {
   const Plan({
     required this.slug,
-    required this.name,
+    required String name,
     required this.tier,
     required this.maxMembers,
     required this.monthlyEvents,
     required this.monthlyLiveMinutes,
     this.isActive = true,
-  });
+  }) : _name = name;
 
   static const freeSlug = 'free';
 
   final String slug;
-  final String name;
+  final String _name;
+
+  /// In the app language for the catalog's plans; a plan added later shows the name it was given.
+  String get name => switch (slug) {
+        freeSlug => billingL10n.planNameFree,
+        'starter' => billingL10n.planNameStarter,
+        'community' => billingL10n.planNameCommunity,
+        _ => _name,
+      };
   final int tier;
   final int maxMembers;
   final int monthlyEvents;

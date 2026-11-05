@@ -104,5 +104,8 @@
   "creditDays": "{days} يوم",
   "termsTranslationNote": "هذه الترجمة للعلم فقط. العقد الملزم، والذي توافق عليه، هو الأصل التركي.",
   "showOriginal": "عرض الأصل التركي",
-  "showTranslation": "عرض الترجمة"
+  "showTranslation": "عرض الترجمة",
+  "planNameFree": "مجاني",
+  "planNameStarter": "المبتدئ",
+  "planNameCommunity": "المجتمع"
 }

@@ -318,7 +318,7 @@ abstract class FeedL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'@{username} kullanıcısına yanıt veriyorsun'**
+  /// **'{username} kullanıcısına yanıt veriyorsun'**
   String replyingTo(String username);
 
   ///

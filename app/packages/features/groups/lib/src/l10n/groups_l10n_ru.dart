@@ -121,7 +121,7 @@ class GroupsL10nRu extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'Адрес группы: @$handle';
+    return 'Адрес группы: $handle';
   }
 
   @override

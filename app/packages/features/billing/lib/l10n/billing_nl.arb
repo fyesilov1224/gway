@@ -104,5 +104,8 @@
   "creditDays": "{days} dagen",
   "termsTranslationNote": "Deze vertaling is ter informatie. Bindend, en waarmee je akkoord gaat, is de Turkse originele overeenkomst.",
   "showOriginal": "Turks origineel tonen",
-  "showTranslation": "Vertaling tonen"
+  "showTranslation": "Vertaling tonen",
+  "planNameFree": "Gratis",
+  "planNameStarter": "Starter",
+  "planNameCommunity": "Community"
 }

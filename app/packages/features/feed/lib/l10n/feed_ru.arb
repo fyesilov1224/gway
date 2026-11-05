@@ -33,7 +33,7 @@
   "noCommentsFirst": "Комментариев пока нет. Напишите первым.",
   "goBack": "Назад",
   "writeComment": "Написать комментарий",
-  "replyingTo": "Ответ для @{username}",
+  "replyingTo": "Ответ для {username}",
   "cancelReply": "Отменить ответ",
   "addComment": "Добавьте комментарий…",
   "share": "Опубликовать",

@@ -85,7 +85,7 @@
   "noFollowing": "لا يتابع أحدًا بعد.",
   "refresh": "تحديث",
   "removeFollower": "إزالة المتابِع",
-  "removeFollowerBody": "إزالة ‎@{username} من متابِعيك؟ لن يُبلَّغ بذلك.",
+  "removeFollowerBody": "إزالة ‎{username} من متابِعيك؟ لن يُبلَّغ بذلك.",
   "removeAction": "إزالة",
   "friends": "أنتما صديقان",
   "followRequests": "طلبات المتابعة",
@@ -128,7 +128,7 @@
   "privateAccountHint": "تابِع هذا الحساب لرؤية صوره ومقاطعه وقصصه.",
   "addInterestsNudge": "أضف اهتماماتك وسنجد لك مجموعات وزملاء فريق.",
   "add": "إضافة",
-  "blockTitle": "حظر ‎@{username}؟",
+  "blockTitle": "حظر ‎{username}؟",
   "blockBody": "لن يرى ملفك الشخصي ومنشوراتك وقصصك، ولن يعثر عليك أو يراسلك. ستنتهي المتابعة بينكما. لن يُبلَّغ بأنك حظرته.",
   "block": "حظر",
   "becomeTeammates": "كونا زميلَي فريق",
@@ -148,9 +148,9 @@
   "statPosts": "منشورات",
   "statFollowers": "متابِعون",
   "statFollowing": "يتابع",
-  "withdrawFollowBody": "هل تريد سحب طلب متابعة ‎@{username}؟",
-  "unfollowBody": "إلغاء متابعة ‎@{username}؟",
-  "unfollowPrivateBody": "إلغاء متابعة ‎@{username}؟ الحساب خاص، لذا ستحتاج إلى إرسال طلب جديد لرؤية منشوراته.",
+  "withdrawFollowBody": "هل تريد سحب طلب متابعة ‎{username}؟",
+  "unfollowBody": "إلغاء متابعة ‎{username}؟",
+  "unfollowPrivateBody": "إلغاء متابعة ‎{username}؟ الحساب خاص، لذا ستحتاج إلى إرسال طلب جديد لرؤية منشوراته.",
   "withdrawRequest": "سحب الطلب",
   "unfollow": "إلغاء المتابعة",
   "followBack": "متابعة بالمثل",
@@ -235,5 +235,6 @@
   "weekend": "عطلة نهاية الأسبوع",
   "username": "اسم المستخدم",
   "available": "متاح",
-  "taken": "مأخوذ"
+  "taken": "مأخوذ",
+  "blockedUser": "تم حظر {username}."
 }

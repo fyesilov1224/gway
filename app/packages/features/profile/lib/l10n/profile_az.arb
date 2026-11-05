@@ -85,7 +85,7 @@
   "noFollowing": "Hələ heç kim izlənilmir.",
   "refresh": "Yenilə",
   "removeFollower": "İzləyicini çıxar",
-  "removeFollowerBody": "@{username} izləyicilərindən çıxarılsın? Bu barədə ona bildiriş getməyəcək.",
+  "removeFollowerBody": "{username} izləyicilərindən çıxarılsın? Bu barədə ona bildiriş getməyəcək.",
   "removeAction": "Çıxar",
   "friends": "Dostsunuz",
   "followRequests": "İzləmə istəkləri",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Şəkillərini, videolarını və hekayələrini görmək üçün bu hesabı izlə.",
   "addInterestsNudge": "Maraq sahələrini əlavə et, sənə uyğun qrupları və komanda yoldaşlarını tapaq.",
   "add": "Əlavə et",
-  "blockTitle": "@{username} bloklansın?",
+  "blockTitle": "{username} bloklansın?",
   "blockBody": "Profilini, paylaşımlarını və hekayələrini görə, səni tapa və sənə yaza bilməz. İzləşməniz bitir. Blokladığın barədə ona bildiriş getmir.",
   "block": "Blokla",
   "becomeTeammates": "Komanda yoldaşı ol",
@@ -148,9 +148,9 @@
   "statPosts": "Paylaşım",
   "statFollowers": "İzləyici",
   "statFollowing": "İzlənilən",
-  "withdrawFollowBody": "@{username} üçün göndərdiyin izləmə istəyini geri götürmək istəyirsən?",
-  "unfollowBody": "@{username} izləməyi dayandırmaq istəyirsən?",
-  "unfollowPrivateBody": "@{username} izləməyi dayandırmaq istəyirsən? Hesab gizli olduğu üçün paylaşımlarını görmək üçün yenidən istək göndərməlisən.",
+  "withdrawFollowBody": "{username} üçün göndərdiyin izləmə istəyini geri götürmək istəyirsən?",
+  "unfollowBody": "{username} izləməyi dayandırmaq istəyirsən?",
+  "unfollowPrivateBody": "{username} izləməyi dayandırmaq istəyirsən? Hesab gizli olduğu üçün paylaşımlarını görmək üçün yenidən istək göndərməlisən.",
   "withdrawRequest": "İstəyi geri götür",
   "unfollow": "İzləməni dayandır",
   "followBack": "Qarşılıqlı izlə",
@@ -235,5 +235,6 @@
   "weekend": "Həftəsonu",
   "username": "İstifadəçi adı",
   "available": "Əlçatandır",
-  "taken": "Götürülüb"
+  "taken": "Götürülüb",
+  "blockedUser": "{username} bloklandı."
 }

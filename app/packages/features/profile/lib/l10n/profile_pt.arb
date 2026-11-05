@@ -85,7 +85,7 @@
   "noFollowing": "Ainda não segue ninguém.",
   "refresh": "Atualizar",
   "removeFollower": "Remover seguidor",
-  "removeFollowerBody": "Remover @{username} dos seus seguidores? A pessoa não será avisada.",
+  "removeFollowerBody": "Remover {username} dos seus seguidores? A pessoa não será avisada.",
   "removeAction": "Remover",
   "friends": "Vocês são amigos",
   "followRequests": "Solicitações para seguir",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Siga esta conta para ver fotos, vídeos e stories.",
   "addInterestsNudge": "Adicione seus interesses e encontraremos grupos e parceiros para você.",
   "add": "Adicionar",
-  "blockTitle": "Bloquear @{username}?",
+  "blockTitle": "Bloquear {username}?",
   "blockBody": "A pessoa não verá seu perfil, publicações nem stories, não poderá encontrar você nem escrever. Vocês deixarão de se seguir. Ela não será avisada do bloqueio.",
   "block": "Bloquear",
   "becomeTeammates": "Formar parceria",
@@ -148,9 +148,9 @@
   "statPosts": "Publicações",
   "statFollowers": "Seguidores",
   "statFollowing": "Seguindo",
-  "withdrawFollowBody": "Retirar sua solicitação para seguir @{username}?",
-  "unfollowBody": "Deixar de seguir @{username}?",
-  "unfollowPrivateBody": "Deixar de seguir @{username}? A conta é privada; para ver as publicações, você precisará pedir de novo.",
+  "withdrawFollowBody": "Retirar sua solicitação para seguir {username}?",
+  "unfollowBody": "Deixar de seguir {username}?",
+  "unfollowPrivateBody": "Deixar de seguir {username}? A conta é privada; para ver as publicações, você precisará pedir de novo.",
   "withdrawRequest": "Retirar solicitação",
   "unfollow": "Deixar de seguir",
   "followBack": "Seguir de volta",
@@ -235,5 +235,6 @@
   "weekend": "Fim de semana",
   "username": "Nome de usuário",
   "available": "Disponível",
-  "taken": "Em uso"
+  "taken": "Em uso",
+  "blockedUser": "{username} foi bloqueado."
 }

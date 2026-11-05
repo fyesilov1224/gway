@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG або WebP · до 5 МБ",
   "logo": "Логотип",
   "cover": "Обкладинка",
-  "groupHandle": "Адреса групи: @{handle}",
+  "groupHandle": "Адреса групи: {handle}",
   "rules": "Правила",
   "rulesHint": "Чого ви чекаєте від учасників — по правилу на рядок.",
   "links": "Посилання",

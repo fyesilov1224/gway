@@ -89,10 +89,10 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
               padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
               child: Text(
                 requested
-                    ? profileL10n.withdrawFollowBody(widget.username)
+                    ? profileL10n.withdrawFollowBody(atName(widget.username))
                     : widget.isPrivate
-                        ? profileL10n.unfollowPrivateBody(widget.username)
-                        : profileL10n.unfollowBody(widget.username),
+                        ? profileL10n.unfollowPrivateBody(atName(widget.username))
+                        : profileL10n.unfollowBody(atName(widget.username)),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),

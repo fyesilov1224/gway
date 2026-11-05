@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG ou WebP · até 5 MB",
   "logo": "Logo",
   "cover": "Capa",
-  "groupHandle": "Endereço do grupo: @{handle}",
+  "groupHandle": "Endereço do grupo: {handle}",
   "rules": "Regras",
   "rulesHint": "O que você espera dos membros, uma regra por linha.",
   "links": "Links",

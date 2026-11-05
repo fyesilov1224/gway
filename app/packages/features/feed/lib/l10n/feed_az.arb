@@ -33,7 +33,7 @@
   "noCommentsFirst": "Hələ şərh yoxdur. İlk şərhi sən yaz.",
   "goBack": "Geri qayıt",
   "writeComment": "Şərh yaz",
-  "replyingTo": "@{username} istifadəçisinə cavab verirsən",
+  "replyingTo": "{username} istifadəçisinə cavab verirsən",
   "cancelReply": "Cavabı ləğv et",
   "addComment": "Şərh əlavə et…",
   "share": "Paylaş",

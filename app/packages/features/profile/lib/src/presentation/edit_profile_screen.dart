@@ -147,7 +147,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
         title: Text(profileL10n.editProfile),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
             child: GwButton(label: profileL10n.save, onPressed: busy ? null : _save, isLoading: _saving),
           ),
         ],
@@ -224,7 +224,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: Wrap(
                       spacing: GwSpacing.sm,
                       runSpacing: GwSpacing.sm,
@@ -282,9 +282,9 @@ class _ImagesEditor extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (cover == null) const ColoredBox(color: GwColors.primarySoft) else Image(image: gwNetworkImage(cover), fit: BoxFit.cover),
-                Positioned(
+                PositionedDirectional(
                   top: GwSpacing.sm,
-                  right: GwSpacing.sm,
+                  end: GwSpacing.sm,
                   child: Wrap(
                     spacing: GwSpacing.xs,
                     children: [
@@ -321,8 +321,8 @@ class _ImagesEditor extends StatelessWidget {
                         child: SizedBox.square(dimension: GwSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2)),
                       ),
                     ),
-                  Positioned(
-                    right: 0,
+                  PositionedDirectional(
+                    end: 0,
                     bottom: 0,
                     child: IconButton.filled(
                       tooltip: profileL10n.changeAvatar,

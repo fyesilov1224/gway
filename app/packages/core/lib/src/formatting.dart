@@ -11,6 +11,8 @@ String get _locale {
   if (!_symbolsLoaded) {
     // Loads every locale's date symbols synchronously; the returned future is already complete.
     initializeDateFormatting();
+    // Arabic dates use the same 0-9 digits as the rest of the app (counts, calendar grid, prices).
+    DateFormat.useNativeDigitsByDefaultFor('ar', false);
     _symbolsLoaded = true;
   }
   return currentAppLanguage.code;
@@ -34,6 +36,12 @@ String formatDateTime(DateTime date) {
 /// `5 Kasım, Perşembe` / `Thursday, November 5` in local time.
 String formatWeekdayDate(DateTime date) =>
     (_locale == 'tr' ? DateFormat('d MMMM, EEEE', 'tr') : DateFormat.MMMMEEEEd(_locale)).format(date.toLocal());
+
+/// `@name` that reads the same in a right-to-left sentence (Unicode isolate; otherwise Arabic shows `name@`).
+String atName(String name) => '$_isolate@$name$_popIsolate';
+
+const _isolate = '\u{2066}';
+const _popIsolate = '\u{2069}';
 
 /// `a, b, c` with the language's own separator (Arabic `، `).
 String formatList(Iterable<String> items) => items.join(currentAppLanguage == AppLanguage.ar ? '، ' : ', ');

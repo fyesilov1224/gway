@@ -747,6 +747,24 @@ abstract class BillingL10n {
   /// In tr, this message translates to:
   /// **'Çeviriyi göster'**
   String get showTranslation;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ücretsiz'**
+  String get planNameFree;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç'**
+  String get planNameStarter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Topluluk'**
+  String get planNameCommunity;
 }
 
 class _BillingL10nDelegate extends LocalizationsDelegate<BillingL10n> {

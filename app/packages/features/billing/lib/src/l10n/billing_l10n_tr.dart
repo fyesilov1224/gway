@@ -396,4 +396,13 @@ class BillingL10nTr extends BillingL10n {
 
   @override
   String get showTranslation => 'Çeviriyi göster';
+
+  @override
+  String get planNameFree => 'Ücretsiz';
+
+  @override
+  String get planNameStarter => 'Başlangıç';
+
+  @override
+  String get planNameCommunity => 'Topluluk';
 }

@@ -127,7 +127,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           ),
                           for (final r in c.replies)
                             Padding(
-                              padding: const EdgeInsets.only(left: GwSpacing.xxl),
+                              padding: const EdgeInsetsDirectional.only(start: GwSpacing.xxl),
                               child: _CommentRow(
                                 comment: r,
                                 canDelete: r.author.id == me || (post?.canManage ?? false),
@@ -159,7 +159,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs),
+          padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -167,7 +167,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(feedL10n.replyingTo(reply.author.username),
+                      child: Text(feedL10n.replyingTo(atName(reply.author.username)),
                           style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                     ),
                     IconButton(
@@ -323,7 +323,7 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
     return InkWell(
       onLongPress: widget.canDelete ? _delete : null,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xxs, GwSpacing.xs),
+        padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xs, GwSpacing.xxs, GwSpacing.xs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

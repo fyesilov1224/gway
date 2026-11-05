@@ -33,7 +33,7 @@
   "noCommentsFirst": "Noch keine Kommentare. Schreib den ersten.",
   "goBack": "Zurück",
   "writeComment": "Kommentar schreiben",
-  "replyingTo": "Antwort an @{username}",
+  "replyingTo": "Antwort an {username}",
   "cancelReply": "Antwort abbrechen",
   "addComment": "Kommentar hinzufügen…",
   "share": "Teilen",

@@ -399,4 +399,13 @@ class BillingL10nIt extends BillingL10n {
 
   @override
   String get showTranslation => 'Mostra la traduzione';
+
+  @override
+  String get planNameFree => 'Gratuito';
+
+  @override
+  String get planNameStarter => 'Base';
+
+  @override
+  String get planNameCommunity => 'Community';
 }

@@ -85,7 +85,7 @@
   "noFollowing": "Volgt nog niemand.",
   "refresh": "Vernieuwen",
   "removeFollower": "Volger verwijderen",
-  "removeFollowerBody": "@{username} uit je volgers verwijderen? Diegene krijgt geen melding.",
+  "removeFollowerBody": "{username} uit je volgers verwijderen? Diegene krijgt geen melding.",
   "removeAction": "Verwijderen",
   "friends": "Jullie zijn vrienden",
   "followRequests": "Volgverzoeken",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Volg dit account om foto's, video's en verhalen te zien.",
   "addInterestsNudge": "Voeg je interesses toe, dan vinden we groepen en teamgenoten voor je.",
   "add": "Toevoegen",
-  "blockTitle": "@{username} blokkeren?",
+  "blockTitle": "{username} blokkeren?",
   "blockBody": "Diegene ziet je profiel, berichten en verhalen niet meer, kan je niet vinden en je geen berichten sturen. Jullie volgen elkaar niet meer. Diegene hoort niet dat je hebt geblokkeerd.",
   "block": "Blokkeren",
   "becomeTeammates": "Teamgenoten worden",
@@ -148,9 +148,9 @@
   "statPosts": "Berichten",
   "statFollowers": "Volgers",
   "statFollowing": "Volgend",
-  "withdrawFollowBody": "Je volgverzoek aan @{username} intrekken?",
-  "unfollowBody": "@{username} ontvolgen?",
-  "unfollowPrivateBody": "@{username} ontvolgen? Het account is privé, dus je moet opnieuw een verzoek sturen om de berichten te zien.",
+  "withdrawFollowBody": "Je volgverzoek aan {username} intrekken?",
+  "unfollowBody": "{username} ontvolgen?",
+  "unfollowPrivateBody": "{username} ontvolgen? Het account is privé, dus je moet opnieuw een verzoek sturen om de berichten te zien.",
   "withdrawRequest": "Verzoek intrekken",
   "unfollow": "Ontvolgen",
   "followBack": "Terugvolgen",
@@ -235,5 +235,6 @@
   "weekend": "Weekend",
   "username": "Gebruikersnaam",
   "available": "Beschikbaar",
-  "taken": "Bezet"
+  "taken": "Bezet",
+  "blockedUser": "{username} is geblokkeerd."
 }

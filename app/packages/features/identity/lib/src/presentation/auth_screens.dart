@@ -167,7 +167,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
           ),
         ),
         Align(
-          alignment: Alignment.centerRight,
+          alignment: AlignmentDirectional.centerEnd,
           child: GwButton(
             label: identityL10n.forgotPassword,
             variant: GwButtonVariant.text,

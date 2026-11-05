@@ -84,7 +84,7 @@ class _Greeting extends ConsumerWidget {
         // Shrinks instead of cutting the name off at large text sizes.
         FittedBox(
           fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
+          alignment: AlignmentDirectional.centerStart,
           child: Text(name == null ? hello : socialAppL10n.greetingName(hello, name), maxLines: 1, style: textTheme.headlineMedium),
         ),
       ],

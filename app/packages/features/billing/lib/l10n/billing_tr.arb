@@ -585,5 +585,17 @@
   "showTranslation": "Çeviriyi göster",
   "@showTranslation": {
     "description": ""
+  },
+  "planNameFree": "Ücretsiz",
+  "@planNameFree": {
+    "description": ""
+  },
+  "planNameStarter": "Başlangıç",
+  "@planNameStarter": {
+    "description": ""
+  },
+  "planNameCommunity": "Topluluk",
+  "@planNameCommunity": {
+    "description": ""
   }
 }

@@ -35,7 +35,7 @@
   "imageHint": "JPEG, PNG və ya WebP · ən çox 5 MB",
   "logo": "Loqo",
   "cover": "Örtük",
-  "groupHandle": "Qrup ünvanı: @{handle}",
+  "groupHandle": "Qrup ünvanı: {handle}",
   "rules": "Qaydalar",
   "rulesHint": "Üzvlərdən gözləntilərin, hər sətrə bir qayda.",
   "links": "Keçidlər",

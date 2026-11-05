@@ -104,5 +104,8 @@
   "creditDays": "{days} days",
   "termsTranslationNote": "This translation is for information. The binding agreement, and the one you accept, is the Turkish original.",
   "showOriginal": "Show the Turkish original",
-  "showTranslation": "Show the translation"
+  "showTranslation": "Show the translation",
+  "planNameFree": "Free",
+  "planNameStarter": "Starter",
+  "planNameCommunity": "Community"
 }

@@ -22,7 +22,7 @@ class PublicLegalScreen extends ConsumerWidget {
     return _PublicPage(
       child: switch (docs) {
         AsyncData(:final value) => switch (value.where((d) => d.kind == kind).firstOrNull) {
-            final doc? => LegalText(document: doc, titleStyle: textTheme.headlineMedium),
+            final doc? => LegalText(document: doc, titleStyle: textTheme.headlineSmall),
             null => GwEmptyState(
                 icon: Icons.description_outlined,
                 message: identityL10n.documentNotPublished,
@@ -61,7 +61,7 @@ class AccountDeletionInfoScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(identityL10n.deletionInfoTitle, style: textTheme.headlineMedium),
+          Text(identityL10n.deletionInfoTitle, style: textTheme.headlineSmall),
           const SizedBox(height: GwSpacing.md),
           Text(identityL10n.deletionInfoIntro, style: textTheme.bodyLarge),
           const SizedBox(height: GwSpacing.md),

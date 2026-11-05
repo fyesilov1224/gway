@@ -331,7 +331,7 @@ abstract class GroupsL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'Grup adresi: @{handle}'**
+  /// **'Grup adresi: {handle}'**
   String groupHandle(String handle);
 
   ///

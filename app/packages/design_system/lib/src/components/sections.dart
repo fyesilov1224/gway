@@ -46,7 +46,7 @@ class GwSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: padding ?? const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),
+      padding: padding ?? const EdgeInsetsDirectional.fromSTEB(GwSpacing.page, GwSpacing.lg, GwSpacing.xs, GwSpacing.xs),
       child: Row(
         children: [
           Expanded(

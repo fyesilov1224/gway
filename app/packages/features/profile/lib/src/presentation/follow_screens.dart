@@ -104,7 +104,7 @@ class _OwnFollowerRow extends ConsumerWidget {
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
         title: Text(profileL10n.removeFollower),
-        content: Text(profileL10n.removeFollowerBody(person.username)),
+        content: Text(profileL10n.removeFollowerBody(atName(person.username))),
         actions: [
           GwButton(label: profileL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
           GwButton(label: profileL10n.removeAction, onPressed: () => Navigator.of(context).pop(true)),

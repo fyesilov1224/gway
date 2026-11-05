@@ -467,7 +467,7 @@ class EventsL10nAr extends EventsL10n {
 
   @override
   String personWithUsername(String name, String username) {
-    return '$name (‎@$username)';
+    return '$name (‎$username)';
   }
 
   @override
@@ -489,7 +489,7 @@ class EventsL10nAr extends EventsL10n {
 
   @override
   String metRow(String username, String event, String date) {
-    return '‎@$username · $event · $date';
+    return '‎$username · $event · $date';
   }
 
   @override

@@ -137,7 +137,7 @@ class _MembersTab extends ConsumerWidget {
               PersonTile(
                 person: p,
                 subtitle: switch (memberNote?.call(ref, group, p)) {
-                  final note? when note.isNotEmpty => '@${p.username} · $note',
+                  final note? when note.isNotEmpty => '${atName(p.username)} · $note',
                   _ => null,
                 },
                 onTap: () => onOpenProfile(context, p.username),
@@ -238,7 +238,7 @@ class _RolesSheetState extends ConsumerState<_RolesSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(widget.person.displayName, style: textTheme.titleLarge),
-            Text('@${widget.person.username}', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            Text(atName(widget.person.username), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.md),
             Text(groupsL10n.roles, style: textTheme.titleMedium),
             for (final role in GroupRole.assignable)
@@ -321,7 +321,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
             for (final p in value)
               PersonTile(
                 person: p,
-                subtitle: p.since == null ? null : '@${p.username} · ${formatDate(p.since!)}',
+                subtitle: p.since == null ? null : '${atName(p.username)} · ${formatDate(p.since!)}',
                 trailing: Wrap(
                   spacing: GwSpacing.xxs,
                   children: [
@@ -448,7 +448,7 @@ class _InvitationsTabState extends ConsumerState<_InvitationsTab> {
                 for (final p in value)
                   PersonTile(
                     person: p,
-                    subtitle: p.since == null ? null : '@${p.username} · ${formatDate(p.since!)}',
+                    subtitle: p.since == null ? null : '${atName(p.username)} · ${formatDate(p.since!)}',
                     trailing: GwButton(
                       label: groupsL10n.undo,
                       variant: GwButtonVariant.text,

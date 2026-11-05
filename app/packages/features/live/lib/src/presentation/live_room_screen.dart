@@ -396,7 +396,7 @@ class _RoomState extends ConsumerState<_Room> {
                 child: Stack(
                   children: [
                     room,
-                    Positioned(right: GwSpacing.md, bottom: 0, top: 0, width: GwSpacing.xxl, child: _Reactions(stream: _session.reactions)),
+                    PositionedDirectional(end: GwSpacing.md, bottom: 0, top: 0, width: GwSpacing.xxl, child: _Reactions(stream: _session.reactions)),
                   ],
                 ),
               ),
@@ -491,8 +491,8 @@ class _SeatTile extends StatelessWidget {
                     child: GwAvatar(name: seat.name, imageUrl: seat.avatarUrl, shape: GwAvatarShape.user, size: size),
                   ),
                   if (micOff || seat.handRaisedAt != null)
-                    Positioned(
-                      right: -GwSpacing.xxs,
+                    PositionedDirectional(
+                      end: -GwSpacing.xxs,
                       bottom: -GwSpacing.xxs,
                       child: Container(
                         padding: const EdgeInsets.all(GwSpacing.xxs),
@@ -792,7 +792,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
         ),
         const Divider(height: 1),
         Padding(
-          padding: EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs + MediaQuery.viewInsetsOf(context).bottom),
+          padding: EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs + MediaQuery.viewInsetsOf(context).bottom),
           child: Row(
             children: [
               Expanded(

@@ -191,7 +191,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
         title: Text(groupsL10n.editGroup),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
             child: GwButton(label: groupsL10n.save, onPressed: busy ? null : _save, isLoading: _saving),
           ),
         ],
@@ -246,7 +246,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
                     title: groupsL10n.groupInfo,
-                    subtitle: groupsL10n.groupHandle(group.handle),
+                    subtitle: groupsL10n.groupHandle(atName(group.handle)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -332,7 +332,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                         if (_links.length < GroupRules.maxLinks) ...[
                           if (_links.isNotEmpty) const SizedBox(height: GwSpacing.md),
                           Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: GwButton(
                               label: groupsL10n.addLink,
                               icon: Icons.add_link,
@@ -347,7 +347,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: Wrap(
                       spacing: GwSpacing.sm,
                       runSpacing: GwSpacing.sm,
@@ -363,7 +363,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                       title: groupsL10n.deleteGroup,
                       subtitle: groupsL10n.deleteGroupBody,
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: TextButton.icon(
                           style: TextButton.styleFrom(foregroundColor: GwColors.error),
                           onPressed: busy ? null : _delete,

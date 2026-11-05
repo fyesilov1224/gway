@@ -166,10 +166,16 @@ class _LegalTextState extends State<LegalText> {
     final translation = _original ? null : document.translation;
     // The Turkish original reads left to right even in an Arabic app.
     final direction = translation == null && currentAppLanguage.isRtl ? TextDirection.ltr : null;
+    final title = translation?.title ?? document.title;
+    final titleText = Text(title, textDirection: direction, style: widget.titleStyle ?? textTheme.titleLarge);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(translation?.title ?? document.title, textDirection: direction, style: widget.titleStyle ?? textTheme.titleLarge),
+        // A one-word title (German compounds) shrinks to the line instead of breaking mid-word at large text sizes.
+        if (title.contains(' '))
+          titleText
+        else
+          FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: titleText),
         const SizedBox(height: GwSpacing.xxs),
         Text(identityL10n.versionLabel(document.version), style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
         if (document.translation != null) ...[

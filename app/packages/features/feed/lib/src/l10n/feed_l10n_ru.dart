@@ -127,7 +127,7 @@ class FeedL10nRu extends FeedL10n {
 
   @override
   String replyingTo(String username) {
-    return 'Ответ для @$username';
+    return 'Ответ для $username';
   }
 
   @override

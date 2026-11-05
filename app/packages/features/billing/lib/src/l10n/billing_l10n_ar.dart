@@ -391,4 +391,13 @@ class BillingL10nAr extends BillingL10n {
 
   @override
   String get showTranslation => 'عرض الترجمة';
+
+  @override
+  String get planNameFree => 'مجاني';
+
+  @override
+  String get planNameStarter => 'المبتدئ';
+
+  @override
+  String get planNameCommunity => 'المجتمع';
 }

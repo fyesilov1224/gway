@@ -300,7 +300,7 @@ class ProfileL10nIt extends ProfileL10n {
 
   @override
   String removeFollowerBody(String username) {
-    return 'Rimuovere @$username dai tuoi follower? Non riceverà alcuna notifica.';
+    return 'Rimuovere $username dai tuoi follower? Non riceverà alcuna notifica.';
   }
 
   @override
@@ -463,7 +463,7 @@ class ProfileL10nIt extends ProfileL10n {
 
   @override
   String blockTitle(String username) {
-    return 'Bloccare @$username?';
+    return 'Bloccare $username?';
   }
 
   @override
@@ -528,17 +528,17 @@ class ProfileL10nIt extends ProfileL10n {
 
   @override
   String withdrawFollowBody(String username) {
-    return 'Ritirare la richiesta di follow a @$username?';
+    return 'Ritirare la richiesta di follow a $username?';
   }
 
   @override
   String unfollowBody(String username) {
-    return 'Smettere di seguire @$username?';
+    return 'Smettere di seguire $username?';
   }
 
   @override
   String unfollowPrivateBody(String username) {
-    return 'Smettere di seguire @$username? L’account è privato, quindi per vedere i post dovrai inviare di nuovo la richiesta.';
+    return 'Smettere di seguire $username? L’account è privato, quindi per vedere i post dovrai inviare di nuovo la richiesta.';
   }
 
   @override
@@ -841,4 +841,9 @@ class ProfileL10nIt extends ProfileL10n {
 
   @override
   String get taken => 'Già in uso';
+
+  @override
+  String blockedUser(String username) {
+    return '$username è bloccato.';
+  }
 }

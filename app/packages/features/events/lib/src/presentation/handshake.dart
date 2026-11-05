@@ -277,7 +277,7 @@ class _MetDialog extends StatelessWidget {
           const SizedBox(height: GwSpacing.sm),
           Text(result.alreadyMet ? eventsL10n.alreadyMet : eventsL10n.metNow, style: textTheme.titleLarge),
           const SizedBox(height: GwSpacing.xxs),
-          Text(eventsL10n.personWithUsername(p.displayName, p.username), textAlign: TextAlign.center, style: textTheme.bodyLarge),
+          Text(eventsL10n.personWithUsername(p.displayName, atName(p.username)), textAlign: TextAlign.center, style: textTheme.bodyLarge),
         ],
       ),
       actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(eventsL10n.ok))],
@@ -316,7 +316,7 @@ class MetPeopleScreen extends ConsumerWidget {
                       ListTile(
                         leading: GwAvatar(name: m.person.displayName, shape: GwAvatarShape.user, imageUrl: m.person.avatarUrl),
                         title: Text(m.person.displayName),
-                        subtitle: Text(eventsL10n.metRow(m.person.username, m.eventTitle, formatDate(m.eventStartsAt.toLocal())),
+                        subtitle: Text(eventsL10n.metRow(atName(m.person.username), m.eventTitle, formatDate(m.eventStartsAt.toLocal())),
                             maxLines: 2, overflow: TextOverflow.ellipsis),
                         onTap: () => context.push(EventRoutes.event(m.eventId)),
                       ),

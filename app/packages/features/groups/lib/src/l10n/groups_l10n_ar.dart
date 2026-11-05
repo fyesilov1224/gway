@@ -121,7 +121,7 @@ class GroupsL10nAr extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'عنوان المجموعة: ‎@$handle';
+    return 'عنوان المجموعة: ‎$handle';
   }
 
   @override

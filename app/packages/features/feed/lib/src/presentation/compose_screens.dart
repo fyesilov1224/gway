@@ -150,7 +150,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         title: Text(feedL10n.newPost),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
             child: GwButton(label: feedL10n.share, isLoading: busy, onPressed: _items.isEmpty ? null : _share),
           ),
         ],
@@ -335,7 +335,7 @@ class _MediaStrip extends StatelessWidget {
                 final m = items[i].media;
                 return Padding(
                   key: ObjectKey(items[i]),
-                  padding: const EdgeInsets.only(right: GwSpacing.xs),
+                  padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
                   child: Semantics(
                     button: true,
                     selected: i == selected,
@@ -361,8 +361,8 @@ class _MediaStrip extends StatelessWidget {
                                 child: Center(child: Text(feedL10n.seconds(m.duration?.inSeconds ?? 0), style: label)),
                               ),
                             if (onRemove != null)
-                              Positioned(
-                                right: 0,
+                              PositionedDirectional(
+                                end: 0,
                                 top: 0,
                                 child: IconButton(
                                   tooltip: feedL10n.removeMedia,
@@ -372,8 +372,8 @@ class _MediaStrip extends StatelessWidget {
                                 ),
                               ),
                             if (m.kind == MediaKind.video && m.problem != null)
-                              Positioned(
-                                left: GwSpacing.xxs,
+                              PositionedDirectional(
+                                start: GwSpacing.xxs,
                                 bottom: GwSpacing.xxs,
                                 child: Icon(Icons.error, color: GwColors.error, semanticLabel: feedL10n.cantShare),
                               ),
@@ -388,7 +388,7 @@ class _MediaStrip extends StatelessWidget {
           ),
           if (onAdd != null)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.md),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.md),
               child: SizedBox.square(
                 dimension: _tile,
                 child: OutlinedButton(
@@ -473,7 +473,7 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
         actions: [
           if (post != null && post.canManage)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.sm),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
               child: GwButton(label: feedL10n.save, isLoading: _saving, onPressed: () => _save(post)),
             ),
         ],

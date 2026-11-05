@@ -118,7 +118,7 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                   ),
                 if (t.table == null)
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: _busy ? null : () => _run((r) => r.clearFree(), (_) => eventsL10n.noLongerFree),
                       icon: const Icon(Icons.visibility_off_outlined),
@@ -301,8 +301,8 @@ class _Faces extends StatelessWidget {
       child: Stack(
         children: [
           for (final (i, p) in people.indexed)
-            Positioned(
-              left: _step * i,
+            PositionedDirectional(
+              start: _step * i,
               child: Tooltip(
                 message: p.displayName,
                 child: Container(
@@ -359,7 +359,7 @@ class _TableBlock extends StatelessWidget {
             ],
           ),
           const SizedBox(height: GwSpacing.sm),
-          Align(alignment: Alignment.centerLeft, child: _Faces(people: table.joined)),
+          Align(alignment: AlignmentDirectional.centerStart, child: _Faces(people: table.joined)),
           const SizedBox(height: GwSpacing.sm),
           if (chat != null)
             GwButton(label: eventsL10n.tableChat, icon: Icons.forum_outlined, expand: true, onPressed: () => onOpenChat(chat))
@@ -367,7 +367,7 @@ class _TableBlock extends StatelessWidget {
             Text(eventsL10n.chatOpensWhen(table.missing),
                 style: textTheme.bodyMedium),
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: TextButton(onPressed: busy ? null : onLeave, child: Text(eventsL10n.leaveTable)),
           ),
         ],

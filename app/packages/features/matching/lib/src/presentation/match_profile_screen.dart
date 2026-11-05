@@ -365,10 +365,10 @@ class _PhotoTile extends StatelessWidget {
                   ? const ColoredBox(color: GwColors.surfaceMuted)
                   : Image.network(photo.url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
             ),
-            if (cover) Positioned(left: GwSpacing.xs, bottom: GwSpacing.xs, child: GwBadge(matchingL10n.cover, tone: GwBadgeTone.primary)),
-            Positioned(
+            if (cover) PositionedDirectional(start: GwSpacing.xs, bottom: GwSpacing.xs, child: GwBadge(matchingL10n.cover, tone: GwBadgeTone.primary)),
+            PositionedDirectional(
               top: 0,
-              right: 0,
+              end: 0,
               child: IconButton(
                 tooltip: matchingL10n.removePhoto,
                 color: GwColors.onMedia,

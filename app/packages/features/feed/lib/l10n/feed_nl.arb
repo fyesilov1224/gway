@@ -33,7 +33,7 @@
   "noCommentsFirst": "Nog geen reacties. Schrijf de eerste.",
   "goBack": "Terug",
   "writeComment": "Reactie schrijven",
-  "replyingTo": "Antwoord aan @{username}",
+  "replyingTo": "Antwoord aan {username}",
   "cancelReply": "Antwoord annuleren",
   "addComment": "Reactie toevoegen…",
   "share": "Delen",

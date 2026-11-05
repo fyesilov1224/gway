@@ -121,7 +121,7 @@ class GroupsL10nUk extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'Адреса групи: @$handle';
+    return 'Адреса групи: $handle';
   }
 
   @override

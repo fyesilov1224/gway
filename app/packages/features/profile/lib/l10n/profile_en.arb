@@ -85,7 +85,7 @@
   "noFollowing": "Not following anyone yet.",
   "refresh": "Refresh",
   "removeFollower": "Remove follower",
-  "removeFollowerBody": "Remove @{username} from your followers? They won’t be notified.",
+  "removeFollowerBody": "Remove {username} from your followers? They won’t be notified.",
   "removeAction": "Remove",
   "friends": "You're friends",
   "followRequests": "Follow requests",
@@ -128,7 +128,7 @@
   "privateAccountHint": "Follow this account to see its photos, videos and stories.",
   "addInterestsNudge": "Add your interests and we'll find groups and teammates for you.",
   "add": "Add",
-  "blockTitle": "Block @{username}?",
+  "blockTitle": "Block {username}?",
   "blockBody": "They won't see your profile, posts or stories, find you or message you. You'll stop following each other. They won't be told you blocked them.",
   "block": "Block",
   "becomeTeammates": "Become teammates",
@@ -148,9 +148,9 @@
   "statPosts": "Posts",
   "statFollowers": "Followers",
   "statFollowing": "Following",
-  "withdrawFollowBody": "Withdraw your follow request to @{username}?",
-  "unfollowBody": "Unfollow @{username}?",
-  "unfollowPrivateBody": "Unfollow @{username}? The account is private, so you would need to send a new request to see their posts.",
+  "withdrawFollowBody": "Withdraw your follow request to {username}?",
+  "unfollowBody": "Unfollow {username}?",
+  "unfollowPrivateBody": "Unfollow {username}? The account is private, so you would need to send a new request to see their posts.",
   "withdrawRequest": "Withdraw request",
   "unfollow": "Unfollow",
   "followBack": "Follow back",
@@ -235,5 +235,6 @@
   "weekend": "Weekends",
   "username": "Username",
   "available": "Available",
-  "taken": "Taken"
+  "taken": "Taken",
+  "blockedUser": "{username} is blocked."
 }

@@ -104,5 +104,8 @@
   "creditDays": "{days} дн.",
   "termsTranslationNote": "Переклад має інформаційний характер. Юридичну силу має турецький оригінал договору — саме його ви приймаєте.",
   "showOriginal": "Показати турецький оригінал",
-  "showTranslation": "Показати переклад"
+  "showTranslation": "Показати переклад",
+  "planNameFree": "Безкоштовний",
+  "planNameStarter": "Стартовий",
+  "planNameCommunity": "Спільнота"
 }

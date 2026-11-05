@@ -104,5 +104,8 @@
   "creditDays": "{days} gün",
   "termsTranslationNote": "Bu tərcümə məlumat xarakterlidir. Bağlayıcı olan və təsdiqlədiyin müqavilə türkcə orijinaldır.",
   "showOriginal": "Türkcə orijinalı göstər",
-  "showTranslation": "Tərcüməni göstər"
+  "showTranslation": "Tərcüməni göstər",
+  "planNameFree": "Pulsuz",
+  "planNameStarter": "Başlanğıc",
+  "planNameCommunity": "İcma"
 }

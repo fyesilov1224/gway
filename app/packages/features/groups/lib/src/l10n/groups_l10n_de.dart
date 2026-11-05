@@ -122,7 +122,7 @@ class GroupsL10nDe extends GroupsL10n {
 
   @override
   String groupHandle(String handle) {
-    return 'Gruppenadresse: @$handle';
+    return 'Gruppenadresse: $handle';
   }
 
   @override

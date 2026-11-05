@@ -603,7 +603,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     row(Icons.groups_outlined, Text(eventSeats(e), style: textTheme.bodyLarge)),
                     if (e.capacity != null)
                       Padding(
-                        padding: const EdgeInsets.only(left: GwSpacing.xl, bottom: GwSpacing.sm),
+                        padding: const EdgeInsetsDirectional.only(start: GwSpacing.xl, bottom: GwSpacing.sm),
                         child: ClipRRect(
                           borderRadius: GwRadius.smAll,
                           child: LinearProgressIndicator(
@@ -745,8 +745,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                                 child: Stack(clipBehavior: Clip.none, children: [
                                   GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user),
                                   if (p.confirmed == true)
-                                    const Positioned(
-                                      right: -GwSpacing.xxs,
+                                    const PositionedDirectional(
+                                      end: -GwSpacing.xxs,
                                       bottom: -GwSpacing.xxs,
                                       child: Icon(Icons.check_circle, color: GwColors.success, size: GwSpacing.md),
                                     ),
@@ -837,7 +837,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                 ),
               if (e.hasStarted(now) && !e.isCanceled && widget.links.memories != null) ...[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.sm, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.page, 0, GwSpacing.sm, 0),
                   child: Row(
                     children: [
                       Expanded(child: Text(eventsL10n.memories, style: textTheme.titleMedium)),
