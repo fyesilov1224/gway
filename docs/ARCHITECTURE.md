@@ -1952,10 +1952,13 @@ Kullanıcı isteği: Ayarlar'dan dil seçilince düğmeler, menüler, bağlantı
 - **Kullanma kılavuzu (§7b)** arayüz metni değil uzun içerik olduğu için ARB'de değil, dil başına bir Dart dosyasındadır: `support/lib/src/domain/guide/<dil>.dart`. Kılavuz geçerli dilin dosyasını okur. Bütün dillerde bölüm kimlikleri, konu sayıları ve adım/not sayıları aynıdır; bunu bir test denetler. Kılavuz değişince 12 dosya birlikte değişir. Arama her dilin aksanlı harflerini sadeleştirerek eşleştirir.
 
 ### Sunucu
-- `profiles.locale` (12 dilden biri, varsayılan `tr`).
-- Push metinleri C#'ta alıcının diline göre kurulur. Uygulama içi bildirim listesi metni zaten uygulamada türden kurulur.
-- API hata yanıtları kod taşır (`code`); uygulama metni koddan, kendi dilinde gösterir. Kodsuz ProblemDetails başlıkları istemcinin `Accept-Language` başlığına göre çevrilir.
-- Kimlik e-postaları (doğrulama, şifre sıfırlama) Supabase şablonunda kullanıcının `locale` meta verisine göre seçilir.
+- `profiles.locale` (12 dilden biri, varsayılan `tr`; migration 0079). Uygulama dili oturum açılınca ve her dil değişiminde yazar (`LanguageSync`, identity): `profiles.locale` ve hesabın meta verisi `locale` (e-postalar için). Profil oluşturulurken de seçili dil yazılır; kayıt olurken meta veriye eklenir.
+- C# cümleleri Türkçe yazılmaya devam eder; çevirileri `Gway.SharedKernel/Localization/server_texts.json`'dadır (gömülü kaynak). Tablo `app/tool/l10n/tables/server_*.py`, dosyayı `python tool/l10n/server_write.py` yazar ve tablodaki her cümlenin kaynakta hâlâ bulunduğunu denetler; kaynaktaki adaylar `tool/l10n/server_extract.py` ile listelenir. Değer içeren cümleler (`$"... {max} ..."`) kalıp olarak eşlenir, en özgül kalıp önce denenir. Bilinmeyen cümle ya da dil Türkçe kalır. Yönetim paneline özgü cümleler (sağlayıcı ayarları, askıya alma, lig çıkarma) çevrilmez.
+- **Hata başlıkları:** `ServerText.LocalizeProblem`, `AddProblemDetails` üzerinden her ProblemDetails başlığını isteğin `Accept-Language` diline çevirir (uygulama kendi dilini gönderir; başlık yoksa Türkçe, desteklenmeyen dil İngilizce). `code` alanı değişmez.
+- **Push:** `PushTexts` alıcının `profiles.locale` diliyle kurulur; tarih o dilin ay adlarıyla, Türkiye saatinde yazılır (`ServerText.FormatDateTime`). Uygulama içi bildirim listesi metni uygulamada türden kurulur.
+- **Paylaşım sayfaları** (grup, davet, organizasyon) ziyaretçinin tarayıcı diliyle yazılır; `lang`/`dir` de buna uyar.
+- **Kimlik e-postaları** (doğrulama, şifre sıfırlama, e-posta değişikliği) `supabase/templates/*.html` şablonlarındadır; şablon meta verideki `locale`'e göre dili seçer (yoksa Türkçe). Konu satırı dile göre değişemediği için "GWAY"dir. Şablonları `python tool/l10n/email_write.py` yazar; bulutta `supabase config push` ile etkinleşir.
+- Sunucunun Türkçe sakladığı adlar (kategori, rozet) uygulamada `slug` ile seçilen dilde gösterilir; kullanıcı içeriği (grup adı, hedef başlığı) çevrilmez.
 
 ### Hukuki metin çevirileri
 - `legal_document_translations` (identity): belge sürümü, dil, başlık, gövde. Herkes okur; yazma yalnızca C# (platform yöneticisi). Asıl Türkçe sürüm değişmez kuralı (§3a) aynen sürer; çeviri sonradan düzeltilebilir ve `audit_log`'a yazılır.
