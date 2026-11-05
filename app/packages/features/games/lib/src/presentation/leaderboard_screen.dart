@@ -63,7 +63,7 @@ class _Board extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
-              _Podium(entries: value.take(3).toList()),
+              LeaderboardPodium(entries: value.take(3).toList(), playerPath: ChessRoutes.player),
               const SizedBox(height: GwSpacing.md),
               GwCard(
                 child: Column(
@@ -71,7 +71,7 @@ class _Board extends ConsumerWidget {
                     for (final (i, e) in value.indexed)
                       if (i >= 3) ...[
                         if (i > 3) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                        _Row(entry: e, isMe: e.player.userId == me),
+                        LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
                       ],
                   ],
                 ),
@@ -91,11 +91,14 @@ class _Board extends ConsumerWidget {
   }
 }
 
-/// Second, first, third side by side; first stands tallest.
-class _Podium extends StatelessWidget {
-  const _Podium({required this.entries});
+/// Second, first, third side by side; first stands tallest. Shared by every game's leaderboard.
+class LeaderboardPodium extends StatelessWidget {
+  const LeaderboardPodium({super.key, required this.entries, required this.playerPath});
 
   final List<LeaderboardEntry> entries;
+
+  /// The player page of the game the board belongs to.
+  final String Function(String userId) playerPath;
 
   @override
   Widget build(BuildContext context) {
@@ -105,9 +108,9 @@ class _Podium extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Expanded(child: _Step(entry: at(1), rank: 2, lift: GwSpacing.xxl)),
-          Expanded(child: _Step(entry: at(0), rank: 1, lift: GwSpacing.xxl + GwSpacing.md)),
-          Expanded(child: _Step(entry: at(2), rank: 3, lift: GwSpacing.xl + GwSpacing.xs)),
+          Expanded(child: _Step(entry: at(1), rank: 2, lift: GwSpacing.xxl, playerPath: playerPath)),
+          Expanded(child: _Step(entry: at(0), rank: 1, lift: GwSpacing.xxl + GwSpacing.md, playerPath: playerPath)),
+          Expanded(child: _Step(entry: at(2), rank: 3, lift: GwSpacing.xl + GwSpacing.xs, playerPath: playerPath)),
         ],
       ),
     );
@@ -115,11 +118,12 @@ class _Podium extends StatelessWidget {
 }
 
 class _Step extends StatelessWidget {
-  const _Step({required this.entry, required this.rank, required this.lift});
+  const _Step({required this.entry, required this.rank, required this.lift, required this.playerPath});
 
   final LeaderboardEntry? entry;
   final int rank;
   final double lift;
+  final String Function(String userId) playerPath;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +133,7 @@ class _Step extends StatelessWidget {
     if (e == null) return SizedBox(height: lift);
     return InkWell(
       borderRadius: GwRadius.lgAll,
-      onTap: () => context.push(ChessRoutes.player(e.player.userId)),
+      onTap: () => context.push(playerPath(e.player.userId)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -178,11 +182,13 @@ class _Step extends StatelessWidget {
   }
 }
 
-class _Row extends StatelessWidget {
-  const _Row({required this.entry, required this.isMe});
+/// A place below the podium; the reader's own row is tinted.
+class LeaderboardRow extends StatelessWidget {
+  const LeaderboardRow({super.key, required this.entry, required this.isMe, required this.playerPath});
 
   final LeaderboardEntry entry;
   final bool isMe;
+  final String Function(String userId) playerPath;
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +196,7 @@ class _Row extends StatelessWidget {
     return Container(
       color: isMe ? GwColors.primarySoft : null,
       child: InkWell(
-        onTap: () => context.push(ChessRoutes.player(entry.player.userId)),
+        onTap: () => context.push(playerPath(entry.player.userId)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
           child: Row(

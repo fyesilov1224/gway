@@ -27,12 +27,16 @@ class NotificationLinks {
     required this.openConversation,
     required this.openCallSettings,
     required this.openChess,
+    required this.openMind,
   });
 
   final void Function(BuildContext context, String username) openProfile;
 
   /// Chess home with the open invitations, for chess_challenge (docs/ARCHITECTURE.md §3i).
   final void Function(BuildContext context) openChess;
+
+  /// Zihin Düellosu home with the open invitations, for mind_challenge (docs/ARCHITECTURE.md §3j).
+  final void Function(BuildContext context) openMind;
 
   /// [comments] opens the post's comments.
   final void Function(BuildContext context, String postId, {required bool comments}) openPost;
@@ -199,6 +203,7 @@ class _NotificationRow extends ConsumerWidget {
     }
     if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
     if (n.type.isChess) return links.openChess(context);
+    if (n.type.isMind) return links.openMind(context);
     if (n.type == NotificationType.matchCreated) return links.openMatches(context);
     if (n.type == NotificationType.matchSuperLiked) return links.openMatching(context);
     if (n.type == NotificationType.leagueResult && n.group != null) return links.openGroup(context, n.group!.handle);

@@ -5,13 +5,17 @@ import 'package:flutter/services.dart';
 
 export 'src/domain/arena.dart' show ArenaStatus;
 export 'src/domain/chess.dart';
+export 'src/domain/mind.dart' show MindMatch, mindLengths;
 export 'src/domain/team.dart' show TeamMatchStatus;
 export 'src/l10n.dart' show gamesL10n;
 export 'src/presentation/arena_screens.dart' show ArenaScreen, ArenasScreen;
 export 'src/presentation/chess_home_screen.dart';
 export 'src/presentation/game_screen.dart';
 export 'src/presentation/games_hub_screen.dart';
-export 'src/presentation/leaderboard_screen.dart';
+export 'src/presentation/leaderboard_screen.dart' show ChessLeaderboardScreen;
+export 'src/presentation/mind_match_screen.dart' show MindMatchScreen;
+export 'src/presentation/mind_providers.dart' show mindChallengesProvider;
+export 'src/presentation/mind_screens.dart' show MindHomeScreen, MindLeaderboardScreen, MindPlayerScreen, MindSeekScreen;
 export 'src/presentation/player_screen.dart' show ChessPlayerScreen;
 export 'src/presentation/providers.dart' show challengesProvider;
 export 'src/presentation/routes.dart';

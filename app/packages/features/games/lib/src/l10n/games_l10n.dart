@@ -1298,6 +1298,372 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'{points} puan'**
   String pointsShort(int points);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{key, select, red_m{kırmızı} red_f{kırmızı} red_n{kırmızı} blue_m{mavi} blue_f{mavi} blue_n{mavi} green_m{yeşil} green_f{yeşil} green_n{yeşil} yellow_m{sarı} yellow_f{sarı} yellow_n{sarı} purple_m{mor} purple_f{mor} purple_n{mor} orange_m{turuncu} orange_f{turuncu} orange_n{turuncu} other{}}'**
+  String mindColorWord(String key);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{key, select, solid_m{düz} solid_f{düz} solid_n{düz} striped_m{çizgili} striped_f{çizgili} striped_n{çizgili} dotted_m{noktalı} dotted_f{noktalı} dotted_n{noktalı} other{}}'**
+  String mindPatternWord(String key);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{shape, select, circle{yuvarlak} square{kare} triangle{üçgen} star{yıldız} other{}}'**
+  String mindShapeWord(String shape);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{shape, select, circle{m} square{m} triangle{m} star{m} other{}}'**
+  String mindShapeGender(String shape);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{color} {pattern} {shape}'**
+  String mindFigure(String color, String pattern, String shape);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Zihin Düellosu'**
+  String get mindDuel;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Matematik, dikkat, hafıza ve refleks sorularında canlı düello. Elo puanı, sıralama ve madalyalar.'**
+  String get mindCardText;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düelloya başla'**
+  String get mindPlay;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Elo {rating} · {length} soru'**
+  String mindBestRating(int rating, int length);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} soru'**
+  String mindQuestions(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaç soru?'**
+  String get mindHowMany;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} soruda puanın'**
+  String mindRatingAt(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakip bul'**
+  String get mindFindOpponent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyun oynaman şu anda kapalı.'**
+  String get mindSuspended;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Süren bir düellon var'**
+  String get mindActive;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düello profili'**
+  String get mindProfile;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Nasıl oynanır'**
+  String get mindHowTo;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Son düellolar'**
+  String get mindRecent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz düellon yok. İlk rakibini bul.'**
+  String get mindNoMatchesMine;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz düellosu yok. İlk düellosuna sen davet et.'**
+  String get mindNoMatchesTheirs;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralamaya girmek için bu soru sayısında {count} puanlı düello oyna.'**
+  String mindLeaderboardEmpty(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düelloya davet et'**
+  String get mindChallengeTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Davet gönderildi. Kabul edince düello başlar.'**
+  String get mindChallengeSent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Matematik'**
+  String get mindKindMath;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dikkat'**
+  String get mindKindAttention;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hafıza'**
+  String get mindKindMemory;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Refleks'**
+  String get mindKindReflex;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dört işlem, işlem önceliğiyle. Doğru sonucu seç.'**
+  String get mindKindMathHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yazının rengine değil, anlattığı şekle bak.'**
+  String get mindKindAttentionHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Renkli harf ve rakamları sırasıyla ve renkleriyle hatırla.'**
+  String get mindKindMemoryHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hedef belirince ona ilk sen dokun. Erken ya da yanlış dokunuş puan kaybettirir.'**
+  String get mindKindReflexHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğru ve hızlı cevap daha çok puan getirir. Toplam puanı yüksek olan kazanır.'**
+  String get mindScoringHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sen'**
+  String get mindYou;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakip'**
+  String get mindOpponent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{who}: {done}/{total} soru'**
+  String mindProgress(String who, int done, int total);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{n}/{total}'**
+  String mindQuestionOf(int n, int total);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hazır ol'**
+  String get mindGetReady;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitirdin!'**
+  String get mindYouFinished;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakibin {done}/{total}. soruda. Bitirince sonuç çıkar.'**
+  String mindOpponentAt(int done, int total);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç kaç?'**
+  String get mindMathPrompt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yazının anlattığı şekli seç'**
+  String get mindAttentionPrompt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sırayı ve renkleri aklında tut'**
+  String get mindMemoryLook;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Aynı sırayla ve renkleriyle seç'**
+  String get mindMemoryPick;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{color} {char}'**
+  String mindCharLabel(String char, String color);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri al'**
+  String get mindUndo;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Hedef'**
+  String get mindReflexTarget;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekle…'**
+  String get mindReflexWait;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şimdi dokun!'**
+  String get mindReflexTap;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğru · +{points}'**
+  String mindRight(int points);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kısmen doğru · +{points}'**
+  String mindPartly(int points);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yanlış'**
+  String get mindWrong;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yanlış · −{points}'**
+  String mindWrongPenalty(int points);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Erken dokundun · −{points}'**
+  String mindTooEarly(int points);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düellodan çekil?'**
+  String get mindResignTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakibin kazanır; puanlı düelloda Elo puanın düşer.'**
+  String get mindResignBody;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düello bitti'**
+  String get mindFinished;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütün sorular cevaplandı'**
+  String get mindEndCompleted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Süre doldu'**
+  String get mindEndTime;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni puanın {rating}'**
+  String mindNewRating(int rating);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni düello'**
+  String get mindNewDuel;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düello sayfasına dön'**
+  String get mindBackHome;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

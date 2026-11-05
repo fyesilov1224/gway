@@ -383,4 +383,7 @@ class NotificationsL10nRu extends NotificationsL10n {
 
   @override
   String get leadArena => 'Шахматный турнир';
+
+  @override
+  String get actMindChallenge => 'вызывает вас на «Дуэль разума».';
 }

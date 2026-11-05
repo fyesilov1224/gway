@@ -20,11 +20,13 @@ public static class GamesModule
         services.AddSingleton<TournamentService>();
         services.AddSingleton<ITournamentAdministration>(sp => sp.GetRequiredService<TournamentService>());
         services.AddSingleton<ITeamMatchAdministration>(sp => sp.GetRequiredService<TeamMatchService>());
-        services.AddHostedService<ChessMonitor>();
+        services.AddSingleton<MindService>();
+        services.AddSingleton<IMindAdministration>(sp => sp.GetRequiredService<MindService>());
+        services.AddHostedService<GamesMonitor>();
         return services;
     }
 
-    /// <summary>Chess (docs/ARCHITECTURE.md §3i, API). Reads go through Supabase; every write is here.</summary>
+    /// <summary>Chess (docs/ARCHITECTURE.md §3i, API) and Zihin Düellosu (§3j). Reads go through Supabase; every write is here.</summary>
     public static IEndpointRouteBuilder MapGamesEndpoints(this IEndpointRouteBuilder app)
     {
         var chess = app.MapGroup("/games/chess");
@@ -84,13 +86,39 @@ public static class GamesModule
         teams.MapPut("/{id:guid}/lineup", async (Guid id, LineupRequest body, ClaimsPrincipal user, TeamMatchService s, CancellationToken ct) =>
             (await s.SetLineupAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
 
+        var mind = app.MapGroup("/games/mind");
+        mind.MapPost("/seeks", async (MindSeekRequest body, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.SeekAsync(user.GetUserId(), body, ct)).ToHttpResult());
+        mind.MapPost("/seeks/heartbeat", async (ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.HeartbeatAsync(user.GetUserId(), ct)).ToHttpResult());
+        mind.MapDelete("/seeks", async (ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.CancelSeekAsync(user.GetUserId(), ct)).ToHttpResult());
+        mind.MapPost("/challenges", async (MindChallengeRequest body, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.ChallengeAsync(user.GetUserId(), body, ct)).ToHttpResult());
+        mind.MapPost("/challenges/{id:guid}/accept", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.AcceptChallengeAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapPost("/challenges/{id:guid}/decline", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.DeclineChallengeAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapDelete("/challenges/{id:guid}", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.CancelChallengeAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.GetAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapPost("/{id:guid}/next", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.NextAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapPost("/{id:guid}/answers", async (Guid id, MindAnswerRequest body, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.AnswerAsync(user.GetUserId(), id, body, ct)).ToHttpResult());
+        mind.MapPost("/{id:guid}/resign", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.ResignAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        mind.MapPost("/{id:guid}/rematch", async (Guid id, ClaimsPrincipal user, MindService s, CancellationToken ct) =>
+            (await s.RematchAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
         return app;
     }
 }
 
-/// <summary>Ends games whose clock ran out (<c>Games:MonitorInterval</c>, default one second; zero turns it off).</summary>
-internal sealed partial class ChessMonitor(
-    ChessService chess, TeamMatchService teams, TournamentService arenas, IConfiguration configuration, ILogger<ChessMonitor> logger)
+/// <summary>Ends games and duels whose time ran out (<c>Games:MonitorInterval</c>, default one second; zero turns it off).</summary>
+internal sealed partial class GamesMonitor(
+    ChessService chess, TeamMatchService teams, TournamentService arenas, MindService mind, IConfiguration configuration, ILogger<GamesMonitor> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -107,6 +135,7 @@ internal sealed partial class ChessMonitor(
                 await chess.SweepAsync(stoppingToken);
                 await teams.StartDueAsync(stoppingToken);
                 await arenas.TickAsync(stoppingToken);
+                await mind.SweepAsync(stoppingToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -116,6 +145,6 @@ internal sealed partial class ChessMonitor(
         while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Chess monitor run failed; will retry on the next run")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Games monitor run failed; will retry on the next run")]
     private static partial void LogRunFailed(ILogger logger, Exception ex);
 }

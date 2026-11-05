@@ -667,4 +667,281 @@ class GamesL10nAr extends GamesL10n {
   String pointsShort(int points) {
     return '$points نقطة';
   }
+
+  @override
+  String mindColorWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'red_m': 'أحمر',
+      'red_f': 'حمراء',
+      'red_n': 'أحمر',
+      'blue_m': 'أزرق',
+      'blue_f': 'زرقاء',
+      'blue_n': 'أزرق',
+      'green_m': 'أخضر',
+      'green_f': 'خضراء',
+      'green_n': 'أخضر',
+      'yellow_m': 'أصفر',
+      'yellow_f': 'صفراء',
+      'yellow_n': 'أصفر',
+      'purple_m': 'بنفسجي',
+      'purple_f': 'بنفسجية',
+      'purple_n': 'بنفسجي',
+      'orange_m': 'برتقالي',
+      'orange_f': 'برتقالية',
+      'orange_n': 'برتقالي',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindPatternWord(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'solid_m': 'سادة',
+      'solid_f': 'سادة',
+      'solid_n': 'سادة',
+      'striped_m': 'مخطط',
+      'striped_f': 'مخططة',
+      'striped_n': 'مخطط',
+      'dotted_m': 'منقط',
+      'dotted_f': 'منقطة',
+      'dotted_n': 'منقط',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeWord(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'دائرة',
+      'square': 'مربع',
+      'triangle': 'مثلث',
+      'star': 'نجمة',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindShapeGender(String shape) {
+    String _temp0 = intl.Intl.selectLogic(shape, {
+      'circle': 'f',
+      'square': 'm',
+      'triangle': 'm',
+      'star': 'f',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String mindFigure(String color, String pattern, String shape) {
+    return '$shape $color $pattern';
+  }
+
+  @override
+  String get mindDuel => 'مبارزة العقول';
+
+  @override
+  String get mindCardText =>
+      'مبارزة مباشرة في الحساب والانتباه والذاكرة وسرعة رد الفعل. تصنيف إيلو وترتيب وميداليات.';
+
+  @override
+  String get mindPlay => 'ابدأ مبارزة';
+
+  @override
+  String mindBestRating(int rating, int length) {
+    return 'إيلو $rating · $length سؤالًا';
+  }
+
+  @override
+  String mindQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤالًا',
+      one: 'سؤال واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mindHowMany => 'كم سؤالًا؟';
+
+  @override
+  String mindRatingAt(int count) {
+    return 'تصنيفك في $count سؤالًا';
+  }
+
+  @override
+  String get mindFindOpponent => 'ابحث عن خصم';
+
+  @override
+  String get mindSuspended => 'لا يمكنك اللعب الآن.';
+
+  @override
+  String get mindActive => 'لديك مبارزة جارية';
+
+  @override
+  String get mindProfile => 'ملف المبارزات';
+
+  @override
+  String get mindHowTo => 'طريقة اللعب';
+
+  @override
+  String get mindRecent => 'آخر المبارزات';
+
+  @override
+  String get mindNoMatchesMine => 'لا مبارزات بعد. ابحث عن خصمك الأول.';
+
+  @override
+  String get mindNoMatchesTheirs => 'لا مبارزات بعد. كن أول من يتحداه.';
+
+  @override
+  String mindLeaderboardEmpty(int count) {
+    return 'العب $count مبارزات مصنفة بهذا الطول لدخول الترتيب.';
+  }
+
+  @override
+  String get mindChallengeTitle => 'تحدَّ في مبارزة';
+
+  @override
+  String get mindChallengeSent => 'أُرسل التحدي. تبدأ المبارزة عند قبوله.';
+
+  @override
+  String get mindKindMath => 'حساب';
+
+  @override
+  String get mindKindAttention => 'انتباه';
+
+  @override
+  String get mindKindMemory => 'ذاكرة';
+
+  @override
+  String get mindKindReflex => 'رد فعل';
+
+  @override
+  String get mindKindMathHint =>
+      'العمليات الأربع مع الأولوية. اختر النتيجة الصحيحة.';
+
+  @override
+  String get mindKindAttentionHint => 'تجاهل لون الكتابة: اختر الشكل الموصوف.';
+
+  @override
+  String get mindKindMemoryHint =>
+      'تذكّر الحروف والأرقام الملوّنة بترتيبها وألوانها.';
+
+  @override
+  String get mindKindReflexHint =>
+      'المس الهدف فور ظهوره. اللمس المبكر أو الخاطئ يُفقدك نقاطًا.';
+
+  @override
+  String get mindScoringHint =>
+      'الإجابات الصحيحة والسريعة تمنح نقاطًا أكثر. يفوز صاحب المجموع الأعلى.';
+
+  @override
+  String get mindYou => 'أنت';
+
+  @override
+  String get mindOpponent => 'الخصم';
+
+  @override
+  String mindProgress(String who, int done, int total) {
+    return '$who: $done/$total سؤالًا';
+  }
+
+  @override
+  String mindQuestionOf(int n, int total) {
+    return '$n/$total';
+  }
+
+  @override
+  String get mindGetReady => 'استعد';
+
+  @override
+  String get mindYouFinished => 'لقد أنهيت!';
+
+  @override
+  String mindOpponentAt(int done, int total) {
+    return 'خصمك عند $done/$total. تظهر النتيجة عندما ينتهي.';
+  }
+
+  @override
+  String get mindMathPrompt => 'ما الناتج؟';
+
+  @override
+  String get mindAttentionPrompt => 'اختر الشكل الموصوف';
+
+  @override
+  String get mindMemoryLook => 'تذكّر الترتيب والألوان';
+
+  @override
+  String get mindMemoryPick => 'اخترها بالترتيب والألوان نفسها';
+
+  @override
+  String mindCharLabel(String char, String color) {
+    return '$char $color';
+  }
+
+  @override
+  String get mindUndo => 'تراجع';
+
+  @override
+  String get mindReflexTarget => 'الهدف';
+
+  @override
+  String get mindReflexWait => 'انتظر…';
+
+  @override
+  String get mindReflexTap => 'المس الآن!';
+
+  @override
+  String mindRight(int points) {
+    return 'صحيح · +$points';
+  }
+
+  @override
+  String mindPartly(int points) {
+    return 'صحيح جزئيًا · +$points';
+  }
+
+  @override
+  String get mindWrong => 'خطأ';
+
+  @override
+  String mindWrongPenalty(int points) {
+    return 'خطأ · −$points';
+  }
+
+  @override
+  String mindTooEarly(int points) {
+    return 'مبكر جدًا · −$points';
+  }
+
+  @override
+  String get mindResignTitle => 'الانسحاب من المبارزة؟';
+
+  @override
+  String get mindResignBody => 'يفوز خصمك؛ وفي المبارزة المصنفة ينخفض تصنيفك.';
+
+  @override
+  String get mindFinished => 'انتهت المبارزة';
+
+  @override
+  String get mindEndCompleted => 'تمت الإجابة عن كل الأسئلة';
+
+  @override
+  String get mindEndTime => 'انتهى الوقت';
+
+  @override
+  String mindNewRating(int rating) {
+    return 'التصنيف الجديد $rating';
+  }
+
+  @override
+  String get mindNewDuel => 'مبارزة جديدة';
+
+  @override
+  String get mindBackHome => 'العودة إلى المبارزات';
 }

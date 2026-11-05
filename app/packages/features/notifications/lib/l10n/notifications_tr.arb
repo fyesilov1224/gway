@@ -563,5 +563,9 @@
   "leadArena": "Satranç turnuvası",
   "@leadArena": {
     "description": ""
+  },
+  "actMindChallenge": "seni Zihin Düellosu'na davet etti.",
+  "@actMindChallenge": {
+    "description": ""
   }
 }

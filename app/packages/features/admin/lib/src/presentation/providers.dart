@@ -237,6 +237,10 @@ final adminChessProvider = FutureProvider.autoDispose<AdminChessOverview>(
   (ref) async => (await ref.watch(adminGamesRepositoryProvider).chess()).getOrThrow(),
 );
 
+final adminMindProvider = FutureProvider.autoDispose<AdminMindOverview>(
+  (ref) async => (await ref.watch(adminGamesRepositoryProvider).mind()).getOrThrow(),
+);
+
 final adminTournamentsProvider = FutureProvider.autoDispose<List<AdminTournament>>(
   (ref) async => (await ref.watch(adminGamesRepositoryProvider).tournaments()).getOrThrow(),
 );

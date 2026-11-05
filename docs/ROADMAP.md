@@ -523,6 +523,14 @@ Kullanıcı kararları: grup Elo'su takım maçlarından; kişi Elo'su Bullet/Bl
 - [x] 20b — Takım maçı ve grup sıralaması: grup davet eder (`games.team_match` yetkisi), kabul/red, tahtalara üye dizilir, maç kendiliğinden başlar, gelmeyen tahtayı kaybeder, grup Elo'su (K 32), Sıralama'da Gruplar sekmesi ve podyum, 4 bildirim türü, panelde takım maçları; migration `0083`, pgTAP (18), C# (3 senaryo), Flutter (3); tarayıcıda uçtan uca denendi (2026-11-05)
 - [x] 20c — Arena turnuvaları: haftalık (pazar 21:00, 3+2, 60 dk) ve aylık (son pazar 19:00, 5+0, 120 dk) otomatik takvim, önceden kayıt ve başlangıç bildirimi, saniyede bir eşleştirme, 2/1/0 puan ve seride ikiye katlama, performansla sıralama, bitişte madalya ve bildirim, oyuncu sayfasında madalyalar, turnuva listesi ve sayfası, panelde turnuva açma ve iptal; migration `0084`, pgTAP (14), C# (9), Flutter (3); tarayıcıda uçtan uca denendi (2026-11-05)
 
+## Faz 21 — Oyunlar: Zihin Düellosu (kullanıcı isteği, 2026-11-05; dal `gelistirme/zihin-duellosu`; `docs/ARCHITECTURE.md` §3j)
+
+Kullanıcı kararları: sorular karışık (matematik, dikkat, hafıza, refleks); Elo 5/10/20/50 soru için ayrı; iki kişi aynı anda canlı oynar; refleks "Hedefe dokun".
+
+- [x] 21a — Çekirdek: sunucuda soru üretimi ve doğrulama, hızlı maç, davet, rövanş, canlı düello ekranı, Elo (soru sayısına göre), sıralama (podyum, madalya, taç), oyuncu sayfası, `mind_challenge` bildirimi ve push, yönetim paneli (sayılar, süren düellolar, iptal), 12 dil (cinsiyete uyan şekil adları), migration `0085`, pgTAP (26), C# (12), Flutter (6); tarayıcıda uçtan uca denendi (2026-11-05)
+- [ ] 21b — Grupların düellosu ve grup sıralaması
+- [ ] 21c — Haftalık ve aylık turnuvalar, madalyalar
+
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
 - Yalnızca maliyet, gizlilik ve uygulanabilirlik raporu; kod onaydan sonra

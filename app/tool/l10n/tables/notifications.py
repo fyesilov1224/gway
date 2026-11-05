@@ -335,6 +335,10 @@ ROWS = [
       'Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.', 'Ви увійшли до трійки найкращих! Медаль — у вашому шаховому профілі.'),
     r('leadArena', 'Satranç turnuvası', 'Chess tournament', 'Schachturnier', "Tournoi d'échecs", 'Schaaktoernooi', 'Torneo de ajedrez', 'Torneio de xadrez',
       'Torneo di scacchi', 'Шахматный турнир', 'بطولة شطرنج', 'Şahmat turniri', 'Шаховий турнір'),
+    r('actMindChallenge', "seni Zihin Düellosu'na davet etti.", 'invited you to a Mind Duel.', 'hat dich zu einem Gedankenduell eingeladen.',
+      "t'a défié en Duel mental.", 'heeft je uitgedaagd voor een Breinduel.', 'te retó a un Duelo mental.', 'desafiou você para um Duelo mental.',
+      'ti ha sfidato a un Duello mentale.', 'вызывает вас на «Дуэль разума».', 'تحدّاك في مبارزة العقول.', 'səni Zehin Duelinə dəvət etdi.',
+      'викликає вас на «Дуель розуму».'),
 ]
 
 SRC_CALLS = {

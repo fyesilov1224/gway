@@ -393,4 +393,7 @@ class NotificationsL10nFr extends NotificationsL10n {
 
   @override
   String get leadArena => 'Tournoi d\'échecs';
+
+  @override
+  String get actMindChallenge => 't\'a défié en Duel mental.';
 }

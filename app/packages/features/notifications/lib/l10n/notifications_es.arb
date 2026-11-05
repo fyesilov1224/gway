@@ -96,5 +96,6 @@
   "leadTeamMatch": "Encuentro por equipos",
   "actChessArenaStart": "El torneo al que te uniste empezó. Ábrelo y te emparejaremos enseguida.",
   "actChessArenaMedal": "¡Terminaste el torneo entre los tres primeros! Tu medalla está en tu perfil de ajedrez.",
-  "leadArena": "Torneo de ajedrez"
+  "leadArena": "Torneo de ajedrez",
+  "actMindChallenge": "te retó a un Duelo mental."
 }

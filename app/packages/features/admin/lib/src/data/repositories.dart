@@ -416,6 +416,14 @@ class ApiAdminGamesRepository implements AdminGamesRepository {
 
   @override
   Future<Result<void>> restorePlayer(String userId) => _api.delete('/admin/games/chess/players/$userId/suspension', decode: (_) {});
+
+  @override
+  Future<Result<AdminMindOverview>> mind() =>
+      _api.get('/admin/games/mind', decode: (json) => AdminMindOverview.fromJson((json! as Map).cast()));
+
+  @override
+  Future<Result<void>> abortMindMatch(String matchId, {required String reason}) =>
+      _api.post('/admin/games/mind/$matchId/abort', body: {'reason': reason}, decode: (_) {});
 }
 
 class ApiAdminMatchingRepository implements AdminMatchingRepository {

@@ -46,6 +46,7 @@ final notificationLinks = NotificationLinks(
   openTeammates: (context) => context.push(ProfileRoutes.teammates),
   openMatches: (context) => context.push(MatchingRoutes.matches),
   openChess: (context) => context.push(ChessRoutes.home),
+  openMind: (context) => context.push(MindRoutes.home),
   openMatching: (context) => context.push(MatchingRoutes.home),
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
   openTonight: (context) => context.push(EventRoutes.tonight),

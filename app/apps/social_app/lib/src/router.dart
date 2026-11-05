@@ -231,6 +231,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: ProfileRoutes.teammates, builder: (_, _) => const TeammatesScreen()),
           GoRoute(path: ProfileRoutes.teammateSettings, builder: (_, _) => const TeammateSettingsScreen()),
           GoRoute(path: GamesRoutes.hub, builder: (_, _) => const GamesHubScreen()),
+          GoRoute(path: MindRoutes.home, builder: (_, _) => const MindHomeScreen()),
+          GoRoute(
+            path: MindRoutes.seekPath,
+            builder: (_, state) => MindSeekScreen(length: MindRoutes.parseLength(state.uri.queryParameters['n'])),
+          ),
+          GoRoute(
+            path: MindRoutes.leaderboardPath,
+            builder: (_, state) => MindLeaderboardScreen(initial: MindRoutes.parseLength(state.uri.queryParameters['n'])),
+          ),
+          GoRoute(path: '/games/mind/m/:id', builder: (_, state) => MindMatchScreen(matchId: state.pathParameters['id']!)),
+          GoRoute(path: '/games/mind/p/:id', builder: (_, state) => MindPlayerScreen(userId: state.pathParameters['id']!)),
           GoRoute(path: ChessRoutes.home, builder: (_, _) => const ChessHomeScreen()),
           GoRoute(
             path: ChessRoutes.leaderboard,

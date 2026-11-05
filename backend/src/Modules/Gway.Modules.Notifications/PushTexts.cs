@@ -129,6 +129,7 @@ internal static class PushTexts
         "match_created" => t["Kim olduğunu Eşleşmelerim'de gör."],
         "match_super_liked" => t["seni süper beğendi! Destende ilk o görünüyor."],
         "chess_challenge" => t["seni satranç oynamaya davet etti."],
+        "mind_challenge" => t["seni Zihin Düellosu'na davet etti."],
         "chess_team_invite" => t.Format("{0} grubu adına grubunu satranç takım maçına davet etti.", n.GroupName),
         "chess_team_accepted" => t.Format("{0} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.", n.GroupName),
         "chess_team_declined" => t.Format("{0} grubu adına takım maçı davetini reddetti.", n.GroupName),
