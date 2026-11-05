@@ -140,7 +140,7 @@ void main() {
         group: ChatGroup(id: 'grp', handle: 'doga', name: 'Doğa'),
       ),
       messages: [
-        _message('m1', const MessageSender.hidden('gone'), day, body: 'İlk kez geliyorum'),
+        _message('m1', MessageSender.hidden('gone'), day, body: 'İlk kez geliyorum'),
         _message('m2', _deniz, day.add(const Duration(minutes: 1))),
       ],
     );

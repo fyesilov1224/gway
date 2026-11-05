@@ -1,0 +1,732 @@
+{
+  "@@locale": "tr",
+  "groupInvalid": "Talebi üyesi olduğun bir gruba gönderebilirsin.",
+  "@groupInvalid": {
+    "description": ""
+  },
+  "permissionExists": "Talebin zaten alındı ya da yetkin açık.",
+  "@permissionExists": {
+    "description": ""
+  },
+  "permissionCooldown": "Yeni bir talebi son karardan 7 gün sonra gönderebilirsin.",
+  "@permissionCooldown": {
+    "description": ""
+  },
+  "noteTooLong": "Not en fazla {max} karakter olabilir.",
+  "@noteTooLong": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "requestForbidden": "Talep şu anda gönderilemiyor.",
+  "@requestForbidden": {
+    "description": ""
+  },
+  "unsupportedImage": "Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.",
+  "@unsupportedImage": {
+    "description": ""
+  },
+  "voiceCallHandle": "GWAY sesli arama",
+  "@voiceCallHandle": {
+    "description": ""
+  },
+  "incomingCalls": "Gelen aramalar",
+  "@incomingCalls": {
+    "description": ""
+  },
+  "missedCalls": "Cevapsız aramalar",
+  "@missedCalls": {
+    "description": ""
+  },
+  "answer": "Cevapla",
+  "@answer": {
+    "description": ""
+  },
+  "decline": "Reddet",
+  "@decline": {
+    "description": ""
+  },
+  "noAnswer": "Cevap verilmedi",
+  "@noAnswer": {
+    "description": ""
+  },
+  "missedCall": "Cevapsız arama",
+  "@missedCall": {
+    "description": ""
+  },
+  "callDeclined": "Arama reddedildi",
+  "@callDeclined": {
+    "description": ""
+  },
+  "youDeclined": "Aramayı reddettin",
+  "@youDeclined": {
+    "description": ""
+  },
+  "callNotAllowed": "Arama artık mümkün değil",
+  "@callNotAllowed": {
+    "description": ""
+  },
+  "callCanceled": "Arama iptal edildi",
+  "@callCanceled": {
+    "description": ""
+  },
+  "timeLimit": "60 dakika doldu, görüşme bitti",
+  "@timeLimit": {
+    "description": ""
+  },
+  "endedNotAllowed": "Görüşme sona erdi: sesli görüşme artık mümkün değil",
+  "@endedNotAllowed": {
+    "description": ""
+  },
+  "callEnded": "Görüşme bitti",
+  "@callEnded": {
+    "description": ""
+  },
+  "messageDeleted": "Mesaj silindi",
+  "@messageDeleted": {
+    "description": ""
+  },
+  "photo": "Fotoğraf",
+  "@photo": {
+    "description": ""
+  },
+  "tonightTable": "Bu akşamın masası",
+  "@tonightTable": {
+    "description": ""
+  },
+  "blockRequestPending": "Yanıt vermek için önce mesaj isteğini kabul et.",
+  "@blockRequestPending": {
+    "description": ""
+  },
+  "blockDeclined": "Bu kişi mesaj isteğini kabul etmedi.",
+  "@blockDeclined": {
+    "description": ""
+  },
+  "blockMuted": "Bu grupta susturulduğun için şu anda yazamazsın.",
+  "@blockMuted": {
+    "description": ""
+  },
+  "blockAdminsOnly": "Bu sohbette yalnızca yöneticiler yazabilir.",
+  "@blockAdminsOnly": {
+    "description": ""
+  },
+  "blockTableClosed": "Masa kapandı; mesajları okuyabilirsin ama yeni mesaj yazılamaz.",
+  "@blockTableClosed": {
+    "description": ""
+  },
+  "blockBlocked": "Engel olduğu için bu sohbete yazılamıyor.",
+  "@blockBlocked": {
+    "description": ""
+  },
+  "blockMatchEnded": "Eşleşme bittiği için bu sohbet kapandı.",
+  "@blockMatchEnded": {
+    "description": ""
+  },
+  "blockMatchLocked": "Eşleştiğin kişiye yazmak için Eşleşme Sohbeti paketi gerekir. Mesajları okumak ücretsiz.",
+  "@blockMatchLocked": {
+    "description": ""
+  },
+  "blockTeammateLocked": "Ekip arkadaşına yazmak için Ekip Arkadaşı paketi gerekir. Mesajları okumak ücretsiz.",
+  "@blockTeammateLocked": {
+    "description": ""
+  },
+  "blockNotAllowed": "Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir. Eski mesajlarını okuyabilirsin.",
+  "@blockNotAllowed": {
+    "description": ""
+  },
+  "blockOther": "Bu sohbete şu anda yazamazsın.",
+  "@blockOther": {
+    "description": ""
+  },
+  "hiddenUser": "GWAY kullanıcısı",
+  "@hiddenUser": {
+    "description": ""
+  },
+  "voiceCalls": "Sesli görüşme",
+  "@voiceCalls": {
+    "description": ""
+  },
+  "voiceCallsHeadline": "Eşleştiğin kişilerle ve ekip arkadaşlarınla sesli konuş",
+  "@voiceCallsHeadline": {
+    "description": ""
+  },
+  "voiceCallsIntro": "Sesli görüşme, eşleştiğin kişileri ve ekip arkadaşlarını özel sohbetten aramanı sağlar. Herkese açık değildir: üyesi olduğun bir gruptan talep edersin, grubun sahibi ya da Yöneticisi açar. Görüşmeler kaydedilmez ve dinlenemez; bir görüşme en fazla {minutes} dakika sürer.",
+  "@voiceCallsIntro": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "status": "Durum",
+  "@status": {
+    "description": ""
+  },
+  "notRequested": "Talep edilmedi",
+  "@notRequested": {
+    "description": ""
+  },
+  "underReview": "İnceleniyor",
+  "@underReview": {
+    "description": ""
+  },
+  "statusOn": "Açık",
+  "@statusOn": {
+    "description": ""
+  },
+  "statusOff": "Kapalı",
+  "@statusOff": {
+    "description": ""
+  },
+  "notRequestedYet": "Henüz talep etmedin.",
+  "@notRequestedYet": {
+    "description": ""
+  },
+  "requestedFrom": "Talebin {group} yöneticilerine ulaştı. Karar verilince bildirim gelir.",
+  "@requestedFrom": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "requestedFromGroup": "Talebin grubun yöneticilerine ulaştı. Karar verilince bildirim gelir.",
+  "@requestedFromGroup": {
+    "description": ""
+  },
+  "activeFrom": "Sesli görüşmen açık ({group}). Eşleştiğin kişileri ve ekip arkadaşlarını sohbetin üstündeki telefon simgesiyle arayabilirsin; karşı tarafın da yetkisi açık olmalı.",
+  "@activeFrom": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "active": "Sesli görüşmen açık. Eşleştiğin kişileri ve ekip arkadaşlarını sohbetin üstündeki telefon simgesiyle arayabilirsin; karşı tarafın da yetkisi açık olmalı.",
+  "@active": {
+    "description": ""
+  },
+  "declined": "Talebin şimdilik kabul edilmedi.",
+  "@declined": {
+    "description": ""
+  },
+  "revokedLeftGroup": "Yetkiyi veren gruptan ayrıldığın için sesli görüşmen kapandı. Başka bir grubundan yeniden talep edebilirsin.",
+  "@revokedLeftGroup": {
+    "description": ""
+  },
+  "revoked": "Sesli görüşmen kapatıldı.",
+  "@revoked": {
+    "description": ""
+  },
+  "reasonLine": "Gerekçe: {reason}",
+  "@reasonLine": {
+    "description": "",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "yourNote": "Notun: {note}",
+  "@yourNote": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "waitUntil": "{date} sonrasında yeniden talep edebilirsin.",
+  "@waitUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "requestSent": "Talebin gönderildi.",
+  "@requestSent": {
+    "description": ""
+  },
+  "joinGroupFirst": "Sesli görüşmeyi grupların sahipleri ve Yöneticileri açar. Talep edebilmek için önce bir gruba katıl.",
+  "@joinGroupFirst": {
+    "description": ""
+  },
+  "requestToGroup": "Talebin gideceği grup",
+  "@requestToGroup": {
+    "description": ""
+  },
+  "noteOptional": "Not (isteğe bağlı)",
+  "@noteOptional": {
+    "description": ""
+  },
+  "noteHint": "Neden sesli görüşme istediğini kısaca yazabilirsin.",
+  "@noteHint": {
+    "description": ""
+  },
+  "request": "Talep et",
+  "@request": {
+    "description": ""
+  },
+  "lockScreenCalls": "Kilit ekranında gelen arama",
+  "@lockScreenCalls": {
+    "description": ""
+  },
+  "lockScreenHint": "Telefonun kilitliyken aramaların tam ekran çalması için GWAY'e izin ver.",
+  "@lockScreenHint": {
+    "description": ""
+  },
+  "allow": "İzni aç",
+  "@allow": {
+    "description": ""
+  },
+  "callInfoFailed": "Görüşme bilgisi alınamadı. Bağlantını kontrol et.",
+  "@callInfoFailed": {
+    "description": ""
+  },
+  "tapEndToHangUp": "Görüşmeyi bitirmek için Bitir'e dokun.",
+  "@tapEndToHangUp": {
+    "description": ""
+  },
+  "callNotFound": "Bu görüşme bulunamadı.",
+  "@callNotFound": {
+    "description": ""
+  },
+  "close": "Kapat",
+  "@close": {
+    "description": ""
+  },
+  "callLimitNote": "Görüşme en fazla {minutes} dakika sürer ve kaydedilmez.",
+  "@callLimitNote": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "audioFailed": "Sese bağlanılamadı. Bağlantını kontrol edip tekrar dene.",
+  "@audioFailed": {
+    "description": ""
+  },
+  "reconnect": "Tekrar bağlan",
+  "@reconnect": {
+    "description": ""
+  },
+  "incoming": "Seni sesli arıyor…",
+  "@incoming": {
+    "description": ""
+  },
+  "calling": "Aranıyor…",
+  "@calling": {
+    "description": ""
+  },
+  "connecting": "Bağlanıyor…",
+  "@connecting": {
+    "description": ""
+  },
+  "answerCall": "Cevapla",
+  "@answerCall": {
+    "description": ""
+  },
+  "mute": "Sessize al",
+  "@mute": {
+    "description": ""
+  },
+  "unmute": "Sesi aç",
+  "@unmute": {
+    "description": ""
+  },
+  "end": "Bitir",
+  "@end": {
+    "description": ""
+  },
+  "speaker": "Hoparlör",
+  "@speaker": {
+    "description": ""
+  },
+  "peerUnencrypted": "Karşındakinin uygulaması eski, sesi şifresiz geliyor ve çalınmıyor. Uygulamasını güncellemesini iste.",
+  "@peerUnencrypted": {
+    "description": ""
+  },
+  "encrypting": "Şifreli bağlantı kuruluyor…",
+  "@encrypting": {
+    "description": ""
+  },
+  "e2eeCode": "Uçtan uca şifreli. Güvenlik kodu {code}",
+  "@e2eeCode": {
+    "description": "",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "e2ee": "Uçtan uca şifreli",
+  "@e2ee": {
+    "description": ""
+  },
+  "codeMatchHint": "Bu kod karşındakinin ekranındakiyle aynıysa görüşmeyi kimse dinleyemez.",
+  "@codeMatchHint": {
+    "description": ""
+  },
+  "micFailed": "Mikrofon açılamadı. Mikrofon iznini kontrol et.",
+  "@micFailed": {
+    "description": ""
+  },
+  "chatNotFound": "Bu sohbet bulunamadı ya da artık göremiyorsun.",
+  "@chatNotFound": {
+    "description": ""
+  },
+  "backToMessages": "Mesajlara dön",
+  "@backToMessages": {
+    "description": ""
+  },
+  "cantCallNow": "Şu anda arama yapılamıyor.",
+  "@cantCallNow": {
+    "description": ""
+  },
+  "voiceCall": "Sesli ara",
+  "@voiceCall": {
+    "description": ""
+  },
+  "groupChatAdminsOnly": "Grup sohbeti · yalnızca yöneticiler yazar",
+  "@groupChatAdminsOnly": {
+    "description": ""
+  },
+  "groupChat": "Grup sohbeti",
+  "@groupChat": {
+    "description": ""
+  },
+  "smallTableMembers": "Küçük masa · {count} kişi",
+  "@smallTableMembers": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminsOnlyOn": "Artık bu sohbete yalnızca grup sahibi ve yöneticiler yazabilir.",
+  "@adminsOnlyOn": {
+    "description": ""
+  },
+  "adminsOnlyOff": "Artık grubun tüm üyeleri bu sohbete yazabilir.",
+  "@adminsOnlyOff": {
+    "description": ""
+  },
+  "chatSettings": "Sohbet ayarları",
+  "@chatSettings": {
+    "description": ""
+  },
+  "adminsOnlyToggle": "Yalnızca yöneticiler yazsın",
+  "@adminsOnlyToggle": {
+    "description": ""
+  },
+  "sendingPhoto": "📷 Fotoğraf gönderiliyor…",
+  "@sendingPhoto": {
+    "description": ""
+  },
+  "requestPendingNote": "Mesaj isteğin iletildi. Kabul edilene kadar okunup okunmadığını göremezsin.",
+  "@requestPendingNote": {
+    "description": ""
+  },
+  "groupChatEmpty": "Grup sohbetinde henüz mesaj yok. İlk mesajı sen yaz.",
+  "@groupChatEmpty": {
+    "description": ""
+  },
+  "chatEmpty": "Henüz mesaj yok. İlk mesajı sen yaz.",
+  "@chatEmpty": {
+    "description": ""
+  },
+  "startWriting": "Yazmaya başla",
+  "@startWriting": {
+    "description": ""
+  },
+  "sending": "Gönderiliyor…",
+  "@sending": {
+    "description": ""
+  },
+  "seen": "Görüldü",
+  "@seen": {
+    "description": ""
+  },
+  "sent": "Gönderildi",
+  "@sent": {
+    "description": ""
+  },
+  "seePackage": "Paketi incele",
+  "@seePackage": {
+    "description": ""
+  },
+  "today": "Bugün",
+  "@today": {
+    "description": ""
+  },
+  "messageRemoved": "Bu mesaj kaldırıldı.",
+  "@messageRemoved": {
+    "description": ""
+  },
+  "thisMessageDeleted": "Bu mesaj silindi.",
+  "@thisMessageDeleted": {
+    "description": ""
+  },
+  "messageOptions": "Mesaj seçenekleri",
+  "@messageOptions": {
+    "description": ""
+  },
+  "profileOf": "{name} profili",
+  "@profileOf": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "you": "Sen",
+  "@you": {
+    "description": ""
+  },
+  "copy": "Kopyala",
+  "@copy": {
+    "description": ""
+  },
+  "copied": "Mesaj kopyalandı.",
+  "@copied": {
+    "description": ""
+  },
+  "deleteForAll": "Herkesten sil",
+  "@deleteForAll": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "deleteForAllTitle": "Mesaj herkesten silinsin mi?",
+  "@deleteForAllTitle": {
+    "description": ""
+  },
+  "deleteForAllBody": "Mesaj sohbetteki herkes için \"Bu mesaj silindi\" olarak görünür. Bu işlem geri alınamaz.",
+  "@deleteForAllBody": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "requestDeleted": "Mesaj isteği silindi.",
+  "@requestDeleted": {
+    "description": ""
+  },
+  "wantsToMessage": "{name} sana mesaj göndermek istiyor. Kabul edersen yazışabilirsiniz ve mesajları okuduğunu görebilir.",
+  "@wantsToMessage": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accept": "Kabul et",
+  "@accept": {
+    "description": ""
+  },
+  "removePhoto": "Fotoğrafı kaldır",
+  "@removePhoto": {
+    "description": ""
+  },
+  "addPhoto": "Fotoğraf ekle",
+  "@addPhoto": {
+    "description": ""
+  },
+  "writeMessage": "Mesaj yaz",
+  "@writeMessage": {
+    "description": ""
+  },
+  "send": "Gönder",
+  "@send": {
+    "description": ""
+  },
+  "messages": "Mesajlar",
+  "@messages": {
+    "description": ""
+  },
+  "chats": "Sohbetler",
+  "@chats": {
+    "description": ""
+  },
+  "requests": "İstekler",
+  "@requests": {
+    "description": ""
+  },
+  "requestsCount": "İstekler ({count})",
+  "@requestsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noChats": "Henüz bir sohbetin yok. Eşleştiğin kişilere ve ekip arkadaşlarına yazabilirsin.",
+  "@noChats": {
+    "description": ""
+  },
+  "findPeople": "Kişi bul",
+  "@findPeople": {
+    "description": ""
+  },
+  "oldRequestsNote": "Eski mesaj istekleri burada durur. Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir; yeni istek gelmez.",
+  "@oldRequestsNote": {
+    "description": ""
+  },
+  "noRequests": "Bekleyen mesaj isteğin yok.",
+  "@noRequests": {
+    "description": ""
+  },
+  "backToChats": "Sohbetlere dön",
+  "@backToChats": {
+    "description": ""
+  },
+  "callRequests": "Sesli görüşme talepleri",
+  "@callRequests": {
+    "description": ""
+  },
+  "noPendingWithActive": "Bekleyen talep yok · {count} açık yetki",
+  "@noPendingWithActive": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingCount": "{count} talep bekliyor",
+  "@pendingCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pending": "Bekleyen",
+  "@pending": {
+    "description": ""
+  },
+  "activeTab": "Açık",
+  "@activeTab": {
+    "description": ""
+  },
+  "requestsOwnersOnly": "Sesli görüşme taleplerini grup sahibi ve Yöneticiler görür.",
+  "@requestsOwnersOnly": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "noPendingFor": "Bekleyen talep yok. {group} üyeleri talep edince burada görünür.",
+  "@noPendingFor": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "noActive": "Bu grubun açtığı sesli görüşme yetkisi yok.",
+  "@noActive": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "grantHint": "Açtığın yetkiyle kişi eşleştiği ve ekip arkadaşı olduğu herkesi sesli arayabilir. Görüşmeler kaydedilmez; kişi gruptan ayrılırsa yetki kapanır.",
+  "@grantHint": {
+    "description": ""
+  },
+  "granted": "Sesli görüşme açıldı.",
+  "@granted": {
+    "description": ""
+  },
+  "turnedOff": "Sesli görüşme kapatıldı.",
+  "@turnedOff": {
+    "description": ""
+  },
+  "theirNote": "Notu: {note}",
+  "@theirNote": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "turnOff": "Kapat",
+  "@turnOff": {
+    "description": ""
+  },
+  "turnOn": "Aç",
+  "@turnOn": {
+    "description": ""
+  },
+  "rankOnlyGrant": "Rütbesi seninkine eşit ya da yüksek olduğu için bu talebi yalnızca açabilirsin.",
+  "@rankOnlyGrant": {
+    "description": ""
+  },
+  "rankCannotRevoke": "Rütbesi seninkine eşit ya da yüksek olduğu için bu yetkiyi kapatamazsın.",
+  "@rankCannotRevoke": {
+    "description": ""
+  },
+  "declineRequest": "Talebi reddet",
+  "@declineRequest": {
+    "description": ""
+  },
+  "turnOffCalls": "Sesli görüşmeyi kapat",
+  "@turnOffCalls": {
+    "description": ""
+  },
+  "declineHint": "Kişi gerekçeyi görür ve 7 gün sonra yeniden talep edebilir.",
+  "@declineHint": {
+    "description": ""
+  },
+  "revokeHint": "Kişinin süren görüşmesi hemen biter. Gerekçeyi görür ve 7 gün sonra yeniden talep edebilir.",
+  "@revokeHint": {
+    "description": ""
+  },
+  "reason": "Gerekçe",
+  "@reason": {
+    "description": ""
+  },
+  "reasonMin3": "Gerekçe en az 3 karakter olmalı.",
+  "@reasonMin3": {
+    "description": ""
+  },
+  "yesterday": "Dün",
+  "@yesterday": {
+    "description": ""
+  },
+  "sendMessage": "Mesaj gönder",
+  "@sendMessage": {
+    "description": ""
+  },
+  "groupChatMembersOnly": "Grup sohbetini yalnızca grubun üyeleri görebilir.",
+  "@groupChatMembersOnly": {
+    "description": ""
+  }
+}

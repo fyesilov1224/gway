@@ -20,6 +20,8 @@ import 'src/feed_pages.dart';
 @pragma('vm:entry-point')
 Future<void> _onBackgroundPush(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // The phone's call screen speaks the chosen language.
+  await restoreAppLanguage();
   await handleCallPush(message.data);
 }
 

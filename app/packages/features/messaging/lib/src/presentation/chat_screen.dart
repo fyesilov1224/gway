@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/calls.dart';
 import '../domain/messaging.dart';
+import '../l10n.dart';
 import 'call_providers.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -76,8 +77,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         AsyncError(error: NotFoundFailure()) => GwEmptyState(
             icon: Icons.forum_outlined,
-            message: 'Bu sohbet bulunamadı ya da artık göremiyorsun.',
-            actionLabel: 'Mesajlara dön',
+            message: messagingL10n.chatNotFound,
+            actionLabel: messagingL10n.backToMessages,
             onAction: () => context.go(MessagingRoutes.list),
           ),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(provider)),
@@ -126,9 +127,9 @@ class _CallButtonState extends ConsumerState<_CallButton> {
   void _explain(CallEligibility eligibility) {
     final ownPermission = eligibility.code == 'call.no_permission';
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(eligibility.message ?? 'Şu anda arama yapılamıyor.'),
+      content: Text(eligibility.message ?? messagingL10n.cantCallNow),
       action: ownPermission
-          ? SnackBarAction(label: 'Talep et', onPressed: () => context.push(MessagingRoutes.callSettings))
+          ? SnackBarAction(label: messagingL10n.request, onPressed: () => context.push(MessagingRoutes.callSettings))
           : null,
     ));
   }
@@ -136,7 +137,7 @@ class _CallButtonState extends ConsumerState<_CallButton> {
   @override
   Widget build(BuildContext context) => switch (ref.watch(callEligibilityProvider(widget.conversationId))) {
         AsyncData(:final value) when !value.hidden => IconButton(
-            tooltip: 'Sesli ara',
+            tooltip: messagingL10n.voiceCall,
             icon: Icon(Icons.call_outlined, color: value.allowed ? null : GwColors.textSecondary),
             onPressed: _starting ? null : () => value.allowed ? _start() : _explain(value),
           ),
@@ -155,9 +156,9 @@ class _Title extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final c = conversation;
     final subtitle = switch (c) {
-      Conversation(kind: ConversationKind.group, adminsOnly: true) => 'Grup sohbeti · yalnızca yöneticiler yazar',
-      Conversation(kind: ConversationKind.group) => 'Grup sohbeti',
-      Conversation(kind: ConversationKind.table) => 'Küçük masa · ${c.tableMembers} kişi',
+      Conversation(kind: ConversationKind.group, adminsOnly: true) => messagingL10n.groupChatAdminsOnly,
+      Conversation(kind: ConversationKind.group) => messagingL10n.groupChat,
+      Conversation(kind: ConversationKind.table) => messagingL10n.smallTableMembers(c.tableMembers),
       Conversation(:final peer?) => '@${peer.username}',
       _ => '',
     };
@@ -203,8 +204,8 @@ class _ChatSettings extends ConsumerWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() when adminsOnly => 'Artık bu sohbete yalnızca grup sahibi ve yöneticiler yazabilir.',
-        Ok() => 'Artık grubun tüm üyeleri bu sohbete yazabilir.',
+        Ok() when adminsOnly => messagingL10n.adminsOnlyOn,
+        Ok() => messagingL10n.adminsOnlyOff,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -213,13 +214,13 @@ class _ChatSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => PopupMenuButton<void>(
-        tooltip: 'Sohbet ayarları',
+        tooltip: messagingL10n.chatSettings,
         icon: const Icon(Icons.more_vert),
         itemBuilder: (_) => [
           CheckedPopupMenuItem(
             checked: conversation.adminsOnly,
             onTap: () => _toggle(context, ref),
-            child: const Text('Yalnızca yöneticiler yazsın'),
+            child: Text(messagingL10n.adminsOnlyToggle),
           ),
         ],
       );
@@ -254,7 +255,7 @@ class _Chat extends ConsumerWidget {
             id: 'pending-${p.localId}',
             sender: MessageSender(id: me ?? '', username: '', displayName: ''),
             createdAt: p.createdAt,
-            body: p.body.isEmpty && p.hasImage ? '📷 Fotoğraf gönderiliyor…' : p.body,
+            body: p.body.isEmpty && p.hasImage ? messagingL10n.sendingPhoto : p.body,
             pending: true,
           ),
     ];
@@ -270,13 +271,13 @@ class _Chat extends ConsumerWidget {
     return Column(
       children: [
         if (c.peer?.state == MemberState.request)
-          const _Notice('Mesaj isteğin iletildi. Kabul edilene kadar okunup okunmadığını göremezsin.'),
+          _Notice(messagingL10n.requestPendingNote),
         Expanded(
           child: messages.isEmpty
               ? GwEmptyState(
                   icon: Icons.waving_hand_outlined,
-                  message: group ? 'Grup sohbetinde henüz mesaj yok. İlk mesajı sen yaz.' : 'Henüz mesaj yok. İlk mesajı sen yaz.',
-                  actionLabel: 'Yazmaya başla',
+                  message: group ? messagingL10n.groupChatEmpty : messagingL10n.chatEmpty,
+                  actionLabel: messagingL10n.startWriting,
                   onAction: composerFocus.requestFocus,
                 )
               : ListView.builder(
@@ -308,11 +309,11 @@ class _Chat extends ConsumerWidget {
                                       !DateUtils.isSameDay(next.createdAt.toLocal(), m.createdAt.toLocal())),
                               onOpenSender: m.sender.isHidden ? null : () => onOpenProfile(m.sender.username),
                               status: m.pending
-                                  ? 'Gönderiliyor…'
+                                  ? messagingL10n.sending
                                   : m.id == seenId
-                                  ? 'Görüldü'
+                                  ? messagingL10n.seen
                                   : m.id == lastMine && !group && !m.isDeleted
-                                      ? 'Gönderildi'
+                                      ? messagingL10n.sent
                                       : null,
                             ),
                           ],
@@ -328,7 +329,7 @@ class _Chat extends ConsumerWidget {
           _Notice(
             text,
             bottom: true,
-            actionLabel: _packageFor(c.blocker) == null ? null : 'Paketi incele',
+            actionLabel: _packageFor(c.blocker) == null ? null : messagingL10n.seePackage,
             onAction: () => ref.read(packageOpenerProvider)(context, _packageFor(c.blocker)!),
           )
         else
@@ -346,7 +347,7 @@ class _DayLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = switch (formatChatTime(time)) {
-      final t when t.contains(':') => 'Bugün',
+      final t when t.contains(':') => messagingL10n.today,
       final t => t,
     };
     return Padding(
@@ -414,7 +415,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
         children: [
           if (m.isDeleted)
             Text(
-              m.removed ? 'Bu mesaj kaldırıldı.' : 'Bu mesaj silindi.',
+              m.removed ? messagingL10n.messageRemoved : messagingL10n.thisMessageDeleted,
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary, fontStyle: FontStyle.italic),
             )
           else ...[
@@ -433,7 +434,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
       dimension: GwSpacing.minTouchTarget,
       child: _hovered && !m.isDeleted && !m.pending
           ? IconButton(
-              tooltip: 'Mesaj seçenekleri',
+              tooltip: messagingL10n.messageOptions,
               icon: const Icon(Icons.more_horiz, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
               onPressed: _actions,
             )
@@ -475,7 +476,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
                                       alignment: Alignment.bottomLeft,
                                       child: Semantics(
                                         button: true,
-                                        label: '${m.sender.displayName} profili',
+                                        label: messagingL10n.profileOf(m.sender.displayName),
                                         child: GestureDetector(
                                           onTap: widget.onOpenSender,
                                           child: GwAvatar(
@@ -491,7 +492,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
                             ),
                           Flexible(
                             child: Semantics(
-                              label: '${mine ? 'Sen' : m.sender.displayName}, $time',
+                              label: '${mine ? messagingL10n.you : m.sender.displayName}, $time',
                               child: GestureDetector(
                                 onLongPress: m.isDeleted || m.pending ? null : _actions,
                                 child: bubble,
@@ -536,19 +537,19 @@ class _BubbleState extends ConsumerState<_Bubble> {
             if (m.body.isNotEmpty)
               ListTile(
                 leading: const Icon(Icons.copy_outlined),
-                title: const Text('Kopyala'),
+                title: Text(messagingL10n.copy),
                 onTap: () async {
                   Navigator.of(sheet).pop();
                   await Clipboard.setData(ClipboardData(text: m.body));
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mesaj kopyalandı.')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(messagingL10n.copied)));
                   }
                 },
               ),
             if (mine)
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: GwColors.error),
-                title: const Text('Herkesten sil', style: TextStyle(color: GwColors.error)),
+                title: Text(messagingL10n.deleteForAll, style: const TextStyle(color: GwColors.error)),
                 onTap: () {
                   Navigator.of(sheet).pop();
                   _delete();
@@ -557,7 +558,7 @@ class _BubbleState extends ConsumerState<_Bubble> {
             else
               ListTile(
                 leading: const Icon(Icons.flag_outlined),
-                title: const Text('Şikayet et'),
+                title: Text(messagingL10n.report),
                 onTap: () {
                   Navigator.of(sheet).pop();
                   ref.read(reportLauncherProvider)(context, ReportTarget.message(m.id));
@@ -574,11 +575,11 @@ class _BubbleState extends ConsumerState<_Bubble> {
       context: context,
       builder: (dialog) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Mesaj herkesten silinsin mi?'),
-        content: const Text('Mesaj sohbetteki herkes için "Bu mesaj silindi" olarak görünür. Bu işlem geri alınamaz.'),
+        title: Text(messagingL10n.deleteForAllTitle),
+        content: Text(messagingL10n.deleteForAllBody),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
-          GwButton(label: 'Sil', onPressed: () => Navigator.of(dialog).pop(true)),
+          GwButton(label: messagingL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: messagingL10n.delete, onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),
     );
@@ -599,7 +600,7 @@ class _Photo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Fotoğraf',
+        label: messagingL10n.photo,
         button: true,
         child: GestureDetector(
           onTap: () => showDialog<void>(
@@ -611,7 +612,7 @@ class _Photo extends StatelessWidget {
                   Positioned.fill(child: InteractiveViewer(maxScale: GwMedia.maxZoom, child: Image.network(url))),
                   SafeArea(
                     child: IconButton(
-                      tooltip: 'Kapat',
+                      tooltip: messagingL10n.close,
                       color: GwColors.onMedia,
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(dialog).pop(),
@@ -699,7 +700,7 @@ class _RequestBarState extends ConsumerState<_RequestBar> {
       case Ok() when accept:
         ref.invalidate(chatProvider(c.id));
       case Ok():
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mesaj isteği silindi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(messagingL10n.requestDeleted)));
         context.pop();
       case Err(:final failure):
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
@@ -721,7 +722,7 @@ class _RequestBarState extends ConsumerState<_RequestBar> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '$name sana mesaj göndermek istiyor. Kabul edersen yazışabilirsiniz ve mesajları okuduğunu görebilir.',
+                messagingL10n.wantsToMessage(name),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: GwSpacing.sm),
@@ -729,13 +730,13 @@ class _RequestBarState extends ConsumerState<_RequestBar> {
                 children: [
                   Expanded(
                     child: GwButton(
-                      label: 'Sil',
+                      label: messagingL10n.delete,
                       variant: GwButtonVariant.secondary,
                       onPressed: _busy ? null : () => _answer(accept: false),
                     ),
                   ),
                   const SizedBox(width: GwSpacing.sm),
-                  Expanded(child: GwButton(label: 'Kabul et', isLoading: _busy, onPressed: () => _answer(accept: true))),
+                  Expanded(child: GwButton(label: messagingL10n.accept, isLoading: _busy, onPressed: () => _answer(accept: true))),
                 ],
               ),
             ],
@@ -832,7 +833,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                         ),
                         const SizedBox(width: GwSpacing.xs),
                         IconButton(
-                          tooltip: 'Fotoğrafı kaldır',
+                          tooltip: messagingL10n.removePhoto,
                           icon: const Icon(Icons.close),
                           onPressed: () => setState(() => _image = null),
                         ),
@@ -844,7 +845,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       IconButton(
-                        tooltip: 'Fotoğraf ekle',
+                        tooltip: messagingL10n.addPhoto,
                         icon: const Icon(Icons.add_photo_alternate_outlined),
                         onPressed: _pick,
                       ),
@@ -856,12 +857,12 @@ class _ComposerState extends ConsumerState<_Composer> {
                           maxLines: 5,
                           maxLength: MessagingRules.bodyMax,
                           textCapitalization: TextCapitalization.sentences,
-                          decoration: const InputDecoration(hintText: 'Mesaj yaz', counterText: ''),
+                          decoration: InputDecoration(hintText: messagingL10n.writeMessage, counterText: ''),
                         ),
                       ),
                       const SizedBox(width: GwSpacing.xs),
                       IconButton.filled(
-                        tooltip: 'Gönder',
+                        tooltip: messagingL10n.send,
                         icon: const Icon(Icons.send),
                         onPressed: _send,
                       ),

@@ -73,6 +73,13 @@ Future<SharedPreferences> openLanguagePreferences() => SharedPreferences.getInst
 /// The device's preferred languages; tests override it.
 final deviceLocalesProvider = Provider<List<Locale>>((_) => PlatformDispatcher.instance.locales);
 
+/// Sets [currentAppLanguage] in an isolate without the app (a push in the background): the saved choice, else the
+/// device language, else English.
+Future<void> restoreAppLanguage() async {
+  final saved = AppLanguage.parse((await openLanguagePreferences()).getString(_prefsKey));
+  setCurrentAppLanguage(saved ?? AppLanguage.fromDevice(PlatformDispatcher.instance.locales));
+}
+
 /// The chosen language: saved choice, else the device language, else English.
 final appLanguageProvider = NotifierProvider<AppLanguageController, AppLanguage>(AppLanguageController.new);
 

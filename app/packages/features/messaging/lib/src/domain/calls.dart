@@ -1,5 +1,7 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// One-to-one voice calls between matched people (docs/ARCHITECTURE.md §8c).
 enum CallStatus {
   ringing,
@@ -38,16 +40,19 @@ class CallInfo {
   String peerOf(String me) => callerId == me ? calleeId : callerId;
 
   /// Why the call is over, as the call screen says it to [me].
-  String endedText(String me) => switch (status) {
-        CallStatus.missed => callerId == me ? 'Cevap verilmedi' : 'Cevapsız arama',
-        CallStatus.declined => callerId == me ? 'Arama reddedildi' : 'Aramayı reddettin',
-        CallStatus.canceled => endReason == 'not_allowed' ? 'Arama artık mümkün değil' : 'Arama iptal edildi',
-        _ => switch (endReason) {
-            'time_limit' => '60 dakika doldu, görüşme bitti',
-            'not_allowed' => 'Görüşme sona erdi: sesli görüşme artık mümkün değil',
-            _ => 'Görüşme bitti',
-          },
-      };
+  String endedText(String me) {
+    final l = messagingL10n;
+    return switch (status) {
+      CallStatus.missed => callerId == me ? l.noAnswer : l.missedCall,
+      CallStatus.declined => callerId == me ? l.callDeclined : l.youDeclined,
+      CallStatus.canceled => endReason == 'not_allowed' ? l.callNotAllowed : l.callCanceled,
+      _ => switch (endReason) {
+          'time_limit' => l.timeLimit,
+          'not_allowed' => l.endedNotAllowed,
+          _ => l.callEnded,
+        },
+    };
+  }
 }
 
 /// Whether this chat may call now; when not, the sentence why (from the server).

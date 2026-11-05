@@ -8,6 +8,8 @@ import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n.dart';
+
 /// What the person did on the phone's own incoming call screen.
 enum NativeCallChoice { answer, decline }
 
@@ -55,7 +57,7 @@ class CallkitNativeCalls implements NativeCalls {
       id: callId,
       nameCaller: caller,
       appName: 'GWAY',
-      handle: 'GWAY sesli arama',
+      handle: messagingL10n.voiceCallHandle,
       type: 0,
       duration: ringFor.inMilliseconds,
       // The server's call_missed notice says it; the phone's own would be a second one.
@@ -69,12 +71,12 @@ class CallkitNativeCalls implements NativeCalls {
         backgroundColor: _hex(GwColors.primary),
         actionColor: _hex(GwColors.primary),
         textColor: _hex(GwColors.onPrimary),
-        incomingCallNotificationChannelName: 'Gelen aramalar',
-        missedCallNotificationChannelName: 'Cevapsız aramalar',
+        incomingCallNotificationChannelName: messagingL10n.incomingCalls,
+        missedCallNotificationChannelName: messagingL10n.missedCalls,
         isShowFullLockedScreen: true,
         isImportant: true,
-        textAccept: 'Cevapla',
-        textDecline: 'Reddet',
+        textAccept: messagingL10n.answer,
+        textDecline: messagingL10n.decline,
       ),
     ));
   }

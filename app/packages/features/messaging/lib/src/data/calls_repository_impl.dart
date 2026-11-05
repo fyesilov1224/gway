@@ -4,6 +4,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/calls.dart';
+import '../l10n.dart';
 
 Future<Result<T>> _run<T>(Future<T> Function() action) async {
   try {
@@ -154,13 +155,13 @@ class CallsRepositoryImpl implements CallsRepository {
         } on PostgrestException catch (e) {
           if (e.code != 'P0001') rethrow;
           throw switch (e.message) {
-            'call_group_invalid' => const RuleFailure('call.group_invalid', 'Talebi üyesi olduğun bir gruba gönderebilirsin.'),
+            'call_group_invalid' => RuleFailure('call.group_invalid', messagingL10n.groupInvalid),
 
-            'call_permission_exists' => const RuleFailure('call.permission_exists', 'Talebin zaten alındı ya da yetkin açık.'),
+            'call_permission_exists' => RuleFailure('call.permission_exists', messagingL10n.permissionExists),
             'call_permission_cooldown' =>
-              const RuleFailure('call.permission_cooldown', 'Yeni bir talebi son karardan 7 gün sonra gönderebilirsin.'),
-            'call_note_too_long' => const RuleFailure('call.note_too_long', 'Not en fazla ${CallRules.noteMax} karakter olabilir.'),
-            _ => const RuleFailure('call.forbidden', 'Talep şu anda gönderilemiyor.'),
+              RuleFailure('call.permission_cooldown', messagingL10n.permissionCooldown),
+            'call_note_too_long' => RuleFailure('call.note_too_long', messagingL10n.noteTooLong(CallRules.noteMax)),
+            _ => RuleFailure('call.forbidden', messagingL10n.requestForbidden),
           };
         }
       });

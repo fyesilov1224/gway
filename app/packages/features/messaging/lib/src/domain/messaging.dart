@@ -1,5 +1,7 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// A table is the chat of tonight's small table (docs/ARCHITECTURE.md §3d, Bu akşam boşum ve küçük masa).
 enum ConversationKind { direct, group, table }
 
@@ -53,10 +55,10 @@ class LastMessage {
   final bool deleted;
 
   String get preview => deleted
-      ? 'Mesaj silindi'
+      ? messagingL10n.messageDeleted
       : body.isNotEmpty
           ? body
-          : 'Fotoğraf';
+          : messagingL10n.photo;
 }
 
 class Conversation {
@@ -95,23 +97,23 @@ class Conversation {
   final int tableMembers;
 
   bool get isRequest => myState == MemberState.request;
-  String get title => kind == ConversationKind.table ? 'Bu akşamın masası' : group?.name ?? peer?.displayName ?? '';
+  String get title => kind == ConversationKind.table ? messagingL10n.tonightTable : group?.name ?? peer?.displayName ?? '';
   String? get avatarUrl => group?.logoUrl ?? peer?.avatarUrl;
 
-  /// What the composer shows instead of the text field, in Turkish.
+  /// What the composer shows instead of the text field, in the app language.
   String? get blockerText => switch (blocker) {
         null => null,
-        'message_request_pending' => 'Yanıt vermek için önce mesaj isteğini kabul et.',
-        'message_declined' => 'Bu kişi mesaj isteğini kabul etmedi.',
-        'message_muted' => 'Bu grupta susturulduğun için şu anda yazamazsın.',
-        'message_admins_only' => 'Bu sohbette yalnızca yöneticiler yazabilir.',
-        'table_closed' => 'Masa kapandı; mesajları okuyabilirsin ama yeni mesaj yazılamaz.',
-        'blocked' => 'Engel olduğu için bu sohbete yazılamıyor.',
-        'match_ended' => 'Eşleşme bittiği için bu sohbet kapandı.',
-        'match_chat_locked' => 'Eşleştiğin kişiye yazmak için Eşleşme Sohbeti paketi gerekir. Mesajları okumak ücretsiz.',
-        'teammate_chat_locked' => 'Ekip arkadaşına yazmak için Ekip Arkadaşı paketi gerekir. Mesajları okumak ücretsiz.',
-        'message_not_allowed' => 'Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir. Eski mesajlarını okuyabilirsin.',
-        _ => 'Bu sohbete şu anda yazamazsın.',
+        'message_request_pending' => messagingL10n.blockRequestPending,
+        'message_declined' => messagingL10n.blockDeclined,
+        'message_muted' => messagingL10n.blockMuted,
+        'message_admins_only' => messagingL10n.blockAdminsOnly,
+        'table_closed' => messagingL10n.blockTableClosed,
+        'blocked' => messagingL10n.blockBlocked,
+        'match_ended' => messagingL10n.blockMatchEnded,
+        'match_chat_locked' => messagingL10n.blockMatchLocked,
+        'teammate_chat_locked' => messagingL10n.blockTeammateLocked,
+        'message_not_allowed' => messagingL10n.blockNotAllowed,
+        _ => messagingL10n.blockOther,
       };
 }
 
@@ -119,7 +121,7 @@ class MessageSender {
   const MessageSender({required this.id, required this.username, required this.displayName, this.avatarUrl});
 
   /// Someone whose profile the reader may not see (suspended, banned or being deleted): their messages stay, unnamed.
-  const MessageSender.hidden(this.id) : username = '', displayName = 'GWAY kullanıcısı', avatarUrl = null;
+  MessageSender.hidden(this.id) : username = '', displayName = messagingL10n.hiddenUser, avatarUrl = null;
 
   final String id;
   final String username;
