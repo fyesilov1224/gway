@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/notification.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// The user turns event reminders, change notices and live broadcast notices on or off (docs/ARCHITECTURE.md §3c, Tercihler).
@@ -33,7 +34,7 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
     final saved = ref.watch(notificationPreferencesProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Bildirim tercihleri')),
+      appBar: AppBar(title: Text(notificationsL10n.prefsTitle)),
       body: GwReadingColumn(
         child: switch (saved) {
           AsyncData(:final value) => () {
@@ -49,39 +50,39 @@ class _NotificationPreferencesScreenState extends ConsumerState<NotificationPref
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xs),
-                    child: Text('Mesajlar', style: textTheme.titleSmall),
+                    child: Text(notificationsL10n.messages, style: textTheme.titleSmall),
                   ),
-                  toggle('Kişisel mesajlar', 'Birebir sohbetlerine mesaj gelince, uygulama kapalıyken de sesli', p.messages,
+                  toggle(notificationsL10n.directMessages, notificationsL10n.directMessagesHint, p.messages,
                       (v) => p.copyWith(messages: v)),
-                  toggle('Grup mesajları', 'Grup sohbetlerine ve bu akşamın masasına mesaj gelince, uygulama kapalıyken de sesli',
+                  toggle(notificationsL10n.groupMessages, notificationsL10n.groupMessagesHint,
                       p.groupMessages, (v) => p.copyWith(groupMessages: v)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
-                    child: Text('Organizasyonlar', style: textTheme.titleSmall),
+                    child: Text(notificationsL10n.events, style: textTheme.titleSmall),
                   ),
-                  toggle('1 gün önce hatırlat', 'Katıldığın organizasyon yarın başlıyorsa', p.reminderDay,
+                  toggle(notificationsL10n.remindDay, notificationsL10n.remindDayHint, p.reminderDay,
                       (v) => p.copyWith(reminderDay: v)),
-                  toggle('1 saat önce hatırlat', 'Katıldığın organizasyon 1 saat içinde başlıyorsa', p.reminderHour,
+                  toggle(notificationsL10n.remindHour, notificationsL10n.remindHourHint, p.reminderHour,
                       (v) => p.copyWith(reminderHour: v)),
-                  toggle('Değişiklik ve iptaller', 'Zaman ya da yer değişince ya da organizasyon iptal edilince', p.eventUpdates,
+                  toggle(notificationsL10n.changes, notificationsL10n.changesHint, p.eventUpdates,
                       (v) => p.copyWith(eventUpdates: v)),
-                  toggle('Değerlendirme istekleri', 'Katıldığın organizasyon bitince "Nasıldı?" diye sor', p.reviewRequests,
+                  toggle(notificationsL10n.reviewRequests, notificationsL10n.reviewRequestsHint, p.reviewRequests,
                       (v) => p.copyWith(reviewRequests: v)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
-                    child: Text('Canlı yayınlar', style: textTheme.titleSmall),
+                    child: Text(notificationsL10n.live, style: textTheme.titleSmall),
                   ),
-                  toggle('Planlanan ve başlayan yayınlar', 'Grubunda yayın planlanınca ve başlayınca, uygulama açıksa sesli uyarıyla',
+                  toggle(notificationsL10n.liveAlerts, notificationsL10n.liveAlertsHint,
                       p.liveBroadcasts, (v) => p.copyWith(liveBroadcasts: v)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.md, GwSpacing.page, GwSpacing.xs),
-                    child: Text('Eşleşme', style: textTheme.titleSmall),
+                    child: Text(notificationsL10n.matching, style: textTheme.titleSmall),
                   ),
-                  toggle('Yeni eşleşmeler', 'Biriyle karşılıklı beğenince', p.matchAlerts, (v) => p.copyWith(matchAlerts: v)),
+                  toggle(notificationsL10n.newMatches, notificationsL10n.newMatchesHint, p.matchAlerts, (v) => p.copyWith(matchAlerts: v)),
                   Padding(
                     padding: const EdgeInsets.all(GwSpacing.page),
                     child: Text(
-                      'Katılım isteğinin sonucu, bekleme listesinden yükselmen ve grup yaptırımları seni doğrudan ilgilendirdiği için her zaman bildirilir.',
+                      notificationsL10n.alwaysSent,
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ),

@@ -1,0 +1,511 @@
+{
+  "@@locale": "tr",
+  "actLike": "gönderini beğendi.",
+  "@actLike": {
+    "description": ""
+  },
+  "actComment": "yorum yaptı: {text}",
+  "@actComment": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "actReply": "yorumuna yanıt verdi: {text}",
+  "@actReply": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "actCommentLike": "yorumunu beğendi: {text}",
+  "@actCommentLike": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "actMentionPost": "bir gönderide senden bahsetti.",
+  "@actMentionPost": {
+    "description": ""
+  },
+  "actMentionComment": "bir yorumda senden bahsetti: {text}",
+  "@actMentionComment": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "actFollow": "seni takip etmeye başladı.",
+  "@actFollow": {
+    "description": ""
+  },
+  "actFollowRequest": "seni takip etmek istiyor.",
+  "@actFollowRequest": {
+    "description": ""
+  },
+  "actFollowAccepted": "takip isteğini kabul etti.",
+  "@actFollowAccepted": {
+    "description": ""
+  },
+  "actLiveScheduled": "canlı yayın planladı: {title}",
+  "@actLiveScheduled": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actLiveScheduledAt": "{date} için canlı yayın planladı: {title}",
+  "@actLiveScheduledAt": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actLiveStarted": "canlı yayına başladı: {title}",
+  "@actLiveStarted": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actEventPromoted": "\"{title}\" için yer açıldı, artık katılıyorsun.",
+  "@actEventPromoted": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actEventUpdated": "\"{title}\" organizasyonunun zamanını ya da yerini değiştirdi.",
+  "@actEventUpdated": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actEventCanceled": "\"{title}\" organizasyonunu iptal etti.",
+  "@actEventCanceled": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actReminderTomorrow": "\"{title}\" yarın başlıyor. Geliyor musun? Teyit et.",
+  "@actReminderTomorrow": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actReminderHour": "\"{title}\" 1 saat içinde başlıyor.",
+  "@actReminderHour": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actCaseVote": "{group} grubunda bir disiplin dosyası açtı; oyunu bekliyor.",
+  "@actCaseVote": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actMuted": "grubunda susturuldun. Ayrıntılar ve itiraz için dokun.",
+  "@actMuted": {
+    "description": ""
+  },
+  "actKicked": "grubundan çıkarıldın. Ayrıntılar ve itiraz için dokun.",
+  "@actKicked": {
+    "description": ""
+  },
+  "actBanned": "grubundan uzaklaştırıldın. Ayrıntılar ve itiraz için dokun.",
+  "@actBanned": {
+    "description": ""
+  },
+  "actWarned": "grubu sana uyarı verdi. Ayrıntılar ve itiraz için dokun.",
+  "@actWarned": {
+    "description": ""
+  },
+  "actAppealSubmitted": "{group} grubundaki yaptırıma itiraz etti.",
+  "@actAppealSubmitted": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actAppealDecided": "grubu itirazını karara bağladı.",
+  "@actAppealDecided": {
+    "description": ""
+  },
+  "actEventApproved": "\"{title}\" için katılım isteğini onayladı.",
+  "@actEventApproved": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actEventDeclined": "\"{title}\" için katılım isteğini kabul edemedi.",
+  "@actEventDeclined": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actEventReview": "\"{title}\" nasıldı? Değerlendir, anılarını paylaş.",
+  "@actEventReview": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actGoalCompleted": "\"{title}\" hedefini tamamladın! Rozetin profilinde.",
+  "@actGoalCompleted": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actTeammateRequest": "seninle ekip arkadaşı olmak istiyor.",
+  "@actTeammateRequest": {
+    "description": ""
+  },
+  "actTeammateAccepted": "ekip arkadaşlığı isteğini kabul etti.",
+  "@actTeammateAccepted": {
+    "description": ""
+  },
+  "actMatchCreated": "Kim olduğunu Eşleşmelerim'de gör.",
+  "@actMatchCreated": {
+    "description": ""
+  },
+  "actSuperLiked": "seni süper beğendi! Destende ilk o görünüyor.",
+  "@actSuperLiked": {
+    "description": ""
+  },
+  "actWelcomeRequested": "\"{title}\" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.",
+  "@actWelcomeRequested": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actWelcomeMatched": "\"{title}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.",
+  "@actWelcomeMatched": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actWelcomeReleased": "\"{title}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.",
+  "@actWelcomeReleased": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actWelcomeWithdrawn": "\"{title}\" için karşılama isteğini geri çekti.",
+  "@actWelcomeWithdrawn": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actLeagueResult": "geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.",
+  "@actLeagueResult": {
+    "description": ""
+  },
+  "actWelcomeThanked": "\"{title}\" organizasyonunda onu karşıladığın için teşekkür etti.",
+  "@actWelcomeThanked": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actTableInvite": "bu akşam küçük bir masa kurdu ve seni de çağırıyor.",
+  "@actTableInvite": {
+    "description": ""
+  },
+  "actTableReady": "masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.",
+  "@actTableReady": {
+    "description": ""
+  },
+  "actVenueRevealed": "\"{title}\": nereye gideceğini görmek için dokun.",
+  "@actVenueRevealed": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actHandshake": "\"{title}\" organizasyonunda seninle el sıkıştı.",
+  "@actHandshake": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "actCallMissed": "seni aradı, açamadın.",
+  "@actCallMissed": {
+    "description": ""
+  },
+  "actCallGranted": "yetkin açıldı. Eşleştiğin kişileri sohbetten arayabilirsin.",
+  "@actCallGranted": {
+    "description": ""
+  },
+  "actCallDeclined": "talebin şimdilik kabul edilmedi. Ayrıntılar için dokun.",
+  "@actCallDeclined": {
+    "description": ""
+  },
+  "actCallRevoked": "yetkin kapatıldı. Ayrıntılar için dokun.",
+  "@actCallRevoked": {
+    "description": ""
+  },
+  "actSeriesLimit": "\"{title}\" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.",
+  "@actSeriesLimit": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "leadNewMatch": "Yeni bir eşleşmen var!",
+  "@leadNewMatch": {
+    "description": ""
+  },
+  "leadSeries": "Tekrarlayan organizasyon",
+  "@leadSeries": {
+    "description": ""
+  },
+  "leadVenue": "Sürpriz mekan açıklandı",
+  "@leadVenue": {
+    "description": ""
+  },
+  "leadCalls": "Sesli görüşme",
+  "@leadCalls": {
+    "description": ""
+  },
+  "periodToday": "Bugün",
+  "@periodToday": {
+    "description": ""
+  },
+  "periodWeek": "Bu hafta",
+  "@periodWeek": {
+    "description": ""
+  },
+  "periodEarlier": "Daha önce",
+  "@periodEarlier": {
+    "description": ""
+  },
+  "agoNow": "şimdi",
+  "@agoNow": {
+    "description": ""
+  },
+  "agoMinutes": "{n} dk",
+  "@agoMinutes": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "agoHours": "{n} sa",
+  "@agoHours": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "agoDays": "{n} g",
+  "@agoDays": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "join": "Katıl",
+  "@join": {
+    "description": ""
+  },
+  "see": "Gör",
+  "@see": {
+    "description": ""
+  },
+  "prefsTitle": "Bildirim tercihleri",
+  "@prefsTitle": {
+    "description": ""
+  },
+  "messages": "Mesajlar",
+  "@messages": {
+    "description": ""
+  },
+  "directMessages": "Kişisel mesajlar",
+  "@directMessages": {
+    "description": ""
+  },
+  "directMessagesHint": "Birebir sohbetlerine mesaj gelince, uygulama kapalıyken de sesli",
+  "@directMessagesHint": {
+    "description": ""
+  },
+  "groupMessages": "Grup mesajları",
+  "@groupMessages": {
+    "description": ""
+  },
+  "groupMessagesHint": "Grup sohbetlerine ve bu akşamın masasına mesaj gelince, uygulama kapalıyken de sesli",
+  "@groupMessagesHint": {
+    "description": ""
+  },
+  "events": "Organizasyonlar",
+  "@events": {
+    "description": ""
+  },
+  "remindDay": "1 gün önce hatırlat",
+  "@remindDay": {
+    "description": ""
+  },
+  "remindDayHint": "Katıldığın organizasyon yarın başlıyorsa",
+  "@remindDayHint": {
+    "description": ""
+  },
+  "remindHour": "1 saat önce hatırlat",
+  "@remindHour": {
+    "description": ""
+  },
+  "remindHourHint": "Katıldığın organizasyon 1 saat içinde başlıyorsa",
+  "@remindHourHint": {
+    "description": ""
+  },
+  "changes": "Değişiklik ve iptaller",
+  "@changes": {
+    "description": ""
+  },
+  "changesHint": "Zaman ya da yer değişince ya da organizasyon iptal edilince",
+  "@changesHint": {
+    "description": ""
+  },
+  "reviewRequests": "Değerlendirme istekleri",
+  "@reviewRequests": {
+    "description": ""
+  },
+  "reviewRequestsHint": "Katıldığın organizasyon bitince \"Nasıldı?\" diye sor",
+  "@reviewRequestsHint": {
+    "description": ""
+  },
+  "live": "Canlı yayınlar",
+  "@live": {
+    "description": ""
+  },
+  "liveAlerts": "Planlanan ve başlayan yayınlar",
+  "@liveAlerts": {
+    "description": ""
+  },
+  "liveAlertsHint": "Grubunda yayın planlanınca ve başlayınca, uygulama açıksa sesli uyarıyla",
+  "@liveAlertsHint": {
+    "description": ""
+  },
+  "matching": "Eşleşme",
+  "@matching": {
+    "description": ""
+  },
+  "newMatches": "Yeni eşleşmeler",
+  "@newMatches": {
+    "description": ""
+  },
+  "newMatchesHint": "Biriyle karşılıklı beğenince",
+  "@newMatchesHint": {
+    "description": ""
+  },
+  "alwaysSent": "Katılım isteğinin sonucu, bekleme listesinden yükselmen ve grup yaptırımları seni doğrudan ilgilendirdiği için her zaman bildirilir.",
+  "@alwaysSent": {
+    "description": ""
+  },
+  "notifications": "Bildirimler",
+  "@notifications": {
+    "description": ""
+  },
+  "empty": "Beğeniler, yorumlar ve yeni takipçiler burada görünür.",
+  "@empty": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "followRequests": "Takip istekleri",
+  "@followRequests": {
+    "description": ""
+  },
+  "andOthers": "{name} ve {count} kişi daha",
+  "@andOthers": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  }
+}

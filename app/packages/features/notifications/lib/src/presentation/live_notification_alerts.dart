@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/notification.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// While the app is open, a broadcast scheduled or started in one of the user's groups
@@ -31,7 +32,7 @@ class LiveNotificationAlerts extends ConsumerWidget {
       content: Text('${n.lead} ${n.action}'),
       duration: const Duration(seconds: 8),
       action: SnackBarAction(
-        label: n.type == NotificationType.liveStarted ? 'Katıl' : 'Gör',
+        label: n.type == NotificationType.liveStarted ? notificationsL10n.join : notificationsL10n.see,
         onPressed: () => openLive(liveId),
       ),
     ));
