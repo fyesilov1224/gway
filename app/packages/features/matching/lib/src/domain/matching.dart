@@ -1,5 +1,7 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// The version of the explicit consent text shown when the matching profile is opened (KVKK, docs/ARCHITECTURE.md §3g).
 const matchConsentVersion = 'v1';
 
@@ -9,24 +11,33 @@ const matchMinPhotos = 2;
 const matchMaxPhotos = 6;
 
 enum MatchMode {
-  friend('friend', 'Arkadaş'),
-  dating('dating', 'Sevgili');
+  friend('friend'),
+  dating('dating');
 
-  const MatchMode(this.code, this.label);
+  const MatchMode(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        friend => matchingL10n.modeFriend,
+        dating => matchingL10n.modeDating,
+      };
 }
 
 enum MatchGender {
-  woman('woman', 'Kadın'),
-  man('man', 'Erkek'),
-  nonbinary('nonbinary', 'İkili olmayan');
+  woman('woman'),
+  man('man'),
+  nonbinary('nonbinary');
 
-  const MatchGender(this.code, this.label);
+  const MatchGender(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        woman => matchingL10n.genderWoman,
+        man => matchingL10n.genderMan,
+        nonbinary => matchingL10n.genderNonbinary,
+      };
 
   static MatchGender parse(Object? code) => values.firstWhere((g) => g.code == code, orElse: () => nonbinary);
 }
@@ -83,10 +94,10 @@ class MatchProfileDraft {
 
   /// The rule the form shows before saving; null when the draft can be saved.
   String? problem(DateTime today) {
-    if (ageOn(birthDate, today) < matchMinAge) return 'Eşleşme 18 yaşından büyükler içindir.';
-    if (!friend && !dating) return 'Arkadaş ya da Sevgili modlarından en az birini seç.';
-    if (dating && interestedIn.isEmpty) return 'Sevgili modu için kimi aradığını seç.';
-    if (ageMin > ageMax) return 'Yaş aralığı hatalı.';
+    if (ageOn(birthDate, today) < matchMinAge) return matchingL10n.adultsOnly;
+    if (!friend && !dating) return matchingL10n.pickMode;
+    if (dating && interestedIn.isEmpty) return matchingL10n.pickInterest;
+    if (ageMin > ageMax) return matchingL10n.ageRangeInvalid;
     return null;
   }
 }
@@ -162,8 +173,8 @@ class MatchCard {
   /// "Ortak: Doğa Yürüyüşçüleri ve 2 grup daha".
   String get sharedGroupsLine => switch (sharedGroups.length) {
         0 => '',
-        1 => 'Ortak grup: ${sharedGroups.first.name}',
-        final n => 'Ortak: ${sharedGroups.first.name} ve ${n - 1} grup daha',
+        1 => matchingL10n.sharedGroup(sharedGroups.first.name),
+        final n => matchingL10n.sharedGroupsMore(sharedGroups.first.name, n - 1),
       };
 }
 
@@ -203,20 +214,40 @@ enum MatchFeature {
 
 /// The matching packages, each sold on its own by billing; [all] is every feature.
 enum MatchPackage {
-  reveal('matching_reveal', 'Eşleşmelerim', 'Kiminle eşleştiğini gör: ad, fotoğraflar ve profil.', {MatchFeature.reveal}),
-  chat('matching_chat', 'Eşleşme Sohbeti', 'Eşleştiklerine yaz. Eşleşmelerini görmeyi de içerir.', {MatchFeature.chat, MatchFeature.reveal}),
-  admirers('matching_admirers', 'Seni Beğenenler', 'Seni kimlerin beğendiğini gör, beğenerek anında eşleş.', {MatchFeature.admirers}),
-  unlimited('matching_unlimited', 'Sınırsız Beğeni', 'Günlük beğeni sınırı kalkar; geri al ve filtreler de açılır.', {MatchFeature.unlimited}),
-  superLike('matching_super', 'Süper Beğeni', 'Günde 5 süper beğeni; seni süper beğendiğin kişi destesinde ilk görür.', {MatchFeature.superLike}),
-  boost('matching_boost', 'Öne Çık', 'Günde bir kez 30 dakika ortak gruplarındaki destelerin en başında görün.', {MatchFeature.boost}),
-  teammates('matching_teammates', 'Ekip Arkadaşı', 'Ekip arkadaşı isteği gönder ve ekip arkadaşlarınla yazış.', {MatchFeature.teammates}),
-  all('matching_premium', 'Hepsi Bir Arada', 'Bütün paketler tek pakette, ayrı ayrı almaktan çok daha uygun.', {...MatchFeature.values});
+  reveal('matching_reveal', {MatchFeature.reveal}),
+  chat('matching_chat', {MatchFeature.chat, MatchFeature.reveal}),
+  admirers('matching_admirers', {MatchFeature.admirers}),
+  unlimited('matching_unlimited', {MatchFeature.unlimited}),
+  superLike('matching_super', {MatchFeature.superLike}),
+  boost('matching_boost', {MatchFeature.boost}),
+  teammates('matching_teammates', {MatchFeature.teammates}),
+  all('matching_premium', {...MatchFeature.values});
 
-  const MatchPackage(this.slug, this.title, this.description, this.features);
+  const MatchPackage(this.slug, this.features);
 
   final String slug;
-  final String title;
-  final String description;
+
+  String get title => switch (this) {
+        reveal => matchingL10n.pkgReveal,
+        chat => matchingL10n.pkgChat,
+        admirers => matchingL10n.pkgAdmirers,
+        unlimited => matchingL10n.pkgUnlimited,
+        superLike => matchingL10n.pkgSuper,
+        boost => matchingL10n.pkgBoost,
+        teammates => matchingL10n.pkgTeammates,
+        all => matchingL10n.pkgAll,
+      };
+
+  String get description => switch (this) {
+        reveal => matchingL10n.pkgRevealText,
+        chat => matchingL10n.pkgChatText,
+        admirers => matchingL10n.pkgAdmirersText,
+        unlimited => matchingL10n.pkgUnlimitedText,
+        superLike => matchingL10n.pkgSuperText,
+        boost => matchingL10n.pkgBoostText,
+        teammates => matchingL10n.pkgTeammatesText,
+        all => matchingL10n.pkgAllText,
+      };
   final Set<MatchFeature> features;
 
   static MatchPackage? bySlug(String slug) => values.where((p) => p.slug == slug).firstOrNull;

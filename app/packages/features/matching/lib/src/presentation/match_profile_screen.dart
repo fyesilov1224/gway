@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 import 'match_sheets.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -21,7 +22,7 @@ class MatchProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(myMatchProfileProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(profile.value == null ? 'Eşleşme profili oluştur' : 'Eşleşme profilim')),
+      appBar: AppBar(title: Text(profile.value == null ? matchingL10n.createProfileTitle : matchingL10n.myProfile)),
       body: GwReadingColumn(
         maxWidth: GwLayout.formMaxWidth,
         child: switch (profile) {
@@ -80,7 +81,7 @@ class _FormState extends ConsumerState<_Form> {
       initialDate: _birthDate ?? DateTime(today.year - 25, today.month, today.day),
       firstDate: DateTime(1900),
       lastDate: DateTime(today.year - matchMinAge, today.month, today.day),
-      helpText: 'Doğum tarihin',
+      helpText: matchingL10n.birthDateLabel,
     );
     if (picked != null) setState(() => _birthDate = picked);
   }
@@ -90,11 +91,11 @@ class _FormState extends ConsumerState<_Form> {
     final gender = _gender;
     final province = _province;
     if (birthDate == null || gender == null || province == null) {
-      setState(() => _error = 'Doğum tarihini, cinsiyetini ve ilini seç.');
+      setState(() => _error = matchingL10n.pickBasics);
       return;
     }
     if (_creating && (!_adult || !_consent)) {
-      setState(() => _error = 'Devam etmek için 18 yaşından büyük olduğunu onayla ve açık rıza ver.');
+      setState(() => _error = matchingL10n.confirmAgeConsent);
       return;
     }
     final draft = MatchProfileDraft(
@@ -124,7 +125,7 @@ class _FormState extends ConsumerState<_Form> {
     switch (result) {
       case Ok():
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(_creating ? 'Profilin hazır. Şimdi en az $matchMinPhotos fotoğraf ekle.' : 'Kaydedildi.'),
+          content: Text(_creating ? matchingL10n.profileReady(matchMinPhotos) : matchingL10n.saved),
         ));
         ref.invalidate(myMatchProfileProvider);
       case Err(:final failure):
@@ -151,24 +152,24 @@ class _FormState extends ConsumerState<_Form> {
       padding: const EdgeInsets.all(GwSpacing.page),
       children: [
         if (profile != null) _Photos(profile: profile, pickImage: widget.pickImage),
-        section('Hakkında', [
+        section(matchingL10n.about, [
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.cake_outlined),
-            title: Text(_birthDate == null ? 'Doğum tarihi seç' : formatDate(_birthDate!)),
-            subtitle: _birthDate == null ? null : Text('${ageOn(_birthDate!, DateTime.now())} yaş · kartında yalnızca yaşın görünür'),
+            title: Text(_birthDate == null ? matchingL10n.pickBirthDate : formatDate(_birthDate!)),
+            subtitle: _birthDate == null ? null : Text(matchingL10n.ageNote(ageOn(_birthDate!, DateTime.now()))),
             onTap: _pickBirthDate,
           ),
           DropdownButtonFormField<MatchGender>(
             initialValue: _gender,
-            decoration: const InputDecoration(labelText: 'Cinsiyet'),
+            decoration: InputDecoration(labelText: matchingL10n.gender),
             items: [for (final g in MatchGender.values) DropdownMenuItem(value: g, child: Text(g.label))],
             onChanged: (g) => setState(() => _gender = g),
           ),
           const SizedBox(height: GwSpacing.sm),
           DropdownButtonFormField<int>(
             initialValue: _province,
-            decoration: const InputDecoration(labelText: 'İl'),
+            decoration: InputDecoration(labelText: matchingL10n.province),
             items: [for (var i = 0; i < turkishProvinces.length; i++) DropdownMenuItem(value: i + 1, child: Text(turkishProvinces[i]))],
             onChanged: (p) => setState(() => _province = p),
           ),
@@ -177,30 +178,30 @@ class _FormState extends ConsumerState<_Form> {
             controller: _about,
             maxLength: 300,
             maxLines: 4,
-            decoration: const InputDecoration(labelText: 'Kendinden bahset', alignLabelWithHint: true),
+            decoration: InputDecoration(labelText: matchingL10n.aboutHint, alignLabelWithHint: true),
           ),
-          TextField(controller: _job, maxLength: 60, decoration: const InputDecoration(labelText: 'Meslek (isteğe bağlı)')),
-          TextField(controller: _education, maxLength: 60, decoration: const InputDecoration(labelText: 'Eğitim (isteğe bağlı)')),
-          Text('İlgi alanların sosyal profilinden gelir.', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+          TextField(controller: _job, maxLength: 60, decoration: InputDecoration(labelText: matchingL10n.jobOptional)),
+          TextField(controller: _education, maxLength: 60, decoration: InputDecoration(labelText: matchingL10n.educationOptional)),
+          Text(matchingL10n.interestsFromProfile, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         ]),
-        section('Ne arıyorsun?', [
+        section(matchingL10n.lookingFor, [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _friend,
             onChanged: (v) => setState(() => _friend = v),
-            title: const Text('Arkadaş'),
-            subtitle: const Text('Birlikte etkinliğe gidecek, sohbet edecek insanlar'),
+            title: Text(matchingL10n.modeFriend),
+            subtitle: Text(matchingL10n.friendHint),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _dating,
             onChanged: (v) => setState(() => _dating = v),
-            title: const Text('Sevgili'),
-            subtitle: const Text('Romantik bir ilişki'),
+            title: Text(matchingL10n.modeDating),
+            subtitle: Text(matchingL10n.datingHint),
           ),
           if (_dating) ...[
             const SizedBox(height: GwSpacing.xs),
-            Text('Kimi arıyorsun?', style: textTheme.labelLarge),
+            Text(matchingL10n.whoLookingFor, style: textTheme.labelLarge),
             const SizedBox(height: GwSpacing.xs),
             Wrap(
               spacing: GwSpacing.xs,
@@ -214,7 +215,7 @@ class _FormState extends ConsumerState<_Form> {
               ],
             ),
             const SizedBox(height: GwSpacing.sm),
-            Text('Yaş aralığı: ${_ages.start.round()}–${_ages.end.round()}', style: textTheme.labelLarge),
+            Text(matchingL10n.ageRange(_ages.start.round(), _ages.end.round()), style: textTheme.labelLarge),
             RangeSlider(
               values: _ages,
               min: matchMinAge.toDouble(),
@@ -226,28 +227,24 @@ class _FormState extends ConsumerState<_Form> {
           ],
         ]),
         if (_creating)
-          section('Onay', [
+          section(matchingL10n.consentTitle, [
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               value: _adult,
               onChanged: (v) => setState(() => _adult = v ?? false),
-              title: const Text('18 yaşından büyüğüm.'),
+              title: Text(matchingL10n.iam18),
             ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               value: _consent,
               onChanged: (v) => setState(() => _consent = v ?? false),
-              title: const Text(
-                'Eşleşme için cinsiyetimin, aradığım kişinin, doğum tarihimin, ilimin ve fotoğraflarımın işlenmesine ve '
-                'ortak gruplarımdaki eşleşmeyi açmış kişilere gösterilmesine açık rıza veriyorum. Rızamı istediğim an '
-                'eşleşme verilerimi silerek geri alabilirim.',
-              ),
+              title: Text(matchingL10n.consentText),
             ),
           ]),
         if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.sm)],
-        GwButton(label: _creating ? 'Profilimi oluştur' : 'Kaydet', expand: true, isLoading: _busy, onPressed: _save),
+        GwButton(label: _creating ? matchingL10n.createProfile : matchingL10n.save, expand: true, isLoading: _busy, onPressed: _save),
         if (profile != null) ...[
           const SizedBox(height: GwSpacing.lg),
           _Controls(profile: profile),
@@ -301,11 +298,11 @@ class _PhotosState extends ConsumerState<_Photos> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Fotoğraflar', style: textTheme.titleMedium),
+            Text(matchingL10n.photos, style: textTheme.titleMedium),
             Text(
               photos.length < matchMinPhotos
-                  ? 'Kartının görünmesi için en az $matchMinPhotos fotoğraf ekle. İlki kapaktır.'
-                  : 'En fazla $matchMaxPhotos fotoğraf. İlki kapaktır; değiştirmek için bir fotoğrafa dokun.',
+                  ? matchingL10n.photosMin(matchMinPhotos)
+                  : matchingL10n.photosMax(matchMaxPhotos),
               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
             const SizedBox(height: GwSpacing.sm),
@@ -335,7 +332,7 @@ class _PhotosState extends ConsumerState<_Photos> {
                       child: Center(
                         child: _busy
                             ? const CircularProgressIndicator()
-                            : const Icon(Icons.add_a_photo_outlined, color: GwColors.primary, semanticLabel: 'Fotoğraf ekle'),
+                            : Icon(Icons.add_a_photo_outlined, color: GwColors.primary, semanticLabel: matchingL10n.addPhoto),
                       ),
                     ),
                   ),
@@ -368,12 +365,12 @@ class _PhotoTile extends StatelessWidget {
                   ? const ColoredBox(color: GwColors.surfaceMuted)
                   : Image.network(photo.url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted)),
             ),
-            if (cover) const Positioned(left: GwSpacing.xs, bottom: GwSpacing.xs, child: GwBadge('Kapak', tone: GwBadgeTone.primary)),
+            if (cover) Positioned(left: GwSpacing.xs, bottom: GwSpacing.xs, child: GwBadge(matchingL10n.cover, tone: GwBadgeTone.primary)),
             Positioned(
               top: 0,
               right: 0,
               child: IconButton(
-                tooltip: 'Fotoğrafı kaldır',
+                tooltip: matchingL10n.removePhoto,
                 color: GwColors.onMedia,
                 style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim),
                 icon: const Icon(Icons.close_rounded),
@@ -403,8 +400,8 @@ class _Controls extends ConsumerWidget {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: profile.paused,
-            title: const Text('Profilimi duraklat'),
-            subtitle: const Text('Kimse seni görmez ve yeni kart gelmez; eşleşmelerin ve sohbetlerin kalır.'),
+            title: Text(matchingL10n.pauseProfile),
+            subtitle: Text(matchingL10n.pauseHint),
             onChanged: (v) async {
               final result = await repo.setPaused(v);
               if (result case Err(:final failure) when context.mounted) show(failure.userMessage);
@@ -415,21 +412,21 @@ class _Controls extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.delete_forever_outlined, color: GwColors.error),
-            title: const Text('Eşleşme verilerimi sil', style: TextStyle(color: GwColors.error)),
-            subtitle: const Text('Profil, fotoğraflar ve beğeniler silinir; eşleşmelerin biter. Açık rızan geri alınmış olur.'),
+            title: Text(matchingL10n.deleteData, style: const TextStyle(color: GwColors.error)),
+            subtitle: Text(matchingL10n.deleteDataHint),
             onTap: () async {
               final sure = await confirmMatchAction(
                 context,
-                title: 'Eşleşme verilerini sil',
-                message: 'Eşleşme profilin, fotoğrafların ve beğenilerin kalıcı olarak silinir; tüm eşleşmelerin biter. Bu geri alınamaz.',
-                confirmLabel: 'Sil',
+                title: matchingL10n.deleteDataTitle,
+                message: matchingL10n.deleteDataBody,
+                confirmLabel: matchingL10n.delete,
               );
               if (!sure || !context.mounted) return;
               final result = await repo.deleteAll();
               if (!context.mounted) return;
               switch (result) {
                 case Ok():
-                  show('Eşleşme verilerin silindi.');
+                  show(matchingL10n.dataDeleted);
                   ref.invalidate(myMatchProfileProvider);
                   context.go(MatchingRoutes.home);
                 case Err(:final failure):

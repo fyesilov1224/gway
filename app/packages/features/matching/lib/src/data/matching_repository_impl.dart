@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 
 /// The profile and photos are the user's own writes under RLS; swipes, ending a match and
 /// deleting everything go through the API (docs/ARCHITECTURE.md §3g).
@@ -102,7 +103,7 @@ class MatchingRepositoryImpl implements MatchingRepository {
 
   @override
   Future<Result<void>> addPhoto(ImageUpload image, int position) => _run(() async {
-        final type = image.contentType ?? (throw const RuleFailure('match.photo_type', 'Yalnızca JPEG, PNG ya da WebP fotoğraf yüklenebilir.'));
+        final type = image.contentType ?? (throw RuleFailure('match.photo_type', matchingL10n.unsupportedImage));
         final path = '$_me/${DateTime.now().microsecondsSinceEpoch}.${image.extension}';
         await _client.storage.from(_bucket).uploadBinary(path, image.bytes, fileOptions: FileOptions(contentType: type));
         try {

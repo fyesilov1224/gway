@@ -1,0 +1,783 @@
+{
+  "@@locale": "tr",
+  "unsupportedImage": "Yalnızca JPEG, PNG ya da WebP fotoğraf yüklenebilir.",
+  "@unsupportedImage": {
+    "description": ""
+  },
+  "modeFriend": "Arkadaş",
+  "@modeFriend": {
+    "description": ""
+  },
+  "modeDating": "Sevgili",
+  "@modeDating": {
+    "description": ""
+  },
+  "genderWoman": "Kadın",
+  "@genderWoman": {
+    "description": ""
+  },
+  "genderMan": "Erkek",
+  "@genderMan": {
+    "description": ""
+  },
+  "genderNonbinary": "İkili olmayan",
+  "@genderNonbinary": {
+    "description": ""
+  },
+  "adultsOnly": "Eşleşme 18 yaşından büyükler içindir.",
+  "@adultsOnly": {
+    "description": ""
+  },
+  "pickMode": "Arkadaş ya da Sevgili modlarından en az birini seç.",
+  "@pickMode": {
+    "description": ""
+  },
+  "pickInterest": "Sevgili modu için kimi aradığını seç.",
+  "@pickInterest": {
+    "description": ""
+  },
+  "ageRangeInvalid": "Yaş aralığı hatalı.",
+  "@ageRangeInvalid": {
+    "description": ""
+  },
+  "sharedGroup": "Ortak grup: {group}",
+  "@sharedGroup": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedGroupsMore": "Ortak: {group} ve {count} grup daha",
+  "@sharedGroupsMore": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pkgReveal": "Eşleşmelerim",
+  "@pkgReveal": {
+    "description": ""
+  },
+  "pkgRevealText": "Kiminle eşleştiğini gör: ad, fotoğraflar ve profil.",
+  "@pkgRevealText": {
+    "description": ""
+  },
+  "pkgChat": "Eşleşme Sohbeti",
+  "@pkgChat": {
+    "description": ""
+  },
+  "pkgChatText": "Eşleştiklerine yaz. Eşleşmelerini görmeyi de içerir.",
+  "@pkgChatText": {
+    "description": ""
+  },
+  "pkgAdmirers": "Seni Beğenenler",
+  "@pkgAdmirers": {
+    "description": ""
+  },
+  "pkgAdmirersText": "Seni kimlerin beğendiğini gör, beğenerek anında eşleş.",
+  "@pkgAdmirersText": {
+    "description": ""
+  },
+  "pkgUnlimited": "Sınırsız Beğeni",
+  "@pkgUnlimited": {
+    "description": ""
+  },
+  "pkgUnlimitedText": "Günlük beğeni sınırı kalkar; geri al ve filtreler de açılır.",
+  "@pkgUnlimitedText": {
+    "description": ""
+  },
+  "pkgSuper": "Süper Beğeni",
+  "@pkgSuper": {
+    "description": ""
+  },
+  "pkgSuperText": "Günde 5 süper beğeni; seni süper beğendiğin kişi destesinde ilk görür.",
+  "@pkgSuperText": {
+    "description": ""
+  },
+  "pkgBoost": "Öne Çık",
+  "@pkgBoost": {
+    "description": ""
+  },
+  "pkgBoostText": "Günde bir kez 30 dakika ortak gruplarındaki destelerin en başında görün.",
+  "@pkgBoostText": {
+    "description": ""
+  },
+  "pkgTeammates": "Ekip Arkadaşı",
+  "@pkgTeammates": {
+    "description": ""
+  },
+  "pkgTeammatesText": "Ekip arkadaşı isteği gönder ve ekip arkadaşlarınla yazış.",
+  "@pkgTeammatesText": {
+    "description": ""
+  },
+  "pkgAll": "Hepsi Bir Arada",
+  "@pkgAll": {
+    "description": ""
+  },
+  "pkgAllText": "Bütün paketler tek pakette, ayrı ayrı almaktan çok daha uygun.",
+  "@pkgAllText": {
+    "description": ""
+  },
+  "superLikedYou": "Seni süper beğendi",
+  "@superLikedYou": {
+    "description": ""
+  },
+  "options": "Seçenekler",
+  "@options": {
+    "description": ""
+  },
+  "fullProfile": "Profilin tamamı",
+  "@fullProfile": {
+    "description": ""
+  },
+  "stampLike": "BEĞEN",
+  "@stampLike": {
+    "description": ""
+  },
+  "stampPass": "GEÇ",
+  "@stampPass": {
+    "description": ""
+  },
+  "stampSuper": "SÜPER",
+  "@stampSuper": {
+    "description": ""
+  },
+  "photoOf": "{name}, fotoğraf {number}",
+  "@photoOf": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "about": "Hakkında",
+  "@about": {
+    "description": ""
+  },
+  "interests": "İlgi alanları",
+  "@interests": {
+    "description": ""
+  },
+  "sharedGroupsTitle": "Ortak gruplarınız",
+  "@sharedGroupsTitle": {
+    "description": ""
+  },
+  "createProfileTitle": "Eşleşme profili oluştur",
+  "@createProfileTitle": {
+    "description": ""
+  },
+  "myProfile": "Eşleşme profilim",
+  "@myProfile": {
+    "description": ""
+  },
+  "birthDateLabel": "Doğum tarihin",
+  "@birthDateLabel": {
+    "description": ""
+  },
+  "pickBasics": "Doğum tarihini, cinsiyetini ve ilini seç.",
+  "@pickBasics": {
+    "description": ""
+  },
+  "confirmAgeConsent": "Devam etmek için 18 yaşından büyük olduğunu onayla ve açık rıza ver.",
+  "@confirmAgeConsent": {
+    "description": ""
+  },
+  "profileReady": "Profilin hazır. Şimdi en az {min} fotoğraf ekle.",
+  "@profileReady": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "saved": "Kaydedildi.",
+  "@saved": {
+    "description": ""
+  },
+  "pickBirthDate": "Doğum tarihi seç",
+  "@pickBirthDate": {
+    "description": ""
+  },
+  "ageNote": "{age} yaş · kartında yalnızca yaşın görünür",
+  "@ageNote": {
+    "description": "",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "gender": "Cinsiyet",
+  "@gender": {
+    "description": ""
+  },
+  "province": "İl",
+  "@province": {
+    "description": ""
+  },
+  "aboutHint": "Kendinden bahset",
+  "@aboutHint": {
+    "description": ""
+  },
+  "jobOptional": "Meslek (isteğe bağlı)",
+  "@jobOptional": {
+    "description": ""
+  },
+  "educationOptional": "Eğitim (isteğe bağlı)",
+  "@educationOptional": {
+    "description": ""
+  },
+  "interestsFromProfile": "İlgi alanların sosyal profilinden gelir.",
+  "@interestsFromProfile": {
+    "description": ""
+  },
+  "lookingFor": "Ne arıyorsun?",
+  "@lookingFor": {
+    "description": ""
+  },
+  "friendHint": "Birlikte etkinliğe gidecek, sohbet edecek insanlar",
+  "@friendHint": {
+    "description": ""
+  },
+  "datingHint": "Romantik bir ilişki",
+  "@datingHint": {
+    "description": ""
+  },
+  "whoLookingFor": "Kimi arıyorsun?",
+  "@whoLookingFor": {
+    "description": ""
+  },
+  "ageRange": "Yaş aralığı: {min}–{max}",
+  "@ageRange": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "consentTitle": "Onay",
+  "@consentTitle": {
+    "description": ""
+  },
+  "iam18": "18 yaşından büyüğüm.",
+  "@iam18": {
+    "description": ""
+  },
+  "consentText": "Eşleşme için cinsiyetimin, aradığım kişinin, doğum tarihimin, ilimin ve fotoğraflarımın işlenmesine ve ortak gruplarımdaki eşleşmeyi açmış kişilere gösterilmesine açık rıza veriyorum. Rızamı istediğim an eşleşme verilerimi silerek geri alabilirim.",
+  "@consentText": {
+    "description": ""
+  },
+  "createProfile": "Profilimi oluştur",
+  "@createProfile": {
+    "description": ""
+  },
+  "save": "Kaydet",
+  "@save": {
+    "description": ""
+  },
+  "photos": "Fotoğraflar",
+  "@photos": {
+    "description": ""
+  },
+  "photosMin": "Kartının görünmesi için en az {min} fotoğraf ekle. İlki kapaktır.",
+  "@photosMin": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "photosMax": "En fazla {max} fotoğraf. İlki kapaktır; değiştirmek için bir fotoğrafa dokun.",
+  "@photosMax": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "addPhoto": "Fotoğraf ekle",
+  "@addPhoto": {
+    "description": ""
+  },
+  "cover": "Kapak",
+  "@cover": {
+    "description": ""
+  },
+  "removePhoto": "Fotoğrafı kaldır",
+  "@removePhoto": {
+    "description": ""
+  },
+  "pauseProfile": "Profilimi duraklat",
+  "@pauseProfile": {
+    "description": ""
+  },
+  "pauseHint": "Kimse seni görmez ve yeni kart gelmez; eşleşmelerin ve sohbetlerin kalır.",
+  "@pauseHint": {
+    "description": ""
+  },
+  "deleteData": "Eşleşme verilerimi sil",
+  "@deleteData": {
+    "description": ""
+  },
+  "deleteDataHint": "Profil, fotoğraflar ve beğeniler silinir; eşleşmelerin biter. Açık rızan geri alınmış olur.",
+  "@deleteDataHint": {
+    "description": ""
+  },
+  "deleteDataTitle": "Eşleşme verilerini sil",
+  "@deleteDataTitle": {
+    "description": ""
+  },
+  "deleteDataBody": "Eşleşme profilin, fotoğrafların ve beğenilerin kalıcı olarak silinir; tüm eşleşmelerin biter. Bu geri alınamaz.",
+  "@deleteDataBody": {
+    "description": ""
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "dataDeleted": "Eşleşme verilerin silindi.",
+  "@dataDeleted": {
+    "description": ""
+  },
+  "itsAMatch": "Eşleştiniz!",
+  "@itsAMatch": {
+    "description": ""
+  },
+  "bothLiked": "Sen ve {name} birbirinizi beğendiniz.",
+  "@bothLiked": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keepSwiping": "Kaydırmaya devam et",
+  "@keepSwiping": {
+    "description": ""
+  },
+  "sendMessage": "Mesaj gönder",
+  "@sendMessage": {
+    "description": ""
+  },
+  "reportProfile": "Profili şikayet et",
+  "@reportProfile": {
+    "description": ""
+  },
+  "reportPhoto": "Bu fotoğrafı şikayet et",
+  "@reportPhoto": {
+    "description": ""
+  },
+  "block": "Engelle",
+  "@block": {
+    "description": ""
+  },
+  "blockHint": "Birbirinizi hiçbir yerde görmezsiniz.",
+  "@blockHint": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "newMatch": "Biriyle eşleştin!",
+  "@newMatch": {
+    "description": ""
+  },
+  "tapToSee": "Kim olduğunu görmek için dokun · {date}",
+  "@tapToSee": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "revealReason": "Biriyle eşleştin! Kim olduğunu görmek için Eşleşmelerim paketini al.",
+  "@revealReason": {
+    "description": ""
+  },
+  "keepFriend": "Yalnızca arkadaş kal",
+  "@keepFriend": {
+    "description": ""
+  },
+  "keepDating": "Yalnızca sevgili kal",
+  "@keepDating": {
+    "description": ""
+  },
+  "keepFriendBody": "{name} ile sevgili eşleşmeniz ikiniz için de biter; arkadaş olarak eşleşmeniz ve sohbetiniz sürer.",
+  "@keepFriendBody": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keepDatingBody": "{name} ile arkadaş eşleşmeniz ikiniz için de biter; sevgili olarak eşleşmeniz ve sohbetiniz sürer.",
+  "@keepDatingBody": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keptFriend": "Artık yalnızca arkadaş olarak eşleşiksiniz.",
+  "@keptFriend": {
+    "description": ""
+  },
+  "keptDating": "Artık yalnızca sevgili olarak eşleşiksiniz.",
+  "@keptDating": {
+    "description": ""
+  },
+  "continueAction": "Devam et",
+  "@continueAction": {
+    "description": ""
+  },
+  "endMatch": "Eşleşmeyi bitir",
+  "@endMatch": {
+    "description": ""
+  },
+  "endMatchBody": "{name} ile eşleşmen biter, sohbetiniz ikiniz için de kapanır. Bu geri alınamaz.",
+  "@endMatchBody": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "end": "Bitir",
+  "@end": {
+    "description": ""
+  },
+  "matchEnded": "Eşleşme bitti.",
+  "@matchEnded": {
+    "description": ""
+  },
+  "noMatches": "Henüz eşleşmen yok. Birbirinizi beğendiğiniz kişiler burada görünür.",
+  "@noMatches": {
+    "description": ""
+  },
+  "backToDiscover": "Keşfetmeye dön",
+  "@backToDiscover": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "matching": "Eşleşme",
+  "@matching": {
+    "description": ""
+  },
+  "admirers": "Seni beğenenler",
+  "@admirers": {
+    "description": ""
+  },
+  "packages": "Paketler",
+  "@packages": {
+    "description": ""
+  },
+  "more": "Diğer",
+  "@more": {
+    "description": ""
+  },
+  "filtersLocked": "Yaş, il ve ilgi alanına göre filtrelemek Sınırsız Beğeni paketiyle açılır.",
+  "@filtersLocked": {
+    "description": ""
+  },
+  "filters": "Filtreler",
+  "@filters": {
+    "description": ""
+  },
+  "suspended": "Eşleşme profilin platform ekibi tarafından kapatıldı. Ayrıntılar için Destek'e yazabilirsin.",
+  "@suspended": {
+    "description": ""
+  },
+  "addPhotosToStart": "Kartının görünmesi ve keşfetmeye başlaman için en az {min} fotoğraf ekle.",
+  "@addPhotosToStart": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "paused": "Profilin duraklatıldı; kimse seni görmüyor. Eşleşmelerin ve sohbetlerin duruyor.",
+  "@paused": {
+    "description": ""
+  },
+  "likesOut": "Bugünkü ücretsiz beğenilerin bitti. Sınırsız Beğeni ile istediğin kadar beğen.",
+  "@likesOut": {
+    "description": ""
+  },
+  "supersOut": "Bugünkü süper beğenilerin bitti. Yarın yenilenir.",
+  "@supersOut": {
+    "description": ""
+  },
+  "superUsed": "Bugünkü süper beğenini kullandın. Süper Beğeni paketiyle her gün 5 tane.",
+  "@superUsed": {
+    "description": ""
+  },
+  "rewindLocked": "Yanlışlıkla geçtiğin kişiyi geri getirmek Sınırsız Beğeni paketiyle açılır.",
+  "@rewindLocked": {
+    "description": ""
+  },
+  "rewoundTo": "Son geçtiğin kişi {mode} destesine geri döndü.",
+  "@rewoundTo": {
+    "description": "",
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "boostReason": "Öne çıkınca {minutes} dakika boyunca destelerin en başında görünürsün.",
+  "@boostReason": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "boosting": "Öne çıkıyorsun. {minutes} dakika kaldı.",
+  "@boosting": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "boostUsed": "Bugünkü öne çıkma hakkını kullandın. Yarın yenilenir.",
+  "@boostUsed": {
+    "description": ""
+  },
+  "boost": "Öne çık",
+  "@boost": {
+    "description": ""
+  },
+  "boostBody": "{minutes} dakika boyunca ortak gruplarındaki kişilerin destesinde en başta görünürsün. Günde bir kez kullanılır.",
+  "@boostBody": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "boosted": "Öne çıktın! {minutes} dakika boyunca en baştasın.",
+  "@boosted": {
+    "description": "",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deckEmpty": "Şimdilik gösterecek kimse kalmadı. Yeni gruplara katıldıkça ve insanlar eşleşmeyi açtıkça burası dolar.",
+  "@deckEmpty": {
+    "description": ""
+  },
+  "deckEmptyFiltered": "Filtrelerine uyan kimse kalmadı. Filtreleri genişletmeyi dene.",
+  "@deckEmptyFiltered": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "clearFilters": "Filtreleri temizle",
+  "@clearFilters": {
+    "description": ""
+  },
+  "allowanceUnlimited": "Sınırsız beğeni · {supers} süper beğeni hakkın var.",
+  "@allowanceUnlimited": {
+    "description": "",
+    "placeholders": {
+      "supers": {
+        "type": "int"
+      }
+    }
+  },
+  "allowanceOut": "Bugünkü beğenilerin bitti; yarın yenilenir.",
+  "@allowanceOut": {
+    "description": ""
+  },
+  "allowance": "Bugün {likes} beğeni ve {supers} süper beğeni hakkın var.",
+  "@allowance": {
+    "description": "",
+    "placeholders": {
+      "likes": {
+        "type": "int"
+      },
+      "supers": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "Geri al",
+  "@undo": {
+    "description": ""
+  },
+  "pass": "Geç",
+  "@pass": {
+    "description": ""
+  },
+  "superLike": "Süper beğen",
+  "@superLike": {
+    "description": ""
+  },
+  "like": "Beğen",
+  "@like": {
+    "description": ""
+  },
+  "introTitle": "Ortak gruplarından yeni insanlarla tanış",
+  "@introTitle": {
+    "description": ""
+  },
+  "intro1": "Yalnızca üye olduğun ya da takip ettiğin gruplardaki, eşleşmeyi açmış kişileri görürsün.",
+  "@intro1": {
+    "description": ""
+  },
+  "intro2": "Kartı sağa kaydır beğen, sola kaydır geç, yukarı kaydır süper beğen.",
+  "@intro2": {
+    "description": ""
+  },
+  "intro3": "İkiniz de birbirinizi beğenince eşleşirsiniz. Eşleştiğin kişiye Eşleşme Sohbeti paketiyle yazarsın.",
+  "@intro3": {
+    "description": ""
+  },
+  "intro4": "Arkadaş ve Sevgili ayrı modlardır; istediğini ya da ikisini seçersin.",
+  "@intro4": {
+    "description": ""
+  },
+  "intro5": "Profilin yalnızca eşleşmeyi açanlara görünür. İstediğin an duraklatır ya da tamamen silersin.",
+  "@intro5": {
+    "description": ""
+  },
+  "createMyProfile": "Eşleşme profilimi oluştur",
+  "@createMyProfile": {
+    "description": ""
+  },
+  "seePackageOf": "{package} paketini incele",
+  "@seePackageOf": {
+    "description": "",
+    "placeholders": {
+      "package": {
+        "type": "String"
+      }
+    }
+  },
+  "allPackages": "Tüm paketler",
+  "@allPackages": {
+    "description": ""
+  },
+  "packagesTitle": "Eşleşme paketleri",
+  "@packagesTitle": {
+    "description": ""
+  },
+  "packagesIntro": "Profil açmak ve kaydırmak ücretsiz. Her özellik ayrı bir pakettir; yalnızca istediğini al.",
+  "@packagesIntro": {
+    "description": ""
+  },
+  "adminAllOpen": "Yönetici olarak tüm paketler açık",
+  "@adminAllOpen": {
+    "description": ""
+  },
+  "openUntil": "{date} tarihine kadar açık",
+  "@openUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ageFilter": "Yaş: {min} – {max}",
+  "@ageFilter": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "allProvinces": "Tüm iller",
+  "@allProvinces": {
+    "description": ""
+  },
+  "interest": "İlgi alanı",
+  "@interest": {
+    "description": ""
+  },
+  "all": "Hepsi",
+  "@all": {
+    "description": ""
+  },
+  "apply": "Uygula",
+  "@apply": {
+    "description": ""
+  },
+  "clear": "Temizle",
+  "@clear": {
+    "description": ""
+  },
+  "noAdmirers": "Şimdilik bekleyen beğeni yok. Kaydırmaya devam et; seni beğenenler burada görünür.",
+  "@noAdmirers": {
+    "description": ""
+  },
+  "backToSwiping": "Kaydırmaya dön",
+  "@backToSwiping": {
+    "description": ""
+  },
+  "likeAndMatch": "Beğen ve eşleş",
+  "@likeAndMatch": {
+    "description": ""
+  },
+  "noPendingLikes": "Henüz bekleyen beğeni yok",
+  "@noPendingLikes": {
+    "description": ""
+  },
+  "likedYouCount": "{count} kişi seni beğendi",
+  "@likedYouCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "admirersPitch": "Seni Beğenenler paketiyle kim olduklarını gör, beğenerek anında eşleş.",
+  "@admirersPitch": {
+    "description": ""
+  },
+  "seePackage": "Paketi incele",
+  "@seePackage": {
+    "description": ""
+  }
+}
