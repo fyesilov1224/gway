@@ -589,4 +589,11 @@ class MessagingL10nDe extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Sicherheitscode anzeigen';
+
+  @override
+  String get callOngoingTitle => 'Sprachanruf läuft';
+
+  @override
+  String get callOngoingText =>
+      'Ende-zu-Ende-verschlüsselt. Tippe, um zurückzukehren.';
 }

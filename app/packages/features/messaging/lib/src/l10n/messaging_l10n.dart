@@ -1113,6 +1113,18 @@ abstract class MessagingL10n {
   /// In tr, this message translates to:
   /// **'Güvenlik kodunu göster'**
   String get showSecurityCode;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli görüşme sürüyor'**
+  String get callOngoingTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli. Dönmek için dokun.'**
+  String get callOngoingText;
 }
 
 class _MessagingL10nDelegate extends LocalizationsDelegate<MessagingL10n> {

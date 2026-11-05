@@ -748,5 +748,13 @@
   "showSecurityCode": "Güvenlik kodunu göster",
   "@showSecurityCode": {
     "description": ""
+  },
+  "callOngoingTitle": "Sesli görüşme sürüyor",
+  "@callOngoingTitle": {
+    "description": ""
+  },
+  "callOngoingText": "Uçtan uca şifreli. Dönmek için dokun.",
+  "@callOngoingText": {
+    "description": ""
   }
 }

@@ -88,5 +88,20 @@
   "connectFailed": "Verbinden met de livestream mislukt. Controleer je verbinding en probeer het opnieuw.",
   "participant": "Deelnemer",
   "micNeedsManager": "Alleen een beheerder van de livestream kan je microfoon aanzetten.",
-  "micFailed": "Microfoon aanzetten mislukt. Controleer de microfoontoestemming."
+  "micFailed": "Microfoon aanzetten mislukt. Controleer de microfoontoestemming.",
+  "connectionLost": "De verbinding met de uitzending is verbroken. Tik om opnieuw te verbinden.",
+  "micAfterEncryption": "De versleutelde verbinding wordt opgezet; je microfoon gaat zo aan.",
+  "encrypting": "Versleutelde verbinding wordt opgezet…",
+  "verifying": "Versleuteling wordt gecontroleerd…",
+  "liveSecure": "Beveiligde uitzending",
+  "liveSecureDetail": "End-to-end versleuteld. Iedereen in de ruimte gebruikt dezelfde sleutel; niemand, ook de server niet, kan meeluisteren.",
+  "liveCheckFailed": "Versleuteling niet bevestigd: niet iedereen in de ruimte gebruikt dezelfde sleutel. Verlaat de uitzending en doe opnieuw mee.",
+  "liveUnconfirmed": "Iemand op het podium gebruikt een oudere app-versie; het geluid kan niet worden versleuteld en wordt niet afgespeeld.",
+  "peerUnencrypted": "Een spreker met een oudere versie stuurt onversleuteld geluid; het wordt niet afgespeeld. De app moet worden bijgewerkt.",
+  "e2ee": "End-to-end versleuteld",
+  "showSecurityCode": "Beveiligingscode tonen",
+  "codeMatchHint": "Deze code is op ieders scherm in de ruimte gelijk.",
+  "e2eeCode": "End-to-end versleuteld. Beveiligingscode {code}",
+  "liveOngoingTitle": "Je bent in een live-uitzending",
+  "liveOngoingText": "End-to-end versleuteld. Tik om terug te gaan."
 }

@@ -301,4 +301,56 @@ class LiveL10nAr extends LiveL10n {
 
   @override
   String get micFailed => 'تعذّر تشغيل الميكروفون. تحقّق من إذن الميكروفون.';
+
+  @override
+  String get connectionLost => 'انقطع اتصالك بالبث. اضغط لإعادة الاتصال.';
+
+  @override
+  String get micAfterEncryption =>
+      'جارٍ إنشاء الاتصال المشفّر؛ سيعمل الميكروفون بعد لحظات.';
+
+  @override
+  String get encrypting => 'جارٍ إنشاء اتصال مشفّر…';
+
+  @override
+  String get verifying => 'جارٍ التحقق من التشفير…';
+
+  @override
+  String get liveSecure => 'بث آمن';
+
+  @override
+  String get liveSecureDetail =>
+      'مشفّر من طرف إلى طرف. يستخدم الجميع في الغرفة المفتاح نفسه؛ لا يستطيع أحد الاستماع، ولا حتى الخادم.';
+
+  @override
+  String get liveCheckFailed =>
+      'تعذّر التحقق من التشفير: لا يستخدم الجميع في الغرفة المفتاح نفسه. اخرج من البث وادخل مجددًا.';
+
+  @override
+  String get liveUnconfirmed =>
+      'أحد المتحدثين يستخدم إصدارًا قديمًا من التطبيق؛ لا يمكن تشفير صوته لذلك لا يُشغَّل.';
+
+  @override
+  String get peerUnencrypted =>
+      'متحدث يستخدم إصدارًا قديمًا يرسل صوتًا غير مشفّر فلا يُشغَّل. عليه تحديث التطبيق.';
+
+  @override
+  String get e2ee => 'مشفّر بين الطرفين';
+
+  @override
+  String get showSecurityCode => 'إظهار رمز الأمان';
+
+  @override
+  String get codeMatchHint => 'هذا الرمز نفسه على شاشة كل من في الغرفة.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'مشفّر بين الطرفين. رمز الأمان $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'أنت في بث مباشر';
+
+  @override
+  String get liveOngoingText => 'مشفّر بين الطرفين. اضغط للعودة.';
 }

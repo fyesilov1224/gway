@@ -326,4 +326,58 @@ class LiveL10nNl extends LiveL10n {
   @override
   String get micFailed =>
       'Microfoon aanzetten mislukt. Controleer de microfoontoestemming.';
+
+  @override
+  String get connectionLost =>
+      'De verbinding met de uitzending is verbroken. Tik om opnieuw te verbinden.';
+
+  @override
+  String get micAfterEncryption =>
+      'De versleutelde verbinding wordt opgezet; je microfoon gaat zo aan.';
+
+  @override
+  String get encrypting => 'Versleutelde verbinding wordt opgezet…';
+
+  @override
+  String get verifying => 'Versleuteling wordt gecontroleerd…';
+
+  @override
+  String get liveSecure => 'Beveiligde uitzending';
+
+  @override
+  String get liveSecureDetail =>
+      'End-to-end versleuteld. Iedereen in de ruimte gebruikt dezelfde sleutel; niemand, ook de server niet, kan meeluisteren.';
+
+  @override
+  String get liveCheckFailed =>
+      'Versleuteling niet bevestigd: niet iedereen in de ruimte gebruikt dezelfde sleutel. Verlaat de uitzending en doe opnieuw mee.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Iemand op het podium gebruikt een oudere app-versie; het geluid kan niet worden versleuteld en wordt niet afgespeeld.';
+
+  @override
+  String get peerUnencrypted =>
+      'Een spreker met een oudere versie stuurt onversleuteld geluid; het wordt niet afgespeeld. De app moet worden bijgewerkt.';
+
+  @override
+  String get e2ee => 'End-to-end versleuteld';
+
+  @override
+  String get showSecurityCode => 'Beveiligingscode tonen';
+
+  @override
+  String get codeMatchHint =>
+      'Deze code is op ieders scherm in de ruimte gelijk.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'End-to-end versleuteld. Beveiligingscode $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Je bent in een live-uitzending';
+
+  @override
+  String get liveOngoingText => 'End-to-end versleuteld. Tik om terug te gaan.';
 }

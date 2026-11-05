@@ -303,4 +303,58 @@ class LiveL10nRu extends LiveL10n {
 
   @override
   String get micFailed => 'Не удалось включить микрофон. Проверьте разрешение.';
+
+  @override
+  String get connectionLost =>
+      'Связь с эфиром прервалась. Нажмите, чтобы переподключиться.';
+
+  @override
+  String get micAfterEncryption =>
+      'Устанавливается защищённое соединение; микрофон включится через мгновение.';
+
+  @override
+  String get encrypting => 'Устанавливается защищённое соединение…';
+
+  @override
+  String get verifying => 'Проверка шифрования…';
+
+  @override
+  String get liveSecure => 'Защищённый эфир';
+
+  @override
+  String get liveSecureDetail =>
+      'Сквозное шифрование. У всех в комнате один ключ; никто, даже сервер, не может подслушать.';
+
+  @override
+  String get liveCheckFailed =>
+      'Шифрование не подтверждено: не у всех в комнате один ключ. Выйдите из эфира и войдите снова.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Кто-то на сцене использует старую версию приложения; его звук нельзя зашифровать, поэтому он не воспроизводится.';
+
+  @override
+  String get peerUnencrypted =>
+      'Спикер со старой версией отправляет незашифрованный звук, он не воспроизводится. Ему нужно обновить приложение.';
+
+  @override
+  String get e2ee => 'Сквозное шифрование';
+
+  @override
+  String get showSecurityCode => 'Показать код безопасности';
+
+  @override
+  String get codeMatchHint => 'Этот код одинаков на экранах всех в комнате.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Сквозное шифрование. Код безопасности $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Вы в прямом эфире';
+
+  @override
+  String get liveOngoingText =>
+      'Сквозное шифрование. Нажмите, чтобы вернуться.';
 }

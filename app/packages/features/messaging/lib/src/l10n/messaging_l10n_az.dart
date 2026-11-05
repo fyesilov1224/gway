@@ -572,4 +572,10 @@ class MessagingL10nAz extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Təhlükəsizlik kodunu göstər';
+
+  @override
+  String get callOngoingTitle => 'Səsli zəng davam edir';
+
+  @override
+  String get callOngoingText => 'Uçdan-uca şifrəli. Qayıtmaq üçün toxun.';
 }

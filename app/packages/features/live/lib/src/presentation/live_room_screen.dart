@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/live.dart';
 import '../l10n.dart';
+import 'live_key_exchange.dart';
 import 'live_session.dart';
 import 'providers.dart';
 
@@ -334,6 +335,10 @@ class _RoomState extends ConsumerState<_Room> {
                   ),
                 ),
               ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: GwSpacing.md),
+              child: _SecurityNote(session: _session),
+            ),
             Text(liveL10n.onStage, style: textTheme.titleSmall),
             const SizedBox(height: GwSpacing.sm),
             Wrap(
@@ -424,6 +429,116 @@ class _RoomState extends ConsumerState<_Room> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Whether the room's sound is end-to-end encrypted and everyone holds the same key (docs/ARCHITECTURE.md §8,
+/// Uçtan uca şifreli yayın). The phones compare the key themselves; the code stays hidden unless asked for.
+class _SecurityNote extends StatefulWidget {
+  const _SecurityNote({required this.session});
+
+  final LiveSession session;
+
+  @override
+  State<_SecurityNote> createState() => _SecurityNoteState();
+}
+
+class _SecurityNoteState extends State<_SecurityNote> {
+  bool _showCode = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final session = widget.session;
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
+    final code = session.safetyCode ?? '';
+    final note = switch (session.check) {
+      _ when !session.secure || code.isEmpty => _quiet(Icons.lock_clock_outlined, liveL10n.encrypting, secondary),
+      LiveCheck.waiting => _quiet(Icons.lock_clock_outlined, liveL10n.verifying, secondary),
+      LiveCheck.mismatch => GwFormMessage(liveL10n.liveCheckFailed),
+      LiveCheck.unconfirmed => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _quiet(Icons.lock_outline, liveL10n.e2ee, textTheme.labelLarge?.copyWith(color: GwColors.success)),
+            const SizedBox(height: GwSpacing.xxs),
+            Text(liveL10n.liveUnconfirmed, style: secondary),
+            _codeToggle(textTheme, code),
+          ],
+        ),
+      LiveCheck.verified => _verified(textTheme, code),
+    };
+    if (!session.peerUnencrypted) return note;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [note, const SizedBox(height: GwSpacing.xs), GwFormMessage(liveL10n.peerUnencrypted)],
+    );
+  }
+
+  Widget _quiet(IconData icon, String text, TextStyle? style) => Row(
+        children: [
+          Icon(icon, size: GwSpacing.md, color: style?.color),
+          const SizedBox(width: GwSpacing.xs),
+          Expanded(child: Text(text, style: style)),
+        ],
+      );
+
+  /// Green: everyone in the room holds the same key.
+  Widget _verified(TextTheme textTheme, String code) => Semantics(
+        container: true,
+        label: liveL10n.liveSecure,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: GwColors.successSoft,
+            borderRadius: GwRadius.lgAll,
+            border: Border.all(color: GwColors.success.withValues(alpha: 0.24)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xxs),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.verified_user, size: GwSpacing.lg, color: GwColors.success),
+                    const SizedBox(width: GwSpacing.xs),
+                    Expanded(
+                      child: Text(
+                        liveL10n.liveSecure,
+                        style: textTheme.titleSmall?.copyWith(color: GwColors.success, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: GwSpacing.xxs),
+                Text(liveL10n.liveSecureDetail, style: textTheme.bodySmall?.copyWith(color: GwColors.textPrimary)),
+                _codeToggle(textTheme, code),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  Widget _codeToggle(TextTheme textTheme, String code) {
+    if (!_showCode) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton(onPressed: () => setState(() => _showCode = true), child: Text(liveL10n.showSecurityCode)),
+      );
+    }
+    return Semantics(
+      label: liveL10n.e2eeCode(code),
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: GwSpacing.xs),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(code, style: textTheme.titleMedium),
+            Text(liveL10n.codeMatchHint, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+          ],
+        ),
+      ),
     );
   }
 }

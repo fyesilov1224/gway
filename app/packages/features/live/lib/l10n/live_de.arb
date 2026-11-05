@@ -88,5 +88,20 @@
   "connectFailed": "Keine Verbindung zum Livestream. Prüfe deine Verbindung und versuche es erneut.",
   "participant": "Teilnehmer:in",
   "micNeedsManager": "Nur die Moderation kann dein Mikro einschalten.",
-  "micFailed": "Das Mikro konnte nicht eingeschaltet werden. Prüfe die Mikrofon-Berechtigung."
+  "micFailed": "Das Mikro konnte nicht eingeschaltet werden. Prüfe die Mikrofon-Berechtigung.",
+  "connectionLost": "Die Verbindung zur Übertragung ist abgebrochen. Tippe, um dich neu zu verbinden.",
+  "micAfterEncryption": "Die verschlüsselte Verbindung wird aufgebaut; dein Mikrofon schaltet sich gleich ein.",
+  "encrypting": "Verschlüsselte Verbindung wird aufgebaut …",
+  "verifying": "Verschlüsselung wird geprüft …",
+  "liveSecure": "Sichere Übertragung",
+  "liveSecureDetail": "Ende-zu-Ende-verschlüsselt. Alle im Raum nutzen denselben Schlüssel; niemand, auch nicht der Server, kann mithören.",
+  "liveCheckFailed": "Verschlüsselung nicht bestätigt: Nicht alle im Raum nutzen denselben Schlüssel. Verlasse die Übertragung und tritt erneut bei.",
+  "liveUnconfirmed": "Jemand auf der Bühne nutzt eine ältere App-Version; der Ton kann nicht verschlüsselt werden und wird nicht abgespielt.",
+  "peerUnencrypted": "Ein Sprecher mit einer älteren Version sendet unverschlüsselten Ton; er wird nicht abgespielt. Die App muss aktualisiert werden.",
+  "e2ee": "Ende-zu-Ende-verschlüsselt",
+  "showSecurityCode": "Sicherheitscode anzeigen",
+  "codeMatchHint": "Dieser Code ist auf allen Bildschirmen im Raum gleich.",
+  "e2eeCode": "Ende-zu-Ende-verschlüsselt. Sicherheitscode {code}",
+  "liveOngoingTitle": "Du bist in einer Live-Übertragung",
+  "liveOngoingText": "Ende-zu-Ende-verschlüsselt. Tippe, um zurückzukehren."
 }

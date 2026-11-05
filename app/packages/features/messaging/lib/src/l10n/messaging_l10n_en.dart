@@ -585,4 +585,10 @@ class MessagingL10nEn extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Show security code';
+
+  @override
+  String get callOngoingTitle => 'Voice call in progress';
+
+  @override
+  String get callOngoingText => 'End-to-end encrypted. Tap to return.';
 }

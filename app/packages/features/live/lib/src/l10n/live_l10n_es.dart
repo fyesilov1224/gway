@@ -326,4 +326,59 @@ class LiveL10nEs extends LiveL10n {
   @override
   String get micFailed =>
       'No se pudo encender el micrófono. Revisa el permiso del micrófono.';
+
+  @override
+  String get connectionLost =>
+      'Se perdió la conexión con la emisión. Toca para volver a conectar.';
+
+  @override
+  String get micAfterEncryption =>
+      'Estableciendo la conexión cifrada; tu micrófono se activará en un momento.';
+
+  @override
+  String get encrypting => 'Estableciendo la conexión cifrada…';
+
+  @override
+  String get verifying => 'Verificando el cifrado…';
+
+  @override
+  String get liveSecure => 'Emisión segura';
+
+  @override
+  String get liveSecureDetail =>
+      'Cifrado de extremo a extremo. Todos en la sala usan la misma clave; nadie, ni siquiera el servidor, puede escuchar.';
+
+  @override
+  String get liveCheckFailed =>
+      'No se pudo verificar el cifrado: no todos en la sala usan la misma clave. Sal de la emisión y vuelve a entrar.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Alguien en el escenario usa una versión antigua de la app; su audio no puede cifrarse y no se reproduce.';
+
+  @override
+  String get peerUnencrypted =>
+      'Un orador con una versión antigua envía audio sin cifrar y no se reproduce. Debe actualizar la app.';
+
+  @override
+  String get e2ee => 'Cifrado de extremo a extremo';
+
+  @override
+  String get showSecurityCode => 'Mostrar código de seguridad';
+
+  @override
+  String get codeMatchHint =>
+      'Este código es el mismo en la pantalla de todos en la sala.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Cifrado de extremo a extremo. Código de seguridad $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Estás en una emisión en directo';
+
+  @override
+  String get liveOngoingText =>
+      'Cifrado de extremo a extremo. Toca para volver.';
 }

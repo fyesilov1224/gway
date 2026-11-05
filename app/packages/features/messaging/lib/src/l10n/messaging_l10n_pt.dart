@@ -586,4 +586,11 @@ class MessagingL10nPt extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Mostrar código de segurança';
+
+  @override
+  String get callOngoingTitle => 'Chamada de voz em andamento';
+
+  @override
+  String get callOngoingText =>
+      'Criptografia de ponta a ponta. Toque para voltar.';
 }

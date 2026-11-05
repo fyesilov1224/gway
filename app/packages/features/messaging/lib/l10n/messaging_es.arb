@@ -165,5 +165,7 @@
   "callSecure": "Llamada segura",
   "callSecureDetail": "Cifrado de extremo a extremo. Los códigos de seguridad de ambos teléfonos coinciden; nadie se ha interpuesto.",
   "callCheckFailed": "No se pudo verificar el cifrado: los códigos de seguridad no coinciden. Cuelga y vuelve a llamar.",
-  "showSecurityCode": "Mostrar código de seguridad"
+  "showSecurityCode": "Mostrar código de seguridad",
+  "callOngoingTitle": "Llamada de voz en curso",
+  "callOngoingText": "Cifrado de extremo a extremo. Toca para volver."
 }

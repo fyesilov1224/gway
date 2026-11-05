@@ -88,5 +88,20 @@
   "connectFailed": "Impossibile connettersi alla diretta. Controlla la connessione e riprova.",
   "participant": "Partecipante",
   "micNeedsManager": "Solo un responsabile della diretta può accendere il tuo microfono.",
-  "micFailed": "Impossibile accendere il microfono. Controlla il permesso del microfono."
+  "micFailed": "Impossibile accendere il microfono. Controlla il permesso del microfono.",
+  "connectionLost": "Connessione alla diretta persa. Tocca per riconnetterti.",
+  "micAfterEncryption": "Connessione cifrata in corso; il microfono si attiverà tra poco.",
+  "encrypting": "Connessione cifrata in corso…",
+  "verifying": "Verifica della crittografia…",
+  "liveSecure": "Diretta sicura",
+  "liveSecureDetail": "Crittografia end-to-end. Tutti nella stanza usano la stessa chiave; nessuno, nemmeno il server, può ascoltare.",
+  "liveCheckFailed": "Impossibile verificare la crittografia: non tutti nella stanza usano la stessa chiave. Esci dalla diretta e rientra.",
+  "liveUnconfirmed": "Qualcuno sul palco usa una versione vecchia dell’app; il suo audio non può essere cifrato e non viene riprodotto.",
+  "peerUnencrypted": "Un relatore con una versione vecchia invia audio non cifrato, che non viene riprodotto. Deve aggiornare l’app.",
+  "e2ee": "Crittografia end-to-end",
+  "showSecurityCode": "Mostra codice di sicurezza",
+  "codeMatchHint": "Questo codice è uguale sullo schermo di tutti nella stanza.",
+  "e2eeCode": "Crittografia end-to-end. Codice di sicurezza {code}",
+  "liveOngoingTitle": "Sei in una diretta",
+  "liveOngoingText": "Crittografia end-to-end. Tocca per tornare."
 }

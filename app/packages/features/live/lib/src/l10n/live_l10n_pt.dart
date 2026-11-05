@@ -325,4 +325,58 @@ class LiveL10nPt extends LiveL10n {
   @override
   String get micFailed =>
       'Não foi possível ligar o microfone. Verifique a permissão do microfone.';
+
+  @override
+  String get connectionLost =>
+      'A conexão com a transmissão caiu. Toque para reconectar.';
+
+  @override
+  String get micAfterEncryption =>
+      'Criando a conexão criptografada; seu microfone vai ligar em instantes.';
+
+  @override
+  String get encrypting => 'Criando a conexão criptografada…';
+
+  @override
+  String get verifying => 'Verificando a criptografia…';
+
+  @override
+  String get liveSecure => 'Transmissão segura';
+
+  @override
+  String get liveSecureDetail =>
+      'Criptografia de ponta a ponta. Todos na sala usam a mesma chave; ninguém, nem o servidor, pode ouvir.';
+
+  @override
+  String get liveCheckFailed =>
+      'Não foi possível verificar a criptografia: nem todos na sala usam a mesma chave. Saia da transmissão e entre de novo.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Alguém no palco usa uma versão antiga do app; o áudio não pode ser criptografado e não é tocado.';
+
+  @override
+  String get peerUnencrypted =>
+      'Um orador com versão antiga envia áudio sem criptografia, que não é tocado. Ele precisa atualizar o app.';
+
+  @override
+  String get e2ee => 'Criptografia de ponta a ponta';
+
+  @override
+  String get showSecurityCode => 'Mostrar código de segurança';
+
+  @override
+  String get codeMatchHint => 'Este código é o mesmo na tela de todos na sala.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Criptografia de ponta a ponta. Código de segurança $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Você está numa transmissão ao vivo';
+
+  @override
+  String get liveOngoingText =>
+      'Criptografia de ponta a ponta. Toque para voltar.';
 }

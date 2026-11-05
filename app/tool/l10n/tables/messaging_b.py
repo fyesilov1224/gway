@@ -40,5 +40,12 @@ ROWS = [
     r('showSecurityCode', 'Güvenlik kodunu göster', 'Show security code', 'Sicherheitscode anzeigen', 'Afficher le code de sécurité',
       'Beveiligingscode tonen', 'Mostrar código de seguridad', 'Mostrar código de segurança', 'Mostra codice di sicurezza',
       'Показать код безопасности', 'إظهار رمز الأمان', 'Təhlükəsizlik kodunu göstər', 'Показати код безпеки'),
+    r('callOngoingTitle', 'Sesli görüşme sürüyor', 'Voice call in progress', 'Sprachanruf läuft', 'Appel vocal en cours', 'Spraakoproep bezig',
+      'Llamada de voz en curso', 'Chamada de voz em andamento', 'Chiamata vocale in corso', 'Идёт голосовой звонок', 'مكالمة صوتية جارية',
+      'Səsli zəng davam edir', 'Триває голосовий дзвінок'),
+    r('callOngoingText', 'Uçtan uca şifreli. Dönmek için dokun.', 'End-to-end encrypted. Tap to return.', 'Ende-zu-Ende-verschlüsselt. Tippe, um zurückzukehren.',
+      'Chiffré de bout en bout. Touche pour revenir.', 'End-to-end versleuteld. Tik om terug te gaan.', 'Cifrado de extremo a extremo. Toca para volver.',
+      'Criptografia de ponta a ponta. Toque para voltar.', 'Crittografia end-to-end. Tocca per tornare.', 'Сквозное шифрование. Нажмите, чтобы вернуться.',
+      'مشفّر بين الطرفين. اضغط للعودة.', 'Uçdan-uca şifrəli. Qayıtmaq üçün toxun.', 'Наскрізне шифрування. Торкніться, щоб повернутися.'),
 ]
 SKIP = {row[0] for row in ROWS}

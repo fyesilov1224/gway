@@ -165,5 +165,7 @@
   "callSecure": "Sicheres Gespräch",
   "callSecureDetail": "Ende-zu-Ende-verschlüsselt. Die Sicherheitscodes beider Telefone stimmen überein, niemand hört mit.",
   "callCheckFailed": "Verschlüsselung nicht bestätigt: Die Sicherheitscodes der Telefone stimmen nicht überein. Beende das Gespräch und rufe erneut an.",
-  "showSecurityCode": "Sicherheitscode anzeigen"
+  "showSecurityCode": "Sicherheitscode anzeigen",
+  "callOngoingTitle": "Sprachanruf läuft",
+  "callOngoingText": "Ende-zu-Ende-verschlüsselt. Tippe, um zurückzukehren."
 }

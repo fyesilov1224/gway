@@ -583,4 +583,11 @@ class MessagingL10nEs extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Mostrar código de seguridad';
+
+  @override
+  String get callOngoingTitle => 'Llamada de voz en curso';
+
+  @override
+  String get callOngoingText =>
+      'Cifrado de extremo a extremo. Toca para volver.';
 }

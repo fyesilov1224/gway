@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:pointycastle/export.dart';
+import 'package:core/core.dart';
 
 /// The audio key of a call and the code both people can compare to know nobody is in between.
 class CallKeys {
@@ -23,87 +22,32 @@ class CallKeys {
 /// each connection; ECDH with the other phone's public key, then HKDF-SHA256 salted with the call id. The server only
 /// relays public keys, so it can never work out the audio key.
 class CallKeyAgreement {
-  CallKeyAgreement._(this._private, this._public);
+  CallKeyAgreement._(this._pair);
 
-  factory CallKeyAgreement.generate() {
-    final random = FortunaRandom()..seed(KeyParameter(_randomBytes(32)));
-    final generator = ECKeyGenerator()..init(ParametersWithRandom(ECKeyGeneratorParameters(_curve), random));
-    final pair = generator.generateKeyPair();
-    return CallKeyAgreement._(pair.privateKey, pair.publicKey.Q!.getEncoded(false));
-  }
+  factory CallKeyAgreement.generate() => CallKeyAgreement._(E2eeKeyPair.generate());
 
-  static final _curve = ECCurve_secp256r1();
   static const _info = 'gway-call-e2ee-v1';
+  static const _confirmInfo = 'gway-call-confirm-v1';
 
-  final ECPrivateKey _private;
-  final Uint8List _public;
+  final E2eeKeyPair _pair;
 
   /// What this phone tells the other one, through the room.
-  String get publicKey => base64Url.encode(_public);
+  String get publicKey => _pair.publicKey;
 
   /// The keys shared with the owner of [peerPublicKey]; null when it is not a valid key.
   CallKeys? derive(String peerPublicKey, String callId) {
-    final Uint8List peer;
-    final ECPoint point;
-    try {
-      peer = base64Url.decode(peerPublicKey);
-      point = _curve.curve.decodePoint(peer)!;
-    } on Object {
-      return null;
-    }
-    if (point.isInfinity || peer.length != 65 || _same(peer, _public)) return null;
-
-    final secret = (ECDHBasicAgreement()..init(_private)).calculateAgreement(ECPublicKey(point, _curve));
-    final salt = SHA256Digest().process(Uint8List.fromList(utf8.encode(callId)));
-    final key = Uint8List(32);
-    (HKDFKeyDerivator(SHA256Digest())..init(HkdfParameters(_bytes32(secret), 32, salt, utf8.encode(_info))))
-        .deriveKey(null, 0, key, 0);
-    final safetyCode = _safetyCode(_public, peer, callId);
-    return CallKeys(audioKey: base64.encode(key), safetyCode: safetyCode, confirmation: _confirmation(key, safetyCode));
+    final secret = _pair.agree(peerPublicKey);
+    if (secret == null) return null;
+    final peer = E2eeKeyPair.decodePublicKey(peerPublicKey)!;
+    final key = e2eeHkdf(secret, salt: e2eeSha256(utf8.encode(callId)), info: _info);
+    final safetyCode = _safetyCode(_pair.publicBytes, peer, callId);
+    final tag = e2eeHmac(key, utf8.encode('$_confirmInfo|$safetyCode'));
+    return CallKeys(audioKey: base64.encode(key), safetyCode: safetyCode, confirmation: base64Url.encode(tag.sublist(0, 16)));
   }
-
-  static String _confirmation(Uint8List key, String safetyCode) {
-    final mac = HMac(SHA256Digest(), 64)..init(KeyParameter(key));
-    final tag = mac.process(Uint8List.fromList(utf8.encode('$_confirmInfo|$safetyCode')));
-    return base64Url.encode(tag.sublist(0, 16));
-  }
-
-  static const _confirmInfo = 'gway-call-confirm-v1';
 
   /// Both public keys in a fixed order, so both phones get the same digits.
   static String _safetyCode(Uint8List a, Uint8List b, String callId) {
-    final first = _compare(a, b) <= 0 ? a : b;
-    final second = identical(first, a) ? b : a;
-    final hash = SHA256Digest().process(Uint8List.fromList([...first, ...second, ...utf8.encode(callId)]));
-    var n = BigInt.zero;
-    for (final byte in hash.take(8)) {
-      n = (n << 8) | BigInt.from(byte);
-    }
-    final digits = (n % BigInt.from(10).pow(12)).toString().padLeft(12, '0');
-    return '${digits.substring(0, 4)} ${digits.substring(4, 8)} ${digits.substring(8)}';
+    final (first, second) = e2eeCompare(a, b) <= 0 ? (a, b) : (b, a);
+    return e2eeDigits(e2eeSha256([...first, ...second, ...utf8.encode(callId)]));
   }
-
-  static Uint8List _randomBytes(int length) {
-    final random = Random.secure();
-    return Uint8List.fromList(List.generate(length, (_) => random.nextInt(256)));
-  }
-
-  static Uint8List _bytes32(BigInt value) {
-    final out = Uint8List(32);
-    var v = value;
-    for (var i = 31; i >= 0; i--) {
-      out[i] = (v & BigInt.from(0xff)).toInt();
-      v >>= 8;
-    }
-    return out;
-  }
-
-  static int _compare(Uint8List a, Uint8List b) {
-    for (var i = 0; i < a.length && i < b.length; i++) {
-      if (a[i] != b[i]) return a[i] - b[i];
-    }
-    return a.length - b.length;
-  }
-
-  static bool _same(Uint8List a, Uint8List b) => _compare(a, b) == 0;
 }

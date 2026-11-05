@@ -569,4 +569,11 @@ class MessagingL10nRu extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Показать код безопасности';
+
+  @override
+  String get callOngoingTitle => 'Идёт голосовой звонок';
+
+  @override
+  String get callOngoingText =>
+      'Сквозное шифрование. Нажмите, чтобы вернуться.';
 }

@@ -324,4 +324,58 @@ class LiveL10nEn extends LiveL10n {
   @override
   String get micFailed =>
       'Couldn\'t turn on the mic. Check the microphone permission.';
+
+  @override
+  String get connectionLost =>
+      'You lost the connection to the broadcast. Tap to reconnect.';
+
+  @override
+  String get micAfterEncryption =>
+      'Setting up the encrypted connection; your microphone will turn on in a moment.';
+
+  @override
+  String get encrypting => 'Setting up the encrypted connection…';
+
+  @override
+  String get verifying => 'Verifying encryption…';
+
+  @override
+  String get liveSecure => 'Secure broadcast';
+
+  @override
+  String get liveSecureDetail =>
+      'End-to-end encrypted. Everyone in the room uses the same key; nobody, not even the server, can listen in.';
+
+  @override
+  String get liveCheckFailed =>
+      'Encryption could not be verified: not everyone in the room uses the same key. Leave the broadcast and join again.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Someone on stage uses an older app version; their audio can’t be encrypted, so it isn’t played.';
+
+  @override
+  String get peerUnencrypted =>
+      'A speaker on an older version sends unencrypted audio, so it isn’t played. They need to update the app.';
+
+  @override
+  String get e2ee => 'End-to-end encrypted';
+
+  @override
+  String get showSecurityCode => 'Show security code';
+
+  @override
+  String get codeMatchHint =>
+      'This code is the same on everyone’s screen in the room.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'End-to-end encrypted. Safety code $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'You’re in a live broadcast';
+
+  @override
+  String get liveOngoingText => 'End-to-end encrypted. Tap to return.';
 }

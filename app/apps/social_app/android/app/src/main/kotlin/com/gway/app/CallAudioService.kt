@@ -24,8 +24,14 @@ class CallAudioService : Service() {
         private const val CHANNEL_ID = "gway_call_ongoing"
         private const val NOTIFICATION_ID = 0x6A11
 
-        fun start(context: Context) {
+        private const val EXTRA_TITLE = "title"
+        private const val EXTRA_TEXT = "text"
+
+        /** [title] and [text] come from the app in the chosen language; the Turkish ones are the fallback. */
+        fun start(context: Context, title: String? = null, text: String? = null) {
             val intent = Intent(context, CallAudioService::class.java)
+                .putExtra(EXTRA_TITLE, title)
+                .putExtra(EXTRA_TEXT, text)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {
@@ -40,7 +46,10 @@ class CallAudioService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            val notification = buildNotification()
+            val notification = buildNotification(
+                intent?.getStringExtra(EXTRA_TITLE) ?: "Sesli görüşme sürüyor",
+                intent?.getStringExtra(EXTRA_TEXT) ?: "Uçtan uca şifreli. Dönmek için dokun.",
+            )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
             } else {
@@ -55,12 +64,12 @@ class CallAudioService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun buildNotification(): Notification {
+    private fun buildNotification(title: String, text: String): Notification {
         val manager = getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && manager?.getNotificationChannel(CHANNEL_ID) == null) {
             manager?.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Süren görüşme", NotificationManager.IMPORTANCE_LOW).apply {
-                    description = "Sesli görüşme sürerken görünür"
+                NotificationChannel(CHANNEL_ID, "Süren görüşme ve yayın", NotificationManager.IMPORTANCE_LOW).apply {
+                    description = "Sesli görüşme ya da canlı yayın sürerken görünür"
                     setShowBadge(false)
                 },
             )
@@ -82,8 +91,8 @@ class CallAudioService : Service() {
         }
         return builder
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Sesli görüşme sürüyor")
-            .setContentText("Uçtan uca şifreli. Dönmek için dokun.")
+            .setContentTitle(title)
+            .setContentText(text)
             .setCategory(Notification.CATEGORY_CALL)
             .setOngoing(true)
             .setContentIntent(tap)

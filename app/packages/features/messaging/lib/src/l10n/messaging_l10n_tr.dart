@@ -572,4 +572,10 @@ class MessagingL10nTr extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Güvenlik kodunu göster';
+
+  @override
+  String get callOngoingTitle => 'Sesli görüşme sürüyor';
+
+  @override
+  String get callOngoingText => 'Uçtan uca şifreli. Dönmek için dokun.';
 }

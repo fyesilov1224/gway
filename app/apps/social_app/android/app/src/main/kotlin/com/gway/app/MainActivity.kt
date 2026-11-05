@@ -20,6 +20,8 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private val keepAliveOwners = mutableSetOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createNotificationChannels()
@@ -76,12 +78,19 @@ class MainActivity : FlutterActivity() {
         // A voice call that goes on in the background (docs/ARCHITECTURE.md §8c, Arka planda görüşme).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "gway/call").setMethodCallHandler { call, result ->
             when (call.method) {
+                // A call and a live room each hold the service ("owner"); it stops when neither does.
                 "keepAlive" -> {
-                    CallAudioService.start(applicationContext)
+                    keepAliveOwners.add(call.argument<String>("owner") ?: "call")
+                    CallAudioService.start(
+                        applicationContext,
+                        call.argument<String>("title"),
+                        call.argument<String>("text"),
+                    )
                     result.success(null)
                 }
                 "release" -> {
-                    CallAudioService.stop(applicationContext)
+                    keepAliveOwners.remove(call.argument<String>("owner") ?: "call")
+                    if (keepAliveOwners.isEmpty()) CallAudioService.stop(applicationContext)
                     result.success(null)
                 }
                 // The back button during a call leaves the call running instead of hanging up.

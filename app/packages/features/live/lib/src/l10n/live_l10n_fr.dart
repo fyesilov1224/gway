@@ -326,4 +326,58 @@ class LiveL10nFr extends LiveL10n {
   @override
   String get micFailed =>
       'Impossible d\'activer le micro. Vérifie l\'autorisation du micro.';
+
+  @override
+  String get connectionLost =>
+      'Tu as perdu la connexion au direct. Touche pour te reconnecter.';
+
+  @override
+  String get micAfterEncryption =>
+      'Connexion chiffrée en cours ; ton micro s’activera dans un instant.';
+
+  @override
+  String get encrypting => 'Connexion chiffrée en cours…';
+
+  @override
+  String get verifying => 'Vérification du chiffrement…';
+
+  @override
+  String get liveSecure => 'Direct sécurisé';
+
+  @override
+  String get liveSecureDetail =>
+      'Chiffré de bout en bout. Tout le monde dans le salon utilise la même clé ; personne, pas même le serveur, ne peut écouter.';
+
+  @override
+  String get liveCheckFailed =>
+      'Chiffrement non vérifié : tout le monde n’utilise pas la même clé. Quitte le direct et rejoins-le à nouveau.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Quelqu’un sur scène utilise une ancienne version de l’application ; son audio ne peut pas être chiffré et n’est pas lu.';
+
+  @override
+  String get peerUnencrypted =>
+      'Un intervenant sur une ancienne version envoie un audio non chiffré, qui n’est pas lu. Il doit mettre l’application à jour.';
+
+  @override
+  String get e2ee => 'Chiffré de bout en bout';
+
+  @override
+  String get showSecurityCode => 'Afficher le code de sécurité';
+
+  @override
+  String get codeMatchHint =>
+      'Ce code est identique sur l’écran de tous les participants.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Chiffré de bout en bout. Code de sécurité $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Tu es en direct';
+
+  @override
+  String get liveOngoingText => 'Chiffré de bout en bout. Touche pour revenir.';
 }

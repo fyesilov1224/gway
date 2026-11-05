@@ -304,4 +304,57 @@ class LiveL10nTr extends LiveL10n {
 
   @override
   String get micFailed => 'Mikrofon açılamadı. Mikrofon iznini kontrol et.';
+
+  @override
+  String get connectionLost =>
+      'Yayınla bağlantın koptu. Tekrar bağlanmak için dokun.';
+
+  @override
+  String get micAfterEncryption =>
+      'Şifreli bağlantı kuruluyor; mikrofonun birazdan açılacak.';
+
+  @override
+  String get encrypting => 'Şifreli bağlantı kuruluyor…';
+
+  @override
+  String get verifying => 'Şifreleme doğrulanıyor…';
+
+  @override
+  String get liveSecure => 'Güvenli yayın';
+
+  @override
+  String get liveSecureDetail =>
+      'Uçtan uca şifreli. Odadaki herkes aynı anahtarı kullanıyor; sesi sunucu dahil kimse dinleyemez.';
+
+  @override
+  String get liveCheckFailed =>
+      'Şifreleme doğrulanamadı: odadaki herkes aynı anahtarı kullanmıyor. Yayından çıkıp yeniden gir.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Sahnedeki biri eski bir uygulama sürümü kullanıyor; sesi şifrelenemediği için çalınmıyor.';
+
+  @override
+  String get peerUnencrypted =>
+      'Eski sürümdeki bir konuşmacının sesi şifresiz geliyor ve çalınmıyor. Uygulamasını güncellemesi gerekiyor.';
+
+  @override
+  String get e2ee => 'Uçtan uca şifreli';
+
+  @override
+  String get showSecurityCode => 'Güvenlik kodunu göster';
+
+  @override
+  String get codeMatchHint => 'Bu kod odadaki herkesin ekranında aynıdır.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Uçtan uca şifreli. Güvenlik kodu $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Canlı yayındasın';
+
+  @override
+  String get liveOngoingText => 'Uçtan uca şifreli. Dönmek için dokun.';
 }

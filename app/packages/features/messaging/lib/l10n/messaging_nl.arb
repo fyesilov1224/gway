@@ -165,5 +165,7 @@
   "callSecure": "Beveiligd gesprek",
   "callSecureDetail": "End-to-end versleuteld. De beveiligingscodes van beide telefoons komen overeen; niemand zit ertussen.",
   "callCheckFailed": "Versleuteling niet bevestigd: de beveiligingscodes van de telefoons komen niet overeen. Beëindig het gesprek en bel opnieuw.",
-  "showSecurityCode": "Beveiligingscode tonen"
+  "showSecurityCode": "Beveiligingscode tonen",
+  "callOngoingTitle": "Spraakoproep bezig",
+  "callOngoingText": "End-to-end versleuteld. Tik om terug te gaan."
 }

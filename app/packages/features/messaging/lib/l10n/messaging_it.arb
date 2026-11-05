@@ -165,5 +165,7 @@
   "callSecure": "Chiamata sicura",
   "callSecureDetail": "Crittografia end-to-end. I codici di sicurezza dei due telefoni coincidono: nessuno si è intromesso.",
   "callCheckFailed": "Impossibile verificare la crittografia: i codici di sicurezza non coincidono. Chiudi e richiama.",
-  "showSecurityCode": "Mostra codice di sicurezza"
+  "showSecurityCode": "Mostra codice di sicurezza",
+  "callOngoingTitle": "Chiamata vocale in corso",
+  "callOngoingText": "Crittografia end-to-end. Tocca per tornare."
 }

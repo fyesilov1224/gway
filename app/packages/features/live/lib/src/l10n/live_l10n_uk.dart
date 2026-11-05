@@ -306,4 +306,58 @@ class LiveL10nUk extends LiveL10n {
 
   @override
   String get micFailed => 'Не вдалося ввімкнути мікрофон. Перевірте дозвіл.';
+
+  @override
+  String get connectionLost =>
+      'Зв’язок з ефіром перервався. Торкніться, щоб перепідключитися.';
+
+  @override
+  String get micAfterEncryption =>
+      'Встановлюється захищене з’єднання; мікрофон увімкнеться за мить.';
+
+  @override
+  String get encrypting => 'Встановлюється захищене з’єднання…';
+
+  @override
+  String get verifying => 'Перевірка шифрування…';
+
+  @override
+  String get liveSecure => 'Захищений ефір';
+
+  @override
+  String get liveSecureDetail =>
+      'Наскрізне шифрування. Усі в кімнаті мають один ключ; ніхто, навіть сервер, не може підслухати.';
+
+  @override
+  String get liveCheckFailed =>
+      'Шифрування не підтверджено: не всі в кімнаті мають один ключ. Вийдіть з ефіру й увійдіть знову.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Хтось на сцені має стару версію застосунку; його звук не можна зашифрувати, тому він не відтворюється.';
+
+  @override
+  String get peerUnencrypted =>
+      'Спікер зі старою версією надсилає незашифрований звук, він не відтворюється. Йому треба оновити застосунок.';
+
+  @override
+  String get e2ee => 'Наскрізне шифрування';
+
+  @override
+  String get showSecurityCode => 'Показати код безпеки';
+
+  @override
+  String get codeMatchHint => 'Цей код однаковий на екранах усіх у кімнаті.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Наскрізне шифрування. Код безпеки $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Ви в прямому ефірі';
+
+  @override
+  String get liveOngoingText =>
+      'Наскрізне шифрування. Торкніться, щоб повернутися.';
 }

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:core/core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/live_keep_alive.dart';
 import '../data/live_repository_impl.dart';
 import '../domain/live.dart';
 import 'live_session.dart';
@@ -44,11 +46,18 @@ final isLiveManagerProvider = FutureProvider.autoDispose.family<bool, LiveBroadc
 /// going back or opening other pages keeps the user in the room until they leave (docs/ARCHITECTURE.md §8).
 final activeLiveProvider = NotifierProvider<ActiveLive, LiveSession?>(ActiveLive.new);
 
+/// Keeps the room's sound going in the background (Android foreground service); replaced in tests.
+final liveKeepAliveProvider = Provider<LiveKeepAlive>((_) => const PlatformLiveKeepAlive());
+
 class ActiveLive extends Notifier<LiveSession?> {
   LiveSession? _session;
+  LiveKeepAlive? _keeper;
+  bool _keptAlive = false;
 
   @override
   LiveSession? build() {
+    // Read here: providers cannot be read while this one is being disposed.
+    _keeper = ref.read(liveKeepAliveProvider);
     // Signing out or switching accounts leaves the room.
     ref.watch(currentUserIdProvider);
     ref.onDispose(() {
@@ -94,9 +103,22 @@ class ActiveLive extends Notifier<LiveSession?> {
 
   // The room ended or the user was removed: the screen still shows why, the app forgets the session.
   void _onChange(LiveSession session) {
+    if (_session == session) _keepAlive(session.state == LiveSessionState.connected);
     if (session.state == LiveSessionState.ended || session.state == LiveSessionState.kicked) {
       scheduleMicrotask(() => _release(session));
     }
+  }
+
+  /// While connected the room goes on in the background too. Started as the room connects, with the app in front,
+  /// as Android requires.
+  void _keepAlive(bool want) {
+    if (want == _keptAlive) return;
+    _keptAlive = want;
+    final keepAlive = _keeper;
+    if (keepAlive == null) return;
+    unawaited((want ? keepAlive.start() : keepAlive.stop()).catchError((Object e) {
+      debugPrint('Live keep-alive failed: $e');
+    }));
   }
 
   void _release(LiveSession session) {
@@ -107,5 +129,8 @@ class ActiveLive extends Notifier<LiveSession?> {
   }
 
   // Never dispose while the session is notifying its listeners.
-  void _dispose(LiveSession session) => scheduleMicrotask(session.dispose);
+  void _dispose(LiveSession session) {
+    if (_session == null) _keepAlive(false);
+    scheduleMicrotask(session.dispose);
+  }
 }

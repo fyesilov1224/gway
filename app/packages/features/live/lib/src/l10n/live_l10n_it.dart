@@ -325,4 +325,58 @@ class LiveL10nIt extends LiveL10n {
   @override
   String get micFailed =>
       'Impossibile accendere il microfono. Controlla il permesso del microfono.';
+
+  @override
+  String get connectionLost =>
+      'Connessione alla diretta persa. Tocca per riconnetterti.';
+
+  @override
+  String get micAfterEncryption =>
+      'Connessione cifrata in corso; il microfono si attiverà tra poco.';
+
+  @override
+  String get encrypting => 'Connessione cifrata in corso…';
+
+  @override
+  String get verifying => 'Verifica della crittografia…';
+
+  @override
+  String get liveSecure => 'Diretta sicura';
+
+  @override
+  String get liveSecureDetail =>
+      'Crittografia end-to-end. Tutti nella stanza usano la stessa chiave; nessuno, nemmeno il server, può ascoltare.';
+
+  @override
+  String get liveCheckFailed =>
+      'Impossibile verificare la crittografia: non tutti nella stanza usano la stessa chiave. Esci dalla diretta e rientra.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Qualcuno sul palco usa una versione vecchia dell’app; il suo audio non può essere cifrato e non viene riprodotto.';
+
+  @override
+  String get peerUnencrypted =>
+      'Un relatore con una versione vecchia invia audio non cifrato, che non viene riprodotto. Deve aggiornare l’app.';
+
+  @override
+  String get e2ee => 'Crittografia end-to-end';
+
+  @override
+  String get showSecurityCode => 'Mostra codice di sicurezza';
+
+  @override
+  String get codeMatchHint =>
+      'Questo codice è uguale sullo schermo di tutti nella stanza.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Crittografia end-to-end. Codice di sicurezza $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Sei in una diretta';
+
+  @override
+  String get liveOngoingText => 'Crittografia end-to-end. Tocca per tornare.';
 }

@@ -88,5 +88,20 @@
   "connectFailed": "Não foi possível conectar à transmissão. Verifique a conexão e tente novamente.",
   "participant": "Participante",
   "micNeedsManager": "Só um responsável pela transmissão pode ligar seu microfone.",
-  "micFailed": "Não foi possível ligar o microfone. Verifique a permissão do microfone."
+  "micFailed": "Não foi possível ligar o microfone. Verifique a permissão do microfone.",
+  "connectionLost": "A conexão com a transmissão caiu. Toque para reconectar.",
+  "micAfterEncryption": "Criando a conexão criptografada; seu microfone vai ligar em instantes.",
+  "encrypting": "Criando a conexão criptografada…",
+  "verifying": "Verificando a criptografia…",
+  "liveSecure": "Transmissão segura",
+  "liveSecureDetail": "Criptografia de ponta a ponta. Todos na sala usam a mesma chave; ninguém, nem o servidor, pode ouvir.",
+  "liveCheckFailed": "Não foi possível verificar a criptografia: nem todos na sala usam a mesma chave. Saia da transmissão e entre de novo.",
+  "liveUnconfirmed": "Alguém no palco usa uma versão antiga do app; o áudio não pode ser criptografado e não é tocado.",
+  "peerUnencrypted": "Um orador com versão antiga envia áudio sem criptografia, que não é tocado. Ele precisa atualizar o app.",
+  "e2ee": "Criptografia de ponta a ponta",
+  "showSecurityCode": "Mostrar código de segurança",
+  "codeMatchHint": "Este código é o mesmo na tela de todos na sala.",
+  "e2eeCode": "Criptografia de ponta a ponta. Código de segurança {code}",
+  "liveOngoingTitle": "Você está numa transmissão ao vivo",
+  "liveOngoingText": "Criptografia de ponta a ponta. Toque para voltar."
 }

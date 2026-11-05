@@ -88,5 +88,20 @@
   "connectFailed": "Yayıma qoşulmaq olmadı. Bağlantını yoxla və yenidən cəhd et.",
   "participant": "İştirakçı",
   "micNeedsManager": "Mikrofonunu yalnız yayım idarəçisi aça bilər.",
-  "micFailed": "Mikrofon açılmadı. Mikrofon icazəsini yoxla."
+  "micFailed": "Mikrofon açılmadı. Mikrofon icazəsini yoxla.",
+  "connectionLost": "Yayımla bağlantın kəsildi. Yenidən qoşulmaq üçün toxun.",
+  "micAfterEncryption": "Şifrəli bağlantı qurulur; mikrofonun bir azdan açılacaq.",
+  "encrypting": "Şifrəli bağlantı qurulur…",
+  "verifying": "Şifrələmə yoxlanılır…",
+  "liveSecure": "Təhlükəsiz yayım",
+  "liveSecureDetail": "Uçdan-uca şifrələnib. Otaqdakı hər kəs eyni açardan istifadə edir; səsi server daxil heç kim dinləyə bilməz.",
+  "liveCheckFailed": "Şifrələmə təsdiqlənmədi: otaqdakı hər kəs eyni açardan istifadə etmir. Yayımdan çıxıb yenidən daxil ol.",
+  "liveUnconfirmed": "Səhnədəki biri köhnə tətbiq versiyasından istifadə edir; səsi şifrələnə bilmədiyi üçün səslənmir.",
+  "peerUnencrypted": "Köhnə versiyadakı bir danışanın səsi şifrəsiz gəlir və səslənmir. Tətbiqini yeniləməlidir.",
+  "e2ee": "Uçdan-uca şifrəli",
+  "showSecurityCode": "Təhlükəsizlik kodunu göstər",
+  "codeMatchHint": "Bu kod otaqdakı hər kəsin ekranında eynidir.",
+  "e2eeCode": "Uçdan-uca şifrəli. Təhlükəsizlik kodu {code}",
+  "liveOngoingTitle": "Canlı yayımdasan",
+  "liveOngoingText": "Uçdan-uca şifrəli. Qayıtmaq üçün toxun."
 }

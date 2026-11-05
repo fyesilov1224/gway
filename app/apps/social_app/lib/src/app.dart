@@ -13,6 +13,9 @@ import 'router.dart';
 class SocialApp extends ConsumerWidget {
   const SocialApp({super.key});
 
+  /// When each live room was last opened from a notice.
+  static final _liveOpened = <String, DateTime>{};
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
@@ -27,8 +30,15 @@ class SocialApp extends ConsumerWidget {
     }
 
     // Opening the room the user is already looking at does nothing; a room left in the background is reopened.
+    // The router learns about a pushed room only after a frame, so a second ask (a push tap and the in-app strip) a
+    // moment later is dropped too: one room screen, not two stacked.
     void openLive(String id) {
-      if (router.routerDelegate.currentConfiguration.uri.path != LiveRoutes.room(id)) router.push(LiveRoutes.room(id));
+      final now = DateTime.now();
+      final last = _liveOpened[id];
+      if (last != null && now.difference(last) < const Duration(seconds: 2)) return;
+      if (router.routerDelegate.currentConfiguration.uri.path == LiveRoutes.room(id)) return;
+      _liveOpened[id] = now;
+      router.push(LiveRoutes.room(id));
     }
 
     return MaterialApp.router(

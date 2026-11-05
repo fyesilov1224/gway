@@ -328,4 +328,59 @@ class LiveL10nDe extends LiveL10n {
   @override
   String get micFailed =>
       'Das Mikro konnte nicht eingeschaltet werden. Prüfe die Mikrofon-Berechtigung.';
+
+  @override
+  String get connectionLost =>
+      'Die Verbindung zur Übertragung ist abgebrochen. Tippe, um dich neu zu verbinden.';
+
+  @override
+  String get micAfterEncryption =>
+      'Die verschlüsselte Verbindung wird aufgebaut; dein Mikrofon schaltet sich gleich ein.';
+
+  @override
+  String get encrypting => 'Verschlüsselte Verbindung wird aufgebaut …';
+
+  @override
+  String get verifying => 'Verschlüsselung wird geprüft …';
+
+  @override
+  String get liveSecure => 'Sichere Übertragung';
+
+  @override
+  String get liveSecureDetail =>
+      'Ende-zu-Ende-verschlüsselt. Alle im Raum nutzen denselben Schlüssel; niemand, auch nicht der Server, kann mithören.';
+
+  @override
+  String get liveCheckFailed =>
+      'Verschlüsselung nicht bestätigt: Nicht alle im Raum nutzen denselben Schlüssel. Verlasse die Übertragung und tritt erneut bei.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Jemand auf der Bühne nutzt eine ältere App-Version; der Ton kann nicht verschlüsselt werden und wird nicht abgespielt.';
+
+  @override
+  String get peerUnencrypted =>
+      'Ein Sprecher mit einer älteren Version sendet unverschlüsselten Ton; er wird nicht abgespielt. Die App muss aktualisiert werden.';
+
+  @override
+  String get e2ee => 'Ende-zu-Ende-verschlüsselt';
+
+  @override
+  String get showSecurityCode => 'Sicherheitscode anzeigen';
+
+  @override
+  String get codeMatchHint =>
+      'Dieser Code ist auf allen Bildschirmen im Raum gleich.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Ende-zu-Ende-verschlüsselt. Sicherheitscode $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Du bist in einer Live-Übertragung';
+
+  @override
+  String get liveOngoingText =>
+      'Ende-zu-Ende-verschlüsselt. Tippe, um zurückzukehren.';
 }

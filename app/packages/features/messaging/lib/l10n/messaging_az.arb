@@ -165,5 +165,7 @@
   "callSecure": "Təhlükəsiz zəng",
   "callSecureDetail": "Uçdan-uca şifrələnib. Hər iki telefonun təhlükəsizlik kodu uyğun gəldi, araya heç kim girmədi.",
   "callCheckFailed": "Şifrələmə təsdiqlənmədi: telefonların təhlükəsizlik kodu uyğun gəlmir. Zəngi bitirib yenidən zəng et.",
-  "showSecurityCode": "Təhlükəsizlik kodunu göstər"
+  "showSecurityCode": "Təhlükəsizlik kodunu göstər",
+  "callOngoingTitle": "Səsli zəng davam edir",
+  "callOngoingText": "Uçdan-uca şifrəli. Qayıtmaq üçün toxun."
 }

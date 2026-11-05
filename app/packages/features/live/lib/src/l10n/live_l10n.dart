@@ -650,6 +650,96 @@ abstract class LiveL10n {
   /// In tr, this message translates to:
   /// **'Mikrofon açılamadı. Mikrofon iznini kontrol et.'**
   String get micFailed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yayınla bağlantın koptu. Tekrar bağlanmak için dokun.'**
+  String get connectionLost;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreli bağlantı kuruluyor; mikrofonun birazdan açılacak.'**
+  String get micAfterEncryption;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreli bağlantı kuruluyor…'**
+  String get encrypting;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreleme doğrulanıyor…'**
+  String get verifying;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenli yayın'**
+  String get liveSecure;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli. Odadaki herkes aynı anahtarı kullanıyor; sesi sunucu dahil kimse dinleyemez.'**
+  String get liveSecureDetail;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreleme doğrulanamadı: odadaki herkes aynı anahtarı kullanmıyor. Yayından çıkıp yeniden gir.'**
+  String get liveCheckFailed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sahnedeki biri eski bir uygulama sürümü kullanıyor; sesi şifrelenemediği için çalınmıyor.'**
+  String get liveUnconfirmed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Eski sürümdeki bir konuşmacının sesi şifresiz geliyor ve çalınmıyor. Uygulamasını güncellemesi gerekiyor.'**
+  String get peerUnencrypted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli'**
+  String get e2ee;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenlik kodunu göster'**
+  String get showSecurityCode;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kod odadaki herkesin ekranında aynıdır.'**
+  String get codeMatchHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli. Güvenlik kodu {code}'**
+  String e2eeCode(String code);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Canlı yayındasın'**
+  String get liveOngoingTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli. Dönmek için dokun.'**
+  String get liveOngoingText;
 }
 
 class _LiveL10nDelegate extends LocalizationsDelegate<LiveL10n> {

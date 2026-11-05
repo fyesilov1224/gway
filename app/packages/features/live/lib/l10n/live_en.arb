@@ -88,5 +88,20 @@
   "connectFailed": "Couldn't connect to the broadcast. Check your connection and try again.",
   "participant": "Participant",
   "micNeedsManager": "Only a broadcast manager can turn your mic on.",
-  "micFailed": "Couldn't turn on the mic. Check the microphone permission."
+  "micFailed": "Couldn't turn on the mic. Check the microphone permission.",
+  "connectionLost": "You lost the connection to the broadcast. Tap to reconnect.",
+  "micAfterEncryption": "Setting up the encrypted connection; your microphone will turn on in a moment.",
+  "encrypting": "Setting up the encrypted connection…",
+  "verifying": "Verifying encryption…",
+  "liveSecure": "Secure broadcast",
+  "liveSecureDetail": "End-to-end encrypted. Everyone in the room uses the same key; nobody, not even the server, can listen in.",
+  "liveCheckFailed": "Encryption could not be verified: not everyone in the room uses the same key. Leave the broadcast and join again.",
+  "liveUnconfirmed": "Someone on stage uses an older app version; their audio can’t be encrypted, so it isn’t played.",
+  "peerUnencrypted": "A speaker on an older version sends unencrypted audio, so it isn’t played. They need to update the app.",
+  "e2ee": "End-to-end encrypted",
+  "showSecurityCode": "Show security code",
+  "codeMatchHint": "This code is the same on everyone’s screen in the room.",
+  "e2eeCode": "End-to-end encrypted. Safety code {code}",
+  "liveOngoingTitle": "You’re in a live broadcast",
+  "liveOngoingText": "End-to-end encrypted. Tap to return."
 }

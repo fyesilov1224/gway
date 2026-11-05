@@ -570,4 +570,10 @@ class MessagingL10nAr extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'إظهار رمز الأمان';
+
+  @override
+  String get callOngoingTitle => 'مكالمة صوتية جارية';
+
+  @override
+  String get callOngoingText => 'مشفّر بين الطرفين. اضغط للعودة.';
 }

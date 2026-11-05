@@ -592,4 +592,10 @@ class MessagingL10nFr extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Afficher le code de sécurité';
+
+  @override
+  String get callOngoingTitle => 'Appel vocal en cours';
+
+  @override
+  String get callOngoingText => 'Chiffré de bout en bout. Touche pour revenir.';
 }

@@ -88,5 +88,20 @@
   "connectFailed": "Connexion au direct impossible. Vérifie ta connexion et réessaie.",
   "participant": "Participant",
   "micNeedsManager": "Seul un responsable du direct peut activer ton micro.",
-  "micFailed": "Impossible d'activer le micro. Vérifie l'autorisation du micro."
+  "micFailed": "Impossible d'activer le micro. Vérifie l'autorisation du micro.",
+  "connectionLost": "Tu as perdu la connexion au direct. Touche pour te reconnecter.",
+  "micAfterEncryption": "Connexion chiffrée en cours ; ton micro s’activera dans un instant.",
+  "encrypting": "Connexion chiffrée en cours…",
+  "verifying": "Vérification du chiffrement…",
+  "liveSecure": "Direct sécurisé",
+  "liveSecureDetail": "Chiffré de bout en bout. Tout le monde dans le salon utilise la même clé ; personne, pas même le serveur, ne peut écouter.",
+  "liveCheckFailed": "Chiffrement non vérifié : tout le monde n’utilise pas la même clé. Quitte le direct et rejoins-le à nouveau.",
+  "liveUnconfirmed": "Quelqu’un sur scène utilise une ancienne version de l’application ; son audio ne peut pas être chiffré et n’est pas lu.",
+  "peerUnencrypted": "Un intervenant sur une ancienne version envoie un audio non chiffré, qui n’est pas lu. Il doit mettre l’application à jour.",
+  "e2ee": "Chiffré de bout en bout",
+  "showSecurityCode": "Afficher le code de sécurité",
+  "codeMatchHint": "Ce code est identique sur l’écran de tous les participants.",
+  "e2eeCode": "Chiffré de bout en bout. Code de sécurité {code}",
+  "liveOngoingTitle": "Tu es en direct",
+  "liveOngoingText": "Chiffré de bout en bout. Touche pour revenir."
 }

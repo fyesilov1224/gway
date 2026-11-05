@@ -302,4 +302,57 @@ class LiveL10nAz extends LiveL10n {
 
   @override
   String get micFailed => 'Mikrofon açılmadı. Mikrofon icazəsini yoxla.';
+
+  @override
+  String get connectionLost =>
+      'Yayımla bağlantın kəsildi. Yenidən qoşulmaq üçün toxun.';
+
+  @override
+  String get micAfterEncryption =>
+      'Şifrəli bağlantı qurulur; mikrofonun bir azdan açılacaq.';
+
+  @override
+  String get encrypting => 'Şifrəli bağlantı qurulur…';
+
+  @override
+  String get verifying => 'Şifrələmə yoxlanılır…';
+
+  @override
+  String get liveSecure => 'Təhlükəsiz yayım';
+
+  @override
+  String get liveSecureDetail =>
+      'Uçdan-uca şifrələnib. Otaqdakı hər kəs eyni açardan istifadə edir; səsi server daxil heç kim dinləyə bilməz.';
+
+  @override
+  String get liveCheckFailed =>
+      'Şifrələmə təsdiqlənmədi: otaqdakı hər kəs eyni açardan istifadə etmir. Yayımdan çıxıb yenidən daxil ol.';
+
+  @override
+  String get liveUnconfirmed =>
+      'Səhnədəki biri köhnə tətbiq versiyasından istifadə edir; səsi şifrələnə bilmədiyi üçün səslənmir.';
+
+  @override
+  String get peerUnencrypted =>
+      'Köhnə versiyadakı bir danışanın səsi şifrəsiz gəlir və səslənmir. Tətbiqini yeniləməlidir.';
+
+  @override
+  String get e2ee => 'Uçdan-uca şifrəli';
+
+  @override
+  String get showSecurityCode => 'Təhlükəsizlik kodunu göstər';
+
+  @override
+  String get codeMatchHint => 'Bu kod otaqdakı hər kəsin ekranında eynidir.';
+
+  @override
+  String e2eeCode(String code) {
+    return 'Uçdan-uca şifrəli. Təhlükəsizlik kodu $code';
+  }
+
+  @override
+  String get liveOngoingTitle => 'Canlı yayımdasan';
+
+  @override
+  String get liveOngoingText => 'Uçdan-uca şifrəli. Qayıtmaq üçün toxun.';
 }

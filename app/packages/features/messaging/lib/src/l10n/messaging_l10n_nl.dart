@@ -586,4 +586,10 @@ class MessagingL10nNl extends MessagingL10n {
 
   @override
   String get showSecurityCode => 'Beveiligingscode tonen';
+
+  @override
+  String get callOngoingTitle => 'Spraakoproep bezig';
+
+  @override
+  String get callOngoingText => 'End-to-end versleuteld. Tik om terug te gaan.';
 }

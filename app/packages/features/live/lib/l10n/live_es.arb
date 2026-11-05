@@ -88,5 +88,20 @@
   "connectFailed": "No se pudo conectar con el directo. Revisa tu conexión e inténtalo de nuevo.",
   "participant": "Participante",
   "micNeedsManager": "Solo un responsable del directo puede encender tu micrófono.",
-  "micFailed": "No se pudo encender el micrófono. Revisa el permiso del micrófono."
+  "micFailed": "No se pudo encender el micrófono. Revisa el permiso del micrófono.",
+  "connectionLost": "Se perdió la conexión con la emisión. Toca para volver a conectar.",
+  "micAfterEncryption": "Estableciendo la conexión cifrada; tu micrófono se activará en un momento.",
+  "encrypting": "Estableciendo la conexión cifrada…",
+  "verifying": "Verificando el cifrado…",
+  "liveSecure": "Emisión segura",
+  "liveSecureDetail": "Cifrado de extremo a extremo. Todos en la sala usan la misma clave; nadie, ni siquiera el servidor, puede escuchar.",
+  "liveCheckFailed": "No se pudo verificar el cifrado: no todos en la sala usan la misma clave. Sal de la emisión y vuelve a entrar.",
+  "liveUnconfirmed": "Alguien en el escenario usa una versión antigua de la app; su audio no puede cifrarse y no se reproduce.",
+  "peerUnencrypted": "Un orador con una versión antigua envía audio sin cifrar y no se reproduce. Debe actualizar la app.",
+  "e2ee": "Cifrado de extremo a extremo",
+  "showSecurityCode": "Mostrar código de seguridad",
+  "codeMatchHint": "Este código es el mismo en la pantalla de todos en la sala.",
+  "e2eeCode": "Cifrado de extremo a extremo. Código de seguridad {code}",
+  "liveOngoingTitle": "Estás en una emisión en directo",
+  "liveOngoingText": "Cifrado de extremo a extremo. Toca para volver."
 }

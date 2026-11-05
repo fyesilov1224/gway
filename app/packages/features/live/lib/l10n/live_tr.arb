@@ -408,5 +408,70 @@
   "micFailed": "Mikrofon açılamadı. Mikrofon iznini kontrol et.",
   "@micFailed": {
     "description": ""
+  },
+  "connectionLost": "Yayınla bağlantın koptu. Tekrar bağlanmak için dokun.",
+  "@connectionLost": {
+    "description": ""
+  },
+  "micAfterEncryption": "Şifreli bağlantı kuruluyor; mikrofonun birazdan açılacak.",
+  "@micAfterEncryption": {
+    "description": ""
+  },
+  "encrypting": "Şifreli bağlantı kuruluyor…",
+  "@encrypting": {
+    "description": ""
+  },
+  "verifying": "Şifreleme doğrulanıyor…",
+  "@verifying": {
+    "description": ""
+  },
+  "liveSecure": "Güvenli yayın",
+  "@liveSecure": {
+    "description": ""
+  },
+  "liveSecureDetail": "Uçtan uca şifreli. Odadaki herkes aynı anahtarı kullanıyor; sesi sunucu dahil kimse dinleyemez.",
+  "@liveSecureDetail": {
+    "description": ""
+  },
+  "liveCheckFailed": "Şifreleme doğrulanamadı: odadaki herkes aynı anahtarı kullanmıyor. Yayından çıkıp yeniden gir.",
+  "@liveCheckFailed": {
+    "description": ""
+  },
+  "liveUnconfirmed": "Sahnedeki biri eski bir uygulama sürümü kullanıyor; sesi şifrelenemediği için çalınmıyor.",
+  "@liveUnconfirmed": {
+    "description": ""
+  },
+  "peerUnencrypted": "Eski sürümdeki bir konuşmacının sesi şifresiz geliyor ve çalınmıyor. Uygulamasını güncellemesi gerekiyor.",
+  "@peerUnencrypted": {
+    "description": ""
+  },
+  "e2ee": "Uçtan uca şifreli",
+  "@e2ee": {
+    "description": ""
+  },
+  "showSecurityCode": "Güvenlik kodunu göster",
+  "@showSecurityCode": {
+    "description": ""
+  },
+  "codeMatchHint": "Bu kod odadaki herkesin ekranında aynıdır.",
+  "@codeMatchHint": {
+    "description": ""
+  },
+  "e2eeCode": "Uçtan uca şifreli. Güvenlik kodu {code}",
+  "@e2eeCode": {
+    "description": "",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOngoingTitle": "Canlı yayındasın",
+  "@liveOngoingTitle": {
+    "description": ""
+  },
+  "liveOngoingText": "Uçtan uca şifreli. Dönmek için dokun.",
+  "@liveOngoingText": {
+    "description": ""
   }
 }
