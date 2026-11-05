@@ -16,6 +16,21 @@ class AdminGamesScreen extends ConsumerWidget {
 
   static const _categories = {'bullet': 'Bullet', 'blitz': 'Blitz', 'rapid': 'Rapid'};
 
+  static const _teamStatus = {'invited': 'yanıt bekliyor', 'accepted': 'kabul edildi', 'live': 'oynanıyor'};
+
+  Future<void> _cancelTeam(BuildContext context, WidgetRef ref, AdminTeamMatch match) async {
+    final request = await showSuspendDialog(
+      context,
+      title: 'Takım maçını iptal et',
+      description: '${match.home} – ${match.away} maçı başlamadan iptal edilir; grupların puanı değişmez. Gerekçe kayda geçer.',
+      withDuration: false,
+      confirmLabel: 'İptal et',
+    );
+    if (request == null || !context.mounted) return;
+    await _act(context, ref, () => ref.read(adminGamesRepositoryProvider).cancelTeamMatch(match.id, reason: request.reason), 'Takım maçı iptal edildi.');
+    ref.invalidate(adminTeamMatchesProvider);
+  }
+
   Future<void> _act(BuildContext context, WidgetRef ref, Future<Result<void>> Function() action, String done) async {
     final result = await action();
     if (!context.mounted) return;
@@ -56,7 +71,10 @@ class AdminGamesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(adminChessProvider);
     final o = result.value;
-    void refresh() => ref.invalidate(adminChessProvider);
+    final teams = ref.watch(adminTeamMatchesProvider).value;
+    void refresh() => ref
+      ..invalidate(adminChessProvider)
+      ..invalidate(adminTeamMatchesProvider);
 
     return AdminPage(
       title: 'Oyunlar',
@@ -118,6 +136,32 @@ class AdminGamesScreen extends ConsumerWidget {
                                   PopupMenuItem(value: 'black', child: Text('@${g.black} uzaklaştır')),
                               ],
                             ),
+                          ),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: GwSpacing.lg),
+            GwPanel(
+              title: 'Takım maçları',
+              subtitle: 'Gruplar arası açık maçlar. Başlamamış bir maç gerekçeyle iptal edilebilir.',
+              padding: EdgeInsets.zero,
+              child: (teams ?? const []).isEmpty
+                  ? const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: Text('Açık takım maçı yok.'))
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final m in teams!)
+                          ListTile(
+                            title: Text('${m.home} – ${m.away}'),
+                            subtitle: Text('${m.boards} tahta · ${m.baseSeconds ~/ 60}+${m.incrementSeconds} · '
+                                '${_teamStatus[m.status] ?? m.status} · ${formatDateTime(m.startsAt)}'),
+                            trailing: m.status == 'live'
+                                ? null
+                                : GwButton(
+                                    label: 'İptal et',
+                                    variant: GwButtonVariant.text,
+                                    onPressed: () => _cancelTeam(context, ref, m),
+                                  ),
                           ),
                       ],
                     ),

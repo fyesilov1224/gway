@@ -88,5 +88,10 @@
   "followRequests": "İzləmə istəkləri",
   "andOthers": "{name} və daha {count} nəfər",
   "delete": "Sil",
-  "actChessChallenge": "səni şahmat oynamağa dəvət etdi."
+  "actChessChallenge": "səni şahmat oynamağa dəvət etdi.",
+  "actChessTeamInvite": "{group} qrupu adına qrupunu şahmat komanda matçına dəvət etdi.",
+  "actChessTeamAccepted": "{group} qrupu adına komanda matçı dəvətini qəbul etdi. Oyunçularını düz.",
+  "actChessTeamDeclined": "{group} qrupu adına komanda matçı dəvətini rədd etdi.",
+  "actChessTeamStart": "{group} qrupuna qarşı komanda matçı başladı. Taxtana keç!",
+  "leadTeamMatch": "Komanda matçı"
 }

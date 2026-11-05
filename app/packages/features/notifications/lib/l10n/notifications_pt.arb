@@ -88,5 +88,10 @@
   "followRequests": "Solicitações para seguir",
   "andOthers": "{name} e mais {count, plural, =1{1 pessoa} other{{count} pessoas}}",
   "delete": "Excluir",
-  "actChessChallenge": "convidou você para jogar xadrez."
+  "actChessChallenge": "convidou você para jogar xadrez.",
+  "actChessTeamInvite": "convidou seu grupo para um confronto de xadrez por equipes em nome de {group}.",
+  "actChessTeamAccepted": "aceitou o confronto por equipes em nome de {group}. Escale seus jogadores.",
+  "actChessTeamDeclined": "recusou o confronto por equipes em nome de {group}.",
+  "actChessTeamStart": "O confronto por equipes contra {group} começou. Vá para o seu tabuleiro!",
+  "leadTeamMatch": "Confronto por equipes"
 }

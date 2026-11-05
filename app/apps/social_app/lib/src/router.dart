@@ -233,7 +233,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: ChessRoutes.home, builder: (_, _) => const ChessHomeScreen()),
           GoRoute(
             path: ChessRoutes.leaderboard,
-            builder: (_, state) => ChessLeaderboardScreen(initial: ChessCategory.parse(state.uri.queryParameters['c'])),
+            builder: (_, state) => ChessLeaderboardScreen(
+              initial: ChessCategory.parse(state.uri.queryParameters['c']),
+              groups: state.uri.queryParameters['c'] == 'groups',
+            ),
           ),
           GoRoute(
             path: ChessRoutes.seekPath,
@@ -241,6 +244,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: '/games/chess/g/:id', builder: (_, state) => ChessGameScreen(gameId: state.pathParameters['id']!)),
           GoRoute(path: '/games/chess/p/:id', builder: (_, state) => ChessPlayerScreen(userId: state.pathParameters['id']!)),
+          GoRoute(path: '/games/chess/team/:id', builder: (_, state) => TeamMatchScreen(matchId: state.pathParameters['id']!)),
           GoRoute(path: MatchingRoutes.home, builder: (_, _) => const MatchingScreen(openChat: _openChat)),
           GoRoute(path: MatchingRoutes.matches, builder: (_, _) => const MatchesScreen(openChat: _openChat)),
           GoRoute(path: MatchingRoutes.profile, builder: (_, _) => const MatchProfileScreen()),

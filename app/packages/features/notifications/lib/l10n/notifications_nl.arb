@@ -88,5 +88,10 @@
   "followRequests": "Volgverzoeken",
   "andOthers": "{name} en {count, plural, =1{1 ander} other{{count} anderen}}",
   "delete": "Verwijderen",
-  "actChessChallenge": "heeft je uitgedaagd voor een partij schaak."
+  "actChessChallenge": "heeft je uitgedaagd voor een partij schaak.",
+  "actChessTeamInvite": "heeft je groep namens {group} uitgedaagd voor een teamwedstrijd schaak.",
+  "actChessTeamAccepted": "heeft de teamwedstrijd namens {group} geaccepteerd. Stel je spelers op.",
+  "actChessTeamDeclined": "heeft de teamwedstrijd namens {group} geweigerd.",
+  "actChessTeamStart": "De teamwedstrijd tegen {group} is begonnen. Naar je bord!",
+  "leadTeamMatch": "Teamwedstrijd"
 }

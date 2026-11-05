@@ -88,5 +88,10 @@
   "followRequests": "Solicitudes de seguimiento",
   "andOthers": "{name} y {count, plural, =1{1 persona más} other{{count} más}}",
   "delete": "Eliminar",
-  "actChessChallenge": "te invitó a jugar al ajedrez."
+  "actChessChallenge": "te invitó a jugar al ajedrez.",
+  "actChessTeamInvite": "invitó a tu grupo a un encuentro de ajedrez por equipos en nombre de {group}.",
+  "actChessTeamAccepted": "aceptó el encuentro por equipos en nombre de {group}. Elige tu alineación.",
+  "actChessTeamDeclined": "rechazó el encuentro por equipos en nombre de {group}.",
+  "actChessTeamStart": "¡Empezó el encuentro por equipos contra {group}! Ve a tu tablero.",
+  "leadTeamMatch": "Encuentro por equipos"
 }

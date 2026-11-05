@@ -357,4 +357,27 @@ class NotificationsL10nNl extends NotificationsL10n {
 
   @override
   String get actChessChallenge => 'heeft je uitgedaagd voor een partij schaak.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'heeft je groep namens $group uitgedaagd voor een teamwedstrijd schaak.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'heeft de teamwedstrijd namens $group geaccepteerd. Stel je spelers op.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'heeft de teamwedstrijd namens $group geweigerd.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'De teamwedstrijd tegen $group is begonnen. Naar je bord!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Teamwedstrijd';
 }

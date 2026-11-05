@@ -88,5 +88,10 @@
   "followRequests": "Follow requests",
   "andOthers": "{name} and {count, plural, =1{1 other} other{{count} others}}",
   "delete": "Delete",
-  "actChessChallenge": "invited you to play chess."
+  "actChessChallenge": "invited you to play chess.",
+  "actChessTeamInvite": "invited your group to a chess team match for {group}.",
+  "actChessTeamAccepted": "accepted the team match for {group}. Line up your players.",
+  "actChessTeamDeclined": "declined the team match for {group}.",
+  "actChessTeamStart": "The team match against {group} has started. Go to your board!",
+  "leadTeamMatch": "Team match"
 }

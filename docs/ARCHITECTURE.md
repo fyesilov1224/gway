@@ -114,6 +114,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.webauthn_challenges` | identity | 15.8 |
 | `public.birth_dates` | identity | 17a |
 | `public.chess_players`, `public.chess_ratings`, `public.chess_games`, `public.chess_seeks`, `public.chess_challenges` | games | 20a |
+| `public.chess_group_ratings`, `public.chess_team_matches`, `public.chess_team_lineups`, `public.chess_team_boards` | games | 20b |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -1431,10 +1432,14 @@ Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'de
 - Kişi sıralaması: türde en az 5 puanlı oyunu olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte oyun sayısına göre. 1, 2, 3 altın, gümüş, bronz madalya.
 
 ### Takım maçı ve grup Elo'su (20b)
-- Grup sahibi ya da Yönetici (`games.team_match` yetkisi) başka bir grubu davet eder: tahta sayısı (2–10), süre (Blitz ya da Rapid), başlangıç (en az 1 saat, en çok 30 gün sonra). Karşı grubun sahibi ya da Yöneticisi kabul eder veya reddeder.
-- İki grup da başlangıca kadar tahtalara kendi üyelerini dizer; bir üye tek tahtada oynar. Başlangıçta her tahta için oyun açılır, renkler tahtaya göre sırayla değişir. Oyuncusu dizilmemiş ya da ilk hamlesini yapmayan tahta karşı tarafa hükmen galibiyet verir.
-- Maç puanı tahta sonuçlarının toplamıdır; grup Elo'su (başlangıç 1200, K = 32) maç skorunun oranıyla güncellenir. Tahtalardaki oyunlar kişilerin de puanlı oyunudur.
-- Grup sıralaması: en az bir takım maçı bitmiş, etkin gruplar; Elo'ya göre; ilk üç madalyalı.
+- Grup sahibi ya da Yönetici (`games.team_match` yetkisi; sahipte her zaman var, Yönetici rolüne verildi) başka bir grubu davet eder: tahta sayısı (2–10), süre (Blitz ya da Rapid; Bullet yok), başlangıç (en az 15 dakika, en çok 30 gün sonra). Karşı grubun yetkilileri (`chess_team_invite` bildirimi) kabul eder veya reddeder; davet eden kişiye `chess_team_accepted` / `chess_team_declined` gider. Başlangıca kadar yanıtlanmayan davet kendiliğinden iptal olur.
+- İki grup arasında aynı anda tek açık maç olur (kim davet ederse etsin); bir grubun en çok 5 açık maçı olur. Başlamadan önce davet eden taraf daveti geri çekebilir, kabul edilmiş maçı iki taraftan biri iptal edebilir.
+- İki grup da başlangıca kadar tahtalara kendi üyelerini dizer (`PUT .../lineup`); bir kişi maçta yalnızca bir tahtada ve bir tarafta oynar, satrançtan uzaklaştırılmış ya da hesabı askıdaki kişi dizilemez. Aday listesi yalnız o tarafın yetkilisine, maçın türündeki puanlarıyla görünür (`chess_team_candidates`).
+- `ChessMonitor` başlangıç zamanı gelen maçı başlatır (`live`): iki tarafı da dolu her tahtada puanlı bir oyun açılır (`chess_games.team_match_id`); ev sahibi tek numaralı tahtalarda beyazdır. Yalnız bir tarafı dolu tahta o tarafa 1–0 yazılır, iki tarafı boş tahta 0–0'dır. Dizilen oyunculara `chess_team_start` bildirimi gider.
+- Takım tahtasında ilk hamle için 5 dakika beklenir; gelmeyen taraf tahtayı kaybeder (`no_show`, kişisel Elo değişmez). Takım oyunu iptal edilemez; ilk hamleden önce terk de kayıptır. Platform ekibinin iptal ettiği tahta 0–0 sayılır.
+- Son tahta da bitince maç kapanır: maç puanı tahtaların toplamıdır, grup Elo'su (başlangıç 1200, K = 32) skor oranıyla (ev sahibi puanı / toplam) güncellenir, değişim iki grup için eşit ve terstir. Hiç oynanmamış maç (0–0) Elo'yu değiştirmez. Tahtalardaki oyunlar kişilerin de puanlı oyunudur. Sonuç maçla aynı işlemde yazılır.
+- Grup sıralaması: en az bir takım maçı bitmiş, etkin gruplar; Elo'ya göre; ilk üç madalyalı (`chess_group_leaderboard`). Uygulamada Sıralama ekranının "Gruplar" sekmesi.
+- Uygulama: Satranç ana sayfasında "Takım maçları" (grupların maçları ve yetkiliye "Takım maçı düzenle"), maç sayfası (iki grup ve Elo'ları, skor, tahtalar, kabul/red, diziliş, iptal), Realtime ile canlı skor.
 
 ### Arena turnuvaları (20c)
 - Platform turnuvaları otomatik açılır: **Haftalık** her pazar 21:00 (Türkiye), 60 dakika, 3+2; **Aylık** her ayın son pazarı 19:00, 120 dakika, 5+0. Yönetim paneli ek turnuva açar ya da iptal eder.
@@ -1462,9 +1467,13 @@ Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekl
 | `GET /admin/games/chess` | Sayılar ve süren oyunlar. Rol: `admin`, `moderator` |
 | `POST /admin/games/chess/{id}/abort` | `reason`. Rol: `admin`, `moderator` |
 | `POST /admin/games/chess/players/{id}/suspension`, `DELETE` | `reason`, `until?`. Rol: `admin`, `moderator` |
+| `POST /games/chess/team-matches` | `homeGroupId`, `awayGroupId`, `boards`, `baseSeconds`, `incrementSeconds`, `startsAt` |
+| `POST /games/chess/team-matches/{id}/accept`, `/decline`, `DELETE /games/chess/team-matches/{id}` | Yanıt ve iptal (yetkili) |
+| `PUT /games/chess/team-matches/{id}/lineup` | `groupId`, `players` (1. tahtadan başlayarak; `null` boş tahta) |
+| `GET /admin/games/chess/team-matches`, `POST /admin/games/chess/team-matches/{id}/cancel` | Açık maçlar; başlamamış maçı gerekçeyle iptal (`games.team_match_canceled`). Rol: `admin`, `moderator` |
 
 ### Tablolar (sahip: games)
-`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges`. Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
+`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
 
 ## 4. Flutter
 

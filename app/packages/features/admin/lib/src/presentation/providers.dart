@@ -237,6 +237,10 @@ final adminChessProvider = FutureProvider.autoDispose<AdminChessOverview>(
   (ref) async => (await ref.watch(adminGamesRepositoryProvider).chess()).getOrThrow(),
 );
 
+final adminTeamMatchesProvider = FutureProvider.autoDispose<List<AdminTeamMatch>>(
+  (ref) async => (await ref.watch(adminGamesRepositoryProvider).teamMatches()).getOrThrow(),
+);
+
 final adminMatchingRepositoryProvider = Provider<AdminMatchingRepository>(
   (ref) => ApiAdminMatchingRepository(ref.watch(apiClientProvider), ref.watch(supabaseClientProvider)),
 );

@@ -325,4 +325,138 @@ class GamesL10nRu extends GamesL10n {
 
   @override
   String get sendChallenge => 'Отправить приглашение';
+
+  @override
+  String get teamMatch => 'Командный матч';
+
+  @override
+  String get teamMatches => 'Командные матчи';
+
+  @override
+  String get teamMatchesHint =>
+      'Шахматные матчи ваших групп; результат меняет Эло группы.';
+
+  @override
+  String get noTeamMatches =>
+      'Командных матчей пока нет. Пригласите другую группу от имени своей.';
+
+  @override
+  String get newTeamMatch => 'Устроить матч';
+
+  @override
+  String get newTeamMatchHint =>
+      'Когда другая группа согласится, обе расставят игроков.';
+
+  @override
+  String get yourGroup => 'Ваша группа';
+
+  @override
+  String get opponentGroup => 'Группа-соперник';
+
+  @override
+  String get searchGroup => 'Название или имя группы';
+
+  @override
+  String get startsAt => 'Начало';
+
+  @override
+  String get sendTeamInvite => 'Пригласить группу';
+
+  @override
+  String get boards => 'Доски';
+
+  @override
+  String get boardsShort => 'досок';
+
+  @override
+  String boardsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count доски',
+      many: '$count досок',
+      few: '$count доски',
+      one: '$count доска',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Эло группы $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Ждёт ответа';
+
+  @override
+  String get teamAccepted => 'Принят';
+
+  @override
+  String get teamDeclined => 'Отклонён';
+
+  @override
+  String get teamCanceled => 'Отменён';
+
+  @override
+  String get teamLive => 'Идёт';
+
+  @override
+  String get teamFinished => 'Завершён';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group приглашает вашу группу на командный матч.';
+  }
+
+  @override
+  String get teamAcceptedDone => 'Матч принят. Теперь расставьте игроков.';
+
+  @override
+  String get teamDeclinedDone => 'Приглашение отклонено.';
+
+  @override
+  String get teamCanceledDone => 'Матч отменён.';
+
+  @override
+  String get callOff => 'Отменить матч';
+
+  @override
+  String get lineupHint => 'Пустая на старте доска засчитывается сопернику.';
+
+  @override
+  String get lineupSheetHint =>
+      'Нажимайте на участников, чтобы расставить их по порядку; первая доска — для сильнейшего.';
+
+  @override
+  String editLineup(String group) {
+    return 'Состав: $group';
+  }
+
+  @override
+  String get saveLineup => 'Сохранить состав';
+
+  @override
+  String get emptyBoard => 'Пусто';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Эло $rating · партий: $games';
+  }
+
+  @override
+  String get groupsTab => 'Группы';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Пока ни одна группа не сыграла командный матч. Станьте первыми.';
+
+  @override
+  String get backToChess => 'К шахматам';
 }

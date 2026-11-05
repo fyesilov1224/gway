@@ -321,4 +321,138 @@ class GamesL10nDe extends GamesL10n {
 
   @override
   String get sendChallenge => 'Einladung senden';
+
+  @override
+  String get teamMatch => 'Mannschaftskampf';
+
+  @override
+  String get teamMatches => 'Mannschaftskämpfe';
+
+  @override
+  String get teamMatchesHint =>
+      'Die Schachkämpfe deiner Gruppen; das Ergebnis ändert die Gruppen-Elo.';
+
+  @override
+  String get noTeamMatches =>
+      'Noch keine Mannschaftskämpfe. Lade im Namen deiner Gruppe eine andere ein.';
+
+  @override
+  String get newTeamMatch => 'Mannschaftskampf planen';
+
+  @override
+  String get newTeamMatchHint =>
+      'Sobald die andere Gruppe annimmt, stellen beide Gruppen ihre Spieler auf.';
+
+  @override
+  String get yourGroup => 'Deine Gruppe';
+
+  @override
+  String get opponentGroup => 'Gegnerische Gruppe';
+
+  @override
+  String get searchGroup => 'Gruppenname oder Kennung';
+
+  @override
+  String get startsAt => 'Beginn';
+
+  @override
+  String get sendTeamInvite => 'Gruppe einladen';
+
+  @override
+  String get boards => 'Bretter';
+
+  @override
+  String get boardsShort => 'Bretter';
+
+  @override
+  String boardsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Bretter',
+      one: '1 Brett',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Gruppen-Elo $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Wartet auf Antwort';
+
+  @override
+  String get teamAccepted => 'Angenommen';
+
+  @override
+  String get teamDeclined => 'Abgelehnt';
+
+  @override
+  String get teamCanceled => 'Abgesagt';
+
+  @override
+  String get teamLive => 'Läuft';
+
+  @override
+  String get teamFinished => 'Beendet';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group lädt eure Gruppe zu einem Mannschaftskampf ein.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Kampf angenommen. Stellt jetzt eure Spieler auf.';
+
+  @override
+  String get teamDeclinedDone => 'Einladung abgelehnt.';
+
+  @override
+  String get teamCanceledDone => 'Kampf abgesagt.';
+
+  @override
+  String get callOff => 'Kampf absagen';
+
+  @override
+  String get lineupHint =>
+      'Ein beim Start leeres Brett zählt als Punkt für die andere Seite.';
+
+  @override
+  String get lineupSheetHint =>
+      'Tippe Mitglieder an, um sie der Reihe nach aufzustellen; Brett 1 gehört dem stärksten Spieler.';
+
+  @override
+  String editLineup(String group) {
+    return 'Aufstellung $group';
+  }
+
+  @override
+  String get saveLineup => 'Aufstellung speichern';
+
+  @override
+  String get emptyBoard => 'Leer';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games Partien';
+  }
+
+  @override
+  String get groupsTab => 'Gruppen';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Noch keine Gruppe hat einen Mannschaftskampf gespielt. Sei die erste.';
+
+  @override
+  String get backToChess => 'Zurück zum Schach';
 }

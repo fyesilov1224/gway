@@ -46,6 +46,9 @@ internal static partial class ChessRules
     /// <summary>Each side's first move must come within this, or the game is aborted.</summary>
     public static readonly TimeSpan FirstMoveWindow = TimeSpan.FromSeconds(30);
 
+    /// <summary>A team match board waits longer for its players; a side that never moves loses the board (no_show).</summary>
+    public static readonly TimeSpan TeamFirstMoveWindow = TimeSpan.FromMinutes(5);
+
     public const int StartRating = 1200;
     public const int MinRating = 100;
 

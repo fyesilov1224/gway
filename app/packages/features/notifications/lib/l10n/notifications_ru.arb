@@ -88,5 +88,10 @@
   "followRequests": "Запросы на подписку",
   "andOthers": "{name} и ещё {count}",
   "delete": "Удалить",
-  "actChessChallenge": "приглашает вас сыграть в шахматы."
+  "actChessChallenge": "приглашает вас сыграть в шахматы.",
+  "actChessTeamInvite": "от имени {group} пригласил(а) вашу группу на командный шахматный матч.",
+  "actChessTeamAccepted": "принял(а) командный матч от имени {group}. Расставьте игроков.",
+  "actChessTeamDeclined": "отклонил(а) командный матч от имени {group}.",
+  "actChessTeamStart": "Командный матч против {group} начался. К доске!",
+  "leadTeamMatch": "Командный матч"
 }

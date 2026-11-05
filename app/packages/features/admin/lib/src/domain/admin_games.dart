@@ -97,7 +97,48 @@ class AdminChessOverview {
   final List<AdminChessSuspension> suspended;
 }
 
+/// An open team match between two groups.
+class AdminTeamMatch {
+  const AdminTeamMatch({
+    required this.id,
+    required this.home,
+    required this.away,
+    required this.boards,
+    required this.baseSeconds,
+    required this.incrementSeconds,
+    required this.status,
+    required this.startsAt,
+  });
+
+  factory AdminTeamMatch.fromJson(Map<String, Object?> j) => AdminTeamMatch(
+        id: j['id']! as String,
+        home: j['home']! as String,
+        away: j['away']! as String,
+        boards: j['boards']! as int,
+        baseSeconds: j['baseSeconds']! as int,
+        incrementSeconds: j['incrementSeconds']! as int,
+        status: j['status']! as String,
+        startsAt: DateTime.parse(j['startsAt']! as String),
+      );
+
+  final String id;
+  final String home;
+  final String away;
+  final int boards;
+  final int baseSeconds;
+  final int incrementSeconds;
+
+  /// invited, accepted or live.
+  final String status;
+  final DateTime startsAt;
+}
+
 abstract interface class AdminGamesRepository {
+  Future<Result<List<AdminTeamMatch>>> teamMatches();
+
+  /// Only before the start.
+  Future<Result<void>> cancelTeamMatch(String id, {required String reason});
+
   Future<Result<AdminChessOverview>> chess();
 
   Future<Result<void>> abortGame(String gameId, {required String reason});

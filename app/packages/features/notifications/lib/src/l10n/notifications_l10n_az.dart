@@ -348,4 +348,27 @@ class NotificationsL10nAz extends NotificationsL10n {
 
   @override
   String get actChessChallenge => 'səni şahmat oynamağa dəvət etdi.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return '$group qrupu adına qrupunu şahmat komanda matçına dəvət etdi.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return '$group qrupu adına komanda matçı dəvətini qəbul etdi. Oyunçularını düz.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return '$group qrupu adına komanda matçı dəvətini rədd etdi.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return '$group qrupuna qarşı komanda matçı başladı. Taxtana keç!';
+  }
+
+  @override
+  String get leadTeamMatch => 'Komanda matçı';
 }

@@ -425,5 +425,181 @@
   "sendChallenge": "Daveti gönder",
   "@sendChallenge": {
     "description": ""
+  },
+  "teamMatch": "Takım maçı",
+  "@teamMatch": {
+    "description": ""
+  },
+  "teamMatches": "Takım maçları",
+  "@teamMatches": {
+    "description": ""
+  },
+  "teamMatchesHint": "Gruplarının satranç maçları; sonuç grup Elo puanını değiştirir.",
+  "@teamMatchesHint": {
+    "description": ""
+  },
+  "noTeamMatches": "Henüz takım maçı yok. Grubun adına başka bir grubu davet et.",
+  "@noTeamMatches": {
+    "description": ""
+  },
+  "newTeamMatch": "Takım maçı düzenle",
+  "@newTeamMatch": {
+    "description": ""
+  },
+  "newTeamMatchHint": "Karşı grubun yöneticisi kabul edince iki grup da tahtalara oyuncularını dizer.",
+  "@newTeamMatchHint": {
+    "description": ""
+  },
+  "yourGroup": "Grubun",
+  "@yourGroup": {
+    "description": ""
+  },
+  "opponentGroup": "Rakip grup",
+  "@opponentGroup": {
+    "description": ""
+  },
+  "searchGroup": "Grup adı ya da kullanıcı adı",
+  "@searchGroup": {
+    "description": ""
+  },
+  "startsAt": "Başlangıç",
+  "@startsAt": {
+    "description": ""
+  },
+  "sendTeamInvite": "Grubu davet et",
+  "@sendTeamInvite": {
+    "description": ""
+  },
+  "boards": "Tahtalar",
+  "@boards": {
+    "description": ""
+  },
+  "boardsShort": "tahta",
+  "@boardsShort": {
+    "description": ""
+  },
+  "boardsCount": "{count} tahta",
+  "@boardsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupElo": "Grup Elo {rating}",
+  "@groupElo": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "versus": "VS",
+  "@versus": {
+    "description": ""
+  },
+  "versusShort": "–",
+  "@versusShort": {
+    "description": ""
+  },
+  "teamInvited": "Yanıt bekleniyor",
+  "@teamInvited": {
+    "description": ""
+  },
+  "teamAccepted": "Kabul edildi",
+  "@teamAccepted": {
+    "description": ""
+  },
+  "teamDeclined": "Reddedildi",
+  "@teamDeclined": {
+    "description": ""
+  },
+  "teamCanceled": "İptal edildi",
+  "@teamCanceled": {
+    "description": ""
+  },
+  "teamLive": "Oynanıyor",
+  "@teamLive": {
+    "description": ""
+  },
+  "teamFinished": "Bitti",
+  "@teamFinished": {
+    "description": ""
+  },
+  "teamInviteReceived": "{group} grubunuzu takım maçına davet ediyor.",
+  "@teamInviteReceived": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "teamAcceptedDone": "Maç kabul edildi. Şimdi oyuncularınızı dizin.",
+  "@teamAcceptedDone": {
+    "description": ""
+  },
+  "teamDeclinedDone": "Davet reddedildi.",
+  "@teamDeclinedDone": {
+    "description": ""
+  },
+  "teamCanceledDone": "Maç iptal edildi.",
+  "@teamCanceledDone": {
+    "description": ""
+  },
+  "callOff": "Maçı iptal et",
+  "@callOff": {
+    "description": ""
+  },
+  "lineupHint": "Başlangıçta boş kalan tahta rakibe puan olarak yazılır.",
+  "@lineupHint": {
+    "description": ""
+  },
+  "lineupSheetHint": "Üyelere dokunarak sırayla tahtalara yerleştir; 1. tahta en güçlü oyuncunundur.",
+  "@lineupSheetHint": {
+    "description": ""
+  },
+  "editLineup": "{group} dizilişi",
+  "@editLineup": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "saveLineup": "Dizilişi kaydet",
+  "@saveLineup": {
+    "description": ""
+  },
+  "emptyBoard": "Boş",
+  "@emptyBoard": {
+    "description": ""
+  },
+  "ratingGames": "Elo {rating} · {games} oyun",
+  "@ratingGames": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      },
+      "games": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsTab": "Gruplar",
+  "@groupsTab": {
+    "description": ""
+  },
+  "groupLeaderboardEmpty": "Henüz takım maçı oynayan grup yok. İlk maçı grubun düzenlesin.",
+  "@groupLeaderboardEmpty": {
+    "description": ""
+  },
+  "backToChess": "Satranca dön",
+  "@backToChess": {
+    "description": ""
   }
 }

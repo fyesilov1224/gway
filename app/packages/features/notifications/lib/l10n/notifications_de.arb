@@ -88,5 +88,10 @@
   "followRequests": "Follower-Anfragen",
   "andOthers": "{name} und {count, plural, =1{1 weitere Person} other{{count} weitere}}",
   "delete": "Löschen",
-  "actChessChallenge": "hat dich zu einer Partie Schach eingeladen."
+  "actChessChallenge": "hat dich zu einer Partie Schach eingeladen.",
+  "actChessTeamInvite": "hat deine Gruppe im Namen von {group} zu einem Schach-Mannschaftskampf eingeladen.",
+  "actChessTeamAccepted": "hat den Mannschaftskampf für {group} angenommen. Stelle deine Spieler auf.",
+  "actChessTeamDeclined": "hat den Mannschaftskampf für {group} abgelehnt.",
+  "actChessTeamStart": "Der Mannschaftskampf gegen {group} hat begonnen. Ans Brett!",
+  "leadTeamMatch": "Mannschaftskampf"
 }

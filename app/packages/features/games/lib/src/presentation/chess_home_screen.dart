@@ -7,11 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'player_screen.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'sheets.dart';
+import 'team_screens.dart';
 import 'widgets.dart';
 
 /// Chess home (docs/ARCHITECTURE.md §3i, Uygulama): the person's card, a running game to return to, open
@@ -28,6 +30,8 @@ class ChessHomeScreen extends ConsumerWidget {
     final challenges = ref.watch(challengesProvider).value ?? const <ChessChallenge>[];
     final games = ref.watch(recentGamesProvider(me));
     final top = ref.watch(leaderboardProvider(ChessCategory.blitz));
+    final teamMatches = ref.watch(myTeamMatchesProvider).value ?? const <TeamMatch>[];
+    final captainOf = ref.watch(captainGroupsProvider).value ?? const <ChessGroup>[];
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -44,6 +48,8 @@ class ChessHomeScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref
+            ..invalidate(myTeamMatchesProvider)
+            ..invalidate(captainGroupsProvider)
             ..invalidate(activeGameProvider)
             ..invalidate(challengesProvider)
             ..invalidate(recentGamesProvider(me))
@@ -68,6 +74,20 @@ class ChessHomeScreen extends ConsumerWidget {
               const SizedBox(height: GwSpacing.xs),
               for (final c in challenges)
                 Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: _ChallengeCard(challenge: c, me: me)),
+            ],
+            if (teamMatches.isNotEmpty || captainOf.isNotEmpty) ...[
+              const SizedBox(height: GwSpacing.lg),
+              GwSectionHeader(
+                title: gamesL10n.teamMatches,
+                subtitle: gamesL10n.teamMatchesHint,
+                actionLabel: captainOf.isEmpty ? null : gamesL10n.newTeamMatch,
+                onAction: captainOf.isEmpty ? null : () => showCreateTeamMatchSheet(context, mine: captainOf),
+              ),
+              const SizedBox(height: GwSpacing.xs),
+              for (final m in teamMatches.take(5))
+                Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: TeamMatchTile(match: m)),
+              if (teamMatches.isEmpty)
+                Text(gamesL10n.noTeamMatches, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
             const SizedBox(height: GwSpacing.lg),
             GwSectionHeader(title: gamesL10n.quickGame, subtitle: gamesL10n.quickGameHint),

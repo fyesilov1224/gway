@@ -321,4 +321,138 @@ class GamesL10nEs extends GamesL10n {
 
   @override
   String get sendChallenge => 'Enviar invitación';
+
+  @override
+  String get teamMatch => 'Encuentro por equipos';
+
+  @override
+  String get teamMatches => 'Encuentros por equipos';
+
+  @override
+  String get teamMatchesHint =>
+      'Los encuentros de ajedrez de tus grupos; el resultado cambia el Elo del grupo.';
+
+  @override
+  String get noTeamMatches =>
+      'Aún no hay encuentros. Invita a otro grupo en nombre del tuyo.';
+
+  @override
+  String get newTeamMatch => 'Organizar encuentro';
+
+  @override
+  String get newTeamMatchHint =>
+      'Cuando el otro grupo acepte, ambos eligen a sus jugadores.';
+
+  @override
+  String get yourGroup => 'Tu grupo';
+
+  @override
+  String get opponentGroup => 'Grupo rival';
+
+  @override
+  String get searchGroup => 'Nombre o usuario del grupo';
+
+  @override
+  String get startsAt => 'Inicio';
+
+  @override
+  String get sendTeamInvite => 'Invitar al grupo';
+
+  @override
+  String get boards => 'Tableros';
+
+  @override
+  String get boardsShort => 'tableros';
+
+  @override
+  String boardsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tableros',
+      one: '1 tablero',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Elo del grupo $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Esperando respuesta';
+
+  @override
+  String get teamAccepted => 'Aceptado';
+
+  @override
+  String get teamDeclined => 'Rechazado';
+
+  @override
+  String get teamCanceled => 'Cancelado';
+
+  @override
+  String get teamLive => 'En juego';
+
+  @override
+  String get teamFinished => 'Terminado';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group invita a vuestro grupo a un encuentro por equipos.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Encuentro aceptado. Ahora elegid a vuestros jugadores.';
+
+  @override
+  String get teamDeclinedDone => 'Invitación rechazada.';
+
+  @override
+  String get teamCanceledDone => 'Encuentro cancelado.';
+
+  @override
+  String get callOff => 'Cancelar encuentro';
+
+  @override
+  String get lineupHint =>
+      'Un tablero vacío al empezar cuenta como punto para el rival.';
+
+  @override
+  String get lineupSheetHint =>
+      'Toca a los miembros para colocarlos en orden; el tablero 1 es para el más fuerte.';
+
+  @override
+  String editLineup(String group) {
+    return 'Alineación de $group';
+  }
+
+  @override
+  String get saveLineup => 'Guardar alineación';
+
+  @override
+  String get emptyBoard => 'Vacío';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games partidas';
+  }
+
+  @override
+  String get groupsTab => 'Grupos';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Ningún grupo ha jugado aún un encuentro. Que el tuyo sea el primero.';
+
+  @override
+  String get backToChess => 'Volver al ajedrez';
 }

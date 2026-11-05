@@ -82,6 +82,7 @@ internal static class PushTexts
         "match_created" => t["Yeni bir eşleşmen var!"],
         "event_series_limit" => t["Tekrarlayan organizasyon"],
         "call_permission_granted" or "call_permission_declined" or "call_permission_revoked" => t["Sesli görüşme"],
+        "chess_team_start" => t["Takım maçı"],
         "event_venue_revealed" => t["Sürpriz mekan açıklandı"],
         _ => n.ActorUsername,
     };
@@ -127,6 +128,10 @@ internal static class PushTexts
         "match_created" => t["Kim olduğunu Eşleşmelerim'de gör."],
         "match_super_liked" => t["seni süper beğendi! Destende ilk o görünüyor."],
         "chess_challenge" => t["seni satranç oynamaya davet etti."],
+        "chess_team_invite" => t.Format("{0} grubu adına grubunu satranç takım maçına davet etti.", n.GroupName),
+        "chess_team_accepted" => t.Format("{0} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.", n.GroupName),
+        "chess_team_declined" => t.Format("{0} grubu adına takım maçı davetini reddetti.", n.GroupName),
+        "chess_team_start" => t.Format("{0} grubuna karşı takım maçı başladı. Tahtana geç!", n.GroupName),
         "welcome_requested" => t.Format("\"{0}\" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.", n.EventTitle),
         "welcome_matched" => t.Format("\"{0}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.", n.EventTitle),
         "welcome_released" => t.Format("\"{0}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.", n.EventTitle),

@@ -359,4 +359,27 @@ class NotificationsL10nFr extends NotificationsL10n {
 
   @override
   String get actChessChallenge => 't\'a défié aux échecs.';
+
+  @override
+  String actChessTeamInvite(String group) {
+    return 'a invité ton groupe à un match d’échecs par équipes au nom de $group.';
+  }
+
+  @override
+  String actChessTeamAccepted(String group) {
+    return 'a accepté le match par équipes pour $group. Compose ton équipe.';
+  }
+
+  @override
+  String actChessTeamDeclined(String group) {
+    return 'a refusé le match par équipes pour $group.';
+  }
+
+  @override
+  String actChessTeamStart(String group) {
+    return 'Le match par équipes contre $group a commencé. À ton échiquier !';
+  }
+
+  @override
+  String get leadTeamMatch => 'Match par équipes';
 }

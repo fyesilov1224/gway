@@ -198,7 +198,7 @@ class _NotificationRow extends ConsumerWidget {
       return links.openTonight(context);
     }
     if (n.type == NotificationType.teammateRequest) return links.openTeammates(context);
-    if (n.type == NotificationType.chessChallenge) return links.openChess(context);
+    if (n.type.isChess) return links.openChess(context);
     if (n.type == NotificationType.matchCreated) return links.openMatches(context);
     if (n.type == NotificationType.matchSuperLiked) return links.openMatching(context);
     if (n.type == NotificationType.leagueResult && n.group != null) return links.openGroup(context, n.group!.handle);

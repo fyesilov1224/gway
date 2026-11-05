@@ -88,5 +88,10 @@
   "followRequests": "Richieste di follow",
   "andOthers": "{name} e {count, plural, =1{1 altra persona} other{altre {count}}}",
   "delete": "Elimina",
-  "actChessChallenge": "ti ha sfidato a scacchi."
+  "actChessChallenge": "ti ha sfidato a scacchi.",
+  "actChessTeamInvite": "ha sfidato il tuo gruppo a un incontro di scacchi a squadre per {group}.",
+  "actChessTeamAccepted": "ha accettato l’incontro a squadre per {group}. Schiera i tuoi giocatori.",
+  "actChessTeamDeclined": "ha rifiutato l’incontro a squadre per {group}.",
+  "actChessTeamStart": "L'incontro a squadre contro {group} è iniziato. Alla tua scacchiera!",
+  "leadTeamMatch": "Incontro a squadre"
 }

@@ -520,7 +520,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 Kullanıcı kararları: grup Elo'su takım maçlarından; kişi Elo'su Bullet/Blitz/Rapid ayrı; bayrağı kişi seçer; haftalık ve aylık turnuvalar Arena.
 
 - [x] 20a — Satranç çekirdeği: + düğmesinde Oyunlar bölümü, hızlı oyun (puana yakın eşleşme), arkadaşı davet etme, sunucuda hamle doğrulama (Gera.Chess, MIT) ve sunucu saati, terk, beraberlik, iptal, rövanş, ön hamle, Elo (türe göre), kişi sıralaması (podyum, altın/gümüş/bronz), oyuncu sayfası ve bayrak seçimi (CLDR, 12 dil), `chess_challenge` bildirimi ve push, yönetim paneli (sayılar, süren oyunlar, iptal, uzaklaştırma), migration `0082`, pgTAP (33), C# (21), Flutter (9); tarayıcıda uçtan uca denendi (2026-11-05)
-- [ ] 20b — Takım maçı ve grup sıralaması: grup davet eder, tahtalara üye dizilir, grup Elo'su, grup podyumu
+- [x] 20b — Takım maçı ve grup sıralaması: grup davet eder (`games.team_match` yetkisi), kabul/red, tahtalara üye dizilir, maç kendiliğinden başlar, gelmeyen tahtayı kaybeder, grup Elo'su (K 32), Sıralama'da Gruplar sekmesi ve podyum, 4 bildirim türü, panelde takım maçları; migration `0083`, pgTAP (18), C# (3 senaryo), Flutter (3); tarayıcıda uçtan uca denendi (2026-11-05)
 - [ ] 20c — Arena turnuvaları: haftalık ve aylık otomatik turnuvalar, eşleştirme, puan ve seri, sonuçlar ve madalyalar, panelde turnuva yönetimi
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi

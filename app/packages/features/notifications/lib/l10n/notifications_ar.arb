@@ -88,5 +88,10 @@
   "followRequests": "طلبات المتابعة",
   "andOthers": "{name} و{count} آخرون",
   "delete": "حذف",
-  "actChessChallenge": "دعاك للعب الشطرنج."
+  "actChessChallenge": "دعاك للعب الشطرنج.",
+  "actChessTeamInvite": "دعا مجموعتك إلى مواجهة فرق في الشطرنج باسم {group}.",
+  "actChessTeamAccepted": "قَبِل مواجهة الفرق باسم {group}. رتّب لاعبيك.",
+  "actChessTeamDeclined": "رفض مواجهة الفرق باسم {group}.",
+  "actChessTeamStart": "بدأت مواجهة الفرق ضد {group}. اذهب إلى رقعتك!",
+  "leadTeamMatch": "مواجهة فرق"
 }

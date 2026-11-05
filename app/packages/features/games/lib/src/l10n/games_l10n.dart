@@ -674,6 +674,228 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Daveti gönder'**
   String get sendChallenge;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takım maçı'**
+  String get teamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takım maçları'**
+  String get teamMatches;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gruplarının satranç maçları; sonuç grup Elo puanını değiştirir.'**
+  String get teamMatchesHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz takım maçı yok. Grubun adına başka bir grubu davet et.'**
+  String get noTeamMatches;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takım maçı düzenle'**
+  String get newTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşı grubun yöneticisi kabul edince iki grup da tahtalara oyuncularını dizer.'**
+  String get newTeamMatchHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubun'**
+  String get yourGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakip grup'**
+  String get opponentGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup adı ya da kullanıcı adı'**
+  String get searchGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç'**
+  String get startsAt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubu davet et'**
+  String get sendTeamInvite;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tahtalar'**
+  String get boards;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'tahta'**
+  String get boardsShort;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} tahta'**
+  String boardsCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup Elo {rating}'**
+  String groupElo(int rating);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'VS'**
+  String get versus;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'–'**
+  String get versusShort;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yanıt bekleniyor'**
+  String get teamInvited;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kabul edildi'**
+  String get teamAccepted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Reddedildi'**
+  String get teamDeclined;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal edildi'**
+  String get teamCanceled;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oynanıyor'**
+  String get teamLive;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitti'**
+  String get teamFinished;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} grubunuzu takım maçına davet ediyor.'**
+  String teamInviteReceived(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Maç kabul edildi. Şimdi oyuncularınızı dizin.'**
+  String get teamAcceptedDone;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Davet reddedildi.'**
+  String get teamDeclinedDone;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Maç iptal edildi.'**
+  String get teamCanceledDone;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Maçı iptal et'**
+  String get callOff;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıçta boş kalan tahta rakibe puan olarak yazılır.'**
+  String get lineupHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelere dokunarak sırayla tahtalara yerleştir; 1. tahta en güçlü oyuncunundur.'**
+  String get lineupSheetHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} dizilişi'**
+  String editLineup(String group);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dizilişi kaydet'**
+  String get saveLineup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Boş'**
+  String get emptyBoard;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Elo {rating} · {games} oyun'**
+  String ratingGames(int rating, int games);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gruplar'**
+  String get groupsTab;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz takım maçı oynayan grup yok. İlk maçı grubun düzenlesin.'**
+  String get groupLeaderboardEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranca dön'**
+  String get backToChess;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

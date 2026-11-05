@@ -8,29 +8,34 @@ import '../domain/chess.dart';
 import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
+import 'team_screens.dart';
 import 'widgets.dart';
 
-/// The people's leaderboard by Elo, one tab per time category; the top three stand on a podium with
-/// gold, silver and bronze (docs/ARCHITECTURE.md §3i, Elo).
+/// The people's leaderboard by Elo, one tab per time category, and the groups' by team-match Elo; the top three
+/// stand on a podium with gold, silver and bronze (docs/ARCHITECTURE.md §3i, Elo).
 class ChessLeaderboardScreen extends StatelessWidget {
-  const ChessLeaderboardScreen({super.key, this.initial = ChessCategory.blitz});
+  const ChessLeaderboardScreen({super.key, this.initial = ChessCategory.blitz, this.groups = false});
 
   final ChessCategory initial;
 
+  /// Opens on the groups tab.
+  final bool groups;
+
   @override
   Widget build(BuildContext context) => DefaultTabController(
-        length: ChessCategory.values.length,
-        initialIndex: ChessCategory.values.indexOf(initial),
+        length: ChessCategory.values.length + 1,
+        initialIndex: groups ? ChessCategory.values.length : ChessCategory.values.indexOf(initial),
         child: Scaffold(
           appBar: AppBar(
             title: Text(gamesL10n.leaderboard),
             bottom: TabBar(
               tabs: [
                 for (final c in ChessCategory.values) Tab(icon: Icon(chessCategoryIcon(c)), text: c.label),
+                Tab(icon: const Icon(Icons.groups_outlined), text: gamesL10n.groupsTab),
               ],
             ),
           ),
-          body: TabBarView(children: [for (final c in ChessCategory.values) _Board(category: c)]),
+          body: TabBarView(children: [for (final c in ChessCategory.values) _Board(category: c), const GroupLeaderboard()]),
         ),
       );
 }

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 export 'src/domain/chess.dart';
+export 'src/domain/team.dart' show TeamMatchStatus;
 export 'src/l10n.dart' show gamesL10n;
 export 'src/presentation/chess_home_screen.dart';
 export 'src/presentation/game_screen.dart';
@@ -12,6 +13,7 @@ export 'src/presentation/player_screen.dart' show ChessPlayerScreen;
 export 'src/presentation/providers.dart' show challengesProvider;
 export 'src/presentation/routes.dart';
 export 'src/presentation/seek_screen.dart';
+export 'src/presentation/team_screens.dart' show TeamMatchScreen;
 
 /// Adds the piece set's Apache 2.0 license to the app's licenses page (docs/ARCHITECTURE.md §3i, lisanslar).
 void registerGamesLicenses() {

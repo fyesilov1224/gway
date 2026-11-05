@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/chess_repository_impl.dart';
+import '../data/team_repository_impl.dart';
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import 'chess_board.dart';
 
 final chessRepositoryProvider = Provider<ChessRepository>(
@@ -270,3 +272,34 @@ class GameController extends AsyncNotifier<GameState> {
 
   Future<Result<RematchOutcome>> rematch() => _repo.rematch(id);
 }
+
+// ---------------------------------------------------------------------------
+// Team matches and the group leaderboard (20b)
+// ---------------------------------------------------------------------------
+
+final teamRepositoryProvider = Provider<TeamMatchRepository>(
+  (ref) => TeamMatchRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
+);
+
+final groupLeaderboardProvider = FutureProvider.autoDispose<List<GroupLeaderboardEntry>>((ref) async {
+  ref.cacheFor();
+  return (await ref.watch(teamRepositoryProvider).groupLeaderboard()).getOrThrow();
+});
+
+final captainGroupsProvider = FutureProvider.autoDispose<List<ChessGroup>>((ref) async {
+  ref.watch(currentUserIdProvider);
+  return (await ref.watch(teamRepositoryProvider).captainGroups()).getOrThrow();
+});
+
+final myTeamMatchesProvider = FutureProvider.autoDispose<List<TeamMatch>>((ref) async {
+  ref.watch(currentUserIdProvider);
+  return (await ref.watch(teamRepositoryProvider).myMatches()).getOrThrow();
+});
+
+/// One team match, refreshed when it or a board changes.
+final teamMatchProvider = FutureProvider.autoDispose.family<TeamMatchDetail, String>((ref, id) async {
+  final repo = ref.watch(teamRepositoryProvider);
+  final sub = repo.changes(id).listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return (await repo.detail(id)).getOrThrow();
+});

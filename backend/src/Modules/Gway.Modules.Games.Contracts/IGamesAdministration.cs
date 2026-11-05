@@ -21,6 +21,19 @@ public sealed record ChessAdminGame(
 /// <param name="Until">Null: for good.</param>
 public sealed record ChessAdminSuspension(Guid UserId, string Username, DateTimeOffset? Until, string? Reason);
 
+/// <summary>An open team match in the admin panel.</summary>
+public sealed record TeamMatchAdminRow(
+    Guid Id, string Home, string Away, int Boards, int BaseSeconds, int IncrementSeconds, string Status, DateTimeOffset StartsAt);
+
+/// <summary>Platform team actions on team matches. Callers check platform staff roles first; every action is audited.</summary>
+public interface ITeamMatchAdministration
+{
+    Task<IReadOnlyList<TeamMatchAdminRow>> OpenMatchesAsync(CancellationToken ct);
+
+    /// <summary>Calls off a match that has not started yet.</summary>
+    Task<Result> CancelAsStaffAsync(Guid actorId, Guid id, string reason, CancellationToken ct);
+}
+
 /// <summary>Platform team actions on chess. Callers check platform staff roles first; every action is audited.</summary>
 public interface IGamesAdministration
 {

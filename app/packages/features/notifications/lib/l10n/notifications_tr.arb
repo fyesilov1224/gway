@@ -511,5 +511,45 @@
   "actChessChallenge": "seni satranç oynamaya davet etti.",
   "@actChessChallenge": {
     "description": ""
+  },
+  "actChessTeamInvite": "{group} grubu adına grubunu satranç takım maçına davet etti.",
+  "@actChessTeamInvite": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamAccepted": "{group} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.",
+  "@actChessTeamAccepted": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamDeclined": "{group} grubu adına takım maçı davetini reddetti.",
+  "@actChessTeamDeclined": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "actChessTeamStart": "{group} grubuna karşı takım maçı başladı. Tahtana geç!",
+  "@actChessTeamStart": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "leadTeamMatch": "Takım maçı",
+  "@leadTeamMatch": {
+    "description": ""
   }
 }

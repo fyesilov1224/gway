@@ -51,6 +51,8 @@ public sealed record SuspendMatchProfileRequest(string Reason, DateTimeOffset? U
 
 public sealed record AbortChessGameRequest(string Reason);
 
+public sealed record CancelTeamMatchRequest(string Reason);
+
 public sealed record SuspendChessPlayerRequest(string Reason, DateTimeOffset? Until);
 
 public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
@@ -362,6 +364,15 @@ public static class AdminModule
 
         content.MapGet("/games/chess", async (IGamesAdministration games, CancellationToken ct) =>
                 TypedResults.Ok(await games.ChessOverviewAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapGet("/games/chess/team-matches", async (ITeamMatchAdministration teams, CancellationToken ct) =>
+                TypedResults.Ok(await teams.OpenMatchesAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/games/chess/team-matches/{id:guid}/cancel", async (
+                Guid id, CancelTeamMatchRequest body, ClaimsPrincipal user, ITeamMatchAdministration teams, CancellationToken ct) =>
+                (await teams.CancelAsStaffAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapPost("/games/chess/{id:guid}/abort", async (

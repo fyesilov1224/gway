@@ -304,4 +304,132 @@ class GamesL10nTr extends GamesL10n {
 
   @override
   String get sendChallenge => 'Daveti gönder';
+
+  @override
+  String get teamMatch => 'Takım maçı';
+
+  @override
+  String get teamMatches => 'Takım maçları';
+
+  @override
+  String get teamMatchesHint =>
+      'Gruplarının satranç maçları; sonuç grup Elo puanını değiştirir.';
+
+  @override
+  String get noTeamMatches =>
+      'Henüz takım maçı yok. Grubun adına başka bir grubu davet et.';
+
+  @override
+  String get newTeamMatch => 'Takım maçı düzenle';
+
+  @override
+  String get newTeamMatchHint =>
+      'Karşı grubun yöneticisi kabul edince iki grup da tahtalara oyuncularını dizer.';
+
+  @override
+  String get yourGroup => 'Grubun';
+
+  @override
+  String get opponentGroup => 'Rakip grup';
+
+  @override
+  String get searchGroup => 'Grup adı ya da kullanıcı adı';
+
+  @override
+  String get startsAt => 'Başlangıç';
+
+  @override
+  String get sendTeamInvite => 'Grubu davet et';
+
+  @override
+  String get boards => 'Tahtalar';
+
+  @override
+  String get boardsShort => 'tahta';
+
+  @override
+  String boardsCount(int count) {
+    return '$count tahta';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Grup Elo $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Yanıt bekleniyor';
+
+  @override
+  String get teamAccepted => 'Kabul edildi';
+
+  @override
+  String get teamDeclined => 'Reddedildi';
+
+  @override
+  String get teamCanceled => 'İptal edildi';
+
+  @override
+  String get teamLive => 'Oynanıyor';
+
+  @override
+  String get teamFinished => 'Bitti';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group grubunuzu takım maçına davet ediyor.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Maç kabul edildi. Şimdi oyuncularınızı dizin.';
+
+  @override
+  String get teamDeclinedDone => 'Davet reddedildi.';
+
+  @override
+  String get teamCanceledDone => 'Maç iptal edildi.';
+
+  @override
+  String get callOff => 'Maçı iptal et';
+
+  @override
+  String get lineupHint =>
+      'Başlangıçta boş kalan tahta rakibe puan olarak yazılır.';
+
+  @override
+  String get lineupSheetHint =>
+      'Üyelere dokunarak sırayla tahtalara yerleştir; 1. tahta en güçlü oyuncunundur.';
+
+  @override
+  String editLineup(String group) {
+    return '$group dizilişi';
+  }
+
+  @override
+  String get saveLineup => 'Dizilişi kaydet';
+
+  @override
+  String get emptyBoard => 'Boş';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games oyun';
+  }
+
+  @override
+  String get groupsTab => 'Gruplar';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Henüz takım maçı oynayan grup yok. İlk maçı grubun düzenlesin.';
+
+  @override
+  String get backToChess => 'Satranca dön';
 }

@@ -321,4 +321,138 @@ class GamesL10nFr extends GamesL10n {
 
   @override
   String get sendChallenge => 'Envoyer le défi';
+
+  @override
+  String get teamMatch => 'Match par équipes';
+
+  @override
+  String get teamMatches => 'Matchs par équipes';
+
+  @override
+  String get teamMatchesHint =>
+      'Les matchs d\'échecs de tes groupes ; le résultat change l\'Elo du groupe.';
+
+  @override
+  String get noTeamMatches =>
+      'Aucun match par équipes. Invite un autre groupe au nom du tien.';
+
+  @override
+  String get newTeamMatch => 'Organiser un match';
+
+  @override
+  String get newTeamMatchHint =>
+      'Dès que l\'autre groupe accepte, chaque groupe compose son équipe.';
+
+  @override
+  String get yourGroup => 'Ton groupe';
+
+  @override
+  String get opponentGroup => 'Groupe adverse';
+
+  @override
+  String get searchGroup => 'Nom ou identifiant du groupe';
+
+  @override
+  String get startsAt => 'Début';
+
+  @override
+  String get sendTeamInvite => 'Inviter le groupe';
+
+  @override
+  String get boards => 'Échiquiers';
+
+  @override
+  String get boardsShort => 'échiquiers';
+
+  @override
+  String boardsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count échiquiers',
+      one: '1 échiquier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Elo du groupe $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'En attente';
+
+  @override
+  String get teamAccepted => 'Accepté';
+
+  @override
+  String get teamDeclined => 'Refusé';
+
+  @override
+  String get teamCanceled => 'Annulé';
+
+  @override
+  String get teamLive => 'En cours';
+
+  @override
+  String get teamFinished => 'Terminé';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group invite votre groupe à un match par équipes.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Match accepté. Composez maintenant votre équipe.';
+
+  @override
+  String get teamDeclinedDone => 'Invitation refusée.';
+
+  @override
+  String get teamCanceledDone => 'Match annulé.';
+
+  @override
+  String get callOff => 'Annuler le match';
+
+  @override
+  String get lineupHint =>
+      'Un échiquier vide au début compte comme un point pour l\'adversaire.';
+
+  @override
+  String get lineupSheetHint =>
+      'Touche les membres pour les placer dans l’ordre ; l’échiquier 1 revient au plus fort.';
+
+  @override
+  String editLineup(String group) {
+    return 'Composition $group';
+  }
+
+  @override
+  String get saveLineup => 'Enregistrer';
+
+  @override
+  String get emptyBoard => 'Vide';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games parties';
+  }
+
+  @override
+  String get groupsTab => 'Groupes';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Aucun groupe n\'a encore joué de match par équipes. Sois le premier.';
+
+  @override
+  String get backToChess => 'Retour aux échecs';
 }

@@ -52,6 +52,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     private static readonly Error ChallengeLimit = Error.RuleViolation("games.challenge_limit", "En fazla 5 açık davetin olabilir.");
     private static readonly Error ChallengePending = Error.Conflict("games.challenge_pending", "Bu kişiye zaten bir davetin var.");
     private static readonly Error RematchUnavailable = Error.RuleViolation("games.rematch_unavailable", "Rövanş şu anda istenemez.");
+    private static readonly Error TeamNoAbort = Error.RuleViolation("games.team_no_abort", "Takım maçındaki oyun iptal edilemez; terk edebilirsin.");
 
     private const int MaxOpenChallenges = 5;
 
@@ -277,7 +278,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     private sealed record GameRow(
         Guid Id, Guid? White, Guid? Black, string Category, int BaseSeconds, int IncrementSeconds, bool Rated, string Status,
         string[] Moves, string Fen, long WhiteMs, long BlackMs, DateTimeOffset TurnStartedAt, string? DrawOffer,
-        int? WhiteOfferPly, int? BlackOfferPly, DateTimeOffset Now)
+        int? WhiteOfferPly, int? BlackOfferPly, DateTimeOffset Now, Guid? TeamMatchId)
     {
         public int Ply => Moves.Length;
 
@@ -288,7 +289,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
         /// <summary>The side to move's time left now; the clock runs only from the third half-move.</summary>
         public long RemainingToMove => Ply < 2 ? MsOf(ChessRules.ToMove(Ply)) : MsOf(ChessRules.ToMove(Ply)) - (long)(Now - TurnStartedAt).TotalMilliseconds;
 
-        public bool FirstMoveMissed => Ply < 2 && Now - TurnStartedAt > ChessRules.FirstMoveWindow;
+        public bool FirstMoveMissed => Ply < 2 && Now - TurnStartedAt > (TeamMatchId is null ? ChessRules.FirstMoveWindow : ChessRules.TeamFirstMoveWindow);
     }
 
     private static async Task<GameRow?> LockGameAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid id, CancellationToken ct)
@@ -296,7 +297,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
         await using var cmd = new NpgsqlCommand(
             """
             select id, white_id, black_id, category, base_seconds, increment_seconds, rated, status, moves, fen, white_ms, black_ms,
-                   turn_started_at, draw_offer, white_offer_ply, black_offer_ply, now()
+                   turn_started_at, draw_offer, white_offer_ply, black_offer_ply, now(), team_match_id
             from public.chess_games where id = @id for update
             """, conn, tx);
         cmd.Parameters.AddWithValue("id", id);
@@ -306,7 +307,7 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
             r.GetGuid(0), r.IsDBNull(1) ? null : r.GetGuid(1), r.IsDBNull(2) ? null : r.GetGuid(2), r.GetString(3), r.GetInt32(4), r.GetInt32(5),
             r.GetBoolean(6), r.GetString(7), r.GetFieldValue<string[]>(8), r.GetString(9), r.GetInt64(10), r.GetInt64(11),
             r.GetFieldValue<DateTimeOffset>(12), r.IsDBNull(13) ? null : r.GetString(13), r.IsDBNull(14) ? null : r.GetInt32(14),
-            r.IsDBNull(15) ? null : r.GetInt32(15), r.GetFieldValue<DateTimeOffset>(16));
+            r.IsDBNull(15) ? null : r.GetInt32(15), r.GetFieldValue<DateTimeOffset>(16), r.IsDBNull(17) ? null : r.GetGuid(17));
     }
 
     /// <summary>The game as the app reads it from Realtime (snake_case row) plus the server's clock.</summary>
@@ -352,7 +353,9 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     {
         if (game.FirstMoveMissed)
         {
-            await FinishAsync(conn, tx, game, Outcome.Aborted, game.WhiteMs, game.BlackMs, ct);
+            // A team board is not aborted: the side that never came loses it.
+            var missed = game.TeamMatchId is null ? Outcome.Aborted : Outcome.Win(ChessRules.Opposite(ChessRules.ToMove(game.Ply)), "no_show");
+            await FinishAsync(conn, tx, game, missed, game.WhiteMs, game.BlackMs, ct);
             return true;
         }
         if (game.Ply < 2 || game.RemainingToMove > 0) return false;
@@ -400,14 +403,16 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
         ActAsync(actor, id, async (conn, tx, game, color) =>
         {
             var (wms, bms) = Clocks(game);
-            // Before both sides moved, leaving is an abort: nobody loses rating for a game that never began.
-            await FinishAsync(conn, tx, game, game.Ply < 2 ? Outcome.Aborted : Outcome.Win(ChessRules.Opposite(color), "resign"), wms, bms, ct);
+            // Before both sides moved, leaving is an abort: nobody loses rating for a game that never began. A team board is lost.
+            var outcome = game.Ply < 2 && game.TeamMatchId is null ? Outcome.Aborted : Outcome.Win(ChessRules.Opposite(color), "resign");
+            await FinishAsync(conn, tx, game, outcome, wms, bms, ct);
             return Result.Success();
         }, ct);
 
     public Task<Result<JsonElement>> AbortAsync(Guid actor, Guid id, CancellationToken ct) =>
         ActAsync(actor, id, async (conn, tx, game, _) =>
         {
+            if (game.TeamMatchId is not null) return TeamNoAbort;
             if (game.Ply >= 2) return AbortTooLate;
             await FinishAsync(conn, tx, game, Outcome.Aborted, game.WhiteMs, game.BlackMs, ct);
             return Result.Success();
@@ -495,20 +500,21 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     // Shared steps
     // -----------------------------------------------------------------------
 
-    private static async Task<Guid> CreateGameAsync(
+    internal static async Task<Guid> CreateGameAsync(
         NpgsqlConnection conn, NpgsqlTransaction tx, Guid white, Guid black, TimeControl tc, bool rated, string source, Guid? rematchOf,
-        CancellationToken ct)
+        CancellationToken ct, Guid? teamMatchId = null)
     {
         var whiteRating = await RatingAsync(conn, tx, white, tc.Category, ct);
         var blackRating = await RatingAsync(conn, tx, black, tc.Category, ct);
         return (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
             """
             insert into public.chess_games (white_id, black_id, category, base_seconds, increment_seconds, rated, source,
-                                            white_ms, black_ms, white_rating, black_rating, rematch_of)
-            values (@white, @black, @category, @base, @inc, @rated, @source, @ms, @ms, @wr, @br, @rematch)
+                                            white_ms, black_ms, white_rating, black_rating, rematch_of, team_match_id)
+            values (@white, @black, @category, @base, @inc, @rated, @source, @ms, @ms, @wr, @br, @rematch, @team)
             returning id
             """, ct, ("white", white), ("black", black), ("category", tc.Category), ("base", tc.BaseSeconds), ("inc", tc.IncrementSeconds),
-            ("rated", rated), ("source", source), ("ms", tc.BaseSeconds * 1000L), ("wr", whiteRating), ("br", blackRating), ("rematch", rematchOf)))!;
+            ("rated", rated), ("source", source), ("ms", tc.BaseSeconds * 1000L), ("wr", whiteRating), ("br", blackRating), ("rematch", rematchOf),
+            ("team", teamMatchId)))!;
     }
 
     private static async Task<int> RatingAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid user, string category, CancellationToken ct) =>
@@ -536,7 +542,10 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
             where id = @id
             """, ct, ("result", outcome.Result), ("termination", outcome.Termination), ("wms", whiteMs), ("bms", blackMs), ("id", game.Id));
         await ActingTransaction.ExecuteAsync(conn, tx, "delete from public.chess_seeks where game_id = @id", ct, ("id", game.Id));
-        if (!game.Rated || outcome.Result is not { } result || game.White is not { } white || game.Black is not { } black) return;
+        if (game.TeamMatchId is { } teamMatch) await TeamMatchService.RecordBoardAsync(conn, tx, teamMatch, game.Id, outcome.Result, ct);
+        // A board nobody played is not a game: no rating for a no-show.
+        if (!game.Rated || outcome.Result is not { } result || outcome.Termination == "no_show" || game.White is not { } white
+            || game.Black is not { } black) return;
 
         await ActingTransaction.ExecuteAsync(conn, tx,
             """
@@ -584,7 +593,8 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
             """
             select id from public.chess_games
             where status = 'active' and (
-              (cardinality(moves) < 2 and turn_started_at < now() - interval '30 seconds')
+              (cardinality(moves) < 2 and turn_started_at
+                  < now() - case when team_match_id is null then interval '30 seconds' else interval '5 minutes' end)
               or (cardinality(moves) >= 2 and turn_started_at
                   + (case when cardinality(moves) % 2 = 0 then white_ms else black_ms end) * interval '1 millisecond' <= now()))
             limit 200

@@ -319,4 +319,138 @@ class GamesL10nNl extends GamesL10n {
 
   @override
   String get sendChallenge => 'Uitdaging versturen';
+
+  @override
+  String get teamMatch => 'Teamwedstrijd';
+
+  @override
+  String get teamMatches => 'Teamwedstrijden';
+
+  @override
+  String get teamMatchesHint =>
+      'Schaakwedstrijden van je groepen; de uitslag verandert de groeps-Elo.';
+
+  @override
+  String get noTeamMatches =>
+      'Nog geen teamwedstrijden. Daag namens je groep een andere groep uit.';
+
+  @override
+  String get newTeamMatch => 'Teamwedstrijd regelen';
+
+  @override
+  String get newTeamMatchHint =>
+      'Zodra de andere groep accepteert, stellen beide groepen hun spelers op.';
+
+  @override
+  String get yourGroup => 'Jouw groep';
+
+  @override
+  String get opponentGroup => 'Tegenstander';
+
+  @override
+  String get searchGroup => 'Groepsnaam of handle';
+
+  @override
+  String get startsAt => 'Start';
+
+  @override
+  String get sendTeamInvite => 'Groep uitnodigen';
+
+  @override
+  String get boards => 'Borden';
+
+  @override
+  String get boardsShort => 'borden';
+
+  @override
+  String boardsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count borden',
+      one: '1 bord',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'Groeps-Elo $rating';
+  }
+
+  @override
+  String get versus => 'VS';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'Wacht op antwoord';
+
+  @override
+  String get teamAccepted => 'Geaccepteerd';
+
+  @override
+  String get teamDeclined => 'Geweigerd';
+
+  @override
+  String get teamCanceled => 'Afgelast';
+
+  @override
+  String get teamLive => 'Bezig';
+
+  @override
+  String get teamFinished => 'Afgelopen';
+
+  @override
+  String teamInviteReceived(String group) {
+    return '$group daagt jullie groep uit voor een teamwedstrijd.';
+  }
+
+  @override
+  String get teamAcceptedDone =>
+      'Wedstrijd geaccepteerd. Stel nu je spelers op.';
+
+  @override
+  String get teamDeclinedDone => 'Uitnodiging geweigerd.';
+
+  @override
+  String get teamCanceledDone => 'Wedstrijd afgelast.';
+
+  @override
+  String get callOff => 'Wedstrijd afgelasten';
+
+  @override
+  String get lineupHint =>
+      'Een leeg bord bij de start telt als punt voor de tegenpartij.';
+
+  @override
+  String get lineupSheetHint =>
+      'Tik op leden om ze op volgorde te plaatsen; bord 1 is voor je sterkste speler.';
+
+  @override
+  String editLineup(String group) {
+    return 'Opstelling $group';
+  }
+
+  @override
+  String get saveLineup => 'Opstelling opslaan';
+
+  @override
+  String get emptyBoard => 'Leeg';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games partijen';
+  }
+
+  @override
+  String get groupsTab => 'Groepen';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'Nog geen groep heeft een teamwedstrijd gespeeld. Wees de eerste.';
+
+  @override
+  String get backToChess => 'Terug naar schaken';
 }

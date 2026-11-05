@@ -78,6 +78,14 @@ public sealed class TestDatabase : IAsyncLifetime
             delete from public.poll_votes where poll_id in (select id from public.polls where group_id in (select id from doomed));
             delete from public.poll_options where poll_id in (select id from public.polls where group_id in (select id from doomed));
             delete from public.polls where group_id in (select id from doomed);
+            delete from public.chess_team_boards where match_id in (select id from public.chess_team_matches
+              where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
+            delete from public.chess_team_lineups where match_id in (select id from public.chess_team_matches
+              where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
+            update public.chess_games set team_match_id = null where team_match_id in (select id from public.chess_team_matches
+              where home_group_id in (select id from doomed) or away_group_id in (select id from doomed));
+            delete from public.chess_team_matches where home_group_id in (select id from doomed) or away_group_id in (select id from doomed);
+            delete from public.chess_group_ratings where group_id in (select id from doomed);
             delete from public.event_attendees where event_id in (select id from public.events where group_id in (select id from doomed));
             delete from public.event_reviews where event_id in (select id from public.events where group_id in (select id from doomed));
             delete from public.goal_completions where goal_id in (select id from public.goals where group_id in (select id from doomed));

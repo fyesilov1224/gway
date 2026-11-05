@@ -304,4 +304,130 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get sendChallenge => 'أرسل الدعوة';
+
+  @override
+  String get teamMatch => 'مواجهة فرق';
+
+  @override
+  String get teamMatches => 'مواجهات الفرق';
+
+  @override
+  String get teamMatchesHint =>
+      'مواجهات الشطرنج لمجموعاتك؛ تغيّر النتيجة تصنيف المجموعة.';
+
+  @override
+  String get noTeamMatches =>
+      'لا مواجهات فرق بعد. ادعُ مجموعة أخرى باسم مجموعتك.';
+
+  @override
+  String get newTeamMatch => 'نظّم مواجهة';
+
+  @override
+  String get newTeamMatchHint =>
+      'عندما تقبل المجموعة الأخرى، ترتّب المجموعتان لاعبيهما.';
+
+  @override
+  String get yourGroup => 'مجموعتك';
+
+  @override
+  String get opponentGroup => 'المجموعة المنافسة';
+
+  @override
+  String get searchGroup => 'اسم المجموعة أو معرّفها';
+
+  @override
+  String get startsAt => 'البدء';
+
+  @override
+  String get sendTeamInvite => 'ادعُ المجموعة';
+
+  @override
+  String get boards => 'الرقع';
+
+  @override
+  String get boardsShort => 'رقع';
+
+  @override
+  String boardsCount(int count) {
+    return '$count رقعة';
+  }
+
+  @override
+  String groupElo(int rating) {
+    return 'تصنيف المجموعة $rating';
+  }
+
+  @override
+  String get versus => 'ضد';
+
+  @override
+  String get versusShort => '–';
+
+  @override
+  String get teamInvited => 'بانتظار الرد';
+
+  @override
+  String get teamAccepted => 'مقبولة';
+
+  @override
+  String get teamDeclined => 'مرفوضة';
+
+  @override
+  String get teamCanceled => 'أُلغيت';
+
+  @override
+  String get teamLive => 'جارية';
+
+  @override
+  String get teamFinished => 'انتهت';
+
+  @override
+  String teamInviteReceived(String group) {
+    return 'تدعو $group مجموعتكم إلى مواجهة فرق.';
+  }
+
+  @override
+  String get teamAcceptedDone => 'قُبلت المواجهة. رتّبوا لاعبيكم الآن.';
+
+  @override
+  String get teamDeclinedDone => 'رُفضت الدعوة.';
+
+  @override
+  String get teamCanceledDone => 'أُلغيت المواجهة.';
+
+  @override
+  String get callOff => 'ألغِ المواجهة';
+
+  @override
+  String get lineupHint => 'تُحسب الرقعة الفارغة عند البدء نقطة للطرف الآخر.';
+
+  @override
+  String get lineupSheetHint =>
+      'اضغط على الأعضاء لوضعهم بالترتيب؛ الرقعة 1 لأقوى لاعب.';
+
+  @override
+  String editLineup(String group) {
+    return 'تشكيلة $group';
+  }
+
+  @override
+  String get saveLineup => 'احفظ التشكيلة';
+
+  @override
+  String get emptyBoard => 'فارغة';
+
+  @override
+  String ratingGames(int rating, int games) {
+    return 'Elo $rating · $games مباراة';
+  }
+
+  @override
+  String get groupsTab => 'المجموعات';
+
+  @override
+  String get groupLeaderboardEmpty =>
+      'لم تلعب أي مجموعة مواجهة فرق بعد. كن الأول.';
+
+  @override
+  String get backToChess => 'العودة إلى الشطرنج';
 }
