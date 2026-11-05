@@ -137,20 +137,24 @@ class _Step extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.bottomCenter,
             children: [
-              Container(
-                padding: const EdgeInsets.all(GwBorders.ringWidth),
-                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
-                child: GwAvatar(
-                  name: e.player.displayName,
-                  shape: GwAvatarShape.user,
-                  imageUrl: e.player.avatarUrl,
-                  size: rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg,
+              Crowned(
+                rank: rank,
+                avatarSize: (rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg).dimension,
+                child: Container(
+                  padding: const EdgeInsets.all(GwBorders.ringWidth),
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
+                  child: GwAvatar(
+                    name: e.player.displayName,
+                    shape: GwAvatarShape.user,
+                    imageUrl: e.player.avatarUrl,
+                    size: rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg,
+                  ),
                 ),
               ),
-              Positioned(bottom: -GwSpacing.sm, child: RankBadge(rank: rank, size: GwSpacing.lg)),
+              Positioned(bottom: -GwSpacing.xl, child: RankBadge(rank: rank, size: GwSpacing.xl + GwSpacing.xxs)),
             ],
           ),
-          const SizedBox(height: GwSpacing.md),
+          const SizedBox(height: GwSpacing.xl + GwSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -711,15 +711,19 @@ class _GroupStep extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomCenter,
           children: [
-            Container(
-              padding: const EdgeInsets.all(GwBorders.ringWidth),
-              decoration: BoxDecoration(borderRadius: GwRadius.lgAll, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
-              child: _GroupBadge(group: entry.group, size: entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg),
+            Crowned(
+              rank: entry.rank,
+              avatarSize: (entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg).dimension,
+              child: Container(
+                padding: const EdgeInsets.all(GwBorders.ringWidth),
+                decoration: BoxDecoration(borderRadius: GwRadius.lgAll, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
+                child: _GroupBadge(group: entry.group, size: entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg),
+              ),
             ),
-            Positioned(bottom: -GwSpacing.sm, child: RankBadge(rank: entry.rank, size: GwSpacing.lg)),
+            Positioned(bottom: -GwSpacing.xl, child: RankBadge(rank: entry.rank, size: GwSpacing.xl + GwSpacing.xxs)),
           ],
         ),
-        const SizedBox(height: GwSpacing.md),
+        const SizedBox(height: GwSpacing.xl + GwSpacing.sm),
         Text(entry.group.name, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
         Text(gamesL10n.record(entry.wins, entry.draws, entry.losses), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         const SizedBox(height: GwSpacing.xs),

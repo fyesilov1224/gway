@@ -12,6 +12,7 @@ export 'src/components/error_state.dart';
 export 'src/components/form_message.dart';
 export 'src/components/live.dart';
 export 'src/components/logo.dart';
+export 'src/components/medal.dart';
 export 'src/components/network_image.dart';
 export 'src/components/panel.dart';
 export 'src/components/sections.dart';

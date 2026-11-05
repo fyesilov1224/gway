@@ -553,7 +553,11 @@ class _ArenaPodium extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GwAvatar(name: s.player.displayName, shape: GwAvatarShape.user, imageUrl: s.player.avatarUrl, size: GwAvatarSize.lg),
+          Crowned(
+            rank: s.rank,
+            avatarSize: GwAvatarSize.lg.dimension,
+            child: GwAvatar(name: s.player.displayName, shape: GwAvatarShape.user, imageUrl: s.player.avatarUrl, size: GwAvatarSize.lg),
+          ),
           const SizedBox(height: GwSpacing.xxs),
           Text(s.player.displayName, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
           const SizedBox(height: GwSpacing.xs),

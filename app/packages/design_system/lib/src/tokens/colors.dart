@@ -93,14 +93,20 @@ enum GwBoardTheme {
 
 /// Leaderboard medals for the top three (docs/DESIGN.md §1, Madalyalar): [strong] for the medal, [soft] behind it.
 enum GwMedal {
-  gold(Color(0xFFC9971C), Color(0xFFFFF4D6)),
-  silver(Color(0xFF8C96A6), Color(0xFFF0F2F6)),
-  bronze(Color(0xFFB06A35), Color(0xFFFBECE0));
+  gold(Color(0xFFC9971C), Color(0xFFFFF4D6), Color(0xFFFBE38A), Color(0xFF8F6508)),
+  silver(Color(0xFF8C96A6), Color(0xFFF0F2F6), Color(0xFFF2F5F9), Color(0xFF5C6575)),
+  bronze(Color(0xFFB06A35), Color(0xFFFBECE0), Color(0xFFEBB487), Color(0xFF6E3B17));
 
-  const GwMedal(this.strong, this.soft);
+  const GwMedal(this.strong, this.soft, this.shine, this.deep);
 
   final Color strong;
   final Color soft;
+
+  /// The light edge of the metal in the drawn medal and crown (`GwMedalBadge`, `GwCrown`).
+  final Color shine;
+
+  /// The shadowed edge and outline of the metal.
+  final Color deep;
 
   /// The medal for a 1-based rank; null below third.
   static GwMedal? forRank(int rank) => rank >= 1 && rank <= 3 ? values[rank - 1] : null;
