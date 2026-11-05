@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/billing.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -43,8 +44,8 @@ class CheckoutScreen extends ConsumerWidget {
     if (!ref.watch(purchasesOnThisPlatformProvider)) {
       body = GwEmptyState(
         icon: planIcon,
-        message: 'Bu işlem bu cihazda kullanılamıyor.',
-        actionLabel: 'Geri dön',
+        message: billingL10n.notOnDevice,
+        actionLabel: billingL10n.goBack,
         onAction: () => Navigator.of(context).maybePop(),
       );
     } else {
@@ -71,7 +72,7 @@ class CheckoutScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ödeme')),
+      appBar: AppBar(title: Text(billingL10n.payment)),
       body: body,
     );
   }
@@ -82,8 +83,8 @@ class CheckoutScreen extends ConsumerWidget {
     if (option == null || plan == null || !option.available || !offer.purchasesEnabled) {
       return GwEmptyState(
         icon: planIcon,
-        message: 'Bu paket şu anda satın alınamıyor.',
-        actionLabel: 'Paketlere dön',
+        message: billingL10n.planUnavailable,
+        actionLabel: billingL10n.backToPlans,
         onAction: () => Navigator.of(context).maybePop(),
       );
     }
@@ -186,7 +187,7 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
     switch (result) {
       case Ok(:final value):
         if (await widget.openPaymentPage(value)) return;
-        if (mounted) setState(() => _error = 'Ödeme sayfası açılamadı. Lütfen tekrar dene.');
+        if (mounted) setState(() => _error = billingL10n.paymentPageFailed);
       case Err(failure: RuleFailure(code: 'billing.market_changed' || 'billing.terms_outdated') && final failure):
         // Prices or the contract changed: show the new ones before trying again.
         widget.onStale(ref);
@@ -252,8 +253,8 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
     final textTheme = Theme.of(context).textTheme;
     const gap = SizedBox(height: GwSpacing.md);
     return GwPanel(
-      title: 'Fatura bilgileri',
-      subtitle: 'Faturan bu bilgilerle düzenlenir.',
+      title: billingL10n.billingDetails,
+      subtitle: billingL10n.billingDetailsHint,
       child: Form(
         key: _form,
         child: AutofillGroup(
@@ -265,8 +266,8 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                 runSpacing: GwSpacing.md,
                 children: [
                   for (final (controller, label, hint) in [
-                    (_firstName, 'Ad', AutofillHints.givenName),
-                    (_lastName, 'Soyad', AutofillHints.familyName),
+                    (_firstName, billingL10n.firstName, AutofillHints.givenName),
+                    (_lastName, billingL10n.lastName, AutofillHints.familyName),
                   ])
                     LayoutBuilder(
                       builder: (context, c) => SizedBox(
@@ -277,7 +278,7 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                           autofillHints: [hint],
                           textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(labelText: label, counterText: ''),
-                          validator: (v) => _required(v, '$label gerekli.'),
+                          validator: (v) => _required(v, billingL10n.fieldRequired(label)),
                         ),
                       ),
                     ),
@@ -288,8 +289,8 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                 controller: _phoneNumber,
                 keyboardType: TextInputType.phone,
                 autofillHints: const [AutofillHints.telephoneNumber],
-                decoration: const InputDecoration(labelText: 'Telefon', hintText: '+90 5xx xxx xx xx'),
-                validator: (v) => _phone.hasMatch(v?.trim() ?? '') ? null : 'Geçerli bir telefon numarası gir.',
+                decoration: InputDecoration(labelText: billingL10n.phone, hintText: '+90 5xx xxx xx xx'),
+                validator: (v) => _phone.hasMatch(v?.trim() ?? '') ? null : billingL10n.phoneInvalid,
               ),
               gap,
               TextFormField(
@@ -298,24 +299,24 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                 minLines: 2,
                 maxLines: 4,
                 autofillHints: const [AutofillHints.fullStreetAddress],
-                decoration: const InputDecoration(labelText: 'Adres', alignLabelWithHint: true, counterText: ''),
-                validator: (v) => _required(v, 'Fatura adresini gir.', min: 5),
+                decoration: InputDecoration(labelText: billingL10n.address, alignLabelWithHint: true, counterText: ''),
+                validator: (v) => _required(v, billingL10n.addressRequired, min: 5),
               ),
               gap,
               TextFormField(
                 controller: _city,
                 maxLength: 50,
                 autofillHints: const [AutofillHints.addressCity],
-                decoration: const InputDecoration(labelText: 'Şehir', counterText: ''),
-                validator: (v) => _required(v, 'Şehri gir.', min: 2),
+                decoration: InputDecoration(labelText: billingL10n.city, counterText: ''),
+                validator: (v) => _required(v, billingL10n.cityRequired, min: 2),
               ),
               gap,
               TextFormField(
                 controller: _country,
                 maxLength: 56,
                 autofillHints: const [AutofillHints.countryName],
-                decoration: const InputDecoration(labelText: 'Ülke', counterText: ''),
-                validator: (v) => _required(v, 'Ülkeyi gir.', min: 2),
+                decoration: InputDecoration(labelText: billingL10n.country, counterText: ''),
+                validator: (v) => _required(v, billingL10n.countryRequired, min: 2),
               ),
               gap,
               CheckboxListTile(
@@ -328,26 +329,27 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                 }),
                 title: Text.rich(
                   TextSpan(children: [
+                    TextSpan(text: billingL10n.termsBefore, style: textTheme.bodyMedium),
                     TextSpan(
                       text: widget.terms.title,
                       style: textTheme.bodyMedium?.copyWith(color: GwColors.secondary, fontWeight: FontWeight.w600),
                       recognizer: _termsLink,
                     ),
-                    TextSpan(text: "'ni okudum ve kabul ediyorum.", style: textTheme.bodyMedium),
+                    TextSpan(text: billingL10n.termsAfter, style: textTheme.bodyMedium),
                   ]),
                 ),
                 subtitle: _termsMissing
-                    ? Text('Devam etmek için sözleşmeyi onaylamalısın.', style: textTheme.bodySmall?.copyWith(color: GwColors.error))
+                    ? Text(billingL10n.acceptTerms, style: textTheme.bodySmall?.copyWith(color: GwColors.error))
                     : null,
               ),
               Text(
-                'Fatura bilgilerin yalnızca ödemenin alınması, faturalandırma ve yasal saklama yükümlülükleri için kullanılır.',
+                billingL10n.billingDataUse,
                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
               ),
               if (_error != null) ...[gap, GwFormMessage(_error!)],
               const SizedBox(height: GwSpacing.lg),
               GwButton(
-                label: 'Ödemeye geç · ${formatMoney(widget.amountMinor, widget.market.currency)}',
+                label: billingL10n.payAmount(formatMoney(widget.amountMinor, widget.market.currency)),
                 icon: Icons.lock_outline,
                 expand: true,
                 isLoading: _busy,
@@ -387,26 +389,26 @@ class _Summary extends StatelessWidget {
         );
 
     return GwPanel(
-      title: 'Sipariş özeti',
+      title: billingL10n.orderSummary,
       subtitle: groupName,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('${plan.name} paketi · ${option.period.label}', style: textTheme.titleMedium),
+          Text(billingL10n.planPeriod(plan.name, option.period.label), style: textTheme.titleMedium),
           const SizedBox(height: GwSpacing.sm),
           PlanLimits(plan: plan),
           const SizedBox(height: GwSpacing.sm),
           const Divider(),
           const SizedBox(height: GwSpacing.xs),
-          row('Başlangıç', option.change == PlanChange.upgrade ? 'Ödeme onaylanınca' : formatDate(option.startsAt)),
-          row('Bitiş (tahmini)', formatDate(option.endsAt)),
-          if (option.credit > Duration.zero) row('Aktarılan süre', 'yaklaşık ${creditLabel(option.credit)}'),
+          row(billingL10n.start, option.change == PlanChange.upgrade ? billingL10n.whenConfirmed : formatDate(option.startsAt)),
+          row(billingL10n.endEstimated, formatDate(option.endsAt)),
+          if (option.credit > Duration.zero) row(billingL10n.carriedOver, billingL10n.about(creditLabel(option.credit))),
           const SizedBox(height: GwSpacing.xs),
           const Divider(),
           const SizedBox(height: GwSpacing.sm),
           Row(
             children: [
-              Expanded(child: Text('Toplam', style: textTheme.titleMedium)),
+              Expanded(child: Text(billingL10n.total, style: textTheme.titleMedium)),
               Text(formatMoney(option.amountMinor, market.currency), style: textTheme.titleLarge),
             ],
           ),
@@ -432,8 +434,7 @@ class PaymentAssurance extends StatelessWidget {
           const SizedBox(width: GwSpacing.xs),
           Expanded(
             child: Text(
-              'Ödeme ${market.provider.label} güvencesiyle ${market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır. '
-              "Kart bilgilerin GWAY'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
+              market.currency == 'TRY' ? billingL10n.assuranceTry(market.provider.label) : billingL10n.assuranceUsd(market.provider.label),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
           ),

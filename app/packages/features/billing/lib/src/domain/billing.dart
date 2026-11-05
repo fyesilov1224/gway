@@ -1,17 +1,26 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// Prepaid billing period (docs/ARCHITECTURE.md §7).
 enum PlanPeriod {
-  month('month', 'Aylık', 'ay'),
-  year('year', 'Yıllık', 'yıl');
+  month('month'),
+  year('year');
 
-  const PlanPeriod(this.code, this.label, this.unit);
+  const PlanPeriod(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        month => billingL10n.monthly,
+        year => billingL10n.yearly,
+      };
 
   /// Price suffix: "249 ₺ / ay".
-  final String unit;
+  String get unit => switch (this) {
+        month => billingL10n.perMonth,
+        year => billingL10n.perYear,
+      };
 
   static PlanPeriod parse(Object? code) => code == 'year' ? year : month;
 }

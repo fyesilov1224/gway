@@ -509,7 +509,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] 19a — Altyapı: `gen_l10n`, dil seçimi (Ayarlar ve giriş ekranı), `core` (hata mesajları, biçimlendirme), tasarım sistemi, kimlik ekranları, uygulama kabuğu ve Ayarlar
 - [x] 19b — Profil, akış ve gruplar
 - [x] 19c — Organizasyonlar, takvim, bildirimler
-- [ ] 19d — Canlı yayın, mesajlaşma, eşleşme, moderasyon, abonelik
+- [x] 19d — Canlı yayın, mesajlaşma, eşleşme, moderasyon, abonelik
 - [ ] 19e — Destek ve kullanma kılavuzu
 - [ ] 19f — Sunucu: `profiles.locale`, push metinleri, API mesajları, kimlik e-postaları
 - [ ] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli)

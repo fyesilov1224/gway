@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/billing.dart';
+import '../l10n.dart';
 import 'checkout_screen.dart';
 import 'plan_screen.dart';
 import 'providers.dart';
@@ -40,7 +41,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
         if (widget.orderId != null) ...[
           OrderResult(
             orderId: widget.orderId!,
-            paidText: 'Ödeme alındı. Paketin açıldı.',
+            paidText: billingL10n.paymentReceivedPersonal,
             onPaid: () {
               ref.invalidate(personalOfferProvider(widget.slug));
               widget.onPaid();
@@ -50,19 +51,19 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
         ],
         switch (offer) {
           AsyncData(:final value) when !onWeb => GwPanel(
-              title: 'Paket durumu',
+              title: billingL10n.planStatus,
               child: Text(
                 value.activeUntil == null
-                    ? 'Bu paket hesabında açık değil.'
-                    : 'Paketin ${formatDate(value.activeUntil!)} tarihine kadar açık.',
+                    ? billingL10n.notActive
+                    : billingL10n.activeUntil(formatDate(value.activeUntil!)),
                 style: textTheme.bodyLarge,
               ),
             ),
           AsyncData(:final value) => GwPanel(
-              title: value.activeUntil == null ? 'Satın al' : 'Süreni uzat',
+              title: value.activeUntil == null ? billingL10n.buy : billingL10n.extend,
               subtitle: value.activeUntil == null
-                  ? 'Tek seferlik ödeme; otomatik yenilenmez.'
-                  : 'Yeni süre, ${formatDate(value.activeUntil!)} tarihinden sonra başlar.',
+                  ? billingL10n.oneTime
+                  : billingL10n.newPeriodAfter(formatDate(value.activeUntil!)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -78,10 +79,10 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
                   ],
                   const SizedBox(height: GwSpacing.xs),
                   if (!value.purchasesEnabled)
-                    const PlanNotice(icon: Icons.schedule_rounded, text: 'Bu paketin satışı şu anda kapalı. Lütfen daha sonra tekrar dene.')
+                    PlanNotice(icon: Icons.schedule_rounded, text: billingL10n.salesClosed)
                   else ...[
                     GwButton(
-                      label: 'Devam et · ${formatMoney(value.option(_period)?.amountMinor ?? 0, value.market.currency)}',
+                      label: billingL10n.continueAmount(formatMoney(value.option(_period)?.amountMinor ?? 0, value.market.currency)),
                       icon: Icons.lock_outline,
                       expand: true,
                       onPressed: () => context.push(BillingRoutes.personalCheckout(widget.slug, _period)),
@@ -100,7 +101,7 @@ class _PersonalPlanPurchaseState extends ConsumerState<PersonalPlanPurchase> {
         },
         const SizedBox(height: GwSpacing.sm),
         Text(
-          'Bu paket yalnızca seni kapsar; grubunun paketini etkilemez.',
+          billingL10n.personalOnly,
           textAlign: TextAlign.center,
           style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
         ),
@@ -148,18 +149,18 @@ class _PeriodOption extends StatelessWidget {
                         Text(option.period.label, style: textTheme.titleMedium),
                         if (saving > 0) ...[
                           const SizedBox(width: GwSpacing.xs),
-                          GwBadge('%$saving avantajlı', tone: GwBadgeTone.success),
+                          GwBadge(billingL10n.saving(saving), tone: GwBadgeTone.success),
                         ],
                       ],
                     ),
                     Text(
-                      '${formatDate(option.endsAt)} tarihine kadar',
+                      billingL10n.untilDate(formatDate(option.endsAt)),
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              Text('${formatMoney(option.amountMinor, currency)} / ${option.period.unit}', style: textTheme.titleMedium),
+              Text(billingL10n.pricePer(formatMoney(option.amountMinor, currency), option.period.unit), style: textTheme.titleMedium),
             ],
           ),
         ),
@@ -186,8 +187,8 @@ class PersonalCheckoutScreen extends ConsumerWidget {
     if (!ref.watch(purchasesOnThisPlatformProvider)) {
       body = GwEmptyState(
         icon: planIcon,
-        message: 'Bu işlem bu cihazda kullanılamıyor.',
-        actionLabel: 'Geri dön',
+        message: billingL10n.notOnDevice,
+        actionLabel: billingL10n.goBack,
         onAction: () => Navigator.of(context).maybePop(),
       );
     } else {
@@ -208,8 +209,8 @@ class PersonalCheckoutScreen extends ConsumerWidget {
               ),
             _ => GwEmptyState(
                 icon: planIcon,
-                message: 'Bu ürün şu anda satın alınamıyor.',
-                actionLabel: 'Geri dön',
+                message: billingL10n.productUnavailable,
+                actionLabel: billingL10n.goBack,
                 onAction: () => Navigator.of(context).maybePop(),
               ),
           },
@@ -223,7 +224,7 @@ class PersonalCheckoutScreen extends ConsumerWidget {
         _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 5)),
       };
     }
-    return Scaffold(appBar: AppBar(title: const Text('Ödeme')), body: body);
+    return Scaffold(appBar: AppBar(title: Text(billingL10n.payment)), body: body);
   }
 }
 
@@ -242,21 +243,21 @@ class _PersonalSummary extends StatelessWidget {
           child: Row(children: [Expanded(child: Text(label, style: secondary)), Text(value, style: textTheme.bodyMedium)]),
         );
     return GwPanel(
-      title: 'Sipariş özeti',
-      subtitle: 'Kişisel ürün',
+      title: billingL10n.orderSummary,
+      subtitle: billingL10n.personalProduct,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('${offer.planName} · ${option.period.label}', style: textTheme.titleMedium),
+          Text(billingL10n.offerPeriod(offer.planName, option.period.label), style: textTheme.titleMedium),
           const SizedBox(height: GwSpacing.sm),
           const Divider(),
-          row('Başlangıç', offer.activeUntil == null ? 'Ödeme onaylanınca' : formatDate(option.startsAt)),
-          row('Bitiş (tahmini)', formatDate(option.endsAt)),
+          row(billingL10n.start, offer.activeUntil == null ? billingL10n.whenConfirmed : formatDate(option.startsAt)),
+          row(billingL10n.endEstimated, formatDate(option.endsAt)),
           const Divider(),
           const SizedBox(height: GwSpacing.sm),
           Row(
             children: [
-              Expanded(child: Text('Toplam', style: textTheme.titleMedium)),
+              Expanded(child: Text(billingL10n.total, style: textTheme.titleMedium)),
               Text(formatMoney(option.amountMinor, offer.market.currency), style: textTheme.titleLarge),
             ],
           ),

@@ -1,0 +1,577 @@
+{
+  "@@locale": "tr",
+  "monthly": "Aylık",
+  "@monthly": {
+    "description": ""
+  },
+  "yearly": "Yıllık",
+  "@yearly": {
+    "description": ""
+  },
+  "perMonth": "ay",
+  "@perMonth": {
+    "description": ""
+  },
+  "perYear": "yıl",
+  "@perYear": {
+    "description": ""
+  },
+  "notOnDevice": "Bu işlem bu cihazda kullanılamıyor.",
+  "@notOnDevice": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "payment": "Ödeme",
+  "@payment": {
+    "description": ""
+  },
+  "planUnavailable": "Bu paket şu anda satın alınamıyor.",
+  "@planUnavailable": {
+    "description": ""
+  },
+  "backToPlans": "Paketlere dön",
+  "@backToPlans": {
+    "description": ""
+  },
+  "paymentPageFailed": "Ödeme sayfası açılamadı. Lütfen tekrar dene.",
+  "@paymentPageFailed": {
+    "description": ""
+  },
+  "billingDetails": "Fatura bilgileri",
+  "@billingDetails": {
+    "description": ""
+  },
+  "billingDetailsHint": "Faturan bu bilgilerle düzenlenir.",
+  "@billingDetailsHint": {
+    "description": ""
+  },
+  "firstName": "Ad",
+  "@firstName": {
+    "description": ""
+  },
+  "lastName": "Soyad",
+  "@lastName": {
+    "description": ""
+  },
+  "fieldRequired": "{field} gerekli.",
+  "@fieldRequired": {
+    "description": "",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "phone": "Telefon",
+  "@phone": {
+    "description": ""
+  },
+  "phoneInvalid": "Geçerli bir telefon numarası gir.",
+  "@phoneInvalid": {
+    "description": ""
+  },
+  "address": "Adres",
+  "@address": {
+    "description": ""
+  },
+  "addressRequired": "Fatura adresini gir.",
+  "@addressRequired": {
+    "description": ""
+  },
+  "city": "Şehir",
+  "@city": {
+    "description": ""
+  },
+  "cityRequired": "Şehri gir.",
+  "@cityRequired": {
+    "description": ""
+  },
+  "country": "Ülke",
+  "@country": {
+    "description": ""
+  },
+  "countryRequired": "Ülkeyi gir.",
+  "@countryRequired": {
+    "description": ""
+  },
+  "termsBefore": "",
+  "@termsBefore": {
+    "description": ""
+  },
+  "termsAfter": "'ni okudum ve kabul ediyorum.",
+  "@termsAfter": {
+    "description": ""
+  },
+  "acceptTerms": "Devam etmek için sözleşmeyi onaylamalısın.",
+  "@acceptTerms": {
+    "description": ""
+  },
+  "billingDataUse": "Fatura bilgilerin yalnızca ödemenin alınması, faturalandırma ve yasal saklama yükümlülükleri için kullanılır.",
+  "@billingDataUse": {
+    "description": ""
+  },
+  "payAmount": "Ödemeye geç · {amount}",
+  "@payAmount": {
+    "description": "",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "orderSummary": "Sipariş özeti",
+  "@orderSummary": {
+    "description": ""
+  },
+  "planPeriod": "{plan} paketi · {period}",
+  "@planPeriod": {
+    "description": "",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "start": "Başlangıç",
+  "@start": {
+    "description": ""
+  },
+  "whenConfirmed": "Ödeme onaylanınca",
+  "@whenConfirmed": {
+    "description": ""
+  },
+  "endEstimated": "Bitiş (tahmini)",
+  "@endEstimated": {
+    "description": ""
+  },
+  "carriedOver": "Aktarılan süre",
+  "@carriedOver": {
+    "description": ""
+  },
+  "about": "yaklaşık {value}",
+  "@about": {
+    "description": "",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "total": "Toplam",
+  "@total": {
+    "description": ""
+  },
+  "assuranceTry": "Ödeme {provider} güvencesiyle Türk lirası olarak alınır. Kart bilgilerin GWAY'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
+  "@assuranceTry": {
+    "description": "",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "assuranceUsd": "Ödeme {provider} güvencesiyle ABD doları olarak alınır. Kart bilgilerin GWAY'e iletilmez. Tek seferlik ödemedir, otomatik yenilenmez.",
+  "@assuranceUsd": {
+    "description": "",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "overLimit": "Üye sayısı paketin limitini aşıyor. Limitin altına inilene kadar yeni üye alınamaz.",
+  "@overLimit": {
+    "description": ""
+  },
+  "atLimit": "Grup, paketinin üye limitine ulaştı. Yeni üye alınamaz.",
+  "@atLimit": {
+    "description": ""
+  },
+  "membersOfMax": "{count} / {max} üye",
+  "@membersOfMax": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "plan": "Paket",
+  "@plan": {
+    "description": ""
+  },
+  "getPlan": "Paket al",
+  "@getPlan": {
+    "description": ""
+  },
+  "upgradePlan": "Paketi yükselt",
+  "@upgradePlan": {
+    "description": ""
+  },
+  "planEnds": "Paketin {date} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.",
+  "@planEnds": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentReceivedPersonal": "Ödeme alındı. Paketin açıldı.",
+  "@paymentReceivedPersonal": {
+    "description": ""
+  },
+  "planStatus": "Paket durumu",
+  "@planStatus": {
+    "description": ""
+  },
+  "notActive": "Bu paket hesabında açık değil.",
+  "@notActive": {
+    "description": ""
+  },
+  "activeUntil": "Paketin {date} tarihine kadar açık.",
+  "@activeUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "buy": "Satın al",
+  "@buy": {
+    "description": ""
+  },
+  "extend": "Süreni uzat",
+  "@extend": {
+    "description": ""
+  },
+  "oneTime": "Tek seferlik ödeme; otomatik yenilenmez.",
+  "@oneTime": {
+    "description": ""
+  },
+  "newPeriodAfter": "Yeni süre, {date} tarihinden sonra başlar.",
+  "@newPeriodAfter": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "salesClosed": "Bu paketin satışı şu anda kapalı. Lütfen daha sonra tekrar dene.",
+  "@salesClosed": {
+    "description": ""
+  },
+  "continueAmount": "Devam et · {amount}",
+  "@continueAmount": {
+    "description": "",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "personalOnly": "Bu paket yalnızca seni kapsar; grubunun paketini etkilemez.",
+  "@personalOnly": {
+    "description": ""
+  },
+  "saving": "%{percent} avantajlı",
+  "@saving": {
+    "description": "",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "untilDate": "{date} tarihine kadar",
+  "@untilDate": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pricePer": "{price} / {unit}",
+  "@pricePer": {
+    "description": "",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productUnavailable": "Bu ürün şu anda satın alınamıyor.",
+  "@productUnavailable": {
+    "description": ""
+  },
+  "personalProduct": "Kişisel ürün",
+  "@personalProduct": {
+    "description": ""
+  },
+  "offerPeriod": "{plan} · {period}",
+  "@offerPeriod": {
+    "description": "",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "groupReady": "Grubun hazır",
+  "@groupReady": {
+    "description": ""
+  },
+  "freeStartBuy": "Grubun Ücretsiz paketle başladı. Daha fazla üye, organizasyon ya da yayın dakikası gerekiyorsa aşağıdan bir paket seçebilirsin.",
+  "@freeStartBuy": {
+    "description": ""
+  },
+  "freeStartView": "Grubun Ücretsiz paketle başladı. Paketlerin limitleri aşağıda.",
+  "@freeStartView": {
+    "description": ""
+  },
+  "continueFree": "Ücretsiz ile devam et",
+  "@continueFree": {
+    "description": ""
+  },
+  "goToGroup": "Gruba git",
+  "@goToGroup": {
+    "description": ""
+  },
+  "paymentReceivedGroup": "Ödeme alındı. Paketin etkin.",
+  "@paymentReceivedGroup": {
+    "description": ""
+  },
+  "membersOnly": "Grubun paketini yalnızca grubun üyeleri görebilir.",
+  "@membersOnly": {
+    "description": ""
+  },
+  "currentPlan": "Mevcut paket",
+  "@currentPlan": {
+    "description": ""
+  },
+  "onFree": "Grup ücretsiz paketi kullanıyor.",
+  "@onFree": {
+    "description": ""
+  },
+  "periodEnds": "Bu dönem {date} tarihinde bitiyor.",
+  "@periodEnds": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "overLimitLong": "Üye sayısı paketin limitini aşıyor. Kimse gruptan çıkarılmaz, ama limitin altına inilene kadar yeni üye alınamaz.",
+  "@overLimitLong": {
+    "description": ""
+  },
+  "atLimitLong": "Grup üye limitine ulaştı. Yeni üye almak için daha büyük bir pakete geçebilirsin.",
+  "@atLimitLong": {
+    "description": ""
+  },
+  "upcomingPeriods": "Sıradaki dönemler",
+  "@upcomingPeriods": {
+    "description": ""
+  },
+  "plans": "Paketler",
+  "@plans": {
+    "description": ""
+  },
+  "yearlyDeal": "Yıllık · 2 ay bedava",
+  "@yearlyDeal": {
+    "description": ""
+  },
+  "paymentNoteTry": "Ödeme {provider} ile Türk lirası olarak alınır; bulunduğun ülkeye göre belirlenir. Otomatik yenileme yoktur.",
+  "@paymentNoteTry": {
+    "description": "",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentNoteUsd": "Ödeme {provider} ile ABD doları olarak alınır; bulunduğun ülkeye göre belirlenir. Otomatik yenileme yoktur.",
+  "@paymentNoteUsd": {
+    "description": "",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsOff": "Ödeme şu anda alınamıyor. Lütfen daha sonra tekrar dene.",
+  "@paymentsOff": {
+    "description": ""
+  },
+  "notNow": "Şimdilik alınamaz",
+  "@notNow": {
+    "description": ""
+  },
+  "choose": "Seç",
+  "@choose": {
+    "description": ""
+  },
+  "upgrade": "Yükselt",
+  "@upgrade": {
+    "description": ""
+  },
+  "renew": "Süreyi uzat",
+  "@renew": {
+    "description": ""
+  },
+  "switchTo": "Bu pakete geç",
+  "@switchTo": {
+    "description": ""
+  },
+  "paidOverYear": "Paketin bir yıldan uzun süre için ödenmiş. Şimdilik yalnızca üst pakete geçebilirsin.",
+  "@paidOverYear": {
+    "description": ""
+  },
+  "startsNowCredit": "Hemen başlar; kalan sürenden yaklaşık {credit} eklenir. Bitiş: {date}.",
+  "@startsNowCredit": {
+    "description": "",
+    "placeholders": {
+      "credit": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "startsNow": "Hemen başlar. Bitiş: {date}.",
+  "@startsNow": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "startsAfterCurrent": "Mevcut dönemin ardından {date} tarihinde başlar.",
+  "@startsAfterCurrent": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "startsWhenEnds": "Mevcut dönem bitince, {date} tarihinde başlar.",
+  "@startsWhenEnds": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmPending": "Ödeme onayı henüz gelmedi. Ödemen alındıysa paketin birkaç dakika içinde etkinleşir; bu sayfayı sonra yenileyebilirsin.",
+  "@confirmPending": {
+    "description": ""
+  },
+  "confirming": "Ödemen onaylanıyor. Bu birkaç saniye sürebilir.",
+  "@confirming": {
+    "description": ""
+  },
+  "paymentFailed": "Ödeme tamamlanamadı. Tekrar deneyebilir ya da başka bir kart kullanabilirsin.",
+  "@paymentFailed": {
+    "description": ""
+  },
+  "refunded": "Bu ödeme iade edildi.",
+  "@refunded": {
+    "description": ""
+  },
+  "members": "Üyeler",
+  "@members": {
+    "description": ""
+  },
+  "membersSemantics": "{count} üye, limit {max}",
+  "@membersSemantics": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "limitMembers": "{count} üye",
+  "@limitMembers": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "limitEvents": "{count} organizasyon / ay",
+  "@limitEvents": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "limitLive": "{count} dk canlı yayın / ay",
+  "@limitLive": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "planName": "{plan} paket",
+  "@planName": {
+    "description": "",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "planUntil": "{plan} paketi · {date} tarihine kadar",
+  "@planUntil": {
+    "description": "",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "creditDays": "{days} gün",
+  "@creditDays": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  }
+}

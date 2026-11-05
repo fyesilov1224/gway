@@ -3,6 +3,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -23,9 +24,9 @@ class GroupPlanCard extends ConsumerWidget {
 
     final textTheme = Theme.of(context).textTheme;
     final full = plan.isOverLimit
-        ? 'Üye sayısı paketin limitini aşıyor. Limitin altına inilene kadar yeni üye alınamaz.'
+        ? billingL10n.overLimit
         : plan.isFull
-            ? 'Grup, paketinin üye limitine ulaştı. Yeni üye alınamaz.'
+            ? billingL10n.atLimit
             : null;
 
     if (!canManage) {
@@ -59,20 +60,20 @@ class GroupPlanCard extends ConsumerWidget {
                     children: [
                       Text(planStatusLine(plan), style: textTheme.labelLarge),
                       Text(
-                        '${formatCount(plan.memberCount)} / ${formatCount(plan.plan.maxMembers)} üye',
+                        billingL10n.membersOfMax(formatCount(plan.memberCount), formatCount(plan.plan.maxMembers)),
                         style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 // Mobile only shows the status; buying is on the web (docs/ARCHITECTURE.md §7).
-                if (!ref.watch(purchasesOnThisPlatformProvider)) TextButton(onPressed: onManage, child: const Text('Paket')),
+                if (!ref.watch(purchasesOnThisPlatformProvider)) TextButton(onPressed: onManage, child: Text(billingL10n.plan)),
               ],
             ),
             if (ref.watch(purchasesOnThisPlatformProvider)) ...[
               const SizedBox(height: GwSpacing.sm),
               GwButton(
-                label: plan.plan.isFree ? 'Paket al' : 'Paketi yükselt',
+                label: plan.plan.isFree ? billingL10n.getPlan : billingL10n.upgradePlan,
                 icon: planIcon,
                 onPressed: onManage,
               ),
@@ -84,7 +85,7 @@ class GroupPlanCard extends ConsumerWidget {
               const SizedBox(height: GwSpacing.sm),
               PlanNotice(
                 icon: Icons.schedule,
-                text: 'Paketin ${formatDate(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
+                text: billingL10n.planEnds(formatDate(plan.paidUntil!)),
               ),
             ],
           ],
