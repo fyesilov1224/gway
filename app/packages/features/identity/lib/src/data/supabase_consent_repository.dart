@@ -46,6 +46,21 @@ class SupabaseConsentRepository implements ConsentRepository {
     }
   }
 
+  /// The app-language translations of [docs]; Turkish needs none.
+  Future<List<LegalDocument>> _withTranslations(List<LegalDocument> docs) async {
+    final language = currentAppLanguage;
+    if (language == AppLanguage.tr || docs.isEmpty) return docs;
+    final rows = await _client
+        .from('legal_document_translations')
+        .select('kind, version, title, body')
+        .eq('language', language.code)
+        .inFilter('kind', [for (final d in docs) d.kind.code]);
+    final byKey = {
+      for (final r in rows) (r['kind'] as String, r['version'] as int): LegalTranslation(title: r['title'] as String, body: r['body'] as String),
+    };
+    return [for (final d in docs) d.withTranslation(byKey[(d.kind.code, d.version)])];
+  }
+
   Future<Result<List<LegalDocument>>> _load(
     Future<List<dynamic>> Function() query,
   ) async {
@@ -60,7 +75,7 @@ class SupabaseConsentRepository implements ConsentRepository {
             body: row['body'] as String,
           ),
       ]..sort((a, b) => a.kind.index.compareTo(b.kind.index));
-      return Ok(docs);
+      return Ok(await _withTranslations(docs));
     } on Object catch (e) {
       return Err(failureFromSupabase(e));
     }

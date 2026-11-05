@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/moderation.dart';
+import '../l10n.dart';
 import 'case_sheet.dart';
 import 'providers.dart';
 
@@ -21,9 +22,9 @@ String timeLeft(DateTime end, {DateTime? now}) {
   final left = end.difference(now ?? DateTime.now());
   if (left.inHours >= 24) {
     final hours = left.inHours % 24;
-    return hours == 0 ? '${left.inDays} gün' : '${left.inDays} gün $hours saat';
+    return hours == 0 ? moderationL10n.leftDays(left.inDays) : moderationL10n.leftDaysHours(left.inDays, hours);
   }
-  return left.inHours >= 1 ? '${left.inHours} saat' : 'birkaç dakika';
+  return left.inHours >= 1 ? moderationL10n.leftHours(left.inHours) : moderationL10n.leftFewMinutes;
 }
 
 void _snack(BuildContext context, String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -76,11 +77,11 @@ class _TextDialogState extends State<_TextDialog> {
         minLines: 1,
         maxLines: 4,
         decoration: InputDecoration(labelText: widget.label),
-        validator: (v) => (v ?? '').trim().length < widget.minLength ? 'En az ${widget.minLength} karakter yaz.' : null,
+        validator: (v) => (v ?? '').trim().length < widget.minLength ? moderationL10n.minChars(widget.minLength) : null,
       ),
     ),
     actions: [
-      TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Vazgeç')),
+      TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(moderationL10n.cancel)),
       FilledButton(
         onPressed: () {
           if (_form.currentState!.validate()) Navigator.of(context).pop(_controller.text.trim());
@@ -103,7 +104,7 @@ class GroupModerationScreen extends ConsumerWidget {
     final picked = await showDialog<CaseThreshold>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Kurul karar eşiği'),
+        title: Text(moderationL10n.threshold),
         children: [
           RadioGroup<CaseThreshold>(
             groupValue: current,
@@ -123,7 +124,7 @@ class GroupModerationScreen extends ConsumerWidget {
     if (!context.mounted) return;
     ref.invalidate(groupModerationProvider(groupId));
     _snack(context, switch (result) {
-      Ok() => 'Karar eşiği "${picked.label}" oldu. Yeni dosyalarda geçerli.',
+      Ok() => moderationL10n.thresholdChanged(picked.label),
       Err(:final failure) => failure.userMessage,
     });
   }
@@ -136,11 +137,11 @@ class GroupModerationScreen extends ConsumerWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Moderasyon · $groupName', overflow: TextOverflow.ellipsis),
+          title: Text(moderationL10n.moderationOf(groupName), overflow: TextOverflow.ellipsis),
           actions: [
             if (data != null && data.isOwner)
               IconButton(
-                tooltip: 'Kurul karar eşiği',
+                tooltip: moderationL10n.threshold,
                 icon: const Icon(Icons.tune),
                 onPressed: () => _pickThreshold(context, ref, data.threshold),
               ),
@@ -149,17 +150,17 @@ class GroupModerationScreen extends ConsumerWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: data == null || data.reports.isEmpty ? 'Şikayetler' : 'Şikayetler (${data.reports.length})'),
-              Tab(text: data == null || data.awaitingMyVote == 0 ? 'Dosyalar' : 'Dosyalar (${data.awaitingMyVote})'),
-              Tab(text: data == null || data.pendingAppeals.isEmpty ? 'Yaptırımlar' : 'Yaptırımlar (${data.pendingAppeals.length})'),
+              Tab(text: data == null || data.reports.isEmpty ? moderationL10n.reports : moderationL10n.reportsCount(data.reports.length)),
+              Tab(text: data == null || data.awaitingMyVote == 0 ? moderationL10n.cases : moderationL10n.casesCount(data.awaitingMyVote)),
+              Tab(text: data == null || data.pendingAppeals.isEmpty ? moderationL10n.sanctions : moderationL10n.sanctionsCount(data.pendingAppeals.length)),
             ],
           ),
         ),
         body: switch (desk) {
           AsyncData(value: null) => GwEmptyState(
             icon: Icons.lock_outline,
-            message: 'Bu grubun moderasyonunu yalnızca grup sahibi ve moderasyon ekibi görür.',
-            actionLabel: 'Geri dön',
+            message: moderationL10n.moderationTeamOnly,
+            actionLabel: moderationL10n.goBack,
             onAction: () => Navigator.of(context).maybePop(),
           ),
           AsyncData(:final value?) => RefreshIndicator(
@@ -255,7 +256,7 @@ class _PersonRow extends StatelessWidget {
               children: [
                 Text(person.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
                 if (person.username.isNotEmpty)
-                  Text('@${person.username}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                  Text(atName(person.username), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
@@ -296,8 +297,8 @@ class _ReportsTab extends ConsumerWidget {
         children: [
           GwEmptyState(
             icon: Icons.verified_user_outlined,
-            message: 'Açık şikayet yok. Üyelerin şikayetleri burada toplanır.',
-            actionLabel: 'Yenile',
+            message: moderationL10n.noReports,
+            actionLabel: moderationL10n.refresh,
             onAction: () => ref.invalidate(groupModerationProvider(groupId)),
           ),
         ],
@@ -337,9 +338,9 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
   }
 
   Future<void> _remove() async {
-    final reason = await askText(context, title: 'İçeriği kaldır', label: 'Gerekçe', confirm: 'Kaldır');
+    final reason = await askText(context, title: moderationL10n.removeContent, label: moderationL10n.reason, confirm: moderationL10n.remove);
     if (reason == null) return;
-    await _act(() => ref.read(moderationRepositoryProvider).removeContent(widget.report.id, reason: reason), 'İçerik kaldırıldı.');
+    await _act(() => ref.read(moderationRepositoryProvider).removeContent(widget.report.id, reason: reason), moderationL10n.contentRemoved);
   }
 
   void _open() {
@@ -368,9 +369,9 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
           children: [
             GwBadge(r.targetLabel, tone: GwBadgeTone.info),
             const SizedBox(width: GwSpacing.xs),
-            GwBadge(r.count == 1 ? '1 şikayet' : '${r.count} şikayet', tone: r.count > 2 ? GwBadgeTone.danger : GwBadgeTone.warning),
+            GwBadge(moderationL10n.reportCount(r.count), tone: r.count > 2 ? GwBadgeTone.danger : GwBadgeTone.warning),
             const Spacer(),
-            Text(formatDateTimeTr(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+            Text(formatDateTime(r.lastAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
           ],
         ),
         if (r.subject case final subject?) ...[
@@ -392,21 +393,21 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
           spacing: GwSpacing.xs,
           runSpacing: GwSpacing.xs,
           children: [
-            if (canOpen) TextButton(onPressed: _open, child: const Text('Görüntüle')),
+            if (canOpen) TextButton(onPressed: _open, child: Text(moderationL10n.view)),
             TextButton(
-              onPressed: _busy ? null : () => _act(() => ref.read(moderationRepositoryProvider).dismiss(r.id), 'Şikayet reddedildi.'),
-              child: const Text('Reddet'),
+              onPressed: _busy ? null : () => _act(() => ref.read(moderationRepositoryProvider).dismiss(r.id), moderationL10n.reportDismissed),
+              child: Text(moderationL10n.dismiss),
             ),
             if (r.removable && outranks)
               GwButton(
-                label: 'İçeriği kaldır',
+                label: moderationL10n.removeContent,
                 icon: Icons.delete_outline,
                 variant: GwButtonVariant.secondary,
                 onPressed: _busy ? null : _remove,
               ),
             if (outranks)
               GwButton(
-                label: 'Dosya aç',
+                label: moderationL10n.openCaseShort,
                 icon: Icons.gavel_outlined,
                 onPressed: _busy
                     ? null
@@ -424,7 +425,7 @@ class _ReportCardState extends ConsumerState<_ReportCard> {
         ),
         if (r.subject != null && !outranks)
           Text(
-            'Bu kişinin rütbesi seninkinden düşük olmadığı için yalnızca reddedebilirsin.',
+            moderationL10n.rankOnlyDismiss,
             style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
       ],
@@ -447,8 +448,8 @@ class _CasesTab extends ConsumerWidget {
         children: [
           GwEmptyState(
             icon: Icons.gavel_outlined,
-            message: 'Henüz disiplin dosyası yok. Dosyalar bir şikayetten ya da üyeler sayfasından açılır.',
-            actionLabel: 'Yenile',
+            message: moderationL10n.noCases,
+            actionLabel: moderationL10n.refresh,
             onAction: () => ref.invalidate(groupModerationProvider(groupId)),
           ),
         ],
@@ -480,9 +481,9 @@ class _CaseCardState extends ConsumerState<CaseCard> {
     if (!mounted) return;
     setState(() => _busy = false);
     _snack(context, switch (result) {
-      Ok(value: CaseStatus.approved) => 'Oyun kaydedildi. Kurul yaptırımı onayladı; yaptırım uygulandı.',
-      Ok(value: CaseStatus.rejected) => 'Oyun kaydedildi. Kurul yaptırımı reddetti.',
-      Ok() => 'Oyun kaydedildi. Karar çıkana kadar değiştirebilirsin.',
+      Ok(value: CaseStatus.approved) => moderationL10n.voteApproved,
+      Ok(value: CaseStatus.rejected) => moderationL10n.voteRejected,
+      Ok() => moderationL10n.voteSaved,
       Err(:final failure) => failure.userMessage,
     });
     ref.invalidate(groupModerationProvider(widget.groupId));
@@ -494,9 +495,9 @@ class _CaseCardState extends ConsumerState<CaseCard> {
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     final (statusLabel, tone) = switch (c.status) {
-      CaseStatus.voting => ('Oylamada', GwBadgeTone.info),
-      CaseStatus.approved => ('Onaylandı', GwBadgeTone.danger),
-      CaseStatus.rejected => ('Reddedildi', GwBadgeTone.neutral),
+      CaseStatus.voting => (moderationL10n.statusVoting, GwBadgeTone.info),
+      CaseStatus.approved => (moderationL10n.statusApproved, GwBadgeTone.danger),
+      CaseStatus.rejected => (moderationL10n.statusRejected, GwBadgeTone.neutral),
     };
     return _Card(
       children: [
@@ -505,26 +506,26 @@ class _CaseCardState extends ConsumerState<CaseCard> {
           trailing: GwBadge(statusLabel, tone: tone, dot: c.isOpen),
         ),
         const SizedBox(height: GwSpacing.sm),
-        Text(c.direct ? c.proposal : 'Önerilen: ${c.proposal}', style: textTheme.titleSmall),
+        Text(c.direct ? c.proposal : moderationL10n.proposed(c.proposal), style: textTheme.titleSmall),
         if (c.direct) ...[
           const SizedBox(height: GwSpacing.xxs),
-          const GwBadge('Oylamasız ban', tone: GwBadgeTone.warning),
+          GwBadge(moderationL10n.directBan, tone: GwBadgeTone.warning),
         ],
         if (c.illegalCategory case final illegal?) ...[
           const SizedBox(height: GwSpacing.xxs),
-          GwBadge('Yasa dışı faaliyet: ${illegal.label}', tone: GwBadgeTone.danger),
+          GwBadge(moderationL10n.illegalLabel(illegal.label), tone: GwBadgeTone.danger),
         ],
         const SizedBox(height: GwSpacing.xxs),
         Text(c.reason, style: textTheme.bodyMedium),
         const SizedBox(height: GwSpacing.xs),
         Text(
           [
-            if (!c.direct) ...['${c.approvals} onay · ${c.rejections} ret · ${c.voters} oy hakkı', c.threshold.label],
-            if (c.isOpen) 'Oylama ${timeLeft(c.votingEndsAt)} sonra biter' else if (c.decidedAt != null) formatDateTimeTr(c.decidedAt!),
+            if (!c.direct) ...[moderationL10n.tally(c.approvals, c.rejections, c.voters), c.threshold.label],
+            if (c.isOpen) moderationL10n.votingEndsIn(timeLeft(c.votingEndsAt)) else if (c.decidedAt != null) formatDateTime(c.decidedAt!),
           ].join(' · '),
           style: secondary,
         ),
-        if (c.openedBy case final opener?) Text('${c.direct ? 'Banlayan' : 'Dosyayı açan'}: ${opener.displayName}', style: secondary),
+        if (c.openedBy case final opener?) Text(c.direct ? moderationL10n.bannedBy(opener.displayName) : moderationL10n.openedBy(opener.displayName), style: secondary),
 
         if (c.isOpen && c.isVoter) ...[
           const SizedBox(height: GwSpacing.sm),
@@ -534,7 +535,7 @@ class _CaseCardState extends ConsumerState<CaseCard> {
             children: [
               Expanded(
                 child: GwButton(
-                  label: 'Onayla',
+                  label: moderationL10n.approve,
                   icon: Icons.check,
                   variant: c.myVote == true ? GwButtonVariant.primary : GwButtonVariant.secondary,
                   onPressed: _busy || c.myVote == true ? null : () => _vote(true),
@@ -543,7 +544,7 @@ class _CaseCardState extends ConsumerState<CaseCard> {
               const SizedBox(width: GwSpacing.xs),
               Expanded(
                 child: GwButton(
-                  label: 'Reddet',
+                  label: moderationL10n.dismiss,
                   icon: Icons.close,
                   variant: c.myVote == false ? GwButtonVariant.primary : GwButtonVariant.secondary,
                   onPressed: _busy || c.myVote == false ? null : () => _vote(false),
@@ -572,8 +573,8 @@ class _SanctionsTab extends ConsumerWidget {
         children: [
           GwEmptyState(
             icon: Icons.shield_outlined,
-            message: 'Henüz yaptırım yok. Kurulun onayladığı yaptırımlar ve itirazlar burada görünür.',
-            actionLabel: 'Yenile',
+            message: moderationL10n.noSanctions,
+            actionLabel: moderationL10n.refresh,
             onAction: () => ref.invalidate(groupModerationProvider(groupId)),
           ),
         ],
@@ -606,9 +607,9 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
   Future<void> _decide(Appeal appeal, {required bool overturn}) async {
     final note = await askText(
       context,
-      title: overturn ? 'Yaptırımı kaldır' : 'Yaptırım sürsün',
-      label: 'Kişiye notun (isteğe bağlı)',
-      confirm: overturn ? 'Kaldır' : 'Onayla',
+      title: overturn ? moderationL10n.liftSanction : moderationL10n.keepSanction,
+      label: moderationL10n.noteToPerson,
+      confirm: overturn ? moderationL10n.remove : moderationL10n.approve,
       minLength: 0,
     );
     if (note == null || !mounted) return;
@@ -619,7 +620,7 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
     if (!mounted) return;
     setState(() => _busy = false);
     _snack(context, switch (result) {
-      Ok() => overturn ? 'Yaptırım kaldırıldı; kişiye bildirildi.' : 'İtiraz reddedildi; kişiye bildirildi.',
+      Ok() => overturn ? moderationL10n.liftedNotified : moderationL10n.appealRejectedNotified,
       Err(:final failure) => failure.userMessage,
     });
     ref.invalidate(groupModerationProvider(widget.groupId));
@@ -632,10 +633,10 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
     final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     final appeal = s.appeal;
     final (status, tone) = s.liftedAt != null
-        ? ('Kaldırıldı', GwBadgeTone.neutral)
+        ? (moderationL10n.lifted, GwBadgeTone.neutral)
         : s.isRunning
-        ? (s.interim ? 'Acil susturma' : 'Sürüyor', GwBadgeTone.danger)
-        : ('Uygulandı', GwBadgeTone.neutral);
+        ? (s.interim ? moderationL10n.interimMute : moderationL10n.running, GwBadgeTone.danger)
+        : (moderationL10n.applied, GwBadgeTone.neutral);
     return _Card(
       children: [
         _PersonRow(
@@ -645,24 +646,24 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
         const SizedBox(height: GwSpacing.sm),
         Text(
           s.interim
-              ? 'Acil susturma · kurul kararına kadar'
+              ? moderationL10n.interimUntilDecision
               : s.type == SanctionType.mute || s.type == SanctionType.ban
-              ? '${s.type.label} · ${s.endsAt == null ? 'kalıcı' : '${formatDateTimeTr(s.endsAt!)} tarihine kadar'}'
+              ? '${s.type.label} · ${s.endsAt == null ? moderationL10n.permanentLower : moderationL10n.until(formatDateTime(s.endsAt!))}'
               : s.type.label,
           style: textTheme.titleSmall,
         ),
         if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xxs), Text(s.reason, style: textTheme.bodyMedium)],
-        Text(formatDateTimeTr(s.startsAt), style: secondary),
+        Text(formatDateTime(s.startsAt), style: secondary),
         if (appeal != null) ...[
           const SizedBox(height: GwSpacing.sm),
-          Text('İtiraz · ${appeal.status.label}', style: textTheme.labelLarge),
+          Text(moderationL10n.appealLine(appeal.status.label), style: textTheme.labelLarge),
           const SizedBox(height: GwSpacing.xxs),
           _Quote(appeal.body),
-          if (appeal.decisionNote case final note?) ...[const SizedBox(height: GwSpacing.xxs), Text('Not: $note', style: secondary)],
+          if (appeal.decisionNote case final note?) ...[const SizedBox(height: GwSpacing.xxs), Text(moderationL10n.noteLine(note), style: secondary)],
           if (appeal.status == AppealStatus.pending && appeal.byPlatform)
             Padding(
               padding: const EdgeInsets.only(top: GwSpacing.xs),
-              child: Text('Sahip bu dosyada taraf olduğu için itirazı platform ekibi inceliyor.', style: secondary),
+              child: Text(moderationL10n.ownerParty, style: secondary),
             ),
           if (widget.desk.pendingAppeals.contains(s)) ...[
             const SizedBox(height: GwSpacing.sm),
@@ -670,14 +671,14 @@ class _SanctionCardState extends ConsumerState<_SanctionCard> {
               children: [
                 Expanded(
                   child: GwButton(
-                    label: 'Yaptırımı kaldır',
+                    label: moderationL10n.liftSanction,
                     variant: GwButtonVariant.secondary,
                     onPressed: _busy ? null : () => _decide(appeal, overturn: true),
                   ),
                 ),
                 const SizedBox(width: GwSpacing.xs),
                 Expanded(
-                  child: GwButton(label: 'Sürsün', onPressed: _busy ? null : () => _decide(appeal, overturn: false)),
+                  child: GwButton(label: moderationL10n.keep, onPressed: _busy ? null : () => _decide(appeal, overturn: false)),
                 ),
               ],
             ),

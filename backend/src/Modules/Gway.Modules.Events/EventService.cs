@@ -5,6 +5,7 @@ using Gway.SharedKernel;
 using Gway.SharedKernel.Auditing;
 using Gway.SharedKernel.Database;
 using Gway.SharedKernel.Http;
+using Gway.SharedKernel.Localization;
 using Gway.SharedKernel.Supabase;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -582,20 +583,25 @@ internal sealed partial class EventService(
         await using var cmd = db.CreateCommand(
             """
             select e.title, to_char(e.starts_at at time zone 'Europe/Istanbul', 'DD.MM.YYYY HH24:MI'),
-                   case when e.surprise_reveal_hours is null then e.location else 'Sürpriz mekan: ' || e.location end, g.name,
-                   e.cover_path, e.canceled_at is not null
+                   e.location, g.name, e.cover_path, e.canceled_at is not null, e.surprise_reveal_hours is not null
             from public.events e join public.groups g on g.id = e.group_id
             where e.id = @id and g.status = 'active'
             """);
         cmd.Parameters.AddWithValue("id", id);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         if (!await r.ReadAsync(ct))
-            return SharePage.Render(appUrl, "/groups", SharePage.FallbackTitle, SharePage.FallbackDescription, null);
+            return SharePage.Fallback(appUrl);
 
-        var place = r.GetString(2).Trim();
-        var description = $"{(r.GetBoolean(5) ? "İptal edildi · " : "")}{r.GetString(1)}{(place.Length > 0 ? $" · {place}" : "")} · {r.GetString(3)}";
+        var (title, when, place, group) = (r.GetString(0), r.GetString(1), r.GetString(2).Trim(), r.GetString(3));
+        var (canceled, surprise) = (r.GetBoolean(5), r.GetBoolean(6));
         var image = SharePage.PublicImage(configuration["Supabase:Url"] ?? "", Bucket, r.IsDBNull(4) ? null : r.GetString(4));
-        return SharePage.Render(appUrl, $"/e/{id}", r.GetString(0), description, image);
+        return SharePage.Render(appUrl, $"/e/{id}", _ => title, language => string.Join(" · ", new[]
+        {
+            canceled ? ServerText.Translate("İptal edildi", language) : null,
+            when,
+            place.Length == 0 ? null : surprise ? ServerText.Format(language, "Sürpriz mekan: {0}", place) : place,
+            group,
+        }.Where(part => part is not null)), image);
     }
 
     // Polls ------------------------------------------------------------------------------------

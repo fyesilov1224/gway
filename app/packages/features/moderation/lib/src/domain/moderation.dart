@@ -1,32 +1,49 @@
 import 'package:core/core.dart';
 
-enum ReportReason {
-  spam('spam', 'Spam ya da yanıltıcı'),
-  harassment('harassment', 'Taciz ya da zorbalık'),
-  hate('hate', 'Nefret söylemi'),
-  violence('violence', 'Şiddet ya da tehdit'),
-  sexual('sexual', 'Cinsel içerik'),
-  misinformation('misinformation', 'Yanlış bilgi'),
-  other('other', 'Diğer');
+import '../l10n.dart';
 
-  const ReportReason(this.code, this.label);
+enum ReportReason {
+  spam('spam'),
+  harassment('harassment'),
+  hate('hate'),
+  violence('violence'),
+  sexual('sexual'),
+  misinformation('misinformation'),
+  other('other');
+
+  const ReportReason(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        spam => moderationL10n.reasonSpam,
+        harassment => moderationL10n.reasonHarassment,
+        hate => moderationL10n.reasonHate,
+        violence => moderationL10n.reasonViolence,
+        sexual => moderationL10n.reasonSexual,
+        misinformation => moderationL10n.reasonMisinformation,
+        other => moderationL10n.reasonOther,
+      };
 
   static ReportReason parse(Object? code) => values.firstWhere((r) => r.code == code, orElse: () => other);
 }
 
 enum SanctionType {
-  warning('warning', 'Uyarı'),
-  mute('mute', 'Susturma'),
-  kick('kick', 'Gruptan çıkarma'),
-  ban('ban', 'Ban');
+  warning('warning'),
+  mute('mute'),
+  kick('kick'),
+  ban('ban');
 
-  const SanctionType(this.code, this.label);
+  const SanctionType(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        warning => moderationL10n.sanctionWarning,
+        mute => moderationL10n.sanctionMute,
+        kick => moderationL10n.sanctionKick,
+        ban => moderationL10n.sanctionBan,
+      };
 
   static SanctionType parse(Object? code) => values.firstWhere((s) => s.code == code, orElse: () => warning);
 
@@ -41,41 +58,62 @@ enum SanctionType {
 /// What counts as illegal activity (docs/ARCHITECTURE.md §3e, Yasa dışı faaliyet). An approved ban case marked
 /// with one goes to the platform team, which may close the account.
 enum IllegalCategory {
-  violence('violence', 'Şiddet'),
-  threat('threat', 'Tehdit'),
-  insult('insult', 'Hakaret'),
-  hate('hate', 'Nefret söylemi'),
-  sexual('sexual', 'Cinsel istismar'),
-  fraud('fraud', 'Dolandırıcılık'),
-  drugs('drugs', 'Uyuşturucu'),
-  terror('terror', 'Terör'),
-  otherCrime('other_crime', 'Başka bir suç');
+  violence('violence'),
+  threat('threat'),
+  insult('insult'),
+  hate('hate'),
+  sexual('sexual'),
+  fraud('fraud'),
+  drugs('drugs'),
+  terror('terror'),
+  otherCrime('other_crime');
 
-  const IllegalCategory(this.code, this.label);
+  const IllegalCategory(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        violence => moderationL10n.illegalViolence,
+        threat => moderationL10n.illegalThreat,
+        insult => moderationL10n.illegalInsult,
+        hate => moderationL10n.illegalHate,
+        sexual => moderationL10n.illegalSexual,
+        fraud => moderationL10n.illegalFraud,
+        drugs => moderationL10n.illegalDrugs,
+        terror => moderationL10n.illegalTerror,
+        otherCrime => moderationL10n.illegalOther,
+      };
 
   static IllegalCategory? parse(Object? code) => values.where((c) => c.code == code).firstOrNull;
 }
 
 /// "7 gün ban", "Kalıcı ban", "Uyarı".
 String sanctionLabel(SanctionType type, int? days) => switch (type) {
-      SanctionType.mute => '$days gün susturma',
-      SanctionType.ban => days == null ? 'Kalıcı ban' : '$days gün ban',
+      SanctionType.mute => moderationL10n.muteDays(days ?? 0),
+      SanctionType.ban => days == null ? moderationL10n.permanentBan : moderationL10n.banDays(days),
       _ => type.label,
     };
 
 enum CaseThreshold {
-  majority('majority', 'Salt çoğunluk', 'Oyların yarısından fazlası'),
-  twoThirds('two_thirds', 'Üçte iki', 'Oyların en az üçte ikisi'),
-  unanimous('unanimous', 'Oybirliği', 'Oyların tamamı');
+  majority('majority'),
+  twoThirds('two_thirds'),
+  unanimous('unanimous');
 
-  const CaseThreshold(this.code, this.label, this.description);
+  const CaseThreshold(this.code);
 
   final String code;
-  final String label;
-  final String description;
+
+  String get label => switch (this) {
+        majority => moderationL10n.thresholdMajority,
+        twoThirds => moderationL10n.thresholdTwoThirds,
+        unanimous => moderationL10n.thresholdUnanimous,
+      };
+
+  String get description => switch (this) {
+        majority => moderationL10n.thresholdMajorityText,
+        twoThirds => moderationL10n.thresholdTwoThirdsText,
+        unanimous => moderationL10n.thresholdUnanimousText,
+      };
 
   static CaseThreshold parse(Object? code) => values.firstWhere((t) => t.code == code, orElse: () => majority);
 }
@@ -125,12 +163,12 @@ class GroupReport {
   bool get removable => targetType == 'comment' || targetType == 'live_comment' || targetType == 'message';
 
   String get targetLabel => switch (targetType) {
-        'post' => 'Gönderi',
-        'comment' => 'Yorum',
-        'event' => 'Organizasyon',
-        'live_comment' => 'Canlı yayın yorumu',
-        'message' => 'Grup sohbeti mesajı',
-        _ => 'Üye',
+        'post' => moderationL10n.targetPost,
+        'comment' => moderationL10n.targetComment,
+        'event' => moderationL10n.targetEvent,
+        'live_comment' => moderationL10n.targetLiveComment,
+        'message' => moderationL10n.targetMessage,
+        _ => moderationL10n.targetMember,
       };
 }
 
@@ -199,14 +237,19 @@ class ModerationCase {
 }
 
 enum AppealStatus {
-  pending('pending', 'Karar bekliyor'),
-  upheld('upheld', 'Yaptırım sürüyor'),
-  overturned('overturned', 'Yaptırım kaldırıldı');
+  pending('pending'),
+  upheld('upheld'),
+  overturned('overturned');
 
-  const AppealStatus(this.code, this.label);
+  const AppealStatus(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        pending => moderationL10n.appealPending,
+        upheld => moderationL10n.appealUpheld,
+        overturned => moderationL10n.appealOverturned,
+      };
 
   static AppealStatus parse(Object? code) => values.firstWhere((s) => s.code == code, orElse: () => pending);
 }

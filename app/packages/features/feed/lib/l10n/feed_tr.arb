@@ -1,0 +1,752 @@
+{
+  "@@locale": "tr",
+  "commentsOff": "Bu gönderide yorumlar kapalı.",
+  "@commentsOff": {
+    "description": ""
+  },
+  "commentNotAllowed": "Bu paylaşıma şu anda yorum yazılamıyor. Emojiyle tepki bırakabilirsin.",
+  "@commentNotAllowed": {
+    "description": ""
+  },
+  "blocked": "Bu hesapla etkileşime geçemezsin.",
+  "@blocked": {
+    "description": ""
+  },
+  "commentRate": "Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.",
+  "@commentRate": {
+    "description": ""
+  },
+  "muted": "Bu grupta susturulduğun için şu anda yorum yazamazsın.",
+  "@muted": {
+    "description": ""
+  },
+  "likeRate": "Kısa sürede çok fazla beğeni yaptın. Biraz bekleyip tekrar dene.",
+  "@likeRate": {
+    "description": ""
+  },
+  "replyGone": "Yanıt verdiğin yorum artık yok.",
+  "@replyGone": {
+    "description": ""
+  },
+  "storyRate": "Bugün çok fazla hikaye paylaştın. Yarın tekrar dene.",
+  "@storyRate": {
+    "description": ""
+  },
+  "highlightLimit": "En fazla 100 öne çıkan oluşturabilirsin.",
+  "@highlightLimit": {
+    "description": ""
+  },
+  "highlightFull": "Bir öne çıkanda en fazla 100 hikaye olabilir.",
+  "@highlightFull": {
+    "description": ""
+  },
+  "duplicate": "Bu işlem zaten yapılmış.",
+  "@duplicate": {
+    "description": ""
+  },
+  "fileTooLarge": "Dosya çok büyük. Fotoğraflar en fazla 10 MB, videolar 50 MB olabilir.",
+  "@fileTooLarge": {
+    "description": ""
+  },
+  "unsupportedMedia": "Yalnızca JPEG, PNG, WebP fotoğraf ve MP4, MOV video paylaşılabilir.",
+  "@unsupportedMedia": {
+    "description": ""
+  },
+  "commentLength": "Yorum 1–2.200 karakter olmalı.",
+  "@commentLength": {
+    "description": ""
+  },
+  "highlightTitleLength": "Başlık 1–30 karakter olmalı.",
+  "@highlightTitleLength": {
+    "description": ""
+  },
+  "pickStory": "En az bir hikaye seç.",
+  "@pickStory": {
+    "description": ""
+  },
+  "aspectOriginal": "Orijinal",
+  "@aspectOriginal": {
+    "description": ""
+  },
+  "agoNow": "şimdi",
+  "@agoNow": {
+    "description": ""
+  },
+  "agoMinutes": "{n} dk",
+  "@agoMinutes": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "agoHours": "{n} sa",
+  "@agoHours": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "agoDays": "{n} g",
+  "@agoDays": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "agoWeeks": "{n} hf",
+  "@agoWeeks": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "photoLimit": "Fotoğraflar en fazla 10 MB olabilir.",
+  "@photoLimit": {
+    "description": ""
+  },
+  "videoSizeLimit": "Videolar en fazla 50 MB olabilir.",
+  "@videoSizeLimit": {
+    "description": ""
+  },
+  "videoLengthLimit": "Videolar en fazla 60 saniye olabilir.",
+  "@videoLengthLimit": {
+    "description": ""
+  },
+  "captionLimit": "Açıklama en fazla 2.200 karakter olabilir.",
+  "@captionLimit": {
+    "description": ""
+  },
+  "hashtagLimit": "Bir gönderide en fazla 30 etiket kullanılabilir.",
+  "@hashtagLimit": {
+    "description": ""
+  },
+  "mediaCount": "Bir gönderide 1–10 fotoğraf ya da video olabilir.",
+  "@mediaCount": {
+    "description": ""
+  },
+  "comments": "Yorumlar",
+  "@comments": {
+    "description": ""
+  },
+  "noCommentsEmojiOnly": "Henüz yorum yok. Bu paylaşıma emojiyle tepki bırakabilirsin.",
+  "@noCommentsEmojiOnly": {
+    "description": ""
+  },
+  "noCommentsFirst": "Henüz yorum yok. İlk yorumu sen yaz.",
+  "@noCommentsFirst": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "writeComment": "Yorum yaz",
+  "@writeComment": {
+    "description": ""
+  },
+  "replyingTo": "{username} kullanıcısına yanıt veriyorsun",
+  "@replyingTo": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelReply": "Yanıtı iptal et",
+  "@cancelReply": {
+    "description": ""
+  },
+  "addComment": "Yorum ekle…",
+  "@addComment": {
+    "description": ""
+  },
+  "share": "Paylaş",
+  "@share": {
+    "description": ""
+  },
+  "deleteCommentTitle": "Yorum silinsin mi?",
+  "@deleteCommentTitle": {
+    "description": ""
+  },
+  "deleteCommentBody": "Yorum ve yanıtları kalıcı olarak silinir.",
+  "@deleteCommentBody": {
+    "description": ""
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "likeCount": "{count} beğenme",
+  "@likeCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentCount": "{count} yorum",
+  "@commentCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reply": "Yanıtla",
+  "@reply": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "unlike": "Beğenmekten vazgeç",
+  "@unlike": {
+    "description": ""
+  },
+  "likeComment": "Yorumu beğen",
+  "@likeComment": {
+    "description": ""
+  },
+  "cantComment": "Bu paylaşıma şu anda yorum yazamazsın. Emojiyle tepki bırakabilirsin.",
+  "@cantComment": {
+    "description": ""
+  },
+  "tooManyMedia": "Bir gönderide en fazla 10 fotoğraf ya da video olabilir.",
+  "@tooManyMedia": {
+    "description": ""
+  },
+  "cantOpenFile": "Seçilen dosya açılamadı. Başka bir fotoğraf ya da video dene.",
+  "@cantOpenFile": {
+    "description": ""
+  },
+  "preparingPhotos": "Fotoğraflar hazırlanıyor…",
+  "@preparingPhotos": {
+    "description": ""
+  },
+  "photosFailed": "Fotoğraflar hazırlanamadı. Başka bir fotoğraf dene.",
+  "@photosFailed": {
+    "description": ""
+  },
+  "uploading": "Yükleniyor: {done}/{total}",
+  "@uploading": {
+    "description": "",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sharing": "Paylaşılıyor…",
+  "@sharing": {
+    "description": ""
+  },
+  "postShared": "Gönderin paylaşıldı.",
+  "@postShared": {
+    "description": ""
+  },
+  "newPost": "Yeni gönderi",
+  "@newPost": {
+    "description": ""
+  },
+  "memoryNotice": "Bu gönderi organizasyonun anıları arasında da görünecek. Yalnızca kendi fotoğraflarını ve izin aldığın kişileri paylaş.",
+  "@memoryNotice": {
+    "description": ""
+  },
+  "pickMediaHint": "Paylaşmak için 10 taneye kadar fotoğraf ya da video seç.",
+  "@pickMediaHint": {
+    "description": ""
+  },
+  "pickFromGallery": "Galeriden seç",
+  "@pickFromGallery": {
+    "description": ""
+  },
+  "cropHint": "Yakınlaştırmak için iki parmakla aç, kadrajlamak için sürükle. Oran tüm fotoğraflara uygulanır.",
+  "@cropHint": {
+    "description": ""
+  },
+  "caption": "Açıklama",
+  "@caption": {
+    "description": ""
+  },
+  "captionHint": "Bir şeyler yaz… #etiket ve @kullanıcıadı ekleyebilirsin.",
+  "@captionHint": {
+    "description": ""
+  },
+  "postAs": "Kim adına paylaşılsın?",
+  "@postAs": {
+    "description": ""
+  },
+  "myProfile": "Kendi profilim",
+  "@myProfile": {
+    "description": ""
+  },
+  "groupOption": "{name} (grup)",
+  "@groupOption": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "turnOffComments": "Yorumları kapat",
+  "@turnOffComments": {
+    "description": ""
+  },
+  "hideLikes": "Beğeni sayısını gizle",
+  "@hideLikes": {
+    "description": ""
+  },
+  "onlyYouSee": "Sayıyı yalnızca sen görürsün.",
+  "@onlyYouSee": {
+    "description": ""
+  },
+  "mediaN": "{n}. medya",
+  "@mediaN": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "seconds": "▶ {n} sn",
+  "@seconds": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "removeMedia": "Çıkar",
+  "@removeMedia": {
+    "description": ""
+  },
+  "cantShare": "Paylaşılamaz",
+  "@cantShare": {
+    "description": ""
+  },
+  "addMedia": "Medya ekle",
+  "@addMedia": {
+    "description": ""
+  },
+  "editPost": "Gönderiyi düzenle",
+  "@editPost": {
+    "description": ""
+  },
+  "save": "Kaydet",
+  "@save": {
+    "description": ""
+  },
+  "noEditPermission": "Bu gönderiyi düzenleme yetkin yok.",
+  "@noEditPermission": {
+    "description": ""
+  },
+  "photoToCrop": "Kırpılacak fotoğraf",
+  "@photoToCrop": {
+    "description": ""
+  },
+  "stories": "Hikâyeler",
+  "@stories": {
+    "description": ""
+  },
+  "feed": "Akış",
+  "@feed": {
+    "description": ""
+  },
+  "feedHint": "Gruplarından ve takip ettiklerinden",
+  "@feedHint": {
+    "description": ""
+  },
+  "feedEmpty": "Akışın boş. Takip ettiğin kişilerin ve grupların gönderileri burada görünür.",
+  "@feedEmpty": {
+    "description": ""
+  },
+  "explore": "Keşfet",
+  "@explore": {
+    "description": ""
+  },
+  "searchHint": "Kişi ya da #etiket ara",
+  "@searchHint": {
+    "description": ""
+  },
+  "clear": "Temizle",
+  "@clear": {
+    "description": ""
+  },
+  "exploreEmpty": "Keşfedilecek yeni gönderi yok. Biraz sonra tekrar bak.",
+  "@exploreEmpty": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "accounts": "Hesaplar",
+  "@accounts": {
+    "description": ""
+  },
+  "hashtags": "Etiketler",
+  "@hashtags": {
+    "description": ""
+  },
+  "noTagMatch": "\"{query}\" ile başlayan bir etiket bulunamadı.",
+  "@noTagMatch": {
+    "description": "",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "clearSearch": "Aramayı temizle",
+  "@clearSearch": {
+    "description": ""
+  },
+  "postCount": "{count} gönderi",
+  "@postCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noTagPosts": "#{tag} etiketiyle görebileceğin bir gönderi yok.",
+  "@noTagPosts": {
+    "description": "",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "backToExplore": "Keşfete dön",
+  "@backToExplore": {
+    "description": ""
+  },
+  "saved": "Kaydedilenler",
+  "@saved": {
+    "description": ""
+  },
+  "savedEmpty": "Kaydettiğin gönderiler burada yalnızca sana görünür.",
+  "@savedEmpty": {
+    "description": ""
+  },
+  "post": "Gönderi",
+  "@post": {
+    "description": ""
+  },
+  "postGone": "Bu gönderi silinmiş ya da görme iznin yok.",
+  "@postGone": {
+    "description": ""
+  },
+  "backToFeed": "Akışa dön",
+  "@backToFeed": {
+    "description": ""
+  },
+  "unmute": "Sesi aç",
+  "@unmute": {
+    "description": ""
+  },
+  "mute": "Sesi kapat",
+  "@mute": {
+    "description": ""
+  },
+  "addedToSaved": "Kaydedilenlere eklendi.",
+  "@addedToSaved": {
+    "description": ""
+  },
+  "linkCopied": "Gönderi bağlantısı kopyalandı.",
+  "@linkCopied": {
+    "description": ""
+  },
+  "deletePostTitle": "Gönderi silinsin mi?",
+  "@deletePostTitle": {
+    "description": ""
+  },
+  "deletePostBody": "Gönderi, fotoğrafları, videoları ve yorumlarıyla birlikte kalıcı olarak silinir.",
+  "@deletePostBody": {
+    "description": ""
+  },
+  "postDeleted": "Gönderi silindi.",
+  "@postDeleted": {
+    "description": ""
+  },
+  "likesHidden": "Beğeni sayısı yalnızca sana görünür.",
+  "@likesHidden": {
+    "description": ""
+  },
+  "memoryOf": "Anı · {title}",
+  "@memoryOf": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deletedAccount": "Silinmiş hesap",
+  "@deletedAccount": {
+    "description": ""
+  },
+  "groupPost": "Grup gönderisi",
+  "@groupPost": {
+    "description": ""
+  },
+  "edited": "düzenlendi",
+  "@edited": {
+    "description": ""
+  },
+  "moreOptions": "Diğer seçenekler",
+  "@moreOptions": {
+    "description": ""
+  },
+  "copyLink": "Bağlantıyı kopyala",
+  "@copyLink": {
+    "description": ""
+  },
+  "edit": "Düzenle",
+  "@edit": {
+    "description": ""
+  },
+  "like": "Beğen",
+  "@like": {
+    "description": ""
+  },
+  "commentAction": "Yorum yap",
+  "@commentAction": {
+    "description": ""
+  },
+  "unsave": "Kaydedilenlerden çıkar",
+  "@unsave": {
+    "description": ""
+  },
+  "reactionLabel": "{emoji} tepkisi, {count}",
+  "@reactionLabel": {
+    "description": "",
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "more": "devamı",
+  "@more": {
+    "description": ""
+  },
+  "postWithCaption": "Gönderi: {caption}",
+  "@postWithCaption": {
+    "description": "",
+    "placeholders": {
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
+  "showMore": "Daha fazla göster",
+  "@showMore": {
+    "description": ""
+  },
+  "addStory": "Hikâye ekle",
+  "@addStory": {
+    "description": ""
+  },
+  "yourStory": "Hikâyen",
+  "@yourStory": {
+    "description": ""
+  },
+  "noStoriesLeft": "Burada görebileceğin bir hikaye kalmadı.",
+  "@noStoriesLeft": {
+    "description": ""
+  },
+  "close": "Kapat",
+  "@close": {
+    "description": ""
+  },
+  "removeFromHighlight": "Öne çıkandan çıkar",
+  "@removeFromHighlight": {
+    "description": ""
+  },
+  "removedFromHighlight": "Öne çıkandan çıkarıldı.",
+  "@removedFromHighlight": {
+    "description": ""
+  },
+  "addToHighlights": "Öne çıkanlara ekle",
+  "@addToHighlights": {
+    "description": ""
+  },
+  "deleteStory": "Hikayeyi sil",
+  "@deleteStory": {
+    "description": ""
+  },
+  "storyDeleted": "Hikaye silindi.",
+  "@storyDeleted": {
+    "description": ""
+  },
+  "options": "Seçenekler",
+  "@options": {
+    "description": ""
+  },
+  "viewers": "Görenler",
+  "@viewers": {
+    "description": ""
+  },
+  "noViewers": "Henüz kimse görmedi. Görenler burada yalnızca sana görünür.",
+  "@noViewers": {
+    "description": ""
+  },
+  "viewedBy": "{count} kişi gördü",
+  "@viewedBy": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPhotoFailed": "Fotoğraf hazırlanamadı. Başka bir fotoğraf dene.",
+  "@storyPhotoFailed": {
+    "description": ""
+  },
+  "storyShared": "Hikayen paylaşıldı. 24 saat görünür.",
+  "@storyShared": {
+    "description": ""
+  },
+  "newStory": "Yeni hikaye",
+  "@newStory": {
+    "description": ""
+  },
+  "addToStory": "Hikayene ekle",
+  "@addToStory": {
+    "description": ""
+  },
+  "storyPickHint": "Hikayen için bir fotoğraf ya da 60 saniyeye kadar video seç.",
+  "@storyPickHint": {
+    "description": ""
+  },
+  "pickAnother": "Başka seç",
+  "@pickAnother": {
+    "description": ""
+  },
+  "newHighlight": "Yeni öne çıkan",
+  "@newHighlight": {
+    "description": ""
+  },
+  "highlightCreated": "\"{title}\" oluşturuldu.",
+  "@highlightCreated": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "storyCount": "{count} hikaye",
+  "@storyCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addedToHighlight": "\"{title}\" öne çıkanına eklendi.",
+  "@addedToHighlight": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "highlightTitle": "Öne çıkan başlığı",
+  "@highlightTitle": {
+    "description": ""
+  },
+  "highlightExample": "Ör. Kamp 2026",
+  "@highlightExample": {
+    "description": ""
+  },
+  "addHighlight": "Öne çıkan ekle",
+  "@addHighlight": {
+    "description": ""
+  },
+  "renameHighlight": "Başlığı değiştir",
+  "@renameHighlight": {
+    "description": ""
+  },
+  "deleteHighlight": "Öne çıkanı sil",
+  "@deleteHighlight": {
+    "description": ""
+  },
+  "staysInArchive": "Hikayeler arşivinde kalır.",
+  "@staysInArchive": {
+    "description": ""
+  },
+  "storyArchive": "Hikaye arşivi",
+  "@storyArchive": {
+    "description": ""
+  },
+  "storiesSelected": "{count} hikaye seçildi",
+  "@storiesSelected": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feature": "Öne çıkar",
+  "@feature": {
+    "description": ""
+  },
+  "archiveEmpty": "Paylaştığın hikayeler 24 saat sonra burada, yalnızca sana görünür şekilde saklanır.",
+  "@archiveEmpty": {
+    "description": ""
+  },
+  "shareStory": "Hikaye paylaş",
+  "@shareStory": {
+    "description": ""
+  },
+  "archiveHint": "Öne çıkan oluşturmak ya da var olana eklemek için hikayeleri seç.",
+  "@archiveHint": {
+    "description": ""
+  },
+  "storyOn": "Hikaye, {date}",
+  "@storyOn": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "live": "Yayında",
+  "@live": {
+    "description": ""
+  }
+}

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:core/core.dart';
 
+import '../l10n.dart';
 import 'media_crop.dart';
 
 enum MediaKind {
@@ -262,15 +263,16 @@ List<TextPart> parseRichText(String text) {
   return parts;
 }
 
-/// `şimdi`, `5 dk`, `3 sa`, `2 g`, `4 hf`, then the date.
-String formatAgoTr(DateTime time, {DateTime? now}) {
+/// `şimdi`, `5 dk`, `3 sa`, `2 g`, `4 hf` (in the app language), then the date.
+String formatAgo(DateTime time, {DateTime? now}) {
   final diff = (now ?? DateTime.now()).difference(time);
-  if (diff.inMinutes < 1) return 'şimdi';
-  if (diff.inHours < 1) return '${diff.inMinutes} dk';
-  if (diff.inDays < 1) return '${diff.inHours} sa';
-  if (diff.inDays < 7) return '${diff.inDays} g';
-  if (diff.inDays < 28) return '${diff.inDays ~/ 7} hf';
-  return formatDateTr(time);
+  final l = feedL10n;
+  if (diff.inMinutes < 1) return l.agoNow;
+  if (diff.inHours < 1) return l.agoMinutes(diff.inMinutes);
+  if (diff.inDays < 1) return l.agoHours(diff.inHours);
+  if (diff.inDays < 7) return l.agoDays(diff.inDays);
+  if (diff.inDays < 28) return l.agoWeeks(diff.inDays ~/ 7);
+  return formatDate(time);
 }
 
 /// A photo or video picked on the device, measured and ready to upload.
@@ -312,10 +314,10 @@ class NewMedia {
 
   /// Null when the file can be shared; otherwise why not, in Turkish.
   String? get problem {
-    if (contentType == null) return 'Yalnızca JPEG, PNG, WebP fotoğraf ve MP4, MOV video paylaşılabilir.';
-    if (kind == MediaKind.image && bytes.length > maxImageBytes) return 'Fotoğraflar en fazla 10 MB olabilir.';
-    if (kind == MediaKind.video && bytes.length > maxVideoBytes) return 'Videolar en fazla 50 MB olabilir.';
-    if (kind == MediaKind.video && (duration ?? Duration.zero) > maxVideo) return 'Videolar en fazla 60 saniye olabilir.';
+    if (contentType == null) return feedL10n.unsupportedMedia;
+    if (kind == MediaKind.image && bytes.length > maxImageBytes) return feedL10n.photoLimit;
+    if (kind == MediaKind.video && bytes.length > maxVideoBytes) return feedL10n.videoSizeLimit;
+    if (kind == MediaKind.video && (duration ?? Duration.zero) > maxVideo) return feedL10n.videoLengthLimit;
     return null;
   }
 }
@@ -344,16 +346,16 @@ class NewPost {
   static const maxMedia = 10;
 
   static String? captionProblem(String caption) {
-    if (caption.trim().length > maxCaption) return 'Açıklama en fazla 2.200 karakter olabilir.';
+    if (caption.trim().length > maxCaption) return feedL10n.captionLimit;
     if (parseRichText(caption).whereType<HashtagPart>().length > maxHashtags) {
-      return 'Bir gönderide en fazla 30 etiket kullanılabilir.';
+      return feedL10n.hashtagLimit;
     }
     return null;
   }
 
   /// Same limits as the API, checked before uploading anything.
   String? get problem {
-    if (media.isEmpty || media.length > maxMedia) return 'Bir gönderide 1–10 fotoğraf ya da video olabilir.';
+    if (media.isEmpty || media.length > maxMedia) return feedL10n.mediaCount;
     if (captionProblem(caption) case final p?) return p;
     for (final m in media) {
       if (m.problem case final p?) return p;

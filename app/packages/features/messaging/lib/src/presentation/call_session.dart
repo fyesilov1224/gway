@@ -5,6 +5,7 @@ import 'package:livekit_client/livekit_client.dart' as lk;
 
 import '../data/call_encryption.dart';
 import '../domain/calls.dart';
+import '../l10n.dart';
 
 enum CallConnection { idle, connecting, connected, failed }
 
@@ -135,7 +136,7 @@ class CallSession extends ChangeNotifier {
       return null;
     } on Object catch (e) {
       debugPrint('Microphone failed: $e');
-      return 'Mikrofon açılamadı. Mikrofon iznini kontrol et.';
+      return messagingL10n.micFailed;
     }
   }
 

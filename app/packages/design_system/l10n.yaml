@@ -1,0 +1,6 @@
+arb-dir: lib/l10n
+template-arb-file: design_system_tr.arb
+output-dir: lib/src/l10n
+output-localization-file: design_system_l10n.dart
+output-class: DesignSystemL10n
+nullable-getter: false

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// "Eşleştiniz!" after a mutual like.
@@ -22,16 +23,16 @@ Future<void> showMatchDialog(BuildContext context, {required MatchCard card, req
                 imageUrl: card.photoUrls.isEmpty ? null : card.photoUrls.first,
               ),
               const SizedBox(height: GwSpacing.md),
-              Text('Eşleştiniz!', style: textTheme.headlineSmall?.copyWith(color: GwColors.primary)),
+              Text(matchingL10n.itsAMatch, style: textTheme.headlineSmall?.copyWith(color: GwColors.primary)),
               const SizedBox(height: GwSpacing.xs),
-              Text('Sen ve ${card.displayName} birbirinizi beğendiniz.', textAlign: TextAlign.center),
+              Text(matchingL10n.bothLiked(card.displayName), textAlign: TextAlign.center),
             ],
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
-            GwButton(label: 'Kaydırmaya devam et', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
+            GwButton(label: matchingL10n.keepSwiping, variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop()),
             GwButton(
-              label: 'Mesaj gönder',
+              label: matchingL10n.sendMessage,
               icon: Icons.chat_bubble_outline,
               onPressed: () {
                 Navigator.of(dialog).pop();
@@ -54,7 +55,7 @@ Future<void> showCardMenu(BuildContext context, WidgetRef ref, MatchCard card, {
           children: [
             ListTile(
               leading: const Icon(Icons.flag_outlined),
-              title: const Text('Profili şikayet et'),
+              title: Text(matchingL10n.reportProfile),
               onTap: () {
                 Navigator.of(sheet).pop();
                 ref.read(reportLauncherProvider)(context, ReportTarget.matchProfile(card.userId));
@@ -63,7 +64,7 @@ Future<void> showCardMenu(BuildContext context, WidgetRef ref, MatchCard card, {
             if (photoIndex < card.photoIds.length)
               ListTile(
                 leading: const Icon(Icons.image_not_supported_outlined),
-                title: const Text('Bu fotoğrafı şikayet et'),
+                title: Text(matchingL10n.reportPhoto),
                 onTap: () {
                   Navigator.of(sheet).pop();
                   ref.read(reportLauncherProvider)(context, ReportTarget.matchPhoto(card.photoIds[photoIndex]));
@@ -71,8 +72,8 @@ Future<void> showCardMenu(BuildContext context, WidgetRef ref, MatchCard card, {
               ),
             ListTile(
               leading: const Icon(Icons.block, color: GwColors.error),
-              title: const Text('Engelle', style: TextStyle(color: GwColors.error)),
-              subtitle: const Text('Birbirinizi hiçbir yerde görmezsiniz.'),
+              title: Text(matchingL10n.block, style: const TextStyle(color: GwColors.error)),
+              subtitle: Text(matchingL10n.blockHint),
               onTap: () async {
                 Navigator.of(sheet).pop();
                 final result = await ref.read(matchingRepositoryProvider).block(card.userId);
@@ -99,7 +100,7 @@ Future<bool> confirmMatchAction(BuildContext context, {required String title, re
         title: Text(title),
         content: Text(message),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
+          GwButton(label: matchingL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(dialog).pop(false)),
           GwButton(label: confirmLabel, onPressed: () => Navigator.of(dialog).pop(true)),
         ],
       ),

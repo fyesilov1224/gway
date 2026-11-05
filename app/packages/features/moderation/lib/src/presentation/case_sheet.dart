@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/moderation.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Opens a discipline case about [subjectName] (docs/ARCHITECTURE.md §3e); true when opened.
@@ -111,9 +112,9 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
         messenger.showSnackBar(SnackBar(
           content: Text(_now
               ? _illegal == null
-                  ? 'Ban uygulandı.'
-                  : 'Ban uygulandı. Kişinin hesabı platform incelemesine kadar askıya alındı.'
-              : 'Dosya açıldı. Kurul 72 saat içinde oy verecek.'),
+                  ? moderationL10n.banApplied
+                  : moderationL10n.banAppliedSuspended
+              : moderationL10n.caseOpened),
         ));
       case Err(:final failure):
         setState(() {
@@ -134,16 +135,16 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Text('Disiplin dosyası aç', style: textTheme.titleLarge),
+            Text(moderationL10n.openCaseTitle, style: textTheme.titleLarge),
             const SizedBox(height: GwSpacing.xxs),
             Text(
               _now
-                  ? '${widget.subjectName} hakkında. Ban kurul oylaması olmadan hemen uygulanır.'
-                  : '${widget.subjectName} hakkında. Önerdiğin yaptırımı disiplin kurulu 72 saat içinde oylar.',
+                  ? moderationL10n.caseAboutNow(widget.subjectName)
+                  : moderationL10n.caseAboutVote(widget.subjectName),
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             const SizedBox(height: GwSpacing.md),
-            Text('Önerilen yaptırım', style: textTheme.labelLarge),
+            Text(moderationL10n.proposedSanction, style: textTheme.labelLarge),
             const SizedBox(height: GwSpacing.xs),
             Wrap(
               spacing: GwSpacing.xs,
@@ -155,7 +156,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
             ),
             if (durations.isNotEmpty) ...[
               const SizedBox(height: GwSpacing.md),
-              Text('Süre', style: textTheme.labelLarge),
+              Text(moderationL10n.duration, style: textTheme.labelLarge),
               const SizedBox(height: GwSpacing.xs),
               Wrap(
                 spacing: GwSpacing.xs,
@@ -163,7 +164,7 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
                 children: [
                   for (final d in durations)
                     ChoiceChip(
-                      label: Text(d == null ? 'Kalıcı' : '$d gün'),
+                      label: Text(d == null ? moderationL10n.permanent : moderationL10n.days(d)),
                       selected: _days == d,
                       onSelected: (_) => setState(() => _days = d),
                     ),
@@ -176,18 +177,15 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
                   contentPadding: EdgeInsets.zero,
                   value: _direct,
                   onChanged: (v) => setState(() => _direct = v),
-                  title: const Text('Oylamasız, hemen uygula'),
-                  subtitle: const Text('Kurulun kararını beklemeden banlar. Kişi 7 gün içinde itiraz edebilir.'),
+                  title: Text(moderationL10n.applyNow),
+                  subtitle: Text(moderationL10n.applyNowHint),
                 ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _illegal != null,
                 onChanged: (v) => setState(() => _illegal = v ? IllegalCategory.values.first : null),
-                title: const Text('Yasa dışı faaliyet'),
-                subtitle: Text(
-                  '${_now ? 'Ban uygulanınca' : 'Kurul onaylarsa'} dosya platform ekibine gider ve hesap incelemeye kadar askıya '
-                  'alınır. Bu işaret sonradan değişmez.',
-                ),
+                title: Text(moderationL10n.illegalActivity),
+                subtitle: Text(_now ? moderationL10n.illegalHintNow : moderationL10n.illegalHintVote),
               ),
               if (_illegal != null)
                 Wrap(
@@ -206,23 +204,23 @@ class _CaseSheetState extends ConsumerState<_CaseSheet> {
               minLines: 2,
               maxLines: 5,
               decoration: InputDecoration(
-                labelText: 'Gerekçe',
-                hintText: _now ? 'Ne oldu? Kişi ve itirazı inceleyen bu metni görür.' : 'Ne oldu? Kurul bu metne bakarak oy verecek.',
+                labelText: moderationL10n.reason,
+                hintText: _now ? moderationL10n.reasonHintNow : moderationL10n.reasonHintVote,
               ),
-              validator: (v) => (v ?? '').trim().length < 10 ? 'Gerekçe en az 10 karakter olmalı.' : null,
+              validator: (v) => (v ?? '').trim().length < 10 ? moderationL10n.reasonMin10 : null,
             ),
             if (widget.canMute && !_now)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _muteNow,
                 onChanged: (v) => setState(() => _muteNow = v),
-                title: const Text('Hemen sustur (24 saat)'),
-                subtitle: const Text('Kurul karar verene kadar yorum yazamaz, canlı yayında konuşamaz.'),
+                title: Text(moderationL10n.muteNow),
+                subtitle: Text(moderationL10n.muteNowHint),
               ),
             if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
             const SizedBox(height: GwSpacing.md),
             GwButton(
-              label: _now ? 'Banla' : 'Dosyayı aç',
+              label: _now ? moderationL10n.ban : moderationL10n.openCase,
               icon: _now ? Icons.block : Icons.gavel_outlined,
               isLoading: _busy,
               expand: true,

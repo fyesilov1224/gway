@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 
 /// One person in the deck, the whole card a photo (docs/ARCHITECTURE.md §3g, Kart): tap the sides
 /// to step through the photos; name, age, city, shared groups and interests sit on the photo.
@@ -58,7 +59,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                 key: ValueKey(c.photoUrls[_photo]),
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
-                semanticLabel: '${c.displayName}, fotoğraf ${_photo + 1}',
+                semanticLabel: matchingL10n.photoOf(c.displayName, _photo + 1),
                 errorBuilder: (_, _, _) => const ColoredBox(color: GwColors.surfaceMuted),
               ),
             // Left and right halves step through the photos.
@@ -90,17 +91,17 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                 ),
               ),
             if (c.superLikedMe)
-              const Positioned(
+              PositionedDirectional(
                 top: GwSpacing.lg,
-                left: GwSpacing.sm,
-                child: _Pill(icon: Icons.star_rounded, label: 'Seni süper beğendi', color: GwColors.secondary),
+                start: GwSpacing.sm,
+                child: _Pill(icon: Icons.star_rounded, label: matchingL10n.superLikedYou, color: GwColors.secondary),
               ),
             if (widget.onMenu != null)
-              Positioned(
+              PositionedDirectional(
                 top: GwSpacing.sm,
-                right: GwSpacing.xxs,
+                end: GwSpacing.xxs,
                 child: IconButton(
-                  tooltip: 'Seçenekler',
+                  tooltip: matchingL10n.options,
                   color: GwColors.onMedia,
                   icon: const Icon(Icons.more_horiz),
                   onPressed: () => widget.onMenu!(context, _photo),
@@ -119,7 +120,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xxl, GwSpacing.xs, GwSpacing.md),
+                  padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xxl, GwSpacing.xs, GwSpacing.md),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -162,7 +163,7 @@ class _MatchCardViewState extends ConsumerState<MatchCardView> {
                       ),
                       if (widget.onInfo != null)
                         IconButton(
-                          tooltip: 'Profilin tamamı',
+                          tooltip: matchingL10n.fullProfile,
                           color: GwColors.onMedia,
                           icon: const Icon(Icons.info_outline_rounded),
                           onPressed: widget.onInfo,
@@ -206,9 +207,9 @@ class _Stamp extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = swipeColor(kind);
     final (label, alignment, angle) = switch (kind) {
-      SwipeKind.like => ('BEĞEN', const Alignment(-0.7, -0.7), -0.25),
-      SwipeKind.pass => ('GEÇ', const Alignment(0.7, -0.7), 0.25),
-      SwipeKind.superLike => ('SÜPER', const Alignment(0, 0.3), 0.0),
+      SwipeKind.like => (matchingL10n.stampLike, const Alignment(-0.7, -0.7), -0.25),
+      SwipeKind.pass => (matchingL10n.stampPass, const Alignment(0.7, -0.7), 0.25),
+      SwipeKind.superLike => (matchingL10n.stampSuper, const Alignment(0, 0.3), 0.0),
     };
     return IgnorePointer(
       child: Align(
@@ -354,7 +355,7 @@ class _Details extends ConsumerWidget {
             child: Row(children: [
               const Icon(Icons.star_rounded, size: GwSpacing.md, color: GwColors.secondary),
               const SizedBox(width: GwSpacing.xxs),
-              Text('Seni süper beğendi', style: textTheme.labelLarge?.copyWith(color: GwColors.secondary)),
+              Text(matchingL10n.superLikedYou, style: textTheme.labelLarge?.copyWith(color: GwColors.secondary)),
             ]),
           ),
         const SizedBox(height: GwSpacing.xs),
@@ -372,10 +373,10 @@ class _Details extends ConsumerWidget {
               Expanded(child: Text(text, style: secondary)),
             ]),
           ),
-        if (c.about.isNotEmpty) section('Hakkında', Text(c.about, style: textTheme.bodyLarge)),
+        if (c.about.isNotEmpty) section(matchingL10n.about, Text(c.about, style: textTheme.bodyLarge)),
         if (c.interests.isNotEmpty)
           section(
-            'İlgi alanları',
+            matchingL10n.interests,
             Wrap(
               spacing: GwSpacing.xs,
               runSpacing: GwSpacing.xs,
@@ -391,7 +392,7 @@ class _Details extends ConsumerWidget {
           ),
         if (c.sharedGroups.isNotEmpty)
           section(
-            'Ortak gruplarınız',
+            matchingL10n.sharedGroupsTitle,
             Column(
               children: [
                 for (final g in c.sharedGroups)
@@ -399,7 +400,7 @@ class _Details extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                     leading: GwAvatar(name: g.name, shape: GwAvatarShape.group),
                     title: Text(g.name),
-                    subtitle: Text('@${g.handle}'),
+                    subtitle: Text(atName(g.handle)),
                   ),
               ],
             ),

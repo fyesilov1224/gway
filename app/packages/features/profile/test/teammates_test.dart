@@ -121,8 +121,8 @@ void main() {
       'Ortak ilgi: Koşu, Bisiklet',
       'Aynı ildesiniz',
       '2 ortak grup',
-      'İkiniz de ileri seviye',
-      'Uygun zaman: hafta içi akşam',
+      'Aynı seviye: İleri',
+      'Uygun zaman: Hafta içi akşam',
     ]);
     expect(const TeammateStatus(looking: true, level: TeammateLevel.beginner).label, 'Ekip arıyor · Başlangıç seviye');
     expect(turkishProvinces, hasLength(81));

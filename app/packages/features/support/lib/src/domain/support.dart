@@ -1,30 +1,48 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// What a message is about; the color follows the kind (docs/ARCHITECTURE.md §7b).
 enum SupportKind {
-  problem('problem', 'Sorun', 'Bir şey bozuk ya da çalışmıyor.'),
-  request('request', 'Talep', 'Hesabın, grubun ya da ödemen için bir işlem iste.'),
-  suggestion('suggestion', 'İstek', 'Yeni bir özellik ya da öneri paylaş.');
+  problem('problem'),
+  request('request'),
+  suggestion('suggestion');
 
-  const SupportKind(this.code, this.label, this.description);
+  const SupportKind(this.code);
 
   final String code;
-  final String label;
-  final String description;
+
+  String get label => switch (this) {
+        problem => supportL10n.kindProblem,
+        request => supportL10n.kindRequest,
+        suggestion => supportL10n.kindSuggestion,
+      };
+
+  String get description => switch (this) {
+        problem => supportL10n.kindProblemText,
+        request => supportL10n.kindRequestText,
+        suggestion => supportL10n.kindSuggestionText,
+      };
 
   static SupportKind parse(Object? code) => values.firstWhere((k) => k.code == code, orElse: () => problem);
 }
 
 enum SupportStatus {
-  open('open', 'Yeni'),
-  inProgress('in_progress', 'İnceleniyor'),
-  resolved('resolved', 'Çözüldü'),
-  closed('closed', 'Kapatıldı');
+  open('open'),
+  inProgress('in_progress'),
+  resolved('resolved'),
+  closed('closed');
 
-  const SupportStatus(this.code, this.label);
+  const SupportStatus(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        open => supportL10n.statusOpen,
+        inProgress => supportL10n.statusInProgress,
+        resolved => supportL10n.statusResolved,
+        closed => supportL10n.statusClosed,
+      };
 
   static SupportStatus parse(Object? code) => values.firstWhere((s) => s.code == code, orElse: () => open);
 }

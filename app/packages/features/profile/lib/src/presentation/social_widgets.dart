@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/social.dart';
+import '../l10n.dart';
 import 'routes.dart';
 import 'social_providers.dart';
 
@@ -88,19 +89,20 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
               padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg, vertical: GwSpacing.sm),
               child: Text(
                 requested
-                    ? '@${widget.username} için gönderdiğin takip isteğini geri almak istiyor musun?'
-                    : '@${widget.username} takibini bırakmak istiyor musun?'
-                        '${widget.isPrivate ? ' Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.' : ''}',
+                    ? profileL10n.withdrawFollowBody(atName(widget.username))
+                    : widget.isPrivate
+                        ? profileL10n.unfollowPrivateBody(atName(widget.username))
+                        : profileL10n.unfollowBody(atName(widget.username)),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
             ListTile(
-              title: Text(requested ? 'İsteği geri al' : 'Takibi bırak', textAlign: TextAlign.center,
+              title: Text(requested ? profileL10n.withdrawRequest : profileL10n.unfollow, textAlign: TextAlign.center,
                   style: const TextStyle(color: GwColors.error)),
               onTap: () => Navigator.of(context).pop(true),
             ),
-            ListTile(title: const Text('Vazgeç', textAlign: TextAlign.center), onTap: () => Navigator.of(context).pop(false)),
+            ListTile(title: Text(profileL10n.cancel, textAlign: TextAlign.center), onTap: () => Navigator.of(context).pop(false)),
           ],
         ),
       ),
@@ -111,9 +113,9 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
   @override
   Widget build(BuildContext context) {
     final (label, variant) = switch (_state) {
-      FollowState.none => (widget.followsMe ? 'Geri takip et' : 'Takip et', GwButtonVariant.primary),
-      FollowState.requested => ('İstek gönderildi', GwButtonVariant.secondary),
-      FollowState.following => ('Takiptesin', GwButtonVariant.secondary),
+      FollowState.none => (widget.followsMe ? profileL10n.followBack : profileL10n.follow, GwButtonVariant.primary),
+      FollowState.requested => (profileL10n.requestSent, GwButtonVariant.secondary),
+      FollowState.following => (profileL10n.followingState, GwButtonVariant.secondary),
     };
     final button = GwButton(label: label, variant: variant, isLoading: _busy, onPressed: _toggle);
     return widget.compact
@@ -186,7 +188,7 @@ class PersonFollowRow extends ConsumerWidget {
     final isMe = ref.watch(currentUserIdProvider) == person.id;
     return PersonRow(
       person: person,
-      subtitle: subtitle ?? (person.follow == FollowState.following && person.followsMe ? 'Arkadaşsınız' : null),
+      subtitle: subtitle ?? (person.follow == FollowState.following && person.followsMe ? profileL10n.friends : null),
       trailing: isMe
           ? null
           : FollowButton(
@@ -215,8 +217,8 @@ class PeopleSearchResults extends ConsumerWidget {
     return switch (results) {
       AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.person_search_outlined,
-          message: '"${query.trim()}" ile eşleşen bir hesap bulunamadı.',
-          actionLabel: 'Aramayı temizle',
+          message: profileL10n.noAccountMatch(query.trim()),
+          actionLabel: profileL10n.clearSearch,
           onAction: onClear,
         ),
       AsyncData(:final value) => ListView(children: [for (final p in value) PersonFollowRow(person: p)]),
@@ -237,8 +239,8 @@ class SuggestedPeople extends ConsumerWidget {
     if (people.isEmpty) {
       return GwEmptyState(
         icon: Icons.person_search_outlined,
-        message: 'Kişi ya da etiket aramak için yazmaya başla.',
-        actionLabel: 'Önerileri yenile',
+        message: profileL10n.searchHint,
+        actionLabel: profileL10n.refreshSuggestions,
         onAction: () => ref.invalidate(suggestedPeopleProvider),
       );
     }
@@ -246,12 +248,12 @@ class SuggestedPeople extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
-          child: Text('Senin için öneriler', style: Theme.of(context).textTheme.titleMedium),
+          child: Text(profileL10n.suggestionsForYou, style: Theme.of(context).textTheme.titleMedium),
         ),
         for (final p in people)
           PersonFollowRow(
             person: p,
-            subtitle: p.mutualCount > 0 ? 'Takip ettiğin ${p.mutualCount} kişi takip ediyor' : 'Popüler hesap',
+            subtitle: p.mutualCount > 0 ? profileL10n.mutualFollows(p.mutualCount) : profileL10n.popularAccount,
           ),
       ],
     );

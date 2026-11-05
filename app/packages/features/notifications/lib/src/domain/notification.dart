@@ -1,5 +1,7 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 enum NotificationType {
   like('like'),
   comment('comment'),
@@ -162,67 +164,72 @@ class AppNotification {
   /// The chat of call_missed.
   final String? conversationId;
 
-  /// What happened, after the actor's username.
-  String get action => switch (type) {
-        NotificationType.like => 'gönderini beğendi.',
-        NotificationType.comment => 'yorum yaptı: ${comment ?? ''}',
-        NotificationType.reply => 'yorumuna yanıt verdi: ${comment ?? ''}',
-        NotificationType.commentLike => 'yorumunu beğendi: ${comment ?? ''}',
-        NotificationType.mention => comment == null ? 'bir gönderide senden bahsetti.' : 'bir yorumda senden bahsetti: $comment',
-        NotificationType.follow => 'seni takip etmeye başladı.',
-        NotificationType.followRequest => 'seni takip etmek istiyor.',
-        NotificationType.followAccepted => 'takip isteğini kabul etti.',
-        NotificationType.liveScheduled => liveScheduledAt == null
-            ? 'canlı yayın planladı: ${liveTitle ?? ''}'
-            : '${formatDateTimeTr(liveScheduledAt!)} için canlı yayın planladı: ${liveTitle ?? ''}',
-        NotificationType.liveStarted => 'canlı yayına başladı: ${liveTitle ?? ''}',
-        NotificationType.eventPromoted => '"${eventTitle ?? ''}" için yer açıldı, artık katılıyorsun.',
-        NotificationType.eventUpdated => '"${eventTitle ?? ''}" organizasyonunun zamanını ya da yerini değiştirdi.',
-        NotificationType.eventCanceled => '"${eventTitle ?? ''}" organizasyonunu iptal etti.',
-        NotificationType.eventReminder => eventStartsAt != null && eventStartsAt!.difference(createdAt) > const Duration(hours: 1)
-            ? '"${eventTitle ?? ''}" yarın başlıyor. Geliyor musun? Teyit et.'
-            : '"${eventTitle ?? ''}" 1 saat içinde başlıyor.',
-        NotificationType.caseVote => '${group?.name ?? ''} grubunda bir disiplin dosyası açtı; oyunu bekliyor.',
-        NotificationType.sanctionApplied => switch (sanctionType) {
-            'mute' => 'grubunda susturuldun. Ayrıntılar ve itiraz için dokun.',
-            'kick' => 'grubundan çıkarıldın. Ayrıntılar ve itiraz için dokun.',
-            'ban' => 'grubundan uzaklaştırıldın. Ayrıntılar ve itiraz için dokun.',
-            _ => 'grubu sana uyarı verdi. Ayrıntılar ve itiraz için dokun.',
-          },
-        NotificationType.appealSubmitted => '${group?.name ?? ''} grubundaki yaptırıma itiraz etti.',
-        NotificationType.appealDecided => 'grubu itirazını karara bağladı.',
-        NotificationType.eventApproved => '"${eventTitle ?? ''}" için katılım isteğini onayladı.',
-        NotificationType.eventDeclined => '"${eventTitle ?? ''}" için katılım isteğini kabul edemedi.',
-        NotificationType.eventReview => '"${eventTitle ?? ''}" nasıldı? Değerlendir, anılarını paylaş.',
-        NotificationType.goalCompleted => '"${goalTitle ?? ''}" hedefini tamamladın! Rozetin profilinde.',
-        NotificationType.teammateRequest => 'seninle ekip arkadaşı olmak istiyor.',
-        NotificationType.teammateAccepted => 'ekip arkadaşlığı isteğini kabul etti.',
-        NotificationType.matchCreated => "Kim olduğunu Eşleşmelerim'de gör.",
-        NotificationType.matchSuperLiked => 'seni süper beğendi! Destende ilk o görünüyor.',
-        NotificationType.welcomeRequested => '"${eventTitle ?? ''}" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.',
-        NotificationType.welcomeMatched => '"${eventTitle ?? ''}" organizasyonunda seni karşılayacak. Buluşma notunu gör.',
-        NotificationType.welcomeReleased => '"${eventTitle ?? ''}" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.',
-        NotificationType.welcomeWithdrawn => '"${eventTitle ?? ''}" için karşılama isteğini geri çekti.',
-        NotificationType.leagueResult => 'geçen ayın liginde ilk üçe girdi! Sıralamayı ve derecesini grup sayfasında gör.',
-        NotificationType.welcomeThanked => '"${eventTitle ?? ''}" organizasyonunda onu karşıladığın için teşekkür etti.',
-        NotificationType.tonightTableInvite => 'bu akşam küçük bir masa kurdu ve seni de çağırıyor.',
-        NotificationType.tonightTableReady => 'masaya katıldı; masa kuruldu. Yeri ve saati sohbette konuşun.',
-        NotificationType.eventVenueRevealed => '"${eventTitle ?? ''}": nereye gideceğini görmek için dokun.',
-        NotificationType.handshake => '"${eventTitle ?? ''}" organizasyonunda seninle el sıkıştı.',
-        NotificationType.callMissed => 'seni aradı, açamadın.',
-        NotificationType.callPermissionGranted => 'yetkin açıldı. Eşleştiğin kişileri sohbetten arayabilirsin.',
-        NotificationType.callPermissionDeclined => 'talebin şimdilik kabul edilmedi. Ayrıntılar için dokun.',
-        NotificationType.callPermissionRevoked => 'yetkin kapatıldı. Ayrıntılar için dokun.',
-        NotificationType.eventSeriesLimit => '"${eventTitle ?? ''}" için sonraki tarih açılamadı: grubun bu ayki organizasyon hakkı doldu. Yeni ay başlayınca ya da paket yükselince açılır.',
-      };
+  /// What happened, after the actor's username (in the app language).
+  String get action {
+    final l = notificationsL10n;
+    final event = eventTitle ?? '';
+    final text = comment ?? '';
+    return switch (type) {
+      NotificationType.like => l.actLike,
+      NotificationType.comment => l.actComment(text),
+      NotificationType.reply => l.actReply(text),
+      NotificationType.commentLike => l.actCommentLike(text),
+      NotificationType.mention => comment == null ? l.actMentionPost : l.actMentionComment(text),
+      NotificationType.follow => l.actFollow,
+      NotificationType.followRequest => l.actFollowRequest,
+      NotificationType.followAccepted => l.actFollowAccepted,
+      NotificationType.liveScheduled => liveScheduledAt == null
+          ? l.actLiveScheduled(liveTitle ?? '')
+          : l.actLiveScheduledAt(formatDateTime(liveScheduledAt!), liveTitle ?? ''),
+      NotificationType.liveStarted => l.actLiveStarted(liveTitle ?? ''),
+      NotificationType.eventPromoted => l.actEventPromoted(event),
+      NotificationType.eventUpdated => l.actEventUpdated(event),
+      NotificationType.eventCanceled => l.actEventCanceled(event),
+      NotificationType.eventReminder => eventStartsAt != null && eventStartsAt!.difference(createdAt) > const Duration(hours: 1)
+          ? l.actReminderTomorrow(event)
+          : l.actReminderHour(event),
+      NotificationType.caseVote => l.actCaseVote(group?.name ?? ''),
+      NotificationType.sanctionApplied => switch (sanctionType) {
+          'mute' => l.actMuted,
+          'kick' => l.actKicked,
+          'ban' => l.actBanned,
+          _ => l.actWarned,
+        },
+      NotificationType.appealSubmitted => l.actAppealSubmitted(group?.name ?? ''),
+      NotificationType.appealDecided => l.actAppealDecided,
+      NotificationType.eventApproved => l.actEventApproved(event),
+      NotificationType.eventDeclined => l.actEventDeclined(event),
+      NotificationType.eventReview => l.actEventReview(event),
+      NotificationType.goalCompleted => l.actGoalCompleted(goalTitle ?? ''),
+      NotificationType.teammateRequest => l.actTeammateRequest,
+      NotificationType.teammateAccepted => l.actTeammateAccepted,
+      NotificationType.matchCreated => l.actMatchCreated,
+      NotificationType.matchSuperLiked => l.actSuperLiked,
+      NotificationType.welcomeRequested => l.actWelcomeRequested(event),
+      NotificationType.welcomeMatched => l.actWelcomeMatched(event),
+      NotificationType.welcomeReleased => l.actWelcomeReleased(event),
+      NotificationType.welcomeWithdrawn => l.actWelcomeWithdrawn(event),
+      NotificationType.leagueResult => l.actLeagueResult,
+      NotificationType.welcomeThanked => l.actWelcomeThanked(event),
+      NotificationType.tonightTableInvite => l.actTableInvite,
+      NotificationType.tonightTableReady => l.actTableReady,
+      NotificationType.eventVenueRevealed => l.actVenueRevealed(event),
+      NotificationType.handshake => l.actHandshake(event),
+      NotificationType.callMissed => l.actCallMissed,
+      NotificationType.callPermissionGranted => l.actCallGranted,
+      NotificationType.callPermissionDeclined => l.actCallDeclined,
+      NotificationType.callPermissionRevoked => l.actCallRevoked,
+      NotificationType.eventSeriesLimit => l.actSeriesLimit(event),
+    };
+  }
 
   /// The bold lead before [action]: the group for group notices, otherwise the person.
   String get lead => switch (type) {
         _ when type.fromGroup || type == NotificationType.leagueResult => group?.name ?? '',
-        NotificationType.matchCreated => 'Yeni bir eşleşmen var!',
-        NotificationType.eventSeriesLimit => 'Tekrarlayan organizasyon',
-        NotificationType.eventVenueRevealed => 'Sürpriz mekan açıklandı',
-        _ when type.isCallPermission => 'Sesli görüşme',
+        NotificationType.matchCreated => notificationsL10n.leadNewMatch,
+        NotificationType.eventSeriesLimit => notificationsL10n.leadSeries,
+        NotificationType.eventVenueRevealed => notificationsL10n.leadVenue,
+        _ when type.isCallPermission => notificationsL10n.leadCalls,
         _ => actor.username,
       };
 
@@ -231,13 +238,15 @@ class AppNotification {
 }
 
 enum NotificationPeriod {
-  today('Bugün'),
-  thisWeek('Bu hafta'),
-  earlier('Daha önce');
+  today,
+  thisWeek,
+  earlier;
 
-  const NotificationPeriod(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        today => notificationsL10n.periodToday,
+        thisWeek => notificationsL10n.periodWeek,
+        earlier => notificationsL10n.periodEarlier,
+      };
 
   static NotificationPeriod of(DateTime time, DateTime now) {
     final t = time.toLocal();

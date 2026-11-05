@@ -1,3 +1,5 @@
+
+
 abstract final class EventRoutes {
   static String event(String id) => '/e/$id';
 

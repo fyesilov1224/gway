@@ -9,10 +9,12 @@ import '../data/passkey_authenticator.dart';
 import '../data/supabase_auth_repository.dart';
 import '../data/supabase_birth_date_repository.dart';
 import '../data/supabase_consent_repository.dart';
+import '../data/supabase_language_repository.dart';
 import '../data/supabase_presence_repository.dart';
 import '../domain/account.dart';
 import '../domain/age.dart';
 import '../domain/auth.dart';
+import '../domain/language.dart';
 import '../domain/legal.dart';
 import '../domain/presence.dart';
 import '../domain/security.dart';
@@ -60,10 +62,10 @@ final pendingConsentsProvider = FutureProvider<List<LegalDocument>>((ref) async 
   return (await ref.watch(consentRepositoryProvider).pending()).getOrThrow();
 });
 
-final latestLegalDocumentsProvider = FutureProvider<List<LegalDocument>>(
-  (ref) async =>
-      (await ref.watch(consentRepositoryProvider).latest()).getOrThrow(),
-);
+final latestLegalDocumentsProvider = FutureProvider<List<LegalDocument>>((ref) async {
+  ref.watch(appLanguageProvider); // the translation follows the language
+  return (await ref.watch(consentRepositoryProvider).latest()).getOrThrow();
+});
 
 /// Account lifecycle state of the signed-in user. Null when signed out.
 ///
@@ -91,6 +93,10 @@ Future<void> refreshAccountSession(SupabaseClient Function() client) async {
 }
 
 /// Live users beats (docs/ARCHITECTURE.md §8b, Canlı kullanıcılar); replaced in tests.
+final serverLanguageRepositoryProvider = Provider<ServerLanguageRepository>(
+  (ref) => SupabaseLanguageRepository(ref.watch(supabaseClientProvider)),
+);
+
 final presenceRepositoryProvider = Provider<PresenceRepository>(
   (ref) => SupabasePresenceRepository(ref.watch(supabaseClientProvider)),
 );

@@ -4,6 +4,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 
 /// Reads from Supabase (RLS), writes through the C# API (docs/ARCHITECTURE.md §2, §3b).
 class GroupsRepositoryImpl implements GroupsRepository {
@@ -178,7 +179,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
   Future<Result<void>> setImage(Group group, GroupImage kind, ImageUpload upload) async {
     final contentType = upload.contentType;
     if (contentType == null) {
-      return const Err(RuleFailure('storage.unsupported_type', 'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.'));
+      return Err(RuleFailure('storage.unsupported_type', groupsL10n.unsupportedImage));
     }
     // A new name per upload avoids stale cached images.
     final path = '${group.id}/${kind.name}-${DateTime.now().millisecondsSinceEpoch}.${upload.extension}';

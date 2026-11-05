@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../data/map_repository_impl.dart';
 import '../domain/map.dart';
+import '../l10n.dart';
 import 'routes.dart';
 
 /// The middle of Turkey, and the box the map first fits (west of Edirne to east of Iğdır).
@@ -132,12 +133,12 @@ class _AppMapState extends ConsumerState<AppMap> {
         if (_unavailable) const _MapUnavailable(),
         // Required by the tile licence; wraps instead of overflowing on narrow screens.
         Align(
-          alignment: Alignment.bottomRight,
+          alignment: AlignmentDirectional.bottomEnd,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xxs, vertical: 2),
             color: GwColors.surface,
-            child: Text('© Stadia Maps © OpenMapTiles © OpenStreetMap katkıcıları',
-                textAlign: TextAlign.right, style: Theme.of(context).textTheme.labelSmall),
+            child: Text(eventsL10n.mapAttribution,
+                textAlign: TextAlign.end, style: Theme.of(context).textTheme.labelSmall),
           ),
         ),
       ],
@@ -267,10 +268,10 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Harita'),
+        title: Text(eventsL10n.map),
         actions: [
           IconButton(
-            tooltip: _list ? 'Harita görünümü' : 'Liste görünümü',
+            tooltip: _list ? eventsL10n.mapView : eventsL10n.listView,
             icon: Icon(_list ? Icons.map_outlined : Icons.view_list_outlined),
             onPressed: () => setState(() => _list = !_list),
           ),
@@ -280,7 +281,7 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
           child: Column(
             children: [
               row([
-                for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)])
+                for (final (slug, name) in [(null, eventsL10n.all), for (final c in categories) (c.slug, c.name)])
                   chip(name, selected: _category == slug, onSelected: () => setState(() {
                         _category = slug;
                         _selected = null;
@@ -293,9 +294,9 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
                         _selected = null;
                       })),
                 const SizedBox(width: GwSpacing.md),
-                chip('Tüm alan', selected: _radius == null, onSelected: () => setState(() => _radius = null)),
+                chip(eventsL10n.wholeArea, selected: _radius == null, onSelected: () => setState(() => _radius = null)),
                 for (final km in mapRadii)
-                  chip('$km km', selected: _radius == km, onSelected: () => setState(() {
+                  chip(eventsL10n.km(km), selected: _radius == km, onSelected: () => setState(() {
                         _radius = km;
                         _selected = null;
                       })),
@@ -376,22 +377,22 @@ class _DiscoverMapScreenState extends ConsumerState<DiscoverMapScreen> {
             if (items?.hasError ?? false)
               _MapNotice(
                 icon: Icons.cloud_off_outlined,
-                text: 'Harita bilgileri yüklenemedi.',
-                actionLabel: 'Tekrar dene',
+                text: eventsL10n.mapLoadFailed,
+                actionLabel: eventsL10n.retry,
                 onAction: () => ref.invalidate(mapItemsProvider),
               )
             else if (loaded != null && loaded.isEmpty)
               _filtered
                   ? _MapNotice(
                       icon: Icons.filter_alt_off_outlined,
-                      text: 'Bu filtrelerle bir şey bulunamadı.',
-                      actionLabel: 'Filtreleri temizle',
+                      text: eventsL10n.noFilterResults,
+                      actionLabel: eventsL10n.clearFilters,
                       onAction: _clearFilters,
                     )
                   : _MapNotice(
                       icon: Icons.travel_explore,
-                      text: 'Bu bölgede yaklaşan organizasyon ya da grup yok.',
-                      actionLabel: 'Uzaklaştır',
+                      text: eventsL10n.noNearby,
+                      actionLabel: eventsL10n.zoomOut,
                       onAction: _zoomOut,
                     ),
             if (_selectedItem(loaded) case final selected?)
@@ -423,7 +424,7 @@ class _MapNotice extends StatelessWidget {
         left: GwSpacing.md,
         right: GwSpacing.md,
         child: Container(
-          padding: const EdgeInsets.only(left: GwSpacing.md),
+          padding: const EdgeInsetsDirectional.only(start: GwSpacing.md),
           decoration: const BoxDecoration(
             color: GwColors.background,
             borderRadius: GwRadius.lgAll,
@@ -442,7 +443,7 @@ class _MapNotice extends StatelessWidget {
 }
 
 String _seats(MappedEvent e) =>
-    e.capacity == null ? '${formatCount(e.goingCount)} katılımcı' : '${formatCount(e.goingCount)} / ${formatCount(e.capacity!)} katılımcı';
+    e.capacity == null ? eventsL10n.goingCount(e.goingCount) : eventsL10n.goingOfCapacity(e.goingCount, e.capacity!);
 
 class _SelectedCard extends StatelessWidget {
   const _SelectedCard({required this.selected, required this.onOpenGroup});
@@ -459,11 +460,11 @@ class _SelectedCard extends StatelessWidget {
           children: [
             Text(e.title, style: textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: GwSpacing.xxs),
-            Text('${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}',
+            Text('${formatDateTime(e.startsAt.toLocal())} · ${e.surprise ? eventsL10n.surprisePlace(e.location) : e.location}',
                 style: textTheme.bodyMedium, maxLines: 2),
             Text('${e.group.name} · ${_seats(e)}', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.sm),
-            GwButton(label: 'Organizasyonu aç', expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
+            GwButton(label: eventsL10n.openEvent, expand: true, onPressed: () => context.push(EventRoutes.event(e.id))),
           ],
         ),
       final List<MappedGroup> groups => Column(
@@ -506,7 +507,7 @@ class _GroupTile extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: GwAvatar(name: group.group.name, imageUrl: group.group.logoUrl, shape: GwAvatarShape.group, size: GwAvatarSize.md),
         title: Text(group.group.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text([group.categoryName, '${formatCount(group.memberCount)} üye', group.provinceName].nonNulls.join(' · ')),
+        subtitle: Text([group.categoryName, eventsL10n.memberCount(group.memberCount), group.provinceName].nonNulls.join(' · ')),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => onOpenGroup(context, group.group.handle),
       );
@@ -531,7 +532,7 @@ class _MapList extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final loaded = items;
-    if (failed) return GwErrorState(message: 'Harita bilgileri yüklenemedi.', onRetry: onRetry);
+    if (failed) return GwErrorState(message: eventsL10n.mapLoadFailed, onRetry: onRetry);
     if (loaded == null) {
       return const Padding(
         padding: EdgeInsets.all(GwSpacing.md),
@@ -541,8 +542,8 @@ class _MapList extends StatelessWidget {
     if (loaded.isEmpty) {
       return GwEmptyState(
         icon: Icons.travel_explore,
-        message: 'Görünen bölgede yaklaşan organizasyon ya da grup yok.',
-        actionLabel: 'Haritaya dön',
+        message: eventsL10n.noVisible,
+        actionLabel: eventsL10n.backToMap,
         onAction: onShowMap,
       );
     }
@@ -552,7 +553,7 @@ class _MapList extends StatelessWidget {
         );
     return ListView(
       children: [
-        if (loaded.events.isNotEmpty) heading('Yaklaşan organizasyonlar (${loaded.events.length})'),
+        if (loaded.events.isNotEmpty) heading(eventsL10n.upcomingCount(loaded.events.length)),
         for (final e in loaded.events)
           ListTile(
             leading: const CircleAvatar(
@@ -561,7 +562,7 @@ class _MapList extends StatelessWidget {
             ),
             title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(
-                '${formatDateTimeTr(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}\n${e.group.name} · ${_seats(e)}'),
+                '${formatDateTime(e.startsAt.toLocal())} · ${e.surprise ? 'Sürpriz mekan · ' : ''}${e.location}\n${e.group.name} · ${_seats(e)}'),
             isThreeLine: true,
             onTap: () => context.push(EventRoutes.event(e.id)),
           ),
@@ -608,7 +609,7 @@ class EventMeetingMap extends StatelessWidget {
           TextButton.icon(
             onPressed: () => launchUrl(directionsUri(point), mode: LaunchMode.externalApplication),
             icon: const Icon(Icons.directions_outlined),
-            label: const Text('Yol tarifi'),
+            label: Text(eventsL10n.directions),
           ),
         ],
       );
@@ -627,13 +628,13 @@ class MeetingPointField extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: const Icon(Icons.pin_drop_outlined),
-      title: const Text('Buluşma noktası (isteğe bağlı)'),
+      title: Text(eventsL10n.meetingPointOptional),
       subtitle: Text(point == null
-          ? 'Haritada seç; organizasyon haritada görünür.'
-          : 'Seçildi · ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}'),
+          ? eventsL10n.meetingPointHint
+          : eventsL10n.pointPicked(point.latitude.toStringAsFixed(4), point.longitude.toStringAsFixed(4))),
       trailing: point == null
           ? const Icon(Icons.chevron_right)
-          : IconButton(tooltip: 'Buluşma noktasını kaldır', icon: const Icon(Icons.close), onPressed: () => onChanged(null)),
+          : IconButton(tooltip: eventsL10n.removeMeetingPoint, icon: const Icon(Icons.close), onPressed: () => onChanged(null)),
       onTap: () async {
         final picked = await Navigator.of(context).push<LatLng>(
           MaterialPageRoute(fullscreenDialog: true, builder: (_) => MeetingPointPicker(initial: point)),
@@ -661,7 +662,7 @@ class _MeetingPointPickerState extends State<MeetingPointPicker> {
   Widget build(BuildContext context) {
     final point = _point;
     return Scaffold(
-      appBar: AppBar(title: const Text('Buluşma noktası')),
+      appBar: AppBar(title: Text(eventsL10n.meetingPoint)),
       body: AppMap(
         center: widget.initial,
         zoom: 15,
@@ -680,13 +681,13 @@ class _MeetingPointPickerState extends State<MeetingPointPicker> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                point == null ? 'Haritayı yakınlaştır ve buluşma noktasına dokun.' : 'Noktayı değiştirmek için başka bir yere dokun.',
+                point == null ? eventsL10n.pickHint : eventsL10n.pickAgainHint,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: GwSpacing.sm),
               GwButton(
-                label: 'Bu noktayı seç',
+                label: eventsL10n.pickThisPoint,
                 expand: true,
                 onPressed: point == null ? null : () => Navigator.of(context).pop(point),
               ),
@@ -721,7 +722,7 @@ class _MapUnavailable extends StatelessWidget {
               const Icon(Icons.map_outlined, color: GwColors.textSecondary, size: GwSpacing.lg),
               const SizedBox(width: GwSpacing.xs),
               Flexible(
-                child: Text('Harita şu anda kullanılamıyor.', style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(eventsL10n.mapUnavailable, style: Theme.of(context).textTheme.bodyMedium),
               ),
             ],
           ),

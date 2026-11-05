@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:profile/profile.dart';
 
+import 'l10n.dart';
+
 /// Event pages open groups and profiles through the app (features stay independent).
 final eventLinks = EventLinks(
   openGroup: (context, handle) => context.push(GroupRoutes.group(handle)),
@@ -13,7 +15,7 @@ final eventLinks = EventLinks(
   shareMemory: (context, eventId) => context.push(FeedRoutes.createMemory(eventId)),
   memories: (context, eventId) => PostsSection(
     source: EventPosts(eventId),
-    emptyMessage: 'Henüz anı paylaşılmadı. Katılanlar fotoğraflarını buraya ekleyebilir.',
+    emptyMessage: socialAppL10n.memoriesEmpty,
   ),
 );
 

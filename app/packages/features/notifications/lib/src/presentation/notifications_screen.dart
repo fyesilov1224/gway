@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/notification.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Pages and actions owned by other features; the app supplies them.
@@ -102,7 +103,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bildirimler')),
+      appBar: AppBar(title: Text(notificationsL10n.notifications)),
       body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -115,8 +116,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 const SizedBox(height: GwSpacing.xxl),
                 GwEmptyState(
                   icon: Icons.notifications_none_rounded,
-                  message: 'Beğeniler, yorumlar ve yeni takipçiler burada görünür.',
-                  actionLabel: 'Yenile',
+                  message: notificationsL10n.empty,
+                  actionLabel: notificationsL10n.refresh,
                   onAction: () => ref.invalidate(notificationListProvider),
                 ),
               ]),
@@ -167,8 +168,8 @@ class _RequestsRow extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: GwAvatar(name: first.displayName, shape: GwAvatarShape.user, imageUrl: first.avatarUrl, size: GwAvatarSize.md),
-      title: Text('Takip istekleri', style: textTheme.labelLarge),
-      subtitle: Text(others == 0 ? first.username : '${first.username} ve $others kişi daha'),
+      title: Text(notificationsL10n.followRequests, style: textTheme.labelLarge),
+      subtitle: Text(others == 0 ? first.username : notificationsL10n.andOthers(first.username, others)),
       trailing: const Icon(Icons.chevron_right),
     );
   }
@@ -213,9 +214,9 @@ class _NotificationRow extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       background: Container(
         color: GwColors.errorSoft,
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.lg),
-        child: const Icon(Icons.delete_outline, color: GwColors.error, semanticLabel: 'Sil'),
+        child: Icon(Icons.delete_outline, color: GwColors.error, semanticLabel: notificationsL10n.delete),
       ),
       onDismissed: (_) async {
         final result = await ref.read(notificationListProvider.notifier).delete(n);
@@ -290,11 +291,12 @@ class _NotificationRow extends ConsumerWidget {
 
 String _ago(DateTime time) {
   final diff = DateTime.now().difference(time);
-  if (diff.inMinutes < 1) return 'şimdi';
-  if (diff.inHours < 1) return '${diff.inMinutes} dk';
-  if (diff.inDays < 1) return '${diff.inHours} sa';
-  if (diff.inDays < 7) return '${diff.inDays} g';
-  return formatDateTr(time);
+  final l = notificationsL10n;
+  if (diff.inMinutes < 1) return l.agoNow;
+  if (diff.inHours < 1) return l.agoMinutes(diff.inMinutes);
+  if (diff.inDays < 1) return l.agoHours(diff.inHours);
+  if (diff.inDays < 7) return l.agoDays(diff.inDays);
+  return formatDate(time);
 }
 
 class _Skeleton extends StatelessWidget {

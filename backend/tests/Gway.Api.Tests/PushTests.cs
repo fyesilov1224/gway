@@ -5,6 +5,7 @@ using Gway.Modules.Groups;
 using Gway.Modules.Live;
 using Gway.Modules.Notifications;
 using Gway.Modules.Notifications.Contracts;
+using Gway.SharedKernel.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -236,8 +237,26 @@ public sealed class PushTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
     }
 
     [Fact]
-    public void Times_are_shown_in_Turkey()
+    public void Times_are_shown_in_Turkey_in_the_recipients_language()
     {
-        Assert.Equal("27 Ekim 2026, 20:00", PushTexts.DateTimeTr(new DateTimeOffset(2026, 10, 27, 17, 0, 0, TimeSpan.Zero)));
+        var at = new DateTimeOffset(2026, 10, 27, 17, 0, 0, TimeSpan.Zero);
+        Assert.Equal("27 Ekim 2026, 20:00", ServerText.FormatDateTime(at, "tr"));
+        Assert.Equal("27. Oktober 2026, 20:00", ServerText.FormatDateTime(at, "de"));
+        Assert.StartsWith("October 27, 2026, 8:00", ServerText.FormatDateTime(at, "en"));
+    }
+
+    [Fact]
+    public void Pushes_speak_the_recipients_language()
+    {
+        PendingPush Push(string type, string locale, string? eventTitle = null, string? comment = null) => new(
+            1, Guid.NewGuid(), type, DateTimeOffset.UtcNow, "ayse", comment, null, null, null, eventTitle, null, null, null, null,
+            Locale: locale);
+
+        Assert.Equal("seni takip etmeye başladı.", PushTexts.For(Push("follow", "tr"))!.Body);
+        Assert.Equal("started following you.", PushTexts.For(Push("follow", "en"))!.Body);
+        Assert.Equal("hat „Gipfeltour“ abgesagt.", PushTexts.For(Push("event_canceled", "de", eventTitle: "Gipfeltour"))!.Body);
+        Assert.Equal("a commenté : Bravo !", PushTexts.For(Push("comment", "fr", comment: "Bravo !"))!.Body);
+        Assert.Equal(("Yeni bir eşleşmen var!", "Kim olduğunu Eşleşmelerim'de gör."),
+            (PushTexts.For(Push("match_created", "xx"))!.Title, PushTexts.For(Push("match_created", "xx"))!.Body));
     }
 }

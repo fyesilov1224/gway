@@ -4,24 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// "12 katılım · 3 düzenleme · 5 anı"; empty parts are left out.
 String contributionLine(Contributions c) => [
-      if (c.attended > 0) '${formatCount(c.attended)} katılım',
-      if (c.organized > 0) '${formatCount(c.organized)} düzenleme',
-      if (c.memories > 0) '${formatCount(c.memories)} anı',
-      if (c.reviews > 0) '${formatCount(c.reviews)} değerlendirme',
-      if (c.welcomed > 0) '${formatCount(c.welcomed)} karşılama',
-      if (c.handshakes > 0) '${formatCount(c.handshakes)} el sıkış',
+      if (c.attended > 0) eventsL10n.countAttended(c.attended),
+      if (c.organized > 0) eventsL10n.countOrganized(c.organized),
+      if (c.memories > 0) eventsL10n.countMemories(c.memories),
+      if (c.reviews > 0) eventsL10n.countReviews(c.reviews),
+      if (c.welcomed > 0) eventsL10n.countWelcomed(c.welcomed),
+      if (c.handshakes > 0) eventsL10n.countHandshakes(c.handshakes),
     ].join(' · ');
 
 /// A member's line in a group's list: "12 katılım · 2 düzenleme".
 String? groupContributionLine(({int attended, int organized})? c) => c == null
     ? null
     : [
-        if (c.attended > 0) '${formatCount(c.attended)} katılım',
-        if (c.organized > 0) '${formatCount(c.organized)} düzenleme',
+        if (c.attended > 0) eventsL10n.countAttended(c.attended),
+        if (c.organized > 0) eventsL10n.countOrganized(c.organized),
       ].join(' · ');
 
 /// Contributions and badges on a profile (docs/ARCHITECTURE.md §3d, Katkı ve rozetler); nothing when private.
@@ -43,12 +44,12 @@ class ContributionsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Topluluk katkısı', style: textTheme.titleLarge)),
-              TextButton(onPressed: () => showBadgeGuide(context), child: const Text('Rozetler nasıl kazanılır?')),
+              Expanded(child: Text(eventsL10n.contributions, style: textTheme.titleLarge)),
+              TextButton(onPressed: () => showBadgeGuide(context), child: Text(eventsL10n.howBadges)),
             ],
           ),
           Text(
-            c.isEmpty ? 'Bir organizasyona katıldığında katkın ve ilk rozetin burada görünür.' : contributionLine(c),
+            c.isEmpty ? eventsL10n.badgesEmpty : contributionLine(c),
             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
           if (c.badges.isNotEmpty) ...[
@@ -88,12 +89,10 @@ class _BadgeGuide extends ConsumerWidget {
       shrinkWrap: true,
       padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.lg),
       children: [
-        Text('Rozetler nasıl kazanılır?', style: textTheme.titleLarge),
+        Text(eventsL10n.howBadges, style: textTheme.titleLarge),
         const SizedBox(height: GwSpacing.xs),
         Text(
-          'Rozetler yalnızca gerçekten yaptıklarından hesaplanır: katıldığın ve düzenlediğin organizasyonlar, '
-          'paylaştığın anılar ve değerlendirmelerin. Beğeni ve takipçi sayısı sayılmaz. Düzenleyenin "gelmedi" '
-          'olarak işaretlediği katılımlar sayılmaz. Kimse sıralanmaz.',
+          eventsL10n.badgesRules,
           style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
         ),
         const SizedBox(height: GwSpacing.sm),
@@ -103,7 +102,7 @@ class _BadgeGuide extends ConsumerWidget {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.workspace_premium_outlined, color: GwColors.primary),
-                  title: Text(b.slug == 'category' ? 'Kategori tutkunu' : b.name),
+                  title: Text(b.slug == 'category' ? eventsL10n.categoryFan : b.name),
                   subtitle: Text(b.description),
                 ),
             ],

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 import 'match_sheets.dart';
 import 'matching_screen.dart';
 import 'package_widgets.dart';
@@ -55,9 +56,9 @@ class _LockedMatch extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Biriyle eşleştin!', style: textTheme.titleMedium),
+                Text(matchingL10n.newMatch, style: textTheme.titleMedium),
                 Text(
-                  'Kim olduğunu görmek için dokun · ${formatDateTr(match.matchedAt)}',
+                  matchingL10n.tapToSee(formatDate(match.matchedAt)),
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
                 const SizedBox(height: GwSpacing.xxs),
@@ -82,7 +83,7 @@ class MatchesScreen extends ConsumerWidget {
   Future<void> _act(BuildContext context, WidgetRef ref, MatchSummary m, _MatchAction action) async {
     final card = m.card;
     if (card == null) {
-      return showPackageSheet(context, feature: MatchFeature.reveal, reason: 'Biriyle eşleştin! Kim olduğunu görmek için Eşleşmelerim paketini al.');
+      return showPackageSheet(context, feature: MatchFeature.reveal, reason: matchingL10n.revealReason);
     }
     final repo = ref.read(matchingRepositoryProvider);
     void show(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -100,27 +101,28 @@ class MatchesScreen extends ConsumerWidget {
         final (keep, drop) = action == _MatchAction.keepFriend
             ? (MatchMode.friend, MatchMode.dating)
             : (MatchMode.dating, MatchMode.friend);
+        final l = matchingL10n;
+        final friend = keep == MatchMode.friend;
         final sure = await confirmMatchAction(
           context,
-          title: 'Yalnızca ${keep.label.toLowerCase()} kal',
-          message: '${card.displayName} ile ${drop.label.toLowerCase()} eşleşmeniz ikiniz için de biter; '
-              '${keep.label.toLowerCase()} olarak eşleşmeniz ve sohbetiniz sürer.',
-          confirmLabel: 'Devam et',
+          title: friend ? l.keepFriend : l.keepDating,
+          message: friend ? l.keepFriendBody(card.displayName) : l.keepDatingBody(card.displayName),
+          confirmLabel: matchingL10n.continueAction,
         );
         if (!sure || !context.mounted) return;
         final result = await repo.endMatch(m.modes[drop]!);
         if (!context.mounted) return;
         show(switch (result) {
-          Ok() => 'Artık yalnızca ${keep.label.toLowerCase()} olarak eşleşiksiniz.',
+          Ok() => friend ? l.keptFriend : l.keptDating,
           Err(:final failure) => failure.userMessage,
         });
         ref.invalidate(matchListProvider);
       case _MatchAction.end:
         final sure = await confirmMatchAction(
           context,
-          title: 'Eşleşmeyi bitir',
-          message: '${card.displayName} ile eşleşmen biter, sohbetiniz ikiniz için de kapanır. Bu geri alınamaz.',
-          confirmLabel: 'Bitir',
+          title: matchingL10n.endMatch,
+          message: matchingL10n.endMatchBody(card.displayName),
+          confirmLabel: matchingL10n.end,
         );
         if (!sure || !context.mounted) return;
         Result<void> result = const Ok(null);
@@ -130,7 +132,7 @@ class MatchesScreen extends ConsumerWidget {
         }
         if (!context.mounted) return;
         show(switch (result) {
-          Ok() => 'Eşleşme bitti.',
+          Ok() => matchingL10n.matchEnded,
           Err(:final failure) => failure.userMessage,
         });
         ref.invalidate(matchListProvider);
@@ -152,7 +154,7 @@ class MatchesScreen extends ConsumerWidget {
     final matches = ref.watch(matchListProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Eşleşmelerim')),
+      appBar: AppBar(title: Text(matchingL10n.pkgReveal)),
       body: GwReadingColumn(
         maxWidth: GwLayout.formMaxWidth,
         child: switch (matches) {
@@ -160,8 +162,8 @@ class MatchesScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
               child: GwEmptyState(
                 icon: Icons.favorite_border_rounded,
-                message: 'Henüz eşleşmen yok. Birbirinizi beğendiğiniz kişiler burada görünür.',
-                actionLabel: 'Keşfetmeye dön',
+                message: matchingL10n.noMatches,
+                actionLabel: matchingL10n.backToDiscover,
                 onAction: () => context.canPop() ? context.pop() : context.go(MatchingRoutes.home),
               ),
             ),
@@ -193,7 +195,7 @@ class MatchesScreen extends ConsumerWidget {
                             children: [
                               Text('${card.displayName}, ${card.age}', style: textTheme.titleMedium),
                               Text(
-                                '@${m.username} · ${formatDateTr(m.matchedAt)}',
+                                [if (m.username case final u?) atName(u), formatDate(m.matchedAt)].join(' · '),
                                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                               ),
                               const SizedBox(height: GwSpacing.xxs),
@@ -202,18 +204,18 @@ class MatchesScreen extends ConsumerWidget {
                           ),
                         ),
                         PopupMenuButton<_MatchAction>(
-                          tooltip: 'Seçenekler',
+                          tooltip: matchingL10n.options,
                           onSelected: (a) => _act(context, ref, m, a),
                           itemBuilder: (_) => [
-                            const PopupMenuItem(value: _MatchAction.message, child: Text('Mesaj gönder')),
+                            PopupMenuItem(value: _MatchAction.message, child: Text(matchingL10n.sendMessage)),
                             // Matched both ways: the person chooses which one stays.
-                            if (m.modes.length > 1) ...const [
-                              PopupMenuItem(value: _MatchAction.keepFriend, child: Text('Yalnızca arkadaş kal')),
-                              PopupMenuItem(value: _MatchAction.keepDating, child: Text('Yalnızca sevgili kal')),
+                            if (m.modes.length > 1) ...[
+                              PopupMenuItem(value: _MatchAction.keepFriend, child: Text(matchingL10n.keepFriend)),
+                              PopupMenuItem(value: _MatchAction.keepDating, child: Text(matchingL10n.keepDating)),
                             ],
-                            const PopupMenuItem(value: _MatchAction.end, child: Text('Eşleşmeyi bitir')),
-                            const PopupMenuItem(value: _MatchAction.report, child: Text('Şikayet et')),
-                            const PopupMenuItem(value: _MatchAction.block, child: Text('Engelle')),
+                            PopupMenuItem(value: _MatchAction.end, child: Text(matchingL10n.endMatch)),
+                            PopupMenuItem(value: _MatchAction.report, child: Text(matchingL10n.report)),
+                            PopupMenuItem(value: _MatchAction.block, child: Text(matchingL10n.block)),
                           ],
                         ),
                       ],

@@ -197,7 +197,7 @@ class _PostRow extends StatelessWidget {
       p.owner,
       '${formatCount(p.likeCount)} beğeni',
       '${formatCount(p.commentCount)} yorum',
-      formatDateTimeTr(p.createdAt),
+      formatDateTime(p.createdAt),
     ].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.post(p.id)),
@@ -334,7 +334,7 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(p.owner, style: textTheme.titleMedium),
-              Text(formatDateTimeTr(p.createdAt), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+              Text(formatDateTime(p.createdAt), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
           if (canModerate && p.isRemoved)
@@ -368,7 +368,7 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
         ('Açıklama', p.caption.isEmpty ? '—' : p.caption),
         ('Beğeni', formatCount(p.likeCount)),
         ('Yorum', formatCount(p.commentCount)),
-        ('Paylaşıldı', formatDateTimeTr(p.createdAt)),
+        ('Paylaşıldı', formatDateTime(p.createdAt)),
         ('Gönderi kimliği', p.id),
       ],
     );
@@ -397,7 +397,7 @@ class _AdminPostDetailScreenState extends ConsumerState<AdminPostDetailScreen> {
         DetailBanner(
           tone: GwBadgeTone.danger,
           icon: Icons.remove_circle_outline,
-          title: 'Kaldırıldı · ${formatDateTimeTr(p.removedAt!)}',
+          title: 'Kaldırıldı · ${formatDateTime(p.removedAt!)}',
           body: p.removedReason,
         ),
         const SizedBox(height: GwSpacing.lg),
@@ -443,7 +443,7 @@ class _CommentTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  [c.authorUsername == null ? 'Silinmiş hesap' : '@${c.authorUsername}', formatDateTimeTr(c.createdAt)].join(' · '),
+                  [c.authorUsername == null ? 'Silinmiş hesap' : '@${c.authorUsername}', formatDateTime(c.createdAt)].join(' · '),
                   style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary),
                 ),
                 SelectableText(

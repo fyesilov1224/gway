@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
 import '../tokens/colors.dart';
 import '../tokens/media.dart';
 import '../tokens/radius.dart';
@@ -89,7 +90,7 @@ class GwHeroCard extends StatelessWidget {
                       builder: (context, constraints) => Image(
                         image: gwNetworkImage(cover, cacheWidth: gwCacheWidth(constraints.maxWidth, MediaQuery.devicePixelRatioOf(context))),
                         fit: BoxFit.cover,
-                        semanticLabel: 'Kapak fotoğrafı',
+                        semanticLabel: designSystemL10n.coverPhoto,
                         errorBuilder: (_, _, _) => placeholder,
                       ),
                     ),
@@ -197,8 +198,8 @@ class _CoverPlaceholder extends StatelessWidget {
       color: tone.soft,
       child: Stack(
         children: [
-          Positioned(right: GwSpacing.lg, bottom: -GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl * 2.5, color: faint)),
-          Positioned(right: GwSpacing.xxl * 3, top: GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl, color: faint)),
+          PositionedDirectional(end: GwSpacing.lg, bottom: -GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl * 2.5, color: faint)),
+          PositionedDirectional(end: GwSpacing.xxl * 3, top: GwSpacing.md, child: Icon(icon, size: GwSpacing.xxl, color: faint)),
         ],
       ),
     );

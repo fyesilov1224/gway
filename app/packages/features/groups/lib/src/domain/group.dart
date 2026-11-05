@@ -1,33 +1,52 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// How users get into a group (docs/ARCHITECTURE.md §3b).
 enum JoinPolicy {
-  open('open', 'Serbest katılım', 'Herkes doğrudan katılabilir.'),
-  request('request', 'İstekle katılım', 'Katılım istekleri yöneticiler tarafından onaylanır.'),
-  invite('invite', 'Davetle katılım', 'Yalnızca davet edilen kişiler katılabilir.');
+  open('open'),
+  request('request'),
+  invite('invite');
 
-  const JoinPolicy(this.code, this.label, this.description);
+  const JoinPolicy(this.code);
 
   final String code;
-  final String label;
-  final String description;
+
+  String get label => switch (this) {
+        open => groupsL10n.joinOpen,
+        request => groupsL10n.joinRequest,
+        invite => groupsL10n.joinInvite,
+      };
+
+  String get description => switch (this) {
+        open => groupsL10n.joinOpenHint,
+        request => groupsL10n.joinRequestHint,
+        invite => groupsL10n.joinInviteHint,
+      };
 
   static JoinPolicy parse(Object? code) => values.firstWhere((p) => p.code == code, orElse: () => open);
 }
 
 /// Group roles and their rank. Owner and member are structural; the rest are assigned by the owner.
 enum GroupRole {
-  owner('owner', 'Grup Sahibi', 100),
-  admin('admin', 'Yönetici', 80),
-  discipline('discipline', 'Disiplin Kurulu', 60),
-  moderator('moderator', 'Moderatör', 50),
-  member('member', 'Üye', 10);
+  owner('owner', 100),
+  admin('admin', 80),
+  discipline('discipline', 60),
+  moderator('moderator', 50),
+  member('member', 10);
 
-  const GroupRole(this.code, this.label, this.rank);
+  const GroupRole(this.code, this.rank);
 
   final String code;
-  final String label;
   final int rank;
+
+  String get label => switch (this) {
+        owner => groupsL10n.roleOwner,
+        admin => groupsL10n.roleAdmin,
+        discipline => groupsL10n.roleDiscipline,
+        moderator => groupsL10n.roleModerator,
+        member => groupsL10n.roleMember,
+      };
 
   static const assignable = [admin, discipline, moderator];
 
@@ -319,18 +338,18 @@ abstract final class GroupRules {
 
   static String? validateHandle(String? value) {
     final v = normalizeHandle(value ?? '');
-    if (v.length < 3) return 'Grup adresi en az 3 karakter olmalı.';
-    if (!_handle.hasMatch(v)) return 'Yalnızca küçük harf, rakam, alt çizgi ve nokta kullanabilirsin.';
+    if (v.length < 3) return groupsL10n.handleMin;
+    if (!_handle.hasMatch(v)) return groupsL10n.handleChars;
     if (v.startsWith('.') || v.endsWith('.') || v.contains('..')) {
-      return 'Nokta ile başlayamaz, bitemez ve art arda kullanılamaz.';
+      return groupsL10n.handleDots;
     }
     return null;
   }
 
   static String? validateName(String? value) {
     final v = (value ?? '').trim();
-    if (v.length < 3) return 'Grup adı en az 3 karakter olmalı.';
-    if (v.length > nameMaxLength) return 'Grup adı en fazla $nameMaxLength karakter olabilir.';
+    if (v.length < 3) return groupsL10n.nameMin;
+    if (v.length > nameMaxLength) return groupsL10n.nameMax(nameMaxLength);
     return null;
   }
 
@@ -338,7 +357,7 @@ abstract final class GroupRules {
     final v = (value ?? '').trim();
     final uri = Uri.tryParse(v);
     if (v.isEmpty || v.length > linkUrlMaxLength || uri == null || !uri.hasAuthority || !(uri.isScheme('https') || uri.isScheme('http'))) {
-      return 'https:// ile başlayan bir adres gir.';
+      return groupsL10n.httpsOnly;
     }
     return null;
   }

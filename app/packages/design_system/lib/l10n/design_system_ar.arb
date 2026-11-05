@@ -1,0 +1,10 @@
+{
+  "@@locale": "ar",
+  "loadingLabel": "{label}، جارٍ التحميل",
+  "previous": "السابق",
+  "next": "التالي",
+  "coverPhoto": "صورة الغلاف",
+  "retry": "إعادة المحاولة",
+  "liveBroadcast": "بث مباشر",
+  "liveBadge": "مباشر"
+}

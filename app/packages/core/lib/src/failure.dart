@@ -1,3 +1,5 @@
+import 'l10n.dart';
+
 /// An expected failure, safe to show to the user via [userMessage].
 ///
 /// Raw error text (exceptions, server messages) never reaches the UI;
@@ -5,7 +7,7 @@
 sealed class Failure implements Exception {
   const Failure();
 
-  /// Turkish, user-facing message for this failure.
+  /// User-facing message for this failure, in the current language.
   String get userMessage;
 }
 
@@ -19,8 +21,7 @@ final class NetworkFailure extends Failure {
   const NetworkFailure();
 
   @override
-  String get userMessage =>
-      'Bağlantı kurulamadı. İnternet bağlantını kontrol edip tekrar dene.';
+  String get userMessage => coreL10n.networkFailure;
 
   @override
   bool operator ==(Object other) => other is NetworkFailure;
@@ -34,7 +35,7 @@ final class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure();
 
   @override
-  String get userMessage => 'Oturumun sona erdi. Lütfen tekrar giriş yap.';
+  String get userMessage => coreL10n.unauthorizedFailure;
 
   @override
   bool operator ==(Object other) => other is UnauthorizedFailure;
@@ -48,7 +49,7 @@ final class ForbiddenFailure extends Failure {
   const ForbiddenFailure();
 
   @override
-  String get userMessage => 'Bu işlem için yetkin yok.';
+  String get userMessage => coreL10n.forbiddenFailure;
 
   @override
   bool operator ==(Object other) => other is ForbiddenFailure;
@@ -62,7 +63,7 @@ final class NotFoundFailure extends Failure {
   const NotFoundFailure();
 
   @override
-  String get userMessage => 'Aradığın içerik bulunamadı.';
+  String get userMessage => coreL10n.notFoundFailure;
 
   @override
   bool operator ==(Object other) => other is NotFoundFailure;
@@ -76,8 +77,7 @@ final class RateLimitedFailure extends Failure {
   const RateLimitedFailure();
 
   @override
-  String get userMessage =>
-      'Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.';
+  String get userMessage => coreL10n.rateLimitedFailure;
 
   @override
   bool operator ==(Object other) => other is RateLimitedFailure;
@@ -88,8 +88,8 @@ final class RateLimitedFailure extends Failure {
 
 /// A business rule rejected the request.
 ///
-/// [userMessage] must already be a safe Turkish sentence chosen by the
-/// data layer, never a raw server string.
+/// [userMessage] must already be a safe sentence in the current language chosen by the
+/// data layer (or a curated server title, translated by the API), never a raw server string.
 final class RuleFailure extends Failure {
   const RuleFailure(this.code, this.userMessage);
 
@@ -116,7 +116,7 @@ final class UnexpectedFailure extends Failure {
   final Object? cause;
 
   @override
-  String get userMessage => 'Bir şeyler ters gitti. Lütfen tekrar dene.';
+  String get userMessage => coreL10n.unexpectedFailure;
 
   @override
   bool operator ==(Object other) => other is UnexpectedFailure;

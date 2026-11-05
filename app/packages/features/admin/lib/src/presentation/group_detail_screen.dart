@@ -147,7 +147,7 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
           ('Üye sayısı', '${g.memberCount}'),
           ('Bekleyen istek', '${d.pendingRequests}'),
           ('Bekleyen davet', '${d.pendingInvitations}'),
-          ('Kuruluş', formatDateTimeTr(g.createdAt)),
+          ('Kuruluş', formatDateTime(g.createdAt)),
         ],
       ),
       if (d.about.isNotEmpty) ...[
@@ -185,7 +185,7 @@ class _AdminGroupDetailScreenState extends ConsumerState<AdminGroupDetailScreen>
         DetailBanner(
           tone: GwBadgeTone.danger,
           icon: Icons.block,
-          title: d.suspendedAt == null ? 'Grup askıda' : 'Grup ${formatDateTimeTr(d.suspendedAt!)} tarihinden beri askıda',
+          title: d.suspendedAt == null ? 'Grup askıda' : 'Grup ${formatDateTime(d.suspendedAt!)} tarihinden beri askıda',
           body: d.suspensionReason == null ? null : 'Gerekçe: ${d.suspensionReason}',
         ),
       ],
@@ -305,11 +305,11 @@ class _InviteLinksPanel extends StatelessWidget {
                             Text(
                               [
                                 if (l.createdByUsername != null) '@${l.createdByUsername}',
-                                formatDateTimeTr(l.createdAt),
+                                formatDateTime(l.createdAt),
                                 l.revokedAt != null
                                     ? 'İptal edildi'
                                     : l.valid
-                                        ? '${formatDateTimeTr(l.expiresAt)} tarihine kadar'
+                                        ? '${formatDateTime(l.expiresAt)} tarihine kadar'
                                         : 'Geçersiz',
                               ].join('  ·  '),
                               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),

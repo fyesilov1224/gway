@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:livekit_client/livekit_client.dart' as lk;
 
 import '../domain/live.dart';
+import '../l10n.dart';
 
 enum LiveSessionState { connecting, connected, failed, ended, kicked }
 
@@ -97,7 +98,7 @@ class LiveSession extends ChangeNotifier {
         } on Object catch (e) {
           debugPrint('LiveKit connect failed: $e');
           state = LiveSessionState.failed;
-          errorMessage = 'Yayına bağlanılamadı. Bağlantını kontrol edip tekrar dene.';
+          errorMessage = liveL10n.connectFailed;
         }
         _notify();
     }
@@ -126,7 +127,7 @@ class LiveSession extends ChangeNotifier {
     final avatar = a['avatar'] ?? '';
     return LiveSeat(
       id: p.identity,
-      name: p.name.isEmpty ? 'Katılımcı' : p.name,
+      name: p.name.isEmpty ? liveL10n.participant : p.name,
       role: LiveRole.parse(a['role']),
       rank: int.tryParse(a['rank'] ?? '') ?? 0,
       isMe: isMe,
@@ -142,13 +143,13 @@ class LiveSession extends ChangeNotifier {
   Future<String?> setMicrophone(bool on) async {
     final local = _room?.localParticipant;
     if (local == null) return null;
-    if (on && !local.permissions.canPublish) return 'Mikrofonunu yalnızca yayın yöneticisi açabilir.';
+    if (on && !local.permissions.canPublish) return liveL10n.micNeedsManager;
     try {
       await local.setMicrophoneEnabled(on);
       return null;
     } on Object catch (e) {
       debugPrint('Microphone failed: $e');
-      return 'Mikrofon açılamadı. Mikrofon iznini kontrol et.';
+      return liveL10n.micFailed;
     }
   }
 

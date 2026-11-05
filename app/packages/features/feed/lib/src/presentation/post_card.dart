@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'media.dart';
 import 'providers.dart';
 import 'rich_text.dart';
@@ -54,13 +55,13 @@ Future<void> toggleSave(BuildContext context, WidgetRef ref, Post post) async {
       _snack(context, failure.userMessage);
     case Ok():
       ref.invalidate(postListProvider(const SavedPosts()));
-      if (saved) _snack(context, 'Kaydedilenlere eklendi.');
+      if (saved) _snack(context, feedL10n.addedToSaved);
   }
 }
 
 Future<void> copyPostLink(BuildContext context, Post post) async {
   await Clipboard.setData(ClipboardData(text: FeedRoutes.shareLink(post.id)));
-  if (context.mounted) _snack(context, 'Gönderi bağlantısı kopyalandı.');
+  if (context.mounted) _snack(context, feedL10n.linkCopied);
 }
 
 /// Asks first; returns true when the post was deleted.
@@ -69,11 +70,11 @@ Future<bool> deletePost(BuildContext context, WidgetRef ref, Post post) async {
     context: context,
     builder: (context) => AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-      title: const Text('Gönderi silinsin mi?'),
-      content: const Text('Gönderi, fotoğrafları, videoları ve yorumlarıyla birlikte kalıcı olarak silinir.'),
+      title: Text(feedL10n.deletePostTitle),
+      content: Text(feedL10n.deletePostBody),
       actions: [
-        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-        GwButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
+        GwButton(label: feedL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+        GwButton(label: feedL10n.delete, onPressed: () => Navigator.of(context).pop(true)),
       ],
     ),
   );
@@ -84,7 +85,7 @@ Future<bool> deletePost(BuildContext context, WidgetRef ref, Post post) async {
     case Ok():
       ref.read(postEditsProvider.notifier).deleted(post.id);
       ref.read(postsChangedProvider.notifier).bump();
-      _snack(context, 'Gönderi silindi.');
+      _snack(context, feedL10n.postDeleted);
       return true;
     case Err(:final failure):
       _snack(context, failure.userMessage);
@@ -140,7 +141,7 @@ class PostCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (current.hideLikeCount && current.canManage)
-                      Text('Beğeni sayısı yalnızca sana görünür.', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                      Text(feedL10n.likesHidden, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                     if (current.caption.isNotEmpty) _Caption(post: current, onOpenOwner: openOwner),
                     if (current.event case final event?)
                       Padding(
@@ -148,7 +149,7 @@ class PostCard extends ConsumerWidget {
                         child: InkWell(
                           borderRadius: GwRadius.xlAll,
                           onTap: links.openEvent == null ? null : () => links.openEvent!(context, event.id),
-                          child: GwTag(label: 'Anı · ${event.title}', icon: Icons.event_outlined),
+                          child: GwTag(label: feedL10n.memoryOf(event.title), icon: Icons.event_outlined),
                         ),
                       ),
                   ],
@@ -173,14 +174,14 @@ class _Header extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final group = post.group;
     final author = post.author;
-    final name = group?.name ?? author?.displayName ?? 'Silinmiş hesap';
+    final name = group?.name ?? author?.displayName ?? feedL10n.deletedAccount;
     final meta = [
-      if (author != null) '@${author.username}' else if (group != null) 'Grup gönderisi',
-      formatAgoTr(post.createdAt),
-      if (post.editedAt != null) 'düzenlendi',
+      if (author != null) atName(author.username) else if (group != null) feedL10n.groupPost,
+      formatAgo(post.createdAt),
+      if (post.editedAt != null) feedL10n.edited,
     ].join(' · ');
     return Padding(
-      padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm),
+      padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.sm, GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm),
       child: Row(
         children: [
           Expanded(
@@ -212,22 +213,22 @@ class _Header extends ConsumerWidget {
             ),
           ),
           PopupMenuButton<void>(
-            tooltip: 'Diğer seçenekler',
+            tooltip: feedL10n.moreOptions,
             icon: const Icon(Icons.more_horiz),
             itemBuilder: (_) => [
-              PopupMenuItem(onTap: () => copyPostLink(context, post), child: const Text('Bağlantıyı kopyala')),
+              PopupMenuItem(onTap: () => copyPostLink(context, post), child: Text(feedL10n.copyLink)),
               if (!post.canManage)
                 PopupMenuItem(
                   onTap: () => ref.read(reportLauncherProvider)(context, ReportTarget.post(post.id)),
-                  child: const Text('Şikayet et'),
+                  child: Text(feedL10n.report),
                 ),
               if (post.canManage) ...[
-                PopupMenuItem(onTap: () => context.push(FeedRoutes.edit(post.id)), child: const Text('Düzenle')),
+                PopupMenuItem(onTap: () => context.push(FeedRoutes.edit(post.id)), child: Text(feedL10n.edit)),
                 PopupMenuItem(
                   onTap: () async {
                     if (await deletePost(context, ref, post)) onDeleted?.call();
                   },
-                  child: const Text('Sil', style: TextStyle(color: GwColors.error)),
+                  child: Text(feedL10n.delete, style: const TextStyle(color: GwColors.error)),
                 ),
               ],
             ],
@@ -249,29 +250,29 @@ class _Actions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Padding(
-        padding: const EdgeInsets.fromLTRB(GwSpacing.xs, GwSpacing.xxs, GwSpacing.xxs, GwSpacing.xxs),
+        padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.xs, GwSpacing.xxs, GwSpacing.xxs, GwSpacing.xxs),
         child: Row(
           children: [
             _Counter(
-              tooltip: post.liked ? 'Beğenmekten vazgeç' : 'Beğen',
+              tooltip: post.liked ? feedL10n.unlike : feedL10n.like,
               icon: post.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
               color: post.liked ? GwColors.like : null,
               count: post.likeCount,
-              unit: 'beğenme',
+              describe: feedL10n.likeCount,
               onTap: () => toggleLike(context, ref, post),
             ),
             if (!post.commentsDisabled)
               _Counter(
-                tooltip: 'Yorum yap',
+                tooltip: feedL10n.commentAction,
                 icon: Icons.mode_comment_outlined,
                 count: post.commentCount,
-                unit: 'yorum',
+                describe: feedL10n.commentCount,
                 onTap: showComments ? () => context.push(FeedRoutes.comments(post.id)) : null,
               ),
-            _Counter(tooltip: 'Bağlantıyı kopyala', icon: Icons.ios_share_rounded, onTap: () => copyPostLink(context, post)),
+            _Counter(tooltip: feedL10n.copyLink, icon: Icons.ios_share_rounded, onTap: () => copyPostLink(context, post)),
             const Spacer(),
             IconButton(
-              tooltip: post.saved ? 'Kaydedilenlerden çıkar' : 'Kaydet',
+              tooltip: post.saved ? feedL10n.unsave : feedL10n.save,
               onPressed: () => toggleSave(context, ref, post),
               icon: Icon(post.saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded),
             ),
@@ -296,11 +297,11 @@ class PostReactions extends ConsumerWidget {
         children: [
           for (final emoji in postReactionEmojis)
             Padding(
-              padding: const EdgeInsets.only(right: GwSpacing.xs),
+              padding: const EdgeInsetsDirectional.only(end: GwSpacing.xs),
               child: Semantics(
                 button: true,
                 selected: post.myReaction == emoji,
-                label: '$emoji tepkisi, ${post.reactions[emoji] ?? 0}',
+                label: feedL10n.reactionLabel(emoji, post.reactions[emoji] ?? 0),
                 child: InkWell(
                   onTap: () => toggleReaction(context, ref, post, emoji),
                   borderRadius: GwRadius.xlAll,
@@ -335,7 +336,7 @@ class PostReactions extends ConsumerWidget {
 
 /// An icon with its count; no number when it is zero or hidden.
 class _Counter extends StatelessWidget {
-  const _Counter({required this.tooltip, required this.icon, this.onTap, this.color, this.count, this.unit = ''});
+  const _Counter({required this.tooltip, required this.icon, this.onTap, this.color, this.count, this.describe});
 
   final String tooltip;
   final IconData icon;
@@ -344,7 +345,8 @@ class _Counter extends StatelessWidget {
   final int? count;
 
   /// Read after the number by screen readers ("3 beğenme").
-  final String unit;
+  /// The count for screen readers, e.g. "3 beğenme".
+  final String Function(int count)? describe;
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +368,7 @@ class _Counter extends StatelessWidget {
                 if (n != null && n > 0) ...[
                   const SizedBox(width: GwSpacing.xxs),
                   Semantics(
-                    label: '${formatCount(n)} $unit',
+                    label: describe?.call(n) ?? formatCount(n),
                     excludeSemantics: true,
                     child: Text(formatCount(n), style: Theme.of(context).textTheme.labelLarge),
                   ),
@@ -408,7 +410,7 @@ class _CaptionState extends State<_Caption> {
           onTap: () => setState(() => _expanded = true),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
-            child: Text('devamı', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            child: Text(feedL10n.more, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
           ),
         ),
       ],

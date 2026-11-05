@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'invite_links.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -47,7 +48,7 @@ class GroupScreen extends ConsumerWidget {
         // Opened from a link there is no back button, so the title keeps its padding.
         titleSpacing: Navigator.canPop(context) ? 0 : GwSpacing.md,
         title: g == null
-            ? const Text('Grup')
+            ? Text(groupsL10n.group)
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -58,16 +59,16 @@ class GroupScreen extends ConsumerWidget {
         actions: [
           if (g != null && !g.isSuspended)
             IconButton(
-              tooltip: 'Paylaş',
+              tooltip: groupsL10n.share,
               icon: const Icon(Icons.share_outlined),
               onPressed: () => shareWithMessage(context, ref.read(shareLinksProvider).group(g.handle),
-                  text: '${g.name} grubuna GWAY\'de göz at:'),
+                  text: groupsL10n.shareText(g.name)),
             ),
           if (g != null && me != null && me.isMember && g.ownerId != userId)
             PopupMenuButton<void>(
-              tooltip: 'Diğer seçenekler',
+              tooltip: groupsL10n.moreOptions,
               itemBuilder: (_) => [
-                PopupMenuItem(onTap: () => _leave(context, ref, g), child: const Text('Gruptan ayrıl')),
+                PopupMenuItem(onTap: () => _leave(context, ref, g), child: Text(groupsL10n.leaveGroup)),
               ],
             ),
           const SizedBox(width: GwSpacing.xs),
@@ -78,8 +79,8 @@ class GroupScreen extends ConsumerWidget {
           AsyncData(:final value) => _GroupBody(group: value, onOpenProfile: onOpenProfile, sections: sections, contentSections: contentSections),
           AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.group_off_outlined,
-              message: 'Bu grup bulunamadı ya da artık görünür değil.',
-              actionLabel: 'Gruplara dön',
+              message: groupsL10n.groupNotFound,
+              actionLabel: groupsL10n.backToGroups,
               onAction: () => context.go(GroupRoutes.discover),
             ),
           AsyncError(:final error) => GwErrorState(
@@ -96,9 +97,9 @@ class GroupScreen extends ConsumerWidget {
 Future<void> _leave(BuildContext context, WidgetRef ref, Group group) async {
   final confirmed = await confirmAction(
     context,
-    title: 'Gruptan ayrıl',
-    message: '${group.name} grubundan ayrılmak istiyor musun? Grupta bir rolün varsa o da kaldırılır.',
-    confirmLabel: 'Ayrıl',
+    title: groupsL10n.leaveGroup,
+    message: groupsL10n.leaveConfirm(group.name),
+    confirmLabel: groupsL10n.leave,
   );
   if (!confirmed || !context.mounted) return;
   final result = await ref.read(groupsRepositoryProvider).leave(group.id);
@@ -106,7 +107,7 @@ Future<void> _leave(BuildContext context, WidgetRef ref, Group group) async {
   switch (result) {
     case Ok():
       refreshGroup(ref, group);
-      showGroupMessage(context, '${group.name} grubundan ayrıldın.');
+      showGroupMessage(context, groupsL10n.leftGroup(group.name));
     case Err(:final failure):
       showGroupMessage(context, failure.userMessage);
   }
@@ -135,17 +136,17 @@ class _GroupBody extends ConsumerWidget {
         children: [
           GwHeroCard(
             name: group.name,
-            subtitle: '@${group.handle}',
+            subtitle: atName(group.handle),
             shape: GwAvatarShape.group,
             coverUrl: group.coverUrl,
             avatarUrl: group.logoUrl,
             coverIcon: categoryIcon(group.categorySlug),
             children: [
               if (group.isSuspended)
-                const _Notice(
+                _Notice(
                   icon: Icons.block,
                   danger: true,
-                  text: 'Bu grup platform ekibi tarafından askıya alındı. Askı sürerken grup yalnızca üyelerine görünür.',
+                  text: groupsL10n.suspendedNotice,
                 ),
               if (group.about.isNotEmpty) Text(group.about, style: textTheme.bodyLarge),
               Wrap(
@@ -160,7 +161,7 @@ class _GroupBody extends ConsumerWidget {
                     onTap: () => context.push(GroupRoutes.members(group.handle)),
                     child: GroupMeta(icon: Icons.people_outline, text: memberCountLabel(group.memberCount)),
                   ),
-                  GroupMeta(icon: Icons.calendar_month_outlined, text: 'Kuruluş: ${formatMonthYearTr(group.createdAt)}'),
+                  GroupMeta(icon: Icons.calendar_month_outlined, text: groupsL10n.founded(formatMonthYear(group.createdAt))),
                 ],
               ),
               // No action until the membership is known, so it never flickers.
@@ -176,8 +177,8 @@ class _GroupBody extends ConsumerWidget {
               if (requests > 0)
                 _Notice(
                   icon: Icons.how_to_reg_outlined,
-                  text: '$requests katılım isteği onay bekliyor.',
-                  actionLabel: 'İncele',
+                  text: groupsL10n.joinRequestsPending(requests),
+                  actionLabel: groupsL10n.review,
                   onAction: () => context.push(GroupRoutes.members(group.handle)),
                 ),
             ],
@@ -193,10 +194,10 @@ class _GroupBody extends ConsumerWidget {
                 ),
               ),
             ),
-          if (group.rules.isNotEmpty) _Section(title: 'Kurallar', child: Text(group.rules, style: textTheme.bodyLarge)),
+          if (group.rules.isNotEmpty) _Section(title: groupsL10n.rules, child: Text(group.rules, style: textTheme.bodyLarge)),
           if (group.links.isNotEmpty)
             _Section(
-              title: 'Bağlantılar',
+              title: groupsL10n.links,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [for (final link in group.links) _LinkRow(link: link)],
@@ -233,7 +234,7 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
     switch (result) {
       case Ok(:final value):
         refreshGroup(ref, widget.group);
-        final message = value == JoinOutcome.requested ? 'Katılım isteğin gönderildi.' : success;
+        final message = value == JoinOutcome.requested ? groupsL10n.requestSent : success;
         if (message != null) showGroupMessage(context, message);
       case Err(:final failure):
         showGroupMessage(context, failure.userMessage);
@@ -255,14 +256,14 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
     Widget edit() => OutlinedButton.icon(
           onPressed: () => context.push(GroupRoutes.edit(group.handle)),
           icon: const Icon(Icons.edit_outlined, size: iconSize),
-          label: const Text('Grubu düzenle'),
+          label: Text(groupsL10n.editGroup),
           style: outlined,
         );
 
     final leave = OutlinedButton.icon(
       onPressed: _busy ? null : () => _leave(context, ref, group),
       icon: const Icon(Icons.check, size: iconSize),
-      label: const Text('Üyesin'),
+      label: Text(groupsL10n.youAreMember),
       style: outlined,
     );
 
@@ -271,25 +272,25 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
       JoinState.member => me.can(GroupPermission.edit) ? edit() : leave,
       JoinState.suspended => me.isMember && group.ownerId != ref.watch(currentUserIdProvider) ? leave : const SizedBox.shrink(),
       JoinState.canJoin => GwButton(
-          label: 'Katıl',
+          label: groupsL10n.join,
           isLoading: _busy,
-          onPressed: () => _run((r) => r.join(group.id), success: '${group.name} grubuna katıldın.'),
+          onPressed: () => _run((r) => r.join(group.id), success: groupsL10n.joined(group.name)),
         ),
       JoinState.canRequest => GwButton(
-          label: 'Katılma isteği gönder',
+          label: groupsL10n.sendJoinRequest,
           isLoading: _busy,
           onPressed: () => _run((r) => r.join(group.id)),
         ),
       JoinState.requested => GwButton(
-          label: 'İstek gönderildi',
+          label: groupsL10n.requestSentShort,
           icon: Icons.schedule,
           variant: GwButtonVariant.secondary,
           isLoading: _busy,
           onPressed: () => _confirmThen(
-            'İsteği geri al',
-            'Katılım isteğini geri almak istiyor musun?',
-            'Geri al',
-            () => _run((r) => r.cancelRequest(group.id), success: 'Katılım isteğin geri alındı.'),
+            groupsL10n.withdrawRequest,
+            groupsL10n.withdrawConfirm,
+            groupsL10n.undo,
+            () => _run((r) => r.cancelRequest(group.id), success: groupsL10n.requestWithdrawn),
           ),
         ),
       JoinState.invited => Wrap(
@@ -298,18 +299,18 @@ class _JoinActionState extends ConsumerState<_JoinAction> {
           alignment: WrapAlignment.end,
           children: [
             GwButton(
-              label: 'Reddet',
+              label: groupsL10n.decline,
               variant: GwButtonVariant.text,
-              onPressed: _busy ? null : () => _run((r) => r.declineInvitation(group.id), success: 'Davet reddedildi.'),
+              onPressed: _busy ? null : () => _run((r) => r.declineInvitation(group.id), success: groupsL10n.inviteDeclined),
             ),
             GwButton(
-              label: 'Daveti kabul et',
+              label: groupsL10n.acceptInvite,
               isLoading: _busy,
-              onPressed: () => _run((r) => r.join(group.id), success: '${group.name} grubuna katıldın.'),
+              onPressed: () => _run((r) => r.join(group.id), success: groupsL10n.joined(group.name)),
             ),
           ],
         ),
-      JoinState.inviteOnly => const GwBadge('Davetle katılım'),
+      JoinState.inviteOnly => GwBadge(groupsL10n.joinInvite),
     };
   }
 }
@@ -336,14 +337,14 @@ class _FollowActionState extends ConsumerState<_FollowAction> {
     setState(() => _busy = false);
     ref.invalidate(myMembershipProvider(widget.group.id));
     showGroupMessage(context, switch (result) {
-      Ok() => follow ? '${widget.group.name} gönderileri akışında görünecek.' : 'Grubu takip etmeyi bıraktın.',
+      Ok() => follow ? groupsL10n.followOn(widget.group.name) : groupsL10n.followOff,
       Err(:final failure) => failure.userMessage,
     });
   }
 
   @override
   Widget build(BuildContext context) => GwButton(
-        label: widget.me.isFollowing ? 'Takiptesin' : 'Takip et',
+        label: widget.me.isFollowing ? groupsL10n.following : groupsL10n.follow,
         variant: GwButtonVariant.secondary,
         isLoading: _busy,
         onPressed: _toggle,
@@ -360,10 +361,10 @@ class _TeamSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final members = ref.watch(groupMembersProvider(groupKeyOf(group)));
     return _Section(
-      title: 'Yönetim ekibi',
+      title: groupsL10n.managementTeam,
       trailing: TextButton(
         onPressed: () => context.push(GroupRoutes.members(group.handle)),
-        child: Text('Tüm üyeler (${group.memberCount})'),
+        child: Text(groupsL10n.allMembers(group.memberCount)),
       ),
       padChild: false,
       child: switch (members) {
@@ -409,7 +410,7 @@ class PersonTile extends StatelessWidget {
                 children: [
                   Text(person.displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                   Text(
-                    subtitle ?? '@${person.username}',
+                    subtitle ?? atName(person.username),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
@@ -452,7 +453,7 @@ class _Section extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: GwSpacing.md, right: trailing == null ? GwSpacing.md : GwSpacing.xs),
+              padding: EdgeInsetsDirectional.only(start: GwSpacing.md, end: trailing == null ? GwSpacing.md : GwSpacing.xs),
               child: Row(
                 children: [
                   Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/messaging.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -24,11 +25,11 @@ class ConversationsScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Mesajlar'),
+          title: Text(messagingL10n.messages),
           bottom: TabBar(
             tabs: [
-              const Tab(text: 'Sohbetler'),
-              Tab(text: requests == 0 ? 'İstekler' : 'İstekler ($requests)'),
+              Tab(text: messagingL10n.chats),
+              Tab(text: requests == 0 ? messagingL10n.requests : messagingL10n.requestsCount(requests)),
             ],
           ),
         ),
@@ -40,19 +41,19 @@ class ConversationsScreen extends ConsumerWidget {
                     items: [for (final c in value) if (!c.isRequest) c],
                     empty: GwEmptyState(
                       icon: Icons.chat_bubble_outline_rounded,
-                      message: 'Henüz bir sohbetin yok. Eşleştiğin kişilere ve ekip arkadaşlarına yazabilirsin.',
-                      actionLabel: 'Kişi bul',
+                      message: messagingL10n.noChats,
+                      actionLabel: messagingL10n.findPeople,
                       onAction: () => onFindPeople(context),
                     ),
                   ),
                   _List(
                     items: [for (final c in value) if (c.isRequest) c],
-                    header: 'Eski mesaj istekleri burada durur. Özel mesaj artık yalnızca eşleşenler ve ekip arkadaşları içindir; yeni istek gelmez.',
+                    header: messagingL10n.oldRequestsNote,
                     empty: Builder(
                       builder: (context) => GwEmptyState(
                         icon: Icons.mark_email_unread_outlined,
-                        message: 'Bekleyen mesaj isteğin yok.',
-                        actionLabel: 'Sohbetlere dön',
+                        message: messagingL10n.noRequests,
+                        actionLabel: messagingL10n.backToChats,
                         onAction: () => DefaultTabController.of(context).animateTo(0),
                       ),
                     ),

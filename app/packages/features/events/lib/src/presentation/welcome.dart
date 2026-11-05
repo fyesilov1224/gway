@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'event_screens.dart';
 import 'providers.dart';
 
@@ -41,19 +42,19 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
   Future<void> _request() async {
     final note = await showDialog<String>(
       context: context,
-      builder: (_) => const _NoteDialog(
-        title: 'Karşılanmak istiyorum',
-        message: 'Grubun gönüllü üyelerinden biri seni girişte karşılar; yalnız gitmezsin.',
-        label: 'Seni tanımaları için bir not (isteğe bağlı)',
-        hint: 'Ör. Kırmızı montluyum, mavi çantam var',
+      builder: (_) => _NoteDialog(
+        title: eventsL10n.wantWelcome,
+        message: eventsL10n.wantWelcomeHint,
+        label: eventsL10n.noteForGreeter,
+        hint: eventsL10n.noteForGreeterHint,
         minLength: 0,
-        action: 'İstek gönder',
+        action: eventsL10n.sendRequest,
       ),
     );
     if (note == null) return;
     await _run(
       (r) => r.requestWelcome(_id, note: note.isEmpty ? null : note),
-      'İsteğin karşılayıcılara iletildi. Biri üstlenince haber vereceğiz.',
+      eventsL10n.welcomeRequestSent,
     );
   }
 
@@ -61,19 +62,19 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     final note = await showDialog<String>(
       context: context,
       builder: (_) => _NoteDialog(
-        title: edit ? 'Buluşma notunu düzenle' : '${entry.person.displayName} kişisini karşıla',
-        message: entry.note == null ? null : 'Kendini şöyle tarif etti: ${entry.note}',
-        label: 'Nerede buluşacaksınız?',
-        hint: 'Ör. Girişteki kafenin önü, 08:45',
+        title: edit ? eventsL10n.editMeetingNote : eventsL10n.welcomePerson(entry.person.displayName),
+        message: entry.note == null ? null : eventsL10n.describedAs(entry.note!),
+        label: eventsL10n.whereMeet,
+        hint: eventsL10n.whereMeetHint,
         initial: entry.greeterNote,
         minLength: 3,
-        action: edit ? 'Kaydet' : 'Karşılarım',
+        action: edit ? eventsL10n.save : eventsL10n.iWillWelcome,
       ),
     );
     if (note == null) return;
     await _run(
       (r) => r.takeWelcome(_id, entry.person.id, note),
-      edit ? 'Buluşma notu güncellendi.' : '${entry.person.displayName} kişisini karşılayacaksın; buluşma notunu gördü.',
+      edit ? eventsL10n.noteUpdated : eventsL10n.youWillWelcome(entry.person.displayName),
     );
   }
 
@@ -81,16 +82,16 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Karşılamayı bırak'),
-        content: Text('${entry.person.displayName} için yeniden karşılayıcı aranacak ve kendisine haber verilecek.'),
+        title: Text(eventsL10n.stopWelcoming),
+        content: Text(eventsL10n.stopWelcomingBody(entry.person.displayName)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Vazgeç')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Bırak')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(eventsL10n.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(eventsL10n.release)),
         ],
       ),
     );
     if (ok != true) return;
-    await _run((r) => r.releaseWelcome(_id, entry.person.id), 'Karşılamayı bıraktın; yeni bir karşılayıcı aranıyor.');
+    await _run((r) => r.releaseWelcome(_id, entry.person.id), eventsL10n.releasedWelcome);
   }
 
   @override
@@ -104,17 +105,17 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     final children = <Widget>[
       if (w.mine case final mine?) ..._mine(mine, open, textTheme, secondary),
       if (w.mine == null && w.canRequest && w.greeters > 0) ...[
-        Text('İlk kez mi geliyorsun?', style: textTheme.titleMedium),
+        Text(eventsL10n.firstTime, style: textTheme.titleMedium),
         const SizedBox(height: GwSpacing.xxs),
         Text(
-          'Bu grupta ${formatCount(w.greeters)} karşılayıcı var. Biri seni girişte karşılasın, grupla tanıştırsın.',
+          eventsL10n.greetersAvailable(w.greeters),
           style: secondary,
         ),
         const SizedBox(height: GwSpacing.sm),
-        GwButton(label: 'Karşılanmak istiyorum', icon: Icons.waving_hand_outlined, isLoading: _busy, onPressed: _request),
+        GwButton(label: eventsL10n.wantWelcome, icon: Icons.waving_hand_outlined, isLoading: _busy, onPressed: _request),
       ],
       if (w.taken.isNotEmpty) ...[
-        Text('Karşıladıkların', style: textTheme.titleMedium),
+        Text(eventsL10n.youWelcomed, style: textTheme.titleMedium),
         const SizedBox(height: GwSpacing.xs),
         for (final t in w.taken)
           _PersonRow(
@@ -122,17 +123,17 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
             links: widget.links,
             subtitle: [
               if (t.note case final note?) 'Tarif: $note',
-              if (t.greeterNote case final note?) 'Buluşma: $note',
-              if (t.thanked) 'Sana teşekkür etti',
+              if (t.greeterNote case final note?) eventsL10n.meetingAt(note),
+              if (t.thanked) eventsL10n.thankedYou,
             ].join(' · '),
             trailing: open
                 ? PopupMenuButton<String>(
-                    tooltip: '${t.person.displayName} için seçenekler',
+                    tooltip: eventsL10n.optionsFor(t.person.displayName),
                     enabled: !_busy,
                     onSelected: (a) => a == 'edit' ? _take(t, edit: true) : _release(t),
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Buluşma notunu düzenle')),
-                      PopupMenuItem(value: 'release', child: Text('Karşılamayı bırak')),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(value: 'edit', child: Text(eventsL10n.editMeetingNote)),
+                      PopupMenuItem(value: 'release', child: Text(eventsL10n.stopWelcoming)),
                     ],
                   )
                 : null,
@@ -140,28 +141,28 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
       ],
       if (w.open case final waiting? when waiting.isNotEmpty && open) ...[
         if (w.taken.isNotEmpty) const SizedBox(height: GwSpacing.sm),
-        Text('Karşılanmayı bekleyenler (${waiting.length})', style: textTheme.titleMedium),
+        Text(eventsL10n.waitingWelcome(waiting.length), style: textTheme.titleMedium),
         if (!w.greeting && w.matched != null)
-          Text('${formatCount(w.matched!)} kişi bir karşılayıcıyla eşleşti.', style: secondary),
+          Text(eventsL10n.matchedCount(w.matched!), style: secondary),
         const SizedBox(height: GwSpacing.xs),
         for (final entry in waiting)
           _PersonRow(
             entry: entry,
             links: widget.links,
-            subtitle: entry.note ?? 'İlk kez geliyor',
+            subtitle: entry.note ?? eventsL10n.firstTimer,
             trailing: w.greeting
                 ? GwButton(
-                    label: 'Karşılarım',
+                    label: eventsL10n.iWillWelcome,
                     variant: GwButtonVariant.secondary,
                     onPressed: _busy || w.taken.length >= 3 ? null : () => _take(entry),
                   )
                 : null,
           ),
         if (w.greeting && w.taken.length >= 3)
-          Text('Bir organizasyonda en fazla 3 kişiyi karşılayabilirsin.', style: secondary),
+          Text(eventsL10n.max3Welcomes, style: secondary),
       ],
       if (w.isGreeter && !w.greeting && open && w.mine == null)
-        Text('Karşılayıcısın. İlk kez gelenleri karşılamak için organizasyona katıl.', style: secondary),
+        Text(eventsL10n.greeterJoinHint, style: secondary),
     ];
     if (children.isEmpty) return const SizedBox.shrink();
 
@@ -180,43 +181,43 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
     final greeter = mine.greeter;
     if (greeter == null) {
       return [
-        Text('Karşılayıcı aranıyor', style: textTheme.titleMedium),
+        Text(eventsL10n.lookingGreeter, style: textTheme.titleMedium),
         const SizedBox(height: GwSpacing.xxs),
-        Text('Grubun karşılayıcılarına haber verdik. Biri üstlenince bildirim gelecek.', style: secondary),
-        if (mine.note case final note?) Text('Notun: $note', style: secondary),
+        Text(eventsL10n.lookingGreeterHint, style: secondary),
+        if (mine.note case final note?) Text(eventsL10n.yourNote(note), style: secondary),
         if (open) ...[
           const SizedBox(height: GwSpacing.xs),
           TextButton(
             style: TextButton.styleFrom(padding: EdgeInsets.zero),
-            onPressed: _busy ? null : () => _run((r) => r.withdrawWelcome(_id), 'Karşılanma isteğin geri çekildi.'),
-            child: const Text('İsteği geri çek'),
+            onPressed: _busy ? null : () => _run((r) => r.withdrawWelcome(_id), eventsL10n.welcomeWithdrawn),
+            child: Text(eventsL10n.withdrawRequest),
           ),
         ],
       ];
     }
     return [
-      Text(mine.thanked || mine.canThank ? 'Seni karşılayan' : 'Seni karşılayacak', style: textTheme.titleMedium),
+      Text(mine.thanked || mine.canThank ? eventsL10n.greetedBy : eventsL10n.willGreet, style: textTheme.titleMedium),
       const SizedBox(height: GwSpacing.xs),
       _PersonRow(
         entry: WelcomeEntry(person: greeter),
         links: widget.links,
-        subtitle: mine.greeterNote == null ? '@${greeter.username}' : 'Buluşma: ${mine.greeterNote}',
+        subtitle: mine.greeterNote == null ? atName(greeter.username) : eventsL10n.meetingAt(mine.greeterNote!),
       ),
       if (mine.canThank) ...[
         const SizedBox(height: GwSpacing.xs),
         GwButton(
-          label: 'Teşekkür et',
+          label: eventsL10n.thank,
           icon: Icons.favorite_border_rounded,
           isLoading: _busy,
-          onPressed: () => _run((r) => r.thankGreeter(_id), '${greeter.displayName} teşekkürünü aldı.'),
+          onPressed: () => _run((r) => r.thankGreeter(_id), eventsL10n.thankReceived(greeter.displayName)),
         ),
       ] else if (mine.thanked)
-        Text('Teşekkür ettin.', style: secondary)
+        Text(eventsL10n.thanked, style: secondary)
       else if (open)
         TextButton(
           style: TextButton.styleFrom(padding: EdgeInsets.zero),
-          onPressed: _busy ? null : () => _run((r) => r.withdrawWelcome(_id), 'Karşılanma isteğin geri çekildi.'),
-          child: const Text('Karşılanmaktan vazgeç'),
+          onPressed: _busy ? null : () => _run((r) => r.withdrawWelcome(_id), eventsL10n.welcomeWithdrawn),
+          child: Text(eventsL10n.cancelWelcome),
         ),
     ];
   }
@@ -316,7 +317,7 @@ class _NoteDialogState extends State<_NoteDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Vazgeç')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(eventsL10n.cancel)),
         TextButton(
           onPressed: length < widget.minLength ? null : () => Navigator.pop(context, _text.text.trim()),
           child: Text(widget.action),
@@ -348,8 +349,8 @@ class _GroupWelcomeSectionState extends ConsumerState<GroupWelcomeSection> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
         Ok() => greeter
-            ? 'Artık karşılayıcısın. İlk kez gelen biri karşılanmak istediğinde haber vereceğiz.'
-            : 'Karşılayıcılığı bıraktın.',
+            ? eventsL10n.nowGreeter
+            : eventsL10n.noLongerGreeter,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -361,7 +362,7 @@ class _GroupWelcomeSectionState extends ConsumerState<GroupWelcomeSection> {
     final w = ref.watch(groupWelcomeProvider(widget.groupId)).value;
     if (w == null || (w.greeters == 0 && !w.canGreet)) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
-    final count = formatCount(w.greeters);
+    final count = w.greeters;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
@@ -374,26 +375,23 @@ class _GroupWelcomeSectionState extends ConsumerState<GroupWelcomeSection> {
               children: [
                 const Icon(Icons.waving_hand_outlined, color: GwColors.primary),
                 const SizedBox(width: GwSpacing.sm),
-                Expanded(child: Text('Karşılama', style: textTheme.titleMedium)),
-                if (w.greeters > 0) GwBadge('$count karşılayıcı', tone: GwBadgeTone.primary),
+                Expanded(child: Text(eventsL10n.welcomeSection, style: textTheme.titleMedium)),
+                if (w.greeters > 0) GwBadge(eventsL10n.greetersCount(count), tone: GwBadgeTone.primary),
               ],
             ),
             const SizedBox(height: GwSpacing.xs),
             Text(
               switch ((w.canGreet, w.greeters)) {
-                (true, _) => 'İlk kez gelenler organizasyon sayfasından karşılanmak isteyebilir. '
-                    'Karşılayıcı olursan haber alırsın; girişte karşılar, grupla tanıştırırsın.',
-                (false, _) when widget.isMember => 'Bu grupta $count karşılayıcı var. İlk organizasyonunda '
-                    'sayfadan "Karşılanmak istiyorum" diyebilirsin.',
-                _ => 'Bu grupta $count karşılayıcı var: ilk organizasyonuna yalnız gitmezsin, '
-                    'biri seni girişte karşılar.',
+                (true, _) => eventsL10n.greeterIntro,
+                (false, _) when widget.isMember => eventsL10n.greeterMemberHint(count),
+                _ => eventsL10n.greeterVisitorHint(count),
               },
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             if (w.canGreet || w.isGreeter)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Karşılayıcı ol'),
+                title: Text(eventsL10n.becomeGreeter),
                 value: w.isGreeter,
                 onChanged: _busy ? null : _set,
               ),

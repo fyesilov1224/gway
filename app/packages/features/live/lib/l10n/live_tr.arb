@@ -1,0 +1,412 @@
+{
+  "@@locale": "tr",
+  "commentRate": "Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.",
+  "@commentRate": {
+    "description": ""
+  },
+  "mutedListenOnly": "Bu grupta susturulduğun için yayında yalnızca dinleyebilirsin.",
+  "@mutedListenOnly": {
+    "description": ""
+  },
+  "cannotComment": "Bu yayına şu anda yorum yazamazsın.",
+  "@cannotComment": {
+    "description": ""
+  },
+  "roleHost": "Sunucu",
+  "@roleHost": {
+    "description": ""
+  },
+  "roleSpeaker": "Konuşmacı",
+  "@roleSpeaker": {
+    "description": ""
+  },
+  "roleListener": "Dinleyici",
+  "@roleListener": {
+    "description": ""
+  },
+  "startLive": "Yayın başlat",
+  "@startLive": {
+    "description": ""
+  },
+  "hostedBy": "{name} sunuyor",
+  "@hostedBy": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "join": "Katıl",
+  "@join": {
+    "description": ""
+  },
+  "upcomingAt": "Yaklaşan · {date}",
+  "@upcomingAt": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduledCanceled": "Planlı yayın iptal edildi.",
+  "@scheduledCanceled": {
+    "description": ""
+  },
+  "cancel": "İptal",
+  "@cancel": {
+    "description": ""
+  },
+  "start": "Başlat",
+  "@start": {
+    "description": ""
+  },
+  "reminderRemoved": "Hatırlatma kaldırıldı.",
+  "@reminderRemoved": {
+    "description": ""
+  },
+  "reminderSet": "Yayın başlayınca haber vereceğiz.",
+  "@reminderSet": {
+    "description": ""
+  },
+  "reminding": "Hatırlatılacak",
+  "@reminding": {
+    "description": ""
+  },
+  "remind": "Hatırlat",
+  "@remind": {
+    "description": ""
+  },
+  "schedule5min": "Planlı yayın en az 5 dakika sonraya olmalı.",
+  "@schedule5min": {
+    "description": ""
+  },
+  "scheduled": "Yayın planlandı. Üyeler hatırlatma isteyebilir.",
+  "@scheduled": {
+    "description": ""
+  },
+  "liveBroadcast": "Canlı yayın",
+  "@liveBroadcast": {
+    "description": ""
+  },
+  "liveIntro": "Grup üyeleri sesli odaya katılır; sahneye aldıkların konuşur.",
+  "@liveIntro": {
+    "description": ""
+  },
+  "title": "Başlık",
+  "@title": {
+    "description": ""
+  },
+  "titleExample": "Ör. Pazar yürüyüşü planı",
+  "@titleExample": {
+    "description": ""
+  },
+  "titleMin3": "Başlık en az 3 karakter olmalı.",
+  "@titleMin3": {
+    "description": ""
+  },
+  "now": "Şimdi",
+  "@now": {
+    "description": ""
+  },
+  "scheduleIt": "Planla",
+  "@scheduleIt": {
+    "description": ""
+  },
+  "minutesLeft": "Bu ay kalan canlı yayın süren: {count} dakika.",
+  "@minutesLeft": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesUsedUp": "Bu ayın canlı yayın süresi doldu. Daha fazlası için paketini yükseltebilirsin.",
+  "@minutesUsedUp": {
+    "description": ""
+  },
+  "startTheLive": "Yayını başlat",
+  "@startTheLive": {
+    "description": ""
+  },
+  "liveNow": "Şimdi canlı",
+  "@liveNow": {
+    "description": ""
+  },
+  "trayLabel": "{group} canlı yayında: {title}",
+  "@trayLabel": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "youAreLive": "Canlı yayındasın: {title}. Yayına dönmek için dokun.",
+  "@youAreLive": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "connecting": "Yayına bağlanılıyor…",
+  "@connecting": {
+    "description": ""
+  },
+  "inBroadcast": "Yayındasın · dönmek için dokun",
+  "@inBroadcast": {
+    "description": ""
+  },
+  "micMutedByMod": "Mikrofonunu yönetici kapattı",
+  "@micMutedByMod": {
+    "description": ""
+  },
+  "micOff": "Mikrofonu kapat",
+  "@micOff": {
+    "description": ""
+  },
+  "micOn": "Mikrofonu aç",
+  "@micOn": {
+    "description": ""
+  },
+  "startsOn": "Bu yayın {date} tarihinde başlayacak.",
+  "@startsOn": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ended": "Bu yayın sona erdi.",
+  "@ended": {
+    "description": ""
+  },
+  "notFound": "Bu yayın bulunamadı. Grubun üyesi olman gerekiyor olabilir.",
+  "@notFound": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "onStageNow": "Sahneye alındın. Mikrofonunu açarak konuşabilirsin.",
+  "@onStageNow": {
+    "description": ""
+  },
+  "nowListener": "Artık dinleyicisin.",
+  "@nowListener": {
+    "description": ""
+  },
+  "leaveBroadcast": "Yayından çık",
+  "@leaveBroadcast": {
+    "description": ""
+  },
+  "leaveHostBody": "Yayını herkes için bitirebilirsin. Yalnızca ayrılırsan yayın 2 dakika sonra kendiliğinden biter.",
+  "@leaveHostBody": {
+    "description": ""
+  },
+  "justLeave": "Yalnızca ayrıl",
+  "@justLeave": {
+    "description": ""
+  },
+  "endBroadcast": "Yayını bitir",
+  "@endBroadcast": {
+    "description": ""
+  },
+  "inviteToStage": "Sahneye al",
+  "@inviteToStage": {
+    "description": ""
+  },
+  "removeFromStage": "Sahneden indir",
+  "@removeFromStage": {
+    "description": ""
+  },
+  "muteMic": "Mikrofonunu kapat",
+  "@muteMic": {
+    "description": ""
+  },
+  "unmuteMic": "Mikrofonunu aç",
+  "@unmuteMic": {
+    "description": ""
+  },
+  "kick": "Yayından çıkar",
+  "@kick": {
+    "description": ""
+  },
+  "kickBody": "{name} bu yayına bir daha giremez.",
+  "@kickBody": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelAction": "Vazgeç",
+  "@cancelAction": {
+    "description": ""
+  },
+  "remove": "Çıkar",
+  "@remove": {
+    "description": ""
+  },
+  "raisedHands": "El kaldıranlar",
+  "@raisedHands": {
+    "description": ""
+  },
+  "commentDeleted": "Yorum silindi.",
+  "@commentDeleted": {
+    "description": ""
+  },
+  "thanksForJoining": "Yayın sona erdi. Katıldığın için teşekkürler.",
+  "@thanksForJoining": {
+    "description": ""
+  },
+  "youWereKicked": "Bu yayından çıkarıldın.",
+  "@youWereKicked": {
+    "description": ""
+  },
+  "connectFailedShort": "Yayına bağlanılamadı.",
+  "@connectFailedShort": {
+    "description": ""
+  },
+  "handsRaised": "{count} kişi el kaldırdı",
+  "@handsRaised": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onStage": "Sahnede",
+  "@onStage": {
+    "description": ""
+  },
+  "listeners": "Dinleyiciler · {count}",
+  "@listeners": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noListeners": "Henüz dinleyici yok.",
+  "@noListeners": {
+    "description": ""
+  },
+  "minimize": "Küçült, yayında kal",
+  "@minimize": {
+    "description": ""
+  },
+  "peopleCount": "{count} kişi",
+  "@peopleCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "broadcastOptions": "Yayın seçenekleri",
+  "@broadcastOptions": {
+    "description": ""
+  },
+  "endForAll": "Yayını herkes için bitir",
+  "@endForAll": {
+    "description": ""
+  },
+  "handRaised": "Elini kaldırdın. Sunucu seni sahneye alabilir.",
+  "@handRaised": {
+    "description": ""
+  },
+  "you": "Sen",
+  "@you": {
+    "description": ""
+  },
+  "speaking": "konuşuyor",
+  "@speaking": {
+    "description": ""
+  },
+  "micOffState": "mikrofon kapalı",
+  "@micOffState": {
+    "description": ""
+  },
+  "handUp": "el kaldırdı",
+  "@handUp": {
+    "description": ""
+  },
+  "sendReaction": "Tepki gönder",
+  "@sendReaction": {
+    "description": ""
+  },
+  "leave": "Ayrıl",
+  "@leave": {
+    "description": ""
+  },
+  "leaveStage": "Sahneden in",
+  "@leaveStage": {
+    "description": ""
+  },
+  "reactions": "Tepkiler",
+  "@reactions": {
+    "description": ""
+  },
+  "comments": "Yorumlar",
+  "@comments": {
+    "description": ""
+  },
+  "raiseHand": "El kaldır",
+  "@raiseHand": {
+    "description": ""
+  },
+  "lowerHand": "Elini indir",
+  "@lowerHand": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "deleteComment": "Yorumu sil",
+  "@deleteComment": {
+    "description": ""
+  },
+  "firstComment": "İlk yorumu sen yaz.",
+  "@firstComment": {
+    "description": ""
+  },
+  "writeComment": "Yorum yaz…",
+  "@writeComment": {
+    "description": ""
+  },
+  "send": "Gönder",
+  "@send": {
+    "description": ""
+  },
+  "connectFailed": "Yayına bağlanılamadı. Bağlantını kontrol edip tekrar dene.",
+  "@connectFailed": {
+    "description": ""
+  },
+  "participant": "Katılımcı",
+  "@participant": {
+    "description": ""
+  },
+  "micNeedsManager": "Mikrofonunu yalnızca yayın yöneticisi açabilir.",
+  "@micNeedsManager": {
+    "description": ""
+  },
+  "micFailed": "Mikrofon açılamadı. Mikrofon iznini kontrol et.",
+  "@micFailed": {
+    "description": ""
+  }
+}

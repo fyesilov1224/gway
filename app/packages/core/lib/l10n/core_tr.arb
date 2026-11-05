@@ -1,0 +1,107 @@
+{
+  "@@locale": "tr",
+  "networkFailure": "Bağlantı kurulamadı. İnternet bağlantını kontrol edip tekrar dene.",
+  "@networkFailure": {
+    "description": "No connection or server unreachable"
+  },
+  "unauthorizedFailure": "Oturumun sona erdi. Lütfen tekrar giriş yap.",
+  "@unauthorizedFailure": {
+    "description": "Session expired"
+  },
+  "forbiddenFailure": "Bu işlem için yetkin yok.",
+  "@forbiddenFailure": {
+    "description": "No permission for the action"
+  },
+  "notFoundFailure": "Aradığın içerik bulunamadı.",
+  "@notFoundFailure": {
+    "description": "Content not found"
+  },
+  "rateLimitedFailure": "Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.",
+  "@rateLimitedFailure": {
+    "description": "Too many attempts"
+  },
+  "unexpectedFailure": "Bir şeyler ters gitti. Lütfen tekrar dene.",
+  "@unexpectedFailure": {
+    "description": "Any other error"
+  },
+  "storageTooLarge": "Dosya çok büyük. En fazla 5 MB yükleyebilirsin.",
+  "@storageTooLarge": {
+    "description": "Uploaded file over 5 MB"
+  },
+  "storageUnsupportedType": "Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.",
+  "@storageUnsupportedType": {
+    "description": "Uploaded file of an unsupported type"
+  },
+  "categoryMusic": "Müzik",
+  "@categoryMusic": {
+    "description": "Category"
+  },
+  "categoryHiking": "Yürüyüş",
+  "@categoryHiking": {
+    "description": "Category"
+  },
+  "categoryRunning": "Koşu",
+  "@categoryRunning": {
+    "description": "Category"
+  },
+  "categoryCycling": "Bisiklet",
+  "@categoryCycling": {
+    "description": "Category"
+  },
+  "categoryNature": "Doğa",
+  "@categoryNature": {
+    "description": "Category"
+  },
+  "categorySports": "Spor",
+  "@categorySports": {
+    "description": "Category"
+  },
+  "categoryArt": "Sanat",
+  "@categoryArt": {
+    "description": "Category"
+  },
+  "categoryPhotography": "Fotoğraf",
+  "@categoryPhotography": {
+    "description": "Category"
+  },
+  "categoryDance": "Dans",
+  "@categoryDance": {
+    "description": "Category"
+  },
+  "categoryBooks": "Kitap",
+  "@categoryBooks": {
+    "description": "Category"
+  },
+  "categoryGames": "Oyun",
+  "@categoryGames": {
+    "description": "Category"
+  },
+  "categoryTravel": "Seyahat",
+  "@categoryTravel": {
+    "description": "Category"
+  },
+  "categoryFood": "Yemek",
+  "@categoryFood": {
+    "description": "Category"
+  },
+  "categoryTechnology": "Teknoloji",
+  "@categoryTechnology": {
+    "description": "Category"
+  },
+  "categoryVolunteering": "Gönüllülük",
+  "@categoryVolunteering": {
+    "description": "Category"
+  },
+  "categoryMotorcycle": "Motosiklet",
+  "@categoryMotorcycle": {
+    "description": "Category"
+  },
+  "categoryCamping": "Kamp",
+  "@categoryCamping": {
+    "description": "Category"
+  },
+  "categoryChess": "Satranç",
+  "@categoryChess": {
+    "description": "Category"
+  }
+}

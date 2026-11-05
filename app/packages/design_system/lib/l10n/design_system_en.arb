@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "loadingLabel": "{label}, loading",
+  "previous": "Previous",
+  "next": "Next",
+  "coverPhoto": "Cover photo",
+  "retry": "Try again",
+  "liveBroadcast": "Live broadcast",
+  "liveBadge": "LIVE"
+}

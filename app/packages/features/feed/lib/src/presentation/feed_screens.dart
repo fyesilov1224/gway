@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'post_card.dart';
 import 'post_lists.dart';
 import 'providers.dart';
@@ -47,15 +48,15 @@ class HomeFeedScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ?top,
-                const GwSectionHeader(title: 'Hikâyeler'),
+                GwSectionHeader(title: feedL10n.stories),
                 const StoryTray(),
-                const GwSectionHeader(title: 'Akış', subtitle: 'Gruplarından ve takip ettiklerinden'),
+                GwSectionHeader(title: feedL10n.feed, subtitle: feedL10n.feedHint),
               ],
             ),
             empty: (
               icon: Icons.dynamic_feed_outlined,
-              message: 'Akışın boş. Takip ettiğin kişilerin ve grupların gönderileri burada görünür.',
-              actionLabel: 'Keşfet',
+              message: feedL10n.feedEmpty,
+              actionLabel: feedL10n.explore,
               onAction: () => context.push(FeedRoutes.explore),
             ),
           ),
@@ -109,9 +110,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           onChanged: _changed,
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: 'Kişi ya da #etiket ara',
+            hintText: feedL10n.searchHint,
             prefixIcon: const Icon(Icons.search),
-            suffixIcon: _search.text.isEmpty ? null : IconButton(tooltip: 'Temizle', icon: const Icon(Icons.close), onPressed: _clear),
+            suffixIcon: _search.text.isEmpty ? null : IconButton(tooltip: feedL10n.clear, icon: const Icon(Icons.close), onPressed: _clear),
             isDense: true,
           ),
         ),
@@ -122,8 +123,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 source: const ExplorePosts(),
                 empty: (
                   icon: Icons.explore_outlined,
-                  message: 'Keşfedilecek yeni gönderi yok. Biraz sonra tekrar bak.',
-                  actionLabel: 'Yenile',
+                  message: feedL10n.exploreEmpty,
+                  actionLabel: feedL10n.refresh,
                   onAction: () => ref.invalidate(postListProvider(const ExplorePosts())),
                 ),
               )
@@ -132,7 +133,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 initialIndex: _query.startsWith('#') ? 1 : 0,
                 child: Column(
                   children: [
-                    const TabBar(tabs: [Tab(text: 'Hesaplar'), Tab(text: 'Etiketler')]),
+                    TabBar(tabs: [Tab(text: feedL10n.accounts), Tab(text: feedL10n.hashtags)]),
                     Expanded(
                       child: TabBarView(
                         children: [
@@ -161,8 +162,8 @@ class _HashtagResults extends ConsumerWidget {
     return switch (tags) {
       AsyncData(:final value) when value.isEmpty => GwEmptyState(
           icon: Icons.tag,
-          message: '"$query" ile başlayan bir etiket bulunamadı.',
-          actionLabel: 'Aramayı temizle',
+          message: feedL10n.noTagMatch(query),
+          actionLabel: feedL10n.clearSearch,
           onAction: onClear,
         ),
       AsyncData(:final value) => ListView(
@@ -171,7 +172,7 @@ class _HashtagResults extends ConsumerWidget {
               ListTile(
                 leading: const CircleAvatar(backgroundColor: GwColors.surfaceMuted, child: Icon(Icons.tag, color: GwColors.textPrimary)),
                 title: Text('#${t.tag}'),
-                subtitle: Text('${formatCount(t.postCount)} gönderi'),
+                subtitle: Text(feedL10n.postCount(t.postCount)),
                 onTap: () => context.push(FeedRoutes.hashtag(t.tag)),
               ),
           ],
@@ -197,8 +198,8 @@ class HashtagScreen extends StatelessWidget {
           source: HashtagPosts(normalized),
           empty: (
             icon: Icons.tag,
-            message: '#$normalized etiketiyle görebileceğin bir gönderi yok.',
-            actionLabel: 'Keşfete dön',
+            message: feedL10n.noTagPosts(normalized),
+            actionLabel: feedL10n.backToExplore,
             onAction: () => context.go(FeedRoutes.explore),
           ),
         ),
@@ -212,14 +213,14 @@ class SavedPostsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Kaydedilenler')),
+        appBar: AppBar(title: Text(feedL10n.saved)),
         body: GwReadingColumn(
           child: PagedPostGrid(
             source: const SavedPosts(),
             empty: (
               icon: Icons.bookmark_border_rounded,
-              message: 'Kaydettiğin gönderiler burada yalnızca sana görünür.',
-              actionLabel: 'Keşfet',
+              message: feedL10n.savedEmpty,
+              actionLabel: feedL10n.explore,
               onAction: () => context.go(FeedRoutes.explore),
             ),
           ),
@@ -237,7 +238,7 @@ class PostScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final post = ref.watch(postProvider(postId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Gönderi')),
+      appBar: AppBar(title: Text(feedL10n.post)),
       body: GwReadingColumn(
         child: switch (post) {
           AsyncData(:final value) => RefreshIndicator(
@@ -250,8 +251,8 @@ class PostScreen extends ConsumerWidget {
             ),
           AsyncError(error: NotFoundFailure()) => GwEmptyState(
               icon: Icons.image_not_supported_outlined,
-              message: 'Bu gönderi silinmiş ya da görme iznin yok.',
-              actionLabel: 'Akışa dön',
+              message: feedL10n.postGone,
+              actionLabel: feedL10n.backToFeed,
               onAction: () => context.go(FeedRoutes.home),
             ),
           AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(postProvider(postId))),

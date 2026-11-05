@@ -1,17 +1,26 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 /// Prepaid billing period (docs/ARCHITECTURE.md §7).
 enum PlanPeriod {
-  month('month', 'Aylık', 'ay'),
-  year('year', 'Yıllık', 'yıl');
+  month('month'),
+  year('year');
 
-  const PlanPeriod(this.code, this.label, this.unit);
+  const PlanPeriod(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        month => billingL10n.monthly,
+        year => billingL10n.yearly,
+      };
 
   /// Price suffix: "249 ₺ / ay".
-  final String unit;
+  String get unit => switch (this) {
+        month => billingL10n.perMonth,
+        year => billingL10n.perYear,
+      };
 
   static PlanPeriod parse(Object? code) => code == 'year' ? year : month;
 }
@@ -20,18 +29,26 @@ enum PlanPeriod {
 class Plan {
   const Plan({
     required this.slug,
-    required this.name,
+    required String name,
     required this.tier,
     required this.maxMembers,
     required this.monthlyEvents,
     required this.monthlyLiveMinutes,
     this.isActive = true,
-  });
+  }) : _name = name;
 
   static const freeSlug = 'free';
 
   final String slug;
-  final String name;
+  final String _name;
+
+  /// In the app language for the catalog's plans; a plan added later shows the name it was given.
+  String get name => switch (slug) {
+        freeSlug => billingL10n.planNameFree,
+        'starter' => billingL10n.planNameStarter,
+        'community' => billingL10n.planNameCommunity,
+        _ => _name,
+      };
   final int tier;
   final int maxMembers;
   final int monthlyEvents;
@@ -170,11 +187,19 @@ class Offer {
 
 /// Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi, accepted at checkout.
 class SalesTerms {
-  const SalesTerms({required this.version, required this.title, required this.body});
+  const SalesTerms({required this.version, required this.title, required this.body, this.translatedTitle, this.translatedBody});
 
   final int version;
+
+  /// The Turkish text: binding, and the version the buyer accepts.
   final String title;
   final String body;
+
+  /// In the app language when there is a translation (informational; docs/ARCHITECTURE.md §11).
+  final String? translatedTitle;
+  final String? translatedBody;
+
+  String get displayTitle => translatedTitle ?? title;
 }
 
 class BillingDetails {

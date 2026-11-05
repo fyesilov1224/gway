@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/social.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'social_providers.dart';
 import 'social_widgets.dart';
@@ -24,7 +25,7 @@ class FollowListsScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(username),
-          bottom: const TabBar(tabs: [Tab(text: 'Takipçiler'), Tab(text: 'Takip edilenler')]),
+          bottom: TabBar(tabs: [Tab(text: profileL10n.followers), Tab(text: profileL10n.following)]),
         ),
         body: GwReadingColumn(
           child: switch (profile) {
@@ -57,8 +58,8 @@ class _FollowList extends ConsumerWidget {
     if (social != null && !social.canView) {
       return GwEmptyState(
         icon: Icons.lock_outline,
-        message: 'Bu hesap gizli. Listelerini görmek için hesabı takip etmelisin.',
-        actionLabel: 'Profile dön',
+        message: profileL10n.privateLists,
+        actionLabel: profileL10n.backToProfile,
         onAction: () => Navigator.of(context).maybePop(),
       );
     }
@@ -70,8 +71,8 @@ class _FollowList extends ConsumerWidget {
             const SizedBox(height: GwSpacing.xxl),
             GwEmptyState(
               icon: Icons.people_outline,
-              message: list == FollowList.followers ? 'Henüz takipçi yok.' : 'Henüz kimse takip edilmiyor.',
-              actionLabel: 'Yenile',
+              message: list == FollowList.followers ? profileL10n.noFollowers : profileL10n.noFollowing,
+              actionLabel: profileL10n.refresh,
               onAction: () => ref.invalidate(followListProvider((userId: userId, list: list))),
             ),
           ]),
@@ -102,11 +103,11 @@ class _OwnFollowerRow extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Takipçiyi çıkar'),
-        content: Text('@${person.username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.'),
+        title: Text(profileL10n.removeFollower),
+        content: Text(profileL10n.removeFollowerBody(atName(person.username))),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GwButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: profileL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: profileL10n.removeAction, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -120,8 +121,8 @@ class _OwnFollowerRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => PersonRow(
         person: person,
-        subtitle: person.follow == FollowState.following ? 'Arkadaşsınız' : null,
-        trailing: GwButton(label: 'Çıkar', variant: GwButtonVariant.secondary, onPressed: () => _remove(context, ref)),
+        subtitle: person.follow == FollowState.following ? profileL10n.friends : null,
+        trailing: GwButton(label: profileL10n.removeAction, variant: GwButtonVariant.secondary, onPressed: () => _remove(context, ref)),
       );
 }
 
@@ -133,13 +134,13 @@ class FollowRequestsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final requests = ref.watch(followRequestsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Takip istekleri')),
+      appBar: AppBar(title: Text(profileL10n.followRequests)),
       body: GwReadingColumn(
         child: switch (requests) {
           AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.person_add_alt,
-              message: 'Bekleyen takip isteğin yok. Gizli hesaplar istekleri burada onaylar.',
-              actionLabel: 'Yenile',
+              message: profileL10n.noFollowRequests,
+              actionLabel: profileL10n.refresh,
               onAction: () => ref.invalidate(followRequestsProvider),
             ),
           AsyncData(:final value) => ListView(children: [for (final p in value) _RequestRow(person: p)]),
@@ -179,9 +180,9 @@ class _RequestRowState extends ConsumerState<_RequestRow> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            GwButton(label: 'Onayla', isLoading: _busy, onPressed: () => _answer(true)),
+            GwButton(label: profileL10n.approve, isLoading: _busy, onPressed: () => _answer(true)),
             const SizedBox(width: GwSpacing.xs),
-            GwButton(label: 'Sil', variant: GwButtonVariant.secondary, onPressed: _busy ? null : () => _answer(false)),
+            GwButton(label: profileL10n.delete, variant: GwButtonVariant.secondary, onPressed: _busy ? null : () => _answer(false)),
           ],
         ),
       );
@@ -195,13 +196,13 @@ class BlockedAccountsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final blocked = ref.watch(blockedAccountsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Engellenen hesaplar')),
+      appBar: AppBar(title: Text(profileL10n.blockedAccounts)),
       body: GwReadingColumn(
         child: switch (blocked) {
           AsyncData(:final value) when value.isEmpty => GwEmptyState(
               icon: Icons.block,
-              message: 'Engellediğin bir hesap yok. Bir profilin menüsünden engelleyebilirsin.',
-              actionLabel: 'Yenile',
+              message: profileL10n.noBlocked,
+              actionLabel: profileL10n.refresh,
               onAction: () => ref.invalidate(blockedAccountsProvider),
             ),
           AsyncData(:final value) => ListView(
@@ -211,7 +212,7 @@ class BlockedAccountsScreen extends ConsumerWidget {
                     person: p,
                     onTap: () {},
                     trailing: GwButton(
-                      label: 'Engeli kaldır',
+                      label: profileL10n.unblock,
                       variant: GwButtonVariant.secondary,
                       onPressed: () async {
                         final result = await ref.read(socialRepositoryProvider).unblock(p.id);

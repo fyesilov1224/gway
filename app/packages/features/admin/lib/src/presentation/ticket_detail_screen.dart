@@ -178,7 +178,7 @@ class _ContentState extends ConsumerState<_Content> {
           ],
           const SizedBox(height: GwSpacing.sm),
           Text('Açıldı', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
-          Text(formatDateTimeTr(t.createdAt), style: textTheme.bodyMedium),
+          Text(formatDateTime(t.createdAt), style: textTheme.bodyMedium),
         ],
       ),
     );
@@ -235,7 +235,7 @@ class _Message extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: GwSpacing.xxs),
-          Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+          Text(formatDateTime(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         ],
       ),
     );

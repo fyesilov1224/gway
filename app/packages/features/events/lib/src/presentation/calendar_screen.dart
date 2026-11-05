@@ -4,21 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'event_screens.dart';
 import 'providers.dart';
 
 enum CalendarView {
-  day('Gün'),
-  week('Hafta'),
-  month('Ay');
+  day,
+  week,
+  month;
 
-  const CalendarView(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        day => eventsL10n.viewDay,
+        week => eventsL10n.viewWeek,
+        month => eventsL10n.viewMonth,
+      };
 }
-
-const _weekdayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-const _weekdayShort = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
 DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
@@ -49,13 +49,13 @@ DateTime shiftFocus(CalendarView view, DateTime focus, int step) => switch (view
 String calendarTitle(CalendarView view, DateTime focus) {
   switch (view) {
     case CalendarView.day:
-      return '${_weekdayNames[focus.weekday - 1]}, ${formatDateTr(focus)}';
+      return formatWeekdayDateYear(focus);
     case CalendarView.week:
       final from = _monday(focus);
       final to = DateTime(from.year, from.month, from.day + 6);
-      return from.month == to.month ? '${from.day} – ${formatDateTr(to)}' : '${formatDateTr(from)} – ${formatDateTr(to)}';
+      return from.month == to.month ? '${from.day} – ${formatDate(to)}' : '${formatDate(from)} – ${formatDate(to)}';
     case CalendarView.month:
-      return formatMonthYearTr(focus);
+      return formatMonthYear(focus);
   }
 }
 
@@ -87,7 +87,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final query = _query;
     final events = ref.watch(calendarProvider(query));
     return Scaffold(
-      appBar: AppBar(title: Text(_mine ? 'Takvimim' : 'Grup takvimi')),
+      appBar: AppBar(title: Text(_mine ? eventsL10n.myCalendar : eventsL10n.groupCalendar)),
       body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(calendarProvider(query).future),
@@ -96,9 +96,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             children: [
               Row(
                 children: [
-                  IconButton(tooltip: 'Önceki', icon: const Icon(Icons.chevron_left), onPressed: () => setState(() => _focus = shiftFocus(_view, _focus, -1))),
+                  IconButton(tooltip: eventsL10n.previous, icon: const Icon(Icons.chevron_left), onPressed: () => setState(() => _focus = shiftFocus(_view, _focus, -1))),
                   Expanded(child: Text(calendarTitle(_view, _focus), textAlign: TextAlign.center, style: textTheme.titleMedium)),
-                  IconButton(tooltip: 'Sonraki', icon: const Icon(Icons.chevron_right), onPressed: () => setState(() => _focus = shiftFocus(_view, _focus, 1))),
+                  IconButton(tooltip: eventsL10n.next, icon: const Icon(Icons.chevron_right), onPressed: () => setState(() => _focus = shiftFocus(_view, _focus, 1))),
                 ],
               ),
               Row(
@@ -112,7 +112,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ),
                   ),
                   const SizedBox(width: GwSpacing.xs),
-                  TextButton(onPressed: () => setState(() => _focus = _day(DateTime.now())), child: const Text('Bugün')),
+                  TextButton(onPressed: () => setState(() => _focus = _day(DateTime.now())), child: Text(eventsL10n.today)),
                 ],
               ),
               if (_mine)
@@ -120,8 +120,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   contentPadding: EdgeInsets.zero,
                   value: _includeGroups,
                   onChanged: (v) => setState(() => _includeGroups = v),
-                  title: const Text('Gruplarımın organizasyonları'),
-                  subtitle: const Text('Katılmadıklarını da göster'),
+                  title: Text(eventsL10n.groupsEvents),
+                  subtitle: Text(eventsL10n.showNotJoined),
                 ),
               const SizedBox(height: GwSpacing.xs),
               ...switch (events) {
@@ -157,9 +157,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final empty = GwEmptyState(
       icon: Icons.event_busy_outlined,
       message: _mine && !_includeGroups
-          ? 'Bu tarihlerde katıldığın organizasyon yok. Gruplarının organizasyonlarına da bakabilirsin.'
-          : 'Bu tarihlerde organizasyon yok.',
-      actionLabel: _mine && !_includeGroups ? 'Gruplarımın organizasyonlarını göster' : 'Bugüne dön',
+          ? eventsL10n.noJoinedInRange
+          : eventsL10n.noEventsInRange,
+      actionLabel: _mine && !_includeGroups ? eventsL10n.showGroupsEvents : eventsL10n.backToToday,
       onAction: () => setState(() => _mine && !_includeGroups ? _includeGroups = true : _focus = _day(DateTime.now())),
     );
 
@@ -173,10 +173,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             onSelect: (d) => setState(() => _focus = d),
           ),
           const SizedBox(height: GwSpacing.md),
-          Text('${_weekdayNames[_focus.weekday - 1]}, ${formatDateTr(_focus)}', style: Theme.of(context).textTheme.titleSmall),
+          Text(formatWeekdayDateYear(_focus), style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: GwSpacing.xs),
           if (selected.isEmpty)
-            Text('Bu günde organizasyon yok.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
+            Text(eventsL10n.noEventsDay, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
             cards(selected),
         ];
@@ -188,7 +188,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             if (on(DateTime(monday.year, monday.month, monday.day + i)) case final list when list.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.only(top: GwSpacing.sm, bottom: GwSpacing.xs),
-                child: Text('${_weekdayNames[i]}, ${formatDateTr(DateTime(monday.year, monday.month, monday.day + i))}',
+                child: Text(formatWeekdayDateYear(DateTime(monday.year, monday.month, monday.day + i)),
                     style: Theme.of(context).textTheme.titleSmall),
               ),
               cards(list),
@@ -222,7 +222,7 @@ class _MonthGrid extends StatelessWidget {
       children: [
         Row(
           children: [
-            for (final name in _weekdayShort)
+            for (final name in weekdayShortNames())
               Expanded(child: Text(name, textAlign: TextAlign.center, style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary))),
           ],
         ),
@@ -235,7 +235,7 @@ class _MonthGrid extends StatelessWidget {
                   child: Semantics(
                     button: true,
                     selected: _sameDay(d, focus),
-                    label: formatDateTr(d),
+                    label: formatDate(d),
                     child: InkWell(
                       borderRadius: GwRadius.mdAll,
                       onTap: () => onSelect(d),

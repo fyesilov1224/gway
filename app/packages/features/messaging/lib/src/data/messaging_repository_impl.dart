@@ -4,6 +4,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/messaging.dart';
+import '../l10n.dart';
 
 Future<Result<T>> _run<T>(Future<T> Function() action) async {
   try {
@@ -184,7 +185,7 @@ class MessagingRepositoryImpl implements MessagingRepository {
     if (image != null) {
       final type = image.contentType;
       if (type == null) {
-        return const Err(RuleFailure('storage.unsupported_type', 'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.'));
+        return Err(RuleFailure('storage.unsupported_type', messagingL10n.unsupportedImage));
       }
       // `{konuşma}/{dosya}`, the only layout the database accepts.
       final path = '$conversationId/$_me-${DateTime.now().microsecondsSinceEpoch}.${image.extension}';

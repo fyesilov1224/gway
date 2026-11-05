@@ -1,0 +1,10 @@
+{
+  "@@locale": "de",
+  "loadingLabel": "{label}, wird geladen",
+  "previous": "Zurück",
+  "next": "Weiter",
+  "coverPhoto": "Titelbild",
+  "retry": "Erneut versuchen",
+  "liveBroadcast": "Livestream",
+  "liveBadge": "LIVE"
+}

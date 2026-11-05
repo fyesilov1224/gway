@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/legal.dart';
+import '../l10n.dart';
 import 'account_screens.dart';
+import 'legal_documents_screen.dart';
 import 'providers.dart';
 
 /// A legal text anyone can open without signing in: the store listing links here (docs/ARCHITECTURE.md §10).
@@ -20,20 +22,11 @@ class PublicLegalScreen extends ConsumerWidget {
     return _PublicPage(
       child: switch (docs) {
         AsyncData(:final value) => switch (value.where((d) => d.kind == kind).firstOrNull) {
-            final doc? => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(doc.title, style: textTheme.headlineMedium),
-                  const SizedBox(height: GwSpacing.xxs),
-                  Text('Sürüm ${doc.version}', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
-                  const SizedBox(height: GwSpacing.lg),
-                  SelectableText(doc.body, style: textTheme.bodyLarge),
-                ],
-              ),
+            final doc? => LegalText(document: doc, titleStyle: textTheme.headlineSmall),
             null => GwEmptyState(
                 icon: Icons.description_outlined,
-                message: 'Bu metin şu anda yayında değil.',
-                actionLabel: 'Yenile',
+                message: identityL10n.documentNotPublished,
+                actionLabel: identityL10n.refresh,
                 onAction: () => ref.invalidate(latestLegalDocumentsProvider),
               ),
           },
@@ -68,26 +61,22 @@ class AccountDeletionInfoScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('GWAY hesabını silme', style: textTheme.headlineMedium),
+          Text(identityL10n.deletionInfoTitle, style: textTheme.headlineSmall),
           const SizedBox(height: GwSpacing.md),
-          Text('Hesabını ve verilerini uygulamadan ya da bu web sitesinden silebilirsin:', style: textTheme.bodyLarge),
+          Text(identityL10n.deletionInfoIntro, style: textTheme.bodyLarge),
           const SizedBox(height: GwSpacing.md),
-          step('1.', 'GWAY uygulamasına ya da web sitesine giriş yap.'),
-          step('2.', 'Ben → Ayarlar → Hesabı sil adımlarını izle.'),
-          step('3.', 'Silme isteğini onayla. Profilin hemen gizlenir.'),
+          step('1.', identityL10n.deletionInfoStep1),
+          step('2.', identityL10n.deletionInfoStep2),
+          step('3.', identityL10n.deletionInfoStep3),
           const SizedBox(height: GwSpacing.sm),
-          Text('Ne silinir, ne kalır?', style: textTheme.titleMedium),
+          Text(identityL10n.deletionInfoWhat, style: textTheme.titleMedium),
           const SizedBox(height: GwSpacing.xs),
           Text(
-            '${AccountRetention.graceDays} gün içinde giriş yapıp silmeyi geri alabilirsin. Süre dolunca profilin, '
-            'gönderilerin, fotoğrafların, mesajların, grup üyeliklerin, konum kontrol kayıtların ve doğrulama bilgilerin '
-            'kalıcı olarak silinir. Yasal saklama yükümlülüğü olan ödeme kayıtları ve kimliksiz işlem kayıtları mevzuatın '
-            'öngördüğü süre boyunca saklanır. Güvenlik nedeniyle kapatılan hesapların telefon numarası, aynı numarayla yeni '
-            'hesap açılmasını önlemek için saklanır.',
+            identityL10n.deletionInfoBody(AccountRetention.graceDays),
             style: textTheme.bodyLarge,
           ),
           const SizedBox(height: GwSpacing.lg),
-          GwButton(label: 'Giriş yap', icon: Icons.login, onPressed: onSignIn),
+          GwButton(label: identityL10n.signIn, icon: Icons.login, onPressed: onSignIn),
         ],
       ),
     );

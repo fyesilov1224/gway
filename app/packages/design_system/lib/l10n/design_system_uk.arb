@@ -1,0 +1,10 @@
+{
+  "@@locale": "uk",
+  "loadingLabel": "{label}, завантаження",
+  "previous": "Назад",
+  "next": "Далі",
+  "coverPhoto": "Обкладинка",
+  "retry": "Повторити",
+  "liveBroadcast": "Пряма трансляція",
+  "liveBadge": "НАЖИВО"
+}

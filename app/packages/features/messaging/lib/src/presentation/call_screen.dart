@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/call_keep_alive.dart';
 import '../domain/calls.dart';
+import '../l10n.dart';
 import 'call_providers.dart';
 import 'call_session.dart';
 
@@ -54,7 +55,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     unawaited(ref.read(nativeCallsProvider).end(widget.callId).catchError((Object _) {}));
     if (widget.join case final join?) unawaited(_session.connect(join));
     _subscription = _repo.watch(widget.callId).listen(_onCall, onError: (Object _) {
-      if (mounted) setState(() => _error = 'Görüşme bilgisi alınamadı. Bağlantını kontrol et.');
+      if (mounted) setState(() => _error = messagingL10n.callInfoFailed);
     });
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_call?.status == CallStatus.active) _rebuild();
@@ -83,7 +84,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     if (moved || !mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text("Görüşmeyi bitirmek için Bitir'e dokun.")));
+      ..showSnackBar(SnackBar(content: Text(messagingL10n.tapEndToHangUp)));
   }
 
   void _onCall(CallInfo? call) {
@@ -197,8 +198,8 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                   null when !_loaded => const Center(child: CircularProgressIndicator()),
                   null => GwEmptyState(
                       icon: Icons.call_end_outlined,
-                      message: _error ?? 'Bu görüşme bulunamadı.',
-                      actionLabel: 'Kapat',
+                      message: _error ?? messagingL10n.callNotFound,
+                      actionLabel: messagingL10n.close,
                       onAction: () => Navigator.of(context).maybePop(),
                     ),
                   // Scrolls on a small screen or with large text; the spacers fill a tall one.
@@ -235,13 +236,13 @@ class _CallScreenState extends ConsumerState<CallScreen> {
         ),
         const SizedBox(height: GwSpacing.lg),
         Text(peer?.displayName ?? '', style: textTheme.headlineSmall, textAlign: TextAlign.center),
-        if (peer != null) Text('@${peer.username}', style: secondary, textAlign: TextAlign.center),
+        if (peer != null) Text(atName(peer.username), style: secondary, textAlign: TextAlign.center),
         const SizedBox(height: GwSpacing.md),
         Text(_statusText(call, me), style: textTheme.titleMedium, textAlign: TextAlign.center),
         if (call.status == CallStatus.active)
           Padding(
             padding: const EdgeInsets.only(top: GwSpacing.xxs),
-            child: Text('Görüşme en fazla ${CallRules.maxLength.inMinutes} dakika sürer ve kaydedilmez.',
+            child: Text(messagingL10n.callLimitNote(CallRules.maxLength.inMinutes),
                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
           ),
         if (call.status == CallStatus.active && _session.connection == CallConnection.connected) ...[
@@ -250,9 +251,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
         ],
         if (_error != null || _session.connection == CallConnection.failed) ...[
           const SizedBox(height: GwSpacing.md),
-          GwFormMessage(_error ?? 'Sese bağlanılamadı. Bağlantını kontrol edip tekrar dene.'),
+          GwFormMessage(_error ?? messagingL10n.audioFailed),
           if (_session.connection == CallConnection.failed && call.status.isOpen)
-            GwButton(label: 'Tekrar bağlan', variant: GwButtonVariant.text, onPressed: _busy ? null : _rejoin),
+            GwButton(label: messagingL10n.reconnect, variant: GwButtonVariant.text, onPressed: _busy ? null : _rejoin),
         ],
         const Spacer(),
         _actions(call, incoming),
@@ -262,9 +263,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 
   String _statusText(CallInfo call, String me) => switch (call.status) {
-        CallStatus.ringing when call.calleeId == me => 'Seni sesli arıyor…',
-        CallStatus.ringing => 'Aranıyor…',
-        CallStatus.active when _session.connection != CallConnection.connected => 'Bağlanıyor…',
+        CallStatus.ringing when call.calleeId == me => messagingL10n.incoming,
+        CallStatus.ringing => messagingL10n.calling,
+        CallStatus.active when _session.connection != CallConnection.connected => messagingL10n.connecting,
         CallStatus.active => _clock(DateTime.now().difference(call.answeredAt ?? call.createdAt)),
         _ => call.endedText(me),
       };
@@ -277,14 +278,14 @@ class _CallScreenState extends ConsumerState<CallScreen> {
 
   Widget _actions(CallInfo call, bool incoming) {
     if (!call.status.isOpen) {
-      return GwButton(label: 'Kapat', variant: GwButtonVariant.secondary, onPressed: () => Navigator.of(context).maybePop());
+      return GwButton(label: messagingL10n.close, variant: GwButtonVariant.secondary, onPressed: () => Navigator.of(context).maybePop());
     }
     if (incoming && call.status == CallStatus.ringing) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _RoundAction(icon: Icons.call_end, label: 'Reddet', color: GwColors.error, onPressed: _busy ? null : _decline),
-          _RoundAction(icon: Icons.call, label: 'Cevapla', color: GwColors.success, onPressed: _busy ? null : _accept),
+          _RoundAction(icon: Icons.call_end, label: messagingL10n.decline, color: GwColors.error, onPressed: _busy ? null : _decline),
+          _RoundAction(icon: Icons.call, label: messagingL10n.answer, color: GwColors.success, onPressed: _busy ? null : _accept),
         ],
       );
     }
@@ -295,16 +296,16 @@ class _CallScreenState extends ConsumerState<CallScreen> {
         if (talking)
           _RoundAction(
             icon: _session.micOn ? Icons.mic : Icons.mic_off,
-            label: _session.micOn ? 'Sessize al' : 'Sesi aç',
+            label: _session.micOn ? messagingL10n.mute : messagingL10n.unmute,
             color: _session.micOn ? GwColors.surfaceMuted : GwColors.textPrimary,
             foreground: _session.micOn ? GwColors.textPrimary : GwColors.onPrimary,
             onPressed: _toggleMic,
           ),
-        _RoundAction(icon: Icons.call_end, label: 'Bitir', color: GwColors.error, onPressed: _busy ? null : _hangUp),
+        _RoundAction(icon: Icons.call_end, label: messagingL10n.end, color: GwColors.error, onPressed: _busy ? null : _hangUp),
         if (talking)
           _RoundAction(
             icon: _session.speakerOn ? Icons.volume_up : Icons.volume_down_outlined,
-            label: 'Hoparlör',
+            label: messagingL10n.speaker,
             color: _session.speakerOn ? GwColors.textPrimary : GwColors.surfaceMuted,
             foreground: _session.speakerOn ? GwColors.onPrimary : GwColors.textPrimary,
             onPressed: () => _session.setSpeaker(!_session.speakerOn),
@@ -325,15 +326,14 @@ class _EncryptionNote extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     if (session.peerUnencrypted) {
-      return const GwFormMessage('Karşındakinin uygulaması eski, sesi şifresiz geliyor ve çalınmıyor. '
-          'Uygulamasını güncellemesini iste.');
+      return GwFormMessage(messagingL10n.peerUnencrypted);
     }
     final code = session.safetyCode;
     if (!session.secure || code == null) {
-      return Text('Şifreli bağlantı kuruluyor…', style: secondary, textAlign: TextAlign.center);
+      return Text(messagingL10n.encrypting, style: secondary, textAlign: TextAlign.center);
     }
     return Semantics(
-      label: 'Uçtan uca şifreli. Güvenlik kodu $code',
+      label: messagingL10n.e2eeCode(code),
       excludeSemantics: true,
       child: Column(
         children: [
@@ -342,12 +342,12 @@ class _EncryptionNote extends StatelessWidget {
             children: [
               const Icon(Icons.lock_outline, size: GwSpacing.md, color: GwColors.success),
               const SizedBox(width: GwSpacing.xxs),
-              Text('Uçtan uca şifreli', style: textTheme.labelLarge?.copyWith(color: GwColors.success)),
+              Text(messagingL10n.e2ee, style: textTheme.labelLarge?.copyWith(color: GwColors.success)),
             ],
           ),
           const SizedBox(height: GwSpacing.xxs),
           Text(code, style: textTheme.titleMedium, textAlign: TextAlign.center),
-          Text('Bu kod karşındakinin ekranındakiyle aynıysa görüşmeyi kimse dinleyemez.',
+          Text(messagingL10n.codeMatchHint,
               style: secondary, textAlign: TextAlign.center),
         ],
       ),

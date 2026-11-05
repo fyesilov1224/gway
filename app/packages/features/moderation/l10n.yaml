@@ -1,0 +1,6 @@
+arb-dir: lib/l10n
+template-arb-file: moderation_tr.arb
+output-dir: lib/src/l10n
+output-localization-file: moderation_l10n.dart
+output-class: ModerationL10n
+nullable-getter: false

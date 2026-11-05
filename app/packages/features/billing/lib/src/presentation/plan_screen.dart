@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/billing.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -49,7 +50,7 @@ class PlanScreen extends ConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Paket', style: textTheme.titleMedium),
+            Text(billingL10n.plan, style: textTheme.titleMedium),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis,
                 style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
           ],
@@ -68,20 +69,19 @@ class PlanScreen extends ConsumerWidget {
                   children: [
                     if (onContinue case final go?) ...[
                       GwPanel(
-                        title: 'Grubun hazır',
+                        title: billingL10n.groupReady,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
                               purchases
-                                  ? 'Grubun Ücretsiz paketle başladı. Daha fazla üye, organizasyon ya da yayın dakikası gerekiyorsa '
-                                      'aşağıdan bir paket seçebilirsin.'
-                                  : 'Grubun Ücretsiz paketle başladı. Paketlerin limitleri aşağıda.',
+                                  ? billingL10n.freeStartBuy
+                                  : billingL10n.freeStartView,
                               style: textTheme.bodyLarge,
                             ),
                             const SizedBox(height: GwSpacing.md),
                             GwButton(
-                              label: purchases ? 'Ücretsiz ile devam et' : 'Gruba git',
+                              label: purchases ? billingL10n.continueFree : billingL10n.goToGroup,
                               variant: purchases ? GwButtonVariant.secondary : GwButtonVariant.primary,
                               expand: true,
                               onPressed: go,
@@ -92,15 +92,15 @@ class PlanScreen extends ConsumerWidget {
                       const SizedBox(height: GwSpacing.md),
                     ],
                     if (orderId != null && canManage) ...[
-                      OrderResult(orderId: orderId!, paidText: 'Ödeme alındı. Paketin etkin.', onPaid: () => refreshGroupPlan(ref, groupId)),
+                      OrderResult(orderId: orderId!, paidText: billingL10n.paymentReceivedGroup, onPaid: () => refreshGroupPlan(ref, groupId)),
                       const SizedBox(height: GwSpacing.md),
                     ],
                     switch (plan) {
                       AsyncData(value: final p?) => _CurrentPlan(plan: p, groupId: groupId, showTimeline: canManage),
                       AsyncData() => GwEmptyState(
                           icon: planIcon,
-                          message: 'Grubun paketini yalnızca grubun üyeleri görebilir.',
-                          actionLabel: 'Geri dön',
+                          message: billingL10n.membersOnly,
+                          actionLabel: billingL10n.goBack,
                           onAction: () => Navigator.of(context).maybePop(),
                         ),
                       AsyncError(:final error) => GwErrorState(
@@ -142,15 +142,15 @@ class _CurrentPlan extends ConsumerWidget {
     final upcoming = timeline.where((s) => s.startsAt.isAfter(DateTime.now())).toList();
 
     return GwPanel(
-      title: 'Mevcut paket',
+      title: billingL10n.currentPlan,
       trailing: GwBadge(plan.plan.name, tone: plan.plan.isFree ? GwBadgeTone.neutral : GwBadgeTone.primary),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             plan.plan.isFree || plan.currentPeriodEndsAt == null
-                ? 'Grup ücretsiz paketi kullanıyor.'
-                : 'Bu dönem ${formatDateTr(plan.currentPeriodEndsAt!)} tarihinde bitiyor.',
+                ? billingL10n.onFree
+                : billingL10n.periodEnds(formatDate(plan.currentPeriodEndsAt!)),
             style: textTheme.bodyLarge,
           ),
           const SizedBox(height: GwSpacing.md),
@@ -163,27 +163,27 @@ class _CurrentPlan extends ConsumerWidget {
               icon: Icons.group_off_outlined,
               danger: true,
               text: plan.isOverLimit
-                  ? 'Üye sayısı paketin limitini aşıyor. Kimse gruptan çıkarılmaz, ama limitin altına inilene kadar yeni üye alınamaz.'
-                  : 'Grup üye limitine ulaştı. Yeni üye almak için daha büyük bir pakete geçebilirsin.',
+                  ? billingL10n.overLimitLong
+                  : billingL10n.atLimitLong,
             ),
           ] else if (showTimeline && plan.renewalDue(DateTime.now())) ...[
             const SizedBox(height: GwSpacing.md),
             PlanNotice(
               icon: Icons.schedule,
-              text: 'Paketin ${formatDateTr(plan.paidUntil!)} tarihinde bitiyor. Bitince grup Ücretsiz pakete döner.',
+              text: billingL10n.planEnds(formatDate(plan.paidUntil!)),
             ),
           ],
           if (upcoming.isNotEmpty) ...[
             const SizedBox(height: GwSpacing.md),
             const Divider(),
             const SizedBox(height: GwSpacing.xs),
-            Text('Sıradaki dönemler', style: textTheme.titleSmall),
+            Text(billingL10n.upcomingPeriods, style: textTheme.titleSmall),
             for (final s in upcoming)
               Padding(
                 padding: const EdgeInsets.only(top: GwSpacing.xs),
                 child: Text(
                   '${names[s.planSlug] ?? s.planSlug} (${s.period?.label.toLowerCase() ?? 'GWAY tanımladı'}): '
-                  '${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
+                  '${formatDate(s.startsAt)} – ${formatDate(s.endsAt)}',
                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ),
@@ -207,7 +207,7 @@ class _OtherPlans extends ConsumerWidget {
     final others = [for (final p in ref.watch(plansProvider).value ?? const <Plan>[]) if (p.slug != current) p];
     if (others.isEmpty) return const SizedBox.shrink();
     return GwPanel(
-      title: 'Paketler',
+      title: billingL10n.plans,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -253,11 +253,11 @@ class _PlanChoicesState extends ConsumerState<_PlanChoices> {
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text('Paketler', style: textTheme.headlineSmall),
+                Text(billingL10n.plans, style: textTheme.headlineSmall),
                 SegmentedButton<PlanPeriod>(
-                  segments: const [
-                    ButtonSegment(value: PlanPeriod.month, label: Text('Aylık')),
-                    ButtonSegment(value: PlanPeriod.year, label: Text('Yıllık · 2 ay bedava')),
+                  segments: [
+                    ButtonSegment(value: PlanPeriod.month, label: Text(billingL10n.monthly)),
+                    ButtonSegment(value: PlanPeriod.year, label: Text(billingL10n.yearlyDeal)),
                   ],
                   selected: {_period},
                   showSelectedIcon: false,
@@ -267,13 +267,12 @@ class _PlanChoicesState extends ConsumerState<_PlanChoices> {
             ),
             const SizedBox(height: GwSpacing.xs),
             Text(
-              'Ödeme ${o.market.provider.label} ile ${o.market.currency == 'TRY' ? 'Türk lirası' : 'ABD doları'} olarak alınır; '
-              'bulunduğun ülkeye göre belirlenir. Otomatik yenileme yoktur.',
+              o.market.currency == 'TRY' ? billingL10n.paymentNoteTry(o.market.provider.label) : billingL10n.paymentNoteUsd(o.market.provider.label),
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
             if (!o.purchasesEnabled) ...[
               const SizedBox(height: GwSpacing.md),
-              const GwFormMessage('Ödeme şu anda alınamıyor. Lütfen daha sonra tekrar dene.', kind: GwFormMessageKind.info),
+              GwFormMessage(billingL10n.paymentsOff, kind: GwFormMessageKind.info),
             ],
             const SizedBox(height: GwSpacing.md),
             _PlanGrid(
@@ -381,7 +380,7 @@ class _PlanCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text(plan.name, style: textTheme.titleLarge)),
-              if (isCurrent) const GwBadge('Mevcut paket', tone: GwBadgeTone.primary),
+              if (isCurrent) GwBadge(billingL10n.currentPlan, tone: GwBadgeTone.primary),
             ],
           ),
           const SizedBox(height: GwSpacing.sm),
@@ -399,7 +398,7 @@ class _PlanCard extends StatelessWidget {
             if (fillHeight) const Spacer(),
             const SizedBox(height: GwSpacing.md),
             GwButton(
-              label: o.available ? _action(o) : 'Şimdilik alınamaz',
+              label: o.available ? _action(o) : billingL10n.notNow,
               variant: o.change == PlanChange.upgrade ? GwButtonVariant.primary : GwButtonVariant.secondary,
               expand: true,
               onPressed: enabled && o.available ? onSelect : null,
@@ -411,19 +410,19 @@ class _PlanCard extends StatelessWidget {
   }
 
   String _action(PlanOption o) => switch (o.change) {
-        PlanChange.upgrade => onFreePlan ? 'Seç' : 'Yükselt',
-        PlanChange.renewal => 'Süreyi uzat',
-        PlanChange.downgrade => 'Bu pakete geç',
+        PlanChange.upgrade => onFreePlan ? billingL10n.choose : billingL10n.upgrade,
+        PlanChange.renewal => billingL10n.renew,
+        PlanChange.downgrade => billingL10n.switchTo,
       };
 
   String _when(PlanOption o) {
-    if (!o.available) return 'Paketin bir yıldan uzun süre için ödenmiş. Şimdilik yalnızca üst pakete geçebilirsin.';
+    if (!o.available) return billingL10n.paidOverYear;
     return switch (o.change) {
       PlanChange.upgrade => o.credit > Duration.zero
-          ? 'Hemen başlar; kalan sürenden yaklaşık ${creditLabel(o.credit)} eklenir. Bitiş: ${formatDateTr(o.endsAt)}.'
-          : 'Hemen başlar. Bitiş: ${formatDateTr(o.endsAt)}.',
-      PlanChange.renewal => 'Mevcut dönemin ardından ${formatDateTr(o.startsAt)} tarihinde başlar.',
-      PlanChange.downgrade => 'Mevcut dönem bitince, ${formatDateTr(o.startsAt)} tarihinde başlar.',
+          ? billingL10n.startsNowCredit(creditLabel(o.credit), formatDate(o.endsAt))
+          : billingL10n.startsNow(formatDate(o.endsAt)),
+      PlanChange.renewal => billingL10n.startsAfterCurrent(formatDate(o.startsAt)),
+      PlanChange.downgrade => billingL10n.startsWhenEnds(formatDate(o.startsAt)),
     };
   }
 }
@@ -483,13 +482,13 @@ class _OrderResultState extends ConsumerState<OrderResult> {
     return switch (order.status) {
       OrderStatus.pending => GwFormMessage(
           waitedLong
-              ? 'Ödeme onayı henüz gelmedi. Ödemen alındıysa paketin birkaç dakika içinde etkinleşir; bu sayfayı sonra yenileyebilirsin.'
-              : 'Ödemen onaylanıyor. Bu birkaç saniye sürebilir.',
+              ? billingL10n.confirmPending
+              : billingL10n.confirming,
           kind: GwFormMessageKind.info,
         ),
       OrderStatus.paid => PlanNotice(icon: Icons.check_circle_outline, text: widget.paidText),
-      OrderStatus.failed => const GwFormMessage('Ödeme tamamlanamadı. Tekrar deneyebilir ya da başka bir kart kullanabilirsin.'),
-      OrderStatus.refunded => const GwFormMessage('Bu ödeme iade edildi.', kind: GwFormMessageKind.info),
+      OrderStatus.failed => GwFormMessage(billingL10n.paymentFailed),
+      OrderStatus.refunded => GwFormMessage(billingL10n.refunded, kind: GwFormMessageKind.info),
     };
   }
 }

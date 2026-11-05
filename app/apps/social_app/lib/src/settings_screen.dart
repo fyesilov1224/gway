@@ -12,6 +12,8 @@ import 'package:notifications/notifications.dart';
 import 'package:profile/profile.dart';
 import 'package:support/support.dart';
 
+import 'l10n.dart';
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -33,53 +35,68 @@ class SettingsScreen extends ConsumerWidget {
           onTap: onTap,
         );
     final unread = ref.watch(unreadSupportCountProvider);
+    final language = ref.watch(appLanguageProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      appBar: AppBar(title: Text(socialAppL10n.settings)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
           child: ListView(
             children: [
-              tile(Icons.person_outline, 'Profili düzenle', () => context.push(ProfileRoutes.edit)),
+              tile(Icons.person_outline, socialAppL10n.editProfile, () => context.push(ProfileRoutes.edit)),
+              const Divider(),
+              ListTile(
+                minTileHeight: GwSpacing.xxl + GwSpacing.xs,
+                leading: const Icon(Icons.language_rounded),
+                title: Text(socialAppL10n.language),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(language.nativeName, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
+                onTap: () => showLanguagePicker(context),
+              ),
               const Divider(),
               const _PrivacyTile(),
               const _GroupsVisibilityTile(),
               const Divider(),
-              tile(Icons.diversity_3_outlined, 'Ekip arkadaşı tercihleri', () => context.push(ProfileRoutes.teammateSettings)),
+              tile(Icons.diversity_3_outlined, socialAppL10n.teammatePrefs, () => context.push(ProfileRoutes.teammateSettings)),
               const Divider(),
-              tile(Icons.favorite_border_rounded, 'Eşleşme profili', () => context.push(MatchingRoutes.profile)),
+              tile(Icons.favorite_border_rounded, socialAppL10n.matchProfile, () => context.push(MatchingRoutes.profile)),
               const Divider(),
-              tile(Icons.call_outlined, 'Sesli görüşme', () => context.push(MessagingRoutes.callSettings)),
+              tile(Icons.call_outlined, socialAppL10n.voiceCalls, () => context.push(MessagingRoutes.callSettings)),
               const Divider(),
-              tile(Icons.block, 'Engellenen hesaplar', () => context.push(ProfileRoutes.blocked)),
+              tile(Icons.block, socialAppL10n.blockedAccounts, () => context.push(ProfileRoutes.blocked)),
               const Divider(),
-              tile(Icons.bookmark_border_rounded, 'Kaydedilenler', () => context.push(FeedRoutes.saved)),
+              tile(Icons.bookmark_border_rounded, socialAppL10n.saved, () => context.push(FeedRoutes.saved)),
               const Divider(),
-              tile(Icons.history_toggle_off, 'Hikaye arşivi', () => context.push(FeedRoutes.archive)),
+              tile(Icons.history_toggle_off, socialAppL10n.storyArchive, () => context.push(FeedRoutes.archive)),
               const Divider(),
-              tile(Icons.notifications_active_outlined, 'Bildirim tercihleri', () => context.push(NotificationRoutes.preferences)),
+              tile(Icons.notifications_active_outlined, socialAppL10n.notificationPrefs, () => context.push(NotificationRoutes.preferences)),
               const Divider(),
-              tile(Icons.shield_outlined, 'Grup yaptırımlarım', () => context.push(ModerationRoutes.mySanctions)),
+              tile(Icons.shield_outlined, socialAppL10n.mySanctions, () => context.push(ModerationRoutes.mySanctions)),
               const Divider(),
-              tile(Icons.menu_book_outlined, 'Kullanma kılavuzu', () => context.push(SupportRoutes.guide)),
+              tile(Icons.menu_book_outlined, socialAppL10n.userGuide, () => context.push(SupportRoutes.guide)),
               const Divider(),
               tile(
                 Icons.support_agent_outlined,
-                'Destek ve geri bildirim',
+                socialAppL10n.supportFeedback,
                 () => context.push(SupportRoutes.list),
-                badge: unread == 0 ? null : '$unread yeni yanıt',
+                badge: unread == 0 ? null : socialAppL10n.newReplies(unread),
               ),
               const Divider(),
-              tile(Icons.verified_user_outlined, 'İki adımlı doğrulama', () => context.push(IdentityRoutes.twoFactor)),
+              tile(Icons.verified_user_outlined, socialAppL10n.twoFactor, () => context.push(IdentityRoutes.twoFactor)),
               const Divider(),
-              tile(Icons.description_outlined, 'Hukuki metinler', () => context.push(IdentityRoutes.legalDocuments)),
+              tile(Icons.description_outlined, socialAppL10n.legalDocuments, () => context.push(IdentityRoutes.legalDocuments)),
               const Divider(),
-              tile(Icons.delete_outline, 'Hesabı sil', () => context.push(IdentityRoutes.deleteAccount)),
+              tile(Icons.delete_outline, socialAppL10n.deleteAccount, () => context.push(IdentityRoutes.deleteAccount)),
               const Divider(),
               tile(
                 Icons.logout,
-                'Çıkış yap',
+                socialAppL10n.signOut,
                 () => ref.read(authRepositoryProvider).signOut(),
                 color: GwColors.error,
               ),
@@ -112,7 +129,7 @@ class _PrivacyTileState extends ConsumerState<_PrivacyTile> {
     if (me != null) refreshRelationship(ref, me);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() => value ? 'Hesabın artık gizli.' : 'Hesabın artık herkese açık; bekleyen istekler onaylandı.',
+        Ok() => value ? socialAppL10n.nowPrivate : socialAppL10n.nowPublic,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -124,8 +141,8 @@ class _PrivacyTileState extends ConsumerState<_PrivacyTile> {
     return SwitchListTile(
       minTileHeight: GwSpacing.xxl + GwSpacing.xs,
       secondary: const Icon(Icons.lock_outline),
-      title: const Text('Gizli hesap'),
-      subtitle: const Text('Açıkken yalnızca onayladığın takipçiler gönderilerini ve hikayelerini görür.'),
+      title: Text(socialAppL10n.privateAccount),
+      subtitle: Text(socialAppL10n.privateAccountHint),
       value: isPrivate,
       onChanged: _busy ? null : _set,
     );
@@ -151,7 +168,7 @@ class _GroupsVisibilityTileState extends ConsumerState<_GroupsVisibilityTile> {
     ref.invalidate(myProfileProvider);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() => value ? 'Grupların artık profilinde herkese görünüyor.' : 'Grupların artık yalnızca aynı gruptaki üyelere görünüyor.',
+        Ok() => value ? socialAppL10n.groupsNowPublic : socialAppL10n.groupsNowMembers,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -163,8 +180,8 @@ class _GroupsVisibilityTileState extends ConsumerState<_GroupsVisibilityTile> {
     return SwitchListTile(
       minTileHeight: GwSpacing.xxl + GwSpacing.xs,
       secondary: const Icon(Icons.groups_outlined),
-      title: const Text('Gruplarımı profilimde göster'),
-      subtitle: const Text('Kapalıyken bir gruptaki üyeliğini yalnızca o grubun üyeleri görür; başka grupların yöneticileri göremez.'),
+      title: Text(socialAppL10n.showGroups),
+      subtitle: Text(socialAppL10n.showGroupsHint),
       value: groupsPublic,
       onChanged: _busy ? null : _set,
     );

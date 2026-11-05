@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -71,12 +72,12 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     final userId = ref.watch(currentUserIdProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gruplar'),
+        title: Text(groupsL10n.groups),
         actions: [
           ...widget.actions,
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
-            child: GwButton(label: 'Grup oluştur', icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
+            child: GwButton(label: groupsL10n.createGroup, icon: Icons.add, onPressed: () => context.push(GroupRoutes.create)),
           ),
         ],
       ),
@@ -98,9 +99,9 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                   showSelectedIcon: false,
                   // Labels only, on one line: three segments with icons wrap on a phone at large text sizes.
                   segments: [
-                    ButtonSegment(value: _Tab.discover, label: _segmentLabel('Keşfet')),
-                    ButtonSegment(value: _Tab.mine, label: _segmentLabel('Gruplarım')),
-                    if (widget.packages != null) ButtonSegment(value: _Tab.packages, label: _segmentLabel('Paketler')),
+                    ButtonSegment(value: _Tab.discover, label: _segmentLabel(groupsL10n.discover)),
+                    ButtonSegment(value: _Tab.mine, label: _segmentLabel(groupsL10n.myGroups)),
+                    if (widget.packages != null) ButtonSegment(value: _Tab.packages, label: _segmentLabel(groupsL10n.plans)),
                   ],
                   selected: {_tab},
                   onSelectionChanged: (s) => setState(() => _tab = s.first),
@@ -137,17 +138,17 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           onChanged: _onSearchChanged,
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: 'Grup adı veya adresi ile ara',
+            hintText: groupsL10n.searchHint,
             prefixIcon: const Icon(Icons.search),
             suffixIcon: _query.isEmpty
                 ? null
-                : IconButton(tooltip: 'Aramayı temizle', icon: const Icon(Icons.close), onPressed: _clearFilters),
+                : IconButton(tooltip: groupsL10n.clearSearch, icon: const Icon(Icons.close), onPressed: _clearFilters),
           ),
         ),
       ),
       GwChipRail(
         children: [
-          for (final (slug, name) in [(null, 'Tümü'), for (final c in categories) (c.slug, c.name)])
+          for (final (slug, name) in [(null, groupsL10n.all), for (final c in categories) (c.slug, c.name)])
             ChoiceChip(
               avatar: slug == null ? null : Icon(categoryIcon(slug), size: GwSpacing.md + GwSpacing.xxs),
               label: Text(name),
@@ -167,14 +168,14 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             child: filtered
                 ? GwEmptyState(
                     icon: Icons.search_off,
-                    message: 'Aramana uygun grup bulunamadı.',
-                    actionLabel: 'Filtreleri temizle',
+                    message: groupsL10n.noMatch,
+                    actionLabel: groupsL10n.clearFilters,
                     onAction: _clearFilters,
                   )
                 : GwEmptyState(
                     icon: Icons.groups_2_outlined,
-                    message: 'Henüz hiç grup yok. İlk grubu sen kur.',
-                    actionLabel: 'Grup oluştur',
+                    message: groupsL10n.noGroupsYet,
+                    actionLabel: groupsL10n.createGroup,
                     onAction: () => context.push(GroupRoutes.create),
                   ),
           ),
@@ -185,7 +186,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                 Padding(
                   padding: const EdgeInsets.all(GwSpacing.md),
                   child: GwButton(
-                    label: 'Daha fazla göster',
+                    label: groupsL10n.showMore,
                     variant: GwButtonVariant.secondary,
                     onPressed: () => setState(() => _limit += GroupsScreen.pageSize),
                   ),
@@ -215,8 +216,8 @@ class _MyGroups extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
           child: GwEmptyState(
             icon: Icons.groups_outlined,
-            message: 'Henüz bir gruba katılmadın.',
-            actionLabel: 'Grupları keşfet',
+            message: groupsL10n.notJoinedYet,
+            actionLabel: groupsL10n.discoverGroups,
             onAction: onDiscover,
           ),
         ),
@@ -253,8 +254,8 @@ class _OwnedPackages extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: GwSpacing.xl),
               child: GwEmptyState(
                 icon: Icons.workspace_premium_outlined,
-                message: 'Paketleri grup sahipleri alır. Grubunu kurup paketini seçebilirsin.',
-                actionLabel: 'Grup oluştur',
+                message: groupsL10n.plansHint,
+                actionLabel: groupsL10n.createGroup,
                 onAction: () => context.push(GroupRoutes.create),
               ),
             ),
@@ -318,8 +319,8 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, 0),
       child: GwPanel(
-        title: 'Davetlerin',
-        subtitle: 'Bu gruplar seni üye olmaya davet etti.',
+        title: groupsL10n.yourInvitations,
+        subtitle: groupsL10n.invitationsHint,
         padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -347,7 +348,7 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                               children: [
                                 Text(inv.group.name, style: textTheme.labelLarge),
                                 Text(
-                                  inv.invitedBy == null ? formatDateTr(inv.createdAt) : '${inv.invitedBy} davet etti',
+                                  inv.invitedBy == null ? formatDate(inv.createdAt) : groupsL10n.invitedBy(inv.invitedBy!),
                                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                                 ),
                               ],
@@ -360,12 +361,12 @@ class _InvitationsPanelState extends ConsumerState<_InvitationsPanel> {
                       spacing: GwSpacing.xs,
                       children: [
                         GwButton(
-                          label: 'Reddet',
+                          label: groupsL10n.decline,
                           variant: GwButtonVariant.text,
                           onPressed: _busy == null ? () => _answer(inv, accept: false) : null,
                         ),
                         GwButton(
-                          label: 'Katıl',
+                          label: groupsL10n.join,
                           isLoading: _busy == inv.group.id,
                           onPressed: _busy == null ? () => _answer(inv, accept: true) : null,
                         ),

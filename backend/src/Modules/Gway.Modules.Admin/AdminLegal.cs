@@ -22,6 +22,11 @@ public sealed record AdminLegalDocument(string Kind, int Version, string Title, 
 
 public sealed record LegalVersionRequest(string Title, string Body, DateTimeOffset? PublishedAt);
 
+/// <summary>An informational translation of a version (docs/ARCHITECTURE.md §11, Hukuki metin çevirileri).</summary>
+public sealed record AdminLegalTranslation(string Language, string Title, string Body, DateTimeOffset UpdatedAt);
+
+public sealed record LegalTranslationRequest(string Title, string Body);
+
 /// <summary>
 /// Manages <c>public.legal_documents</c> for the admin panel. A version anyone has consented to is frozen
 /// (the DB guard enforces it too); text is changed by publishing a new version.
@@ -190,6 +195,86 @@ internal sealed class AdminLegal(NpgsqlDataSource db, TimeProvider time)
             }
             await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "legal.deleted", "legal_document",
                 $"{kind}/{version}", new { kind, version }), ct);
+            return true;
+        }, RuleError, ct);
+        return result.IsSuccess ? Result.Success() : result.Error;
+    }
+
+    /// <summary>The languages a translation can be in: every app language but Turkish, the binding original.</summary>
+    public static readonly IReadOnlySet<string> TranslationLanguages =
+        new HashSet<string>(["en", "de", "fr", "nl", "es", "pt", "it", "ru", "ar", "az", "uk"]);
+
+    private static readonly Error UnknownLanguage = Error.Validation("admin.legal_language", "Bu dil için çeviri eklenemez.");
+
+    public async Task<Result<IReadOnlyList<AdminLegalTranslation>>> TranslationsAsync(string kind, int version, CancellationToken ct)
+    {
+        if (!IsKind(kind)) return NotFound;
+        await using var cmd = db.CreateCommand(
+            """
+            select t.language, t.title, t.body, t.updated_at from public.legal_document_translations t
+            where t.kind = @kind and t.version = @version order by t.language
+            """);
+        cmd.Parameters.AddWithValue("kind", kind);
+        cmd.Parameters.AddWithValue("version", version);
+        var list = new List<AdminLegalTranslation>();
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct))
+            list.Add(new AdminLegalTranslation(r.GetString(0), r.GetString(1), r.GetString(2), r.GetFieldValue<DateTimeOffset>(3)));
+        return list;
+    }
+
+    /// <summary>Adds or corrects a translation; unlike the Turkish text it may change after consents.</summary>
+    public async Task<Result> SaveTranslationAsync(
+        Guid actorId, string kind, int version, string language, LegalTranslationRequest body, CancellationToken ct)
+    {
+        if (!IsKind(kind)) return NotFound;
+        if (!TranslationLanguages.Contains(language)) return UnknownLanguage;
+        ArgumentNullException.ThrowIfNull(body);
+        var title = body.Title?.Trim() ?? "";
+        var text = body.Body?.Trim() ?? "";
+        if (title.Length is < 3 or > 200) return Error.Validation("admin.legal_title", "Başlık 3–200 karakter olmalı.");
+        if (text.Length is < 20 or > 100_000) return Error.Validation("admin.legal_body", "Metin 20–100.000 karakter olmalı.");
+
+        var result = await ActingTransaction.RunAsync<bool>(db, actorId, async (conn, tx) =>
+        {
+            if (await ConsentCountAsync(conn, tx, kind, version, ct) is null) return NotFound;
+            await using (var cmd = new NpgsqlCommand(
+                """
+                insert into public.legal_document_translations (kind, version, language, title, body)
+                values (@kind, @version, @language, @title, @body)
+                on conflict (kind, version, language) do update set title = excluded.title, body = excluded.body, updated_at = now()
+                """, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("kind", kind);
+                cmd.Parameters.AddWithValue("version", version);
+                cmd.Parameters.AddWithValue("language", language);
+                cmd.Parameters.AddWithValue("title", title);
+                cmd.Parameters.AddWithValue("body", text);
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "legal.translation_saved", "legal_document",
+                $"{kind}/{version}/{language}", new { kind, version, language, title }), ct);
+            return true;
+        }, RuleError, ct);
+        return result.IsSuccess ? Result.Success() : result.Error;
+    }
+
+    public async Task<Result> DeleteTranslationAsync(Guid actorId, string kind, int version, string language, CancellationToken ct)
+    {
+        if (!IsKind(kind)) return NotFound;
+        if (!TranslationLanguages.Contains(language)) return UnknownLanguage;
+        var result = await ActingTransaction.RunAsync<bool>(db, actorId, async (conn, tx) =>
+        {
+            await using (var cmd = new NpgsqlCommand(
+                "delete from public.legal_document_translations where kind = @kind and version = @version and language = @language", conn, tx))
+            {
+                cmd.Parameters.AddWithValue("kind", kind);
+                cmd.Parameters.AddWithValue("version", version);
+                cmd.Parameters.AddWithValue("language", language);
+                if (await cmd.ExecuteNonQueryAsync(ct) == 0) return NotFound;
+            }
+            await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "legal.translation_deleted", "legal_document",
+                $"{kind}/{version}/{language}", new { kind, version, language }), ct);
             return true;
         }, RuleError, ct);
         return result.IsSuccess ? Result.Success() : result.Error;

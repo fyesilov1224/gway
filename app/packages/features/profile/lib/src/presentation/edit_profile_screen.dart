@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/profile.dart';
 import '../domain/username.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -21,7 +22,7 @@ class EditProfileScreen extends ConsumerWidget {
     return switch ((profile, interests)) {
       (AsyncData(value: final p?), AsyncData(value: final i)) => _EditForm(profile: p, interests: i.toSet()),
       (AsyncError(:final error), _) || (_, AsyncError(:final error)) => Scaffold(
-          appBar: AppBar(title: const Text('Profili düzenle')),
+          appBar: AppBar(title: Text(profileL10n.editProfile)),
           body: GwErrorState(
             message: userMessageOf(error),
             onRetry: () {
@@ -31,7 +32,7 @@ class EditProfileScreen extends ConsumerWidget {
           ),
         ),
       _ => Scaffold(
-          appBar: AppBar(title: const Text('Profili düzenle')),
+          appBar: AppBar(title: Text(profileL10n.editProfile)),
           body: const Padding(
             padding: EdgeInsets.all(GwSpacing.page),
             child: Column(
@@ -143,11 +144,11 @@ class _EditFormState extends ConsumerState<_EditForm> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profili düzenle'),
+        title: Text(profileL10n.editProfile),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
-            child: GwButton(label: 'Kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
+            child: GwButton(label: profileL10n.save, onPressed: busy ? null : _save, isLoading: _saving),
           ),
         ],
       ),
@@ -173,8 +174,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'Profil bilgileri',
-                    subtitle: 'Bu bilgiler profilinde herkese görünür.',
+                    title: profileL10n.profileInfo,
+                    subtitle: profileL10n.profileInfoHint,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -183,7 +184,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           maxLength: ProfileRules.displayNameMaxLength,
                           textCapitalization: TextCapitalization.words,
                           validator: ProfileRules.validateDisplayName,
-                          decoration: const InputDecoration(labelText: 'Adın', counterText: ''),
+                          decoration: InputDecoration(labelText: profileL10n.yourName, counterText: ''),
                         ),
                         const SizedBox(height: GwSpacing.md),
                         UsernameField(
@@ -191,8 +192,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           current: widget.profile.username,
                           enabled: lockedUntil == null,
                           helperText: lockedUntil == null
-                              ? 'Kullanıcı adını 30 günde bir değiştirebilirsin.'
-                              : '${formatDateTr(lockedUntil)} tarihinden sonra değiştirebilirsin.',
+                              ? profileL10n.usernameEvery30
+                              : profileL10n.usernameLockedUntil(formatDate(lockedUntil)),
                           onAvailabilityChanged: (v) => setState(() => _usernameAvailable = v),
                         ),
                         const SizedBox(height: GwSpacing.md),
@@ -201,9 +202,9 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           maxLength: ProfileRules.bioMaxLength,
                           minLines: 3,
                           maxLines: 5,
-                          decoration: const InputDecoration(
-                            labelText: 'Hakkında',
-                            hintText: 'Kendinden, sevdiğin aktivitelerden bahset.',
+                          decoration: InputDecoration(
+                            labelText: profileL10n.about,
+                            hintText: profileL10n.aboutHint,
                             alignLabelWithHint: true,
                           ),
                         ),
@@ -212,8 +213,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'İlgi alanları',
-                    subtitle: 'En fazla ${ProfileRules.maxInterests} tane seçebilirsin.',
+                    title: profileL10n.interests,
+                    subtitle: profileL10n.interestsMax(ProfileRules.maxInterests),
                     trailing: Text(
                       '${_interests.length} / ${ProfileRules.maxInterests}',
                       style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary),
@@ -223,17 +224,17 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: Wrap(
                       spacing: GwSpacing.sm,
                       runSpacing: GwSpacing.sm,
                       children: [
                         GwButton(
-                          label: 'Vazgeç',
+                          label: profileL10n.cancel,
                           variant: GwButtonVariant.secondary,
                           onPressed: busy ? null : () => context.pop(),
                         ),
-                        GwButton(label: 'Değişiklikleri kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+                        GwButton(label: profileL10n.saveChanges, onPressed: busy ? null : _save, isLoading: _saving),
                       ],
                     ),
                   ),
@@ -281,22 +282,22 @@ class _ImagesEditor extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (cover == null) const ColoredBox(color: GwColors.primarySoft) else Image(image: gwNetworkImage(cover), fit: BoxFit.cover),
-                Positioned(
+                PositionedDirectional(
                   top: GwSpacing.sm,
-                  right: GwSpacing.sm,
+                  end: GwSpacing.sm,
                   child: Wrap(
                     spacing: GwSpacing.xs,
                     children: [
                       if (cover != null)
                         _OverlayButton(
                           icon: Icons.delete_outline,
-                          label: 'Kaldır',
-                          tooltip: 'Kapak fotoğrafını kaldır',
+                          label: profileL10n.remove,
+                          tooltip: profileL10n.removeCover,
                           onPressed: enabled ? () => onRemove(ProfileImage.cover) : null,
                         ),
                       _OverlayButton(
                         icon: Icons.photo_camera_outlined,
-                        label: cover == null ? 'Kapak ekle' : 'Kapağı değiştir',
+                        label: cover == null ? profileL10n.addCover : profileL10n.changeCover,
                         loading: uploading == ProfileImage.cover,
                         onPressed: enabled ? () => onChange(ProfileImage.cover) : null,
                       ),
@@ -320,11 +321,11 @@ class _ImagesEditor extends StatelessWidget {
                         child: SizedBox.square(dimension: GwSpacing.lg, child: CircularProgressIndicator(strokeWidth: 2)),
                       ),
                     ),
-                  Positioned(
-                    right: 0,
+                  PositionedDirectional(
+                    end: 0,
                     bottom: 0,
                     child: IconButton.filled(
-                      tooltip: 'Profil fotoğrafını değiştir',
+                      tooltip: profileL10n.changeAvatar,
                       icon: const Icon(Icons.photo_camera_outlined, size: GwSpacing.md + GwSpacing.xxs),
                       style: IconButton.styleFrom(
                         backgroundColor: GwColors.primary,
@@ -341,18 +342,18 @@ class _ImagesEditor extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Profil ve kapak fotoğrafı', style: textTheme.labelLarge),
-                    Text('JPEG, PNG veya WebP · en fazla 5 MB', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                    Text(profileL10n.photos, style: textTheme.labelLarge),
+                    Text(profileL10n.photosHint, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                     TextButton(
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       onPressed: enabled ? () => onChange(ProfileImage.avatar) : null,
-                      child: Text(hasAvatar ? 'Profil fotoğrafını değiştir' : 'Profil fotoğrafı ekle'),
+                      child: Text(hasAvatar ? profileL10n.changeAvatar : profileL10n.addAvatar),
                     ),
                     if (hasAvatar)
                       TextButton(
                         style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: GwColors.error),
                         onPressed: enabled ? () => onRemove(ProfileImage.avatar) : null,
-                        child: const Text('Profil fotoğrafını kaldır'),
+                        child: Text(profileL10n.removeAvatar),
                       ),
                   ],
                 ),

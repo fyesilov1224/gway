@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
 import '../domain/tonight.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Opens a conversation (the messaging feature lives in the app).
@@ -43,7 +44,7 @@ class _TonightCardState extends ConsumerState<TonightCard> {
   Future<void> _setFree() async {
     final note = await showDialog<String>(context: context, builder: (_) => const _FreeDialog());
     if (note == null) return;
-    await _run((r) => r.setFree(note), (_) => 'Bu akşam boş olduğunu ortak gruplarındakiler görecek. 04:00\'te kendiliğinden kapanır.');
+    await _run((r) => r.setFree(note), (_) => eventsL10n.tonightVisible);
   }
 
   @override
@@ -71,7 +72,7 @@ class _TonightCardState extends ConsumerState<TonightCard> {
               busy: _busy,
               onAnswer: (accept) => _run(
                 (r) => r.answerTable(invite.id, accept: accept),
-                (_) => accept ? 'Masaya katıldın.' : 'Daveti geri çevirdin.',
+                (_) => accept ? eventsL10n.joinedTable : eventsL10n.declinedInvite,
               ),
             ),
           ),
@@ -89,19 +90,19 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Durumun', style: textTheme.titleMedium),
-                        Text(t.isFree ? '04:00\'e kadar görünürsün' : 'Şu an görünmüyorsun', style: secondary),
+                        Text(eventsL10n.yourStatus, style: textTheme.titleMedium),
+                        Text(t.isFree ? eventsL10n.visibleUntil4 : eventsL10n.notVisible, style: secondary),
                       ],
                     ),
                   ),
-                  if (t.isFree) const GwBadge('Boşsun', tone: GwBadgeTone.success, dot: true),
+                  if (t.isFree) GwBadge(eventsL10n.youreFree, tone: GwBadgeTone.success, dot: true),
                 ],
               ),
               const SizedBox(height: GwSpacing.md),
               if (!t.isFree) ...[
-                Text('Boşsan ortak gruplarındakiler görsün; birlikte küçük bir masa kurabilirsiniz.', style: secondary),
+                Text(eventsL10n.tonightIntro, style: secondary),
                 const SizedBox(height: GwSpacing.md),
-                GwButton(label: 'Bu akşam boşum', icon: Icons.local_cafe_outlined, isLoading: _busy, expand: true, onPressed: _setFree),
+                GwButton(label: eventsL10n.imFreeTonight, icon: Icons.local_cafe_outlined, isLoading: _busy, expand: true, onPressed: _setFree),
               ] else ...[
                 if (note.isNotEmpty)
                   Container(
@@ -111,17 +112,17 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                       children: [
                         const Icon(Icons.format_quote_rounded, size: GwSpacing.md + GwSpacing.xxs, color: GwColors.textSecondary),
                         const SizedBox(width: GwSpacing.xs),
-                        Expanded(child: Text('"$note"', style: textTheme.bodyLarge)),
+                        Expanded(child: Text(eventsL10n.quoted(note), style: textTheme.bodyLarge)),
                       ],
                     ),
                   ),
                 if (t.table == null)
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
-                      onPressed: _busy ? null : () => _run((r) => r.clearFree(), (_) => 'Artık boş görünmüyorsun.'),
+                      onPressed: _busy ? null : () => _run((r) => r.clearFree(), (_) => eventsL10n.noLongerFree),
                       icon: const Icon(Icons.visibility_off_outlined),
-                      label: const Text('Durumu kapat'),
+                      label: Text(eventsL10n.turnOffStatus),
                     ),
                   ),
               ],
@@ -136,7 +137,7 @@ class _TonightCardState extends ConsumerState<TonightCard> {
               table: table,
               busy: _busy,
               onOpenChat: (id) => widget.openChat(context, id),
-              onLeave: () => _run((r) => r.leaveTable(table.id), (_) => 'Masadan ayrıldın.'),
+              onLeave: () => _run((r) => r.leaveTable(table.id), (_) => eventsL10n.leftTable),
             ),
           )
         else if (t.isFree)
@@ -152,28 +153,27 @@ class _TonightCardState extends ConsumerState<TonightCard> {
                     children: [
                       const _IconTile(icon: Icons.table_restaurant_outlined, tone: GwTone.sky),
                       const SizedBox(width: GwSpacing.sm),
-                      Expanded(child: Text('Küçük masa', style: textTheme.titleMedium)),
+                      Expanded(child: Text(eventsL10n.smallTable, style: textTheme.titleMedium)),
                     ],
                   ),
                   const SizedBox(height: GwSpacing.sm),
                   if (t.canSetTable) ...[
-                    Text('Boş olanlardan birkaç kişiyi çağır; üç kişi olunca masanın sohbeti açılır.', style: secondary),
+                    Text(eventsL10n.smallTableHint, style: secondary),
                     const SizedBox(height: GwSpacing.md),
                     GwButton(
-                      label: 'Küçük masa kur',
+                      label: eventsL10n.setUpTable,
                       icon: Icons.table_restaurant_outlined,
                       variant: GwButtonVariant.secondary,
                       isLoading: _busy,
                       expand: true,
                       onPressed: () => _run(
                         (r) => r.createTable(),
-                        (n) => '$n kişiye davet gönderildi. Üç kişi olunca masanın sohbeti açılır.',
+                        (n) => eventsL10n.tableInvitesSent(n! as int),
                       ),
                     ),
                   ] else
                     Text(
-                      'Küçük masa için ortak gruplarından en az ${Tonight.minCandidates} kişinin daha boş olması gerekiyor '
-                      '(şu an ${t.candidates}). Biri boş olduğunu söyleyince burada masa kurabilirsin.',
+                      eventsL10n.needMorePeople(Tonight.minCandidates, t.candidates),
                       style: secondary,
                     ),
                 ],
@@ -220,7 +220,7 @@ class _FreePeople extends ConsumerWidget {
           const SizedBox(width: GwSpacing.sm),
           Expanded(
             child: Text(
-              'Ortak gruplarından ${formatCount(people.length)} kişi bu akşam boş',
+              eventsL10n.freeFromGroups(people.length),
               style: textTheme.labelLarge?.copyWith(color: GwColors.primary),
             ),
           ),
@@ -241,7 +241,7 @@ class _FreeDialog extends StatefulWidget {
 class _FreeDialogState extends State<_FreeDialog> {
   final _note = TextEditingController();
 
-  static const _ideas = ['Kahve', 'Kısa yürüyüş', 'Yemek', 'Sinema'];
+  static List<String> get _ideas => [eventsL10n.chipCoffee, eventsL10n.chipWalk, eventsL10n.chipFood, eventsL10n.chipCinema];
 
   @override
   void dispose() {
@@ -252,18 +252,18 @@ class _FreeDialogState extends State<_FreeDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Bu akşam boşum'),
+        title: Text(eventsL10n.imFreeTonight),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Yalnızca ortak gruplarındaki kişiler görür. Durumun 04:00\'te kendiliğinden kapanır.'),
+              Text(eventsL10n.tonightSheetHint),
               const SizedBox(height: GwSpacing.md),
               TextField(
                 controller: _note,
                 maxLength: 80,
-                decoration: const InputDecoration(labelText: 'Ne yapmak istersin? (isteğe bağlı)', hintText: 'ör. kahve, kısa yürüyüş'),
+                decoration: InputDecoration(labelText: eventsL10n.whatToDo, hintText: eventsL10n.whatToDoHint),
               ),
               Wrap(
                 spacing: GwSpacing.xs,
@@ -277,8 +277,8 @@ class _FreeDialogState extends State<_FreeDialog> {
           ),
         ),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-          GwButton(label: 'Boşum', onPressed: () => Navigator.of(context).pop(_note.text.trim())),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: eventsL10n.imFree, onPressed: () => Navigator.of(context).pop(_note.text.trim())),
         ],
       );
 }
@@ -301,8 +301,8 @@ class _Faces extends StatelessWidget {
       child: Stack(
         children: [
           for (final (i, p) in people.indexed)
-            Positioned(
-              left: _step * i,
+            PositionedDirectional(
+              start: _step * i,
               child: Tooltip(
                 message: p.displayName,
                 child: Container(
@@ -344,31 +344,31 @@ class _TableBlock extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Masan', style: textTheme.titleMedium),
+                    Text(eventsL10n.yourTable, style: textTheme.titleMedium),
                     Text(
                       [
-                        '${table.joined.length} kişi katıldı',
-                        if (table.pending > 0) '${table.pending} kişi bekleniyor',
+                        eventsL10n.joinedCount(table.joined.length),
+                        if (table.pending > 0) eventsL10n.waitingCount(table.pending),
                       ].join(' · '),
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              GwBadge(chat == null ? 'Kuruluyor' : 'Sohbet açık', tone: chat == null ? GwBadgeTone.warning : GwBadgeTone.success, dot: true),
+              GwBadge(chat == null ? eventsL10n.settingUp : eventsL10n.chatOpen, tone: chat == null ? GwBadgeTone.warning : GwBadgeTone.success, dot: true),
             ],
           ),
           const SizedBox(height: GwSpacing.sm),
-          Align(alignment: Alignment.centerLeft, child: _Faces(people: table.joined)),
+          Align(alignment: AlignmentDirectional.centerStart, child: _Faces(people: table.joined)),
           const SizedBox(height: GwSpacing.sm),
           if (chat != null)
-            GwButton(label: 'Masanın sohbeti', icon: Icons.forum_outlined, expand: true, onPressed: () => onOpenChat(chat))
+            GwButton(label: eventsL10n.tableChat, icon: Icons.forum_outlined, expand: true, onPressed: () => onOpenChat(chat))
           else
-            Text('Sohbet, ${table.missing} kişi daha katılınca açılır. Yeri ve saati orada birlikte seçersiniz.',
+            Text(eventsL10n.chatOpensWhen(table.missing),
                 style: textTheme.bodyMedium),
           Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(onPressed: busy ? null : onLeave, child: const Text('Masadan ayrıl')),
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(onPressed: busy ? null : onLeave, child: Text(eventsL10n.leaveTable)),
           ),
         ],
       ),
@@ -405,10 +405,10 @@ class _InviteBlock extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${invite.founder.displayName} küçük bir masa kurdu ve seni de çağırıyor.', style: textTheme.titleSmall),
+                    Text(eventsL10n.tableInviteTitle(invite.founder.displayName), style: textTheme.titleSmall),
                     const SizedBox(height: GwSpacing.xxs),
                     Text(
-                      '${invite.joined.length} kişi katıldı · ${invite.pending} kişi bekleniyor. Üç kişi olunca sohbet açılır.',
+                      eventsL10n.tableInviteStatus(invite.joined.length, invite.pending),
                       style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                     ),
                   ],
@@ -421,8 +421,8 @@ class _InviteBlock extends StatelessWidget {
             spacing: GwSpacing.xs,
             runSpacing: GwSpacing.xs,
             children: [
-              GwButton(label: 'Katıl', icon: Icons.check, isLoading: busy, onPressed: () => onAnswer(true)),
-              GwButton(label: 'Bu akşam olmaz', variant: GwButtonVariant.secondary, onPressed: busy ? null : () => onAnswer(false)),
+              GwButton(label: eventsL10n.join, icon: Icons.check, isLoading: busy, onPressed: () => onAnswer(true)),
+              GwButton(label: eventsL10n.notTonight, variant: GwButtonVariant.secondary, onPressed: busy ? null : () => onAnswer(false)),
             ],
           ),
         ],
@@ -445,7 +445,7 @@ class TonightScreen extends ConsumerWidget {
     const header = EdgeInsets.fromLTRB(GwSpacing.xxs, GwSpacing.lg, GwSpacing.xxs, GwSpacing.xs);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bu akşam')),
+      appBar: AppBar(title: Text(eventsL10n.tonight)),
       body: GwReadingColumn(
         child: RefreshIndicator(
           onRefresh: () async => ref
@@ -455,14 +455,14 @@ class TonightScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(GwSpacing.page, GwSpacing.xs, GwSpacing.page, GwSpacing.xl),
             children: [
               TonightCard(openChat: openChat),
-              const GwSectionHeader(title: 'Bu akşam boş olanlar', subtitle: 'Yalnızca ortak gruplarındaki kişiler', padding: header),
+              GwSectionHeader(title: eventsL10n.freeTonight, subtitle: eventsL10n.sharedGroupsOnly, padding: header),
               switch (people) {
                 AsyncData(:final value) when value.isEmpty => GwCard(
                     radius: GwRadius.lgAll,
                     child: GwEmptyState(
                       icon: Icons.nights_stay_outlined,
-                      message: 'Ortak gruplarından şu an boş olan yok.',
-                      actionLabel: 'Yenile',
+                      message: eventsL10n.nobodyFree,
+                      actionLabel: eventsL10n.refresh,
                       onAction: () => ref.invalidate(tonightPeopleProvider),
                     ),
                   ),
@@ -481,7 +481,7 @@ class TonightScreen extends ConsumerWidget {
                   GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(tonightPeopleProvider)),
                 _ => const GwSkeleton(height: GwSpacing.xxl * 3, borderRadius: GwRadius.lgAll),
               },
-              const GwSectionHeader(title: 'Nasıl işler?', padding: header),
+              GwSectionHeader(title: eventsL10n.howItWorks, padding: header),
               const _HowItWorks(),
             ],
           ),
@@ -514,7 +514,7 @@ class _PersonTile extends StatelessWidget {
                 children: [
                   Text(person.displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleSmall),
                   if (person.note.isNotEmpty)
-                    Text('"${person.note}"', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium),
+                    Text(eventsL10n.quoted(person.note), maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.bodyMedium),
                   if (person.groups.isNotEmpty)
                     Text(
                       person.groups.join(', '),
@@ -537,10 +537,10 @@ class _PersonTile extends StatelessWidget {
 class _HowItWorks extends StatelessWidget {
   const _HowItWorks();
 
-  static const _steps = [
-    '"Bu akşam boşum" de; istersen ne yapmak istediğini yaz.',
-    'Ortak gruplarındakiler seni görür, sen de boş olanları görürsün.',
-    'Küçük masa kur; üç kişi olunca masanın sohbeti açılır, yeri ve saati orada seçersiniz.',
+  static List<String> get _steps => [
+    eventsL10n.howStep1,
+    eventsL10n.howStep2,
+    eventsL10n.howStep3,
   ];
 
   @override

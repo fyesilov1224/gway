@@ -1,7 +1,9 @@
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n.dart';
 import 'live_session.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -25,9 +27,9 @@ class LiveOngoingBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(activeLiveProvider);
-    return ListenableBuilder(
+    return _DeferredListenableBuilder(
       listenable: Listenable.merge([routeChanges, ?session]),
-      builder: (context, _) {
+      builder: (context) {
         final visible = session != null && session.isActive && currentPath() != LiveRoutes.room(session.broadcastId);
         return Column(
           children: [
@@ -58,7 +60,7 @@ class _Strip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final title = ref.watch(liveBroadcastProvider(session.broadcastId)).value?.title ?? 'Canlı yayın';
+    final title = ref.watch(liveBroadcastProvider(session.broadcastId)).value?.title ?? liveL10n.liveBroadcast;
     final connecting = session.state == LiveSessionState.connecting;
     final me = session.me;
     final onStage = me != null && me.role.onStage;
@@ -73,7 +75,7 @@ class _Strip extends ConsumerWidget {
             Expanded(
               child: Semantics(
                 button: true,
-                label: 'Canlı yayındasın: $title. Yayına dönmek için dokun.',
+                label: liveL10n.youAreLive(title),
                 excludeSemantics: true,
                 child: InkWell(
                   onTap: onOpen,
@@ -92,7 +94,7 @@ class _Strip extends ConsumerWidget {
                               children: [
                                 Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                                 Text(
-                                  connecting ? 'Yayına bağlanılıyor…' : 'Yayındasın · dönmek için dokun',
+                                  connecting ? liveL10n.connecting : liveL10n.inBroadcast,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary),
@@ -113,10 +115,10 @@ class _Strip extends ConsumerWidget {
               Semantics(
                 button: true,
                 label: me.mutedByModerator
-                    ? 'Mikrofonunu yönetici kapattı'
+                    ? liveL10n.micMutedByMod
                     : me.micOn
-                        ? 'Mikrofonu kapat'
-                        : 'Mikrofonu aç',
+                        ? liveL10n.micOff
+                        : liveL10n.micOn,
                 excludeSemantics: true,
                 child: IconButton(
                   onPressed: me.mutedByModerator ? null : () => _mic(context, !me.micOn),
@@ -129,4 +131,55 @@ class _Strip extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Like [ListenableBuilder], but applies a change on the next frame: the router announces its first route while the
+/// app's first build is still running, and an immediate rebuild there fails the build-phase assertion.
+class _DeferredListenableBuilder extends StatefulWidget {
+  const _DeferredListenableBuilder({required this.listenable, required this.builder});
+
+  final Listenable listenable;
+  final WidgetBuilder builder;
+
+  @override
+  State<_DeferredListenableBuilder> createState() => _DeferredListenableBuilderState();
+}
+
+class _DeferredListenableBuilderState extends State<_DeferredListenableBuilder> {
+  @override
+  void initState() {
+    super.initState();
+    widget.listenable.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(_DeferredListenableBuilder old) {
+    super.didUpdateWidget(old);
+    if (old.listenable != widget.listenable) {
+      old.listenable.removeListener(_changed);
+      widget.listenable.addListener(_changed);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.listenable.removeListener(_changed);
+    super.dispose();
+  }
+
+  var _pending = false;
+
+  void _changed() {
+    if (_pending) return;
+    _pending = true;
+    SchedulerBinding.instance
+      ..addPostFrameCallback((_) {
+        _pending = false;
+        if (mounted) setState(() {});
+      })
+      ..ensureVisualUpdate();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
 }

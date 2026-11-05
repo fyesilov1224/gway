@@ -109,7 +109,7 @@ class _AdminGoalsScreenState extends ConsumerState<AdminGoalsScreen> {
                                     children: [
                                       Text(g.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                                       Text(
-                                        '${g.groupName} (@${g.groupHandle}) · ${g.summary} · ${formatDateTr(g.startsAt)} – ${formatDateTr(g.endsAt)}',
+                                        '${g.groupName} (@${g.groupHandle}) · ${g.summary} · ${formatDate(g.startsAt)} – ${formatDate(g.endsAt)}',
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),

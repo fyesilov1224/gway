@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/calls.dart';
+import '../l10n.dart';
 import 'call_providers.dart';
 
 /// The way into a group's voice call requests, with the waiting count; nothing for those who cannot decide.
@@ -30,8 +31,8 @@ class GroupCallRequestsEntry extends ConsumerWidget {
         child: ListTile(
           onTap: onOpen,
           leading: const Icon(Icons.call_outlined, color: GwColors.primary),
-          title: Text('Sesli görüşme talepleri', style: Theme.of(context).textTheme.labelLarge),
-          subtitle: Text(pending == 0 ? 'Bekleyen talep yok · ${desk.active.length} açık yetki' : '$pending talep bekliyor'),
+          title: Text(messagingL10n.callRequests, style: Theme.of(context).textTheme.labelLarge),
+          subtitle: Text(pending == 0 ? messagingL10n.noPendingWithActive(desk.active.length) : messagingL10n.pendingCount(pending)),
           trailing: pending > 0 ? GwBadge('$pending', tone: GwBadgeTone.danger) : const Icon(Icons.chevron_right),
         ),
       ),
@@ -52,11 +53,11 @@ class GroupCallRequestsScreen extends ConsumerWidget {
     length: 2,
     child: Scaffold(
       appBar: AppBar(
-        title: const Text('Sesli görüşme talepleri'),
-        bottom: const TabBar(
+        title: Text(messagingL10n.callRequests),
+        bottom: TabBar(
           tabs: [
-            Tab(text: 'Bekleyen'),
-            Tab(text: 'Açık'),
+            Tab(text: messagingL10n.pending),
+            Tab(text: messagingL10n.activeTab),
           ],
         ),
       ),
@@ -64,8 +65,8 @@ class GroupCallRequestsScreen extends ConsumerWidget {
         child: switch (ref.watch(groupCallDeskProvider(groupId))) {
           AsyncData(value: null) => GwEmptyState(
             icon: Icons.lock_outline,
-            message: 'Sesli görüşme taleplerini grup sahibi ve Yöneticiler görür.',
-            actionLabel: 'Geri dön',
+            message: messagingL10n.requestsOwnersOnly,
+            actionLabel: messagingL10n.goBack,
             onAction: () => Navigator.of(context).maybePop(),
           ),
           AsyncData(value: final GroupCallDesk desk) => TabBarView(
@@ -74,9 +75,9 @@ class GroupCallRequestsScreen extends ConsumerWidget {
                 groupId: groupId,
                 desk: desk,
                 items: desk.pending,
-                empty: 'Bekleyen talep yok. $groupName üyeleri talep edince burada görünür.',
+                empty: messagingL10n.noPendingFor(groupName),
               ),
-              _List(groupId: groupId, desk: desk, items: desk.active, empty: 'Bu grubun açtığı sesli görüşme yetkisi yok.'),
+              _List(groupId: groupId, desk: desk, items: desk.active, empty: messagingL10n.noActive),
             ],
           ),
           AsyncError(:final error) => GwErrorState(
@@ -107,7 +108,7 @@ class _List extends ConsumerWidget {
       return GwEmptyState(
         icon: Icons.call_outlined,
         message: empty,
-        actionLabel: 'Yenile',
+        actionLabel: messagingL10n.refresh,
         onAction: () => ref.invalidate(groupCallDeskProvider(groupId)),
       );
     }
@@ -117,8 +118,7 @@ class _List extends ConsumerWidget {
         padding: const EdgeInsets.all(GwSpacing.page),
         children: [
           Text(
-            'Açtığın yetkiyle kişi eşleştiği ve ekip arkadaşı olduğu herkesi sesli arayabilir. Görüşmeler kaydedilmez; '
-            'kişi gruptan ayrılırsa yetki kapanır.',
+            messagingL10n.grantHint,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
           const SizedBox(height: GwSpacing.md),
@@ -162,7 +162,7 @@ class _CardState extends ConsumerState<_Card> {
     switch (result) {
       case Ok():
         ref.invalidate(groupCallDeskProvider(widget.groupId));
-        messenger.showSnackBar(SnackBar(content: Text(active ? 'Sesli görüşme açıldı.' : 'Sesli görüşme kapatıldı.')));
+        messenger.showSnackBar(SnackBar(content: Text(active ? messagingL10n.granted : messagingL10n.turnedOff)));
       case Err(:final failure):
         messenger.showSnackBar(SnackBar(content: Text(failure.userMessage)));
     }
@@ -188,13 +188,13 @@ class _CardState extends ConsumerState<_Card> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(item.displayName, style: Theme.of(context).textTheme.labelLarge),
-                    Text(['@${item.username}', if (at != null) formatDateTimeTr(at)].join(' · '), style: secondary),
+                    Text([atName(item.username), if (at != null) formatDateTime(at)].join(' · '), style: secondary),
                   ],
                 ),
               ),
             ],
           ),
-          if (item.note case final note? when pending) ...[const SizedBox(height: GwSpacing.xs), Text('Notu: $note')],
+          if (item.note case final note? when pending) ...[const SizedBox(height: GwSpacing.xs), Text(messagingL10n.theirNote(note))],
           const SizedBox(height: GwSpacing.sm),
           Wrap(
             spacing: GwSpacing.xs,
@@ -203,11 +203,11 @@ class _CardState extends ConsumerState<_Card> {
             children: [
               if (widget.canClose)
                 GwButton(
-                  label: pending ? 'Reddet' : 'Kapat',
+                  label: pending ? messagingL10n.decline : messagingL10n.turnOff,
                   variant: GwButtonVariant.secondary,
                   onPressed: _busy ? null : () => _decide(active: false),
                 ),
-              if (pending) GwButton(label: 'Aç', icon: Icons.call_outlined, isLoading: _busy, onPressed: () => _decide(active: true)),
+              if (pending) GwButton(label: messagingL10n.turnOn, icon: Icons.call_outlined, isLoading: _busy, onPressed: () => _decide(active: true)),
             ],
           ),
           if (!widget.canClose)
@@ -215,8 +215,8 @@ class _CardState extends ConsumerState<_Card> {
               padding: const EdgeInsets.only(top: GwSpacing.xs),
               child: Text(
                 pending
-                    ? 'Rütbesi seninkine eşit ya da yüksek olduğu için bu talebi yalnızca açabilirsin.'
-                    : 'Rütbesi seninkine eşit ya da yüksek olduğu için bu yetkiyi kapatamazsın.',
+                    ? messagingL10n.rankOnlyGrant
+                    : messagingL10n.rankCannotRevoke,
                 style: secondary,
               ),
             ),
@@ -263,12 +263,12 @@ class _ReasonSheetState extends State<_ReasonSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(widget.pending ? 'Talebi reddet' : 'Sesli görüşmeyi kapat', style: Theme.of(context).textTheme.titleLarge),
+          Text(widget.pending ? messagingL10n.declineRequest : messagingL10n.turnOffCalls, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: GwSpacing.xxs),
           Text(
             widget.pending
-                ? 'Kişi gerekçeyi görür ve 7 gün sonra yeniden talep edebilir.'
-                : 'Kişinin süren görüşmesi hemen biter. Gerekçeyi görür ve 7 gün sonra yeniden talep edebilir.',
+                ? messagingL10n.declineHint
+                : messagingL10n.revokeHint,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
           const SizedBox(height: GwSpacing.md),
@@ -277,12 +277,12 @@ class _ReasonSheetState extends State<_ReasonSheet> {
             maxLength: 500,
             minLines: 2,
             maxLines: 4,
-            decoration: const InputDecoration(labelText: 'Gerekçe'),
-            validator: (v) => (v ?? '').trim().length < 3 ? 'Gerekçe en az 3 karakter olmalı.' : null,
+            decoration: InputDecoration(labelText: messagingL10n.reason),
+            validator: (v) => (v ?? '').trim().length < 3 ? messagingL10n.reasonMin3 : null,
           ),
           const SizedBox(height: GwSpacing.sm),
           GwButton(
-            label: widget.pending ? 'Reddet' : 'Kapat',
+            label: widget.pending ? messagingL10n.decline : messagingL10n.turnOff,
             expand: true,
             onPressed: () {
               if (_form.currentState!.validate()) Navigator.of(context).pop(_reason.text.trim());

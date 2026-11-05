@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/auth.dart';
+import '../l10n.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(this._client, {required this.redirectUrl, required this.supabaseUrl, required this.publishableKey});
@@ -31,6 +32,8 @@ class SupabaseAuthRepository implements AuthRepository {
           email: email.trim(),
           password: password,
           emailRedirectTo: redirectUrl,
+          // The confirmation e-mail is written in this language (supabase/templates).
+          data: {'locale': currentAppLanguage.code},
         ),
       );
 
@@ -106,21 +109,21 @@ Failure failureFromAuth(Object error) {
   if (error is! AuthException) return failureFromSupabase(error);
   RuleFailure rule(String message) => RuleFailure('auth.${error.code}', message);
   return switch (error.code) {
-    'invalid_credentials' => rule('E-posta adresi veya şifre hatalı.'),
+    'invalid_credentials' => rule(identityL10n.authInvalidCredentials),
     'email_not_confirmed' =>
-      rule('E-posta adresini henüz doğrulamadın. Gelen kutunu kontrol et.'),
+      rule(identityL10n.authEmailNotConfirmed),
     'user_already_exists' || 'email_exists' =>
-      rule('Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı dene.'),
+      rule(identityL10n.authEmailExists),
     'weak_password' => rule(
-        'Şifre en az 8 karakter olmalı ve büyük harf, küçük harf ve rakam içermeli.',
+        identityL10n.authWeakPassword,
       ),
-    'same_password' => rule('Yeni şifren eskisinden farklı olmalı.'),
-    'email_address_invalid' => rule('Geçerli bir e-posta adresi gir.'),
-    'user_banned' => rule('Hesabın askıya alındığı için giriş yapamazsın.'),
+    'same_password' => rule(identityL10n.authSamePassword),
+    'email_address_invalid' => rule(identityL10n.authInvalidEmail),
+    'user_banned' => rule(identityL10n.authUserBanned),
     'over_email_send_rate_limit' || 'over_request_rate_limit' =>
       const RateLimitedFailure(),
     'provider_disabled' || 'email_provider_disabled' =>
-      rule('Bu giriş yöntemi şu anda kullanılamıyor.'),
+      rule(identityL10n.authProviderDisabled),
     _ => failureFromSupabase(error),
   };
 }

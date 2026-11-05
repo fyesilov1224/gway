@@ -165,7 +165,7 @@ class _SettingsPanelState extends ConsumerState<_SettingsPanel> {
                 contentPadding: EdgeInsets.zero,
                 value: value.enforce,
                 title: const Text('Konum, telefon ve giriş doğrulaması zorunlu'),
-                subtitle: Text('Son değişiklik: ${formatDateTimeTr(value.updatedAt)}'),
+                subtitle: Text('Son değişiklik: ${formatDateTime(value.updatedAt)}'),
                 onChanged: _saving ? null : _toggle,
               ),
               const Divider(),
@@ -239,7 +239,7 @@ class _ReviewCard extends StatelessWidget {
     final r = review;
     return GwPanel(
       title: r.title,
-      subtitle: 'Açıldı: ${formatDateTimeTr(r.openedAt)}',
+      subtitle: 'Açıldı: ${formatDateTime(r.openedAt)}',
       trailing: GwBadge(
         r.status.label,
         tone: switch (r.status) {
@@ -359,7 +359,7 @@ class UserSecurityPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final security = ref.watch(userSecurityProvider(userId));
     final admin = ref.watch(myStaffRoleProvider).value == StaffRole.admin;
-    String date(DateTime? d) => d == null ? '—' : formatDateTimeTr(d);
+    String date(DateTime? d) => d == null ? '—' : formatDateTime(d);
     return switch (security) {
       AsyncData(:final value) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -386,7 +386,7 @@ class UserSecurityPanel extends ConsumerWidget {
               ('İzinli ülke', value.allowedCountry ?? '—'),
               ('Son konum kontrolü', date(value.locationCheckedAt)),
               if (value.exemptUntil case final until? when until.isAfter(DateTime.now()))
-                ('Muafiyet', '${formatDateTimeTr(until)} tarihine kadar'),
+                ('Muafiyet', '${formatDateTime(until)} tarihine kadar'),
             ]),
             if (value.checks.isNotEmpty) ...[
               const SizedBox(height: GwSpacing.lg),
@@ -479,7 +479,7 @@ class _CheckRow extends StatelessWidget {
           runSpacing: GwSpacing.xxs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Text(formatDateTimeTr(check.checkedAt), style: textTheme.labelLarge),
+            Text(formatDateTime(check.checkedAt), style: textTheme.labelLarge),
             switch (check.verdict) {
               'banned' => const GwBadge('Ban', tone: GwBadgeTone.danger),
               'restricted' => const GwBadge('Kısıtlandı', tone: GwBadgeTone.warning),

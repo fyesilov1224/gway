@@ -1928,6 +1928,47 @@ Kullanıcı isteği (2026-10-27): panel her modülü ve işlemleri ayrıntılı 
 - Yayında API, LiveKit, web uygulaması ve panel tek sunucuda, Docker Compose ile çalışır. Caddy otomatik `https` verir.
 - Kurulum dosyaları `deploy/` klasöründe, adımlar `docs/DEPLOY.md`'de.
 
+## 11. Çok dillilik (Faz 19, kullanıcı kararları 2026-11-05)
+
+Kullanıcı isteği: Ayarlar'dan dil seçilince düğmeler, menüler, bağlantılar, sözleşmeler ve bildirimler dahil her şey seçilen dile geçer.
+
+### Kararlar
+- **Diller (12):** Türkçe (`tr`, kaynak dil), İngilizce (`en`), Almanca (`de`), Fransızca (`fr`), Felemenkçe (`nl`), İspanyolca (`es`), Portekizce (`pt`), İtalyanca (`it`), Rusça (`ru`), Arapça (`ar`, sağdan sola), Azerice (`az`), Ukraynaca (`uk`).
+- **Hukuki metinler:** çeviriler bilgi amaçlıdır. Her çevirinin başında "Bağlayıcı metin Türkçedir" notu ve Türkçe asıl metne bağlantı bulunur. Kullanıcı her zaman Türkçe sürümü onaylar (`consents` değişmez).
+- **Sunucu metinleri de çevrilir:** telefon bildirimleri, API hata mesajları ve kimlik e-postaları kişinin dilinde gider.
+- **Yönetim paneli Türkçe kalır.** Panelde yalnızca hukuki metin çevirilerinin yönetimi eklenir.
+- **Hitap:** Türkçe ve Azericede "sen"; Almanca du, Fransızca tu, Felemenkçe je, İspanyolca tú, İtalyanca tu, Portekizce você (Brezilya), Rusça ve Ukraynaca вы; İngilizce ve Arapça yalın. Marka ve özellik adları (GWAY, Bugün sekmesi gibi) her dilde o dilin ekran adıyla yazılır.
+- Çeviriler Claude tarafından yapılır; yayından önce her dil için anadili konuşan birinin kontrolü önerilir. GWAY'e özel hazır dil paketi yoktur; Flutter'ın kendi bileşen metinleri (`flutter_localizations`) SDK ile gelir.
+
+### Uygulama (Flutter)
+- Flutter'ın resmi çeviri sistemi kullanılır: ARB dosyaları ve `gen_l10n`. Her paket kendi metinlerinin sahibidir: `lib/l10n/<paket>_<dil>.arb` (şablon Türkçe), üretilen sınıf `lib/src/l10n/` (depoya girer). Çeviri tabloları `app/tool/l10n/tables/<paket>.py`'dedir; `python tool/l10n/write_arb.py <tablo>` ARB'leri, `flutter gen-l10n` sınıfı üretir. Yeni paket `tool/l10n/setup_package.py` ile hazırlanır.
+- Yer tutucular ve çoğullar ICU biçimindedir (`{count, plural, ...}`); metin parçaları birleştirilerek cümle kurulmaz.
+- Her paket `<paket>L10n` adlı bir erişici verir (ör. `identityL10n.signIn`); ekran kodu da alan kodu da (hata mesajı, enum etiketi, bildirim cümlesi) bunu kullanır. Erişici `core`'daki geçerli dili (`currentAppLanguage`) okur. Dil değişince `MaterialApp`'in dili değişir ve uygulama bütün widget'ları bir kez yeniden çizer (`rebuildAll`), böylece her metin yeni dilde okunur. `MaterialApp`'e yalnızca Flutter'ın kendi bileşen çevirileri ve `core` verilir.
+- **Dil seçimi:** Ayarlar → Dil (ve giriş ekranında dil düğmesi). İlk açılışta cihazın dili desteklenen dillerdense o, değilse İngilizce; Türkiye'deki cihazda Türkçe. Seçim cihazda saklanır (`shared_preferences`) ve oturum açıksa profile yazılır (`profiles.locale`, kişinin kendi basit yazması).
+- Tarih, saat, sayı ve para biçimleri `intl` ile seçilen dile göre yapılır. Kullanıcı içeriği (gönderi, yorum, mesaj, grup adı) çevrilmez.
+- **Sağdan sola (Arapça):** düzen `Directionality` ile döner; kenar boşlukları `EdgeInsetsDirectional`, hizalama `AlignmentDirectional`, tek kenara yaslanan katmanlar `PositionedDirectional` kullanır; yön belirten ikonlar aynalanır. Fiziksel yön yalnızca süs geçişlerinde ve piksel hesabı yapan kodda (kırpma) kalır.
+- **Kullanıcı ve grup adları:** `@ad` her zaman `atName(ad)` ile yazılır (Unicode yalıtımı); düz yazılırsa Arapça cümlede `ad@` görünür. ARB metinlerinde `@` işareti yer tutucunun içindedir, metinde değil.
+- **Rakamlar:** Arapçada tarihler de 0-9 rakamlarıyla yazılır; sayılar, takvim ve fiyatlarla tutarlı kalır.
+- **Veritabanından gelen adlar:** katalog öğelerinin (kategori, rozet, paket) adı kısa adına (slug) göre dil dosyasından gelir; sonradan eklenen bir öğe veritabanındaki adıyla görünür.
+- Uzun dillerde (Almanca) ve %130 yazı ölçeğinde düzen bozulmaz; testler en uzun dil ile de çalışır.
+- `CLAUDE.md` kural 9 buna göre değişti: yeni arayüz metni önce Türkçe ARB'ye, aynı değişiklikte 11 dile eklenir.
+- **Kullanma kılavuzu (§7b)** arayüz metni değil uzun içerik olduğu için ARB'de değil, dil başına bir Dart dosyasındadır: `support/lib/src/domain/guide/<dil>.dart`. Kılavuz geçerli dilin dosyasını okur. Bütün dillerde bölüm kimlikleri, konu sayıları ve adım/not sayıları aynıdır; bunu bir test denetler. Kılavuz değişince 12 dosya birlikte değişir. Arama her dilin aksanlı harflerini sadeleştirerek eşleştirir.
+
+### Sunucu
+- `profiles.locale` (12 dilden biri, varsayılan `tr`; migration 0079). Uygulama dili oturum açılınca ve her dil değişiminde yazar (`LanguageSync`, identity): `profiles.locale` ve hesabın meta verisi `locale` (e-postalar için). Profil oluşturulurken de seçili dil yazılır; kayıt olurken meta veriye eklenir.
+- C# cümleleri Türkçe yazılmaya devam eder; çevirileri `Gway.SharedKernel/Localization/server_texts.json`'dadır (gömülü kaynak). Tablo `app/tool/l10n/tables/server_*.py`, dosyayı `python tool/l10n/server_write.py` yazar ve tablodaki her cümlenin kaynakta hâlâ bulunduğunu denetler; kaynaktaki adaylar `tool/l10n/server_extract.py` ile listelenir. Değer içeren cümleler (`$"... {max} ..."`) kalıp olarak eşlenir, en özgül kalıp önce denenir. Bilinmeyen cümle ya da dil Türkçe kalır. Yönetim paneline özgü cümleler (sağlayıcı ayarları, askıya alma, lig çıkarma) çevrilmez.
+- **Hata başlıkları:** `ServerText.LocalizeProblem`, `AddProblemDetails` üzerinden her ProblemDetails başlığını isteğin `Accept-Language` diline çevirir (uygulama kendi dilini gönderir; başlık yoksa Türkçe, desteklenmeyen dil İngilizce). `code` alanı değişmez.
+- **Push:** `PushTexts` alıcının `profiles.locale` diliyle kurulur; tarih o dilin ay adlarıyla, Türkiye saatinde yazılır (`ServerText.FormatDateTime`). Uygulama içi bildirim listesi metni uygulamada türden kurulur.
+- **Paylaşım sayfaları** (grup, davet, organizasyon) ziyaretçinin tarayıcı diliyle yazılır; `lang`/`dir` de buna uyar.
+- **Kimlik e-postaları** (doğrulama, şifre sıfırlama, e-posta değişikliği) `supabase/templates/*.html` şablonlarındadır; şablon meta verideki `locale`'e göre dili seçer (yoksa Türkçe). Konu satırı dile göre değişemediği için "GWAY"dir. Şablonları `python tool/l10n/email_write.py` yazar; bulutta `supabase config push` ile etkinleşir.
+- Sunucunun Türkçe sakladığı adlar (kategori, rozet) uygulamada `slug` ile seçilen dilde gösterilir; kullanıcı içeriği (grup adı, hedef başlığı) çevrilmez.
+
+### Hukuki metin çevirileri
+- `legal_document_translations` (identity): belge sürümü, dil, başlık, gövde. Herkes okur; yazma yalnızca C# (platform yöneticisi). Asıl Türkçe sürüm değişmez kuralı (§3a) aynen sürer; çeviri sonradan düzeltilebilir ve `audit_log`'a yazılır.
+- Uygulama metni kişinin dilinde gösterir; çeviri yoksa Türkçe asıl gösterilir. Onay her zaman Türkçe sürüme bağlanır.
+- **Yönetim paneli:** hukuki metin sayfasında her sürümün çevirileri görüntülenir ve düzenlenir.
+- **Hazır çeviriler:** yürürlükteki metinlerin çevirileri `app/tool/l10n/tables/legal/<dil>.py` dosyalarındadır; `legal_write.py` bunlardan migration üretir. Çeviri, Türkçe gövdesi aynı olan (md5) sürüme bağlanır: sürüm numarası ortamdan ortama farklı olsa da doğru metne düşer, sonradan değişmiş bir Türkçe metne eski çeviri bağlanmaz. Türkçe metin değişince yeni sürümün çevirisi panelden girilir. Üretici, her çevirinin paragraf ve satır sayısının Türkçeyle aynı olduğunu denetler.
+
 ## 9. Test ve "bitti" tanımı
 
 Bir faz şu koşullar sağlanınca biter:

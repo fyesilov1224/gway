@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 import 'match_card_view.dart';
 import 'match_sheets.dart';
 import 'package_widgets.dart';
@@ -39,12 +40,12 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eşleşme'),
+        title: Text(matchingL10n.matching),
         // Four actions at most, so the title never collides with them on a phone.
         actions: [
           if (hasProfile) ...[
             IconButton(
-              tooltip: 'Seni beğenenler',
+              tooltip: matchingL10n.admirers,
               icon: Badge(
                 isLabelVisible: (status?.admirerCount ?? 0) > 0,
                 label: Text('${status?.admirerCount ?? 0}'),
@@ -53,33 +54,33 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
               onPressed: () => context.push(MatchingRoutes.likes),
             ),
             IconButton(
-              tooltip: 'Eşleşmelerim',
+              tooltip: matchingL10n.pkgReveal,
               icon: const Icon(Icons.forum_outlined),
               onPressed: () => context.push(MatchingRoutes.matches),
             ),
             IconButton(
-              tooltip: 'Paketler',
+              tooltip: matchingL10n.packages,
               color: GwColors.primary,
               icon: Icon(status?.hasAnyPackage ?? false ? Icons.workspace_premium_rounded : Icons.workspace_premium_outlined),
               onPressed: () => context.push(MatchingRoutes.packages),
             ),
             PopupMenuButton<void>(
-              tooltip: 'Diğer',
+              tooltip: matchingL10n.more,
               icon: Badge(isLabelVisible: !filters.isEmpty, smallSize: GwSpacing.xs, child: const Icon(Icons.more_vert)),
               itemBuilder: (_) => [
                 PopupMenuItem(
                   onTap: () => status?.has(MatchFeature.unlimited) ?? false
                       ? showDeckFilters(context)
                       : showPackageSheet(context,
-                          feature: MatchFeature.unlimited, reason: 'Yaş, il ve ilgi alanına göre filtrelemek Sınırsız Beğeni paketiyle açılır.'),
+                          feature: MatchFeature.unlimited, reason: matchingL10n.filtersLocked),
                   child: ListTile(
                     leading: const Icon(Icons.tune_rounded),
-                    title: Text(filters.isEmpty ? 'Filtreler' : 'Filtreler (${filters.count})'),
+                    title: Text(filters.isEmpty ? matchingL10n.filters : 'Filtreler (${filters.count})'),
                   ),
                 ),
                 PopupMenuItem(
                   onTap: () => context.push(MatchingRoutes.profile),
-                  child: const ListTile(leading: Icon(Icons.manage_accounts_outlined), title: Text('Eşleşme profilim')),
+                  child: ListTile(leading: const Icon(Icons.manage_accounts_outlined), title: Text(matchingL10n.myProfile)),
                 ),
               ],
             ),
@@ -100,24 +101,24 @@ class _MatchingScreenState extends ConsumerState<MatchingScreen> {
 
   Widget _body(MatchProfile profile) {
     if (profile.suspendedAt(DateTime.now())) {
-      return const _Notice(
+      return _Notice(
         icon: Icons.block_outlined,
-        message: 'Eşleşme profilin platform ekibi tarafından kapatıldı. Ayrıntılar için Destek\'e yazabilirsin.',
+        message: matchingL10n.suspended,
       );
     }
     if (!profile.hasEnoughPhotos) {
       return _Notice(
         icon: Icons.add_a_photo_outlined,
-        message: 'Kartının görünmesi ve keşfetmeye başlaman için en az $matchMinPhotos fotoğraf ekle.',
-        actionLabel: 'Fotoğraf ekle',
+        message: matchingL10n.addPhotosToStart(matchMinPhotos),
+        actionLabel: matchingL10n.addPhoto,
         onAction: () => context.push(MatchingRoutes.profile),
       );
     }
     if (profile.paused) {
       return _Notice(
         icon: Icons.pause_circle_outline,
-        message: 'Profilin duraklatıldı; kimse seni görmüyor. Eşleşmelerin ve sohbetlerin duruyor.',
-        actionLabel: 'Devam et',
+        message: matchingL10n.paused,
+        actionLabel: matchingL10n.continueAction,
         onAction: () async {
           final result = await ref.read(matchingRepositoryProvider).setPaused(false);
           if (!mounted) return;
@@ -209,13 +210,13 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
     if (status == null) return true;
     switch (kind) {
       case SwipeKind.like when status.likesLeft == 0:
-        showPackageSheet(context, feature: MatchFeature.unlimited, reason: 'Bugünkü ücretsiz beğenilerin bitti. Sınırsız Beğeni ile istediğin kadar beğen.');
+        showPackageSheet(context, feature: MatchFeature.unlimited, reason: matchingL10n.likesOut);
         return false;
       case SwipeKind.superLike when status.superLikesLeft == 0:
         if (status.has(MatchFeature.superLike)) {
-          _say('Bugünkü süper beğenilerin bitti. Yarın yenilenir.');
+          _say(matchingL10n.supersOut);
         } else {
-          showPackageSheet(context, feature: MatchFeature.superLike, reason: 'Bugünkü süper beğenini kullandın. Süper Beğeni paketiyle her gün 5 tane.');
+          showPackageSheet(context, feature: MatchFeature.superLike, reason: matchingL10n.superUsed);
         }
         return false;
       default:
@@ -264,14 +265,14 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
 
   Future<void> _rewind(MatchStatus? status) async {
     if (!(status?.has(MatchFeature.unlimited) ?? false)) {
-      await showPackageSheet(context, feature: MatchFeature.unlimited, reason: 'Yanlışlıkla geçtiğin kişiyi geri getirmek Sınırsız Beğeni paketiyle açılır.');
+      await showPackageSheet(context, feature: MatchFeature.unlimited, reason: matchingL10n.rewindLocked);
       return;
     }
     final result = await ref.read(deckProvider(widget.mode).notifier).rewind();
     if (!mounted) return;
     switch (result) {
       case Ok(:final value) when value.mode != widget.mode:
-        _say('Son geçtiğin kişi ${value.mode.label} destesine geri döndü.');
+        _say(matchingL10n.rewoundTo(value.mode.label));
       case Ok():
         break;
       case Err(:final failure):
@@ -283,29 +284,29 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
     final now = DateTime.now();
     if (status == null) return;
     if (!status.has(MatchFeature.boost)) {
-      await showPackageSheet(context, feature: MatchFeature.boost, reason: 'Öne çıkınca ${status.boostMinutes} dakika boyunca destelerin en başında görünürsün.');
+      await showPackageSheet(context, feature: MatchFeature.boost, reason: matchingL10n.boostReason(status.boostMinutes));
       return;
     }
     if (status.boostingAt(now)) {
-      _say('Öne çıkıyorsun. ${status.boostEndsAt!.difference(now).inMinutes + 1} dakika kaldı.');
+      _say(matchingL10n.boosting(status.boostEndsAt!.difference(now).inMinutes + 1));
       return;
     }
     if (status.boostUsedToday) {
-      _say('Bugünkü öne çıkma hakkını kullandın. Yarın yenilenir.');
+      _say(matchingL10n.boostUsed);
       return;
     }
     final go = await confirmMatchAction(
       context,
-      title: 'Öne çık',
-      message: '${status.boostMinutes} dakika boyunca ortak gruplarındaki kişilerin destesinde en başta görünürsün. Günde bir kez kullanılır.',
-      confirmLabel: 'Öne çık',
+      title: matchingL10n.boost,
+      message: matchingL10n.boostBody(status.boostMinutes),
+      confirmLabel: matchingL10n.boost,
     );
     if (!go || !mounted) return;
     final result = await ref.read(matchingRepositoryProvider).boost();
     if (!mounted) return;
     ref.invalidate(matchStatusProvider);
     _say(switch (result) {
-      Ok(:final value) => 'Öne çıktın! ${value.difference(DateTime.now()).inMinutes + 1} dakika boyunca en baştasın.',
+      Ok(:final value) => matchingL10n.boosted(value.difference(DateTime.now()).inMinutes + 1),
       Err(:final failure) => failure.userMessage,
     });
   }
@@ -328,9 +329,9 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
             child: GwEmptyState(
               icon: Icons.travel_explore_outlined,
               message: filters.isEmpty
-                  ? 'Şimdilik gösterecek kimse kalmadı. Yeni gruplara katıldıkça ve insanlar eşleşmeyi açtıkça burası dolar.'
-                  : 'Filtrelerine uyan kimse kalmadı. Filtreleri genişletmeyi dene.',
-              actionLabel: filters.isEmpty ? 'Yenile' : 'Filtreleri temizle',
+                  ? matchingL10n.deckEmpty
+                  : matchingL10n.deckEmptyFiltered,
+              actionLabel: filters.isEmpty ? matchingL10n.refresh : matchingL10n.clearFilters,
               onAction: () => filters.isEmpty
                   ? ref.invalidate(deckProvider(widget.mode))
                   : ref.read(deckFiltersProvider.notifier).set(const MatchFilters()),
@@ -359,9 +360,9 @@ class _DeckState extends ConsumerState<_Deck> with SingleTickerProviderStateMixi
           const SizedBox(height: GwSpacing.xs),
           Text(
             switch (status.likesLeft) {
-              null => 'Sınırsız beğeni · ${status.superLikesLeft} süper beğeni hakkın var.',
-              0 => 'Bugünkü beğenilerin bitti; yarın yenilenir.',
-              final n => 'Bugün $n beğeni ve ${status.superLikesLeft} süper beğeni hakkın var.',
+              null => matchingL10n.allowanceUnlimited(status.superLikesLeft),
+              0 => matchingL10n.allowanceOut,
+              final n => matchingL10n.allowance(n, status.superLikesLeft),
             },
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
@@ -443,32 +444,32 @@ class _ActionBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        RoundAction(icon: Icons.replay_rounded, color: GwColors.warning, tooltip: 'Geri al', onPressed: onRewind),
+        RoundAction(icon: Icons.replay_rounded, color: GwColors.warning, tooltip: matchingL10n.undo, onPressed: onRewind),
         RoundAction(
           icon: Icons.close_rounded,
           color: swipeColor(SwipeKind.pass),
-          tooltip: 'Geç',
+          tooltip: matchingL10n.pass,
           large: true,
           onPressed: enabled ? onPass : null,
         ),
         RoundAction(
           icon: Icons.star_rounded,
           color: swipeColor(SwipeKind.superLike),
-          tooltip: 'Süper beğen',
+          tooltip: matchingL10n.superLike,
           badge: status == null ? null : '${status!.superLikesLeft}',
           onPressed: enabled ? onSuperLike : null,
         ),
         RoundAction(
           icon: Icons.favorite_rounded,
           color: swipeColor(SwipeKind.like),
-          tooltip: 'Beğen',
+          tooltip: matchingL10n.like,
           large: true,
           onPressed: enabled ? onLike : null,
         ),
         RoundAction(
           icon: Icons.bolt_rounded,
           color: GwColors.primary,
-          tooltip: 'Öne çık',
+          tooltip: matchingL10n.boost,
           filled: boosting,
           onPressed: onBoost,
         ),
@@ -547,17 +548,17 @@ class _Intro extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Ortak gruplarından yeni insanlarla tanış', style: textTheme.headlineSmall),
+              Text(matchingL10n.introTitle, style: textTheme.headlineSmall),
               const SizedBox(height: GwSpacing.md),
-              point(Icons.groups_2_outlined, 'Yalnızca üye olduğun ya da takip ettiğin gruplardaki, eşleşmeyi açmış kişileri görürsün.'),
-              point(Icons.swipe_rounded, 'Kartı sağa kaydır beğen, sola kaydır geç, yukarı kaydır süper beğen.'),
-              point(Icons.favorite_border_rounded, 'İkiniz de birbirinizi beğenince eşleşirsiniz. Eşleştiğin kişiye Eşleşme Sohbeti paketiyle yazarsın.'),
-              point(Icons.people_outline, 'Arkadaş ve Sevgili ayrı modlardır; istediğini ya da ikisini seçersin.'),
-              point(Icons.lock_outline, 'Profilin yalnızca eşleşmeyi açanlara görünür. İstediğin an duraklatır ya da tamamen silersin.'),
+              point(Icons.groups_2_outlined, matchingL10n.intro1),
+              point(Icons.swipe_rounded, matchingL10n.intro2),
+              point(Icons.favorite_border_rounded, matchingL10n.intro3),
+              point(Icons.people_outline, matchingL10n.intro4),
+              point(Icons.lock_outline, matchingL10n.intro5),
               const SizedBox(height: GwSpacing.md),
-              GwButton(label: 'Eşleşme profilimi oluştur', expand: true, onPressed: () => context.push(MatchingRoutes.setup)),
+              GwButton(label: matchingL10n.createMyProfile, expand: true, onPressed: () => context.push(MatchingRoutes.setup)),
               const SizedBox(height: GwSpacing.sm),
-              Text('Eşleşme 18 yaşından büyükler içindir.', style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+              Text(matchingL10n.adultsOnly, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
         ),

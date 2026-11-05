@@ -1,0 +1,6 @@
+arb-dir: lib/l10n
+template-arb-file: social_app_tr.arb
+output-dir: lib/src/l10n
+output-localization-file: social_app_l10n.dart
+output-class: SocialAppL10n
+nullable-getter: false

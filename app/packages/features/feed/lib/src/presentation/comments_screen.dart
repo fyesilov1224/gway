@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 import 'post_card.dart';
 import 'providers.dart';
 import 'rich_text.dart';
@@ -89,7 +90,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
     final me = ref.watch(currentUserIdProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Yorumlar')),
+      appBar: AppBar(title: Text(feedL10n.comments)),
       body: GwReadingColumn(
         maxWidth: GwLayout.feedMaxWidth,
         child: Column(
@@ -99,11 +100,11 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 AsyncData(:final value) when value.isEmpty && _added.isEmpty => GwEmptyState(
                     icon: Icons.mode_comment_outlined,
                     message: switch (post) {
-                      Post(commentsDisabled: true) => 'Bu gönderide yorumlar kapalı.',
-                      Post(canComment: false) => 'Henüz yorum yok. Bu paylaşıma emojiyle tepki bırakabilirsin.',
-                      _ => 'Henüz yorum yok. İlk yorumu sen yaz.',
+                      Post(commentsDisabled: true) => feedL10n.commentsOff,
+                      Post(canComment: false) => feedL10n.noCommentsEmojiOnly,
+                      _ => feedL10n.noCommentsFirst,
                     },
-                    actionLabel: post?.commentsDisabled == true || post?.canComment == false ? 'Geri dön' : 'Yorum yaz',
+                    actionLabel: post?.commentsDisabled == true || post?.canComment == false ? feedL10n.goBack : feedL10n.writeComment,
                     onAction: post?.commentsDisabled == true || post?.canComment == false
                         ? () => Navigator.of(context).maybePop()
                         : _focus.requestFocus,
@@ -126,7 +127,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           ),
                           for (final r in c.replies)
                             Padding(
-                              padding: const EdgeInsets.only(left: GwSpacing.xxl),
+                              padding: const EdgeInsetsDirectional.only(start: GwSpacing.xxl),
                               child: _CommentRow(
                                 comment: r,
                                 canDelete: r.author.id == me || (post?.canManage ?? false),
@@ -158,7 +159,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs),
+          padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xs, GwSpacing.xs, GwSpacing.xs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -166,11 +167,11 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Text('@${reply.author.username} kullanıcısına yanıt veriyorsun',
+                      child: Text(feedL10n.replyingTo(atName(reply.author.username)),
                           style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                     ),
                     IconButton(
-                      tooltip: 'Yanıtı iptal et',
+                      tooltip: feedL10n.cancelReply,
                       icon: const Icon(Icons.close, size: GwSpacing.md),
                       onPressed: () => setState(() {
                         _replyTo = null;
@@ -189,12 +190,12 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                       maxLines: 4,
                       maxLength: NewPost.maxCaption,
                       textCapitalization: TextCapitalization.sentences,
-                      decoration: const InputDecoration(hintText: 'Yorum ekle…', counterText: '', isDense: true),
+                      decoration: InputDecoration(hintText: feedL10n.addComment, counterText: '', isDense: true),
                       onSubmitted: (_) => _send(post),
                     ),
                   ),
                   const SizedBox(width: GwSpacing.xs),
-                  TextButton(onPressed: _sending ? null : () => _send(post), child: const Text('Paylaş')),
+                  TextButton(onPressed: _sending ? null : () => _send(post), child: Text(feedL10n.share)),
                 ],
               ),
             ],
@@ -290,11 +291,11 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Yorum silinsin mi?'),
-        content: const Text('Yorum ve yanıtları kalıcı olarak silinir.'),
+        title: Text(feedL10n.deleteCommentTitle),
+        content: Text(feedL10n.deleteCommentBody),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GwButton(label: 'Sil', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: feedL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: feedL10n.delete, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
@@ -322,7 +323,7 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
     return InkWell(
       onLongPress: widget.canDelete ? _delete : null,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.xs, GwSpacing.xxs, GwSpacing.xs),
+        padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.md, GwSpacing.xs, GwSpacing.xxs, GwSpacing.xs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -341,25 +342,25 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
                     spacing: GwSpacing.sm,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Text(formatAgoTr(c.createdAt), style: muted),
-                      if (_likes > 0) Text('$_likes beğenme', style: muted),
+                      Text(formatAgo(c.createdAt), style: muted),
+                      if (_likes > 0) Text(feedL10n.likeCount(_likes), style: muted),
                       if (widget.onReply != null)
                         TextButton(
                           onPressed: widget.onReply,
                           style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
-                          child: const Text('Yanıtla'),
+                          child: Text(feedL10n.reply),
                         ),
                       if (widget.canDelete)
                         TextButton(
                           onPressed: _delete,
                           style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
-                          child: const Text('Sil'),
+                          child: Text(feedL10n.delete),
                         ),
                       if (c.author.id != ref.read(currentUserIdProvider))
                         TextButton(
                           onPressed: () => ref.read(reportLauncherProvider)(context, ReportTarget.comment(c.id)),
                           style: TextButton.styleFrom(foregroundColor: GwColors.textSecondary, textStyle: textTheme.labelMedium),
-                          child: const Text('Şikayet et'),
+                          child: Text(feedL10n.report),
                         ),
                     ],
                   ),
@@ -367,7 +368,7 @@ class _CommentRowState extends ConsumerState<_CommentRow> {
               ),
             ),
             IconButton(
-              tooltip: _liked ? 'Beğenmekten vazgeç' : 'Yorumu beğen',
+              tooltip: _liked ? feedL10n.unlike : feedL10n.likeComment,
               onPressed: _toggleLike,
               icon: Icon(
                 _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
@@ -402,7 +403,7 @@ class _ReactOnly extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
                   child: Text(
-                    'Bu paylaşıma şu anda yorum yazamazsın. Emojiyle tepki bırakabilirsin.',
+                    feedL10n.cantComment,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                   ),
                 ),

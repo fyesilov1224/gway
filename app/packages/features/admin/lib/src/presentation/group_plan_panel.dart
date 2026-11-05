@@ -128,7 +128,7 @@ class GroupPlanPanel extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(planAndPeriod(s.planName, s.period), style: textTheme.labelLarge),
-                          Text('${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)} · ${sliceSource(s)}', style: secondary),
+                          Text('${formatDate(s.startsAt)} – ${formatDate(s.endsAt)} · ${sliceSource(s)}', style: secondary),
                           if (s.cancelNote case final note?) Text('İptal gerekçesi: $note', style: secondary),
                         ],
                       ),

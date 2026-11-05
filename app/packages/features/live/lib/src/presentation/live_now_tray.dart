@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -21,7 +22,7 @@ class LiveNowTray extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const GwSectionHeader(title: 'Şimdi canlı'),
+        GwSectionHeader(title: liveL10n.liveNow),
         SizedBox(
           height: GwAvatarSize.lg.dimension + GwSpacing.lg,
           child: ListView.separated(
@@ -33,7 +34,7 @@ class LiveNowTray extends ConsumerWidget {
               final b = live[i];
               return Semantics(
                 button: true,
-                label: '${b.group.name} canlı yayında: ${b.title}',
+                label: liveL10n.trayLabel(b.group.name, b.title),
                 excludeSemantics: true,
                 child: SizedBox(
                   width: _cardWidth,

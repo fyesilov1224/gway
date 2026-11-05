@@ -2,19 +2,20 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/moderation.dart';
+import '../l10n.dart';
 
 /// Trigger codes users can run into on their own writes (docs/ARCHITECTURE.md §3e).
-const _rules = {
-  'report_rate_limited': 'Bugün çok fazla şikayet gönderdin. Yarın tekrar deneyebilirsin.',
-  'report_target_invalid': 'Bu içerik artık yok ya da göremiyorsun.',
-  'report_self': 'Kendini ya da kendi içeriğini şikayet edemezsin.',
-  'appeal_not_allowed': 'Bu yaptırıma artık itiraz edilemez.',
-};
+Map<String, String> get _rules => {
+      'report_rate_limited': moderationL10n.ruleRateLimited,
+      'report_target_invalid': moderationL10n.ruleTargetInvalid,
+      'report_self': moderationL10n.ruleSelf,
+      'appeal_not_allowed': moderationL10n.ruleAppealNotAllowed,
+    };
 
 Failure _failure(Object error) => switch (error) {
       Failure() => error,
       PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) => RuleFailure('moderation.$message', _rules[message]!),
-      PostgrestException(code: '23505') => const RuleFailure('moderation.duplicate', 'Bunu zaten bildirdin; inceleniyor.'),
+      PostgrestException(code: '23505') => RuleFailure('moderation.duplicate', moderationL10n.ruleDuplicate),
       _ => failureFromSupabase(error),
     };
 
@@ -52,7 +53,7 @@ class ModerationRepositoryImpl implements ModerationRepository {
 
   /// Deleted accounts keep their place in the history without a profile.
   ModerationPerson _someone(Object? json) =>
-      _person(json) ?? const ModerationPerson(id: '', username: '', displayName: 'Silinmiş hesap');
+      _person(json) ?? ModerationPerson(id: '', username: '', displayName: moderationL10n.deletedAccount);
 
   Appeal? _appeal(Object? json) {
     if (json is! Map) return null;

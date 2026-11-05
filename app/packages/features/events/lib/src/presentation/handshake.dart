@@ -11,6 +11,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../domain/events.dart';
 import '../domain/handshakes.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -36,15 +37,15 @@ class HandshakeEntry extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('El sıkış', style: textTheme.titleSmall),
-                Text('Tanıştığın kişiyle kodlarınızı okutun; ikinizin de "Tanıştıklarım" listesine eklenir.',
+                Text(eventsL10n.handshake, style: textTheme.titleSmall),
+                Text(eventsL10n.handshakeHint,
                     style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
           const SizedBox(width: GwSpacing.xs),
           GwButton(
-            label: 'Aç',
+            label: eventsL10n.open,
             variant: GwButtonVariant.secondary,
             onPressed: () => context.push(EventRoutes.handshake(event.id), extra: event.title),
           ),
@@ -70,8 +71,8 @@ class HandshakeScreen extends StatelessWidget {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(eventTitle == null ? 'El sıkış' : 'El sıkış · $eventTitle', maxLines: 1, overflow: TextOverflow.ellipsis),
-            bottom: const TabBar(tabs: [Tab(text: 'Kodum'), Tab(text: 'Okut')]),
+            title: Text(eventTitle == null ? eventsL10n.handshake : eventsL10n.handshakeAt(eventTitle!), maxLines: 1, overflow: TextOverflow.ellipsis),
+            bottom: TabBar(tabs: [Tab(text: eventsL10n.myCode), Tab(text: eventsL10n.scan)]),
           ),
           body: TabBarView(children: [_MyCode(eventId: eventId), _Scan(eventId: eventId)]),
         ),
@@ -148,7 +149,7 @@ class _MyCodeState extends ConsumerState<_MyCode> {
               size: GwLayout.storyCardWidth * 0.7,
               eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: GwColors.textPrimary),
               dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: GwColors.textPrimary),
-              semanticsLabel: 'El sıkış kodun',
+              semanticsLabel: eventsL10n.yourHandshakeCode,
             ),
           ),
         ),
@@ -156,8 +157,7 @@ class _MyCodeState extends ConsumerState<_MyCode> {
         Center(child: SelectableText(code.spaced, style: textTheme.headlineMedium?.copyWith(letterSpacing: GwSpacing.xxs))),
         const SizedBox(height: GwSpacing.xs),
         Text(
-          'Karşındaki bu kodu "Okut" sekmesinden okutsun ya da yazsın. Kod birkaç dakikada bir kendiliğinden yenilenir; '
-          'fotoğrafı sonradan işe yaramaz.',
+          eventsL10n.codeHint,
           textAlign: TextAlign.center,
           style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
         ),
@@ -230,7 +230,7 @@ class _ScanState extends ConsumerState<_Scan> {
                     child: Padding(
                       padding: const EdgeInsets.all(GwSpacing.lg),
                       child: Text(
-                        'Kamera açılamadı. Kamera iznini ayarlardan verebilir ya da kodu aşağıya yazabilirsin.',
+                        eventsL10n.cameraFailed,
                         textAlign: TextAlign.center,
                         style: textTheme.bodyMedium,
                       ),
@@ -241,9 +241,9 @@ class _ScanState extends ConsumerState<_Scan> {
             ),
           ),
           const SizedBox(height: GwSpacing.md),
-          Text('Karşındakinin QR kodunu kameraya göster ya da kodunu yaz.', style: textTheme.bodyMedium),
+          Text(eventsL10n.scanHint, style: textTheme.bodyMedium),
         ] else
-          Text('Karşındakinin ekranındaki 6 haneli kodu yaz.', style: textTheme.bodyMedium),
+          Text(eventsL10n.typeCodeHint, style: textTheme.bodyMedium),
         const SizedBox(height: GwSpacing.sm),
         TextField(
           controller: _typed,
@@ -251,9 +251,9 @@ class _ScanState extends ConsumerState<_Scan> {
           textInputAction: TextInputAction.done,
           maxLength: 7,
           onSubmitted: _shake,
-          decoration: const InputDecoration(labelText: 'Kod', hintText: 'ABC 234'),
+          decoration: InputDecoration(labelText: eventsL10n.code, hintText: 'ABC 234'),
         ),
-        GwButton(label: 'El sıkış', icon: Icons.handshake_outlined, isLoading: _busy, onPressed: () => _shake(_typed.text)),
+        GwButton(label: eventsL10n.handshake, icon: Icons.handshake_outlined, isLoading: _busy, onPressed: () => _shake(_typed.text)),
       ],
     );
   }
@@ -275,12 +275,12 @@ class _MetDialog extends StatelessWidget {
         children: [
           GwAvatar(name: p.displayName, shape: GwAvatarShape.user, size: GwAvatarSize.lg, imageUrl: p.avatarUrl),
           const SizedBox(height: GwSpacing.sm),
-          Text(result.alreadyMet ? 'Zaten tanışıyorsunuz' : 'Tanıştınız!', style: textTheme.titleLarge),
+          Text(result.alreadyMet ? eventsL10n.alreadyMet : eventsL10n.metNow, style: textTheme.titleLarge),
           const SizedBox(height: GwSpacing.xxs),
-          Text('${p.displayName} (@${p.username})', textAlign: TextAlign.center, style: textTheme.bodyLarge),
+          Text(eventsL10n.personWithUsername(p.displayName, atName(p.username)), textAlign: TextAlign.center, style: textTheme.bodyLarge),
         ],
       ),
-      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Tamam'))],
+      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(eventsL10n.ok))],
     );
   }
 }
@@ -293,18 +293,18 @@ class MetPeopleScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Tanıştıklarım')),
+      appBar: AppBar(title: Text(eventsL10n.metPeople)),
       body: switch (ref.watch(metPeopleProvider)) {
         AsyncData(:final value) when value.isEmpty => GwEmptyState(
             icon: Icons.handshake_outlined,
-            message: 'Bir organizasyonda biriyle el sıkıştığında burada görünür. El sıkış, organizasyon sayfasında açılır.',
-            actionLabel: 'Takvimime git',
+            message: eventsL10n.metEmpty,
+            actionLabel: eventsL10n.goToCalendar,
             onAction: () => context.go(EventRoutes.calendar),
           ),
         AsyncData(:final value) => ListView(
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
-              Text('Yalnızca sen görürsün. Profilinde yalnızca el sıkış sayın görünür.',
+              Text(eventsL10n.metPrivacy,
                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
               const SizedBox(height: GwSpacing.sm),
               GwPanel(
@@ -316,7 +316,7 @@ class MetPeopleScreen extends ConsumerWidget {
                       ListTile(
                         leading: GwAvatar(name: m.person.displayName, shape: GwAvatarShape.user, imageUrl: m.person.avatarUrl),
                         title: Text(m.person.displayName),
-                        subtitle: Text('@${m.person.username} · ${m.eventTitle} · ${formatDateTr(m.eventStartsAt.toLocal())}',
+                        subtitle: Text(eventsL10n.metRow(atName(m.person.username), m.eventTitle, formatDate(m.eventStartsAt.toLocal())),
                             maxLines: 2, overflow: TextOverflow.ellipsis),
                         onTap: () => context.push(EventRoutes.event(m.eventId)),
                       ),

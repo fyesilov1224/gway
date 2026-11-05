@@ -140,7 +140,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 6. **C#'ta hatalar `Result` ile döner** ve ProblemDetails'e çevrilir. Exception yalnızca beklenmeyen durumlar içindir.
 7. **Flutter'da** her feature içinde `data / domain / presentation` katmanları bulunur. Repository'ler `Result<T>` döner. Ekranlara ham hata metni gösterilmez.
 8. **Kural değişecekse önce `docs/ARCHITECTURE.md` güncellenir, sonra kod yazılır.**
-9. Arayüz metinleri **Türkçe**dir. Kod, değişken ve dosya adları İngilizcedir.
+9. Arayüz metinleri ARB dosyalarındadır (Faz 19, `docs/ARCHITECTURE.md` §11): kaynak dil **Türkçe**, aynı değişiklikte 11 dile daha eklenir; koda metin yazılmaz. Yönetim paneli Türkçedir. Kod, değişken ve dosya adları İngilizcedir.
 10. Bir işi bitirince ne yaptığını kısaca özetle ve bir sonraki adımı öner. Emin olmadığın ürün kararlarını tahmin etme; kullanıcıya sor.
 
 ---
@@ -175,6 +175,7 @@ core, identity, profile, groups, billing, support, feed, notifications, events, 
 | 15.11 | Birebir sesli görüşme: eşleşen kişiler ve ekip arkadaşları (2026-11-02) sohbetten arar, yetkiyi platform ekibi açar, görüşme kaydedilmez (kullanıcı isteği) | ✅ Canlı (2026-11-01, `main`'e birleştirildi): bulut 0072'ye kadar, API, web ve panel yayında; mobil 1.0.0+7 Play kapalı testte (2026-11-02); telefonda uçtan uca deneme bekleniyor |
 | 15.12 | Grup yöneticisine yetkiler: sesli görüşme yetkisini grup sahibi ve Yönetici verir (admin panelinden kaldırıldı), oylamasız süreli ya da kalıcı ban, yasa dışı işaretliyse hesap askısı ve platform bildirimi (kullanıcı isteği) | ✅ Canlı (2026-11-03, `main`'e birleştirildi): bulut 0074'e kadar, API, web ve panel yayında; mobil sürüm bekliyor |
 | 18 | Topluluk büyümesi: karşılama, gruplar ligi, yılın özeti, keşif haritası, el sıkış, eve vardım, bu akşam boşum, sürpriz organizasyon, yoldan canlı, iyilik saatleri (kullanıcı isteği) | Sürüyor (dal `gelistirme/topluluk-buyumesi`): 18a karşılama ve 18b gruplar ligi kodu bitti (2026-10-28); 18j davet bağlantısı ve paylaşım sayfaları ile hoş geldin denemesi, 18k tekrarlayan organizasyon, 18l "Geliyor musun?" teyidi, 18c yılın özeti ve "Ben de oradaydım" kartı, 18m harita zaman ve mesafe filtresi kodu bitti (2026-10-29); 18g bu akşam boşum ve küçük masa kodu bitti (2026-10-30); 18h sürpriz organizasyon, 18d keşif haritam ve 18e el sıkış kodu bitti (2026-10-31); kalan 18f, 18i, İyilik Saatleri, 18n ve 18o kullanıcı kararıyla duraklatıldı (2026-10-31: "şimdilik bu kadar özellik yeter"); kullanıcı istemeden yeni özelliğe başlanmaz |
+| 19 | Çok dillilik: 12 dil, Ayarlar'dan dil seçimi, sözleşme çevirileri (bilgi amaçlı), sunucu metinleri (kullanıcı isteği) | ✅ Kod bitti (2026-11-05, dal `gelistirme/cok-dilli`): 19a–19h. Bulutta açmak için migration 0079–0081, `supabase config push` (e-posta şablonları), API ve web yayını bekleniyor |
 | 16 | Yapay zekâ asistanı: yalnızca maliyet ve gizlilik değerlendirmesi | |
 | 17 | Yayına hazırlık: karanlık tema, performans, güvenlik testi, analitik, mağaza | Sürüyor (dal `gelistirme/play-yayin`): 17a Google Play hazırlığı (kullanıcı isteği, 2026-10-27) |
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'event_screens.dart';
 import 'providers.dart';
 
@@ -54,7 +55,7 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Geçmiş organizasyonlar')),
+      appBar: AppBar(title: Text(eventsL10n.pastEvents)),
       body: GwReadingColumn(
         child: switch ((_events.isEmpty, _loading, _error)) {
           (true, true, _) => const Padding(
@@ -68,8 +69,8 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
           (true, false, final Failure failure) => GwErrorState(message: failure.userMessage, onRetry: () => _load(refresh: true)),
           (true, false, null) => GwEmptyState(
               icon: Icons.history,
-              message: 'Bu grubun henüz geçmiş bir organizasyonu yok.',
-              actionLabel: 'Yenile',
+              message: eventsL10n.noPastEvents,
+              actionLabel: eventsL10n.refresh,
               onAction: () => _load(refresh: true),
             ),
           _ => RefreshIndicator(
@@ -81,7 +82,7 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
                     EventCard(event: e),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.xxs, GwSpacing.sm, GwSpacing.sm),
-                      child: Text(e.isCanceled ? 'İptal edildi' : eventSummary(e),
+                      child: Text(e.isCanceled ? eventsL10n.canceled : eventSummary(e),
                           style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                     ),
                   ],
@@ -89,7 +90,7 @@ class _EventHistoryScreenState extends ConsumerState<EventHistoryScreen> {
                     Center(
                       child: _loading
                           ? const Padding(padding: EdgeInsets.all(GwSpacing.md), child: CircularProgressIndicator())
-                          : TextButton(onPressed: _load, child: const Text('Daha eski organizasyonlar')),
+                          : TextButton(onPressed: _load, child: Text(eventsL10n.olderEvents)),
                     ),
                 ],
               ),

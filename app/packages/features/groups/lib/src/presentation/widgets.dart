@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -16,7 +17,7 @@ IconData joinPolicyIcon(JoinPolicy policy) => switch (policy) {
       JoinPolicy.invite => Icons.mail_outline,
     };
 
-String memberCountLabel(int count) => '$count üye';
+String memberCountLabel(int count) => groupsL10n.memberCount(count);
 
 /// Category names by slug, empty until loaded.
 Map<String, String> categoryNames(WidgetRef ref) =>
@@ -95,7 +96,7 @@ class GroupTile extends ConsumerWidget {
                   if (group.joinPolicy != JoinPolicy.open || group.isSuspended) ...[
                     const SizedBox(height: GwSpacing.xxs),
                     group.isSuspended
-                        ? const GwBadge('Askıda', tone: GwBadgeTone.danger, dot: true)
+                        ? GwBadge(groupsL10n.suspended, tone: GwBadgeTone.danger, dot: true)
                         : GroupMeta(icon: joinPolicyIcon(group.joinPolicy), text: group.joinPolicy.label),
                   ],
                 ],
@@ -165,15 +166,15 @@ class UserGroupsSection extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
-          child: Text('Gruplar', style: textTheme.titleLarge),
+          child: Text(groupsL10n.groups, style: textTheme.titleLarge),
         ),
         if (!groupsPublic)
           Padding(
             padding: const EdgeInsets.fromLTRB(GwSpacing.md, 0, GwSpacing.md, GwSpacing.xs),
             child: Text(
               isOwn
-                  ? 'Gruplarını yalnızca aynı gruptaki üyeler görür. Ayarlar\'dan herkese açabilirsin.'
-                  : 'Yalnızca ortak grupların ve yönetim ekibinde olduğu gruplar görünür.',
+                  ? groupsL10n.groupsOwnHint
+                  : groupsL10n.groupsOtherHint,
               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
           ),
@@ -183,12 +184,12 @@ class UserGroupsSection extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(isOwn ? 'Henüz bir gruba katılmadın.' : 'Gösterilecek grup yok.', style: secondary),
+                  Text(isOwn ? groupsL10n.notJoinedYet : groupsL10n.noGroupsToShow, style: secondary),
                   if (isOwn)
                     TextButton(
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       onPressed: () => context.go(GroupRoutes.discover),
-                      child: const Text('Grupları keşfet'),
+                      child: Text(groupsL10n.discoverGroups),
                     ),
                 ],
               ),
@@ -274,11 +275,11 @@ class HandleFieldState extends ConsumerState<HandleField> {
         _onChanged(v);
       },
       validator: (v) =>
-          GroupRules.validateHandle(v) ?? (_available == false ? 'Bu grup adresi alınmış. Başka bir tane dene.' : null),
+          GroupRules.validateHandle(v) ?? (_available == false ? groupsL10n.handleTaken : null),
       decoration: InputDecoration(
-        labelText: 'Grup adresi',
+        labelText: groupsL10n.groupAddress,
         prefixText: 'gway.app/g/',
-        helperText: 'Grup sayfanın adresi. Sonradan değiştirilemez.',
+        helperText: groupsL10n.groupAddressHint,
         helperMaxLines: 2,
         counterText: '',
         suffixIcon: _checking
@@ -287,8 +288,8 @@ class HandleFieldState extends ConsumerState<HandleField> {
                 child: SizedBox.square(dimension: GwSpacing.md, child: CircularProgressIndicator(strokeWidth: 2)),
               )
             : switch (_available) {
-                true => const Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: 'Kullanılabilir'),
-                false => const Icon(Icons.cancel, color: GwColors.error, semanticLabel: 'Alınmış'),
+                true => Icon(Icons.check_circle, color: GwColors.primary, semanticLabel: groupsL10n.available),
+                false => Icon(Icons.cancel, color: GwColors.error, semanticLabel: groupsL10n.taken),
                 null => null,
               },
       ),
@@ -309,13 +310,13 @@ class ProvinceField extends StatelessWidget {
         initialValue: value,
         isExpanded: true,
         items: [
-          const DropdownMenuItem<int?>(child: Text('Belirtilmedi')),
+          DropdownMenuItem<int?>(child: Text(groupsL10n.notSpecified)),
           for (var i = 0; i < turkishProvinces.length; i++) DropdownMenuItem<int?>(value: i + 1, child: Text(turkishProvinces[i])),
         ],
         onChanged: onChanged,
-        decoration: const InputDecoration(
-          labelText: 'İl (isteğe bağlı)',
-          helperText: 'Grup haritada bu ilde görünür.',
+        decoration: InputDecoration(
+          labelText: groupsL10n.provinceOptional,
+          helperText: groupsL10n.provinceHint,
         ),
       );
 }
@@ -346,8 +347,8 @@ class CategoryField extends ConsumerWidget {
           ),
       ],
       onChanged: onChanged,
-      validator: (v) => v == null ? 'Bir kategori seç.' : null,
-      decoration: const InputDecoration(labelText: 'Kategori'),
+      validator: (v) => v == null ? groupsL10n.chooseCategory : null,
+      decoration: InputDecoration(labelText: groupsL10n.category),
     );
   }
 }
@@ -420,7 +421,7 @@ Future<bool> confirmAction(
         title: Text(title),
         content: Text(message),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: groupsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
           GwButton(label: confirmLabel, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),

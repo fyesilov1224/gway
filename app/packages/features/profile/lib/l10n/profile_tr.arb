@@ -1,0 +1,1134 @@
+{
+  "@@locale": "tr",
+  "unsupportedImage": "Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.",
+  "@unsupportedImage": {
+    "description": ""
+  },
+  "usernameTaken": "Bu kullanıcı adı alınmış. Başka bir tane dene.",
+  "@usernameTaken": {
+    "description": ""
+  },
+  "checkInput": "Girdiğin bilgileri kontrol et.",
+  "@checkInput": {
+    "description": ""
+  },
+  "usernameReserved": "Bu kullanıcı adı kullanılamaz. Başka bir tane dene.",
+  "@usernameReserved": {
+    "description": ""
+  },
+  "usernameCooldown": "Kullanıcı adını 30 günde yalnızca bir kez değiştirebilirsin.",
+  "@usernameCooldown": {
+    "description": ""
+  },
+  "maxInterests10": "En fazla 10 ilgi alanı seçebilirsin.",
+  "@maxInterests10": {
+    "description": ""
+  },
+  "levelBeginner": "Başlangıç",
+  "@levelBeginner": {
+    "description": ""
+  },
+  "levelBeginnerHint": "Yeni başlıyorum",
+  "@levelBeginnerHint": {
+    "description": ""
+  },
+  "levelIntermediate": "Orta",
+  "@levelIntermediate": {
+    "description": ""
+  },
+  "levelIntermediateHint": "Düzenli yapıyorum",
+  "@levelIntermediateHint": {
+    "description": ""
+  },
+  "levelAdvanced": "İleri",
+  "@levelAdvanced": {
+    "description": ""
+  },
+  "levelAdvancedHint": "Deneyimliyim",
+  "@levelAdvancedHint": {
+    "description": ""
+  },
+  "slotWeekdayMorning": "Hafta içi sabah",
+  "@slotWeekdayMorning": {
+    "description": ""
+  },
+  "slotWeekdayNoon": "Hafta içi öğle",
+  "@slotWeekdayNoon": {
+    "description": ""
+  },
+  "slotWeekdayEvening": "Hafta içi akşam",
+  "@slotWeekdayEvening": {
+    "description": ""
+  },
+  "slotWeekendMorning": "Hafta sonu sabah",
+  "@slotWeekendMorning": {
+    "description": ""
+  },
+  "slotWeekendAfternoon": "Hafta sonu öğleden sonra",
+  "@slotWeekendAfternoon": {
+    "description": ""
+  },
+  "slotWeekendEvening": "Hafta sonu akşam",
+  "@slotWeekendEvening": {
+    "description": ""
+  },
+  "partMorning": "Sabah",
+  "@partMorning": {
+    "description": ""
+  },
+  "partNoon": "Öğle",
+  "@partNoon": {
+    "description": ""
+  },
+  "partEvening": "Akşam",
+  "@partEvening": {
+    "description": ""
+  },
+  "goalFun": "Eğlenmek",
+  "@goalFun": {
+    "description": ""
+  },
+  "goalFitness": "Formda kalmak",
+  "@goalFitness": {
+    "description": ""
+  },
+  "goalCompetition": "Yarışmaya hazırlanmak",
+  "@goalCompetition": {
+    "description": ""
+  },
+  "goalLearning": "Yeni şeyler öğrenmek",
+  "@goalLearning": {
+    "description": ""
+  },
+  "goalMentoring": "Deneyimimi paylaşmak",
+  "@goalMentoring": {
+    "description": ""
+  },
+  "goalSocial": "Yeni insanlarla tanışmak",
+  "@goalSocial": {
+    "description": ""
+  },
+  "freqMonthly": "Ayda birkaç kez",
+  "@freqMonthly": {
+    "description": ""
+  },
+  "freqWeekly": "Haftada bir",
+  "@freqWeekly": {
+    "description": ""
+  },
+  "freqFewWeekly": "Haftada 2–3",
+  "@freqFewWeekly": {
+    "description": ""
+  },
+  "freqDaily": "Neredeyse her gün",
+  "@freqDaily": {
+    "description": ""
+  },
+  "sizePair": "Birebir",
+  "@sizePair": {
+    "description": ""
+  },
+  "sizeSmall": "Küçük grup (3–6)",
+  "@sizeSmall": {
+    "description": ""
+  },
+  "sizeLarge": "Kalabalık grup",
+  "@sizeLarge": {
+    "description": ""
+  },
+  "looking": "Ekip arıyor",
+  "@looking": {
+    "description": ""
+  },
+  "lookingWithLevel": "Ekip arıyor · {level} seviye",
+  "@lookingWithLevel": {
+    "description": "",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonActivities": "Aynı aktivite: {list}",
+  "@reasonActivities": {
+    "description": "",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInterests": "Ortak ilgi: {list}",
+  "@reasonInterests": {
+    "description": "",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonProvince": "Aynı ildesiniz",
+  "@reasonProvince": {
+    "description": ""
+  },
+  "reasonGroup": "Ortak grup: {group}",
+  "@reasonGroup": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonGroups": "{count} ortak grup",
+  "@reasonGroups": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonLevel": "Aynı seviye: {level}",
+  "@reasonLevel": {
+    "description": "",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonTimes": "Uygun zaman: {list}",
+  "@reasonTimes": {
+    "description": "",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonGoals": "Ortak hedef: {list}",
+  "@reasonGoals": {
+    "description": "",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonFrequency": "Aynı sıklıkta buluşmak istiyorsunuz",
+  "@reasonFrequency": {
+    "description": ""
+  },
+  "hasVehicle": "Aracı var",
+  "@hasVehicle": {
+    "description": ""
+  },
+  "hasEquipment": "Kendi ekipmanı var",
+  "@hasEquipment": {
+    "description": ""
+  },
+  "usernameRequired": "Bir kullanıcı adı seç.",
+  "@usernameRequired": {
+    "description": ""
+  },
+  "usernameMin": "Kullanıcı adı en az {min} karakter olmalı.",
+  "@usernameMin": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "usernameMax": "Kullanıcı adı en fazla {max} karakter olabilir.",
+  "@usernameMax": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "usernameChars": "Yalnızca a-z, 0-9, alt çizgi (_) ve nokta (.) kullanabilirsin.",
+  "@usernameChars": {
+    "description": ""
+  },
+  "usernameDots": "Kullanıcı adı nokta ile başlayamaz veya bitemez.",
+  "@usernameDots": {
+    "description": ""
+  },
+  "usernameDoubleDot": "Art arda iki nokta kullanılamaz.",
+  "@usernameDoubleDot": {
+    "description": ""
+  },
+  "nameRequired": "Adını gir.",
+  "@nameRequired": {
+    "description": ""
+  },
+  "nameMax": "Ad en fazla {max} karakter olabilir.",
+  "@nameMax": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "editProfile": "Profili düzenle",
+  "@editProfile": {
+    "description": ""
+  },
+  "save": "Kaydet",
+  "@save": {
+    "description": ""
+  },
+  "profileInfo": "Profil bilgileri",
+  "@profileInfo": {
+    "description": ""
+  },
+  "profileInfoHint": "Bu bilgiler profilinde herkese görünür.",
+  "@profileInfoHint": {
+    "description": ""
+  },
+  "yourName": "Adın",
+  "@yourName": {
+    "description": ""
+  },
+  "usernameEvery30": "Kullanıcı adını 30 günde bir değiştirebilirsin.",
+  "@usernameEvery30": {
+    "description": ""
+  },
+  "usernameLockedUntil": "{date} tarihinden sonra değiştirebilirsin.",
+  "@usernameLockedUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "about": "Hakkında",
+  "@about": {
+    "description": ""
+  },
+  "aboutHint": "Kendinden, sevdiğin aktivitelerden bahset.",
+  "@aboutHint": {
+    "description": ""
+  },
+  "interests": "İlgi alanları",
+  "@interests": {
+    "description": ""
+  },
+  "interestsMax": "En fazla {max} tane seçebilirsin.",
+  "@interestsMax": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "saveChanges": "Değişiklikleri kaydet",
+  "@saveChanges": {
+    "description": ""
+  },
+  "remove": "Kaldır",
+  "@remove": {
+    "description": ""
+  },
+  "removeCover": "Kapak fotoğrafını kaldır",
+  "@removeCover": {
+    "description": ""
+  },
+  "addCover": "Kapak ekle",
+  "@addCover": {
+    "description": ""
+  },
+  "changeCover": "Kapağı değiştir",
+  "@changeCover": {
+    "description": ""
+  },
+  "changeAvatar": "Profil fotoğrafını değiştir",
+  "@changeAvatar": {
+    "description": ""
+  },
+  "photos": "Profil ve kapak fotoğrafı",
+  "@photos": {
+    "description": ""
+  },
+  "photosHint": "JPEG, PNG veya WebP · en fazla 5 MB",
+  "@photosHint": {
+    "description": ""
+  },
+  "addAvatar": "Profil fotoğrafı ekle",
+  "@addAvatar": {
+    "description": ""
+  },
+  "removeAvatar": "Profil fotoğrafını kaldır",
+  "@removeAvatar": {
+    "description": ""
+  },
+  "followers": "Takipçiler",
+  "@followers": {
+    "description": ""
+  },
+  "following": "Takip edilenler",
+  "@following": {
+    "description": ""
+  },
+  "privateLists": "Bu hesap gizli. Listelerini görmek için hesabı takip etmelisin.",
+  "@privateLists": {
+    "description": ""
+  },
+  "backToProfile": "Profile dön",
+  "@backToProfile": {
+    "description": ""
+  },
+  "noFollowers": "Henüz takipçi yok.",
+  "@noFollowers": {
+    "description": ""
+  },
+  "noFollowing": "Henüz kimse takip edilmiyor.",
+  "@noFollowing": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "removeFollower": "Takipçiyi çıkar",
+  "@removeFollower": {
+    "description": ""
+  },
+  "removeFollowerBody": "{username} takipçilerinden çıkarılsın mı? Bu kişiye bildirilmez.",
+  "@removeFollowerBody": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "removeAction": "Çıkar",
+  "@removeAction": {
+    "description": ""
+  },
+  "friends": "Arkadaşsınız",
+  "@friends": {
+    "description": ""
+  },
+  "followRequests": "Takip istekleri",
+  "@followRequests": {
+    "description": ""
+  },
+  "noFollowRequests": "Bekleyen takip isteğin yok. Gizli hesaplar istekleri burada onaylar.",
+  "@noFollowRequests": {
+    "description": ""
+  },
+  "approve": "Onayla",
+  "@approve": {
+    "description": ""
+  },
+  "delete": "Sil",
+  "@delete": {
+    "description": ""
+  },
+  "blockedAccounts": "Engellenen hesaplar",
+  "@blockedAccounts": {
+    "description": ""
+  },
+  "noBlocked": "Engellediğin bir hesap yok. Bir profilin menüsünden engelleyebilirsin.",
+  "@noBlocked": {
+    "description": ""
+  },
+  "unblock": "Engeli kaldır",
+  "@unblock": {
+    "description": ""
+  },
+  "onboardWho": "Seni tanıyalım",
+  "@onboardWho": {
+    "description": ""
+  },
+  "onboardWhoHint": "Profilinde görünecek adını ve kullanıcı adını seç.",
+  "@onboardWhoHint": {
+    "description": ""
+  },
+  "onboardPhoto": "Profil fotoğrafı",
+  "@onboardPhoto": {
+    "description": ""
+  },
+  "onboardPhotoHint": "Grupların seni tanısın. İstersen sonra da ekleyebilirsin.",
+  "@onboardPhotoHint": {
+    "description": ""
+  },
+  "onboardInterests": "İlgi alanların",
+  "@onboardInterests": {
+    "description": ""
+  },
+  "onboardInterestsHint": "Sana uygun grupları önerebilmemiz için en fazla {max} tane seç.",
+  "@onboardInterestsHint": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "back": "Geri",
+  "@back": {
+    "description": ""
+  },
+  "stepOf": "Adım {step} / {total}",
+  "@stepOf": {
+    "description": "",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "signOut": "Çıkış yap",
+  "@signOut": {
+    "description": ""
+  },
+  "skipForNow": "Şimdilik atla",
+  "@skipForNow": {
+    "description": ""
+  },
+  "continueAction": "Devam et",
+  "@continueAction": {
+    "description": ""
+  },
+  "finish": "Bitir",
+  "@finish": {
+    "description": ""
+  },
+  "usernameHelper": "Küçük harf, rakam, _ ve . kullanabilirsin.",
+  "@usernameHelper": {
+    "description": ""
+  },
+  "avatarPreview": "Profil fotoğrafı önizlemesi",
+  "@avatarPreview": {
+    "description": ""
+  },
+  "choosePhoto": "Fotoğraf seç",
+  "@choosePhoto": {
+    "description": ""
+  },
+  "chooseAnotherPhoto": "Başka fotoğraf seç",
+  "@chooseAnotherPhoto": {
+    "description": ""
+  },
+  "profile": "Profil",
+  "@profile": {
+    "description": ""
+  },
+  "settings": "Ayarlar",
+  "@settings": {
+    "description": ""
+  },
+  "profileNotFound": "Bu profil bulunamadı ya da artık görünür değil.",
+  "@profileNotFound": {
+    "description": ""
+  },
+  "backToMyProfile": "Profilime dön",
+  "@backToMyProfile": {
+    "description": ""
+  },
+  "suspendedUntil": "Bu hesap {date} tarihine kadar askıya alındı.",
+  "@suspendedUntil": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followsYou": "Seni takip ediyor",
+  "@followsYou": {
+    "description": ""
+  },
+  "yourTeammate": "Ekip arkadaşın",
+  "@yourTeammate": {
+    "description": ""
+  },
+  "joined": "Katılım: {date}",
+  "@joined": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followRequestsPending": "{count} takip isteği onay bekliyor.",
+  "@followRequestsPending": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "review": "İncele",
+  "@review": {
+    "description": ""
+  },
+  "teammateRequestsPending": "{count} ekip arkadaşlığı isteği seni bekliyor.",
+  "@teammateRequestsPending": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "youBlocked": "Bu hesabı engelledin",
+  "@youBlocked": {
+    "description": ""
+  },
+  "youBlockedHint": "Engeli kaldırırsan birbirinizin paylaşımlarını yeniden görebilirsiniz.",
+  "@youBlockedHint": {
+    "description": ""
+  },
+  "privateAccount": "Bu hesap gizli",
+  "@privateAccount": {
+    "description": ""
+  },
+  "privateAccountHint": "Fotoğraflarını, videolarını ve hikayelerini görmek için bu hesabı takip et.",
+  "@privateAccountHint": {
+    "description": ""
+  },
+  "addInterestsNudge": "İlgi alanlarını ekle, sana uygun grupları ve ekip arkadaşlarını bulalım.",
+  "@addInterestsNudge": {
+    "description": ""
+  },
+  "add": "Ekle",
+  "@add": {
+    "description": ""
+  },
+  "blockTitle": "{username} engellensin mi?",
+  "@blockTitle": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "blockBody": "Profilini, gönderilerini ve hikayelerini göremez, seni bulamaz ve sana yazamaz. Takipleşmeniz sona erer. Engellediğin bildirilmez.",
+  "@blockBody": {
+    "description": ""
+  },
+  "block": "Engelle",
+  "@block": {
+    "description": ""
+  },
+  "becomeTeammates": "Ekip arkadaşı ol",
+  "@becomeTeammates": {
+    "description": ""
+  },
+  "nowTeammates": "{name} ile artık ekip arkadaşısınız.",
+  "@nowTeammates": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptTeammate": "Ekip arkadaşlığı isteğini kabul et",
+  "@acceptTeammate": {
+    "description": ""
+  },
+  "requestWithdrawn": "İstek geri çekildi.",
+  "@requestWithdrawn": {
+    "description": ""
+  },
+  "withdrawTeammate": "Ekip arkadaşlığı isteğini geri çek",
+  "@withdrawTeammate": {
+    "description": ""
+  },
+  "teammateEnded": "Ekip arkadaşlığı bitti.",
+  "@teammateEnded": {
+    "description": ""
+  },
+  "endTeammate": "Ekip arkadaşlığını bitir",
+  "@endTeammate": {
+    "description": ""
+  },
+  "moreOptions": "Diğer seçenekler",
+  "@moreOptions": {
+    "description": ""
+  },
+  "linkCopied": "Profil bağlantısı kopyalandı.",
+  "@linkCopied": {
+    "description": ""
+  },
+  "copyLink": "Profil bağlantısını kopyala",
+  "@copyLink": {
+    "description": ""
+  },
+  "removedFromFollowers": "Takipçilerinden çıkarıldı.",
+  "@removedFromFollowers": {
+    "description": ""
+  },
+  "removeFromFollowers": "Takipçilerimden çıkar",
+  "@removeFromFollowers": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  },
+  "unblocked": "Engel kaldırıldı.",
+  "@unblocked": {
+    "description": ""
+  },
+  "statPosts": "Gönderi",
+  "@statPosts": {
+    "description": ""
+  },
+  "statFollowers": "Takipçi",
+  "@statFollowers": {
+    "description": ""
+  },
+  "statFollowing": "Takip",
+  "@statFollowing": {
+    "description": ""
+  },
+  "withdrawFollowBody": "{username} için gönderdiğin takip isteğini geri almak istiyor musun?",
+  "@withdrawFollowBody": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "unfollowBody": "{username} takibini bırakmak istiyor musun?",
+  "@unfollowBody": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "unfollowPrivateBody": "{username} takibini bırakmak istiyor musun? Hesap gizli olduğu için gönderilerini görmek için yeniden istek göndermen gerekir.",
+  "@unfollowPrivateBody": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "withdrawRequest": "İsteği geri al",
+  "@withdrawRequest": {
+    "description": ""
+  },
+  "unfollow": "Takibi bırak",
+  "@unfollow": {
+    "description": ""
+  },
+  "followBack": "Geri takip et",
+  "@followBack": {
+    "description": ""
+  },
+  "follow": "Takip et",
+  "@follow": {
+    "description": ""
+  },
+  "requestSent": "İstek gönderildi",
+  "@requestSent": {
+    "description": ""
+  },
+  "followingState": "Takiptesin",
+  "@followingState": {
+    "description": ""
+  },
+  "noAccountMatch": "\"{query}\" ile eşleşen bir hesap bulunamadı.",
+  "@noAccountMatch": {
+    "description": "",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "clearSearch": "Aramayı temizle",
+  "@clearSearch": {
+    "description": ""
+  },
+  "searchHint": "Kişi ya da etiket aramak için yazmaya başla.",
+  "@searchHint": {
+    "description": ""
+  },
+  "refreshSuggestions": "Önerileri yenile",
+  "@refreshSuggestions": {
+    "description": ""
+  },
+  "suggestionsForYou": "Senin için öneriler",
+  "@suggestionsForYou": {
+    "description": ""
+  },
+  "mutualFollows": "Takip ettiğin {count} kişi takip ediyor",
+  "@mutualFollows": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "popularAccount": "Popüler hesap",
+  "@popularAccount": {
+    "description": ""
+  },
+  "seePackage": "Paketi incele",
+  "@seePackage": {
+    "description": ""
+  },
+  "requestSentNotify": "İstek gönderildi. {name} kabul edince haber vereceğiz.",
+  "@requestSentNotify": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "becomeTeammatesWith": "{name} ile ekip arkadaşı ol",
+  "@becomeTeammatesWith": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shortMessage": "Kısa bir mesaj (isteğe bağlı)",
+  "@shortMessage": {
+    "description": ""
+  },
+  "shortMessageHint": "Cumartesi sabahı Belgrad Ormanı?",
+  "@shortMessageHint": {
+    "description": ""
+  },
+  "sendRequest": "İstek gönder",
+  "@sendRequest": {
+    "description": ""
+  },
+  "findTeammates": "Ekip arkadaşı bul",
+  "@findTeammates": {
+    "description": ""
+  },
+  "myTeammatePrefs": "Ekip arkadaşı tercihlerim",
+  "@myTeammatePrefs": {
+    "description": ""
+  },
+  "tabSuggestions": "Öneriler",
+  "@tabSuggestions": {
+    "description": ""
+  },
+  "tabRequests": "İstekler",
+  "@tabRequests": {
+    "description": ""
+  },
+  "tabRequestsCount": "İstekler ({count})",
+  "@tabRequestsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tabMyTeam": "Ekibim",
+  "@tabMyTeam": {
+    "description": ""
+  },
+  "findYourTeammate": "Ekip arkadaşını bul",
+  "@findYourTeammate": {
+    "description": ""
+  },
+  "waitingForYou": "{count} kişi seninle ekip arkadaşı olmak istiyor",
+  "@waitingForYou": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teammatesLocked": "Önerileri görmek, istek gönderip kabul etmek ve ekip arkadaşlarınla yazışmak Ekip Arkadaşı paketiyle açılır.",
+  "@teammatesLocked": {
+    "description": ""
+  },
+  "beVisible": "Sen de görün",
+  "@beVisible": {
+    "description": ""
+  },
+  "beVisibleBody": "\"Ekip arıyorum\"u açarsan seninle aynı şeyleri sevenler sana istek gönderebilir.",
+  "@beVisibleBody": {
+    "description": ""
+  },
+  "setPrefs": "Tercihlerimi ayarla",
+  "@setPrefs": {
+    "description": ""
+  },
+  "nowPublicSuggest": "Hesabın artık herkese açık; önerilerde görünebilirsin.",
+  "@nowPublicSuggest": {
+    "description": ""
+  },
+  "privateHidden": "Hesabın gizli, önerilerde görünmüyorsun",
+  "@privateHidden": {
+    "description": ""
+  },
+  "privateHiddenBody": "Gizli hesaplar ekip arkadaşı önerilerinde çıkmaz. Hesabını herkese açarsan bekleyen takip istekleri de onaylanır.",
+  "@privateHiddenBody": {
+    "description": ""
+  },
+  "makePublic": "Hesabımı herkese aç",
+  "@makePublic": {
+    "description": ""
+  },
+  "noSuggestions": "Şimdilik sana uyan biri yok. İlgi alanlarını ve tercihlerini doldurursan öneriler artar.",
+  "@noSuggestions": {
+    "description": ""
+  },
+  "quoted": "\"{text}\"",
+  "@quoted": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "whySuggested": "Neden önerildi",
+  "@whySuggested": {
+    "description": ""
+  },
+  "noPendingTeammate": "Bekleyen ekip arkadaşlığı isteği yok.",
+  "@noPendingTeammate": {
+    "description": ""
+  },
+  "seeSuggestions": "Önerilere bak",
+  "@seeSuggestions": {
+    "description": ""
+  },
+  "incoming": "Sana gelenler",
+  "@incoming": {
+    "description": ""
+  },
+  "accept": "Kabul et",
+  "@accept": {
+    "description": ""
+  },
+  "decline": "Reddet",
+  "@decline": {
+    "description": ""
+  },
+  "requestDeclined": "İstek reddedildi.",
+  "@requestDeclined": {
+    "description": ""
+  },
+  "outgoing": "Gönderdiklerin",
+  "@outgoing": {
+    "description": ""
+  },
+  "awaitingReply": "Yanıt bekleniyor",
+  "@awaitingReply": {
+    "description": ""
+  },
+  "withdraw": "Geri çek",
+  "@withdraw": {
+    "description": ""
+  },
+  "noTeammates": "Henüz ekip arkadaşın yok. Önerilerden birine istek göndererek başla.",
+  "@noTeammates": {
+    "description": ""
+  },
+  "optionsFor": "{name} için seçenekler",
+  "@optionsFor": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teammatePrefs": "Ekip arkadaşı tercihleri",
+  "@teammatePrefs": {
+    "description": ""
+  },
+  "prefsSavedVisible": "Tercihlerin kaydedildi. Artık önerilerde görünürsün.",
+  "@prefsSavedVisible": {
+    "description": ""
+  },
+  "prefsSaved": "Tercihlerin kaydedildi.",
+  "@prefsSaved": {
+    "description": ""
+  },
+  "whatToDo": "Ne yapmak istiyorsun?",
+  "@whatToDo": {
+    "description": ""
+  },
+  "activitiesHint": "Ekip arkadaşı aradığın aktiviteler. En fazla {max} tane.",
+  "@activitiesHint": {
+    "description": "",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "yourLevel": "Seviyen",
+  "@yourLevel": {
+    "description": ""
+  },
+  "yourGoals": "Hedeflerin",
+  "@yourGoals": {
+    "description": ""
+  },
+  "multipleChoice": "Birden fazla seçebilirsin.",
+  "@multipleChoice": {
+    "description": ""
+  },
+  "howOften": "Ne sıklıkla buluşmak istersin?",
+  "@howOften": {
+    "description": ""
+  },
+  "whenFree": "Ne zaman uygunsun?",
+  "@whenFree": {
+    "description": ""
+  },
+  "whenFreeHint": "Uygun olduğun zamanlara dokun.",
+  "@whenFreeHint": {
+    "description": ""
+  },
+  "whatTeam": "Nasıl bir ekip istersin?",
+  "@whatTeam": {
+    "description": ""
+  },
+  "whichProvince": "Hangi ildesin?",
+  "@whichProvince": {
+    "description": ""
+  },
+  "provinceHint": "Yalnızca eşleştirme için kullanılır, profilinde görünmez.",
+  "@provinceHint": {
+    "description": ""
+  },
+  "province": "İl",
+  "@province": {
+    "description": ""
+  },
+  "ratherNotSay": "Belirtmek istemiyorum",
+  "@ratherNotSay": {
+    "description": ""
+  },
+  "extras": "Ek bilgiler",
+  "@extras": {
+    "description": ""
+  },
+  "iHaveVehicle": "Aracım var",
+  "@iHaveVehicle": {
+    "description": ""
+  },
+  "iHaveVehicleHint": "Ulaşımda yol arkadaşlığı yapabilirim.",
+  "@iHaveVehicleHint": {
+    "description": ""
+  },
+  "iHaveEquipment": "Kendi ekipmanım var",
+  "@iHaveEquipment": {
+    "description": ""
+  },
+  "iHaveEquipmentHint": "Bisiklet, çadır, raket gibi malzemem hazır.",
+  "@iHaveEquipmentHint": {
+    "description": ""
+  },
+  "describeYourself": "Kendini anlat",
+  "@describeYourself": {
+    "description": ""
+  },
+  "describeHint": "Önerilerde adının altında görünür.",
+  "@describeHint": {
+    "description": ""
+  },
+  "describeExample": "Hafta sonu sabah yürüyüşü için arkadaş arıyorum.",
+  "@describeExample": {
+    "description": ""
+  },
+  "willAppear": "Önerilerde görüneceksin.",
+  "@willAppear": {
+    "description": ""
+  },
+  "notAppearing": "Şu an önerilerde görünmüyorsun.",
+  "@notAppearing": {
+    "description": ""
+  },
+  "lookingForTeam": "Ekip arıyorum",
+  "@lookingForTeam": {
+    "description": ""
+  },
+  "lookingOn": "Önerilerde görünürsün; sana ekip arkadaşlığı isteği gönderilebilir.",
+  "@lookingOn": {
+    "description": ""
+  },
+  "lookingOff": "Açarsan seninle aynı şeyleri sevenler seni bulur. Gizli hesaplar önerilerde görünmez.",
+  "@lookingOff": {
+    "description": ""
+  },
+  "prefsComplete": "Tercihlerin %{percent} tamam",
+  "@prefsComplete": {
+    "description": "",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "prefsCompleteHint": "Ne kadar çok doldurursan önerilerin o kadar isabetli olur.",
+  "@prefsCompleteHint": {
+    "description": ""
+  },
+  "weekday": "Hafta içi",
+  "@weekday": {
+    "description": ""
+  },
+  "weekend": "Hafta sonu",
+  "@weekend": {
+    "description": ""
+  },
+  "username": "Kullanıcı adı",
+  "@username": {
+    "description": ""
+  },
+  "available": "Kullanılabilir",
+  "@available": {
+    "description": ""
+  },
+  "taken": "Alınmış",
+  "@taken": {
+    "description": ""
+  },
+  "blockedUser": "{username} engellendi.",
+  "@blockedUser": {
+    "description": "",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
 import '../tokens/spacing.dart';
 
 enum GwButtonVariant { primary, secondary, text }
@@ -44,7 +45,7 @@ class GwButton extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: callback != null,
-      label: isLoading ? '$label, yükleniyor' : null,
+      label: isLoading ? designSystemL10n.loadingLabel(label) : null,
       excludeSemantics: isLoading,
       child: expand ? SizedBox(width: double.infinity, child: button) : button,
     );

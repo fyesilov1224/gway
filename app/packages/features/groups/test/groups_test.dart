@@ -462,8 +462,8 @@ void main() {
       me: const MyMembership(isMember: true, roles: [GroupRole.member]),
     ));
     await tester.pumpAndSettle();
-    expect(find.text('@demo · 12 katılım'), findsOneWidget);
-    expect(find.text('@zeynep'), findsOneWidget);
+    expect(find.text('${atName('demo')} · 12 katılım'), findsOneWidget);
+    expect(find.text(atName('zeynep')), findsOneWidget);
   });
 
   group('UserGroupsSection', () {

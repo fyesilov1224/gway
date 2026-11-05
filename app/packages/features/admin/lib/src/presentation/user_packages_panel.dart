@@ -119,7 +119,7 @@ class UserPackagesPanel extends ConsumerWidget {
                     children: [
                       Text(p.name, style: textTheme.labelLarge),
                       Text(
-                        '${formatDateTr(p.until)} tarihine kadar · '
+                        '${formatDate(p.until)} tarihine kadar · '
                         '${[if (p.bought) 'satın alındı', if (p.granted) 'tanımlandı'].join(' ve ')}',
                         style: secondary,
                       ),
@@ -140,7 +140,7 @@ class UserPackagesPanel extends ConsumerWidget {
               child: Text(
                 [
                   s.planName,
-                  '${formatDateTr(s.startsAt)} – ${formatDateTr(s.endsAt)}',
+                  '${formatDate(s.startsAt)} – ${formatDate(s.endsAt)}',
                   if (s.isGrant) 'tanımlandı${s.grantedByUsername == null ? '' : ' (@${s.grantedByUsername})'}: ${s.grantReason}'
                   else if (s.amountMinor != null && s.currency != null) formatMoney(s.amountMinor!, s.currency!),
                   if (s.orderStatus == 'refunded') 'iade edildi' else if (s.canceledAt != null) 'iptal edildi',

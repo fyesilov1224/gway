@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/support.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'widgets.dart';
 
@@ -32,13 +33,13 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
   Widget build(BuildContext context) {
     final thread = ref.watch(supportThreadProvider(widget.ticketId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Mesaj')),
+      appBar: AppBar(title: Text(supportL10n.message)),
       body: switch (thread) {
         AsyncData(:final value) => _Thread(thread: value, pickImage: widget.pickImage),
         AsyncError(error: NotFoundFailure()) => GwEmptyState(
             icon: Icons.search_off,
-            message: 'Bu mesaj bulunamadı.',
-            actionLabel: 'Geri dön',
+            message: supportL10n.notFound,
+            actionLabel: supportL10n.goBack,
             onAction: () => Navigator.of(context).maybePop(),
           ),
         AsyncError(:final error) => GwErrorState(
@@ -89,7 +90,7 @@ class _Thread extends StatelessWidget {
                           GwBadge(t.kind.label, tone: t.kind.tone),
                           SupportStatusBadge(t.status),
                           if (t.groupName != null) GwBadge(t.groupName!),
-                          Text(formatDateTimeTr(t.createdAt),
+                          Text(formatDateTime(t.createdAt),
                               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                         ],
                       ),
@@ -103,9 +104,9 @@ class _Thread extends StatelessWidget {
           ),
         ),
         t.isClosed
-            ? const Padding(
-                padding: EdgeInsets.all(GwSpacing.md),
-                child: GwFormMessage('Bu mesaj kapatıldı. Devam etmek için yeni bir mesaj aç.', kind: GwFormMessageKind.info),
+            ? Padding(
+                padding: const EdgeInsets.all(GwSpacing.md),
+                child: GwFormMessage(supportL10n.ticketClosed, kind: GwFormMessageKind.info),
               )
             : _Composer(ticketId: t.id, pickImage: pickImage),
       ],
@@ -123,10 +124,10 @@ class _Bubble extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final staff = message.fromStaff;
     return Align(
-      alignment: staff ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: staff ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
       child: FractionallySizedBox(
         widthFactor: 0.85,
-        alignment: staff ? Alignment.centerLeft : Alignment.centerRight,
+        alignment: staff ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
         child: Container(
           margin: const EdgeInsets.only(bottom: GwSpacing.sm),
           padding: const EdgeInsets.all(GwSpacing.sm),
@@ -139,7 +140,7 @@ class _Bubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                staff ? 'GWAY Ekibi' : 'Sen',
+                staff ? supportL10n.team : supportL10n.you,
                 style: textTheme.labelMedium?.copyWith(color: staff ? GwColors.primary : GwColors.textSecondary),
               ),
               const SizedBox(height: GwSpacing.xxs),
@@ -153,7 +154,7 @@ class _Bubble extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: GwSpacing.xxs),
-              Text(formatDateTimeTr(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+              Text(formatDateTime(message.createdAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             ],
           ),
         ),
@@ -237,7 +238,7 @@ class _ComposerState extends ConsumerState<_Composer> {
                     children: [
                       if (_images.length < SupportRules.maxImages)
                         IconButton(
-                          tooltip: 'Ekran görüntüsü ekle',
+                          tooltip: supportL10n.addScreenshot,
                           icon: const Icon(Icons.add_photo_alternate_outlined),
                           onPressed: _sending ? null : _addImage,
                         ),
@@ -247,12 +248,12 @@ class _ComposerState extends ConsumerState<_Composer> {
                           minLines: 1,
                           maxLines: 5,
                           maxLength: SupportRules.bodyMax,
-                          decoration: const InputDecoration(hintText: 'Yanıt yaz', counterText: ''),
+                          decoration: InputDecoration(hintText: supportL10n.writeReply, counterText: ''),
                         ),
                       ),
                       const SizedBox(width: GwSpacing.xs),
                       IconButton.filled(
-                        tooltip: 'Gönder',
+                        tooltip: supportL10n.send,
                         icon: _sending
                             ? const SizedBox.square(
                                 dimension: GwSpacing.md,

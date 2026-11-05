@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:groups/groups.dart';
 import 'package:messaging/messaging.dart';
 
+import 'l10n.dart';
+
 /// "Sesli görüşme talepleri" on the group page, for the owner and calls.manage holders (docs/ARCHITECTURE.md §8c).
 Widget groupCallRequestsSection(BuildContext context, Group group, MyMembership me) {
   if (!me.can(GroupPermission.manageCalls) || group.isSuspended) return const SizedBox.shrink();
@@ -22,7 +24,7 @@ class GroupCallRequestsPage extends ConsumerWidget {
         AsyncData(:final value) => GroupCallRequestsScreen(groupId: value.id, groupName: value.name),
         AsyncError() => Scaffold(
             appBar: AppBar(),
-            body: GwErrorState(message: 'Grup bulunamadı.', onRetry: () => ref.invalidate(groupByHandleProvider(handle))),
+            body: GwErrorState(message: socialAppL10n.groupNotFound, onRetry: () => ref.invalidate(groupByHandleProvider(handle))),
           ),
         _ => Scaffold(
             appBar: AppBar(),

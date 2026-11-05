@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/post.dart';
 import '../domain/story.dart';
+import '../l10n.dart';
 import 'feed_repository_impl.dart';
 
 /// Stories and highlights are the user's own writes under RLS (docs/ARCHITECTURE.md §3c, Hikaye).
@@ -166,14 +167,14 @@ class StoryRepositoryImpl implements StoryRepository {
 
   static String _title(String title) {
     final t = title.trim();
-    if (t.isEmpty || t.length > 30) throw const RuleFailure('feed.invalid_highlight', 'Başlık 1–30 karakter olmalı.');
+    if (t.isEmpty || t.length > 30) throw RuleFailure('feed.invalid_highlight', feedL10n.highlightTitleLength);
     return t;
   }
 
   @override
   Future<Result<String>> createHighlight(String title, List<String> storyIds) => runFeed(() async {
         final name = _title(title);
-        if (storyIds.isEmpty) throw const RuleFailure('feed.empty_highlight', 'En az bir hikaye seç.');
+        if (storyIds.isEmpty) throw RuleFailure('feed.empty_highlight', feedL10n.pickStory);
         final id = randomUuid();
         await _client.from('highlights').insert({'id': id, 'owner_id': _me, 'title': name});
         await _client.from('highlight_stories').insert([for (final s in storyIds) {'highlight_id': id, 'story_id': s}]);

@@ -1,8 +1,10 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../domain/billing.dart';
+import '../l10n.dart';
 
 const _iconSize = GwSpacing.md + GwSpacing.xxs;
 
@@ -49,7 +51,7 @@ class MemberUsage extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Üyeler', style: textTheme.labelLarge)),
+            Expanded(child: Text(billingL10n.members, style: textTheme.labelLarge)),
             Text(
               '${formatCount(plan.memberCount)} / ${formatCount(plan.plan.maxMembers)}',
               style: textTheme.labelLarge?.copyWith(color: plan.isFull ? GwColors.error : GwColors.textSecondary),
@@ -58,7 +60,7 @@ class MemberUsage extends StatelessWidget {
         ),
         const SizedBox(height: GwSpacing.xs),
         Semantics(
-          label: '${plan.memberCount} üye, limit ${plan.plan.maxMembers}',
+          label: billingL10n.membersSemantics(plan.memberCount, plan.plan.maxMembers),
           child: ClipRRect(
             borderRadius: GwRadius.smAll,
             child: LinearProgressIndicator(
@@ -85,9 +87,9 @@ class PlanLimits extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _LimitRow(icon: Icons.people_outline, text: '${formatCount(plan.maxMembers)} üye'),
-        _LimitRow(icon: Icons.event_outlined, text: '${formatCount(plan.monthlyEvents)} organizasyon / ay'),
-        _LimitRow(icon: Icons.mic_none, text: '${formatCount(plan.monthlyLiveMinutes)} dk canlı yayın / ay'),
+        _LimitRow(icon: Icons.people_outline, text: billingL10n.limitMembers(formatCount(plan.maxMembers))),
+        _LimitRow(icon: Icons.event_outlined, text: billingL10n.limitEvents(formatCount(plan.monthlyEvents))),
+        _LimitRow(icon: Icons.mic_none, text: billingL10n.limitLive(formatCount(plan.monthlyLiveMinutes))),
       ],
     );
   }
@@ -117,15 +119,15 @@ class _LimitRow extends StatelessWidget {
 /// "Başlangıç paketi · 12 Kasım 2026'ya kadar" style status line.
 String planStatusLine(GroupPlan plan) {
   final until = plan.paidUntil;
-  if (plan.plan.isFree || until == null) return '${plan.plan.name} paket';
-  return '${plan.plan.name} paketi · ${formatDateTr(until)} tarihine kadar';
+  if (plan.plan.isFree || until == null) return billingL10n.planName(plan.plan.name);
+  return billingL10n.planUntil(plan.plan.name, formatDate(until));
 }
 
 /// "3,6 gün" for an upgrade's carried-over time.
 String creditLabel(Duration credit) {
   final days = credit.inSeconds / Duration.secondsPerDay;
-  final text = days >= 10 ? days.round().toString() : days.toStringAsFixed(1).replaceAll('.', ',');
-  return '$text gün';
+  final text = days >= 10 ? formatCount(days.round()) : NumberFormat('0.0', currentAppLanguage.code).format(days);
+  return billingL10n.creditDays(text);
 }
 
 const planIcon = Icons.workspace_premium_outlined;

@@ -1,0 +1,6 @@
+arb-dir: lib/l10n
+template-arb-file: messaging_tr.arb
+output-dir: lib/src/l10n
+output-localization-file: messaging_l10n.dart
+output-class: MessagingL10n
+nullable-getter: false

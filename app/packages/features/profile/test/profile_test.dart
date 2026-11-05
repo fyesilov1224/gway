@@ -93,7 +93,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Ayşe Kaya'), findsWidgets);
-      expect(find.text('@ayse.k'), findsWidgets);
+      expect(find.text(atName('ayse.k')), findsWidgets);
       expect(find.text('Yürüyüş'), findsOneWidget);
       expect(find.text('Profili düzenle'), findsOneWidget);
     });

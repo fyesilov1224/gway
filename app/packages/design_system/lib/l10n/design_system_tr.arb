@@ -1,0 +1,36 @@
+{
+  "@@locale": "tr",
+  "loadingLabel": "{label}, yükleniyor",
+  "@loadingLabel": {
+    "description": "Screen reader label of a busy button",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "previous": "Öncekiler",
+  "@previous": {
+    "description": "Scroll a chip rail back"
+  },
+  "next": "Sonrakiler",
+  "@next": {
+    "description": "Scroll a chip rail forward"
+  },
+  "coverPhoto": "Kapak fotoğrafı",
+  "@coverPhoto": {
+    "description": "Screen reader label of a cover image"
+  },
+  "retry": "Tekrar dene",
+  "@retry": {
+    "description": "Error state action"
+  },
+  "liveBroadcast": "Canlı yayın",
+  "@liveBroadcast": {
+    "description": "Screen reader label of the live badge"
+  },
+  "liveBadge": "CANLI",
+  "@liveBadge": {
+    "description": "Short upper-case live badge text"
+  }
+}

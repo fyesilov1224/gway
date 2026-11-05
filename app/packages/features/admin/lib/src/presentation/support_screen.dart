@@ -231,7 +231,7 @@ class _TicketRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final t = ticket;
     final who = t.username == null ? 'silinmiş hesap' : '@${t.username}';
-    final meta = [t.kind.label, who, ?t.groupName, '${t.messageCount} mesaj', formatDateTimeTr(t.lastMessageAt)].join(' · ');
+    final meta = [t.kind.label, who, ?t.groupName, '${t.messageCount} mesaj', formatDateTime(t.lastMessageAt)].join(' · ');
     return InkWell(
       onTap: () => context.go(AdminRoutes.ticket(t.id)),
       hoverColor: GwColors.surface,

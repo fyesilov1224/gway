@@ -70,7 +70,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(events.shaken, ['xyz 789']);
     expect(find.text('Tanıştınız!'), findsOneWidget);
-    expect(find.text('Ayşe Yıldız (@ayse)'), findsOneWidget);
+    expect(find.text('Ayşe Yıldız (${atName('ayse')})'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('"Tanıştıklarım" says how to start when empty', (tester) async {
@@ -94,7 +94,7 @@ void main() {
     await tester.pumpWidget(_app(const MetPeopleScreen(), events));
     await tester.pumpAndSettle();
     expect(find.text('Ayşe Yıldız'), findsOneWidget);
-    expect(find.textContaining('@ayse · Akşam yürüyüşü'), findsOneWidget);
+    expect(find.textContaining('${atName('ayse')} · Akşam yürüyüşü'), findsOneWidget);
   });
 
   test('contributions count handshakes', () {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/calls.dart';
+import '../l10n.dart';
 import 'call_providers.dart';
 
 /// Settings → Sesli görüşme: ask one of the person's groups for voice calls and see the decision (docs/ARCHITECTURE.md §8c).
@@ -12,7 +13,7 @@ class CallPermissionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-        appBar: AppBar(title: const Text('Sesli görüşme')),
+        appBar: AppBar(title: Text(messagingL10n.voiceCalls)),
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
@@ -20,11 +21,9 @@ class CallPermissionScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(GwSpacing.page),
               children: [
                 GwPanel(
-                  title: 'Eşleştiğin kişilerle ve ekip arkadaşlarınla sesli konuş',
+                  title: messagingL10n.voiceCallsHeadline,
                   child: Text(
-                    'Sesli görüşme, eşleştiğin kişileri ve ekip arkadaşlarını özel sohbetten aramanı sağlar. Herkese açık değildir: üyesi '
-                    'olduğun bir gruptan talep edersin, grubun sahibi ya da Yöneticisi açar. Görüşmeler kaydedilmez ve dinlenemez; bir '
-                    'görüşme en fazla ${CallRules.maxLength.inMinutes} dakika sürer.',
+                    messagingL10n.voiceCallsIntro(CallRules.maxLength.inMinutes),
                   ),
                 ),
                 const SizedBox(height: GwSpacing.md),
@@ -63,40 +62,39 @@ class _Status extends StatelessWidget {
       _ => false,
     };
     return GwPanel(
-      title: 'Durum',
+      title: messagingL10n.status,
       trailing: GwBadge(switch (p.status) {
-        CallPermissionStatus.none => 'Talep edilmedi',
-        CallPermissionStatus.requested => 'İnceleniyor',
-        CallPermissionStatus.active => 'Açık',
-        CallPermissionStatus.declined || CallPermissionStatus.revoked => 'Kapalı',
+        CallPermissionStatus.none => messagingL10n.notRequested,
+        CallPermissionStatus.requested => messagingL10n.underReview,
+        CallPermissionStatus.active => messagingL10n.statusOn,
+        CallPermissionStatus.declined || CallPermissionStatus.revoked => messagingL10n.statusOff,
       }, tone: p.status == CallPermissionStatus.active ? GwBadgeTone.success : GwBadgeTone.neutral),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             switch (p.status) {
-              CallPermissionStatus.none => 'Henüz talep etmedin.',
+              CallPermissionStatus.none => messagingL10n.notRequestedYet,
               CallPermissionStatus.requested =>
-                'Talebin ${p.groupName ?? 'grubun'} yöneticilerine ulaştı. Karar verilince bildirim gelir.',
-              CallPermissionStatus.active => 'Sesli görüşmen açık${p.groupName == null ? '' : ' (${p.groupName})'}. Eşleştiğin kişileri ve '
-                  'ekip arkadaşlarını sohbetin üstündeki telefon simgesiyle arayabilirsin; karşı tarafın da yetkisi açık olmalı.',
-              CallPermissionStatus.declined => 'Talebin şimdilik kabul edilmedi.',
+                (p.groupName == null ? messagingL10n.requestedFromGroup : messagingL10n.requestedFrom(p.groupName!)),
+              CallPermissionStatus.active => (p.groupName == null ? messagingL10n.active : messagingL10n.activeFrom(p.groupName!)),
+              CallPermissionStatus.declined => messagingL10n.declined,
               CallPermissionStatus.revoked when !p.decidedByPerson =>
-                'Yetkiyi veren gruptan ayrıldığın için sesli görüşmen kapandı. Başka bir grubundan yeniden talep edebilirsin.',
-              CallPermissionStatus.revoked => 'Sesli görüşmen kapatıldı.',
+                messagingL10n.revokedLeftGroup,
+              CallPermissionStatus.revoked => messagingL10n.revoked,
             },
           ),
           if (p.reason case final reason? when p.status != CallPermissionStatus.active && p.decidedByPerson) ...[
             const SizedBox(height: GwSpacing.xs),
-            Text('Gerekçe: $reason', style: secondary),
+            Text(messagingL10n.reasonLine(reason), style: secondary),
           ],
           if (p.note case final note? when p.status == CallPermissionStatus.requested) ...[
             const SizedBox(height: GwSpacing.xs),
-            Text('Notun: $note', style: secondary),
+            Text(messagingL10n.yourNote(note), style: secondary),
           ],
           if (!mayAsk && waitUntil != null) ...[
             const SizedBox(height: GwSpacing.xs),
-            Text('${formatDateTimeTr(waitUntil)} sonrasında yeniden talep edebilirsin.', style: secondary),
+            Text(messagingL10n.waitUntil(formatDateTime(waitUntil)), style: secondary),
           ],
           if (mayAsk) ...[
             const SizedBox(height: GwSpacing.md),
@@ -139,7 +137,7 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
     switch (result) {
       case Ok():
         ref.invalidate(myCallPermissionProvider);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Talebin gönderildi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(messagingL10n.requestSent)));
       case Err(:final failure):
         setState(() => _error = failure.userMessage);
     }
@@ -147,8 +145,8 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
 
   @override
   Widget build(BuildContext context) => switch (ref.watch(myCallGroupsProvider)) {
-        AsyncData(:final value) when value.isEmpty => const Text(
-            'Sesli görüşmeyi grupların sahipleri ve Yöneticileri açar. Talep edebilmek için önce bir gruba katıl.',
+        AsyncData(:final value) when value.isEmpty => Text(
+            messagingL10n.joinGroupFirst,
           ),
         AsyncData(:final value) => _form(value),
         AsyncError(:final error) =>
@@ -164,7 +162,7 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
           DropdownButtonFormField<String>(
             initialValue: groupId,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Talebin gideceği grup'),
+            decoration: InputDecoration(labelText: messagingL10n.requestToGroup),
             items: [for (final g in groups) DropdownMenuItem(value: g.id, child: Text(g.name, overflow: TextOverflow.ellipsis))],
             onChanged: (v) => setState(() => _groupId = v),
           ),
@@ -174,13 +172,13 @@ class _RequestFormState extends ConsumerState<_RequestForm> {
             maxLength: CallRules.noteMax,
             minLines: 2,
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Not (isteğe bağlı)',
-              hintText: 'Neden sesli görüşme istediğini kısaca yazabilirsin.',
+            decoration: InputDecoration(
+              labelText: messagingL10n.noteOptional,
+              hintText: messagingL10n.noteHint,
             ),
           ),
           if (_error case final error?) ...[GwFormMessage(error), const SizedBox(height: GwSpacing.xs)],
-          GwButton(label: 'Talep et', icon: Icons.call_outlined, isLoading: _sending, onPressed: () => _send(groupId)),
+          GwButton(label: messagingL10n.request, icon: Icons.call_outlined, isLoading: _sending, onPressed: () => _send(groupId)),
         ],
       );
   }
@@ -223,14 +221,14 @@ class _LockScreenCardState extends ConsumerState<_LockScreenCard> {
     return Padding(
       padding: const EdgeInsets.only(top: GwSpacing.md),
       child: GwPanel(
-        title: 'Kilit ekranında gelen arama',
+        title: messagingL10n.lockScreenCalls,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Telefonun kilitliyken aramaların tam ekran çalması için GWAY'e izin ver."),
+            Text(messagingL10n.lockScreenHint),
             const SizedBox(height: GwSpacing.sm),
             GwButton(
-              label: 'İzni aç',
+              label: messagingL10n.allow,
               icon: Icons.phone_in_talk_outlined,
               variant: GwButtonVariant.secondary,
               onPressed: () => ref.read(nativeCallsProvider).openLockScreenSetting(),

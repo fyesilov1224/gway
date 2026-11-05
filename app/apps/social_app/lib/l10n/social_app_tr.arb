@@ -1,0 +1,399 @@
+{
+  "@@locale": "tr",
+  "posts": "Gönderiler",
+  "@posts": {
+    "description": ""
+  },
+  "newPost": "Yeni gönderi",
+  "@newPost": {
+    "description": ""
+  },
+  "noOwnPosts": "Henüz gönderi paylaşmadın. İlk fotoğrafını ya da videonu paylaş.",
+  "@noOwnPosts": {
+    "description": ""
+  },
+  "noPosts": "Henüz gönderi yok.",
+  "@noPosts": {
+    "description": ""
+  },
+  "shareFirstOwn": "İlk gönderini paylaş",
+  "@shareFirstOwn": {
+    "description": ""
+  },
+  "groupFirstPost": "Grubun akışına ilk gönderiyi sen paylaş.",
+  "@groupFirstPost": {
+    "description": ""
+  },
+  "groupNoPosts": "Bu grupta henüz gönderi yok.",
+  "@groupNoPosts": {
+    "description": ""
+  },
+  "shareFirstGroup": "İlk gönderiyi paylaş",
+  "@shareFirstGroup": {
+    "description": ""
+  },
+  "groupNotFound": "Grup bulunamadı.",
+  "@groupNotFound": {
+    "description": ""
+  },
+  "memoriesEmpty": "Henüz anı paylaşılmadı. Katılanlar fotoğraflarını buraya ekleyebilir.",
+  "@memoriesEmpty": {
+    "description": ""
+  },
+  "plan": "Paket",
+  "@plan": {
+    "description": ""
+  },
+  "payment": "Ödeme",
+  "@payment": {
+    "description": ""
+  },
+  "onlyOwnerBilling": "Paket işlemlerini yalnızca grup sahibi yapabilir.",
+  "@onlyOwnerBilling": {
+    "description": ""
+  },
+  "backToGroup": "Gruba dön",
+  "@backToGroup": {
+    "description": ""
+  },
+  "writeSupportAboutGroup": "Bu grupla ilgili platform ekibine yaz",
+  "@writeSupportAboutGroup": {
+    "description": ""
+  },
+  "search": "Ara",
+  "@search": {
+    "description": ""
+  },
+  "notifications": "Bildirimler",
+  "@notifications": {
+    "description": ""
+  },
+  "goodNight": "İyi geceler",
+  "@goodNight": {
+    "description": ""
+  },
+  "goodMorning": "Günaydın",
+  "@goodMorning": {
+    "description": ""
+  },
+  "goodAfternoon": "İyi günler",
+  "@goodAfternoon": {
+    "description": ""
+  },
+  "goodEvening": "İyi akşamlar",
+  "@goodEvening": {
+    "description": ""
+  },
+  "greetingName": "{greeting}, {name}",
+  "@greetingName": {
+    "description": "",
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tabToday": "Bugün",
+  "@tabToday": {
+    "description": ""
+  },
+  "tabGroups": "Gruplar",
+  "@tabGroups": {
+    "description": ""
+  },
+  "tabCalendar": "Takvim",
+  "@tabCalendar": {
+    "description": ""
+  },
+  "tabMe": "Ben",
+  "@tabMe": {
+    "description": ""
+  },
+  "tonightSay": "Boşsan söyle, masa kur",
+  "@tonightSay": {
+    "description": ""
+  },
+  "tonightTableSet": "Masan kuruldu",
+  "@tonightTableSet": {
+    "description": ""
+  },
+  "tonightInvited": "Masaya davetin var",
+  "@tonightInvited": {
+    "description": ""
+  },
+  "tonightFreeWithYou": "{count} kişi seninle boş",
+  "@tonightFreeWithYou": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tonightFreeUntil": "Boşsun · 04:00'e kadar",
+  "@tonightFreeUntil": {
+    "description": ""
+  },
+  "tonightFreeCount": "{count} kişi bu akşam boş",
+  "@tonightFreeCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "upcomingNone": "Gruplarının planları",
+  "@upcomingNone": {
+    "description": ""
+  },
+  "upcomingMine": "{count} plan · {mine} katılım",
+  "@upcomingMine": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "mine": {
+        "type": "int"
+      }
+    }
+  },
+  "upcomingCount": "{count} plan, 60 gün",
+  "@upcomingCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "forToday": "Bugün için",
+  "@forToday": {
+    "description": ""
+  },
+  "tonight": "Bu akşam",
+  "@tonight": {
+    "description": ""
+  },
+  "upcoming": "Yaklaşanlar",
+  "@upcoming": {
+    "description": ""
+  },
+  "share": "Paylaş",
+  "@share": {
+    "description": ""
+  },
+  "post": "Gönderi",
+  "@post": {
+    "description": ""
+  },
+  "postHint": "10 fotoğraf ya da videoya kadar",
+  "@postHint": {
+    "description": ""
+  },
+  "story": "Hikâye",
+  "@story": {
+    "description": ""
+  },
+  "storyHint": "24 saat görünür",
+  "@storyHint": {
+    "description": ""
+  },
+  "group": "Grup",
+  "@group": {
+    "description": ""
+  },
+  "groupHint": "Kendi topluluğunu kur",
+  "@groupHint": {
+    "description": ""
+  },
+  "create": "Oluştur",
+  "@create": {
+    "description": ""
+  },
+  "messages": "Mesajlar",
+  "@messages": {
+    "description": ""
+  },
+  "matching": "Eşleşme",
+  "@matching": {
+    "description": ""
+  },
+  "myGroups": "Gruplarım",
+  "@myGroups": {
+    "description": ""
+  },
+  "pageNotFound": "Aradığın sayfa bulunamadı. Bağlantı eski ya da hatalı olabilir.",
+  "@pageNotFound": {
+    "description": ""
+  },
+  "backHome": "Ana sayfaya dön",
+  "@backHome": {
+    "description": ""
+  },
+  "groupsLeague": "Gruplar Ligi",
+  "@groupsLeague": {
+    "description": ""
+  },
+  "exploreOnMap": "Haritada keşfet",
+  "@exploreOnMap": {
+    "description": ""
+  },
+  "yearMenu": "Yılın özeti, keşif haritam ve tanıştıklarım",
+  "@yearMenu": {
+    "description": ""
+  },
+  "yearSummary": "Yılın özeti",
+  "@yearSummary": {
+    "description": ""
+  },
+  "yearSummaryHint": "Bu yılki buluşmaların, paylaşılabilir kart",
+  "@yearSummaryHint": {
+    "description": ""
+  },
+  "explorationMap": "Keşif haritam",
+  "@explorationMap": {
+    "description": ""
+  },
+  "explorationMapHint": "Katıldığın organizasyonların illeri",
+  "@explorationMapHint": {
+    "description": ""
+  },
+  "metPeople": "Tanıştıklarım",
+  "@metPeople": {
+    "description": ""
+  },
+  "metPeopleHint": "Organizasyonlarda el sıkıştığın kişiler",
+  "@metPeopleHint": {
+    "description": ""
+  },
+  "findTeammates": "Ekip arkadaşı bul",
+  "@findTeammates": {
+    "description": ""
+  },
+  "saved": "Kaydedilenler",
+  "@saved": {
+    "description": ""
+  },
+  "gateError": "Bilgilerin yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+  "@gateError": {
+    "description": ""
+  },
+  "searchPeople": "Kişi ara",
+  "@searchPeople": {
+    "description": ""
+  },
+  "clearSearch": "Aramayı temizle",
+  "@clearSearch": {
+    "description": ""
+  },
+  "settings": "Ayarlar",
+  "@settings": {
+    "description": ""
+  },
+  "editProfile": "Profili düzenle",
+  "@editProfile": {
+    "description": ""
+  },
+  "teammatePrefs": "Ekip arkadaşı tercihleri",
+  "@teammatePrefs": {
+    "description": ""
+  },
+  "matchProfile": "Eşleşme profili",
+  "@matchProfile": {
+    "description": ""
+  },
+  "voiceCalls": "Sesli görüşme",
+  "@voiceCalls": {
+    "description": ""
+  },
+  "blockedAccounts": "Engellenen hesaplar",
+  "@blockedAccounts": {
+    "description": ""
+  },
+  "storyArchive": "Hikaye arşivi",
+  "@storyArchive": {
+    "description": ""
+  },
+  "notificationPrefs": "Bildirim tercihleri",
+  "@notificationPrefs": {
+    "description": ""
+  },
+  "mySanctions": "Grup yaptırımlarım",
+  "@mySanctions": {
+    "description": ""
+  },
+  "userGuide": "Kullanma kılavuzu",
+  "@userGuide": {
+    "description": ""
+  },
+  "supportFeedback": "Destek ve geri bildirim",
+  "@supportFeedback": {
+    "description": ""
+  },
+  "newReplies": "{count} yeni yanıt",
+  "@newReplies": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "twoFactor": "İki adımlı doğrulama",
+  "@twoFactor": {
+    "description": ""
+  },
+  "legalDocuments": "Hukuki metinler",
+  "@legalDocuments": {
+    "description": ""
+  },
+  "deleteAccount": "Hesabı sil",
+  "@deleteAccount": {
+    "description": ""
+  },
+  "signOut": "Çıkış yap",
+  "@signOut": {
+    "description": ""
+  },
+  "nowPrivate": "Hesabın artık gizli.",
+  "@nowPrivate": {
+    "description": ""
+  },
+  "nowPublic": "Hesabın artık herkese açık; bekleyen istekler onaylandı.",
+  "@nowPublic": {
+    "description": ""
+  },
+  "privateAccount": "Gizli hesap",
+  "@privateAccount": {
+    "description": ""
+  },
+  "privateAccountHint": "Açıkken yalnızca onayladığın takipçiler gönderilerini ve hikayelerini görür.",
+  "@privateAccountHint": {
+    "description": ""
+  },
+  "groupsNowPublic": "Grupların artık profilinde herkese görünüyor.",
+  "@groupsNowPublic": {
+    "description": ""
+  },
+  "groupsNowMembers": "Grupların artık yalnızca aynı gruptaki üyelere görünüyor.",
+  "@groupsNowMembers": {
+    "description": ""
+  },
+  "showGroups": "Gruplarımı profilimde göster",
+  "@showGroups": {
+    "description": ""
+  },
+  "showGroupsHint": "Kapalıyken bir gruptaki üyeliğini yalnızca o grubun üyeleri görür; başka grupların yöneticileri göremez.",
+  "@showGroupsHint": {
+    "description": ""
+  },
+  "language": "Dil",
+  "@language": {
+    "description": ""
+  }
+}

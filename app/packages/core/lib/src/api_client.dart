@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'failure.dart';
+import 'language.dart';
 import 'result.dart';
 
 /// Client for the GWAY C# API.
@@ -74,7 +75,9 @@ class ApiClient {
       queryParameters: query == null || query.isEmpty ? null : query,
     );
     final request = http.Request(method, uri)
-      ..headers['Accept'] = 'application/json';
+      ..headers['Accept'] = 'application/json'
+      // The API answers rule failures in the app language (docs/ARCHITECTURE.md §11).
+      ..headers['Accept-Language'] = currentAppLanguage.code;
     final token = await _accessToken();
     if (token != null) request.headers['Authorization'] = 'Bearer $token';
     if (body != null) {

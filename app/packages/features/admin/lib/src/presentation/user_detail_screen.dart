@@ -224,7 +224,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
           icon: Icons.block,
           title: u.suspendedUntil == null
               ? 'Hesap kalıcı olarak banlı; hiçbir yerde görünmüyor'
-              : 'Hesap ${formatDateTimeTr(u.suspendedUntil!)} tarihine kadar askıda; profilinde uyarı görünüyor',
+              : 'Hesap ${formatDateTime(u.suspendedUntil!)} tarihine kadar askıda; profilinde uyarı görünüyor',
           body: d.suspensionReason == null ? null : 'Gerekçe: ${d.suspensionReason}',
         ),
       ],
@@ -233,7 +233,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         DetailBanner(
           tone: GwBadgeTone.neutral,
           icon: Icons.schedule,
-          title: 'Hesap ${formatDateTr(u.deletionScheduledFor!)} tarihinde kalıcı olarak silinecek',
+          title: 'Hesap ${formatDate(u.deletionScheduledFor!)} tarihinde kalıcı olarak silinecek',
           body: 'Kullanıcı bu tarihe kadar giriş yapıp silmeyi geri alabilir.',
         ),
       ],
@@ -339,7 +339,7 @@ class _AccountPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final u = detail.user;
-    String date(DateTime? d) => d == null ? '—' : formatDateTimeTr(d);
+    String date(DateTime? d) => d == null ? '—' : formatDateTime(d);
     final rows = [
       ('Kullanıcı kimliği', u.id),
       ('E-posta', u.email ?? '—'),
@@ -379,7 +379,7 @@ class _ConsentsPanel extends StatelessWidget {
                           children: [
                             Text(_consentLabels[c.kind] ?? c.kind, style: textTheme.labelLarge),
                             Text(
-                              'Sürüm ${c.version} · ${formatDateTimeTr(c.acceptedAt)}',
+                              'Sürüm ${c.version} · ${formatDateTime(c.acceptedAt)}',
                               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                             ),
                           ],

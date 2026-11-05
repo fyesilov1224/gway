@@ -53,7 +53,8 @@ const _docs = [
 ];
 
 Widget _app(Widget child, List<dynamic> overrides) => ProviderScope(
-      overrides: overrides.cast(),
+      // The screens are written in Turkish; the test device speaks English.
+      overrides: [deviceLocalesProvider.overrideWithValue(const [Locale('tr')]), ...overrides.cast()],
       child: MaterialApp(theme: GwTheme.light(), home: child),
     );
 

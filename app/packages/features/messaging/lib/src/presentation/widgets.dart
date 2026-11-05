@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/messaging.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -13,9 +14,9 @@ String formatChatTime(DateTime time, {DateTime? now}) {
   final t = time.toLocal();
   final today = DateUtils.dateOnly(now ?? DateTime.now());
   final day = DateUtils.dateOnly(t);
-  if (day == today) return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-  if (day == today.subtract(const Duration(days: 1))) return 'Dün';
-  return formatDateTr(t);
+  if (day == today) return formatTime(t);
+  if (day == today.subtract(const Duration(days: 1))) return messagingL10n.yesterday;
+  return formatDate(t);
 }
 
 /// The messages icon with the number of conversations that have unread messages.
@@ -27,7 +28,7 @@ class MessagesButton extends ConsumerWidget {
     final unread = ref.watch(unreadConversationsProvider);
     const icon = Icon(Icons.chat_bubble_outline_rounded);
     return IconButton(
-      tooltip: 'Mesajlar',
+      tooltip: messagingL10n.messages,
       onPressed: () => context.push(MessagingRoutes.list),
       icon: unread == 0
           ? icon
@@ -72,7 +73,7 @@ class _MessageUserButtonState extends ConsumerState<MessageUserButton> {
   Widget build(BuildContext context) {
     if (!(ref.watch(canMessageProvider(widget.userId)).value ?? false)) return const SizedBox.shrink();
     return IconButton.outlined(
-      tooltip: 'Mesaj gönder',
+      tooltip: messagingL10n.sendMessage,
       onPressed: _busy ? null : _open,
       icon: const Icon(Icons.chat_bubble_outline_rounded, size: GwSpacing.md + GwSpacing.xxs),
       style: IconButton.styleFrom(foregroundColor: GwColors.textPrimary, side: const BorderSide(color: GwColors.border)),
@@ -103,7 +104,7 @@ class _GroupChatButtonState extends ConsumerState<GroupChatButton> {
         await context.push(MessagingRoutes.chat(id));
       case Ok():
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Grup sohbetini yalnızca grubun üyeleri görebilir.')));
+            .showSnackBar(SnackBar(content: Text(messagingL10n.groupChatMembersOnly)));
       case Err(:final failure):
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.userMessage)));
     }
@@ -111,7 +112,7 @@ class _GroupChatButtonState extends ConsumerState<GroupChatButton> {
 
   @override
   Widget build(BuildContext context) => GwButton(
-        label: 'Grup sohbeti',
+        label: messagingL10n.groupChat,
         icon: Icons.forum_outlined,
         variant: GwButtonVariant.secondary,
         isLoading: _busy,

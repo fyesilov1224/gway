@@ -3,6 +3,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n.dart';
 import 'auth_layout.dart';
 import 'providers.dart';
 
@@ -40,17 +41,16 @@ class _DeletionPendingScreenState extends ConsumerState<DeletionPendingScreen> {
   Widget build(BuildContext context) {
     final date = ref.watch(accountStateProvider).value?.deletionScheduledFor;
     return AuthLayout(
-      title: 'Hesabın silinmek üzere',
+      title: identityL10n.deletionPendingTitle,
       subtitle: date == null
-          ? 'Hesap silme isteğin alındı.'
-          : 'Hesabın ve tüm verilerin ${formatDateTr(date)} tarihinde kalıcı olarak silinecek. '
-              'O zamana kadar fikrini değiştirebilirsin.',
+          ? identityL10n.deletionRequested
+          : identityL10n.deletionScheduled(formatDate(date)),
       children: [
         if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
-        GwButton(label: 'Silmeyi geri al', onPressed: _restore, isLoading: _saving, expand: true),
+        GwButton(label: identityL10n.undoDeletion, onPressed: _restore, isLoading: _saving, expand: true),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Çıkış yap',
+          label: identityL10n.signOut,
           variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),
@@ -70,19 +70,18 @@ class SuspendedScreen extends ConsumerWidget {
     final until = account?.suspendedUntil;
     final banned = account?.isBanned ?? false;
     return AuthLayout(
-      title: banned ? 'Hesabın kalıcı olarak kapatıldı' : 'Hesabın askıya alındı',
+      title: banned ? identityL10n.bannedTitle : identityL10n.suspendedTitle,
       subtitle: until == null
-          ? 'Hesabın platform ekibi tarafından kalıcı olarak kapatıldı. Profilin artık kimseye görünmüyor.'
-          : 'Hesabın ${formatDateTimeTr(until)} tarihine kadar askıya alındı. Bu süre boyunca uygulamayı kullanamazsın; '
-              'profilinde askıda olduğun görünür.',
+          ? identityL10n.bannedBody
+          : identityL10n.suspendedBody(formatDateTime(until)),
       children: [
         if (account?.suspensionReason case final reason?) ...[
-          GwFormMessage(banned ? 'Ban gerekçesi: $reason' : 'Askı gerekçesi: $reason'),
+          GwFormMessage(banned ? identityL10n.banReason(reason) : identityL10n.suspensionReason(reason)),
           const SizedBox(height: GwSpacing.md),
         ],
         if (!banned) ...[
           GwButton(
-            label: 'Tekrar dene',
+            label: identityL10n.retry,
             variant: GwButtonVariant.secondary,
             onPressed: () async {
               await refreshAccountSession(() => ref.read(supabaseClientProvider));
@@ -93,7 +92,7 @@ class SuspendedScreen extends ConsumerWidget {
           const SizedBox(height: GwSpacing.sm),
         ],
         GwButton(
-          label: 'Çıkış yap',
+          label: identityL10n.signOut,
           onPressed: () => ref.read(authRepositoryProvider).signOut(),
           expand: true,
         ),
@@ -138,7 +137,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Hesabı sil')),
+      appBar: AppBar(title: Text(identityL10n.deleteAccount)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -148,12 +147,12 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Hesabını silmeden önce', style: textTheme.titleLarge),
+                  Text(identityL10n.beforeDeleting, style: textTheme.titleLarge),
                   const SizedBox(height: GwSpacing.md),
-                  for (final line in const [
-                    'Profilin hemen gizlenir; kimse seni bulamaz.',
-                    '${AccountRetention.graceDays} gün içinde giriş yapıp silmeyi geri alabilirsin.',
-                    'Bu sürenin sonunda profilin, fotoğrafların ve tüm verilerin kalıcı olarak silinir.',
+                  for (final line in [
+                    identityL10n.deletionHidesNow,
+                    identityL10n.deletionGraceRestore(AccountRetention.graceDays),
+                    identityL10n.deletionAfterGrace,
                   ])
                     Padding(
                       padding: const EdgeInsets.only(bottom: GwSpacing.sm),
@@ -174,12 +173,12 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                     onChanged: _saving ? null : (v) => setState(() => _understood = v ?? false),
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
-                    title: const Text('Anladım, hesabımı silmek istiyorum.'),
+                    title: Text(identityL10n.deletionUnderstood),
                   ),
                   const SizedBox(height: GwSpacing.md),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   GwButton(
-                    label: 'Hesabımı sil',
+                    label: identityL10n.deleteMyAccount,
                     onPressed: _understood ? _delete : null,
                     isLoading: _saving,
                     expand: true,

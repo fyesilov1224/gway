@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'failure.dart';
+import 'l10n.dart';
 
 /// Generic mapping of Supabase / network errors to [Failure].
 ///
@@ -18,13 +19,7 @@ Failure failureFromSupabase(Object error) => switch (error) {
       PostgrestException(code: 'PGRST301' || 'PGRST303') =>
         const UnauthorizedFailure(),
       StorageException(statusCode: '403') => const ForbiddenFailure(),
-      StorageException(statusCode: '413') => const RuleFailure(
-          'storage.too_large',
-          'Dosya çok büyük. En fazla 5 MB yükleyebilirsin.',
-        ),
-      StorageException(statusCode: '415') => const RuleFailure(
-          'storage.unsupported_type',
-          'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.',
-        ),
+      StorageException(statusCode: '413') => RuleFailure('storage.too_large', coreL10n.storageTooLarge),
+      StorageException(statusCode: '415') => RuleFailure('storage.unsupported_type', coreL10n.storageUnsupportedType),
       _ => UnexpectedFailure(error),
     };

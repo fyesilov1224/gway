@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/moderation.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// The report sheet (docs/ARCHITECTURE.md §3e); the app provides it as `reportLauncherProvider`.
@@ -37,13 +38,13 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
   }
 
   String get _title => switch (widget.target.type) {
-        'post' => 'Gönderiyi şikayet et',
-        'comment' || 'live_comment' => 'Yorumu şikayet et',
-        'event' => 'Organizasyonu şikayet et',
-        'message' => 'Mesajı şikayet et',
-        'match_profile' => 'Eşleşme profilini şikayet et',
-        'match_photo' => 'Fotoğrafı şikayet et',
-        _ => 'Kullanıcıyı şikayet et',
+        'post' => moderationL10n.reportPost,
+        'comment' || 'live_comment' => moderationL10n.reportComment,
+        'event' => moderationL10n.reportEvent,
+        'message' => moderationL10n.reportMessage,
+        'match_profile' => moderationL10n.reportMatchProfile,
+        'match_photo' => moderationL10n.reportPhoto,
+        _ => moderationL10n.reportUser,
       };
 
   Future<void> _submit() async {
@@ -59,7 +60,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
       case Ok():
         final messenger = ScaffoldMessenger.of(context);
         Navigator.of(context).pop();
-        messenger.showSnackBar(const SnackBar(content: Text('Şikayetin alındı. İnceleyip gerekeni yapacağız; kimliğin şikayet edilen kişiye gösterilmez.')));
+        messenger.showSnackBar(SnackBar(content: Text(moderationL10n.reportReceived)));
       case Err(:final failure):
         setState(() {
           _busy = false;
@@ -78,7 +79,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
         children: [
           Text(_title, style: textTheme.titleLarge),
           const SizedBox(height: GwSpacing.xxs),
-          Text('Neden şikayet ediyorsun?', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+          Text(moderationL10n.whyReport, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
           const SizedBox(height: GwSpacing.xs),
           RadioGroup<ReportReason>(
             groupValue: _reason,
@@ -95,12 +96,12 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
             maxLength: 500,
             maxLines: 3,
             minLines: 1,
-            decoration: const InputDecoration(labelText: 'Açıklama (isteğe bağlı)', hintText: 'Ne olduğunu kısaca anlat.'),
+            decoration: InputDecoration(labelText: moderationL10n.detailsOptional, hintText: moderationL10n.detailsHint),
           ),
           if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
           const SizedBox(height: GwSpacing.md),
           GwButton(
-            label: 'Şikayet et',
+            label: moderationL10n.report,
             icon: Icons.flag_outlined,
             isLoading: _busy,
             expand: true,

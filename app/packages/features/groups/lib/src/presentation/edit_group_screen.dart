@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/group.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -24,20 +25,20 @@ class EditGroupScreen extends ConsumerWidget {
     return switch ((group, me)) {
       (AsyncData(value: final g), AsyncData(value: final m)) when m.can(GroupPermission.edit) => _EditForm(group: g, me: m),
       (AsyncData(), AsyncData()) => Scaffold(
-          appBar: AppBar(title: const Text('Grubu düzenle')),
+          appBar: AppBar(title: Text(groupsL10n.editGroup)),
           body: GwEmptyState(
             icon: Icons.lock_outline,
-            message: 'Bu grubu düzenleme yetkin yok.',
-            actionLabel: 'Gruba dön',
+            message: groupsL10n.noEditPermission,
+            actionLabel: groupsL10n.backToGroup,
             onAction: () => context.pop(),
           ),
         ),
       (AsyncError(:final error), _) || (_, AsyncError(:final error)?) => Scaffold(
-          appBar: AppBar(title: const Text('Grubu düzenle')),
+          appBar: AppBar(title: Text(groupsL10n.editGroup)),
           body: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(groupByHandleProvider(handle))),
         ),
       _ => Scaffold(
-          appBar: AppBar(title: const Text('Grubu düzenle')),
+          appBar: AppBar(title: Text(groupsL10n.editGroup)),
           body: const Padding(
             padding: EdgeInsets.all(GwSpacing.page),
             child: Column(
@@ -187,11 +188,11 @@ class _EditFormState extends ConsumerState<_EditForm> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grubu düzenle'),
+        title: Text(groupsL10n.editGroup),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: GwSpacing.sm),
-            child: GwButton(label: 'Kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+            padding: const EdgeInsetsDirectional.only(end: GwSpacing.sm),
+            child: GwButton(label: groupsL10n.save, onPressed: busy ? null : _save, isLoading: _saving),
           ),
         ],
       ),
@@ -206,13 +207,13 @@ class _EditFormState extends ConsumerState<_EditForm> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   GwPanel(
-                    title: 'Logo ve kapak',
-                    subtitle: 'JPEG, PNG veya WebP · en fazla 5 MB',
+                    title: groupsL10n.logoAndCover,
+                    subtitle: groupsL10n.imageHint,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _ImageRow(
-                          label: 'Logo',
+                          label: groupsL10n.logo,
                           preview: GwAvatar(name: group.name, shape: GwAvatarShape.group, imageUrl: group.logoUrl, size: GwAvatarSize.lg),
                           hasImage: group.logoUrl != null,
                           loading: _uploading == GroupImage.logo,
@@ -222,7 +223,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                         ),
                         const SizedBox(height: GwSpacing.md),
                         _ImageRow(
-                          label: 'Kapak',
+                          label: groupsL10n.cover,
                           preview: ClipRRect(
                             borderRadius: GwRadius.smAll,
                             child: SizedBox(
@@ -244,8 +245,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'Grup bilgileri',
-                    subtitle: 'Grup adresi: @${group.handle}',
+                    title: groupsL10n.groupInfo,
+                    subtitle: groupsL10n.groupHandle(atName(group.handle)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -254,7 +255,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           maxLength: GroupRules.nameMaxLength,
                           textCapitalization: TextCapitalization.words,
                           validator: GroupRules.validateName,
-                          decoration: const InputDecoration(labelText: 'Grup adı', counterText: ''),
+                          decoration: InputDecoration(labelText: groupsL10n.groupName, counterText: ''),
                         ),
                         const SizedBox(height: GwSpacing.md),
                         CategoryField(value: _category, onChanged: (v) => setState(() => _category = v ?? _category)),
@@ -266,7 +267,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           maxLength: GroupRules.aboutMaxLength,
                           minLines: 3,
                           maxLines: 8,
-                          decoration: const InputDecoration(labelText: 'Tanıtım', alignLabelWithHint: true),
+                          decoration: InputDecoration(labelText: groupsL10n.about, alignLabelWithHint: true),
                         ),
                         const SizedBox(height: GwSpacing.md),
                         TextFormField(
@@ -274,9 +275,9 @@ class _EditFormState extends ConsumerState<_EditForm> {
                           maxLength: GroupRules.rulesMaxLength,
                           minLines: 3,
                           maxLines: 10,
-                          decoration: const InputDecoration(
-                            labelText: 'Kurallar',
-                            hintText: 'Üyelerden beklentilerin, her satıra bir kural.',
+                          decoration: InputDecoration(
+                            labelText: groupsL10n.rules,
+                            hintText: groupsL10n.rulesHint,
                             alignLabelWithHint: true,
                           ),
                         ),
@@ -285,13 +286,13 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'Katılım',
+                    title: groupsL10n.joining,
                     child: JoinPolicyPicker(value: _policy, onChanged: (p) => setState(() => _policy = p)),
                   ),
                   const SizedBox(height: GwSpacing.lg),
                   GwPanel(
-                    title: 'Bağlantılar',
-                    subtitle: 'Web sitesi, sosyal medya hesapları. En fazla ${GroupRules.maxLinks} tane.',
+                    title: groupsL10n.links,
+                    subtitle: groupsL10n.linksHint(GroupRules.maxLinks),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -306,8 +307,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                                     TextFormField(
                                       controller: link.label,
                                       maxLength: GroupRules.linkLabelMaxLength,
-                                      validator: (v) => (v ?? '').trim().isEmpty ? 'Bir etiket yaz.' : null,
-                                      decoration: const InputDecoration(labelText: 'Etiket', hintText: 'Instagram', counterText: ''),
+                                      validator: (v) => (v ?? '').trim().isEmpty ? groupsL10n.enterLabel : null,
+                                      decoration: InputDecoration(labelText: groupsL10n.label, hintText: 'Instagram', counterText: ''),
                                     ),
                                     const SizedBox(height: GwSpacing.xs),
                                     TextFormField(
@@ -315,13 +316,13 @@ class _EditFormState extends ConsumerState<_EditForm> {
                                       keyboardType: TextInputType.url,
                                       autocorrect: false,
                                       validator: GroupRules.validateLinkUrl,
-                                      decoration: const InputDecoration(labelText: 'Adres', hintText: 'https://'),
+                                      decoration: InputDecoration(labelText: groupsL10n.address, hintText: 'https://'),
                                     ),
                                   ],
                                 ),
                               ),
                               IconButton(
-                                tooltip: 'Bağlantıyı kaldır',
+                                tooltip: groupsL10n.removeLink,
                                 icon: const Icon(Icons.delete_outline),
                                 onPressed: () => setState(() => _links.removeAt(i).dispose()),
                               ),
@@ -331,9 +332,9 @@ class _EditFormState extends ConsumerState<_EditForm> {
                         if (_links.length < GroupRules.maxLinks) ...[
                           if (_links.isNotEmpty) const SizedBox(height: GwSpacing.md),
                           Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: GwButton(
-                              label: 'Bağlantı ekle',
+                              label: groupsL10n.addLink,
                               icon: Icons.add_link,
                               variant: GwButtonVariant.secondary,
                               onPressed: () => setState(() => _links.add(_LinkControllers())),
@@ -346,28 +347,28 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   const SizedBox(height: GwSpacing.lg),
                   if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: Wrap(
                       spacing: GwSpacing.sm,
                       runSpacing: GwSpacing.sm,
                       children: [
-                        GwButton(label: 'Vazgeç', variant: GwButtonVariant.secondary, onPressed: busy ? null : () => context.pop()),
-                        GwButton(label: 'Değişiklikleri kaydet', onPressed: busy ? null : _save, isLoading: _saving),
+                        GwButton(label: groupsL10n.cancel, variant: GwButtonVariant.secondary, onPressed: busy ? null : () => context.pop()),
+                        GwButton(label: groupsL10n.saveChanges, onPressed: busy ? null : _save, isLoading: _saving),
                       ],
                     ),
                   ),
                   if (widget.me.can(GroupPermission.delete)) ...[
                     const SizedBox(height: GwSpacing.xl),
                     GwPanel(
-                      title: 'Grubu sil',
-                      subtitle: 'Grup, üyelikler, roller, istekler ve davetler kalıcı olarak silinir. Paketin kalan süresi iade edilmez.',
+                      title: groupsL10n.deleteGroup,
+                      subtitle: groupsL10n.deleteGroupBody,
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: TextButton.icon(
                           style: TextButton.styleFrom(foregroundColor: GwColors.error),
                           onPressed: busy ? null : _delete,
                           icon: const Icon(Icons.delete_forever_outlined),
-                          label: Text('${group.name} grubunu sil', style: textTheme.labelLarge?.copyWith(color: GwColors.error)),
+                          label: Text(groupsL10n.deleteGroupNamed(group.name), style: textTheme.labelLarge?.copyWith(color: GwColors.error)),
                         ),
                       ),
                     ),
@@ -413,14 +414,14 @@ class _ImageRow extends StatelessWidget {
           spacing: GwSpacing.xs,
           children: [
             GwButton(
-              label: hasImage ? '$label değiştir' : '$label ekle',
+              label: hasImage ? groupsL10n.changeImage(label) : groupsL10n.addImage(label),
               icon: Icons.photo_camera_outlined,
               variant: GwButtonVariant.secondary,
               isLoading: loading,
               onPressed: enabled ? onChange : null,
             ),
             if (hasImage)
-              GwButton(label: 'Kaldır', variant: GwButtonVariant.text, onPressed: enabled ? onRemove : null),
+              GwButton(label: groupsL10n.remove, variant: GwButtonVariant.text, onPressed: enabled ? onRemove : null),
           ],
         ),
       ],
@@ -452,13 +453,13 @@ class _DeleteDialogState extends State<_DeleteDialog> {
     final matches = _confirm.text.trim().toLowerCase() == widget.group.handle;
     return AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-      title: const Text('Grubu kalıcı olarak sil'),
+      title: Text(groupsL10n.deleteForever),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Bu işlem geri alınamaz. Onaylamak için grup adresini yaz: ${widget.group.handle}'),
+            Text(groupsL10n.deleteConfirm(widget.group.handle)),
             const SizedBox(height: GwSpacing.md),
             TextField(
               controller: _confirm,
@@ -470,8 +471,8 @@ class _DeleteDialogState extends State<_DeleteDialog> {
         ),
       ),
       actions: [
-        GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-        GwButton(label: 'Sil', onPressed: matches ? () => Navigator.of(context).pop(true) : null),
+        GwButton(label: groupsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+        GwButton(label: groupsL10n.delete, onPressed: matches ? () => Navigator.of(context).pop(true) : null),
       ],
     );
   }

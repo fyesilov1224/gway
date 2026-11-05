@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,6 +35,32 @@ void main() {
         expect(t.intro != null || t.steps.isNotEmpty || t.notes.isNotEmpty, isTrue, reason: '${c.id}: ${t.title}');
       }
     }
+  });
+
+  test('every language has its own guide with the same chapters, topics, steps and notes', () {
+    final source = guideIn(AppLanguage.tr);
+    for (final language in AppLanguage.values.where((l) => l != AppLanguage.tr)) {
+      final guide = guideIn(language);
+      expect(identical(guide, source), isFalse, reason: '${language.code} has no translation');
+      expect(guide.map((c) => c.id), source.map((c) => c.id), reason: language.code);
+      for (final (i, chapter) in guide.indexed) {
+        final original = source[i];
+        expect(chapter.topics.length, original.topics.length, reason: '${language.code} ${chapter.id}');
+        for (final (j, topic) in chapter.topics.indexed) {
+          final o = original.topics[j];
+          final where = '${language.code} ${chapter.id} #$j';
+          expect(topic.steps.length, o.steps.length, reason: '$where steps');
+          expect(topic.notes.length, o.notes.length, reason: '$where notes');
+          expect(topic.intro == null, o.intro == null, reason: '$where intro');
+          expect(topic.tip == null, o.tip == null, reason: '$where tip');
+        }
+      }
+    }
+  });
+
+  test('search folds accents in other languages', () {
+    expect(foldForSearch('Réseau Größe Ñandú'), 'reseau grose nandu');
+    expect(searchGuide(guideIn(AppLanguage.en), 'password').first.chapter.id, 'start');
   });
 
   test('search ignores Turkish marks and case, titles come first', () {

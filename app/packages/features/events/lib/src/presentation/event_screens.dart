@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/events.dart';
 import '../domain/handshakes.dart';
+import '../l10n.dart';
 import 'handshake.dart';
 import 'map_screens.dart';
 import 'polls.dart';
@@ -22,27 +24,27 @@ import 'welcome.dart';
 void _snack(BuildContext context, String message) =>
     ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text(message)));
 
-const _weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-const _shortMonths = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
-
-String _two(int v) => v.toString().padLeft(2, '0');
-
-/// `Cumartesi, 25 Ekim 2026 · 09:00–13:00`
+/// `25 Ekim 2026 Cumartesi · 09:00–13:00` in the app language.
 String eventWhen(GroupEvent e) {
   final s = e.startsAt.toLocal();
   final end = e.endsAt?.toLocal();
   final sameDay = end != null && end.year == s.year && end.month == s.month && end.day == s.day;
-  final until = end == null ? '' : sameDay ? '–${_two(end.hour)}:${_two(end.minute)}' : ' – ${formatDateTimeTr(end)}';
-  return '${_weekdays[s.weekday - 1]}, ${formatDateTr(s)} · ${_two(s.hour)}:${_two(s.minute)}$until';
+  final until = end == null ? '' : sameDay ? '–${formatTime(end)}' : ' – ${formatDateTime(end)}';
+  return '${formatWeekdayDateYear(s)} · ${formatTime(s)}$until';
 }
+
+/// `EKİ` / `OCT`: the month on a calendar sheet.
+String _shortMonth(DateTime d) => DateFormat.MMM(currentAppLanguage.code).format(d).replaceAll('.', '').toUpperCase();
 
 /// "Kask, Su ,, Mont" → ["Kask", "Su", "Mont"].
 List<String> equipmentItems(String text) => [for (final i in text.split(',')) if (i.trim().isNotEmpty) i.trim()];
 
 /// "12 / 20 kişi", "12 kişi katılıyor".
 String eventSeats(GroupEvent e) => e.capacity == null
-    ? '${formatCount(e.goingCount)} kişi katılıyor'
-    : '${formatCount(e.goingCount)} / ${formatCount(e.capacity!)} kişi${e.waitlistCount > 0 ? ' · ${formatCount(e.waitlistCount)} bekliyor' : ''}';
+    ? eventsL10n.seatsGoing(e.goingCount)
+    : e.waitlistCount > 0
+        ? eventsL10n.seatsOfWaiting(e.goingCount, e.capacity!, e.waitlistCount)
+        : eventsL10n.seatsOf(e.goingCount, e.capacity!);
 
 /// Profiles, groups and posts are other features; the app opens and shows them.
 class EventLinks {
@@ -60,9 +62,9 @@ class EventLinks {
 
 /// "18 kişi katıldı · 4,6 ★ (8 değerlendirme) · 12 anı".
 String eventSummary(GroupEvent e) => [
-      '${formatCount(e.goingCount)} kişi katıldı',
-      if (e.ratingAvg case final avg?) '${ratingLabel(avg)} ★ (${formatCount(e.ratingCount)} değerlendirme)',
-      if (e.postsCount > 0) '${formatCount(e.postsCount)} anı',
+      eventsL10n.summaryAttended(e.goingCount),
+      if (e.ratingAvg case final avg?) eventsL10n.summaryRating(ratingLabel(avg), e.ratingCount),
+      if (e.postsCount > 0) eventsL10n.countMemories(e.postsCount),
     ].join(' · ');
 
 /// Day and month block, like a calendar sheet.
@@ -83,7 +85,7 @@ class _DateBlock extends StatelessWidget {
       decoration: BoxDecoration(color: muted ? GwColors.surfaceMuted : GwColors.primarySoft, borderRadius: GwRadius.mdAll),
       child: Column(
         children: [
-          Text(_shortMonths[d.month - 1], style: textTheme.labelSmall?.copyWith(color: color)),
+          Text(_shortMonth(d), style: textTheme.labelSmall?.copyWith(color: color)),
           Text('${d.day}', style: textTheme.titleLarge?.copyWith(color: color)),
         ],
       ),
@@ -99,12 +101,12 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final e = event;
-    if (e.isCanceled) return const GwBadge('İptal edildi', tone: GwBadgeTone.danger);
+    if (e.isCanceled) return GwBadge(eventsL10n.canceled, tone: GwBadgeTone.danger);
     return switch (e.myStatus) {
-      AttendanceStatus.requested => const GwBadge('Onay bekliyor', tone: GwBadgeTone.warning),
-      AttendanceStatus.going => const GwBadge('Katılıyorsun', dot: true, tone: GwBadgeTone.primary),
-      AttendanceStatus.waitlisted => GwBadge('Bekleme listesi · ${e.myPlace ?? '-'}. sıra', tone: GwBadgeTone.info),
-      null when e.isFull && !e.hasStarted(DateTime.now()) => const GwBadge('Dolu', tone: GwBadgeTone.neutral),
+      AttendanceStatus.requested => GwBadge(eventsL10n.awaitingApproval, tone: GwBadgeTone.warning),
+      AttendanceStatus.going => GwBadge(eventsL10n.going, dot: true, tone: GwBadgeTone.primary),
+      AttendanceStatus.waitlisted => GwBadge(eventsL10n.waitlistPlace(e.myPlace ?? 0), tone: GwBadgeTone.info),
+      null when e.isFull && !e.hasStarted(DateTime.now()) => GwBadge(eventsL10n.full, tone: GwBadgeTone.neutral),
       null => const SizedBox.shrink(),
     };
   }
@@ -157,7 +159,7 @@ class EventCard extends StatelessWidget {
                       Text(eventSeats(e), style: textTheme.labelMedium),
                       if (e.fee != null) GwBadge(e.fee!.label),
                       _StatusBadge(event: e),
-                      if (conflict) const GwBadge('Çakışıyor', tone: GwBadgeTone.warning),
+                      if (conflict) GwBadge(eventsL10n.conflicting, tone: GwBadgeTone.warning),
                     ],
                   ),
                 ],
@@ -205,14 +207,14 @@ class GroupEventsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Organizasyonlar', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleLarge)),
+              Expanded(child: Text(eventsL10n.events, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleLarge)),
               IconButton(
-                tooltip: 'Geçmiş organizasyonlar',
+                tooltip: eventsL10n.pastEvents,
                 onPressed: () => context.push(EventRoutes.history(groupId)),
                 icon: const Icon(Icons.history_rounded),
               ),
               IconButton(
-                tooltip: 'Grup takvimi',
+                tooltip: eventsL10n.groupCalendar,
                 onPressed: () => context.push(EventRoutes.groupCalendar(groupId)),
                 icon: const Icon(Icons.calendar_month_outlined),
               ),
@@ -220,13 +222,13 @@ class GroupEventsSection extends ConsumerWidget {
                 TextButton.icon(
                   onPressed: left == 0 ? null : () => context.push(EventRoutes.create(groupId)),
                   icon: const Icon(Icons.event_available_outlined, size: GwSpacing.md + GwSpacing.xxs),
-                  label: const Text('Oluştur'),
+                  label: Text(eventsL10n.create),
                 ),
             ],
           ),
           if (canManage && left != null)
             Text(
-              left > 0 ? 'Bu ay ${formatCount(left)} organizasyon hakkın kaldı.' : 'Bu ayın organizasyon hakkı doldu. Paketi yükselterek artırabilirsin.',
+              left > 0 ? eventsL10n.eventsLeft(left) : eventsL10n.eventsLimitReached,
               style: textTheme.bodySmall?.copyWith(color: left > 0 ? GwColors.textSecondary : GwColors.error),
             ),
           if (data.ratingAvg case final avg?)
@@ -236,7 +238,7 @@ class GroupEventsSection extends ConsumerWidget {
                 const SizedBox(width: GwSpacing.xxs),
                 Expanded(
                   child: Text(
-                    '${ratingLabel(avg)} · organizasyonlarına ${formatCount(data.ratingCount)} değerlendirme',
+                    eventsL10n.groupRating(ratingLabel(avg), data.ratingCount),
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                   ),
                 ),
@@ -244,18 +246,18 @@ class GroupEventsSection extends ConsumerWidget {
             ),
           if (data.toReview.isNotEmpty) ...[
             const SizedBox(height: GwSpacing.sm),
-            Text('Nasıldı?', style: textTheme.titleSmall),
-            Text('Katıldığın organizasyonu puanla; herkes yalnızca ortalamayı görür.',
+            Text(eventsL10n.howWasIt, style: textTheme.titleSmall),
+            Text(eventsL10n.howWasItHint,
                 style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
             for (final e in data.toReview) ...[
               const SizedBox(height: GwSpacing.xs),
-              _ReviewBox(key: ValueKey(e.id), event: e, mine: null, title: '${e.title} · ${formatDateTr(e.startsAt.toLocal())}'),
+              _ReviewBox(key: ValueKey(e.id), event: e, mine: null, title: eventsL10n.titleOnDate(e.title, formatDate(e.startsAt.toLocal()))),
             ],
             const SizedBox(height: GwSpacing.sm),
           ],
           const SizedBox(height: GwSpacing.xs),
           if (data.events.isEmpty)
-            Text('Yürüyüş, konser ya da buluşma; ilk organizasyonu oluştur.',
+            Text(eventsL10n.eventsEmpty,
                 style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
             for (final e in data.events) ...[EventCard(event: e), const SizedBox(height: GwSpacing.xs)],
@@ -304,9 +306,9 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         _snack(
           context,
           switch (value.status) {
-            AttendanceStatus.requested => 'Katılım isteğin gönderildi. Yönetici karar verince haber vereceğiz.',
-            AttendanceStatus.going => 'Katılımın kaydedildi. Başlamadan önce hatırlatacağız.',
-            AttendanceStatus.waitlisted => 'Bekleme listesine girdin (${value.place}. sıra). Yer açılınca haber vereceğiz.',
+            AttendanceStatus.requested => eventsL10n.requestSent,
+            AttendanceStatus.going => eventsL10n.attendanceSaved,
+            AttendanceStatus.waitlisted => eventsL10n.waitlistJoined(value.place ?? 0),
           },
         );
         if (d.conflicts.isNotEmpty) await _offerToFreeConflicts(d.conflicts);
@@ -324,25 +326,25 @@ class _EventScreenState extends ConsumerState<EventScreen> {
     final leave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Aynı saatte başka organizasyonun var'),
+        title: Text(eventsL10n.conflictTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final c in conflicts) Text('• ${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}'),
+            for (final c in conflicts) Text(eventsL10n.conflictLine(c.title, formatDateTime(c.startsAt.toLocal()))),
             const SizedBox(height: GwSpacing.sm),
             Text(
               conflicts.length == 1
-                  ? 'Gidemeyeceksen ondan vazgeçip yerini başkasına bırakabilirsin.'
-                  : 'Gidemeyeceksen onlardan vazgeçip yerini başkalarına bırakabilirsin.',
+                  ? eventsL10n.conflictOne
+                  : eventsL10n.conflictMany,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('İkisinde de kalsın')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(eventsL10n.keepBoth)),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(conflicts.length == 1 ? 'Diğerinden vazgeç' : 'Diğerlerinden vazgeç'),
+            child: Text(conflicts.length == 1 ? eventsL10n.leaveOther : eventsL10n.leaveOthers),
           ),
         ],
       ),
@@ -359,7 +361,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
       context,
       switch (results.whereType<Err<void>>().firstOrNull) {
         Err(:final failure) => failure.userMessage,
-        _ => conflicts.length == 1 ? 'Diğer organizasyondan vazgeçtin; yerin boşaldı.' : 'Diğer organizasyonlardan vazgeçtin.',
+        _ => conflicts.length == 1 ? eventsL10n.leftOther : eventsL10n.leftOthers,
       },
     );
   }
@@ -367,14 +369,14 @@ class _EventScreenState extends ConsumerState<EventScreen> {
   Future<void> _decide(GroupEvent e, EventPerson person, {required bool approve}) async {
     await _run(
       (r) => r.decideRequest(e.id, person.id, approve: approve),
-      done: approve ? '${person.displayName} katılımcı oldu.' : 'İstek reddedildi; ${person.displayName} bilgilendirildi.',
+      done: approve ? eventsL10n.approvedPerson(person.displayName) : eventsL10n.declinedPerson(person.displayName),
     );
     ref.invalidate(groupEventsProvider(e.group.id));
   }
 
   Future<void> _addToCalendar(GroupEvent e) async {
     final opened = await launchUrl(ref.read(eventsRepositoryProvider).calendarUrl(e.id), mode: LaunchMode.externalApplication);
-    if (!opened && mounted) _snack(context, 'Takvim dosyası açılamadı. Tekrar dene.');
+    if (!opened && mounted) _snack(context, eventsL10n.calendarFailed);
   }
 
   Future<void> _stopSeries(GroupEvent e) async {
@@ -382,22 +384,22 @@ class _EventScreenState extends ConsumerState<EventScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Tekrar durdurulsun mu?'),
-        content: const Text('Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.'),
+        title: Text(eventsL10n.stopSeriesTitle),
+        content: Text(eventsL10n.stopSeriesBody),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-          GwButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: eventsL10n.stop, onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
     );
     if (ok != true) return;
-    await _run((r) => r.stopSeries(e.series!.id), done: 'Tekrar durduruldu.');
+    await _run((r) => r.stopSeries(e.series!.id), done: eventsL10n.seriesStopped);
   }
 
   Future<void> _cancel(GroupEvent e) async {
     final text = await showDialog<String>(context: context, builder: (_) => const _CancelDialog());
     if (text == null) return;
-    await _run((r) => r.cancel(e.id, reason: text), done: 'Organizasyon iptal edildi.');
+    await _run((r) => r.cancel(e.id, reason: text), done: eventsL10n.eventCanceledToast);
     ref.invalidate(groupEventsProvider(e.group.id));
   }
 
@@ -410,8 +412,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           appBar: AppBar(),
           body: GwEmptyState(
             icon: Icons.event_busy_outlined,
-            message: 'Bu organizasyon bulunamadı ya da artık görünür değil.',
-            actionLabel: 'Geri dön',
+            message: eventsL10n.eventNotFound,
+            actionLabel: eventsL10n.goBack,
             onAction: () => context.canPop() ? context.pop() : context.go('/'),
           ),
         ),
@@ -451,20 +453,20 @@ class _EventScreenState extends ConsumerState<EventScreen> {
     final Widget? action = switch ((open, d.isMember, e.myStatus)) {
       (false, _, _) => null,
       (true, false, _) => GwButton(
-          label: '${e.group.name} grubuna katıl',
+          label: eventsL10n.joinGroupFirst(e.group.name),
           variant: GwButtonVariant.secondary,
           expand: true,
           onPressed: () => widget.links.openGroup(context, e.group.handle),
         ),
       (true, true, null) when e.approvalRequired && !d.canManage => GwButton(
-          label: 'Katılım isteği gönder',
+          label: eventsL10n.sendJoinRequest,
           icon: Icons.how_to_reg_outlined,
           expand: true,
           isLoading: _busy,
           onPressed: () => _attend(d),
         ),
       (true, true, null) => GwButton(
-          label: e.isFull ? 'Bekleme listesine gir' : 'Katıl',
+          label: e.isFull ? eventsL10n.joinWaitlist : eventsL10n.join,
           icon: e.isFull ? Icons.hourglass_empty_rounded : Icons.event_available_outlined,
           expand: true,
           isLoading: _busy,
@@ -472,16 +474,16 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         ),
       (true, true, _) => GwButton(
           label: switch (e.myStatus) {
-            AttendanceStatus.requested => 'İsteği geri çek',
-            AttendanceStatus.going => 'Katılmaktan vazgeç',
-            _ => 'Bekleme listesinden çık',
+            AttendanceStatus.requested => eventsL10n.withdrawRequest,
+            AttendanceStatus.going => eventsL10n.leaveEvent,
+            _ => eventsL10n.leaveWaitlist,
           },
           variant: GwButtonVariant.secondary,
           expand: true,
           isLoading: _busy,
           onPressed: () => _run(
             (r) => r.leave(e.id),
-            done: e.myStatus == AttendanceStatus.requested ? 'Katılım isteğin geri çekildi.' : 'Katılımın kaldırıldı.',
+            done: e.myStatus == AttendanceStatus.requested ? eventsL10n.requestWithdrawn : eventsL10n.attendanceRemoved,
           ),
         ),
     };
@@ -491,31 +493,31 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         title: Text(e.group.name),
         actions: [
           IconButton(
-            tooltip: 'Paylaş',
+            tooltip: eventsL10n.share,
             icon: const Icon(Icons.share_outlined),
             onPressed: () async {
-              final shared = await shareLink(ref.read(shareLinksProvider).event(e.id), text: '${e.title} · GWAY\'de katıl:');
-              if (!shared && mounted) _snack(context, 'Organizasyon bağlantısı kopyalandı.');
+              final shared = await shareLink(ref.read(shareLinksProvider).event(e.id), text: eventsL10n.eventShareText(e.title));
+              if (!shared && mounted) _snack(context, eventsL10n.eventLinkCopied);
             },
           ),
           if (!d.canManage && ref.watch(currentUserIdProvider) != null)
             IconButton(
-              tooltip: 'Şikayet et',
+              tooltip: eventsL10n.report,
               icon: const Icon(Icons.flag_outlined),
               onPressed: () => ref.read(reportLauncherProvider)(context, ReportTarget.event(e.id)),
             ),
           if (d.canManage && open)
             PopupMenuButton<String>(
-              tooltip: 'Organizasyon seçenekleri',
+              tooltip: eventsL10n.eventOptions,
               onSelected: (a) => switch (a) {
                 'edit' => context.push(EventRoutes.edit(e.id)),
                 'stop' => _stopSeries(e),
                 _ => _cancel(e),
               },
               itemBuilder: (_) => [
-                const PopupMenuItem(value: 'edit', child: Text('Düzenle')),
-                const PopupMenuItem(value: 'cancel', child: Text('Bu tarihi iptal et')),
-                if (e.series?.active ?? false) const PopupMenuItem(value: 'stop', child: Text('Tekrarı durdur')),
+                PopupMenuItem(value: 'edit', child: Text(eventsL10n.edit)),
+                PopupMenuItem(value: 'cancel', child: Text(eventsL10n.cancelThisDate)),
+                if (e.series?.active ?? false) PopupMenuItem(value: 'stop', child: Text(eventsL10n.stopRepeat)),
               ],
             ),
         ],
@@ -549,12 +551,12 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(GwSpacing.sm),
                         decoration: const BoxDecoration(color: GwColors.errorSoft, borderRadius: GwRadius.mdAll),
-                        child: Text('Bu organizasyon iptal edildi${e.cancelReason == null ? '.' : ': ${e.cancelReason}'}',
+                        child: Text(e.cancelReason == null ? eventsL10n.eventCanceled : eventsL10n.eventCanceledBecause(e.cancelReason!),
                             style: textTheme.bodyMedium?.copyWith(color: GwColors.error)),
                       ),
                       const SizedBox(height: GwSpacing.md),
                     ] else if (!open) ...[
-                      const GwBadge('Başladı ya da sona erdi'),
+                      GwBadge(eventsL10n.startedOrEnded),
                       const SizedBox(height: GwSpacing.sm),
                     ],
                     Text(e.title, style: textTheme.headlineSmall),
@@ -571,7 +573,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         Text(eventWhen(e), style: textTheme.bodyLarge),
                         if (e.series case EventSeries(active: true) && final series)
                           Text(
-                            series.until == null ? series.label : '${series.label} · ${formatDateTr(series.until!)} tarihine kadar',
+                            series.until == null ? series.label : eventsL10n.seriesUntil(series.label, formatDate(series.until!)),
                             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                           ),
                         if (!e.isCanceled && open)
@@ -579,7 +581,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                             style: TextButton.styleFrom(padding: EdgeInsets.zero),
                             onPressed: () => _addToCalendar(e),
                             icon: const Icon(Icons.event_note_outlined, size: GwSpacing.md + GwSpacing.xxs),
-                            label: const Text('Takvime ekle'),
+                            label: Text(eventsL10n.addToCalendar),
                           ),
                       ]),
                     ),
@@ -601,7 +603,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     row(Icons.groups_outlined, Text(eventSeats(e), style: textTheme.bodyLarge)),
                     if (e.capacity != null)
                       Padding(
-                        padding: const EdgeInsets.only(left: GwSpacing.xl, bottom: GwSpacing.sm),
+                        padding: const EdgeInsetsDirectional.only(start: GwSpacing.xl, bottom: GwSpacing.sm),
                         child: ClipRRect(
                           borderRadius: GwRadius.smAll,
                           child: LinearProgressIndicator(
@@ -615,9 +617,9 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                       row(
                         Icons.payments_outlined,
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Katılım ücreti: ${e.fee!.label}', style: textTheme.bodyLarge),
+                          Text(eventsL10n.fee(e.fee!.label), style: textTheme.bodyLarge),
                           if (e.feeNote != null) Text(e.feeNote!, style: textTheme.bodyMedium),
-                          Text('Ücret organizasyon sahibine ödenir; GWAY ödeme almaz.',
+                          Text(eventsL10n.feeNotice,
                               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                         ]),
                       ),
@@ -629,21 +631,21 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         padding: const EdgeInsets.all(GwSpacing.md),
                         decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.mdAll),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Geliyor musun?', style: textTheme.titleMedium),
+                          Text(eventsL10n.areYouComing, style: textTheme.titleMedium),
                           const SizedBox(height: GwSpacing.xxs),
-                          Text('Gelemeyeceksen yerini bekleme listesindekilere bırak.', style: textTheme.bodyMedium),
+                          Text(eventsL10n.areYouComingHint, style: textTheme.bodyMedium),
                           const SizedBox(height: GwSpacing.sm),
                           Wrap(spacing: GwSpacing.xs, runSpacing: GwSpacing.xs, children: [
                             GwButton(
-                              label: 'Evet, geliyorum',
+                              label: eventsL10n.yesComing,
                               icon: Icons.check,
                               isLoading: _busy,
-                              onPressed: () => _run((r) => r.confirmAttendance(e.id), done: 'Teşekkürler, geleceğini organizatöre bildirdik.'),
+                              onPressed: () => _run((r) => r.confirmAttendance(e.id), done: eventsL10n.confirmThanks),
                             ),
                             GwButton(
-                              label: 'Gelemiyorum',
+                              label: eventsL10n.cantCome,
                               variant: GwButtonVariant.secondary,
-                              onPressed: _busy ? null : () => _run((r) => r.leave(e.id), done: 'Katılımın kaldırıldı; yerin boşaldı.'),
+                              onPressed: _busy ? null : () => _run((r) => r.leave(e.id), done: eventsL10n.spotFreed),
                             ),
                           ]),
                         ]),
@@ -654,7 +656,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         child: Row(children: [
                           const Icon(Icons.check_circle_outline, color: GwColors.success, size: GwSpacing.lg),
                           const SizedBox(width: GwSpacing.xs),
-                          Expanded(child: Text('Geleceğini teyit ettin.', style: textTheme.bodyMedium)),
+                          Expanded(child: Text(eventsL10n.confirmedComing, style: textTheme.bodyMedium)),
                         ]),
                       ),
                     if (d.conflicts.isNotEmpty && !e.isCanceled)
@@ -664,25 +666,25 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         padding: const EdgeInsets.all(GwSpacing.sm),
                         decoration: const BoxDecoration(color: GwColors.warningSoft, borderRadius: GwRadius.mdAll),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Bu saatte başka bir organizasyonun var', style: textTheme.labelLarge?.copyWith(color: GwColors.warning)),
+                          Text(eventsL10n.otherEventSameTime, style: textTheme.labelLarge?.copyWith(color: GwColors.warning)),
                           for (final c in d.conflicts)
                             InkWell(
                               onTap: () => context.push(EventRoutes.event(c.id)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: GwSpacing.xxs),
-                                child: Text('${c.title} · ${formatDateTimeTr(c.startsAt.toLocal())}',
+                                child: Text(eventsL10n.titleOnDate(c.title, formatDateTime(c.startsAt.toLocal())),
                                     style: textTheme.bodyMedium?.copyWith(color: GwColors.warning, decoration: TextDecoration.underline)),
                               ),
                             ),
                         ]),
                       ),
                     if (e.approvalRequired)
-                      row(Icons.how_to_reg_outlined, Text('Katılım yönetici onayıyla', style: textTheme.bodyLarge)),
+                      row(Icons.how_to_reg_outlined, Text(eventsL10n.needsApproval, style: textTheme.bodyLarge)),
                     if (e.requirements.isNotEmpty)
                       row(
                         Icons.rule_outlined,
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Katılım koşulları', style: textTheme.labelLarge),
+                          Text(eventsL10n.requirements, style: textTheme.labelLarge),
                           Text(e.requirements, style: textTheme.bodyLarge),
                         ]),
                       ),
@@ -690,7 +692,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                       row(
                         Icons.backpack_outlined,
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Gerekli ekipman', style: textTheme.labelLarge),
+                          Text(eventsL10n.equipment, style: textTheme.labelLarge),
                           const SizedBox(height: GwSpacing.xxs),
                           Wrap(spacing: GwSpacing.xs, runSpacing: GwSpacing.xs, children: [for (final item in e.equipment) GwBadge(item)]),
                         ]),
@@ -703,7 +705,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                     if (d.isMember && !e.isCanceled) EventWelcomeSection(event: e, links: widget.links),
                     if (d.requests case final requests? when requests.isNotEmpty) ...[
                       const SizedBox(height: GwSpacing.lg),
-                      Text('Katılım istekleri (${requests.length})', style: textTheme.titleMedium),
+                      Text(eventsL10n.joinRequestsCount(requests.length), style: textTheme.titleMedium),
                       const SizedBox(height: GwSpacing.xs),
                       for (final p in requests)
                         Padding(
@@ -717,17 +719,17 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               ),
                               const SizedBox(width: GwSpacing.sm),
                               Expanded(child: Text(p.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis)),
-                              TextButton(onPressed: _busy || !open ? null : () => _decide(e, p, approve: false), child: const Text('Reddet')),
-                              GwButton(label: 'Onayla', onPressed: _busy || !open ? null : () => _decide(e, p, approve: true)),
+                              TextButton(onPressed: _busy || !open ? null : () => _decide(e, p, approve: false), child: Text(eventsL10n.decline)),
+                              GwButton(label: eventsL10n.approve, onPressed: _busy || !open ? null : () => _decide(e, p, approve: true)),
                             ],
                           ),
                         ),
                     ],
                     if (d.attendees case final people? when people.isNotEmpty) ...[
                       const SizedBox(height: GwSpacing.lg),
-                      Text('Katılanlar', style: textTheme.titleMedium),
+                      Text(eventsL10n.attendees, style: textTheme.titleMedium),
                       if (d.confirmedCount case final confirmed?)
-                        Text('${e.goingCount} katılandan $confirmed kişi geleceğini teyit etti.',
+                        Text(eventsL10n.confirmedOf(e.goingCount, confirmed),
                             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                       const SizedBox(height: GwSpacing.xs),
                       Wrap(
@@ -736,15 +738,15 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                         children: [
                           for (final p in people)
                             Tooltip(
-                              message: p.confirmed == true ? '${p.displayName} · teyit etti' : p.displayName,
+                              message: p.confirmed == true ? eventsL10n.confirmedName(p.displayName) : p.displayName,
                               child: InkWell(
                                 customBorder: const CircleBorder(),
                                 onTap: () => widget.links.openProfile(context, p.username),
                                 child: Stack(clipBehavior: Clip.none, children: [
                                   GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user),
                                   if (p.confirmed == true)
-                                    const Positioned(
-                                      right: -GwSpacing.xxs,
+                                    const PositionedDirectional(
+                                      end: -GwSpacing.xxs,
                                       bottom: -GwSpacing.xxs,
                                       child: Icon(Icons.check_circle, color: GwColors.success, size: GwSpacing.md),
                                     ),
@@ -761,7 +763,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.page, GwSpacing.md),
                   child: GwButton(
-                    label: 'Ben de oradaydım kartını paylaş',
+                    label: eventsL10n.shareWasThere,
                     icon: Icons.auto_awesome_outlined,
                     variant: GwButtonVariant.secondary,
                     onPressed: () => showWasThereCard(context, e, count),
@@ -773,7 +775,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Nasıl geçti?', style: textTheme.titleMedium),
+                      Text(eventsL10n.howDidItGo, style: textTheme.titleMedium),
                       const SizedBox(height: GwSpacing.xxs),
                       Text(eventSummary(e), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                       if (d.canReview) ...[
@@ -782,8 +784,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                       ],
                       if (d.reviews case final reviews? when reviews.isNotEmpty) ...[
                         const SizedBox(height: GwSpacing.md),
-                        Text('Değerlendirmeler (${reviews.length})', style: textTheme.titleSmall),
-                        Text('Notları yalnızca organizasyonu düzenleyenler görür.',
+                        Text(eventsL10n.reviewsCount(reviews.length), style: textTheme.titleSmall),
+                        Text(eventsL10n.reviewNotesPrivate,
                             style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                         for (final r in reviews)
                           Padding(
@@ -795,7 +797,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                                 const SizedBox(width: GwSpacing.sm),
                                 Expanded(
                                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                    Text('${r.person!.displayName} · ${'★' * r.rating}', style: textTheme.labelLarge),
+                                    Text('${r.person!.displayName} · ${'★' * r.rating}', style: textTheme.labelLarge, semanticsLabel: eventsL10n.reviewBy(r.person!.displayName, r.rating)),
                                     if (r.comment.isNotEmpty) Text(r.comment, style: textTheme.bodyMedium),
                                   ]),
                                 ),
@@ -813,8 +815,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Yoklama', style: textTheme.titleMedium),
-                      Text('Gelmeyenleri işaretle; katkıya ve rozetlere yalnızca gelenler sayılır. Bitişten sonra 7 gün açık.',
+                      Text(eventsL10n.attendanceCheck, style: textTheme.titleMedium),
+                      Text(eventsL10n.attendanceCheckHint,
                           style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                       for (final entry in roll)
                         SwitchListTile(
@@ -824,26 +826,26 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               ? null
                               : (came) => _run(
                                     (r) => r.setNoShow(e.id, entry.person.id, noShow: !came),
-                                    done: came ? '${entry.person.displayName} geldi olarak işaretlendi.' : '${entry.person.displayName} gelmedi olarak işaretlendi.',
+                                    done: came ? eventsL10n.markedCame(entry.person.displayName) : eventsL10n.markedMissed(entry.person.displayName),
                                   ),
                           secondary: GwAvatar(name: entry.person.displayName, imageUrl: entry.person.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
                           title: Text(entry.person.displayName),
-                          subtitle: Text(entry.noShow ? 'Gelmedi' : 'Geldi'),
+                          subtitle: Text(entry.noShow ? eventsL10n.didntCome : eventsL10n.came),
                         ),
                     ],
                   ),
                 ),
               if (e.hasStarted(now) && !e.isCanceled && widget.links.memories != null) ...[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(GwSpacing.page, 0, GwSpacing.sm, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(GwSpacing.page, 0, GwSpacing.sm, 0),
                   child: Row(
                     children: [
-                      Expanded(child: Text('Anılar', style: textTheme.titleMedium)),
+                      Expanded(child: Text(eventsL10n.memories, style: textTheme.titleMedium)),
                       if (d.canPost && widget.links.shareMemory != null)
                         TextButton.icon(
                           onPressed: () => widget.links.shareMemory!(context, e.id),
                           icon: const Icon(Icons.add_a_photo_outlined, size: GwSpacing.md + GwSpacing.xxs),
-                          label: const Text('Anı paylaş'),
+                          label: Text(eventsL10n.shareMemory),
                         ),
                     ],
                   ),
@@ -855,7 +857,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                 PollsSection(
                   scope: (groupId: e.group.id, eventId: e.id),
                   canManage: d.canManage && open,
-                  title: 'Organizasyon anketleri',
+                  title: eventsL10n.eventPolls,
                 ),
             ],
           ),
@@ -882,8 +884,8 @@ class EventEditorScreen extends ConsumerWidget {
           appBar: AppBar(),
           body: GwEmptyState(
             icon: Icons.lock_outline,
-            message: 'Bu organizasyonu düzenleme yetkin yok.',
-            actionLabel: 'Geri dön',
+            message: eventsL10n.noEditPermission,
+            actionLabel: eventsL10n.goBack,
             onAction: () => context.pop(),
           ),
         ),
@@ -1032,7 +1034,7 @@ class _EditorState extends ConsumerState<_Editor> {
     final textTheme = Theme.of(context).textTheme;
     final editing = widget.event != null;
     return Scaffold(
-      appBar: AppBar(title: Text(editing ? 'Organizasyonu düzenle' : 'Yeni organizasyon')),
+      appBar: AppBar(title: Text(editing ? eventsL10n.editEvent : eventsL10n.newEvent)),
       body: GwReadingColumn(
         maxWidth: GwLayout.formMaxWidth,
         child: Form(
@@ -1056,7 +1058,7 @@ class _EditorState extends ConsumerState<_Editor> {
                         ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                             const Icon(Icons.add_photo_alternate_outlined, color: GwColors.textSecondary, size: GwSpacing.xl),
                             const SizedBox(height: GwSpacing.xs),
-                            Text('Kapak görseli ekle', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
+                            Text(eventsL10n.addCover, style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
                           ])
                         : Image(image: gwNetworkImage(_coverUrl!), fit: BoxFit.cover),
                   ),
@@ -1066,15 +1068,15 @@ class _EditorState extends ConsumerState<_Editor> {
               TextFormField(
                 controller: _title,
                 maxLength: 100,
-                decoration: const InputDecoration(labelText: 'Başlık', hintText: 'Ör. Belgrad Ormanı yürüyüşü'),
-                validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
+                decoration: InputDecoration(labelText: eventsL10n.title, hintText: eventsL10n.titleExample),
+                validator: (v) => (v ?? '').trim().length < 3 ? eventsL10n.titleMin3 : null,
               ),
               const SizedBox(height: GwSpacing.xs),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.schedule),
-                title: const Text('Başlangıç'),
-                subtitle: Text(formatDateTimeTr(_startsAt)),
+                title: Text(eventsL10n.starts),
+                subtitle: Text(formatDateTime(_startsAt)),
                 trailing: const Icon(Icons.edit_calendar_outlined),
                 onTap: () async {
                   final at = await _pick(_startsAt);
@@ -1085,11 +1087,11 @@ class _EditorState extends ConsumerState<_Editor> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.timelapse),
-                title: const Text('Bitiş (isteğe bağlı)'),
-                subtitle: Text(_endsAt == null ? 'Belirtilmedi' : formatDateTimeTr(_endsAt!)),
+                title: Text(eventsL10n.endsOptional),
+                subtitle: Text(_endsAt == null ? eventsL10n.notSpecified : formatDateTime(_endsAt!)),
                 trailing: _endsAt == null
                     ? const Icon(Icons.add)
-                    : IconButton(tooltip: 'Bitişi kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _endsAt = null)),
+                    : IconButton(tooltip: eventsL10n.removeEnd, icon: const Icon(Icons.close), onPressed: () => setState(() => _endsAt = null)),
                 onTap: () async {
                   final at = await _pick(_endsAt ?? _startsAt.add(const Duration(hours: 3)));
                   if (at != null) setState(() => _endsAt = at);
@@ -1097,13 +1099,13 @@ class _EditorState extends ConsumerState<_Editor> {
               ),
               if (widget.event == null && !_surprise) ...[
                 const SizedBox(height: GwSpacing.xs),
-                Text('Tekrar', style: textTheme.titleSmall),
+                Text(eventsL10n.repeat, style: textTheme.titleSmall),
                 const SizedBox(height: GwSpacing.xs),
                 Wrap(
                   spacing: GwSpacing.xs,
                   runSpacing: GwSpacing.xs,
                   children: [
-                    for (final (weeks, label) in const [(null, 'Tekrar yok'), (1, 'Her hafta'), (2, 'İki haftada bir')])
+                    for (final (weeks, label) in [(null, eventsL10n.noRepeat), (1, eventsL10n.weekly), (2, eventsL10n.biweekly)])
                       ChoiceChip(label: Text(label), selected: _repeatWeeks == weeks, onSelected: (_) => setState(() => _repeatWeeks = weeks)),
                   ],
                 ),
@@ -1111,11 +1113,11 @@ class _EditorState extends ConsumerState<_Editor> {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.event_repeat_outlined),
-                    title: const Text('Son tarih (isteğe bağlı)'),
-                    subtitle: Text(_repeatUntil == null ? 'Sen durdurana kadar' : formatDateTr(_repeatUntil!)),
+                    title: Text(eventsL10n.lastDateOptional),
+                    subtitle: Text(_repeatUntil == null ? eventsL10n.untilYouStop : formatDate(_repeatUntil!)),
                     trailing: _repeatUntil == null
                         ? const Icon(Icons.add)
-                        : IconButton(tooltip: 'Son tarihi kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _repeatUntil = null)),
+                        : IconButton(tooltip: eventsL10n.removeLastDate, icon: const Icon(Icons.close), onPressed: () => setState(() => _repeatUntil = null)),
                     onTap: () async {
                       final now = DateTime.now();
                       final day = await showDatePicker(
@@ -1128,7 +1130,7 @@ class _EditorState extends ConsumerState<_Editor> {
                     },
                   ),
                   Text(
-                    'Sonraki tarihler 4 hafta önceden kendiliğinden açılır ve her biri aylık organizasyon hakkından düşer.',
+                    eventsL10n.repeatHint,
                     style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                   ),
                 ],
@@ -1138,29 +1140,29 @@ class _EditorState extends ConsumerState<_Editor> {
                 contentPadding: EdgeInsets.zero,
                 value: _surprise,
                 onChanged: (v) => setState(() => _surprise = v),
-                title: const Text('Sürpriz mekan'),
-                subtitle: const Text('Mekan, başlamadan önce seçtiğin saatte yalnızca katılanlara açıklanır.'),
+                title: Text(eventsL10n.surpriseVenue),
+                subtitle: Text(eventsL10n.surpriseHint),
               ),
               TextFormField(
                 controller: _location,
                 maxLength: 200,
                 decoration: InputDecoration(
-                  labelText: _surprise ? 'İpucu (herkes görür)' : 'Yer',
-                  hintText: _surprise ? "Ör. Kadıköy'de, deniz kenarında" : 'Ör. Bahçeköy girişi ya da Çevrim içi',
+                  labelText: _surprise ? eventsL10n.hintPublic : eventsL10n.place,
+                  hintText: _surprise ? eventsL10n.hintExample : eventsL10n.placeExample,
                 ),
-                validator: (v) => (v ?? '').trim().length < 2 ? (_surprise ? 'Bir ipucu yaz.' : 'Yeri yaz.') : null,
+                validator: (v) => (v ?? '').trim().length < 2 ? (_surprise ? eventsL10n.writeHint : eventsL10n.writePlace) : null,
               ),
               if (_surprise) ...[
                 TextFormField(
                   controller: _venue,
                   maxLength: 200,
-                  decoration: const InputDecoration(
-                    labelText: 'Gerçek mekan (yalnızca katılanlar görür)',
-                    hintText: 'Ör. Moda Sahnesi önü',
+                  decoration: InputDecoration(
+                    labelText: eventsL10n.realVenue,
+                    hintText: eventsL10n.realVenueExample,
                   ),
-                  validator: (v) => (v ?? '').trim().length < 2 ? 'Gerçek mekanı yaz.' : null,
+                  validator: (v) => (v ?? '').trim().length < 2 ? eventsL10n.writeRealVenue : null,
                 ),
-                Text('Ne zaman açıklansın?', style: textTheme.titleSmall),
+                Text(eventsL10n.whenReveal, style: textTheme.titleSmall),
                 const SizedBox(height: GwSpacing.xs),
                 Wrap(
                   spacing: GwSpacing.xs,
@@ -1168,7 +1170,7 @@ class _EditorState extends ConsumerState<_Editor> {
                   children: [
                     for (final hours in EventSurprise.hourChoices)
                       ChoiceChip(
-                        label: Text('$hours saat önce'),
+                        label: Text(eventsL10n.hoursBefore(hours)),
                         selected: _revealHours == hours,
                         onSelected: (_) => setState(() => _revealHours = hours),
                       ),
@@ -1179,10 +1181,10 @@ class _EditorState extends ConsumerState<_Editor> {
               TextFormField(
                 controller: _link,
                 keyboardType: TextInputType.url,
-                decoration: const InputDecoration(labelText: 'Harita ya da çevrim içi bağlantı (isteğe bağlı)', hintText: 'https://'),
+                decoration: InputDecoration(labelText: eventsL10n.linkOptional, hintText: 'https://'),
                 validator: (v) {
                   final t = (v ?? '').trim();
-                  return t.isEmpty || t.startsWith('http://') || t.startsWith('https://') ? null : 'Bağlantı https:// ile başlamalı.';
+                  return t.isEmpty || t.startsWith('http://') || t.startsWith('https://') ? null : eventsL10n.httpsRequired;
                 },
               ),
               MeetingPointField(value: _meeting, onChanged: (p) => setState(() => _meeting = p)),
@@ -1192,16 +1194,16 @@ class _EditorState extends ConsumerState<_Editor> {
                 maxLength: 2000,
                 minLines: 3,
                 maxLines: 8,
-                decoration: const InputDecoration(labelText: 'Açıklama', alignLabelWithHint: true),
+                decoration: InputDecoration(labelText: eventsL10n.description, alignLabelWithHint: true),
               ),
               TextFormField(
                 controller: _capacity,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(labelText: 'Kapasite (boş = sınırsız)', helperText: 'Dolunca yeni katılanlar bekleme listesine girer.'),
+                decoration: InputDecoration(labelText: eventsL10n.capacity, helperText: eventsL10n.capacityHint),
                 validator: (v) {
                   final n = int.tryParse((v ?? '').trim());
-                  return (v ?? '').trim().isEmpty || (n != null && n >= 1 && n <= 10000) ? null : 'Kapasite 1–10.000 olmalı.';
+                  return (v ?? '').trim().isEmpty || (n != null && n >= 1 && n <= 10000) ? null : eventsL10n.capacityRange;
                 },
               ),
               TextFormField(
@@ -1209,30 +1211,30 @@ class _EditorState extends ConsumerState<_Editor> {
                 maxLength: 500,
                 minLines: 1,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Katılım koşulları (isteğe bağlı)', hintText: 'Ör. En az 10 km yürüyüş deneyimi'),
+                decoration: InputDecoration(labelText: eventsL10n.requirementsOptional, hintText: eventsL10n.requirementsExample),
               ),
               TextFormField(
                 controller: _equipment,
-                decoration: const InputDecoration(
-                  labelText: 'Gerekli ekipman (isteğe bağlı)',
-                  hintText: 'Ör. Kask, Su, Yağmurluk',
-                  helperText: 'Virgülle ayır; en fazla 10 madde.',
+                decoration: InputDecoration(
+                  labelText: eventsL10n.equipmentOptional,
+                  hintText: eventsL10n.equipmentExample,
+                  helperText: eventsL10n.equipmentHint,
                 ),
                 validator: (v) {
                   final items = equipmentItems(v ?? '');
-                  return items.length <= 10 && items.every((i) => i.length <= 60) ? null : 'En fazla 10 madde, her biri en fazla 60 karakter.';
+                  return items.length <= 10 && items.every((i) => i.length <= 60) ? null : eventsL10n.equipmentLimit;
                 },
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _approval,
                 onChanged: (v) => setState(() => _approval = v),
-                title: const Text('Katılım onayla olsun'),
-                subtitle: const Text('Katılmak isteyenler istek gönderir; sen onaylarsın.'),
+                title: Text(eventsL10n.approvalRequired),
+                subtitle: Text(eventsL10n.approvalHint),
               ),
               const SizedBox(height: GwSpacing.md),
-              Text('Katılım ücreti (isteğe bağlı)', style: textTheme.titleSmall),
-              Text('Yalnızca bilgi amaçlı gösterilir; GWAY ödeme almaz.',
+              Text(eventsL10n.feeOptional, style: textTheme.titleSmall),
+              Text(eventsL10n.feeInfoOnly,
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
               const SizedBox(height: GwSpacing.xs),
               Row(
@@ -1241,8 +1243,8 @@ class _EditorState extends ConsumerState<_Editor> {
                     child: TextFormField(
                       controller: _fee,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Tutar', hintText: 'Ör. 150'),
-                      validator: (v) => (v ?? '').trim().isEmpty || (_feeMinor() ?? 0) > 0 ? null : 'Geçerli bir tutar yaz.',
+                      decoration: InputDecoration(labelText: eventsL10n.amount, hintText: eventsL10n.amountExample),
+                      validator: (v) => (v ?? '').trim().isEmpty || (_feeMinor() ?? 0) > 0 ? null : eventsL10n.validAmount,
                     ),
                   ),
                   const SizedBox(width: GwSpacing.sm),
@@ -1260,12 +1262,12 @@ class _EditorState extends ConsumerState<_Editor> {
               TextFormField(
                 controller: _feeNote,
                 maxLength: 200,
-                decoration: const InputDecoration(labelText: 'Ödeme notu', hintText: 'Ör. Yerinde nakit ödenir'),
+                decoration: InputDecoration(labelText: eventsL10n.paymentNote, hintText: eventsL10n.paymentNoteExample),
               ),
               if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
               const SizedBox(height: GwSpacing.md),
               GwButton(
-                label: editing ? 'Kaydet' : 'Organizasyonu oluştur',
+                label: editing ? eventsL10n.save : eventsL10n.createEvent,
                 icon: Icons.event_available_outlined,
                 isLoading: _busy,
                 expand: true,
@@ -1327,12 +1329,12 @@ class _ReviewBoxState extends ConsumerState<_ReviewBox> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title ?? (widget.mine == null ? 'Organizasyonu değerlendir' : 'Değerlendirmen'), style: textTheme.labelLarge),
+          Text(widget.title ?? (widget.mine == null ? eventsL10n.rateEvent : eventsL10n.yourReview), style: textTheme.labelLarge),
           Row(
             children: [
               for (var star = 1; star <= 5; star++)
                 IconButton(
-                  tooltip: '$star yıldız',
+                  tooltip: eventsL10n.starsLabel(star),
                   onPressed: _busy ? null : () => setState(() => _rating = star),
                   icon: Icon(star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded, color: GwColors.primary),
                 ),
@@ -1343,9 +1345,9 @@ class _ReviewBoxState extends ConsumerState<_ReviewBox> {
             maxLength: 500,
             minLines: 1,
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Düzenleyenlere notun (isteğe bağlı)',
-              helperText: 'Notunu yalnızca organizasyonu düzenleyenler görür; herkes yalnızca ortalamayı görür.',
+            decoration: InputDecoration(
+              labelText: eventsL10n.noteToOrganizers,
+              helperText: eventsL10n.noteToOrganizersHint,
               helperMaxLines: 2,
             ),
           ),
@@ -1354,16 +1356,16 @@ class _ReviewBoxState extends ConsumerState<_ReviewBox> {
             children: [
               if (widget.mine != null)
                 TextButton(
-                  onPressed: _busy ? null : () => _run((r) => r.deleteReview(widget.event.id), 'Değerlendirmen silindi.'),
-                  child: const Text('Sil'),
+                  onPressed: _busy ? null : () => _run((r) => r.deleteReview(widget.event.id), eventsL10n.reviewDeleted),
+                  child: Text(eventsL10n.delete),
                 ),
               const Spacer(),
               GwButton(
-                label: 'Kaydet',
+                label: eventsL10n.save,
                 isLoading: _busy,
                 onPressed: _rating == 0
                     ? null
-                    : () => _run((r) => r.saveReview(widget.event.id, rating: _rating, comment: _comment.text), 'Teşekkürler, değerlendirmen kaydedildi.'),
+                    : () => _run((r) => r.saveReview(widget.event.id, rating: _rating, comment: _comment.text), eventsL10n.reviewSaved),
               ),
             ],
           ),
@@ -1392,7 +1394,7 @@ class _NextEvents extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Grubun sıradaki organizasyonları', style: Theme.of(context).textTheme.titleMedium),
+          Text(eventsL10n.groupNext, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: GwSpacing.xs),
           for (final e in next) ...[EventCard(event: e), const SizedBox(height: GwSpacing.xs)],
         ],
@@ -1419,8 +1421,7 @@ class _SimilarEvents extends ConsumerWidget {
       padding: const EdgeInsets.all(GwSpacing.sm),
       decoration: const BoxDecoration(color: GwColors.secondarySoft, borderRadius: GwRadius.mdAll),
       child: Text(
-        'Bu tarihte ilinde aynı kategoride $n organizasyon daha var. Üyelerin seçim yapmak zorunda kalmasın '
-        'istersen başka bir gün seçebilirsin.',
+        eventsL10n.sameDayOthers(n),
         style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
@@ -1446,19 +1447,19 @@ class _CancelDialogState extends State<_CancelDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-        title: const Text('Organizasyonu iptal et'),
+        title: Text(eventsL10n.cancelEvent),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Katılanlara ve bekleyenlere bildirim gider. İptal geri alınamaz.'),
+            Text(eventsL10n.cancelEventBody),
             const SizedBox(height: GwSpacing.sm),
-            TextField(controller: _reason, maxLength: 500, decoration: const InputDecoration(labelText: 'Gerekçe')),
+            TextField(controller: _reason, maxLength: 500, decoration: InputDecoration(labelText: eventsL10n.reason)),
           ],
         ),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
-          GwButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(_reason.text)),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: eventsL10n.cancelAction, onPressed: () => Navigator.of(context).pop(_reason.text)),
         ],
       );
 }
@@ -1476,15 +1477,15 @@ class SurprisePlace extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary);
     final revealed = surprise.isRevealed(now);
-    final when = formatDateTimeTr(surprise.revealAt.toLocal());
+    final when = formatDateTime(surprise.revealAt.toLocal());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const GwBadge('Sürpriz mekan', tone: GwBadgeTone.primary),
+        GwBadge(eventsL10n.surpriseVenue, tone: GwBadgeTone.primary),
         const SizedBox(height: GwSpacing.xxs),
         if (surprise.venue case final venue?) ...[
           Text(venue, style: textTheme.bodyLarge),
-          Text(revealed ? 'İpucu: ${event.location}' : 'İpucu: ${event.location} · Katılanlara $when açıklanacak.', style: secondary),
+          Text(revealed ? eventsL10n.hint(event.location) : eventsL10n.hintRevealAt(event.location, when), style: secondary),
           if (surprise.venueMeeting case final point?) ...[
             const SizedBox(height: GwSpacing.xs),
             EventMeetingMap(point: point),
@@ -1492,7 +1493,7 @@ class SurprisePlace extends StatelessWidget {
         ] else ...[
           Text([?surprise.province, event.location].join(' · '), style: textTheme.bodyLarge),
           Text(
-            revealed ? 'Mekan katılanlara açıklandı. Katılırsan görürsün.' : 'Mekan $when katılanlara açıklanacak.',
+            revealed ? eventsL10n.venueRevealed : eventsL10n.venueRevealAt(when),
             style: secondary,
           ),
         ],

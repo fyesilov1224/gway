@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/matching.dart';
+import '../l10n.dart';
 import 'match_card_view.dart';
 import 'match_sheets.dart';
 import 'matching_screen.dart';
@@ -47,10 +48,10 @@ Future<void> showPackageSheet(BuildContext context, {required MatchFeature featu
                 const SizedBox(height: GwSpacing.xs),
                 Text(reason, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                 const SizedBox(height: GwSpacing.lg),
-                GwButton(label: '${feature.package.title} paketini incele', expand: true, onPressed: () => open(feature.package)),
+                GwButton(label: matchingL10n.seePackageOf(feature.package.title), expand: true, onPressed: () => open(feature.package)),
                 const SizedBox(height: GwSpacing.xs),
                 GwButton(
-                  label: 'Hepsi Bir Arada',
+                  label: matchingL10n.pkgAll,
                   icon: Icons.workspace_premium_outlined,
                   variant: GwButtonVariant.secondary,
                   expand: true,
@@ -58,7 +59,7 @@ Future<void> showPackageSheet(BuildContext context, {required MatchFeature featu
                 ),
                 const SizedBox(height: GwSpacing.xs),
                 GwButton(
-                  label: 'Tüm paketler',
+                  label: matchingL10n.allPackages,
                   variant: GwButtonVariant.text,
                   expand: true,
                   onPressed: () {
@@ -81,7 +82,7 @@ class MatchPackagesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(matchStatusProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('Eşleşme paketleri')),
+      appBar: AppBar(title: Text(matchingL10n.packagesTitle)),
       body: GwReadingColumn(
         maxWidth: GwLayout.formMaxWidth,
         child: RefreshIndicator(
@@ -90,12 +91,12 @@ class MatchPackagesScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
               Text(
-                'Profil açmak ve kaydırmak ücretsiz. Her özellik ayrı bir pakettir; yalnızca istediğini al.',
+                matchingL10n.packagesIntro,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
               if (status?.fullAccess ?? false) ...[
                 const SizedBox(height: GwSpacing.sm),
-                const GwBadge('Yönetici olarak tüm paketler açık', tone: GwBadgeTone.success),
+                GwBadge(matchingL10n.adminAllOpen, tone: GwBadgeTone.success),
               ],
               const SizedBox(height: GwSpacing.md),
               for (final p in [MatchPackage.all, ...MatchPackage.values.where((p) => p != MatchPackage.all)]) ...[
@@ -140,7 +141,7 @@ class _PackageTile extends StatelessWidget {
                 Text(package.description, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
                 if (until != null) ...[
                   const SizedBox(height: GwSpacing.xxs),
-                  GwBadge('${formatDateTr(until!)} tarihine kadar açık', tone: GwBadgeTone.success),
+                  GwBadge(matchingL10n.openUntil(formatDate(until!)), tone: GwBadgeTone.success),
                 ],
               ],
             ),
@@ -188,7 +189,7 @@ class MatchPackageScreen extends ConsumerWidget {
                   Text(package.description, textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                   if (until != null) ...[
                     const SizedBox(height: GwSpacing.sm),
-                    GwBadge('${formatDateTr(until)} tarihine kadar açık', tone: GwBadgeTone.success),
+                    GwBadge(matchingL10n.openUntil(formatDate(until)), tone: GwBadgeTone.success),
                   ],
                 ],
               ),
@@ -257,9 +258,9 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Filtreler', style: textTheme.titleLarge),
+            Text(matchingL10n.filters, style: textTheme.titleLarge),
             const SizedBox(height: GwSpacing.md),
-            Text('Yaş: $min – $max', style: textTheme.titleSmall),
+            Text(matchingL10n.ageFilter(min, max), style: textTheme.titleSmall),
             RangeSlider(
               values: _ages,
               min: matchMinAge.toDouble(),
@@ -272,9 +273,9 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             DropdownButtonFormField<int?>(
               initialValue: _province,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'İl'),
+              decoration: InputDecoration(labelText: matchingL10n.province),
               items: [
-                const DropdownMenuItem(child: Text('Tüm iller')),
+                DropdownMenuItem(child: Text(matchingL10n.allProvinces)),
                 for (final (i, name) in turkishProvinces.indexed) DropdownMenuItem(value: i + 1, child: Text(name)),
               ],
               onChanged: (v) => setState(() => _province = v),
@@ -283,16 +284,16 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             DropdownButtonFormField<String?>(
               initialValue: _interest,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'İlgi alanı'),
+              decoration: InputDecoration(labelText: matchingL10n.interest),
               items: [
-                const DropdownMenuItem(child: Text('Hepsi')),
+                DropdownMenuItem(child: Text(matchingL10n.all)),
                 for (final c in categories) DropdownMenuItem(value: c.slug, child: Text(c.name)),
               ],
               onChanged: (v) => setState(() => _interest = v),
             ),
             const SizedBox(height: GwSpacing.lg),
             GwButton(
-              label: 'Uygula',
+              label: matchingL10n.apply,
               expand: true,
               onPressed: () => _apply(MatchFilters(
                 minAge: min == matchMinAge ? null : min,
@@ -302,7 +303,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
               )),
             ),
             const SizedBox(height: GwSpacing.xs),
-            GwButton(label: 'Temizle', variant: GwButtonVariant.text, expand: true, onPressed: () => _apply(const MatchFilters())),
+            GwButton(label: matchingL10n.clear, variant: GwButtonVariant.text, expand: true, onPressed: () => _apply(const MatchFilters())),
           ],
         ),
       ),
@@ -358,7 +359,7 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
     final mode = _mode != null && modes.contains(_mode) ? _mode! : modes.first;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Seni beğenenler')),
+      appBar: AppBar(title: Text(matchingL10n.admirers)),
       body: GwReadingColumn(
         child: switch (status) {
           AsyncData(:final value) => Column(
@@ -400,8 +401,8 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
         AsyncData(:final value) when value.isEmpty => Center(
             child: GwEmptyState(
               icon: Icons.favorite_border_rounded,
-              message: 'Şimdilik bekleyen beğeni yok. Kaydırmaya devam et; seni beğenenler burada görünür.',
-              actionLabel: 'Kaydırmaya dön',
+              message: matchingL10n.noAdmirers,
+              actionLabel: matchingL10n.backToSwiping,
               onAction: () => context.pop(),
             ),
           ),
@@ -412,14 +413,14 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
                 RoundAction(
                   icon: Icons.close_rounded,
                   color: swipeColor(SwipeKind.pass),
-                  tooltip: 'Geç',
+                  tooltip: matchingL10n.pass,
                   large: true,
                   onPressed: () => _answer(value[i], mode, SwipeKind.pass),
                 ),
                 RoundAction(
                   icon: Icons.favorite_rounded,
                   color: swipeColor(SwipeKind.like),
-                  tooltip: 'Beğen ve eşleş',
+                  tooltip: matchingL10n.likeAndMatch,
                   large: true,
                   onPressed: () => _answer(value[i], mode, SwipeKind.like),
                 ),
@@ -440,16 +441,16 @@ class _MatchLikesScreenState extends ConsumerState<MatchLikesScreen> {
           padding: const EdgeInsets.all(GwSpacing.lg),
           child: Column(
             children: [
-              Text(count == 0 ? 'Henüz bekleyen beğeni yok' : '$count kişi seni beğendi', style: textTheme.headlineSmall),
+              Text(count == 0 ? matchingL10n.noPendingLikes : matchingL10n.likedYouCount(count), style: textTheme.headlineSmall),
               const SizedBox(height: GwSpacing.xs),
               Text(
-                'Seni Beğenenler paketiyle kim olduklarını gör, beğenerek anında eşleş.',
+                matchingL10n.admirersPitch,
                 textAlign: TextAlign.center,
                 style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
               ),
               const SizedBox(height: GwSpacing.md),
               GwButton(
-                label: 'Paketi incele',
+                label: matchingL10n.seePackage,
                 icon: Icons.workspace_premium_outlined,
                 onPressed: () => context.push(MatchingRoutes.package(MatchPackage.admirers)),
               ),
@@ -512,9 +513,9 @@ class _Tile extends StatelessWidget {
               ),
             ),
             if (card.superLikedMe)
-              const Positioned(
+              const PositionedDirectional(
                 top: GwSpacing.xs,
-                right: GwSpacing.xs,
+                end: GwSpacing.xs,
                 child: Icon(Icons.star_rounded, color: GwColors.onMedia),
               ),
             Positioned(

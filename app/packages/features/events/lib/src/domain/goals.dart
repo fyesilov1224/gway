@@ -1,46 +1,68 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
 import 'events.dart';
 
 enum GoalKind {
-  personal('personal', 'Kişisel hedef', 'Her üye kendi sayısını tamamlar.'),
-  group('group', 'Grup hedefi', 'Herkesin katkısı tek sayaçta toplanır.'),
-  team('team', 'Takım hedefi', 'Yönetici takımları kurar; takımın ortak sayacı olur.'),
-  task('task', 'Onaylı görev', 'Üye "Yaptım" der, yönetici onaylar.');
+  personal('personal'),
+  group('group'),
+  team('team'),
+  task('task');
 
-  const GoalKind(this.code, this.label, this.description);
+  const GoalKind(this.code);
 
   final String code;
-  final String label;
-  final String description;
+
+  String get label => switch (this) {
+        personal => eventsL10n.goalPersonal,
+        group => eventsL10n.goalGroup,
+        team => eventsL10n.goalTeam,
+        task => eventsL10n.goalTask,
+      };
+
+  String get description => switch (this) {
+        personal => eventsL10n.goalPersonalHint,
+        group => eventsL10n.goalGroupHint,
+        team => eventsL10n.goalTeamHint,
+        task => eventsL10n.goalTaskHint,
+      };
 
   static GoalKind parse(Object? code) => values.firstWhere((k) => k.code == code, orElse: () => personal);
 }
 
 enum GoalMetric {
-  attended('attended', 'katılım'),
-  organized('organized', 'düzenleme'),
-  memories('memories', 'anı');
+  attended('attended'),
+  organized('organized'),
+  memories('memories');
 
-  const GoalMetric(this.code, this.unit);
+  const GoalMetric(this.code);
 
   final String code;
 
-  /// "4 katılım".
-  final String unit;
+  /// The unit after a number: "4 katılım".
+  String unitFor(int count) => switch (this) {
+        attended => eventsL10n.unitAttended(count),
+        organized => eventsL10n.unitOrganized(count),
+        memories => eventsL10n.unitMemories(count),
+      };
 
   static GoalMetric? tryParse(Object? code) => values.where((m) => m.code == code).firstOrNull;
 }
 
 enum ClaimStatus {
-  pending('pending', 'Onay bekliyor'),
-  approved('approved', 'Onaylandı'),
-  rejected('rejected', 'Onaylanmadı');
+  pending('pending'),
+  approved('approved'),
+  rejected('rejected');
 
-  const ClaimStatus(this.code, this.label);
+  const ClaimStatus(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        pending => eventsL10n.claimPending,
+        approved => eventsL10n.claimApproved,
+        rejected => eventsL10n.claimRejected,
+      };
 
   static ClaimStatus? tryParse(Object? code) => values.where((s) => s.code == code).firstOrNull;
 }
@@ -94,7 +116,7 @@ class Goal {
   double get share => (progress / target).clamp(0, 1).toDouble();
 
   /// "3 / 4 katılım", "31 / 50 katılım".
-  String get progressLabel => metric == null ? (myClaim?.label ?? 'Henüz bildirilmedi') : '${formatCount(progress)} / ${formatCount(target)} ${metric!.unit}';
+  String get progressLabel => metric == null ? (myClaim?.label ?? eventsL10n.notClaimedYet) : '${formatCount(progress)} / ${formatCount(target)} ${metric!.unitFor(target)}';
 }
 
 class GoalTeam {

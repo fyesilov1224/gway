@@ -1,0 +1,10 @@
+{
+  "@@locale": "nl",
+  "loadingLabel": "{label}, wordt geladen",
+  "previous": "Vorige",
+  "next": "Volgende",
+  "coverPhoto": "Omslagfoto",
+  "retry": "Opnieuw proberen",
+  "liveBroadcast": "Livestream",
+  "liveBadge": "LIVE"
+}

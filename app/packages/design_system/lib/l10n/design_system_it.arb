@@ -1,0 +1,10 @@
+{
+  "@@locale": "it",
+  "loadingLabel": "{label}, caricamento",
+  "previous": "Precedenti",
+  "next": "Successivi",
+  "coverPhoto": "Foto di copertina",
+  "retry": "Riprova",
+  "liveBroadcast": "Diretta",
+  "liveBadge": "LIVE"
+}

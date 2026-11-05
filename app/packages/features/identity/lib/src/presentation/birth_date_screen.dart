@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/age.dart';
+import '../l10n.dart';
 import 'auth_layout.dart';
 import 'providers.dart';
 
@@ -28,7 +29,7 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
       firstDate: DateTime(1900),
       lastDate: today,
       initialDatePickerMode: DatePickerMode.year,
-      helpText: 'Doğum tarihin',
+      helpText: identityL10n.birthDateTitle,
     );
     if (picked != null) setState(() => _date = picked);
   }
@@ -36,11 +37,11 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
   Future<void> _save() async {
     final date = _date;
     if (date == null) {
-      setState(() => _error = 'Doğum tarihini seç.');
+      setState(() => _error = identityL10n.chooseBirthDate);
       return;
     }
     if (ageOn(date, DateTime.now()) < minimumAge) {
-      setState(() => _error = 'GWAY\'i kullanmak için en az $minimumAge yaşında olmalısın.');
+      setState(() => _error = identityL10n.ageMinimum(minimumAge));
       return;
     }
     setState(() {
@@ -63,21 +64,21 @@ class _BirthDateScreenState extends ConsumerState<BirthDateScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: 'Doğum tarihin',
-      subtitle: 'GWAY $minimumAge yaş ve üstündekiler içindir. Doğum tarihin kimseye gösterilmez ve sonradan değiştirilemez.',
+      title: identityL10n.birthDateTitle,
+      subtitle: identityL10n.birthDateExplain(minimumAge),
       children: [
         OutlinedButton.icon(
           onPressed: _saving ? null : _pick,
           icon: const Icon(Icons.cake_outlined),
-          label: Text(_date == null ? 'Tarih seç' : formatDateTr(_date!)),
+          label: Text(_date == null ? identityL10n.chooseDate : formatDate(_date!)),
           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(GwSpacing.buttonHeight)),
         ),
         const SizedBox(height: GwSpacing.md),
         if (_error != null) ...[GwFormMessage(_error!), const SizedBox(height: GwSpacing.md)],
-        GwButton(label: 'Devam et', onPressed: _save, isLoading: _saving, expand: true),
+        GwButton(label: identityL10n.continueAction, onPressed: _save, isLoading: _saving, expand: true),
         const SizedBox(height: GwSpacing.sm),
         GwButton(
-          label: 'Çıkış yap',
+          label: identityL10n.signOut,
           variant: GwButtonVariant.text,
           onPressed: _saving ? null : () => ref.read(authRepositoryProvider).signOut(),
         ),

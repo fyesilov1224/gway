@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../domain/post.dart';
+import '../l10n.dart';
 
 /// A network photo filling its box. It is decoded at the box's pixel width
 /// (`cacheWidth`), shows [placeholderUrl] (the small copy) or a skeleton until
@@ -69,9 +70,9 @@ class MediaThumb extends StatelessWidget {
             child: Center(child: Icon(Icons.play_arrow_rounded, color: GwColors.onMedia, size: GwSpacing.xl)),
           ),
         if (badge != null)
-          Positioned(
+          PositionedDirectional(
             top: GwSpacing.xs,
-            right: GwSpacing.xs,
+            end: GwSpacing.xs,
             child: Icon(badge, color: GwColors.onMedia, size: GwSpacing.md + GwSpacing.xxs,
                 shadows: const [Shadow(color: GwColors.mediaScrim, blurRadius: GwSpacing.xxs)]),
           ),
@@ -168,12 +169,12 @@ class VideoViewState extends State<VideoView> {
             if (_ready && !v.isPlaying && widget.onFinished == null)
               const Center(child: Icon(Icons.play_circle_fill_rounded, color: GwColors.onMedia, size: GwSpacing.xxl)),
             if (_ready)
-              Positioned(
-                right: GwSpacing.xs,
+              PositionedDirectional(
+                end: GwSpacing.xs,
                 bottom: GwSpacing.xs,
                 child: Semantics(
                   button: true,
-                  label: _muted ? 'Sesi aç' : 'Sesi kapat',
+                  label: _muted ? feedL10n.unmute : feedL10n.mute,
                   child: IconButton(
                     onPressed: _toggleMute,
                     style: IconButton.styleFrom(backgroundColor: GwColors.mediaScrim, foregroundColor: GwColors.onMedia),
@@ -269,9 +270,9 @@ class _MediaCarouselState extends State<MediaCarousel> with SingleTickerProvider
             ),
           ),
           if (media.length > 1) ...[
-            Positioned(
+            PositionedDirectional(
               top: GwSpacing.sm,
-              right: GwSpacing.sm,
+              end: GwSpacing.sm,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xxs),
                 decoration: const BoxDecoration(color: GwColors.mediaScrim, borderRadius: GwRadius.lgAll),

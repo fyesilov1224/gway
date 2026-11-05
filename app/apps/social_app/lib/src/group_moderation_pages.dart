@@ -8,6 +8,8 @@ import 'package:groups/groups.dart';
 import 'package:moderation/moderation.dart';
 import 'package:profile/profile.dart';
 
+import 'l10n.dart';
+
 /// Moderation pages open profiles, posts and events through the app (features stay independent).
 final moderationLinks = ModerationLinks(
   openProfile: (context, username) => context.push(ProfileRoutes.user(username)),
@@ -44,7 +46,7 @@ class GroupModerationPage extends ConsumerWidget {
         AsyncError() => Scaffold(
             appBar: AppBar(),
             body: GwErrorState(
-              message: 'Grup bulunamadı.',
+              message: socialAppL10n.groupNotFound,
               onRetry: () => ref.invalidate(groupByHandleProvider(handle)),
             ),
           ),

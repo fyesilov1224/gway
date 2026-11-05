@@ -1,3 +1,4 @@
+
 /// "Bu akşam boşum" and the small table (docs/ARCHITECTURE.md §3d, Bu akşam boşum ve küçük masa).
 library;
 
