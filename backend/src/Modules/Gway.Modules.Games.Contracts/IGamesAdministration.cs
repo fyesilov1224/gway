@@ -34,6 +34,25 @@ public interface ITeamMatchAdministration
     Task<Result> CancelAsStaffAsync(Guid actorId, Guid id, string reason, CancellationToken ct);
 }
 
+/// <summary>An arena in the admin panel; <see cref="Title"/> is null for the weekly and monthly ones.</summary>
+public sealed record TournamentAdminRow(
+    Guid Id, string Kind, string? Title, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Status,
+    int Players);
+
+/// <summary>An extra arena opened by the platform team.</summary>
+public sealed record TournamentDraft(string Title, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, int Minutes);
+
+/// <summary>Platform team actions on arenas. Callers check platform staff roles first; every action is audited.</summary>
+public interface ITournamentAdministration
+{
+    Task<IReadOnlyList<TournamentAdminRow>> ListAsync(CancellationToken ct);
+
+    Task<Result<Guid>> CreateAsync(Guid actorId, TournamentDraft draft, CancellationToken ct);
+
+    /// <summary>Only an arena that has not started.</summary>
+    Task<Result> CancelAsync(Guid actorId, Guid id, string reason, CancellationToken ct);
+}
+
 /// <summary>Platform team actions on chess. Callers check platform staff roles first; every action is audited.</summary>
 public interface IGamesAdministration
 {

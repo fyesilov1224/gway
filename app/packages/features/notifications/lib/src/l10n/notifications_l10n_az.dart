@@ -371,4 +371,15 @@ class NotificationsL10nAz extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Komanda matçı';
+
+  @override
+  String get actChessArenaStart =>
+      'Qoşulduğun turnir başladı. Açan kimi dərhal cütləşəcəksən.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.';
+
+  @override
+  String get leadArena => 'Şahmat turniri';
 }

@@ -318,6 +318,23 @@ ROWS = [
       'Командний матч проти {group} почався. До дошки!', ['group']),
     r('leadTeamMatch', 'Takım maçı', 'Team match', 'Mannschaftskampf', 'Match par équipes', 'Teamwedstrijd', 'Encuentro por equipos', 'Confronto por equipes',
       'Incontro a squadre', 'Командный матч', 'مواجهة فرق', 'Komanda matçı', 'Командний матч'),
+    r('actChessArenaStart', 'Katıldığın turnuva başladı. Açınca hemen eşleşirsin.', "The tournament you joined has started. Open it and you'll be paired right away.",
+      'Dein Turnier hat begonnen. Öffne es und du wirst sofort gepaart.', "Le tournoi auquel tu t'es inscrit a commencé. Ouvre-le pour être apparié tout de suite.",
+      'Het toernooi waarvoor je je hebt aangemeld is begonnen. Open het en je wordt meteen gekoppeld.',
+      'El torneo al que te uniste empezó. Ábrelo y te emparejaremos enseguida.', 'O torneio em que você entrou começou. Abra e você será pareado na hora.',
+      'Il torneo a cui ti sei iscritto è iniziato. Aprilo e verrai abbinato subito.', 'Турнир, на который вы записались, начался. Откройте его, и вас сразу подберут.',
+      'بدأت البطولة التي انضممت إليها. افتحها وستُطابق فورًا.', 'Qoşulduğun turnir başladı. Açan kimi dərhal cütləşəcəksən.',
+      'Турнір, на який ви записалися, почався. Відкрийте його, і вас одразу підберуть.'),
+    r('actChessArenaMedal', 'Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.', 'You finished the tournament in the top three! Your medal is on your chess profile.',
+      'Du hast das Turnier unter den ersten drei beendet! Deine Medaille ist in deinem Schachprofil.',
+      'Tu as fini le tournoi dans le top 3 ! Ta médaille est sur ton profil d’échecs.', 'Je eindigde bij de eerste drie! Je medaille staat in je schaakprofiel.',
+      '¡Terminaste el torneo entre los tres primeros! Tu medalla está en tu perfil de ajedrez.',
+      'Você terminou o torneio entre os três primeiros! Sua medalha está no seu perfil de xadrez.',
+      'Hai chiuso il torneo tra i primi tre! La tua medaglia è nel profilo scacchistico.',
+      'Вы вошли в тройку лучших! Медаль — в вашем шахматном профиле.', 'أنهيت البطولة ضمن الثلاثة الأوائل! ميداليتك في ملف الشطرنج.',
+      'Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.', 'Ви увійшли до трійки найкращих! Медаль — у вашому шаховому профілі.'),
+    r('leadArena', 'Satranç turnuvası', 'Chess tournament', 'Schachturnier', "Tournoi d'échecs", 'Schaaktoernooi', 'Torneo de ajedrez', 'Torneio de xadrez',
+      'Torneo di scacchi', 'Шахматный турнир', 'بطولة شطرنج', 'Şahmat turniri', 'Шаховий турнір'),
 ]
 
 SRC_CALLS = {

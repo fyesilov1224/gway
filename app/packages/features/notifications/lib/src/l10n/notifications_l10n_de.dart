@@ -382,4 +382,15 @@ class NotificationsL10nDe extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Mannschaftskampf';
+
+  @override
+  String get actChessArenaStart =>
+      'Dein Turnier hat begonnen. Öffne es und du wirst sofort gepaart.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Du hast das Turnier unter den ersten drei beendet! Deine Medaille ist in deinem Schachprofil.';
+
+  @override
+  String get leadArena => 'Schachturnier';
 }

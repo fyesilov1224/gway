@@ -371,4 +371,15 @@ class NotificationsL10nUk extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Командний матч';
+
+  @override
+  String get actChessArenaStart =>
+      'Турнір, на який ви записалися, почався. Відкрийте його, і вас одразу підберуть.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Ви увійшли до трійки найкращих! Медаль — у вашому шаховому профілі.';
+
+  @override
+  String get leadArena => 'Шаховий турнір';
 }

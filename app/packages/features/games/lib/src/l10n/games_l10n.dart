@@ -896,6 +896,216 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Satranca dön'**
   String get backToChess;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuva'**
+  String get arena;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvalar'**
+  String get tournaments;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık ve aylık Arena turnuvaları; ilk üç madalya alır.'**
+  String get tournamentsHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık Arena'**
+  String get weeklyArena;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Arena'**
+  String get monthlyArena;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Arena: süre boyunca istediğin kadar oyna. Kazanma 2, beraberlik 1 puan; üst üste iki galibiyetten sonra seri bitene kadar puanlar ikiye katlanır. Bitmeden başlayan oyunlar sayılır.'**
+  String get arenaRules;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şimdi oynanıyor'**
+  String get arenaLiveNow;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yaklaşan'**
+  String get arenaUpcoming;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitenler'**
+  String get arenaFinished;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıtlısın'**
+  String get registered;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıt ol'**
+  String get arenaRegister;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıtlısın. Turnuva başlayınca bildirim alırsın; açınca hemen eşleşirsin.'**
+  String get arenaRegistered;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıl'**
+  String get arenaJoin;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oynamaya devam et'**
+  String get arenaResume;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ara ver'**
+  String get arenaPause;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Rakip bekleniyor; puanı yakın biri boşalınca oyun kendiliğinden açılır.'**
+  String get arenaWaiting;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyuna dön'**
+  String get backToGame;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvaya dön'**
+  String get backToArena;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takım maçına dön'**
+  String get backToTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{time} sonra başlıyor'**
+  String arenaStartsIn(String time);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitişe {time}'**
+  String arenaEndsIn(String time);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Süre doldu; son oyunlar bitiyor'**
+  String get arenaLastGames;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitti · {time}'**
+  String arenaFinishedAt(String time);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{hours} sa {minutes} dk'**
+  String hoursMinutes(int hours, int minutes);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} dakika'**
+  String minutesLong(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} oyuncu'**
+  String playersCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{points} puan · {games} oyun'**
+  String myArenaScore(int points, int games);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seride: sonraki sonuç iki kat puan'**
+  String get onFire;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan durumu'**
+  String get standings;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz katılan yok. İlk sen katıl.'**
+  String get arenaEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Performans {value}'**
+  String performance(int value);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'oynuyor'**
+  String get playingNow;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuva madalyaları'**
+  String get arenaMedals;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuva madalyaları: {gold} altın, {silver} gümüş, {bronze} bronz'**
+  String medalsSummary(int gold, int silver, int bronze);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk hamle: 5 dk'**
+  String get firstMoveTeam;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

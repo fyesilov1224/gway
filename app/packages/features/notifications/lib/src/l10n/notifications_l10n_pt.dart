@@ -381,4 +381,15 @@ class NotificationsL10nPt extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Confronto por equipes';
+
+  @override
+  String get actChessArenaStart =>
+      'O torneio em que você entrou começou. Abra e você será pareado na hora.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Você terminou o torneio entre os três primeiros! Sua medalha está no seu perfil de xadrez.';
+
+  @override
+  String get leadArena => 'Torneio de xadrez';
 }

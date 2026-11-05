@@ -53,6 +53,8 @@ public sealed record AbortChessGameRequest(string Reason);
 
 public sealed record CancelTeamMatchRequest(string Reason);
 
+public sealed record CancelTournamentRequest(string Reason);
+
 public sealed record SuspendChessPlayerRequest(string Reason, DateTimeOffset? Until);
 
 public sealed record GrantPackageRequest(string Username, string Slug, int Days, string Reason);
@@ -364,6 +366,20 @@ public static class AdminModule
 
         content.MapGet("/games/chess", async (IGamesAdministration games, CancellationToken ct) =>
                 TypedResults.Ok(await games.ChessOverviewAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapGet("/games/chess/tournaments", async (ITournamentAdministration arenas, CancellationToken ct) =>
+                TypedResults.Ok(await arenas.ListAsync(ct)))
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
+
+        content.MapPost("/games/chess/tournaments", async (
+                TournamentDraft body, ClaimsPrincipal user, ITournamentAdministration arenas, CancellationToken ct) =>
+                (await arenas.CreateAsync(user.GetUserId(), body, ct)).ToHttpResult())
+            .AddEndpointFilter(new RequireStaffFilter(StaffRoles.AdminOnly));
+
+        content.MapPost("/games/chess/tournaments/{id:guid}/cancel", async (
+                Guid id, CancelTournamentRequest body, ClaimsPrincipal user, ITournamentAdministration arenas, CancellationToken ct) =>
+                (await arenas.CancelAsync(user.GetUserId(), id, body.Reason, ct)).ToHttpResult())
             .AddEndpointFilter(new RequireStaffFilter(StaffRoles.CanSuspend));
 
         content.MapGet("/games/chess/team-matches", async (ITeamMatchAdministration teams, CancellationToken ct) =>

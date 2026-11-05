@@ -372,4 +372,15 @@ class NotificationsL10nRu extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Командный матч';
+
+  @override
+  String get actChessArenaStart =>
+      'Турнир, на который вы записались, начался. Откройте его, и вас сразу подберут.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Вы вошли в тройку лучших! Медаль — в вашем шахматном профиле.';
+
+  @override
+  String get leadArena => 'Шахматный турнир';
 }

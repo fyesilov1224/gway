@@ -454,4 +454,143 @@ class GamesL10nEn extends GamesL10n {
 
   @override
   String get backToChess => 'Back to chess';
+
+  @override
+  String get arena => 'Tournament';
+
+  @override
+  String get tournaments => 'Tournaments';
+
+  @override
+  String get tournamentsHint =>
+      'Weekly and monthly arena tournaments; the top three win medals.';
+
+  @override
+  String get weeklyArena => 'Weekly Arena';
+
+  @override
+  String get monthlyArena => 'Monthly Arena';
+
+  @override
+  String get arenaRules =>
+      'Arena: play as many games as you like until time runs out. A win is 2 points, a draw 1; after two wins in a row your points double until the streak ends. Games started before the end count.';
+
+  @override
+  String get arenaLiveNow => 'Live now';
+
+  @override
+  String get arenaUpcoming => 'Upcoming';
+
+  @override
+  String get arenaFinished => 'Finished';
+
+  @override
+  String get registered => 'Registered';
+
+  @override
+  String get arenaRegister => 'Register';
+
+  @override
+  String get arenaRegistered =>
+      'You\'re registered. You\'ll be notified at the start and paired as soon as you open it.';
+
+  @override
+  String get arenaJoin => 'Join';
+
+  @override
+  String get arenaResume => 'Keep playing';
+
+  @override
+  String get arenaPause => 'Take a break';
+
+  @override
+  String get arenaWaiting =>
+      'Waiting for an opponent; the game opens by itself when someone near your score is free.';
+
+  @override
+  String get backToGame => 'Back to the game';
+
+  @override
+  String get backToArena => 'Back to the tournament';
+
+  @override
+  String get backToTeamMatch => 'Back to the team match';
+
+  @override
+  String arenaStartsIn(String time) {
+    return 'Starts in $time';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get arenaLastGames => 'Time is up; the last games are finishing';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'Finished · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String minutesLong(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count players',
+      one: '1 player',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return '$points points · $games games';
+  }
+
+  @override
+  String get onFire => 'On a streak: the next result scores double';
+
+  @override
+  String get standings => 'Standings';
+
+  @override
+  String get arenaEmpty => 'Nobody has joined yet. Be the first.';
+
+  @override
+  String performance(int value) {
+    return 'Performance $value';
+  }
+
+  @override
+  String get playingNow => 'playing';
+
+  @override
+  String get arenaMedals => 'Tournament medals';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'Tournament medals: $gold gold, $silver silver, $bronze bronze';
+  }
+
+  @override
+  String get firstMoveTeam => 'First move: 5 min';
 }

@@ -133,7 +133,53 @@ class AdminTeamMatch {
   final DateTime startsAt;
 }
 
+/// An arena: weekly and monthly ones are scheduled by the database, custom ones opened from the panel.
+class AdminTournament {
+  const AdminTournament({
+    required this.id,
+    required this.kind,
+    required this.title,
+    required this.baseSeconds,
+    required this.incrementSeconds,
+    required this.startsAt,
+    required this.endsAt,
+    required this.status,
+    required this.players,
+  });
+
+  factory AdminTournament.fromJson(Map<String, Object?> j) => AdminTournament(
+        id: j['id']! as String,
+        kind: j['kind']! as String,
+        title: j['title'] as String?,
+        baseSeconds: j['baseSeconds']! as int,
+        incrementSeconds: j['incrementSeconds']! as int,
+        startsAt: DateTime.parse(j['startsAt']! as String),
+        endsAt: DateTime.parse(j['endsAt']! as String),
+        status: j['status']! as String,
+        players: j['players']! as int,
+      );
+
+  final String id;
+  final String kind;
+  final String? title;
+  final int baseSeconds;
+  final int incrementSeconds;
+  final DateTime startsAt;
+  final DateTime endsAt;
+  final String status;
+  final int players;
+
+  String get name => title ?? (kind == 'weekly' ? 'Haftalık Arena' : 'Aylık Arena');
+}
+
 abstract interface class AdminGamesRepository {
+  Future<Result<List<AdminTournament>>> tournaments();
+
+  Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,
+      required DateTime startsAt, required int minutes});
+
+  Future<Result<void>> cancelTournament(String id, {required String reason});
+
   Future<Result<List<AdminTeamMatch>>> teamMatches();
 
   /// Only before the start.

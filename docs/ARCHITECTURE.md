@@ -115,6 +115,7 @@ Bu doküman bağlayıcıdır. `CLAUDE.md` ile çelişirse bu dosya geçerlidir. 
 | `public.birth_dates` | identity | 17a |
 | `public.chess_players`, `public.chess_ratings`, `public.chess_games`, `public.chess_seeks`, `public.chess_challenges` | games | 20a |
 | `public.chess_group_ratings`, `public.chess_team_matches`, `public.chess_team_lineups`, `public.chess_team_boards` | games | 20b |
+| `public.chess_tournaments`, `public.chess_tournament_players` | games | 20c |
 
 Her yeni tablo bu listeye eklenir. Okuma amaçlı SQL yardımcı fonksiyonları (`private.is_account_visible` gibi) başka modülün tablosunu okuyabilir; yazamaz.
 
@@ -1442,9 +1443,11 @@ Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'de
 - Uygulama: Satranç ana sayfasında "Takım maçları" (grupların maçları ve yetkiliye "Takım maçı düzenle"), maç sayfası (iki grup ve Elo'ları, skor, tahtalar, kabul/red, diziliş, iptal), Realtime ile canlı skor.
 
 ### Arena turnuvaları (20c)
-- Platform turnuvaları otomatik açılır: **Haftalık** her pazar 21:00 (Türkiye), 60 dakika, 3+2; **Aylık** her ayın son pazarı 19:00, 120 dakika, 5+0. Yönetim paneli ek turnuva açar ya da iptal eder.
-- Pencere açıkken katılınır; boşta bekleyenler her 2 saniyede puanı yakın olanla eşleşir (aynı rakiple üst üste değil). Pencere içinde başlayan oyun bitince sayılır. Puan 2 / 1 / 0, seri ikiye katlama; eşitlikte performans puanı.
-- Önceden kayıt olan kişiye başlangıçta bildirim gider. Bitince ilk üç madalya alır; geçmiş turnuvalar ve kazananlar listelenir.
+- Platform turnuvalarını veritabanı planlar (`private.chess_schedule_tournaments`, izleyici dakikada bir, 35 gün ileri, tekrar çalışınca bir şey eklemez): **Haftalık** her pazar 21:00 (Türkiye), 60 dakika, 3+2; **Aylık** her ayın son pazarı 19:00, 120 dakika, 5+0. Yönetim paneli (yalnız `admin`) başlık, süre, başlangıç ve uzunlukla (20–360 dk) ek turnuva açar; başlamamış turnuvayı `admin` ya da `moderator` gerekçeyle iptal eder.
+- Başlamadan katılan kişi kayıtlı olur ve başlangıçta `chess_arena_start` bildirimi alır; başlamadan kaydını silebilir. Turnuva açıkken katılan hemen havuza girer; "Ara ver" havuzdan çıkarır, puan kalır.
+- `ChessMonitor` saniyede bir havuzdakileri eşleştirir: puana göre sıralanır, mümkünse son rakiple tekrar eşleşilmez, engel ilişkisi olanlar eşleşmez; renk rastgeledir. Turnuva oyunları puanlıdır, iptal edilemez ve rövanşı yoktur; ilk hamlesini 30 saniyede yapmayan kaybeder (`no_show`, puan almaz, kişisel Elo değişmez) ve havuzdan çıkar. Uygulama turnuva sayfası açıkken yeni eşleşmede oyunu kendiliğinden açar.
+- Puan: kazanma 2, beraberlik 1, kayıp 0; oyuna üst üste iki galibiyetle giren kişinin sonucu ikiye katlanır (4 / 2), seri ilk galibiyetsiz oyunda biter. Puan, oyunun sonucuyla aynı işlemde yazılır. Eşitlikte performans: rakip ortalaması + 400 × (galibiyet − mağlubiyet) / oyun (`chess_tournament_standings`).
+- Süre bitince yeni eşleşme yapılmaz; süre içinde başlamış oyunlar bitince sayılır, son oyun da bitince sıralar (`final_rank`) yazılır ve ilk üç `chess_arena_medal` bildirimi alır. Madalyalar oyuncu sayfasında görünür (`chess_medals`).
 
 ### Uygulama
 - `games` paketi: Oyunlar merkezi (+ düğmesinden), Satranç ana sayfası (hızlı oyun ızgarası, davetler, puanlarım, son oyunlar, sıralama özeti), oyun ekranı (tahta, saatler, oyuncu kartları bayrak ve puanla, hamle listesi, beraberlik, terk, iptal, tahtayı çevir, rövanş, sonuç ve puan değişimi), sıralama (türe göre sekmeler, ilk üç podyum), oyuncu sayfası, ülke seçimi.
@@ -1470,10 +1473,12 @@ Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekl
 | `POST /games/chess/team-matches` | `homeGroupId`, `awayGroupId`, `boards`, `baseSeconds`, `incrementSeconds`, `startsAt` |
 | `POST /games/chess/team-matches/{id}/accept`, `/decline`, `DELETE /games/chess/team-matches/{id}` | Yanıt ve iptal (yetkili) |
 | `PUT /games/chess/team-matches/{id}/lineup` | `groupId`, `players` (1. tahtadan başlayarak; `null` boş tahta) |
+| `POST /games/chess/tournaments/{id}/join`, `/pause`, `DELETE /games/chess/tournaments/{id}/registration` | Katılma (önceden kayıt), ara verme, başlamadan kaydı silme |
+| `GET /admin/games/chess/tournaments`, `POST /admin/games/chess/tournaments` (`title`, `baseSeconds`, `incrementSeconds`, `startsAt`, `minutes`; yalnız `admin`), `POST /admin/games/chess/tournaments/{id}/cancel` | Turnuvalar; `games.arena_created`, `games.arena_canceled` |
 | `GET /admin/games/chess/team-matches`, `POST /admin/games/chess/team-matches/{id}/cancel` | Açık maçlar; başlamamış maçı gerekçeyle iptal (`games.team_match_canceled`). Rol: `admin`, `moderator` |
 
 ### Tablolar (sahip: games)
-`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
+`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#); `chess_tournaments`, `chess_tournament_players` (0084; giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
 
 ## 4. Flutter
 

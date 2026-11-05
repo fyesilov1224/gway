@@ -382,4 +382,15 @@ class NotificationsL10nFr extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Match par équipes';
+
+  @override
+  String get actChessArenaStart =>
+      'Le tournoi auquel tu t\'es inscrit a commencé. Ouvre-le pour être apparié tout de suite.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Tu as fini le tournoi dans le top 3 ! Ta médaille est sur ton profil d’échecs.';
+
+  @override
+  String get leadArena => 'Tournoi d\'échecs';
 }

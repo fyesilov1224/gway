@@ -93,5 +93,8 @@
   "actChessTeamAccepted": "heeft de teamwedstrijd namens {group} geaccepteerd. Stel je spelers op.",
   "actChessTeamDeclined": "heeft de teamwedstrijd namens {group} geweigerd.",
   "actChessTeamStart": "De teamwedstrijd tegen {group} is begonnen. Naar je bord!",
-  "leadTeamMatch": "Teamwedstrijd"
+  "leadTeamMatch": "Teamwedstrijd",
+  "actChessArenaStart": "Het toernooi waarvoor je je hebt aangemeld is begonnen. Open het en je wordt meteen gekoppeld.",
+  "actChessArenaMedal": "Je eindigde bij de eerste drie! Je medaille staat in je schaakprofiel.",
+  "leadArena": "Schaaktoernooi"
 }

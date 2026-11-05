@@ -93,5 +93,8 @@
   "actChessTeamAccepted": "aceitou o confronto por equipes em nome de {group}. Escale seus jogadores.",
   "actChessTeamDeclined": "recusou o confronto por equipes em nome de {group}.",
   "actChessTeamStart": "O confronto por equipes contra {group} começou. Vá para o seu tabuleiro!",
-  "leadTeamMatch": "Confronto por equipes"
+  "leadTeamMatch": "Confronto por equipes",
+  "actChessArenaStart": "O torneio em que você entrou começou. Abra e você será pareado na hora.",
+  "actChessArenaMedal": "Você terminou o torneio entre os três primeiros! Sua medalha está no seu perfil de xadrez.",
+  "leadArena": "Torneio de xadrez"
 }

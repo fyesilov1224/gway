@@ -148,6 +148,8 @@ class ChessGame {
     this.whiteDelta,
     this.blackDelta,
     this.endedAt,
+    this.tournamentId,
+    this.teamMatchId,
   });
 
   factory ChessGame.fromRow(Map<String, dynamic> j) {
@@ -179,6 +181,8 @@ class ChessGame {
       blackDelta: (j['black_delta'] as num?)?.toInt(),
       createdAt: DateTime.parse(j['created_at'] as String),
       endedAt: j['ended_at'] is String ? DateTime.parse(j['ended_at'] as String) : null,
+      tournamentId: j['tournament_id'] as String?,
+      teamMatchId: j['team_match_id'] as String?,
     );
   }
 
@@ -208,6 +212,12 @@ class ChessGame {
   final int? blackDelta;
   final DateTime createdAt;
   final DateTime? endedAt;
+
+  /// An arena game: the arena pairs the next one, so no rematch.
+  final String? tournamentId;
+
+  /// A board of a team match.
+  final String? teamMatchId;
 
   int get ply => moves.length;
 

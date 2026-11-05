@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../domain/chess.dart';
 import '../domain/team.dart';
 import '../l10n.dart';
+import 'arena_screens.dart';
 import 'player_screen.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -32,6 +33,7 @@ class ChessHomeScreen extends ConsumerWidget {
     final top = ref.watch(leaderboardProvider(ChessCategory.blitz));
     final teamMatches = ref.watch(myTeamMatchesProvider).value ?? const <TeamMatch>[];
     final captainOf = ref.watch(captainGroupsProvider).value ?? const <ChessGroup>[];
+    final arenas = ref.watch(arenasProvider).value;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -49,6 +51,7 @@ class ChessHomeScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(myTeamMatchesProvider)
+            ..invalidate(arenasProvider)
             ..invalidate(captainGroupsProvider)
             ..invalidate(activeGameProvider)
             ..invalidate(challengesProvider)
@@ -74,6 +77,18 @@ class ChessHomeScreen extends ConsumerWidget {
               const SizedBox(height: GwSpacing.xs),
               for (final c in challenges)
                 Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: _ChallengeCard(challenge: c, me: me)),
+            ],
+            if (arenas != null && (arenas.live.isNotEmpty || arenas.upcoming.isNotEmpty)) ...[
+              const SizedBox(height: GwSpacing.lg),
+              GwSectionHeader(
+                title: gamesL10n.tournaments,
+                subtitle: gamesL10n.tournamentsHint,
+                actionLabel: gamesL10n.seeAll,
+                onAction: () => context.push(ChessRoutes.arenas),
+              ),
+              const SizedBox(height: GwSpacing.xs),
+              for (final a in [...arenas.live, ...arenas.upcoming.take(2)])
+                Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: ArenaTile(arena: a, joined: arenas.joined.contains(a.id))),
             ],
             if (teamMatches.isNotEmpty || captainOf.isNotEmpty) ...[
               const SizedBox(height: GwSpacing.lg),

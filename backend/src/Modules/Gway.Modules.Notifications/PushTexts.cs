@@ -83,6 +83,7 @@ internal static class PushTexts
         "event_series_limit" => t["Tekrarlayan organizasyon"],
         "call_permission_granted" or "call_permission_declined" or "call_permission_revoked" => t["Sesli görüşme"],
         "chess_team_start" => t["Takım maçı"],
+        "chess_arena_start" or "chess_arena_medal" => t["Satranç turnuvası"],
         "event_venue_revealed" => t["Sürpriz mekan açıklandı"],
         _ => n.ActorUsername,
     };
@@ -132,6 +133,8 @@ internal static class PushTexts
         "chess_team_accepted" => t.Format("{0} grubu adına takım maçı davetini kabul etti. Tahtalara oyuncularını diz.", n.GroupName),
         "chess_team_declined" => t.Format("{0} grubu adına takım maçı davetini reddetti.", n.GroupName),
         "chess_team_start" => t.Format("{0} grubuna karşı takım maçı başladı. Tahtana geç!", n.GroupName),
+        "chess_arena_start" => t["Katıldığın turnuva başladı. Açınca hemen eşleşirsin."],
+        "chess_arena_medal" => t["Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde."],
         "welcome_requested" => t.Format("\"{0}\" organizasyonuna ilk kez geliyor ve karşılanmak istiyor.", n.EventTitle),
         "welcome_matched" => t.Format("\"{0}\" organizasyonunda seni karşılayacak. Buluşma notunu gör.", n.EventTitle),
         "welcome_released" => t.Format("\"{0}\" için karşılamayı bıraktı; yeni bir karşılayıcı aranıyor.", n.EventTitle),

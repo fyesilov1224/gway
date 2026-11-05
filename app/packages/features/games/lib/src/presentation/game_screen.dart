@@ -96,7 +96,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
           game: game,
           mine: mine,
           players: s.players,
-          onRematch: game.whiteId != null && game.blackId != null && mine != null
+          onRematch: game.whiteId != null && game.blackId != null && mine != null && game.tournamentId == null
               ? () {
                   Navigator.of(sheet).pop();
                   _rematch();
@@ -104,12 +104,19 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
               : null,
           onNewGame: () {
             Navigator.of(sheet).pop();
-            context.pushReplacement(ChessRoutes.seek(game.timeControl));
+            context.pushReplacement(_next(game));
           },
         ),
       );
     });
   }
+
+  /// After the game: the arena or team match it belongs to, otherwise a new quick game.
+  static String _next(ChessGame game) => switch (game) {
+        ChessGame(:final tournamentId?) => ChessRoutes.arena(tournamentId),
+        ChessGame(:final teamMatchId?) => ChessRoutes.team(teamMatchId),
+        _ => ChessRoutes.seek(game.timeControl),
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +188,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
       onAcceptDraw: () => _controller.acceptDraw(),
       onDeclineDraw: () => _controller.declineDraw(),
       onRematch: _rematch,
-      onNewGame: () => context.pushReplacement(ChessRoutes.seek(game.timeControl)),
+      onNewGame: () => context.pushReplacement(_next(game)),
     );
 
     final column = <Widget>[
@@ -300,7 +307,8 @@ class _PlayerBarState extends State<_PlayerBar> {
           if (firstMoveCountdown)
             Padding(
               padding: const EdgeInsets.only(right: GwSpacing.xs),
-              child: Text(gamesL10n.firstMove, style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
+              // A team board waits five minutes for its players (docs/ARCHITECTURE.md §3i).
+              child: Text(g.teamMatchId != null ? gamesL10n.firstMoveTeam : gamesL10n.firstMove, style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
             ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -445,12 +453,17 @@ class _Controls extends StatelessWidget {
           const SizedBox(height: GwSpacing.sm),
           Row(
             children: [
-              if (game.whiteId != null && game.blackId != null) ...[
+              if (game.whiteId != null && game.blackId != null && game.tournamentId == null) ...[
                 Expanded(child: GwButton(label: gamesL10n.rematch, icon: Icons.replay_rounded, onPressed: onRematch)),
                 const SizedBox(width: GwSpacing.sm),
               ],
               Expanded(
-                child: GwButton(label: gamesL10n.newGame, icon: Icons.add_rounded, variant: GwButtonVariant.secondary, onPressed: onNewGame),
+                child: GwButton(
+                  label: _nextLabel(game),
+                  icon: game.tournamentId != null || game.teamMatchId != null ? Icons.emoji_events_outlined : Icons.add_rounded,
+                  variant: GwButtonVariant.secondary,
+                  onPressed: onNewGame,
+                ),
               ),
             ],
           ),
@@ -477,7 +490,8 @@ class _Controls extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: early
+          // Arena and team games are never aborted: leaving before the first moves is a resignation.
+          child: early && game.tournamentId == null && game.teamMatchId == null
               ? GwButton(label: gamesL10n.abort, icon: Icons.close_rounded, variant: GwButtonVariant.secondary, onPressed: onAbort)
               : GwButton(label: gamesL10n.resign, icon: Icons.flag_outlined, variant: GwButtonVariant.secondary, onPressed: onResign),
         ),
@@ -494,6 +508,12 @@ class _Controls extends StatelessWidget {
     );
   }
 }
+
+String _nextLabel(ChessGame game) => game.tournamentId != null
+    ? gamesL10n.backToArena
+    : game.teamMatchId != null
+        ? gamesL10n.backToTeamMatch
+        : gamesL10n.newGame;
 
 /// "Beyaz kazandı · Mat", "Berabere · Pat", "İptal edildi".
 String _outcome(ChessGame game) {
@@ -552,7 +572,7 @@ class _ResultSheet extends StatelessWidget {
               GwButton(label: gamesL10n.rematch, icon: Icons.replay_rounded, expand: true, onPressed: onRematch),
               const SizedBox(height: GwSpacing.sm),
             ],
-            GwButton(label: gamesL10n.newGame, icon: Icons.add_rounded, expand: true, variant: GwButtonVariant.secondary, onPressed: onNewGame),
+            GwButton(label: _nextLabel(game), icon: Icons.add_rounded, expand: true, variant: GwButtonVariant.secondary, onPressed: onNewGame),
           ],
         ),
       ),

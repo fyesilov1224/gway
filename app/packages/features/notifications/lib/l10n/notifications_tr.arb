@@ -551,5 +551,17 @@
   "leadTeamMatch": "Takım maçı",
   "@leadTeamMatch": {
     "description": ""
+  },
+  "actChessArenaStart": "Katıldığın turnuva başladı. Açınca hemen eşleşirsin.",
+  "@actChessArenaStart": {
+    "description": ""
+  },
+  "actChessArenaMedal": "Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.",
+  "@actChessArenaMedal": {
+    "description": ""
+  },
+  "leadArena": "Satranç turnuvası",
+  "@leadArena": {
+    "description": ""
   }
 }

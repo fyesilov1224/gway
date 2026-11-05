@@ -93,5 +93,8 @@
   "actChessTeamAccepted": "{group} qrupu adına komanda matçı dəvətini qəbul etdi. Oyunçularını düz.",
   "actChessTeamDeclined": "{group} qrupu adına komanda matçı dəvətini rədd etdi.",
   "actChessTeamStart": "{group} qrupuna qarşı komanda matçı başladı. Taxtana keç!",
-  "leadTeamMatch": "Komanda matçı"
+  "leadTeamMatch": "Komanda matçı",
+  "actChessArenaStart": "Qoşulduğun turnir başladı. Açan kimi dərhal cütləşəcəksən.",
+  "actChessArenaMedal": "Turniri ilk üçlükdə bitirdin! Medalın şahmat profilindədir.",
+  "leadArena": "Şahmat turniri"
 }

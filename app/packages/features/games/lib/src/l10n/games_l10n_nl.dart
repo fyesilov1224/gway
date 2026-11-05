@@ -453,4 +453,143 @@ class GamesL10nNl extends GamesL10n {
 
   @override
   String get backToChess => 'Terug naar schaken';
+
+  @override
+  String get arena => 'Toernooi';
+
+  @override
+  String get tournaments => 'Toernooien';
+
+  @override
+  String get tournamentsHint =>
+      'Wekelijkse en maandelijkse arenatoernooien; de eerste drie krijgen een medaille.';
+
+  @override
+  String get weeklyArena => 'Wekelijkse Arena';
+
+  @override
+  String get monthlyArena => 'Maandelijkse Arena';
+
+  @override
+  String get arenaRules =>
+      'Arena: speel zoveel partijen als je wilt tot de tijd om is. Winst 2 punten, remise 1; na twee overwinningen op rij tellen punten dubbel tot de reeks stopt. Partijen die voor het einde begonnen, tellen mee.';
+
+  @override
+  String get arenaLiveNow => 'Nu bezig';
+
+  @override
+  String get arenaUpcoming => 'Binnenkort';
+
+  @override
+  String get arenaFinished => 'Afgelopen';
+
+  @override
+  String get registered => 'Aangemeld';
+
+  @override
+  String get arenaRegister => 'Aanmelden';
+
+  @override
+  String get arenaRegistered =>
+      'Je bent aangemeld. Bij de start krijg je een melding en word je meteen gekoppeld.';
+
+  @override
+  String get arenaJoin => 'Meedoen';
+
+  @override
+  String get arenaResume => 'Verder spelen';
+
+  @override
+  String get arenaPause => 'Pauzeren';
+
+  @override
+  String get arenaWaiting =>
+      'Wachten op een tegenstander; de partij opent vanzelf zodra iemand met een vergelijkbare score vrij is.';
+
+  @override
+  String get backToGame => 'Terug naar de partij';
+
+  @override
+  String get backToArena => 'Terug naar het toernooi';
+
+  @override
+  String get backToTeamMatch => 'Terug naar de teamwedstrijd';
+
+  @override
+  String arenaStartsIn(String time) {
+    return 'Begint over $time';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return 'Nog $time';
+  }
+
+  @override
+  String get arenaLastGames => 'Tijd is om; de laatste partijen lopen nog';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'Afgelopen · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours u $minutes min';
+  }
+
+  @override
+  String minutesLong(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minuten',
+      one: '1 minuut',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count spelers',
+      one: '1 speler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return '$points punten · $games partijen';
+  }
+
+  @override
+  String get onFire => 'Op een reeks: het volgende resultaat telt dubbel';
+
+  @override
+  String get standings => 'Stand';
+
+  @override
+  String get arenaEmpty => 'Nog niemand doet mee. Wees de eerste.';
+
+  @override
+  String performance(int value) {
+    return 'Prestatie $value';
+  }
+
+  @override
+  String get playingNow => 'speelt';
+
+  @override
+  String get arenaMedals => 'Toernooimedailles';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'Medailles: $gold goud, $silver zilver, $bronze brons';
+  }
+
+  @override
+  String get firstMoveTeam => 'Eerste zet: 5 min';
 }

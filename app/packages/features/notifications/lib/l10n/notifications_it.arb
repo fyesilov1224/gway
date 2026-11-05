@@ -93,5 +93,8 @@
   "actChessTeamAccepted": "ha accettato l’incontro a squadre per {group}. Schiera i tuoi giocatori.",
   "actChessTeamDeclined": "ha rifiutato l’incontro a squadre per {group}.",
   "actChessTeamStart": "L'incontro a squadre contro {group} è iniziato. Alla tua scacchiera!",
-  "leadTeamMatch": "Incontro a squadre"
+  "leadTeamMatch": "Incontro a squadre",
+  "actChessArenaStart": "Il torneo a cui ti sei iscritto è iniziato. Aprilo e verrai abbinato subito.",
+  "actChessArenaMedal": "Hai chiuso il torneo tra i primi tre! La tua medaglia è nel profilo scacchistico.",
+  "leadArena": "Torneo di scacchi"
 }

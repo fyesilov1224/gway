@@ -432,4 +432,131 @@ class GamesL10nTr extends GamesL10n {
 
   @override
   String get backToChess => 'Satranca dön';
+
+  @override
+  String get arena => 'Turnuva';
+
+  @override
+  String get tournaments => 'Turnuvalar';
+
+  @override
+  String get tournamentsHint =>
+      'Haftalık ve aylık Arena turnuvaları; ilk üç madalya alır.';
+
+  @override
+  String get weeklyArena => 'Haftalık Arena';
+
+  @override
+  String get monthlyArena => 'Aylık Arena';
+
+  @override
+  String get arenaRules =>
+      'Arena: süre boyunca istediğin kadar oyna. Kazanma 2, beraberlik 1 puan; üst üste iki galibiyetten sonra seri bitene kadar puanlar ikiye katlanır. Bitmeden başlayan oyunlar sayılır.';
+
+  @override
+  String get arenaLiveNow => 'Şimdi oynanıyor';
+
+  @override
+  String get arenaUpcoming => 'Yaklaşan';
+
+  @override
+  String get arenaFinished => 'Bitenler';
+
+  @override
+  String get registered => 'Kayıtlısın';
+
+  @override
+  String get arenaRegister => 'Kayıt ol';
+
+  @override
+  String get arenaRegistered =>
+      'Kayıtlısın. Turnuva başlayınca bildirim alırsın; açınca hemen eşleşirsin.';
+
+  @override
+  String get arenaJoin => 'Katıl';
+
+  @override
+  String get arenaResume => 'Oynamaya devam et';
+
+  @override
+  String get arenaPause => 'Ara ver';
+
+  @override
+  String get arenaWaiting =>
+      'Rakip bekleniyor; puanı yakın biri boşalınca oyun kendiliğinden açılır.';
+
+  @override
+  String get backToGame => 'Oyuna dön';
+
+  @override
+  String get backToArena => 'Turnuvaya dön';
+
+  @override
+  String get backToTeamMatch => 'Takım maçına dön';
+
+  @override
+  String arenaStartsIn(String time) {
+    return '$time sonra başlıyor';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return 'Bitişe $time';
+  }
+
+  @override
+  String get arenaLastGames => 'Süre doldu; son oyunlar bitiyor';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'Bitti · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours sa $minutes dk';
+  }
+
+  @override
+  String minutesLong(int count) {
+    return '$count dakika';
+  }
+
+  @override
+  String playersCount(int count) {
+    return '$count oyuncu';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return '$points puan · $games oyun';
+  }
+
+  @override
+  String get onFire => 'Seride: sonraki sonuç iki kat puan';
+
+  @override
+  String get standings => 'Puan durumu';
+
+  @override
+  String get arenaEmpty => 'Henüz katılan yok. İlk sen katıl.';
+
+  @override
+  String performance(int value) {
+    return 'Performans $value';
+  }
+
+  @override
+  String get playingNow => 'oynuyor';
+
+  @override
+  String get arenaMedals => 'Turnuva madalyaları';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'Turnuva madalyaları: $gold altın, $silver gümüş, $bronze bronz';
+  }
+
+  @override
+  String get firstMoveTeam => 'İlk hamle: 5 dk';
 }

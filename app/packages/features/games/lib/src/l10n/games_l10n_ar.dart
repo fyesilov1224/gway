@@ -430,4 +430,131 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get backToChess => 'العودة إلى الشطرنج';
+
+  @override
+  String get arena => 'بطولة';
+
+  @override
+  String get tournaments => 'البطولات';
+
+  @override
+  String get tournamentsHint =>
+      'بطولات أرينا أسبوعية وشهرية؛ ينال الثلاثة الأوائل ميداليات.';
+
+  @override
+  String get weeklyArena => 'أرينا الأسبوع';
+
+  @override
+  String get monthlyArena => 'أرينا الشهر';
+
+  @override
+  String get arenaRules =>
+      'أرينا: العب ما تشاء من المباريات حتى انتهاء الوقت. الفوز نقطتان والتعادل نقطة؛ بعد فوزين متتاليين تتضاعف النقاط حتى تنتهي السلسلة. تُحتسب المباريات التي بدأت قبل النهاية.';
+
+  @override
+  String get arenaLiveNow => 'جارية الآن';
+
+  @override
+  String get arenaUpcoming => 'القادمة';
+
+  @override
+  String get arenaFinished => 'المنتهية';
+
+  @override
+  String get registered => 'مسجّل';
+
+  @override
+  String get arenaRegister => 'سجّل';
+
+  @override
+  String get arenaRegistered =>
+      'أنت مسجّل. ستصلك إشعار عند البدء وستُطابق فور فتحها.';
+
+  @override
+  String get arenaJoin => 'انضم';
+
+  @override
+  String get arenaResume => 'تابع اللعب';
+
+  @override
+  String get arenaPause => 'خذ استراحة';
+
+  @override
+  String get arenaWaiting =>
+      'بانتظار خصم؛ تُفتح المباراة تلقائيًا عندما يتفرغ لاعب قريب من نقاطك.';
+
+  @override
+  String get backToGame => 'العودة إلى المباراة';
+
+  @override
+  String get backToArena => 'العودة إلى البطولة';
+
+  @override
+  String get backToTeamMatch => 'العودة إلى مواجهة الفرق';
+
+  @override
+  String arenaStartsIn(String time) {
+    return 'يبدأ بعد $time';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return 'متبقٍّ $time';
+  }
+
+  @override
+  String get arenaLastGames => 'انتهى الوقت؛ تُستكمل آخر المباريات';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'انتهت · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours س $minutes د';
+  }
+
+  @override
+  String minutesLong(int count) {
+    return '$count دقيقة';
+  }
+
+  @override
+  String playersCount(int count) {
+    return '$count لاعب';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return '$points نقطة · $games مباراة';
+  }
+
+  @override
+  String get onFire => 'في سلسلة: النتيجة التالية بنقاط مضاعفة';
+
+  @override
+  String get standings => 'الترتيب';
+
+  @override
+  String get arenaEmpty => 'لم ينضم أحد بعد. كن الأول.';
+
+  @override
+  String performance(int value) {
+    return 'الأداء $value';
+  }
+
+  @override
+  String get playingNow => 'يلعب';
+
+  @override
+  String get arenaMedals => 'ميداليات البطولات';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'الميداليات: $gold ذهبية، $silver فضية، $bronze برونزية';
+  }
+
+  @override
+  String get firstMoveTeam => 'النقلة الأولى: 5 د';
 }

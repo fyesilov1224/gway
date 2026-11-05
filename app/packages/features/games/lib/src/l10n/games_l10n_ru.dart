@@ -459,4 +459,147 @@ class GamesL10nRu extends GamesL10n {
 
   @override
   String get backToChess => 'К шахматам';
+
+  @override
+  String get arena => 'Турнир';
+
+  @override
+  String get tournaments => 'Турниры';
+
+  @override
+  String get tournamentsHint =>
+      'Еженедельные и ежемесячные арены; тройка лучших получает медали.';
+
+  @override
+  String get weeklyArena => 'Еженедельная арена';
+
+  @override
+  String get monthlyArena => 'Ежемесячная арена';
+
+  @override
+  String get arenaRules =>
+      'Арена: играйте сколько угодно партий до конца. Победа — 2 очка, ничья — 1; после двух побед подряд очки удваиваются, пока серия не прервётся. Партии, начатые до конца, засчитываются.';
+
+  @override
+  String get arenaLiveNow => 'Идёт сейчас';
+
+  @override
+  String get arenaUpcoming => 'Скоро';
+
+  @override
+  String get arenaFinished => 'Завершённые';
+
+  @override
+  String get registered => 'Вы записаны';
+
+  @override
+  String get arenaRegister => 'Записаться';
+
+  @override
+  String get arenaRegistered =>
+      'Вы записаны. На старте придёт уведомление, и вас сразу подберут.';
+
+  @override
+  String get arenaJoin => 'Участвовать';
+
+  @override
+  String get arenaResume => 'Продолжить игру';
+
+  @override
+  String get arenaPause => 'Пауза';
+
+  @override
+  String get arenaWaiting =>
+      'Ждём соперника: партия откроется сама, когда освободится игрок с близким счётом.';
+
+  @override
+  String get backToGame => 'Вернуться к партии';
+
+  @override
+  String get backToArena => 'К турниру';
+
+  @override
+  String get backToTeamMatch => 'К командному матчу';
+
+  @override
+  String arenaStartsIn(String time) {
+    return 'Начало через $time';
+  }
+
+  @override
+  String arenaEndsIn(String time) {
+    return 'Осталось $time';
+  }
+
+  @override
+  String get arenaLastGames => 'Время вышло, доигрываются последние партии';
+
+  @override
+  String arenaFinishedAt(String time) {
+    return 'Завершён · $time';
+  }
+
+  @override
+  String hoursMinutes(int hours, int minutes) {
+    return '$hours ч $minutes мин';
+  }
+
+  @override
+  String minutesLong(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count минуты',
+      many: '$count минут',
+      few: '$count минуты',
+      one: '$count минута',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count игрока',
+      many: '$count игроков',
+      few: '$count игрока',
+      one: '$count игрок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String myArenaScore(int points, int games) {
+    return 'Очки: $points · партий: $games';
+  }
+
+  @override
+  String get onFire => 'Серия: следующий результат — двойные очки';
+
+  @override
+  String get standings => 'Таблица';
+
+  @override
+  String get arenaEmpty => 'Пока никого нет. Будьте первым.';
+
+  @override
+  String performance(int value) {
+    return 'Перформанс $value';
+  }
+
+  @override
+  String get playingNow => 'играет';
+
+  @override
+  String get arenaMedals => 'Турнирные медали';
+
+  @override
+  String medalsSummary(int gold, int silver, int bronze) {
+    return 'Медали: золото $gold, серебро $silver, бронза $bronze';
+  }
+
+  @override
+  String get firstMoveTeam => 'Первый ход: 5 мин';
 }

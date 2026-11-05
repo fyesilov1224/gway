@@ -3,9 +3,11 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+export 'src/domain/arena.dart' show ArenaStatus;
 export 'src/domain/chess.dart';
 export 'src/domain/team.dart' show TeamMatchStatus;
 export 'src/l10n.dart' show gamesL10n;
+export 'src/presentation/arena_screens.dart' show ArenaScreen, ArenasScreen;
 export 'src/presentation/chess_home_screen.dart';
 export 'src/presentation/game_screen.dart';
 export 'src/presentation/leaderboard_screen.dart';

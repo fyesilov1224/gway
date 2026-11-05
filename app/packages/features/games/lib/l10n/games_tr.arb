@@ -601,5 +601,202 @@
   "backToChess": "Satranca dön",
   "@backToChess": {
     "description": ""
+  },
+  "arena": "Turnuva",
+  "@arena": {
+    "description": ""
+  },
+  "tournaments": "Turnuvalar",
+  "@tournaments": {
+    "description": ""
+  },
+  "tournamentsHint": "Haftalık ve aylık Arena turnuvaları; ilk üç madalya alır.",
+  "@tournamentsHint": {
+    "description": ""
+  },
+  "weeklyArena": "Haftalık Arena",
+  "@weeklyArena": {
+    "description": ""
+  },
+  "monthlyArena": "Aylık Arena",
+  "@monthlyArena": {
+    "description": ""
+  },
+  "arenaRules": "Arena: süre boyunca istediğin kadar oyna. Kazanma 2, beraberlik 1 puan; üst üste iki galibiyetten sonra seri bitene kadar puanlar ikiye katlanır. Bitmeden başlayan oyunlar sayılır.",
+  "@arenaRules": {
+    "description": ""
+  },
+  "arenaLiveNow": "Şimdi oynanıyor",
+  "@arenaLiveNow": {
+    "description": ""
+  },
+  "arenaUpcoming": "Yaklaşan",
+  "@arenaUpcoming": {
+    "description": ""
+  },
+  "arenaFinished": "Bitenler",
+  "@arenaFinished": {
+    "description": ""
+  },
+  "registered": "Kayıtlısın",
+  "@registered": {
+    "description": ""
+  },
+  "arenaRegister": "Kayıt ol",
+  "@arenaRegister": {
+    "description": ""
+  },
+  "arenaRegistered": "Kayıtlısın. Turnuva başlayınca bildirim alırsın; açınca hemen eşleşirsin.",
+  "@arenaRegistered": {
+    "description": ""
+  },
+  "arenaJoin": "Katıl",
+  "@arenaJoin": {
+    "description": ""
+  },
+  "arenaResume": "Oynamaya devam et",
+  "@arenaResume": {
+    "description": ""
+  },
+  "arenaPause": "Ara ver",
+  "@arenaPause": {
+    "description": ""
+  },
+  "arenaWaiting": "Rakip bekleniyor; puanı yakın biri boşalınca oyun kendiliğinden açılır.",
+  "@arenaWaiting": {
+    "description": ""
+  },
+  "backToGame": "Oyuna dön",
+  "@backToGame": {
+    "description": ""
+  },
+  "backToArena": "Turnuvaya dön",
+  "@backToArena": {
+    "description": ""
+  },
+  "backToTeamMatch": "Takım maçına dön",
+  "@backToTeamMatch": {
+    "description": ""
+  },
+  "arenaStartsIn": "{time} sonra başlıyor",
+  "@arenaStartsIn": {
+    "description": "",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaEndsIn": "Bitişe {time}",
+  "@arenaEndsIn": {
+    "description": "",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaLastGames": "Süre doldu; son oyunlar bitiyor",
+  "@arenaLastGames": {
+    "description": ""
+  },
+  "arenaFinishedAt": "Bitti · {time}",
+  "@arenaFinishedAt": {
+    "description": "",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hoursMinutes": "{hours} sa {minutes} dk",
+  "@hoursMinutes": {
+    "description": "",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesLong": "{count} dakika",
+  "@minutesLong": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playersCount": "{count} oyuncu",
+  "@playersCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myArenaScore": "{points} puan · {games} oyun",
+  "@myArenaScore": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "games": {
+        "type": "int"
+      }
+    }
+  },
+  "onFire": "Seride: sonraki sonuç iki kat puan",
+  "@onFire": {
+    "description": ""
+  },
+  "standings": "Puan durumu",
+  "@standings": {
+    "description": ""
+  },
+  "arenaEmpty": "Henüz katılan yok. İlk sen katıl.",
+  "@arenaEmpty": {
+    "description": ""
+  },
+  "performance": "Performans {value}",
+  "@performance": {
+    "description": "",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "playingNow": "oynuyor",
+  "@playingNow": {
+    "description": ""
+  },
+  "arenaMedals": "Turnuva madalyaları",
+  "@arenaMedals": {
+    "description": ""
+  },
+  "medalsSummary": "Turnuva madalyaları: {gold} altın, {silver} gümüş, {bronze} bronz",
+  "@medalsSummary": {
+    "description": "",
+    "placeholders": {
+      "gold": {
+        "type": "int"
+      },
+      "silver": {
+        "type": "int"
+      },
+      "bronze": {
+        "type": "int"
+      }
+    }
+  },
+  "firstMoveTeam": "İlk hamle: 5 dk",
+  "@firstMoveTeam": {
+    "description": ""
   }
 }

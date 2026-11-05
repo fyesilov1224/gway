@@ -11,6 +11,10 @@ abstract final class ChessRoutes {
 
   static String team(String id) => '/games/chess/team/$id';
 
+  static const arenas = '/games/chess/arenas';
+
+  static String arena(String id) => '/games/chess/arena/$id';
+
   /// Quick game for a time control, e.g. `/games/chess/seek?tc=180+2`.
   static String seek(TimeControl tc) => '$seekPath?tc=${tc.baseSeconds}-${tc.incrementSeconds}';
 

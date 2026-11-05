@@ -681,6 +681,24 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'Takım maçı'**
   String get leadTeamMatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın turnuva başladı. Açınca hemen eşleşirsin.'**
+  String get actChessArenaStart;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvayı ilk üçte bitirdin! Madalyan satranç profilinde.'**
+  String get actChessArenaMedal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranç turnuvası'**
+  String get leadArena;
 }
 
 class _NotificationsL10nDelegate

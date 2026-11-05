@@ -386,6 +386,27 @@ class ApiAdminGamesRepository implements AdminGamesRepository {
       );
 
   @override
+  Future<Result<List<AdminTournament>>> tournaments() => _api.get('/admin/games/chess/tournaments',
+      decode: (json) => [for (final t in (json! as List).cast<Map<String, Object?>>()) AdminTournament.fromJson(t)]);
+
+  @override
+  Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,
+          required DateTime startsAt, required int minutes}) =>
+      _api.post('/admin/games/chess/tournaments',
+          body: {
+            'title': title,
+            'baseSeconds': baseSeconds,
+            'incrementSeconds': incrementSeconds,
+            'startsAt': startsAt.toUtc().toIso8601String(),
+            'minutes': minutes,
+          },
+          decode: (_) {});
+
+  @override
+  Future<Result<void>> cancelTournament(String id, {required String reason}) =>
+      _api.post('/admin/games/chess/tournaments/$id/cancel', body: {'reason': reason}, decode: (_) {});
+
+  @override
   Future<Result<List<AdminTeamMatch>>> teamMatches() => _api.get('/admin/games/chess/team-matches',
       decode: (json) => [for (final m in (json! as List).cast<Map<String, Object?>>()) AdminTeamMatch.fromJson(m)]);
 

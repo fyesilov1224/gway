@@ -381,4 +381,15 @@ class NotificationsL10nIt extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Incontro a squadre';
+
+  @override
+  String get actChessArenaStart =>
+      'Il torneo a cui ti sei iscritto è iniziato. Aprilo e verrai abbinato subito.';
+
+  @override
+  String get actChessArenaMedal =>
+      'Hai chiuso il torneo tra i primi tre! La tua medaglia è nel profilo scacchistico.';
+
+  @override
+  String get leadArena => 'Torneo di scacchi';
 }

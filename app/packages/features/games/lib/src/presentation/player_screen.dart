@@ -118,6 +118,7 @@ class ChessIdentityCard extends ConsumerWidget {
                 ),
             ],
           ),
+          _Medals(userId: p.userId),
           if (profile.suspended) ...[
             const SizedBox(height: GwSpacing.sm),
             GwFormMessage(gamesL10n.suspendedNotice),
@@ -132,6 +133,42 @@ class ChessIdentityCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Arena medals: one coin per kind the person has, with the count.
+class _Medals extends ConsumerWidget {
+  const _Medals({required this.userId});
+
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final medals = ref.watch(medalsProvider(userId)).value;
+    if (medals == null || medals.total == 0) return const SizedBox.shrink();
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: GwSpacing.md),
+      child: Semantics(
+        label: gamesL10n.medalsSummary(medals.gold, medals.silver, medals.bronze),
+        excludeSemantics: true,
+        child: Row(
+          children: [
+            Text(gamesL10n.arenaMedals, style: textTheme.labelLarge),
+            const SizedBox(width: GwSpacing.sm),
+            for (final (medal, count) in [(GwMedal.gold, medals.gold), (GwMedal.silver, medals.silver), (GwMedal.bronze, medals.bronze)])
+              if (count > 0)
+                Padding(
+                  padding: const EdgeInsets.only(right: GwSpacing.sm),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.military_tech_rounded, color: medal.strong),
+                    Text('×$count', style: textTheme.labelLarge?.copyWith(color: medal.strong, fontWeight: FontWeight.w800)),
+                  ]),
+                ),
+          ],
+        ),
       ),
     );
   }

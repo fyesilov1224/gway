@@ -366,4 +366,15 @@ class NotificationsL10nAr extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'مواجهة فرق';
+
+  @override
+  String get actChessArenaStart =>
+      'بدأت البطولة التي انضممت إليها. افتحها وستُطابق فورًا.';
+
+  @override
+  String get actChessArenaMedal =>
+      'أنهيت البطولة ضمن الثلاثة الأوائل! ميداليتك في ملف الشطرنج.';
+
+  @override
+  String get leadArena => 'بطولة شطرنج';
 }

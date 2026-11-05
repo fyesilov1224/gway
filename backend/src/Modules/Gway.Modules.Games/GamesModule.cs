@@ -17,6 +17,8 @@ public static class GamesModule
         services.AddSingleton<ChessService>();
         services.AddSingleton<IGamesAdministration>(sp => sp.GetRequiredService<ChessService>());
         services.AddSingleton<TeamMatchService>();
+        services.AddSingleton<TournamentService>();
+        services.AddSingleton<ITournamentAdministration>(sp => sp.GetRequiredService<TournamentService>());
         services.AddSingleton<ITeamMatchAdministration>(sp => sp.GetRequiredService<TeamMatchService>());
         services.AddHostedService<ChessMonitor>();
         return services;
@@ -62,6 +64,14 @@ public static class GamesModule
         chess.MapPost("/{id:guid}/rematch", async (Guid id, ClaimsPrincipal user, ChessService s, CancellationToken ct) =>
             (await s.RematchAsync(user.GetUserId(), id, ct)).ToHttpResult());
 
+        var arenas = chess.MapGroup("/tournaments");
+        arenas.MapPost("/{id:guid}/join", async (Guid id, ClaimsPrincipal user, TournamentService s, CancellationToken ct) =>
+            (await s.JoinAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        arenas.MapPost("/{id:guid}/pause", async (Guid id, ClaimsPrincipal user, TournamentService s, CancellationToken ct) =>
+            (await s.PauseAsync(user.GetUserId(), id, ct)).ToHttpResult());
+        arenas.MapDelete("/{id:guid}/registration", async (Guid id, ClaimsPrincipal user, TournamentService s, CancellationToken ct) =>
+            (await s.LeaveAsync(user.GetUserId(), id, ct)).ToHttpResult());
+
         var teams = chess.MapGroup("/team-matches");
         teams.MapPost("", async (TeamMatchRequest body, ClaimsPrincipal user, TeamMatchService s, CancellationToken ct) =>
             (await s.CreateAsync(user.GetUserId(), body, ct)).ToHttpResult());
@@ -79,7 +89,8 @@ public static class GamesModule
 }
 
 /// <summary>Ends games whose clock ran out (<c>Games:MonitorInterval</c>, default one second; zero turns it off).</summary>
-internal sealed partial class ChessMonitor(ChessService chess, TeamMatchService teams, IConfiguration configuration, ILogger<ChessMonitor> logger)
+internal sealed partial class ChessMonitor(
+    ChessService chess, TeamMatchService teams, TournamentService arenas, IConfiguration configuration, ILogger<ChessMonitor> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -95,6 +106,7 @@ internal sealed partial class ChessMonitor(ChessService chess, TeamMatchService 
             {
                 await chess.SweepAsync(stoppingToken);
                 await teams.StartDueAsync(stoppingToken);
+                await arenas.TickAsync(stoppingToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

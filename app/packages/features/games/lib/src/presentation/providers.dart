@@ -6,8 +6,10 @@ import 'package:core/core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/arena_repository_impl.dart';
 import '../data/chess_repository_impl.dart';
 import '../data/team_repository_impl.dart';
+import '../domain/arena.dart';
 import '../domain/chess.dart';
 import '../domain/team.dart';
 import 'chess_board.dart';
@@ -227,6 +229,8 @@ class GameController extends AsyncNotifier<GameState> {
       blackRating: game.blackRating,
       createdAt: game.createdAt,
       drawOffer: game.drawOffer == game.toMove ? game.drawOffer : null,
+      tournamentId: game.tournamentId,
+      teamMatchId: game.teamMatchId,
     );
     _sounds.forSan(san);
     state = AsyncData(s.copyWith(game: optimistic, sending: true));
@@ -302,4 +306,30 @@ final teamMatchProvider = FutureProvider.autoDispose.family<TeamMatchDetail, Str
   final sub = repo.changes(id).listen((_) => ref.invalidateSelf());
   ref.onDispose(sub.cancel);
   return (await repo.detail(id)).getOrThrow();
+});
+
+// ---------------------------------------------------------------------------
+// Arenas (20c)
+// ---------------------------------------------------------------------------
+
+final arenaRepositoryProvider = Provider<ArenaRepository>(
+  (ref) => ArenaRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
+);
+
+final arenasProvider = FutureProvider.autoDispose<ArenaLists>((ref) async {
+  ref.watch(currentUserIdProvider);
+  return (await ref.watch(arenaRepositoryProvider).arenas()).getOrThrow();
+});
+
+/// One arena with its standings, refreshed by Realtime.
+final arenaProvider = FutureProvider.autoDispose.family<ArenaDetail, String>((ref, id) async {
+  final repo = ref.watch(arenaRepositoryProvider);
+  final sub = repo.changes(id).listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return (await repo.detail(id)).getOrThrow();
+});
+
+final medalsProvider = FutureProvider.autoDispose.family<ChessMedals, String>((ref, userId) async {
+  ref.cacheFor();
+  return (await ref.watch(arenaRepositoryProvider).medals(userId)).getOrThrow();
 });

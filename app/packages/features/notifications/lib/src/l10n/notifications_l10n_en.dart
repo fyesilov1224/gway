@@ -378,4 +378,15 @@ class NotificationsL10nEn extends NotificationsL10n {
 
   @override
   String get leadTeamMatch => 'Team match';
+
+  @override
+  String get actChessArenaStart =>
+      'The tournament you joined has started. Open it and you\'ll be paired right away.';
+
+  @override
+  String get actChessArenaMedal =>
+      'You finished the tournament in the top three! Your medal is on your chess profile.';
+
+  @override
+  String get leadArena => 'Chess tournament';
 }
