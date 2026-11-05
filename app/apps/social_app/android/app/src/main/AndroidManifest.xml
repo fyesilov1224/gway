@@ -22,6 +22,11 @@
          Voice only: the plugin's camera permissions are left out. -->
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" tools:node="remove"/>
+    <!-- No Telecom (docs/ARCHITECTURE.md §8c, Telefonun arama sistemine kayıt yok): registered there, a GWAY call
+         showed Android's own "answering ends your other call" notice during a GSM or WhatsApp call, whose buttons never
+         reached the app, and could end or block the other app's calls. Without this permission the plugin skips it. -->
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" tools:node="remove"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" tools:node="remove"/>
     <application
         android:label="GWAY"
         android:name="${applicationName}"
@@ -63,11 +68,12 @@
         <!-- No background location: the location check runs only while the app is open, so geolocator's
              location foreground service is left out (no Play foreground-service declaration, docs/ARCHITECTURE.md §10). -->
         <service android:name="com.baseflow.geolocator.GeolocatorLocationService" tools:node="remove" />
-        <!-- A voice call notice: phone call and microphone, never the camera. -->
+        <!-- The plugin's call notice never runs in the foreground here (no ongoing call notice); never a phone call. -->
         <service
             android:name="com.hiennv.flutter_callkit_incoming.CallkitNotificationService"
-            android:foregroundServiceType="phoneCall|microphone"
+            android:foregroundServiceType="microphone"
             tools:replace="android:foregroundServiceType" />
+        <service android:name="com.hiennv.flutter_callkit_incoming.CallkitConnectionService" tools:node="remove" />
         <!-- A voice call keeps its microphone while the app is in the background (docs/ARCHITECTURE.md §8c). -->
         <service
             android:name=".CallAudioService"

@@ -4,6 +4,7 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' show Color;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -43,8 +44,21 @@ abstract interface class NativeCalls {
   Future<void> openLockScreenSetting();
 }
 
+/// Ringing screens this app closed itself (the call screen took over, the call ended). The plugin reports closing an
+/// unanswered one as a decline; it is not the person's decline. Before 2026-11-05 it reached the server: opening the
+/// app while a call rang declined it, and the Answer that followed did nothing.
+final _closedHere = <String>{};
+
 class CallkitNativeCalls implements NativeCalls {
   const CallkitNativeCalls();
+
+  /// The messaging package's own Android plugin (android/), present in the background isolate too.
+  static const _phone = MethodChannel('gway/phone');
+
+  /// The phone's own ringtone, or a silent one while another call (GSM, WhatsApp) holds the audio
+  /// (docs/ARCHITECTURE.md §8c, Başka görüşme sürerken). A raw resource of this package.
+  static const ringtone = 'system_ringtone_default';
+  static const quietRingtone = 'gway_call_quiet';
 
   /// How long the phone rings; the server marks the call missed after the same time (CallService.RingFor).
   static const ringFor = Duration(seconds: 30);
@@ -57,6 +71,7 @@ class CallkitNativeCalls implements NativeCalls {
   @override
   Future<void> ring({required String callId, required String caller}) async {
     if (!supported) return;
+    final busy = await _inOtherCall();
     await FlutterCallkitIncoming.showCallkitIncoming(CallKitParams(
       id: callId,
       nameCaller: caller,
@@ -71,7 +86,7 @@ class CallkitNativeCalls implements NativeCalls {
       android: AndroidParams(
         isCustomNotification: true,
         isShowLogo: false,
-        ringtonePath: 'system_ringtone_default',
+        ringtonePath: busy ? quietRingtone : ringtone,
         backgroundColor: _hex(GwColors.primary),
         actionColor: _hex(GwColors.primary),
         textColor: _hex(GwColors.onPrimary),
@@ -85,9 +100,20 @@ class CallkitNativeCalls implements NativeCalls {
     ));
   }
 
+  /// Unknown counts as free: a ring that is too loud beats one that is not heard.
+  static Future<bool> _inOtherCall() async {
+    try {
+      return await _phone.invokeMethod<bool>('inOtherCall') ?? false;
+    } on Object catch (e) {
+      debugPrint('Phone call state unknown: $e');
+      return false;
+    }
+  }
+
   @override
   Future<void> end(String callId) async {
     if (!supported) return;
+    _closedHere.add(callId);
     await FlutterCallkitIncoming.endCall(callId);
   }
 
@@ -96,7 +122,8 @@ class CallkitNativeCalls implements NativeCalls {
     if (!supported) return const Stream.empty();
     return FlutterCallkitIncoming.onEvent.expand((event) => switch (event) {
           CallEventActionCallAccept(:final callKitParams) => [(callId: callKitParams.id, choice: NativeCallChoice.answer)],
-          CallEventActionCallDecline(:final callKitParams) => [(callId: callKitParams.id, choice: NativeCallChoice.decline)],
+          CallEventActionCallDecline(:final callKitParams) when !_closedHere.contains(callKitParams.id) =>
+            [(callId: callKitParams.id, choice: NativeCallChoice.decline)],
           _ => const <NativeCallAction>[],
         });
   }

@@ -28,6 +28,12 @@ dev_dependencies:
 
 flutter:
   generate: true
+  # What the phone itself is doing, also in the background isolate (android/, docs/ARCHITECTURE.md §8c).
+  plugin:
+    platforms:
+      android:
+        package: com.gway.messaging
+        pluginClass: MessagingPlugin
   assets:
     - assets/call_ring.wav
     - assets/call_ringback.wav
