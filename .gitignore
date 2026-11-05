@@ -30,3 +30,5 @@ AuthKey*.p8
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+__pycache__/
