@@ -1041,4 +1041,14 @@ class GamesL10nIt extends GamesL10n {
   @override
   String get mindGroupLeaderboardEmpty =>
       'Nessun gruppo ha ancora giocato un duello. Organizza il primo con il tuo.';
+
+  @override
+  String get mindTournaments => 'Tornei';
+
+  @override
+  String get mindTournamentsHint =>
+      'Settimanale ogni sabato alle 21:00 (10 domande), mensile l’ultimo sabato alle 19:00 (20 domande); i primi tre vincono una medaglia.';
+
+  @override
+  String get mindNoTournaments => 'Nessun torneo in arrivo.';
 }

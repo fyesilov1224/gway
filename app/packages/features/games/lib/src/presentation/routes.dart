@@ -45,6 +45,10 @@ abstract final class MindRoutes {
 
   static String player(String userId) => '/games/mind/p/$userId';
 
+  static const arenas = '/games/mind/arenas';
+
+  static String arena(String id) => '/games/mind/arena/$id';
+
   /// A group duel (a team match in Zihin Düellosu).
   static String team(String id) => '/games/mind/team/$id';
 

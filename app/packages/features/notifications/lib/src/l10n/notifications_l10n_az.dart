@@ -408,4 +408,15 @@ class NotificationsL10nAz extends NotificationsL10n {
 
   @override
   String get leadGroupDuel => 'Qrup dueli';
+
+  @override
+  String get actMindArenaStart =>
+      'Qoşulduğun duel turniri başladı. Açan kimi cütləşəcəksən.';
+
+  @override
+  String get actMindArenaMedal =>
+      'Duel turnirini ilk üçlükdə bitirdin! Medalın duel profilindədir.';
+
+  @override
+  String get leadDuelArena => 'Duel turniri';
 }

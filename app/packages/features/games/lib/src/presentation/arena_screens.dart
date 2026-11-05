@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/arena.dart';
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -52,6 +53,9 @@ class _TickerState extends State<_Ticker> {
 
 /// An arena as an event card: a colored banner with the trophy and the time control, the name, when (or the
 /// countdown while live) and whether the reader joined.
+/// An arena's page in its game.
+String arenaPath(Arena a) => a.game == TeamGame.mind ? MindRoutes.arena(a.id) : ChessRoutes.arena(a.id);
+
 class ArenaEventCard extends StatelessWidget {
   const ArenaEventCard({super.key, required this.arena, this.joined = false});
 
@@ -70,7 +74,7 @@ class ArenaEventCard extends StatelessWidget {
     final colors = _arenaColors(a.kind);
     final live = a.status == ArenaStatus.live;
     return GwCard(
-      onTap: () => context.push(ChessRoutes.arena(a.id)),
+      onTap: () => context.push(arenaPath(a)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -85,9 +89,12 @@ class ArenaEventCard extends StatelessWidget {
               children: [
                 Icon(Icons.emoji_events_rounded, color: colors.strong, size: GwSpacing.xl),
                 const SizedBox(width: GwSpacing.xs),
-                Text(
-                  a.timeControl.label,
-                  style: textTheme.titleLarge?.copyWith(color: colors.strong, fontWeight: FontWeight.w800),
+                Flexible(
+                  child: Text(
+                    a.formatShort,
+                    style: textTheme.titleLarge?.copyWith(color: colors.strong, fontWeight: FontWeight.w800),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const Spacer(),
                 if (live) const GwLiveBadge(),
@@ -106,7 +113,9 @@ class ArenaEventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${a.timeControl.category.label} · ${gamesL10n.minutesLong(a.length.inMinutes)}',
+                  a.timeControl == null
+                      ? gamesL10n.minutesLong(a.length.inMinutes)
+                      : '${a.timeControl!.category.label} · ${gamesL10n.minutesLong(a.length.inMinutes)}',
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
                 const SizedBox(height: GwSpacing.sm),
@@ -150,7 +159,7 @@ class ArenaTile extends StatelessWidget {
     final a = arena;
     final live = a.status == ArenaStatus.live;
     return GwCard(
-      onTap: () => context.push(ChessRoutes.arena(a.id)),
+      onTap: () => context.push(arenaPath(a)),
       padding: const EdgeInsets.all(GwSpacing.md),
       child: Row(
         children: [
@@ -167,7 +176,7 @@ class ArenaTile extends StatelessWidget {
               children: [
                 Text(a.name, style: textTheme.titleSmall),
                 Text(
-                  '${a.timeControl.label} · ${a.timeControl.category.label} · ${gamesL10n.minutesLong(a.length.inMinutes)}',
+                  '${a.format} · ${gamesL10n.minutesLong(a.length.inMinutes)}',
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
                 if (podium.isNotEmpty) ...[
@@ -211,16 +220,18 @@ class ArenaTile extends StatelessWidget {
 
 /// Live, upcoming and finished arenas with their winners.
 class ArenasScreen extends ConsumerWidget {
-  const ArenasScreen({super.key});
+  const ArenasScreen({super.key, this.game = TeamGame.chess});
+
+  final TeamGame game;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lists = ref.watch(arenasProvider);
+    final lists = ref.watch(arenasProvider(game));
     return Scaffold(
       appBar: AppBar(title: Text(gamesL10n.tournaments)),
       body: switch (lists) {
         AsyncData(value: final l) => RefreshIndicator(
-          onRefresh: () => ref.refresh(arenasProvider.future),
+          onRefresh: () => ref.refresh(arenasProvider(game).future),
           child: ListView(
             padding: const EdgeInsets.all(GwSpacing.page),
             children: [
@@ -267,7 +278,7 @@ class ArenasScreen extends ConsumerWidget {
             ],
           ),
         ),
-        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(arenasProvider)),
+        AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(arenasProvider(game))),
         _ => const Padding(
           padding: EdgeInsets.all(GwSpacing.page),
           child: GwSkeleton(height: GwSpacing.xxl * 4),
@@ -296,11 +307,12 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
   void initState() {
     super.initState();
     ref.listenManual(arenaProvider(widget.arenaId), (_, next) {
-      final game = next.value?.myGameId;
-      // A new pairing opens the board; coming back from it does not reopen it.
+      final d = next.value;
+      final game = d?.myGameId ?? d?.myMatchId;
+      // A new pairing opens the board or the duel; coming back from it does not reopen it.
       if (game != null && game != _opened && mounted) {
         _opened = game;
-        unawaited(context.push(ChessRoutes.game(game)));
+        unawaited(context.push(d!.myGameId != null ? ChessRoutes.game(game) : MindRoutes.match(game)));
       }
     });
   }
@@ -315,7 +327,8 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     }
     ref
       ..invalidate(arenaProvider(widget.arenaId))
-      ..invalidate(arenasProvider);
+      ..invalidate(arenasProvider(TeamGame.chess))
+      ..invalidate(arenasProvider(TeamGame.mind));
   }
 
   @override
@@ -352,8 +365,13 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
         const SizedBox(height: GwSpacing.xs),
         GwButton(label: gamesL10n.withdraw, variant: GwButtonVariant.text, onPressed: _busy ? null : () => _run(() => repo.leave(a.id))),
       ],
-      (_, true, _) when d.myGameId != null => [
-        GwButton(label: gamesL10n.backToGame, icon: Icons.play_arrow_rounded, expand: true, onPressed: () => context.push(ChessRoutes.game(d.myGameId!))),
+      (_, true, _) when d.myGameId != null || d.myMatchId != null => [
+        GwButton(
+          label: gamesL10n.backToGame,
+          icon: Icons.play_arrow_rounded,
+          expand: true,
+          onPressed: () => context.push(d.myGameId != null ? ChessRoutes.game(d.myGameId!) : MindRoutes.match(d.myMatchId!)),
+        ),
       ],
       (_, true, _) when mine?.waiting ?? false => [
         GwFormMessage(gamesL10n.arenaWaiting, kind: GwFormMessageKind.info),
@@ -421,8 +439,8 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
                         runSpacing: GwSpacing.xs,
                         children: [
                           GwTag(
-                            label: '${a.timeControl.label} · ${a.timeControl.category.label}',
-                            icon: chessCategoryIcon(a.timeControl.category),
+                            label: a.format,
+                            icon: a.timeControl == null ? Icons.psychology_outlined : chessCategoryIcon(a.timeControl!.category),
                             tone: GwTone.sky,
                           ),
                           GwTag(label: gamesL10n.minutesLong(a.length.inMinutes), icon: Icons.timer_outlined, tone: GwTone.mist),
@@ -480,7 +498,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
                 children: [
                   for (final (i, s) in d.standings.indexed) ...[
                     if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                    _StandingRow(standing: s, isMe: s.player.userId == me),
+                    _StandingRow(standing: s, isMe: s.player.userId == me, game: a.game),
                   ],
                 ],
               ),
@@ -492,23 +510,28 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
 }
 
 class _StandingRow extends StatelessWidget {
-  const _StandingRow({required this.standing, required this.isMe});
+  const _StandingRow({required this.standing, required this.isMe, required this.game});
 
   final ArenaStanding standing;
   final bool isMe;
+  final TeamGame game;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final s = standing;
     return InkWell(
-      onTap: () => context.push(ChessRoutes.player(s.player.userId)),
+      onTap: () => context.push(game == TeamGame.mind ? MindRoutes.player(s.player.userId) : ChessRoutes.player(s.player.userId)),
       child: Container(
         color: isMe ? GwColors.primarySoft : null,
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
         child: Row(
           children: [
-            RankBadge(rank: s.rank),
+            // No medal before a game is played: everyone shares first place then.
+            if (s.games == 0)
+              SizedBox(width: GwSpacing.xl, child: Text('–', textAlign: TextAlign.center, style: textTheme.titleSmall?.copyWith(color: GwColors.textSecondary)))
+            else
+              RankBadge(rank: s.rank),
             const SizedBox(width: GwSpacing.sm),
             Expanded(
               child: ChessPlayerLine(

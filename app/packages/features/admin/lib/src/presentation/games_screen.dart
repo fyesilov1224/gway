@@ -38,6 +38,8 @@ class AdminGamesScreen extends ConsumerWidget {
       context,
       ref,
       () => ref.read(adminGamesRepositoryProvider).createTournament(
+            game: draft.game,
+            length: draft.length,
             title: draft.title,
             baseSeconds: draft.baseSeconds,
             incrementSeconds: draft.incrementSeconds,
@@ -210,7 +212,7 @@ class AdminGamesScreen extends ConsumerWidget {
                         for (final t in arenas!)
                           ListTile(
                             title: Text(t.name),
-                            subtitle: Text('${t.baseSeconds ~/ 60}+${t.incrementSeconds} · ${formatDateTime(t.startsAt)} – ${formatTime(t.endsAt)} · '
+                            subtitle: Text('${t.format} · ${formatDateTime(t.startsAt)} – ${formatTime(t.endsAt)} · '
                                 '${_arenaStatus[t.status] ?? t.status} · ${formatCount(t.players)} oyuncu'),
                             trailing: t.status == 'scheduled'
                                 ? GwButton(label: 'İptal et', variant: GwButtonVariant.text, onPressed: () => _cancelArena(context, ref, t))
@@ -299,7 +301,7 @@ class AdminGamesScreen extends ConsumerWidget {
   }
 }
 
-typedef _ArenaDraft = ({String title, int baseSeconds, int incrementSeconds, DateTime startsAt, int minutes});
+typedef _ArenaDraft = ({String game, int? length, String title, int baseSeconds, int incrementSeconds, DateTime startsAt, int minutes});
 
 /// Title, time control, start and length of an extra arena.
 class _CreateArenaDialog extends StatefulWidget {
@@ -313,6 +315,8 @@ class _CreateArenaDialogState extends State<_CreateArenaDialog> {
   static const _controls = [(60, 0), (120, 1), (180, 0), (180, 2), (300, 0), (300, 3), (600, 0), (600, 5), (900, 10)];
   final _title = TextEditingController();
   (int, int) _tc = (180, 2);
+  String _game = 'chess';
+  int _length = 10;
   int _minutes = 60;
   DateTime _starts = DateTime.now().add(const Duration(hours: 1));
 
@@ -341,12 +345,29 @@ class _CreateArenaDialogState extends State<_CreateArenaDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(controller: _title, maxLength: 80, decoration: const InputDecoration(labelText: 'Başlık')),
-              DropdownButtonFormField<(int, int)>(
-                initialValue: _tc,
-                decoration: const InputDecoration(labelText: 'Süre'),
-                items: [for (final c in _controls) DropdownMenuItem(value: c, child: Text('${c.$1 ~/ 60}+${c.$2}'))],
-                onChanged: (v) => setState(() => _tc = v ?? _tc),
+              DropdownButtonFormField<String>(
+                initialValue: _game,
+                decoration: const InputDecoration(labelText: 'Oyun'),
+                items: const [
+                  DropdownMenuItem(value: 'chess', child: Text('Satranç')),
+                  DropdownMenuItem(value: 'mind', child: Text('Zihin Düellosu')),
+                ],
+                onChanged: (v) => setState(() => _game = v ?? _game),
               ),
+              if (_game == 'mind')
+                DropdownButtonFormField<int>(
+                  initialValue: _length,
+                  decoration: const InputDecoration(labelText: 'Soru sayısı'),
+                  items: [for (final n in [5, 10, 20, 50]) DropdownMenuItem(value: n, child: Text('$n soru'))],
+                  onChanged: (v) => setState(() => _length = v ?? _length),
+                )
+              else
+                DropdownButtonFormField<(int, int)>(
+                  initialValue: _tc,
+                  decoration: const InputDecoration(labelText: 'Süre'),
+                  items: [for (final c in _controls) DropdownMenuItem(value: c, child: Text('${c.$1 ~/ 60}+${c.$2}'))],
+                  onChanged: (v) => setState(() => _tc = v ?? _tc),
+                ),
               DropdownButtonFormField<int>(
                 initialValue: _minutes,
                 decoration: const InputDecoration(labelText: 'Uzunluk'),
@@ -367,6 +388,8 @@ class _CreateArenaDialogState extends State<_CreateArenaDialog> {
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Vazgeç')),
           FilledButton(
             onPressed: () => Navigator.of(context).pop((
+              game: _game,
+              length: _game == 'mind' ? _length : null,
               title: _title.text.trim(),
               baseSeconds: _tc.$1,
               incrementSeconds: _tc.$2,

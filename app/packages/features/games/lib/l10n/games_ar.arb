@@ -267,5 +267,8 @@
   "mindSeats": "المقاعد",
   "mindSeatsCount": "{count, plural, =1{مقعد واحد} other{{count} مقاعد}}",
   "mindLineupHint": "المقعد الفارغ عند البدء يُحتسب للخصم. يُنتظر السؤال الأول 5 دقائق.",
-  "mindGroupLeaderboardEmpty": "لم تلعب أي مجموعة مبارزة بعد. لتنظّم مجموعتك الأولى."
+  "mindGroupLeaderboardEmpty": "لم تلعب أي مجموعة مبارزة بعد. لتنظّم مجموعتك الأولى.",
+  "mindTournaments": "البطولات",
+  "mindTournamentsHint": "أسبوعية كل سبت 21:00 (10 أسئلة) وشهرية آخر سبت 19:00 (20 سؤالًا)؛ ينال الثلاثة الأوائل ميداليات.",
+  "mindNoTournaments": "لا بطولات قادمة."
 }

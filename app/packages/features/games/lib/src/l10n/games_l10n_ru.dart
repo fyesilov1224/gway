@@ -1055,4 +1055,14 @@ class GamesL10nRu extends GamesL10n {
   @override
   String get mindGroupLeaderboardEmpty =>
       'Ни одна группа ещё не играла дуэль. Пусть ваша устроит первую.';
+
+  @override
+  String get mindTournaments => 'Турниры';
+
+  @override
+  String get mindTournamentsHint =>
+      'Еженедельный по субботам в 21:00 (10 вопросов), ежемесячный в последнюю субботу в 19:00 (20 вопросов); тройке лучших — медали.';
+
+  @override
+  String get mindNoTournaments => 'Ближайших турниров нет.';
 }

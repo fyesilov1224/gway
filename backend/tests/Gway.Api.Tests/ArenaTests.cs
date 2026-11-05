@@ -163,11 +163,19 @@ public sealed class ArenaTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
             "select count(*) from public.chess_tournaments where kind = 'weekly' and status = 'scheduled' and starts_at > now()") >= 4);
         Assert.True(await _db.ScalarAsync<long>(
             "select count(*) from public.chess_tournaments where kind = 'monthly' and status = 'scheduled' and starts_at > now()") >= 1);
-        // Sunday 21:00 in Turkey.
+        // Chess on Sunday 21:00 in Turkey; duels on Saturday 21:00.
         Assert.Equal(0, await _db.ScalarAsync<long>(
             """
-            select count(*) from public.chess_tournaments where kind = 'weekly'
+            select count(*) from public.chess_tournaments where kind = 'weekly' and game = 'chess'
               and (extract(isodow from starts_at at time zone 'Europe/Istanbul') <> 7 or extract(hour from starts_at at time zone 'Europe/Istanbul') <> 21)
             """));
+        Assert.Equal(0, await _db.ScalarAsync<long>(
+            """
+            select count(*) from public.chess_tournaments where kind = 'weekly' and game = 'mind'
+              and (length <> 10 or extract(isodow from starts_at at time zone 'Europe/Istanbul') <> 6
+                   or extract(hour from starts_at at time zone 'Europe/Istanbul') <> 21)
+            """));
+        Assert.True(await _db.ScalarAsync<long>(
+            "select count(*) from public.chess_tournaments where game = 'mind' and kind = 'monthly' and length = 20 and status = 'scheduled'") >= 1);
     }
 }

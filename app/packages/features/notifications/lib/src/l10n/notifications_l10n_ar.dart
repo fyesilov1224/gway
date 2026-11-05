@@ -403,4 +403,15 @@ class NotificationsL10nAr extends NotificationsL10n {
 
   @override
   String get leadGroupDuel => 'مبارزة المجموعات';
+
+  @override
+  String get actMindArenaStart =>
+      'بدأت بطولة المبارزات التي انضممت إليها. افتحها لتُقرَن فورًا.';
+
+  @override
+  String get actMindArenaMedal =>
+      'أنهيت بطولة المبارزات ضمن الثلاثة الأوائل! ميداليتك في ملف المبارزات.';
+
+  @override
+  String get leadDuelArena => 'بطولة المبارزات';
 }

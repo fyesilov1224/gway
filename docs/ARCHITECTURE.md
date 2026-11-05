@@ -1530,6 +1530,13 @@ Satrançla aynı hesap (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, e
 - Uygulama: Zihin Düellosu ana sayfasında "Grup düelloları" (grupların maçları ve yetkiliye "Grup düellosu düzenle"), satrançtaki maç sayfasının aynısı (sıralar, skor, diziliş; sıraya dokununca düello açılır), sıralamada Gruplar sekmesi. Yönetim panelindeki takım maçı listesi iki oyunu birlikte gösterir.
 - API: `POST /games/mind/team-matches` (`homeGroupId`, `awayGroupId`, `boards`, `length`, `startsAt`); yanıt, iptal ve diziliş satrançtaki uçlarla (`/games/chess/team-matches/{id}/...`) yapılır, maçın oyunu kimlikten bilinir. Migration `0086`.
 
+### Turnuvalar (21c)
+- Satrançtaki Arena'nın aynısıdır, aynı tablolar ve kodla çalışır: turnuva tablosuna oyun alanı eklenir (`chess_tournaments.game`, `length`). Kayıt, başlangıç bildirimi, ara verme, saniyede bir eşleştirme (puana yakın, aynı rakiple art arda değil, engel ilişkisi olanlar eşleşmez), 2/1/0 puan ve iki galibiyetten sonra çift puan, performansla sıralama, bitişte `final_rank` ve ilk üçe madalya aynıdır.
+- **Takvim** (Pazar günü satrançla çakışmasın diye cumartesi): **Haftalık** her cumartesi 21:00 (Türkiye), 60 dakika, 10 soru; **Aylık** her ayın son cumartesi 19:00, 120 dakika, 20 soru (bitince aynı akşamın haftalık turnuvası başlar) (`private.chess_schedule_tournaments`, 35 gün ileri). Yönetim paneli oyun seçerek ek turnuva açar.
+- Turnuva düellosu puanlıdır, rövanşı yoktur, terk kayıptır. İlk soruyu 30 saniyede almayan kaybeder (`no_show`, kişisel Elo değişmez) ve havuzdan çıkar; ikisi de gelmezse düello iptal olur, puan yazılmaz. Performans hesabında rakibin o soru sayısındaki puanı kullanılır.
+- Madalyalar oyuna göre sayılır (`chess_medals(target, target_game)`) ve Zihin Düellosu oyuncu sayfasında görünür. Bildirimler `mind_arena_start`, `mind_arena_medal`.
+- Uygulama: Zihin Düellosu ana sayfasında turnuva kartları (şimdi oynanan, yaklaşan), turnuva listesi ve sayfası satrançtakinin aynısı; eşleşince düello kendiliğinden açılır. Migration `0087`.
+
 ### Uygulama
 - Oyunlar ekranında "Zihin Düellosu" kartı. Ana sayfa: soru sayısı seçimi ve puanım, "Rakip bul", "Arkadaşını davet et", davetler, süren maç şeridi, son maçlar, sıralama özeti, dört türün kısa tanıtımı.
 - Maç ekranı: üstte iki oyuncu (avatar, bayrak, Elo), canlı puanlar ve soru noktaları (her soru yeşil/kırmızı/gri); soru alanında süre çubuğu; yanıttan sonra kısa doğru/yanlış gösterimi; bitirince rakip beklenir; sonuçta puanlar, Elo değişimi ve rövanş.

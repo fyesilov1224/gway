@@ -4576,6 +4576,45 @@
    "{0} qrupuna qarşı qrup dueli başladı. Duelinə keç!",
    "Групова дуель проти {0} почалася. До своєї дуелі!"
   ],
+  "Düello turnuvası": [
+   "Duel tournament",
+   "Duellturnier",
+   "Tournoi de duels",
+   "Dueltoernooi",
+   "Torneo de duelos",
+   "Torneio de duelos",
+   "Torneo di duelli",
+   "Турнир дуэлей",
+   "بطولة المبارزات",
+   "Duel turniri",
+   "Турнір дуелей"
+  ],
+  "Katıldığın düello turnuvası başladı. Açınca hemen eşleşirsin.": [
+   "Your duel tournament has started. Open it to be paired right away.",
+   "Dein Duellturnier hat begonnen. Öffne es, um sofort gepaart zu werden.",
+   "Ton tournoi de duels a commencé. Ouvre-le pour être apparié tout de suite.",
+   "Je dueltoernooi is begonnen. Open het om meteen gekoppeld te worden.",
+   "Tu torneo de duelos empezó. Ábrelo para emparejarte enseguida.",
+   "Seu torneio de duelos começou. Abra para ser pareado na hora.",
+   "Il tuo torneo di duelli è iniziato. Aprilo per essere abbinato subito.",
+   "Ваш турнир дуэлей начался. Откройте его, чтобы сразу получить пару.",
+   "بدأت بطولة المبارزات التي انضممت إليها. افتحها لتُقرَن فورًا.",
+   "Qoşulduğun duel turniri başladı. Açan kimi cütləşəcəksən.",
+   "Ваш турнір дуелей почався. Відкрийте його, щоб одразу отримати пару."
+  ],
+  "Düello turnuvasını ilk üçte bitirdin! Madalyan düello profilinde.": [
+   "You finished the duel tournament in the top three! Your medal is on your duel profile.",
+   "Du hast das Duellturnier unter den ersten drei beendet! Deine Medaille ist in deinem Duellprofil.",
+   "Tu as fini le tournoi de duels dans le top 3 ! Ta médaille est sur ton profil de duel.",
+   "Je eindigde bij de eerste drie van het dueltoernooi! Je medaille staat in je duelprofiel.",
+   "¡Terminaste el torneo de duelos entre los tres primeros! Tu medalla está en tu perfil de duelo.",
+   "Você terminou o torneio de duelos entre os três primeiros! Sua medalha está no seu perfil de duelo.",
+   "Hai chiuso il torneo di duelli tra i primi tre! La tua medaglia è nel profilo duello.",
+   "Вы вошли в тройку лучших турнира дуэлей! Медаль — в вашем профиле дуэлей.",
+   "أنهيت بطولة المبارزات ضمن الثلاثة الأوائل! ميداليتك في ملف المبارزات.",
+   "Duel turnirini ilk üçlükdə bitirdin! Medalın duel profilindədir.",
+   "Ви увійшли до трійки найкращих турніру дуелей! Медаль — у вашому профілі дуелей."
+  ],
   "seni sesli arıyor…": [
    "is calling you…",
    "ruft dich an…",

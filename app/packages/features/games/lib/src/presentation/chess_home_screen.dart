@@ -40,7 +40,7 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
       ..invalidate(leaderboardProvider(ChessCategory.blitz))
       ..invalidate(myTeamMatchesProvider(TeamGame.chess))
       ..invalidate(captainGroupsProvider)
-      ..invalidate(arenasProvider)
+      ..invalidate(arenasProvider(TeamGame.chess))
       ..invalidate(chessProfileProvider(me));
     await ref.read(chessProfileProvider(me).future);
   }
@@ -57,7 +57,7 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
     final top = ref.watch(leaderboardProvider(ChessCategory.blitz));
     final teamMatches = ref.watch(myTeamMatchesProvider(TeamGame.chess)).value ?? const <TeamMatch>[];
     final captainOf = ref.watch(captainGroupsProvider).value ?? const <ChessGroup>[];
-    final arenas = ref.watch(arenasProvider).value;
+    final arenas = ref.watch(arenasProvider(TeamGame.chess)).value;
     final wide = MediaQuery.sizeOf(context).width >= GwLayout.wideBreakpoint;
 
     final liveArena = arenas?.live.firstOrNull;

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/arena.dart';
 import '../domain/chess.dart';
+import '../domain/team.dart';
 
 /// Arenas: reads under RLS and Realtime; joining, pausing and leaving through the API.
 class ArenaRepositoryImpl implements ArenaRepository {
@@ -31,21 +32,30 @@ class ArenaRepositoryImpl implements ArenaRepository {
         id: t['id'] as String,
         kind: ArenaKind.values.byName(t['kind'] as String),
         title: t['title'] as String?,
-        timeControl: TimeControl(t['base_seconds'] as int, t['increment_seconds'] as int),
+        game: TeamGame.parse(t['game']),
+        timeControl: t['base_seconds'] is int ? TimeControl(t['base_seconds'] as int, t['increment_seconds'] as int) : null,
+        questions: t['length'] as int?,
         startsAt: DateTime.parse(t['starts_at'] as String).toLocal(),
         endsAt: DateTime.parse(t['ends_at'] as String).toLocal(),
         status: ArenaStatus.values.byName(t['status'] as String),
       );
 
   @override
-  Future<Result<ArenaLists>> arenas() => _run(() async {
+  Future<Result<ArenaLists>> arenas(TeamGame game) => _run(() async {
         final open = await _client
             .from('chess_tournaments')
             .select()
+            .eq('game', game.code)
             .inFilter('status', ['scheduled', 'live'])
             .order('starts_at', ascending: true)
             .limit(12);
-        final done = await _client.from('chess_tournaments').select().eq('status', 'finished').order('starts_at', ascending: false).limit(10);
+        final done = await _client
+            .from('chess_tournaments')
+            .select()
+            .eq('game', game.code)
+            .eq('status', 'finished')
+            .order('starts_at', ascending: false)
+            .limit(10);
         final finished = [for (final t in done) _arena(t)];
         final podiumRows = finished.isEmpty
             ? const <Map<String, dynamic>>[]
@@ -97,11 +107,17 @@ class ArenaRepositoryImpl implements ArenaRepository {
         final me = _me;
         final mine = me == null
             ? null
-            : await _client.from('chess_tournament_players').select('current_game_id').eq('tournament_id', id).eq('user_id', me).maybeSingle();
+            : await _client
+                .from('chess_tournament_players')
+                .select('current_game_id, current_match_id')
+                .eq('tournament_id', id)
+                .eq('user_id', me)
+                .maybeSingle();
         return ArenaDetail(
           arena: _arena(t),
           joined: mine != null,
           myGameId: mine?['current_game_id'] as String?,
+          myMatchId: mine?['current_match_id'] as String?,
           standings: [
             for (final r in rows.cast<Map<String, dynamic>>())
               ArenaStanding(
@@ -163,8 +179,8 @@ class ArenaRepositoryImpl implements ArenaRepository {
   Future<Result<void>> leave(String id) => _api.delete('/games/chess/tournaments/$id/registration', decode: (_) {});
 
   @override
-  Future<Result<ChessMedals>> medals(String userId) => _run(() async {
-        final rows = await _client.rpc<List<dynamic>>('chess_medals', params: {'target': userId});
+  Future<Result<ChessMedals>> medals(String userId, TeamGame game) => _run(() async {
+        final rows = await _client.rpc<List<dynamic>>('chess_medals', params: {'target': userId, 'target_game': game.code});
         if (rows.isEmpty) return const ChessMedals();
         final r = (rows.first as Map).cast<String, dynamic>();
         return ChessMedals(gold: r['gold'] as int, silver: r['silver'] as int, bronze: r['bronze'] as int);

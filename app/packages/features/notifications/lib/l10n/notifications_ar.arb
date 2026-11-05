@@ -102,5 +102,8 @@
   "actMindTeamAccepted": "قَبِل مبارزة المجموعات باسم {group}. رتّب لاعبيك.",
   "actMindTeamDeclined": "رفض مبارزة المجموعات باسم {group}.",
   "actMindTeamStart": "بدأت مبارزة المجموعات ضد {group}. انتقل إلى مبارزتك!",
-  "leadGroupDuel": "مبارزة المجموعات"
+  "leadGroupDuel": "مبارزة المجموعات",
+  "actMindArenaStart": "بدأت بطولة المبارزات التي انضممت إليها. افتحها لتُقرَن فورًا.",
+  "actMindArenaMedal": "أنهيت بطولة المبارزات ضمن الثلاثة الأوائل! ميداليتك في ملف المبارزات.",
+  "leadDuelArena": "بطولة المبارزات"
 }

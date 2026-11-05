@@ -981,4 +981,14 @@ class GamesL10nTr extends GamesL10n {
   @override
   String get mindGroupLeaderboardEmpty =>
       'Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.';
+
+  @override
+  String get mindTournaments => 'Turnuvalar';
+
+  @override
+  String get mindTournamentsHint =>
+      'Her cumartesi 21:00 haftalık (10 soru), ayın son cumartesi 19:00 aylık (20 soru); ilk üç madalya alır.';
+
+  @override
+  String get mindNoTournaments => 'Yaklaşan turnuva yok.';
 }

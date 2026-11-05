@@ -607,5 +607,17 @@
   "leadGroupDuel": "Grup düellosu",
   "@leadGroupDuel": {
     "description": ""
+  },
+  "actMindArenaStart": "Katıldığın düello turnuvası başladı. Açınca hemen eşleşirsin.",
+  "@actMindArenaStart": {
+    "description": ""
+  },
+  "actMindArenaMedal": "Düello turnuvasını ilk üçte bitirdin! Madalyan düello profilinde.",
+  "@actMindArenaMedal": {
+    "description": ""
+  },
+  "leadDuelArena": "Düello turnuvası",
+  "@leadDuelArena": {
+    "description": ""
   }
 }

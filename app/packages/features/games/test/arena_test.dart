@@ -62,6 +62,7 @@ Future<void> _pump(WidgetTester tester, ArenaRepository repo) async {
   final router = GoRouter(routes: [
     GoRoute(path: '/', builder: (_, _) => const ArenaScreen(arenaId: 'a1')),
     GoRoute(path: '/games/chess/g/:id', builder: (_, state) => Text('game ${state.pathParameters['id']}')),
+    GoRoute(path: '/games/mind/m/:id', builder: (_, state) => Text('duel ${state.pathParameters['id']}')),
   ]);
   await tester.pumpWidget(ProviderScope(
     overrides: [currentUserIdProvider.overrideWithValue('me'), arenaRepositoryProvider.overrideWithValue(repo)],
@@ -113,5 +114,25 @@ void main() {
     expect(find.text('Cuma Blitz'), findsWidgets);
     expect(find.text(gamesL10n.arenaRegister), findsOneWidget);
     expect(find.text(gamesL10n.arenaEmpty), findsOneWidget);
+  });
+
+  testWidgets('a duel arena shows its question count and opens the paired duel by itself', (tester) async {
+    final repo = _FakeArenas(ArenaDetail(
+      arena: Arena(
+        id: 'a1',
+        kind: ArenaKind.weekly,
+        game: TeamGame.mind,
+        questions: 10,
+        startsAt: DateTime.now().subtract(const Duration(minutes: 10)),
+        endsAt: DateTime.now().add(const Duration(minutes: 50)),
+        status: ArenaStatus.live,
+      ),
+      joined: true,
+      myMatchId: 'd7',
+      standings: [_s(1, 'me', 'Ben', 2)],
+    ));
+    await _pump(tester, repo);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('duel d7'), findsOneWidget);
   });
 }

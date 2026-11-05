@@ -7,7 +7,7 @@ using Npgsql;
 namespace Gway.Modules.Games;
 
 /// <summary>
-/// Arena tournaments (docs/ARCHITECTURE.md §3i, Arena turnuvaları). People join (early joiners are registered); while
+/// Arena tournaments of chess or Zihin Düellosu (docs/ARCHITECTURE.md §3i Arena turnuvaları, §3j Turnuvalar). People join (early joiners are registered); while
 /// the arena is live the monitor pairs whoever is waiting, nearest on points first and not the same opponent twice in a
 /// row when anyone else is there. Each finished game adds points in its own transaction: 2 for a win, 1 for a draw,
 /// doubled from the third win in a row. Games started before the end still count; then the arena closes with ranks.
@@ -17,7 +17,7 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
     private static readonly Error NotFound = Error.NotFound("games.arena_not_found", "Turnuva bulunamadı.");
     private static readonly Error Closed = Error.Conflict("games.arena_closed", "Bu turnuva bitti ya da iptal edildi.");
     private static readonly Error AlreadyStarted = Error.RuleViolation("games.arena_started", "Turnuva başladı; kaydını silemezsin, ara verebilirsin.");
-    private static readonly Error Suspended = Error.RuleViolation("games.suspended", "Satranç oynaman şu anda kapalı.");
+    private static readonly Error Suspended = Error.RuleViolation("games.suspended", "Oyun oynaman şu anda kapalı.");
 
     private int _ticks;
 
@@ -42,11 +42,19 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
                 insert into public.chess_tournament_players (tournament_id, user_id, waiting, waiting_since)
                 values (@id, @u, @live, case when @live then now() end)
                 on conflict (tournament_id, user_id) do update
-                  set waiting = excluded.waiting and public.chess_tournament_players.current_game_id is null,
+                  set waiting = excluded.waiting and public.chess_tournament_players.current_game_id is null
+                                and public.chess_tournament_players.current_match_id is null,
                       waiting_since = excluded.waiting_since
                 """, ct, ("id", id), ("u", actor), ("live", live));
             // A quick-game seek would pair the person twice.
-            if (live) await ActingTransaction.ExecuteAsync(conn, tx, "delete from public.chess_seeks where user_id = @u and game_id is null", ct, ("u", actor));
+            if (live)
+            {
+                await ActingTransaction.ExecuteAsync(conn, tx,
+                    """
+                    delete from public.chess_seeks where user_id = @u and game_id is null;
+                    delete from public.mind_seeks where user_id = @u and match_id is null;
+                    """, ct, ("u", actor));
+            }
             return Result.Success();
         }, RuleError, ct);
 
@@ -119,13 +127,16 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         await ActingTransaction.ScalarAsync(conn, tx, "select pg_advisory_xact_lock(hashtextextended(@id::text, 23))", ct, ("id", id));
 
         TimeControl tc;
+        int? length;
         await using (var cmd = new NpgsqlCommand(
-            "select base_seconds, increment_seconds from public.chess_tournaments where id = @id and status = 'live' and ends_at > now()", conn, tx))
+            "select base_seconds, increment_seconds, length from public.chess_tournaments where id = @id and status = 'live' and ends_at > now()",
+            conn, tx))
         {
             cmd.Parameters.AddWithValue("id", id);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             if (!await r.ReadAsync(ct)) return 0;
-            tc = new TimeControl(r.GetInt32(0), r.GetInt32(1));
+            tc = new TimeControl(r.IsDBNull(0) ? 0 : r.GetInt32(0), r.IsDBNull(1) ? 0 : r.GetInt32(1));
+            length = r.IsDBNull(2) ? null : r.GetInt32(2);
         }
 
         var pool = new List<(Guid User, Guid? Last)>();
@@ -133,10 +144,11 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
             """
             select tp.user_id, tp.last_opponent
             from public.chess_tournament_players tp
-            where tp.tournament_id = @id and tp.waiting and tp.current_game_id is null
+            where tp.tournament_id = @id and tp.waiting and tp.current_game_id is null and tp.current_match_id is null
               and private.is_account_active(tp.user_id)
               and not exists (select 1 from public.chess_players c where c.user_id = tp.user_id and c.suspended_until > now())
               and not exists (select 1 from public.chess_games g where g.status = 'active' and tp.user_id in (g.white_id, g.black_id))
+              and not exists (select 1 from public.mind_matches m where m.status = 'active' and tp.user_id in (m.a_id, m.b_id))
             order by tp.points desc, tp.waiting_since
             for update of tp
             """, conn, tx))
@@ -160,14 +172,18 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
             if (blocked) continue;
 
             var (white, black) = Random.Shared.Next(2) == 0 ? (first.User, second.User) : (second.User, first.User);
-            var game = await ChessService.CreateGameAsync(conn, tx, white, black, tc, true, "arena", null, ct, tournamentId: id);
+            Guid? game = null, duel = null;
+            if (length is { } questions)
+                duel = await MindService.CreateMatchAsync(conn, tx, white, black, questions, true, "arena", null, ct, tournamentId: id);
+            else
+                game = await ChessService.CreateGameAsync(conn, tx, white, black, tc, true, "arena", null, ct, tournamentId: id);
             await ActingTransaction.ExecuteAsync(conn, tx,
                 """
                 update public.chess_tournament_players
-                set waiting = false, waiting_since = null, current_game_id = @g,
+                set waiting = false, waiting_since = null, current_game_id = @g, current_match_id = @d,
                     last_opponent = case when user_id = @a then @b else @a end
                 where tournament_id = @t and user_id in (@a, @b)
-                """, ct, ("g", game), ("a", white), ("b", black), ("t", id));
+                """, ct, ("g", game), ("d", duel), ("a", white), ("b", black), ("t", id));
             started++;
         }
         await tx.CommitAsync(ct);
@@ -183,6 +199,7 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
               select t.id from public.chess_tournaments t
               where t.id = @id and t.status = 'live' and t.ends_at <= now()
                 and not exists (select 1 from public.chess_games g where g.tournament_id = t.id and g.status = 'active')
+                and not exists (select 1 from public.mind_matches m where m.tournament_id = t.id and m.status = 'active')
               for update
             ), ranked as (
               select s.user_id, s.rank from due, public.chess_tournament_standings(due.id) s where s.games > 0
@@ -224,41 +241,59 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         var open = (bool?)await ActingTransaction.ScalarAsync(conn, tx,
             "select status = 'live' and ends_at > now() from public.chess_tournaments where id = @t", ct, ("t", tournament)) ?? false;
 
-        async Task Score(Guid player, string color, int opponentRating)
+        double? ScoreOf(string color) => result switch { null => null, "draw" => 0.5, _ => result == color ? 1 : 0 };
+        if (white is { } w) await ScorePlayerAsync(conn, tx, tournament, w, ScoreOf(ChessRules.White), blackRating, open && absent != ChessRules.White, ct);
+        if (black is { } b) await ScorePlayerAsync(conn, tx, tournament, b, ScoreOf(ChessRules.Black), whiteRating, open && absent != ChessRules.Black, ct);
+    }
+
+    /// <summary>
+    /// A duel of the arena ended (inside its transaction): as <see cref="RecordGameAsync"/>, with sides a and b. The opponent's
+    /// rating is their duel rating at the arena's length.
+    /// </summary>
+    internal static async Task RecordMindAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid tournament, Guid match, Guid? a, Guid? b, string? result, string? absent, CancellationToken ct)
+    {
+        var (aRating, bRating) = (0, 0);
+        await using (var cmd = new NpgsqlCommand("select a_rating, b_rating from public.mind_matches where id = @m", conn, tx))
         {
-            double? score = result switch
-            {
-                null => null,
-                "draw" => 0.5,
-                _ => result == color ? 1 : 0,
-            };
-            var streak = (int?)await ActingTransaction.ScalarAsync(conn, tx,
-                "select streak from public.chess_tournament_players where tournament_id = @t and user_id = @u for update", ct,
-                ("t", tournament), ("u", player));
-            if (streak is not { } before) return;
-            var back = open && absent != color;
-            if (score is not { } s)
-            {
-                await ActingTransaction.ExecuteAsync(conn, tx,
-                    """
-                    update public.chess_tournament_players set current_game_id = null, waiting = @back, waiting_since = case when @back then now() end
-                    where tournament_id = @t and user_id = @u
-                    """, ct, ("back", back), ("t", tournament), ("u", player));
-                return;
-            }
+            cmd.Parameters.AddWithValue("m", match);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            if (await r.ReadAsync(ct)) (aRating, bRating) = (r.GetInt32(0), r.GetInt32(1));
+        }
+        var open = (bool?)await ActingTransaction.ScalarAsync(conn, tx,
+            "select status = 'live' and ends_at > now() from public.chess_tournaments where id = @t", ct, ("t", tournament)) ?? false;
+        double? ScoreOf(string side) => result switch { null => null, "draw" => 0.5, _ => result == side ? 1 : 0 };
+        if (a is { } pa) await ScorePlayerAsync(conn, tx, tournament, pa, ScoreOf("a"), bRating, open && absent?.Contains('a') != true, ct);
+        if (b is { } pb) await ScorePlayerAsync(conn, tx, tournament, pb, ScoreOf("b"), aRating, open && absent?.Contains('b') != true, ct);
+    }
+
+    /// <summary>One player's result: points (doubled on a streak), the record, and back to the pool unless the arena closed or they never came.</summary>
+    private static async Task ScorePlayerAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, Guid tournament, Guid player, double? score, int opponentRating, bool back, CancellationToken ct)
+    {
+        var streak = (int?)await ActingTransaction.ScalarAsync(conn, tx,
+            "select streak from public.chess_tournament_players where tournament_id = @t and user_id = @u for update", ct,
+            ("t", tournament), ("u", player));
+        if (streak is not { } before) return;
+        if (score is not { } s)
+        {
             await ActingTransaction.ExecuteAsync(conn, tx,
                 """
                 update public.chess_tournament_players
-                set points = points + @p, games = games + 1, wins = wins + @w, draws = draws + @d, losses = losses + @l,
-                    streak = case when @w = 1 then streak + 1 else 0 end, opponent_rating_sum = opponent_rating_sum + @opp,
-                    current_game_id = null, waiting = @back, waiting_since = case when @back then now() end
+                set current_game_id = null, current_match_id = null, waiting = @back, waiting_since = case when @back then now() end
                 where tournament_id = @t and user_id = @u
-                """, ct, ("p", Points(s, before)), ("w", s == 1 ? 1 : 0), ("d", s == 0.5 ? 1 : 0), ("l", s == 0 ? 1 : 0),
-                ("opp", (long)opponentRating), ("back", back), ("t", tournament), ("u", player));
+                """, ct, ("back", back), ("t", tournament), ("u", player));
+            return;
         }
-
-        if (white is { } w) await Score(w, ChessRules.White, blackRating);
-        if (black is { } b) await Score(b, ChessRules.Black, whiteRating);
+        await ActingTransaction.ExecuteAsync(conn, tx,
+            """
+            update public.chess_tournament_players
+            set points = points + @p, games = games + 1, wins = wins + @w, draws = draws + @d, losses = losses + @l,
+                streak = case when @w = 1 then streak + 1 else 0 end, opponent_rating_sum = opponent_rating_sum + @opp,
+                current_game_id = null, current_match_id = null, waiting = @back, waiting_since = case when @back then now() end
+            where tournament_id = @t and user_id = @u
+            """, ct, ("p", Points(s, before)), ("w", s == 1 ? 1 : 0), ("d", s == 0.5 ? 1 : 0), ("l", s == 0 ? 1 : 0),
+            ("opp", (long)opponentRating), ("back", back), ("t", tournament), ("u", player));
     }
 
     // -----------------------------------------------------------------------
@@ -271,7 +306,7 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         await using var cmd = db.CreateCommand(
             """
             select t.id, t.kind, t.title, t.base_seconds, t.increment_seconds, t.starts_at, t.ends_at, t.status,
-                   (select count(*) from public.chess_tournament_players tp where tp.tournament_id = t.id)::int
+                   (select count(*) from public.chess_tournament_players tp where tp.tournament_id = t.id)::int, t.game, t.length
             from public.chess_tournaments t
             where t.status in ('scheduled', 'live') or t.finished_at > now() - interval '30 days'
             order by t.starts_at
@@ -280,8 +315,9 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct))
         {
-            rows.Add(new TournamentAdminRow(r.GetGuid(0), r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2), r.GetInt32(3), r.GetInt32(4),
-                r.GetFieldValue<DateTimeOffset>(5), r.GetFieldValue<DateTimeOffset>(6), r.GetString(7), r.GetInt32(8)));
+            rows.Add(new TournamentAdminRow(r.GetGuid(0), r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2), r.IsDBNull(3) ? null : r.GetInt32(3),
+                r.IsDBNull(4) ? null : r.GetInt32(4), r.GetFieldValue<DateTimeOffset>(5), r.GetFieldValue<DateTimeOffset>(6), r.GetString(7), r.GetInt32(8),
+                r.GetString(9), r.IsDBNull(10) ? null : r.GetInt32(10)));
         }
         return rows;
     }
@@ -291,7 +327,11 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         var tc = new TimeControl(draft.BaseSeconds, draft.IncrementSeconds);
         var title = draft.Title?.Trim() ?? "";
         if (title.Length is < 3 or > 80) return Task.FromResult<Result<Guid>>(Error.Validation("games.arena_title", "Başlık 3–80 karakter olmalı."));
-        if (!tc.IsValid) return Task.FromResult<Result<Guid>>(Error.Validation("games.time_control_invalid", "Bu süre seçeneği yok."));
+        var mind = draft.Game == "mind";
+        if (mind && !MindQuestions.Lengths.Contains(draft.Length ?? 0))
+            return Task.FromResult<Result<Guid>>(Error.Validation("games.mind_length_invalid", "Soru sayısı 5, 10, 20 ya da 50 olmalı."));
+        if (!mind && (draft.Game != "chess" || !tc.IsValid))
+            return Task.FromResult<Result<Guid>>(Error.Validation("games.time_control_invalid", "Bu süre seçeneği yok."));
         if (draft.Minutes is < 20 or > 360) return Task.FromResult<Result<Guid>>(Error.Validation("games.arena_minutes", "Süre 20–360 dakika olmalı."));
         if (draft.StartsAt < DateTimeOffset.UtcNow.AddMinutes(5))
             return Task.FromResult<Result<Guid>>(Error.Validation("games.arena_start", "Başlangıç en az 5 dakika sonra olmalı."));
@@ -300,13 +340,15 @@ internal sealed class TournamentService(NpgsqlDataSource db) : ITournamentAdmini
         {
             var id = (Guid)(await ActingTransaction.ScalarAsync(conn, tx,
                 """
-                insert into public.chess_tournaments (kind, title, category, base_seconds, increment_seconds, starts_at, ends_at, created_by)
-                values ('custom', @title, @category, @base, @inc, @starts, @starts + make_interval(mins => @minutes), @me)
+                insert into public.chess_tournaments
+                  (kind, title, category, base_seconds, increment_seconds, starts_at, ends_at, created_by, game, length)
+                values ('custom', @title, @category, @base, @inc, @starts, @starts + make_interval(mins => @minutes), @me, @game, @length)
                 returning id
-                """, ct, ("title", title), ("category", tc.Category), ("base", tc.BaseSeconds), ("inc", tc.IncrementSeconds),
-                ("starts", draft.StartsAt), ("minutes", draft.Minutes), ("me", actorId)))!;
+                """, ct, ("title", title), ("category", mind ? null : tc.Category), ("base", mind ? null : tc.BaseSeconds),
+                ("inc", mind ? null : tc.IncrementSeconds), ("starts", draft.StartsAt), ("minutes", draft.Minutes), ("me", actorId),
+                ("game", mind ? "mind" : "chess"), ("length", mind ? draft.Length : null)))!;
             await AuditLog.AppendAsync(conn, tx, new AuditEntry(actorId, AuditActor.Staff, "games.arena_created", "chess_tournament", id.ToString(),
-                new { title, draft.BaseSeconds, draft.IncrementSeconds, draft.StartsAt, draft.Minutes }), ct);
+                new { title, game = mind ? "mind" : "chess", draft.BaseSeconds, draft.IncrementSeconds, draft.Length, draft.StartsAt, draft.Minutes }), ct);
             return id;
         }, RuleError, ct);
     }

@@ -981,4 +981,14 @@ class GamesL10nAz extends GamesL10n {
   @override
   String get mindGroupLeaderboardEmpty =>
       'Hələ heç bir qrup qrup dueli oynamayıb. İlkini qrupun təşkil etsin.';
+
+  @override
+  String get mindTournaments => 'Turnirlər';
+
+  @override
+  String get mindTournamentsHint =>
+      'Hər şənbə 21:00 həftəlik (10 sual), ayın son şənbəsi 19:00 aylıq (20 sual); ilk üç medal alır.';
+
+  @override
+  String get mindNoTournaments => 'Yaxınlaşan turnir yoxdur.';
 }

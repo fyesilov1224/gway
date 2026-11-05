@@ -35,13 +35,14 @@ public interface ITeamMatchAdministration
     Task<Result> CancelAsStaffAsync(Guid actorId, Guid id, string reason, CancellationToken ct);
 }
 
-/// <summary>An arena in the admin panel; <see cref="Title"/> is null for the weekly and monthly ones.</summary>
+/// <summary>An arena in the admin panel; <see cref="Title"/> is null for the weekly and monthly ones. Chess has a time control, a duel a question count.</summary>
 public sealed record TournamentAdminRow(
-    Guid Id, string Kind, string? Title, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Status,
-    int Players);
+    Guid Id, string Kind, string? Title, int? BaseSeconds, int? IncrementSeconds, DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Status,
+    int Players, string Game, int? Length);
 
-/// <summary>An extra arena opened by the platform team.</summary>
-public sealed record TournamentDraft(string Title, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, int Minutes);
+/// <summary>An extra arena opened by the platform team: chess with a time control, or <c>mind</c> with <paramref name="Length"/>.</summary>
+public sealed record TournamentDraft(
+    string Title, int BaseSeconds, int IncrementSeconds, DateTimeOffset StartsAt, int Minutes, string Game = "chess", int? Length = null);
 
 /// <summary>Platform team actions on arenas. Callers check platform staff roles first; every action is audited.</summary>
 public interface ITournamentAdministration

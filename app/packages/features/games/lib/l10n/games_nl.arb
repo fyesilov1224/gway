@@ -267,5 +267,8 @@
   "mindSeats": "Plekken",
   "mindSeatsCount": "{count, plural, =1{1 plek} other{{count} plekken}}",
   "mindLineupHint": "Een lege plek bij de start telt voor de andere kant. Op de eerste vraag wordt 5 minuten gewacht.",
-  "mindGroupLeaderboardEmpty": "Nog geen groep heeft een groepsduel gespeeld. Laat de jouwe het eerste plannen."
+  "mindGroupLeaderboardEmpty": "Nog geen groep heeft een groepsduel gespeeld. Laat de jouwe het eerste plannen.",
+  "mindTournaments": "Toernooien",
+  "mindTournamentsHint": "Wekelijks elke zaterdag om 21:00 (10 vragen), maandelijks op de laatste zaterdag om 19:00 (20 vragen); de eerste drie krijgen medailles.",
+  "mindNoTournaments": "Geen komende toernooien."
 }
