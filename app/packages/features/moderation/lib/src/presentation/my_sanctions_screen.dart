@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/moderation.dart';
+import '../l10n.dart';
 import 'group_moderation_screen.dart';
 import 'providers.dart';
 
@@ -17,12 +18,12 @@ class MySanctionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sanctions = ref.watch(mySanctionsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Yaptırımlarım')),
+      appBar: AppBar(title: Text(moderationL10n.mySanctions)),
       body: switch (sanctions) {
         AsyncData(:final value) when value.isEmpty => GwEmptyState(
             icon: Icons.verified_outlined,
-            message: 'Hiçbir grupta yaptırımın yok. Topluluk kurallarına uyduğun için teşekkürler.',
-            actionLabel: 'Yenile',
+            message: moderationL10n.noMySanctions,
+            actionLabel: moderationL10n.refresh,
             onAction: () => ref.invalidate(mySanctionsProvider),
           ),
         AsyncData(:final value) => RefreshIndicator(
@@ -46,12 +47,12 @@ class MySanctionsScreen extends ConsumerWidget {
 
 /// "3 gün susturma · 24 Ekim 2026, 18:00 tarihine kadar", "Gruptan çıkarma", "Kaldırıldı".
 String mySanctionStatus(MySanction s) {
-  if (s.liftedAt != null) return s.interim ? 'Acil susturma sona erdi' : 'Kaldırıldı';
-  if (s.interim) return 'Acil susturma · kurul kararına kadar, en geç ${formatDateTime(s.endsAt!)}';
+  if (s.liftedAt != null) return s.interim ? moderationL10n.interimEnded : moderationL10n.lifted;
+  if (s.interim) return moderationL10n.interimLatest(formatDateTime(s.endsAt!));
   return switch (s.type) {
     SanctionType.mute || SanctionType.ban when s.endsAt != null =>
-      s.endsAt!.isAfter(DateTime.now()) ? '${formatDateTime(s.endsAt!)} tarihine kadar' : 'Sona erdi',
-    SanctionType.ban => 'Kalıcı',
+      s.endsAt!.isAfter(DateTime.now()) ? moderationL10n.untilCap(formatDateTime(s.endsAt!)) : moderationL10n.ended,
+    SanctionType.ban => moderationL10n.permanent,
     _ => formatDateTime(s.startsAt),
   };
 }
@@ -65,9 +66,9 @@ class _SanctionTile extends ConsumerWidget {
   Future<void> _appeal(BuildContext context, WidgetRef ref) async {
     final body = await askText(
       context,
-      title: 'İtiraz et',
-      label: 'Neden haksız olduğunu düşünüyorsun?',
-      confirm: 'Gönder',
+      title: moderationL10n.appeal,
+      label: moderationL10n.appealHint,
+      confirm: moderationL10n.send,
       minLength: 10,
       maxLength: 1000,
     );
@@ -76,7 +77,7 @@ class _SanctionTile extends ConsumerWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(switch (result) {
-        Ok() => 'İtirazın gönderildi. Karar verilince bildirim alacaksın.',
+        Ok() => moderationL10n.appealSent,
         Err(:final failure) => failure.userMessage,
       }),
     ));
@@ -108,18 +109,18 @@ class _SanctionTile extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: GwSpacing.sm),
-            Text(s.interim ? 'Acil susturma' : s.type.label, style: textTheme.titleSmall),
+            Text(s.interim ? moderationL10n.interimMute : s.type.label, style: textTheme.titleSmall),
             Text(mySanctionStatus(s), style: secondary),
-            if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xs), Text('Gerekçe: ${s.reason}', style: textTheme.bodyMedium)],
+            if (s.reason.isNotEmpty) ...[const SizedBox(height: GwSpacing.xs), Text(moderationL10n.reasonLine(s.reason), style: textTheme.bodyMedium)],
             if (appeal != null) ...[
               const SizedBox(height: GwSpacing.sm),
-              Text('İtirazın · ${appeal.status.label}', style: textTheme.labelLarge),
-              if (appeal.decisionNote case final note?) Text('Not: $note', style: secondary),
+              Text(moderationL10n.yourAppealLine(appeal.status.label), style: textTheme.labelLarge),
+              if (appeal.decisionNote case final note?) Text(moderationL10n.noteLine(note), style: secondary),
             ] else if (s.canAppeal) ...[
               const SizedBox(height: GwSpacing.sm),
-              Text('Bu karara 7 gün içinde bir kez itiraz edebilirsin.', style: secondary),
+              Text(moderationL10n.appealOnce, style: secondary),
               const SizedBox(height: GwSpacing.xs),
-              GwButton(label: 'İtiraz et', icon: Icons.record_voice_over_outlined, variant: GwButtonVariant.secondary, onPressed: () => _appeal(context, ref)),
+              GwButton(label: moderationL10n.appeal, icon: Icons.record_voice_over_outlined, variant: GwButtonVariant.secondary, onPressed: () => _appeal(context, ref)),
             ],
           ],
         ),

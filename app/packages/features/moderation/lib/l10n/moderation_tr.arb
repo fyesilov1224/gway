@@ -1,0 +1,790 @@
+{
+  "@@locale": "tr",
+  "ruleRateLimited": "Bugün çok fazla şikayet gönderdin. Yarın tekrar deneyebilirsin.",
+  "@ruleRateLimited": {
+    "description": ""
+  },
+  "ruleTargetInvalid": "Bu içerik artık yok ya da göremiyorsun.",
+  "@ruleTargetInvalid": {
+    "description": ""
+  },
+  "ruleSelf": "Kendini ya da kendi içeriğini şikayet edemezsin.",
+  "@ruleSelf": {
+    "description": ""
+  },
+  "ruleAppealNotAllowed": "Bu yaptırıma artık itiraz edilemez.",
+  "@ruleAppealNotAllowed": {
+    "description": ""
+  },
+  "ruleDuplicate": "Bunu zaten bildirdin; inceleniyor.",
+  "@ruleDuplicate": {
+    "description": ""
+  },
+  "deletedAccount": "Silinmiş hesap",
+  "@deletedAccount": {
+    "description": ""
+  },
+  "reasonSpam": "Spam ya da yanıltıcı",
+  "@reasonSpam": {
+    "description": ""
+  },
+  "reasonHarassment": "Taciz ya da zorbalık",
+  "@reasonHarassment": {
+    "description": ""
+  },
+  "reasonHate": "Nefret söylemi",
+  "@reasonHate": {
+    "description": ""
+  },
+  "reasonViolence": "Şiddet ya da tehdit",
+  "@reasonViolence": {
+    "description": ""
+  },
+  "reasonSexual": "Cinsel içerik",
+  "@reasonSexual": {
+    "description": ""
+  },
+  "reasonMisinformation": "Yanlış bilgi",
+  "@reasonMisinformation": {
+    "description": ""
+  },
+  "reasonOther": "Diğer",
+  "@reasonOther": {
+    "description": ""
+  },
+  "sanctionWarning": "Uyarı",
+  "@sanctionWarning": {
+    "description": ""
+  },
+  "sanctionMute": "Susturma",
+  "@sanctionMute": {
+    "description": ""
+  },
+  "sanctionKick": "Gruptan çıkarma",
+  "@sanctionKick": {
+    "description": ""
+  },
+  "sanctionBan": "Ban",
+  "@sanctionBan": {
+    "description": ""
+  },
+  "illegalViolence": "Şiddet",
+  "@illegalViolence": {
+    "description": ""
+  },
+  "illegalThreat": "Tehdit",
+  "@illegalThreat": {
+    "description": ""
+  },
+  "illegalInsult": "Hakaret",
+  "@illegalInsult": {
+    "description": ""
+  },
+  "illegalHate": "Nefret söylemi",
+  "@illegalHate": {
+    "description": ""
+  },
+  "illegalSexual": "Cinsel istismar",
+  "@illegalSexual": {
+    "description": ""
+  },
+  "illegalFraud": "Dolandırıcılık",
+  "@illegalFraud": {
+    "description": ""
+  },
+  "illegalDrugs": "Uyuşturucu",
+  "@illegalDrugs": {
+    "description": ""
+  },
+  "illegalTerror": "Terör",
+  "@illegalTerror": {
+    "description": ""
+  },
+  "illegalOther": "Başka bir suç",
+  "@illegalOther": {
+    "description": ""
+  },
+  "muteDays": "{days} gün susturma",
+  "@muteDays": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "banDays": "{days} gün ban",
+  "@banDays": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "permanentBan": "Kalıcı ban",
+  "@permanentBan": {
+    "description": ""
+  },
+  "thresholdMajority": "Salt çoğunluk",
+  "@thresholdMajority": {
+    "description": ""
+  },
+  "thresholdMajorityText": "Oyların yarısından fazlası",
+  "@thresholdMajorityText": {
+    "description": ""
+  },
+  "thresholdTwoThirds": "Üçte iki",
+  "@thresholdTwoThirds": {
+    "description": ""
+  },
+  "thresholdTwoThirdsText": "Oyların en az üçte ikisi",
+  "@thresholdTwoThirdsText": {
+    "description": ""
+  },
+  "thresholdUnanimous": "Oybirliği",
+  "@thresholdUnanimous": {
+    "description": ""
+  },
+  "thresholdUnanimousText": "Oyların tamamı",
+  "@thresholdUnanimousText": {
+    "description": ""
+  },
+  "targetPost": "Gönderi",
+  "@targetPost": {
+    "description": ""
+  },
+  "targetComment": "Yorum",
+  "@targetComment": {
+    "description": ""
+  },
+  "targetEvent": "Organizasyon",
+  "@targetEvent": {
+    "description": ""
+  },
+  "targetLiveComment": "Canlı yayın yorumu",
+  "@targetLiveComment": {
+    "description": ""
+  },
+  "targetMessage": "Grup sohbeti mesajı",
+  "@targetMessage": {
+    "description": ""
+  },
+  "targetMember": "Üye",
+  "@targetMember": {
+    "description": ""
+  },
+  "appealPending": "Karar bekliyor",
+  "@appealPending": {
+    "description": ""
+  },
+  "appealUpheld": "Yaptırım sürüyor",
+  "@appealUpheld": {
+    "description": ""
+  },
+  "appealOverturned": "Yaptırım kaldırıldı",
+  "@appealOverturned": {
+    "description": ""
+  },
+  "banApplied": "Ban uygulandı.",
+  "@banApplied": {
+    "description": ""
+  },
+  "banAppliedSuspended": "Ban uygulandı. Kişinin hesabı platform incelemesine kadar askıya alındı.",
+  "@banAppliedSuspended": {
+    "description": ""
+  },
+  "caseOpened": "Dosya açıldı. Kurul 72 saat içinde oy verecek.",
+  "@caseOpened": {
+    "description": ""
+  },
+  "openCaseTitle": "Disiplin dosyası aç",
+  "@openCaseTitle": {
+    "description": ""
+  },
+  "caseAboutNow": "{name} hakkında. Ban kurul oylaması olmadan hemen uygulanır.",
+  "@caseAboutNow": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "caseAboutVote": "{name} hakkında. Önerdiğin yaptırımı disiplin kurulu 72 saat içinde oylar.",
+  "@caseAboutVote": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "proposedSanction": "Önerilen yaptırım",
+  "@proposedSanction": {
+    "description": ""
+  },
+  "duration": "Süre",
+  "@duration": {
+    "description": ""
+  },
+  "permanent": "Kalıcı",
+  "@permanent": {
+    "description": ""
+  },
+  "permanentLower": "kalıcı",
+  "@permanentLower": {
+    "description": ""
+  },
+  "days": "{days} gün",
+  "@days": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "applyNow": "Oylamasız, hemen uygula",
+  "@applyNow": {
+    "description": ""
+  },
+  "applyNowHint": "Kurulun kararını beklemeden banlar. Kişi 7 gün içinde itiraz edebilir.",
+  "@applyNowHint": {
+    "description": ""
+  },
+  "illegalActivity": "Yasa dışı faaliyet",
+  "@illegalActivity": {
+    "description": ""
+  },
+  "illegalHintNow": "Ban uygulanınca dosya platform ekibine gider ve hesap incelemeye kadar askıya alınır. Bu işaret sonradan değişmez.",
+  "@illegalHintNow": {
+    "description": ""
+  },
+  "illegalHintVote": "Kurul onaylarsa dosya platform ekibine gider ve hesap incelemeye kadar askıya alınır. Bu işaret sonradan değişmez.",
+  "@illegalHintVote": {
+    "description": ""
+  },
+  "reason": "Gerekçe",
+  "@reason": {
+    "description": ""
+  },
+  "reasonHintNow": "Ne oldu? Kişi ve itirazı inceleyen bu metni görür.",
+  "@reasonHintNow": {
+    "description": ""
+  },
+  "reasonHintVote": "Ne oldu? Kurul bu metne bakarak oy verecek.",
+  "@reasonHintVote": {
+    "description": ""
+  },
+  "reasonMin10": "Gerekçe en az 10 karakter olmalı.",
+  "@reasonMin10": {
+    "description": ""
+  },
+  "muteNow": "Hemen sustur (24 saat)",
+  "@muteNow": {
+    "description": ""
+  },
+  "muteNowHint": "Kurul karar verene kadar yorum yazamaz, canlı yayında konuşamaz.",
+  "@muteNowHint": {
+    "description": ""
+  },
+  "ban": "Banla",
+  "@ban": {
+    "description": ""
+  },
+  "openCase": "Dosyayı aç",
+  "@openCase": {
+    "description": ""
+  },
+  "leftDays": "{days} gün",
+  "@leftDays": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "leftDaysHours": "{days} gün {hours} saat",
+  "@leftDaysHours": {
+    "description": "",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "leftHours": "{hours} saat",
+  "@leftHours": {
+    "description": "",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "leftFewMinutes": "birkaç dakika",
+  "@leftFewMinutes": {
+    "description": ""
+  },
+  "minChars": "En az {min} karakter yaz.",
+  "@minChars": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "cancel": "Vazgeç",
+  "@cancel": {
+    "description": ""
+  },
+  "threshold": "Kurul karar eşiği",
+  "@threshold": {
+    "description": ""
+  },
+  "thresholdChanged": "Karar eşiği \"{threshold}\" oldu. Yeni dosyalarda geçerli.",
+  "@thresholdChanged": {
+    "description": "",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationOf": "Moderasyon · {group}",
+  "@moderationOf": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "reports": "Şikayetler",
+  "@reports": {
+    "description": ""
+  },
+  "reportsCount": "Şikayetler ({count})",
+  "@reportsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cases": "Dosyalar",
+  "@cases": {
+    "description": ""
+  },
+  "casesCount": "Dosyalar ({count})",
+  "@casesCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sanctions": "Yaptırımlar",
+  "@sanctions": {
+    "description": ""
+  },
+  "sanctionsCount": "Yaptırımlar ({count})",
+  "@sanctionsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moderationTeamOnly": "Bu grubun moderasyonunu yalnızca grup sahibi ve moderasyon ekibi görür.",
+  "@moderationTeamOnly": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "noReports": "Açık şikayet yok. Üyelerin şikayetleri burada toplanır.",
+  "@noReports": {
+    "description": ""
+  },
+  "refresh": "Yenile",
+  "@refresh": {
+    "description": ""
+  },
+  "removeContent": "İçeriği kaldır",
+  "@removeContent": {
+    "description": ""
+  },
+  "remove": "Kaldır",
+  "@remove": {
+    "description": ""
+  },
+  "contentRemoved": "İçerik kaldırıldı.",
+  "@contentRemoved": {
+    "description": ""
+  },
+  "reportCount": "{count} şikayet",
+  "@reportCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "view": "Görüntüle",
+  "@view": {
+    "description": ""
+  },
+  "reportDismissed": "Şikayet reddedildi.",
+  "@reportDismissed": {
+    "description": ""
+  },
+  "dismiss": "Reddet",
+  "@dismiss": {
+    "description": ""
+  },
+  "openCaseShort": "Dosya aç",
+  "@openCaseShort": {
+    "description": ""
+  },
+  "rankOnlyDismiss": "Bu kişinin rütbesi seninkinden düşük olmadığı için yalnızca reddedebilirsin.",
+  "@rankOnlyDismiss": {
+    "description": ""
+  },
+  "noCases": "Henüz disiplin dosyası yok. Dosyalar bir şikayetten ya da üyeler sayfasından açılır.",
+  "@noCases": {
+    "description": ""
+  },
+  "voteApproved": "Oyun kaydedildi. Kurul yaptırımı onayladı; yaptırım uygulandı.",
+  "@voteApproved": {
+    "description": ""
+  },
+  "voteRejected": "Oyun kaydedildi. Kurul yaptırımı reddetti.",
+  "@voteRejected": {
+    "description": ""
+  },
+  "voteSaved": "Oyun kaydedildi. Karar çıkana kadar değiştirebilirsin.",
+  "@voteSaved": {
+    "description": ""
+  },
+  "statusVoting": "Oylamada",
+  "@statusVoting": {
+    "description": ""
+  },
+  "statusApproved": "Onaylandı",
+  "@statusApproved": {
+    "description": ""
+  },
+  "statusRejected": "Reddedildi",
+  "@statusRejected": {
+    "description": ""
+  },
+  "proposed": "Önerilen: {sanction}",
+  "@proposed": {
+    "description": "",
+    "placeholders": {
+      "sanction": {
+        "type": "String"
+      }
+    }
+  },
+  "directBan": "Oylamasız ban",
+  "@directBan": {
+    "description": ""
+  },
+  "illegalLabel": "Yasa dışı faaliyet: {category}",
+  "@illegalLabel": {
+    "description": "",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "tally": "{approvals} onay · {rejections} ret · {voters} oy hakkı",
+  "@tally": {
+    "description": "",
+    "placeholders": {
+      "approvals": {
+        "type": "int"
+      },
+      "rejections": {
+        "type": "int"
+      },
+      "voters": {
+        "type": "int"
+      }
+    }
+  },
+  "votingEndsIn": "Oylama {time} sonra biter",
+  "@votingEndsIn": {
+    "description": "",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bannedBy": "Banlayan: {name}",
+  "@bannedBy": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openedBy": "Dosyayı açan: {name}",
+  "@openedBy": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "approve": "Onayla",
+  "@approve": {
+    "description": ""
+  },
+  "reject": "Reddet",
+  "@reject": {
+    "description": ""
+  },
+  "noSanctions": "Henüz yaptırım yok. Kurulun onayladığı yaptırımlar ve itirazlar burada görünür.",
+  "@noSanctions": {
+    "description": ""
+  },
+  "liftSanction": "Yaptırımı kaldır",
+  "@liftSanction": {
+    "description": ""
+  },
+  "keepSanction": "Yaptırım sürsün",
+  "@keepSanction": {
+    "description": ""
+  },
+  "noteToPerson": "Kişiye notun (isteğe bağlı)",
+  "@noteToPerson": {
+    "description": ""
+  },
+  "liftedNotified": "Yaptırım kaldırıldı; kişiye bildirildi.",
+  "@liftedNotified": {
+    "description": ""
+  },
+  "appealRejectedNotified": "İtiraz reddedildi; kişiye bildirildi.",
+  "@appealRejectedNotified": {
+    "description": ""
+  },
+  "lifted": "Kaldırıldı",
+  "@lifted": {
+    "description": ""
+  },
+  "interimMute": "Acil susturma",
+  "@interimMute": {
+    "description": ""
+  },
+  "running": "Sürüyor",
+  "@running": {
+    "description": ""
+  },
+  "applied": "Uygulandı",
+  "@applied": {
+    "description": ""
+  },
+  "interimUntilDecision": "Acil susturma · kurul kararına kadar",
+  "@interimUntilDecision": {
+    "description": ""
+  },
+  "until": "{date} tarihine kadar",
+  "@until": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "appealLine": "İtiraz · {status}",
+  "@appealLine": {
+    "description": "",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "noteLine": "Not: {note}",
+  "@noteLine": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "ownerParty": "Sahip bu dosyada taraf olduğu için itirazı platform ekibi inceliyor.",
+  "@ownerParty": {
+    "description": ""
+  },
+  "keep": "Sürsün",
+  "@keep": {
+    "description": ""
+  },
+  "casesAwaitingVote": "{count} dosya oyunu bekliyor",
+  "@casesAwaitingVote": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appealsCount": "{count} itiraz",
+  "@appealsCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moderation": "Moderasyon",
+  "@moderation": {
+    "description": ""
+  },
+  "noWork": "Bekleyen iş yok",
+  "@noWork": {
+    "description": ""
+  },
+  "mySanctions": "Yaptırımlarım",
+  "@mySanctions": {
+    "description": ""
+  },
+  "noMySanctions": "Hiçbir grupta yaptırımın yok. Topluluk kurallarına uyduğun için teşekkürler.",
+  "@noMySanctions": {
+    "description": ""
+  },
+  "interimEnded": "Acil susturma sona erdi",
+  "@interimEnded": {
+    "description": ""
+  },
+  "interimLatest": "Acil susturma · kurul kararına kadar, en geç {date}",
+  "@interimLatest": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "untilCap": "{date} tarihine kadar",
+  "@untilCap": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ended": "Sona erdi",
+  "@ended": {
+    "description": ""
+  },
+  "appeal": "İtiraz et",
+  "@appeal": {
+    "description": ""
+  },
+  "appealHint": "Neden haksız olduğunu düşünüyorsun?",
+  "@appealHint": {
+    "description": ""
+  },
+  "send": "Gönder",
+  "@send": {
+    "description": ""
+  },
+  "appealSent": "İtirazın gönderildi. Karar verilince bildirim alacaksın.",
+  "@appealSent": {
+    "description": ""
+  },
+  "reasonLine": "Gerekçe: {reason}",
+  "@reasonLine": {
+    "description": "",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "yourAppealLine": "İtirazın · {status}",
+  "@yourAppealLine": {
+    "description": "",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "appealOnce": "Bu karara 7 gün içinde bir kez itiraz edebilirsin.",
+  "@appealOnce": {
+    "description": ""
+  },
+  "reportPost": "Gönderiyi şikayet et",
+  "@reportPost": {
+    "description": ""
+  },
+  "reportComment": "Yorumu şikayet et",
+  "@reportComment": {
+    "description": ""
+  },
+  "reportEvent": "Organizasyonu şikayet et",
+  "@reportEvent": {
+    "description": ""
+  },
+  "reportMessage": "Mesajı şikayet et",
+  "@reportMessage": {
+    "description": ""
+  },
+  "reportMatchProfile": "Eşleşme profilini şikayet et",
+  "@reportMatchProfile": {
+    "description": ""
+  },
+  "reportPhoto": "Fotoğrafı şikayet et",
+  "@reportPhoto": {
+    "description": ""
+  },
+  "reportUser": "Kullanıcıyı şikayet et",
+  "@reportUser": {
+    "description": ""
+  },
+  "reportReceived": "Şikayetin alındı. İnceleyip gerekeni yapacağız; kimliğin şikayet edilen kişiye gösterilmez.",
+  "@reportReceived": {
+    "description": ""
+  },
+  "whyReport": "Neden şikayet ediyorsun?",
+  "@whyReport": {
+    "description": ""
+  },
+  "detailsOptional": "Açıklama (isteğe bağlı)",
+  "@detailsOptional": {
+    "description": ""
+  },
+  "detailsHint": "Ne olduğunu kısaca anlat.",
+  "@detailsHint": {
+    "description": ""
+  },
+  "report": "Şikayet et",
+  "@report": {
+    "description": ""
+  }
+}
