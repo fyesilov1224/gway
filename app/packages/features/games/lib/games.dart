@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 export 'src/domain/arena.dart' show ArenaStatus;
 export 'src/domain/chess.dart';
 export 'src/domain/mind.dart' show MindMatch, mindLengths;
-export 'src/domain/team.dart' show TeamMatchStatus;
+export 'src/domain/team.dart' show TeamGame, TeamMatchStatus;
 export 'src/l10n.dart' show gamesL10n;
 export 'src/presentation/arena_screens.dart' show ArenaScreen, ArenasScreen;
 export 'src/presentation/chess_home_screen.dart';

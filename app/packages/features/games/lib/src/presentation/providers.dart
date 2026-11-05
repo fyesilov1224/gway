@@ -311,9 +311,9 @@ final arenaRepositoryProvider = Provider<ArenaRepository>(
   (ref) => ArenaRepositoryImpl(ref.watch(supabaseClientProvider), ref.watch(apiClientProvider)),
 );
 
-final arenasProvider = FutureProvider.autoDispose<ArenaLists>((ref) async {
+final arenasProvider = FutureProvider.autoDispose.family<ArenaLists, TeamGame>((ref, game) async {
   ref.watch(currentUserIdProvider);
-  return (await ref.watch(arenaRepositoryProvider).arenas()).getOrThrow();
+  return (await ref.watch(arenaRepositoryProvider).arenas(game)).getOrThrow();
 });
 
 /// One arena with its standings, refreshed by Realtime.
@@ -324,7 +324,8 @@ final arenaProvider = FutureProvider.autoDispose.family<ArenaDetail, String>((re
   return (await repo.detail(id)).getOrThrow();
 });
 
-final medalsProvider = FutureProvider.autoDispose.family<ChessMedals, String>((ref, userId) async {
+/// A person's arena medals in one game.
+final medalsProvider = FutureProvider.autoDispose.family<ChessMedals, (String, TeamGame)>((ref, key) async {
   ref.cacheFor();
-  return (await ref.watch(arenaRepositoryProvider).medals(userId)).getOrThrow();
+  return (await ref.watch(arenaRepositoryProvider).medals(key.$1, key.$2)).getOrThrow();
 });

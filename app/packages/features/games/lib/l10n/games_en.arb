@@ -267,5 +267,8 @@
   "mindSeats": "Seats",
   "mindSeatsCount": "{count, plural, =1{1 seat} other{{count} seats}}",
   "mindLineupHint": "A seat left empty at the start counts for the other side. A seat waits 5 minutes for the first question.",
-  "mindGroupLeaderboardEmpty": "No group has played a group duel yet. Let yours arrange the first."
+  "mindGroupLeaderboardEmpty": "No group has played a group duel yet. Let yours arrange the first.",
+  "mindTournaments": "Tournaments",
+  "mindTournamentsHint": "Weekly every Saturday at 21:00 (10 questions), monthly on the last Saturday at 19:00 (20 questions); the top three get medals.",
+  "mindNoTournaments": "No upcoming tournaments."
 }

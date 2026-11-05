@@ -267,5 +267,8 @@
   "mindSeats": "Места",
   "mindSeatsCount": "{count, plural, one{{count} место} few{{count} места} many{{count} мест} other{{count} места}}",
   "mindLineupHint": "Пустое на старте место засчитывается сопернику. Первого вопроса ждут 5 минут.",
-  "mindGroupLeaderboardEmpty": "Ни одна группа ещё не играла дуэль. Пусть ваша устроит первую."
+  "mindGroupLeaderboardEmpty": "Ни одна группа ещё не играла дуэль. Пусть ваша устроит первую.",
+  "mindTournaments": "Турниры",
+  "mindTournamentsHint": "Еженедельный по субботам в 21:00 (10 вопросов), ежемесячный в последнюю субботу в 19:00 (20 вопросов); тройке лучших — медали.",
+  "mindNoTournaments": "Ближайших турниров нет."
 }

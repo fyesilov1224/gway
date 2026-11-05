@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -118,7 +119,7 @@ class ChessIdentityCard extends ConsumerWidget {
                 ),
             ],
           ),
-          _Medals(userId: p.userId),
+          MedalsRow(userId: p.userId, game: TeamGame.chess),
           if (profile.suspended) ...[
             const SizedBox(height: GwSpacing.sm),
             GwFormMessage(gamesL10n.suspendedNotice),
@@ -138,15 +139,16 @@ class ChessIdentityCard extends ConsumerWidget {
   }
 }
 
-/// Arena medals: one coin per kind the person has, with the count.
-class _Medals extends ConsumerWidget {
-  const _Medals({required this.userId});
+/// Arena medals in one game: one coin per kind the person has, with the count.
+class MedalsRow extends ConsumerWidget {
+  const MedalsRow({super.key, required this.userId, required this.game});
 
   final String userId;
+  final TeamGame game;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final medals = ref.watch(medalsProvider(userId)).value;
+    final medals = ref.watch(medalsProvider((userId, game))).value;
     if (medals == null || medals.total == 0) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Padding(

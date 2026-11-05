@@ -390,11 +390,13 @@ class ApiAdminGamesRepository implements AdminGamesRepository {
       decode: (json) => [for (final t in (json! as List).cast<Map<String, Object?>>()) AdminTournament.fromJson(t)]);
 
   @override
-  Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,
+  Future<Result<void>> createTournament({String game = 'chess', int? length, required String title, required int baseSeconds, required int incrementSeconds,
           required DateTime startsAt, required int minutes}) =>
       _api.post('/admin/games/chess/tournaments',
           body: {
             'title': title,
+            'game': game,
+            'length': length,
             'baseSeconds': baseSeconds,
             'incrementSeconds': incrementSeconds,
             'startsAt': startsAt.toUtc().toIso8601String(),

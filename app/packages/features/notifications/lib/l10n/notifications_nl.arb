@@ -102,5 +102,8 @@
   "actMindTeamAccepted": "heeft het groepsduel namens {group} geaccepteerd. Stel je spelers op.",
   "actMindTeamDeclined": "heeft het groepsduel namens {group} afgewezen.",
   "actMindTeamStart": "Het groepsduel tegen {group} is begonnen. Naar je duel!",
-  "leadGroupDuel": "Groepsduel"
+  "leadGroupDuel": "Groepsduel",
+  "actMindArenaStart": "Je dueltoernooi is begonnen. Open het om meteen gekoppeld te worden.",
+  "actMindArenaMedal": "Je eindigde bij de eerste drie van het dueltoernooi! Je medaille staat in je duelprofiel.",
+  "leadDuelArena": "Dueltoernooi"
 }

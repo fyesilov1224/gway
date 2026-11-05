@@ -409,4 +409,15 @@ class NotificationsL10nRu extends NotificationsL10n {
 
   @override
   String get leadGroupDuel => 'Групповая дуэль';
+
+  @override
+  String get actMindArenaStart =>
+      'Ваш турнир дуэлей начался. Откройте его, чтобы сразу получить пару.';
+
+  @override
+  String get actMindArenaMedal =>
+      'Вы вошли в тройку лучших турнира дуэлей! Медаль — в вашем профиле дуэлей.';
+
+  @override
+  String get leadDuelArena => 'Турнир дуэлей';
 }

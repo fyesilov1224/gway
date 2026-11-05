@@ -155,31 +155,44 @@ class AdminTournament {
     required this.endsAt,
     required this.status,
     required this.players,
+    this.game = 'chess',
+    this.length,
   });
 
   factory AdminTournament.fromJson(Map<String, Object?> j) => AdminTournament(
         id: j['id']! as String,
         kind: j['kind']! as String,
         title: j['title'] as String?,
-        baseSeconds: j['baseSeconds']! as int,
-        incrementSeconds: j['incrementSeconds']! as int,
+        baseSeconds: j['baseSeconds'] as int?,
+        incrementSeconds: j['incrementSeconds'] as int?,
         startsAt: DateTime.parse(j['startsAt']! as String),
         endsAt: DateTime.parse(j['endsAt']! as String),
         status: j['status']! as String,
         players: j['players']! as int,
+        game: j['game'] as String? ?? 'chess',
+        length: j['length'] as int?,
       );
 
   final String id;
   final String kind;
   final String? title;
-  final int baseSeconds;
-  final int incrementSeconds;
+
+  /// Chess only; a duel arena has [length] (questions) instead.
+  final int? baseSeconds;
+  final int? incrementSeconds;
   final DateTime startsAt;
   final DateTime endsAt;
   final String status;
   final int players;
 
-  String get name => title ?? (kind == 'weekly' ? 'Haftalık Arena' : 'Aylık Arena');
+  /// `chess` or `mind` (Zihin Düellosu).
+  final String game;
+  final int? length;
+
+  String get name => title ?? '${game == 'mind' ? 'Zihin Düellosu · ' : 'Satranç · '}${kind == 'weekly' ? 'Haftalık' : 'Aylık'} turnuva';
+
+  /// "3+2" or "10 soru".
+  String get format => game == 'mind' ? '$length soru' : '${baseSeconds! ~/ 60}+$incrementSeconds';
 }
 
 /// A running Zihin Düellosu match (docs/ARCHITECTURE.md §3j, Yönetim paneli).
@@ -260,7 +273,7 @@ abstract interface class AdminGamesRepository {
 
   Future<Result<List<AdminTournament>>> tournaments();
 
-  Future<Result<void>> createTournament({required String title, required int baseSeconds, required int incrementSeconds,
+  Future<Result<void>> createTournament({String game = 'chess', int? length, required String title, required int baseSeconds, required int incrementSeconds,
       required DateTime startsAt, required int minutes});
 
   Future<Result<void>> cancelTournament(String id, {required String reason});

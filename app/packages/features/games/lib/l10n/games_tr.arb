@@ -1359,5 +1359,17 @@
   "mindGroupLeaderboardEmpty": "Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.",
   "@mindGroupLeaderboardEmpty": {
     "description": ""
+  },
+  "mindTournaments": "Turnuvalar",
+  "@mindTournaments": {
+    "description": ""
+  },
+  "mindTournamentsHint": "Her cumartesi 21:00 haftalık (10 soru), ayın son cumartesi 19:00 aylık (20 soru); ilk üç madalya alır.",
+  "@mindTournamentsHint": {
+    "description": ""
+  },
+  "mindNoTournaments": "Yaklaşan turnuva yok.",
+  "@mindNoTournaments": {
+    "description": ""
   }
 }

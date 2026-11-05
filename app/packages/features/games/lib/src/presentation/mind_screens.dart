@@ -10,10 +10,12 @@ import '../domain/chess.dart';
 import '../domain/mind.dart';
 import '../domain/team.dart';
 import '../l10n.dart';
+import 'arena_screens.dart';
 import 'leaderboard_screen.dart';
 import 'mind_figure.dart';
 import 'mind_match_screen.dart' show mindKindIcon;
 import 'mind_providers.dart';
+import 'player_screen.dart' show MedalsRow;
 import 'providers.dart';
 import 'routes.dart';
 import 'sheets.dart';
@@ -58,7 +60,8 @@ class MindHomeScreen extends ConsumerWidget {
             ..invalidate(mindActiveProvider)
             ..invalidate(mindChallengesProvider)
             ..invalidate(mindLeaderboardProvider(length))
-            ..invalidate(myTeamMatchesProvider(TeamGame.mind));
+            ..invalidate(myTeamMatchesProvider(TeamGame.mind))
+            ..invalidate(arenasProvider(TeamGame.mind));
           if (me != null) {
             ref
               ..invalidate(mindProfileProvider(me))
@@ -89,6 +92,7 @@ class MindHomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
+                const _Arenas(),
                 const _GroupDuels(),
                 GwSectionHeader(
                   title: gamesL10n.leaderboard,
@@ -109,6 +113,48 @@ class MindHomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Duel tournaments: live and upcoming as a row of cards, all of them a tap away.
+class _Arenas extends ConsumerWidget {
+  const _Arenas();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lists = ref.watch(arenasProvider(TeamGame.mind)).value;
+    if (lists == null) return const SizedBox.shrink();
+    final shown = [...lists.live, ...lists.upcoming].take(6).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GwSectionHeader(
+          title: gamesL10n.mindTournaments,
+          subtitle: gamesL10n.mindTournamentsHint,
+          actionLabel: gamesL10n.seeAll,
+          onAction: () => context.push(MindRoutes.arenas),
+          padding: const EdgeInsets.only(top: GwSpacing.lg, bottom: GwSpacing.xs),
+        ),
+        if (shown.isEmpty)
+          Text(gamesL10n.mindNoTournaments, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary))
+        else
+          SizedBox(
+            height: ArenaEventCard.height,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: shown.length,
+              separatorBuilder: (_, _) => const SizedBox(width: GwSpacing.sm),
+              itemBuilder: (_, i) => SizedBox(
+                width: ArenaEventCard.width,
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: ArenaEventCard(arena: shown[i], joined: lists.joined.contains(shown[i].id)),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -677,6 +723,7 @@ class MindPlayerScreen extends ConsumerWidget {
                           ),
                       ],
                     ),
+                    MedalsRow(userId: userId, game: TeamGame.mind),
                     if (value.suspended) ...[
                       const SizedBox(height: GwSpacing.sm),
                       GwFormMessage(gamesL10n.mindSuspended),

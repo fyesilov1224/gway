@@ -418,4 +418,15 @@ class NotificationsL10nIt extends NotificationsL10n {
 
   @override
   String get leadGroupDuel => 'Duello di gruppo';
+
+  @override
+  String get actMindArenaStart =>
+      'Il tuo torneo di duelli è iniziato. Aprilo per essere abbinato subito.';
+
+  @override
+  String get actMindArenaMedal =>
+      'Hai chiuso il torneo di duelli tra i primi tre! La tua medaglia è nel profilo duello.';
+
+  @override
+  String get leadDuelArena => 'Torneo di duelli';
 }

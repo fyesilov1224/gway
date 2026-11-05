@@ -267,5 +267,8 @@
   "mindSeats": "Sıralar",
   "mindSeatsCount": "{count} sıra",
   "mindLineupHint": "Başlanğıcda boş qalan sıra rəqibə xal kimi yazılır. İlk sual üçün 5 dəqiqə gözlənilir.",
-  "mindGroupLeaderboardEmpty": "Hələ heç bir qrup qrup dueli oynamayıb. İlkini qrupun təşkil etsin."
+  "mindGroupLeaderboardEmpty": "Hələ heç bir qrup qrup dueli oynamayıb. İlkini qrupun təşkil etsin.",
+  "mindTournaments": "Turnirlər",
+  "mindTournamentsHint": "Hər şənbə 21:00 həftəlik (10 sual), ayın son şənbəsi 19:00 aylıq (20 sual); ilk üç medal alır.",
+  "mindNoTournaments": "Yaxınlaşan turnir yoxdur."
 }

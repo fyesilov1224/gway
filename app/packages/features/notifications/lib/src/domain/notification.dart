@@ -55,7 +55,9 @@ enum NotificationType {
   mindTeamInvite('mind_team_invite'),
   mindTeamAccepted('mind_team_accepted'),
   mindTeamDeclined('mind_team_declined'),
-  mindTeamStart('mind_team_start');
+  mindTeamStart('mind_team_start'),
+  mindArenaStart('mind_arena_start'),
+  mindArenaMedal('mind_arena_medal');
 
   const NotificationType(this.code);
 
@@ -80,7 +82,8 @@ enum NotificationType {
       this == chessArenaStart || this == chessArenaMedal;
 
   /// A Zihin Düellosu invitation or group duel (docs/ARCHITECTURE.md §3j); opens the duel home.
-  bool get isMind => this == mindChallenge || this == mindTeamInvite || this == mindTeamAccepted || this == mindTeamDeclined || this == mindTeamStart;
+  bool get isMind => this == mindChallenge || this == mindTeamInvite || this == mindTeamAccepted || this == mindTeamDeclined || this == mindTeamStart ||
+      this == mindArenaStart || this == mindArenaMedal;
 
   /// Rings the live alert while the app is open (docs/ARCHITECTURE.md §3c, Sesli uyarı).
   bool get isLive => this == liveScheduled || this == liveStarted;
@@ -251,6 +254,8 @@ class AppNotification {
       NotificationType.mindTeamAccepted => l.actMindTeamAccepted(group?.name ?? ''),
       NotificationType.mindTeamDeclined => l.actMindTeamDeclined(group?.name ?? ''),
       NotificationType.mindTeamStart => l.actMindTeamStart(group?.name ?? ''),
+      NotificationType.mindArenaStart => l.actMindArenaStart,
+      NotificationType.mindArenaMedal => l.actMindArenaMedal,
     };
   }
 
@@ -261,6 +266,7 @@ class AppNotification {
         NotificationType.eventSeriesLimit => notificationsL10n.leadSeries,
         NotificationType.chessTeamStart => notificationsL10n.leadTeamMatch,
         NotificationType.mindTeamStart => notificationsL10n.leadGroupDuel,
+        NotificationType.mindArenaStart || NotificationType.mindArenaMedal => notificationsL10n.leadDuelArena,
         NotificationType.chessArenaStart || NotificationType.chessArenaMedal => notificationsL10n.leadArena,
         NotificationType.eventVenueRevealed => notificationsL10n.leadVenue,
         _ when type.isCallPermission => notificationsL10n.leadCalls,

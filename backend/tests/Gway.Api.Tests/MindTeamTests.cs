@@ -48,7 +48,9 @@ public sealed class MindTeamTests(ApiFactory factory) : IClassFixture<ApiFactory
         Assert.Equal(HttpStatusCode.NoContent, (await factory.ClientFor(b.Captain).PutAsJsonAsync(
             Path($"/games/chess/team-matches/{match}/lineup"), new LineupRequest(b.Group, away), Ct)).StatusCode);
         await _db.ExecuteAsync("update public.chess_team_matches set starts_at = now() - interval '1 second' where id = @id", ("id", match));
-        Assert.Equal(1, await factory.Services.GetRequiredService<TeamMatchService>().StartDueAsync(Ct));
+        // Other test classes may have a match due too, so look at this one.
+        await factory.Services.GetRequiredService<TeamMatchService>().StartDueAsync(Ct);
+        Assert.Equal("live", await _db.ScalarAsync<string>("select status from public.chess_team_matches where id = @id", ("id", match)));
         return match;
     }
 

@@ -987,4 +987,14 @@ class GamesL10nAr extends GamesL10n {
   @override
   String get mindGroupLeaderboardEmpty =>
       'لم تلعب أي مجموعة مبارزة بعد. لتنظّم مجموعتك الأولى.';
+
+  @override
+  String get mindTournaments => 'البطولات';
+
+  @override
+  String get mindTournamentsHint =>
+      'أسبوعية كل سبت 21:00 (10 أسئلة) وشهرية آخر سبت 19:00 (20 سؤالًا)؛ ينال الثلاثة الأوائل ميداليات.';
+
+  @override
+  String get mindNoTournaments => 'لا بطولات قادمة.';
 }

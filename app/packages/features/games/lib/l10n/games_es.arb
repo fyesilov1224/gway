@@ -267,5 +267,8 @@
   "mindSeats": "Puestos",
   "mindSeatsCount": "{count, plural, =1{1 puesto} other{{count} puestos}}",
   "mindLineupHint": "Un puesto vacío al empezar cuenta para el rival. Se esperan 5 minutos para la primera pregunta.",
-  "mindGroupLeaderboardEmpty": "Ningún grupo ha jugado aún un duelo. Que el tuyo organice el primero."
+  "mindGroupLeaderboardEmpty": "Ningún grupo ha jugado aún un duelo. Que el tuyo organice el primero.",
+  "mindTournaments": "Torneos",
+  "mindTournamentsHint": "Semanal cada sábado a las 21:00 (10 preguntas), mensual el último sábado a las 19:00 (20 preguntas); los tres primeros ganan medalla.",
+  "mindNoTournaments": "No hay torneos próximos."
 }

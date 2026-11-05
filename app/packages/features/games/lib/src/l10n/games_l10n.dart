@@ -1724,6 +1724,24 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Henüz grup düellosu oynayan grup yok. İlk düelloyu grubun düzenlesin.'**
   String get mindGroupLeaderboardEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvalar'**
+  String get mindTournaments;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Her cumartesi 21:00 haftalık (10 soru), ayın son cumartesi 19:00 aylık (20 soru); ilk üç madalya alır.'**
+  String get mindTournamentsHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yaklaşan turnuva yok.'**
+  String get mindNoTournaments;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

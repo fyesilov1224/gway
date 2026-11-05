@@ -102,5 +102,8 @@
   "actMindTeamAccepted": "{group} qrupu adına qrup duelini qəbul etdi. Oyunçularını sırala.",
   "actMindTeamDeclined": "{group} qrupu adına qrup duelini rədd etdi.",
   "actMindTeamStart": "{group} qrupuna qarşı qrup dueli başladı. Duelinə keç!",
-  "leadGroupDuel": "Qrup dueli"
+  "leadGroupDuel": "Qrup dueli",
+  "actMindArenaStart": "Qoşulduğun duel turniri başladı. Açan kimi cütləşəcəksən.",
+  "actMindArenaMedal": "Duel turnirini ilk üçlükdə bitirdin! Medalın duel profilindədir.",
+  "leadDuelArena": "Duel turniri"
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/chess.dart';
+import '../domain/team.dart';
 import '../l10n.dart';
 import 'appearance.dart';
 import 'chess_board.dart';
@@ -47,7 +48,7 @@ class _ChessCard extends ConsumerWidget {
     final pieces = ref.watch(currentPieceSetProvider).value;
     final theme = ref.watch(chessAppearanceProvider).board;
     final profile = me == null ? null : ref.watch(chessProfileProvider(me)).value;
-    final arenas = ref.watch(arenasProvider).value;
+    final arenas = ref.watch(arenasProvider(TeamGame.chess)).value;
     final invites = (ref.watch(challengesProvider).value ?? const <ChessChallenge>[]).where((c) => c.isIncomingFor(me)).length;
     final blitz = profile?.ratingOf(ChessCategory.blitz);
 
@@ -127,8 +128,11 @@ class _MindCard extends ConsumerWidget {
     final invites = (ref.watch(mindChallengesProvider).value ?? const []).where((c) => c.isIncomingFor(me)).length;
     final played = profile?.ratings.values.where((r) => r.games > 0).toList() ?? const [];
     final best = played.isEmpty ? null : played.reduce((a, b) => a.rating >= b.rating ? a : b);
+    final arenas = ref.watch(arenasProvider(TeamGame.mind)).value;
     final facts = [
       if (best != null) (Icons.psychology_outlined, gamesL10n.mindBestRating(best.rating, best.length)),
+      if (arenas != null && arenas.live.isNotEmpty) (Icons.emoji_events_rounded, gamesL10n.arenaLiveNow)
+      else if (arenas != null && arenas.upcoming.isNotEmpty) (Icons.event_outlined, gamesL10n.nextArena(formatDateTime(arenas.upcoming.first.startsAt))),
       if (invites > 0) (Icons.mail_outline_rounded, gamesL10n.invitesWaiting(invites)),
     ];
     return GwCard(

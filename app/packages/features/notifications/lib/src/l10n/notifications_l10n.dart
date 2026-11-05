@@ -735,6 +735,24 @@ abstract class NotificationsL10n {
   /// In tr, this message translates to:
   /// **'Grup düellosu'**
   String get leadGroupDuel;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın düello turnuvası başladı. Açınca hemen eşleşirsin.'**
+  String get actMindArenaStart;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düello turnuvasını ilk üçte bitirdin! Madalyan düello profilinde.'**
+  String get actMindArenaMedal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düello turnuvası'**
+  String get leadDuelArena;
 }
 
 class _NotificationsL10nDelegate

@@ -102,5 +102,8 @@
   "actMindTeamAccepted": "a accepté le duel de groupes pour {group}. Compose ton équipe.",
   "actMindTeamDeclined": "a refusé le duel de groupes pour {group}.",
   "actMindTeamStart": "Le duel de groupes contre {group} a commencé. À ton duel !",
-  "leadGroupDuel": "Duel de groupes"
+  "leadGroupDuel": "Duel de groupes",
+  "actMindArenaStart": "Ton tournoi de duels a commencé. Ouvre-le pour être apparié tout de suite.",
+  "actMindArenaMedal": "Tu as fini le tournoi de duels dans le top 3 ! Ta médaille est sur ton profil de duel.",
+  "leadDuelArena": "Tournoi de duels"
 }

@@ -2,6 +2,8 @@ import 'package:core/core.dart';
 
 import '../l10n.dart';
 import 'chess.dart';
+import 'mind.dart';
+import 'team.dart';
 
 enum ArenaKind { weekly, monthly, custom }
 
@@ -12,11 +14,13 @@ class Arena {
   const Arena({
     required this.id,
     required this.kind,
-    required this.timeControl,
     required this.startsAt,
     required this.endsAt,
     required this.status,
     this.title,
+    this.game = TeamGame.chess,
+    this.timeControl,
+    this.questions,
   });
 
   final String id;
@@ -24,7 +28,11 @@ class Arena {
 
   /// Only custom arenas have one; weekly and monthly ones are named in the reader's language.
   final String? title;
-  final TimeControl timeControl;
+  final TeamGame game;
+
+  /// Chess: the time control; a duel arena: the question count ([questions]).
+  final TimeControl? timeControl;
+  final int? questions;
   final DateTime startsAt;
   final DateTime endsAt;
   final ArenaStatus status;
@@ -36,6 +44,12 @@ class Arena {
       };
 
   Duration get length => endsAt.difference(startsAt);
+
+  /// "3+2" or "10 soru": what the card's header shows.
+  String get formatShort => timeControl?.label ?? gamesL10n.mindQuestions(questions ?? mindDefaultLength);
+
+  /// "3+2 · Blitz" or "10 soru".
+  String get format => timeControl == null ? formatShort : '${timeControl!.label} · ${timeControl!.category.label}';
 }
 
 /// A player's line in an arena's standings.
@@ -74,7 +88,7 @@ class ArenaStanding {
 }
 
 class ArenaDetail {
-  const ArenaDetail({required this.arena, required this.standings, this.myGameId, this.joined = false});
+  const ArenaDetail({required this.arena, required this.standings, this.myGameId, this.myMatchId, this.joined = false});
 
   final Arena arena;
   final List<ArenaStanding> standings;
@@ -82,8 +96,9 @@ class ArenaDetail {
   /// The reader joined (or registered for) this arena.
   final bool joined;
 
-  /// The reader's running arena game.
+  /// The reader's running arena game (chess) or duel.
   final String? myGameId;
+  final String? myMatchId;
 
   ArenaStanding? standingOf(String? userId) => standings.where((s) => s.player.userId == userId).firstOrNull;
 }
@@ -104,7 +119,7 @@ class ChessMedals {
 }
 
 abstract interface class ArenaRepository {
-  Future<Result<ArenaLists>> arenas();
+  Future<Result<ArenaLists>> arenas(TeamGame game);
 
   Future<Result<ArenaDetail>> detail(String id);
 
@@ -117,5 +132,5 @@ abstract interface class ArenaRepository {
 
   Future<Result<void>> leave(String id);
 
-  Future<Result<ChessMedals>> medals(String userId);
+  Future<Result<ChessMedals>> medals(String userId, TeamGame game);
 }

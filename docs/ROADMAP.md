@@ -529,7 +529,7 @@ Kullanıcı kararları: sorular karışık (matematik, dikkat, hafıza, refleks)
 
 - [x] 21a — Çekirdek: sunucuda soru üretimi ve doğrulama, hızlı maç, davet, rövanş, canlı düello ekranı, Elo (soru sayısına göre), sıralama (podyum, madalya, taç), oyuncu sayfası, `mind_challenge` bildirimi ve push, yönetim paneli (sayılar, süren düellolar, iptal), 12 dil (cinsiyete uyan şekil adları), migration `0085`, pgTAP (26), C# (12), Flutter (6); tarayıcıda uçtan uca denendi (2026-11-05)
 - [x] 21b — Grupların düellosu ve grup sıralaması: satranç takım maçı altyapısı oyun alanıyla iki oyuna açılır (davet, kabul, sıralara diziliş, kendiliğinden başlama, 5 dakika gelmeyen kaybeder), her oyunun grup Elo'su ayrı, Sıralama'da Gruplar sekmesi, 4 bildirim türü, panelde iki oyun birlikte; migration `0086`, pgTAP (14), C# (2 senaryo), Flutter (1); tarayıcıda uçtan uca denendi (2026-11-06)
-- [ ] 21c — Haftalık ve aylık turnuvalar, madalyalar
+- [x] 21c — Haftalık (cumartesi 21:00, 10 soru, 60 dk) ve aylık (son cumartesi 19:00, 20 soru, 120 dk) turnuvalar, madalyalar; Arena altyapısı oyun alanıyla iki oyuna açılır, ana sayfada turnuva kartları, düello profilinde madalyalar, panelde oyun seçerek turnuva açma, 2 bildirim türü; migration `0087`, pgTAP (10), C# (1 senaryo), Flutter (1); tarayıcıda uçtan uca denendi (2026-11-06)
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi
 
