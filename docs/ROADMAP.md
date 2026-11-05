@@ -512,7 +512,7 @@ Rakip incelemesinden eklenenler (kullanıcı isteği, 2026-10-29). Sıra: 18j �
 - [x] 19d — Canlı yayın, mesajlaşma, eşleşme, moderasyon, abonelik
 - [x] 19e — Destek ve kullanma kılavuzu
 - [x] 19f — Sunucu: `profiles.locale`, push metinleri, API mesajları, kimlik e-postaları
-- [ ] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli)
+- [x] 19g — Hukuki metin çevirileri (tablo, uygulama, yönetim paneli); yürürlükteki 5 metin 11 dilde (0081)
 - [ ] 19h — Sağdan sola düzen, uzun dil ve %130 yazı ölçeği denetimi, testler
 
 ## Faz 16 — Yapay Zekâ Değerlendirmesi

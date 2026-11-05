@@ -1964,6 +1964,7 @@ Kullanıcı isteği: Ayarlar'dan dil seçilince düğmeler, menüler, bağlantı
 - `legal_document_translations` (identity): belge sürümü, dil, başlık, gövde. Herkes okur; yazma yalnızca C# (platform yöneticisi). Asıl Türkçe sürüm değişmez kuralı (§3a) aynen sürer; çeviri sonradan düzeltilebilir ve `audit_log`'a yazılır.
 - Uygulama metni kişinin dilinde gösterir; çeviri yoksa Türkçe asıl gösterilir. Onay her zaman Türkçe sürüme bağlanır.
 - **Yönetim paneli:** hukuki metin sayfasında her sürümün çevirileri görüntülenir ve düzenlenir.
+- **Hazır çeviriler:** yürürlükteki metinlerin çevirileri `app/tool/l10n/tables/legal/<dil>.py` dosyalarındadır; `legal_write.py` bunlardan migration üretir. Çeviri, Türkçe gövdesi aynı olan (md5) sürüme bağlanır: sürüm numarası ortamdan ortama farklı olsa da doğru metne düşer, sonradan değişmiş bir Türkçe metne eski çeviri bağlanmaz. Türkçe metin değişince yeni sürümün çevirisi panelden girilir. Üretici, her çevirinin paragraf ve satır sayısının Türkçeyle aynı olduğunu denetler.
 
 ## 9. Test ve "bitti" tanımı
 
