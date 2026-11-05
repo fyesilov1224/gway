@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../domain/events.dart';
 import '../domain/handshakes.dart';
+import '../l10n.dart';
 import 'handshake.dart';
 import 'map_screens.dart';
 import 'polls.dart';
@@ -99,7 +100,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final e = event;
-    if (e.isCanceled) return const GwBadge('İptal edildi', tone: GwBadgeTone.danger);
+    if (e.isCanceled) return GwBadge(eventsL10n.canceled, tone: GwBadgeTone.danger);
     return switch (e.myStatus) {
       AttendanceStatus.requested => const GwBadge('Onay bekliyor', tone: GwBadgeTone.warning),
       AttendanceStatus.going => const GwBadge('Katılıyorsun', dot: true, tone: GwBadgeTone.primary),
@@ -207,12 +208,12 @@ class GroupEventsSection extends ConsumerWidget {
             children: [
               Expanded(child: Text('Organizasyonlar', maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.titleLarge)),
               IconButton(
-                tooltip: 'Geçmiş organizasyonlar',
+                tooltip: eventsL10n.pastEvents,
                 onPressed: () => context.push(EventRoutes.history(groupId)),
                 icon: const Icon(Icons.history_rounded),
               ),
               IconButton(
-                tooltip: 'Grup takvimi',
+                tooltip: eventsL10n.groupCalendar,
                 onPressed: () => context.push(EventRoutes.groupCalendar(groupId)),
                 icon: const Icon(Icons.calendar_month_outlined),
               ),
@@ -385,7 +386,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         title: const Text('Tekrar durdurulsun mu?'),
         content: const Text('Yeni tarih açılmaz. Açılmış tarihler kalır; istersen onları tek tek iptal edebilirsin.'),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
           GwButton(label: 'Durdur', onPressed: () => Navigator.of(context).pop(true)),
         ],
       ),
@@ -717,8 +718,8 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               ),
                               const SizedBox(width: GwSpacing.sm),
                               Expanded(child: Text(p.displayName, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis)),
-                              TextButton(onPressed: _busy || !open ? null : () => _decide(e, p, approve: false), child: const Text('Reddet')),
-                              GwButton(label: 'Onayla', onPressed: _busy || !open ? null : () => _decide(e, p, approve: true)),
+                              TextButton(onPressed: _busy || !open ? null : () => _decide(e, p, approve: false), child: Text(eventsL10n.decline)),
+                              GwButton(label: eventsL10n.approve, onPressed: _busy || !open ? null : () => _decide(e, p, approve: true)),
                             ],
                           ),
                         ),
@@ -1066,8 +1067,8 @@ class _EditorState extends ConsumerState<_Editor> {
               TextFormField(
                 controller: _title,
                 maxLength: 100,
-                decoration: const InputDecoration(labelText: 'Başlık', hintText: 'Ör. Belgrad Ormanı yürüyüşü'),
-                validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
+                decoration: InputDecoration(labelText: eventsL10n.title, hintText: 'Ör. Belgrad Ormanı yürüyüşü'),
+                validator: (v) => (v ?? '').trim().length < 3 ? eventsL10n.titleMin3 : null,
               ),
               const SizedBox(height: GwSpacing.xs),
               ListTile(
@@ -1457,7 +1458,7 @@ class _CancelDialogState extends State<_CancelDialog> {
           ],
         ),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
           GwButton(label: 'İptal et', onPressed: () => Navigator.of(context).pop(_reason.text)),
         ],
       );

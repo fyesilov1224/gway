@@ -8,23 +8,25 @@ import '../domain/events.dart';
 import '../domain/exploration.dart';
 import '../domain/handshakes.dart';
 import '../domain/tonight.dart';
+import '../l10n.dart';
 
 const coverBucket = 'event-images';
 
 /// Trigger codes users can run into on their own writes (docs/ARCHITECTURE.md §3d).
-const _rules = {
-  'poll_single_choice': 'Bu ankette tek seçenek işaretlenebilir.',
-  'poll_option_invalid': 'Bu seçenek artık yok. Sayfayı yenile.',
-  'review_not_allowed': 'Değerlendirme, organizasyona katılanlar için bitişinden sonraki 30 gün açıktır.',
-  'greeter_not_allowed': 'Karşılayıcı olmak için grubun bir organizasyonuna katılmış olmalısın.',
-  'tonight_note_too_long': 'Not en fazla 80 karakter olabilir.',
+// A getter, so the messages follow the app language.
+Map<String, String> get _rules => {
+  'poll_single_choice': eventsL10n.pollSingle,
+  'poll_option_invalid': eventsL10n.pollOptionGone,
+  'review_not_allowed': eventsL10n.reviewWindow,
+  'greeter_not_allowed': eventsL10n.greeterNeedsAttendance,
+  'tonight_note_too_long': eventsL10n.note80,
 };
 
 Failure _failure(Object error) => switch (error) {
       Failure() => error,
       PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) => RuleFailure('poll.$message', _rules[message]!),
-      PostgrestException(code: '42501') => const RuleFailure('poll.closed', 'Bu anket kapandı ya da oy veremezsin.'),
-      StorageException(statusCode: '413') => const RuleFailure('event.cover_too_large', 'Kapak görseli en fazla 5 MB olabilir.'),
+      PostgrestException(code: '42501') => RuleFailure('poll.closed', eventsL10n.pollClosed),
+      StorageException(statusCode: '413') => RuleFailure('event.cover_too_large', eventsL10n.cover5mb),
       _ => failureFromSupabase(error),
     };
 
@@ -253,7 +255,7 @@ class EventsRepositoryImpl implements EventsRepository {
   @override
   Future<Result<String>> uploadCover(String groupId, ImageUpload image) => _run(() async {
         final type = image.contentType;
-        if (type == null) throw const RuleFailure('event.cover_type', 'Yalnızca JPEG, PNG ya da WebP görsel yüklenebilir.');
+        if (type == null) throw RuleFailure('event.cover_type', eventsL10n.imagesOnly);
         final random = Random.secure();
         final name = List.generate(16, (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
         final path = '$groupId/$name.${image.extension}';

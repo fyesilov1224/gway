@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'event_screens.dart';
 import 'providers.dart';
 
@@ -84,7 +85,7 @@ class _EventWelcomeSectionState extends ConsumerState<EventWelcomeSection> {
         title: const Text('Karşılamayı bırak'),
         content: Text('${entry.person.displayName} için yeniden karşılayıcı aranacak ve kendisine haber verilecek.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Vazgeç')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(eventsL10n.cancel)),
           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Bırak')),
         ],
       ),
@@ -316,7 +317,7 @@ class _NoteDialogState extends State<_NoteDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Vazgeç')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(eventsL10n.cancel)),
         TextButton(
           onPressed: length < widget.minLength ? null : () => Navigator.pop(context, _text.text.trim()),
           child: Text(widget.action),

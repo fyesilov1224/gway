@@ -3,11 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/events.dart';
 import '../domain/goals.dart';
+import '../l10n.dart';
 
 /// Trigger codes users can run into on their own writes (docs/ARCHITECTURE.md §3d, Hedefler).
-const _rules = {
-  'claim_not_allowed': 'Bu göreve şu anda bildirim yapılamaz; görev bitmiş ya da gruptan değilsin.',
-  'claim_forbidden': 'Onaylanmış bir bildirim geri çekilemez.',
+// A getter, so the messages follow the app language.
+Map<String, String> get _rules => {
+  'claim_not_allowed': eventsL10n.claimNotAllowed,
+  'claim_forbidden': eventsL10n.claimApprovedLocked,
 };
 
 Future<Result<T>> _run<T>(Future<T> Function() action) async {
@@ -17,7 +19,7 @@ Future<Result<T>> _run<T>(Future<T> Function() action) async {
     return Err(switch (e) {
       Failure() => e,
       PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) => RuleFailure('goal.$message', _rules[message]!),
-      PostgrestException(code: '23505') => const RuleFailure('goal.claimed', 'Bu görevi zaten bildirdin.'),
+      PostgrestException(code: '23505') => RuleFailure('goal.claimed', eventsL10n.claimDuplicate),
       _ => failureFromSupabase(e),
     });
   }

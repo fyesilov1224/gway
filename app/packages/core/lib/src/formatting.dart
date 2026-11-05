@@ -37,6 +37,15 @@ String formatWeekdayDate(DateTime date) => DateFormat.MMMMEEEEd(_locale).format(
 /// `a, b, c` with the language's own separator (Arabic `، `).
 String formatList(Iterable<String> items) => items.join(currentAppLanguage == AppLanguage.ar ? '، ' : ', ');
 
+/// `21 Ekim 2026 Salı` / `Tuesday, October 21, 2026` in local time.
+String formatWeekdayDateYear(DateTime date) => DateFormat.yMMMMEEEEd(_locale).format(date.toLocal());
+
+/// `Salı` / `Tuesday`.
+String formatWeekday(DateTime date) => DateFormat.EEEE(_locale).format(date.toLocal());
+
+/// Short weekday names from Monday: `Pzt … Paz` / `Mon … Sun`.
+List<String> weekdayShortNames() => [for (var i = 0; i < 7; i++) DateFormat.E(_locale).format(DateTime(2024, 1, 1 + i))];
+
 /// `09:05` / `9:05 AM` in local time.
 String formatTime(DateTime date) => DateFormat.jm(_locale).format(date.toLocal());
 

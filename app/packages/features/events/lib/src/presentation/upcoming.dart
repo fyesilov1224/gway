@@ -5,10 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
-
-const _weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
 
 /// "Yaklaşanlar" (from the create sheet): the next 60 days of the user's groups, day by day,
 /// with a filter for the ones the user joined.
@@ -134,9 +133,9 @@ class _DayGroup extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final date = formatDate(day);
     final label = switch (day.difference(DateUtils.dateOnly(today)).inDays) {
-      0 => 'Bugün',
+      0 => eventsL10n.today,
       1 => 'Yarın',
-      _ => _weekdays[day.weekday - 1],
+      _ => formatWeekday(day),
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

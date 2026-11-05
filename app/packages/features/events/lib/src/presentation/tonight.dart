@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
 import '../domain/tonight.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Opens a conversation (the messaging feature lives in the app).
@@ -277,7 +278,7 @@ class _FreeDialogState extends State<_FreeDialog> {
           ),
         ),
         actions: [
-          GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
+          GwButton(label: eventsL10n.cancel, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop()),
           GwButton(label: 'Boşum', onPressed: () => Navigator.of(context).pop(_note.text.trim())),
         ],
       );
@@ -462,7 +463,7 @@ class TonightScreen extends ConsumerWidget {
                     child: GwEmptyState(
                       icon: Icons.nights_stay_outlined,
                       message: 'Ortak gruplarından şu an boş olan yok.',
-                      actionLabel: 'Yenile',
+                      actionLabel: eventsL10n.refresh,
                       onAction: () => ref.invalidate(tonightPeopleProvider),
                     ),
                   ),

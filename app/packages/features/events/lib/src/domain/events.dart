@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../l10n.dart';
 import 'exploration.dart';
 import 'handshakes.dart';
 import 'tonight.dart';
@@ -62,7 +63,7 @@ class EventSeries {
   final bool active;
   final DateTime? until;
 
-  String get label => weeks == 1 ? 'Her hafta tekrarlanır' : 'İki haftada bir tekrarlanır';
+  String get label => weeks == 1 ? eventsL10n.repeatsWeekly : eventsL10n.repeatsBiweekly;
 }
 
 /// The person's own year (docs/ARCHITECTURE.md §3d, Yılın özeti).
@@ -179,7 +180,7 @@ class GroupEvent {
   final EventSurprise? surprise;
 
   /// The place for one line: the venue when the viewer may see it, otherwise the hint, marked as a surprise.
-  String get place => surprise == null ? location : 'Sürpriz mekan · ${surprise!.venue ?? location}';
+  String get place => surprise == null ? location : eventsL10n.surprisePlace(surprise!.venue ?? location);
 
   /// Set when the date belongs to a repeat.
   final EventSeries? series;
@@ -763,7 +764,7 @@ abstract interface class EventsRepository {
   /// Shakes hands with the owner of [code] (typed, or read from a QR code).
   Future<Result<HandshakeResult>> shake(String eventId, String code);
 
-  /// "Tanıştıklarım", newest first.
+  /// eventsL10n.metPeople, newest first.
   Future<Result<List<MetPerson>>> metPeople();
 
   /// The event page's welcome block (Supabase); null when the event is not visible.

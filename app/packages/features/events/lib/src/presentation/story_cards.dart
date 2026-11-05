@@ -11,6 +11,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../domain/events.dart';
 import '../domain/exploration.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -246,7 +247,7 @@ class YearSummaryScreen extends ConsumerWidget {
         AsyncData(:final value) when value == null || value.isEmpty => GwEmptyState(
             icon: Icons.auto_awesome_outlined,
             message: 'Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.',
-            actionLabel: 'Takvimime git',
+            actionLabel: eventsL10n.goToCalendar,
             onAction: () => context.go(EventRoutes.calendar),
           ),
         AsyncData(value: final summary?) => ListView(
@@ -261,7 +262,9 @@ class YearSummaryScreen extends ConsumerWidget {
               if (summary.firstEvent case final first?) ...[
                 const SizedBox(height: GwSpacing.lg),
                 Text(
-                  'Yılın ilk organizasyonu: $first${summary.firstEventAt == null ? '' : ' · ${formatDate(summary.firstEventAt!.toLocal())}'}',
+                  summary.firstEventAt == null
+                      ? eventsL10n.firstEventOfYear(first)
+                      : eventsL10n.firstEventOfYearOn(first, formatDate(summary.firstEventAt!.toLocal())),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
               ],

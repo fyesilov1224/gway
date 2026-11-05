@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../l10n.dart';
 import 'events.dart';
 
 /// The visible part of the map.
@@ -34,13 +35,15 @@ class MapArea {
 
 /// When events start, for "what is on soon"; groups have no time, so a time hides them.
 enum MapWhen {
-  any('Her zaman'),
-  today('Bugün'),
-  week('7 gün içinde');
+  any,
+  today,
+  week;
 
-  const MapWhen(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        any => eventsL10n.whenAny,
+        today => eventsL10n.whenToday,
+        week => eventsL10n.whenWeek,
+      };
 
   /// Events start before this; null is any time.
   DateTime? startsBefore(DateTime now) => switch (this) {

@@ -5,15 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
 /// "4 katılım · 1 organizasyon · 2 karşılama · 3 memnuniyet".
 String leagueBreakdown(LeagueRow r) => [
-      '${formatCount(r.attended)} katılım',
-      '${formatCount(r.held)} organizasyon',
-      if (r.welcomes > 0) '${formatCount(r.welcomes)} karşılama',
-      if (r.goodReviews > 0) '${formatCount(r.goodReviews)} memnuniyet',
+      eventsL10n.countAttended(r.attended),
+      eventsL10n.countHeld(r.held),
+      if (r.welcomes > 0) eventsL10n.countWelcomed(r.welcomes),
+      if (r.goodReviews > 0) eventsL10n.countGoodReviews(r.goodReviews),
     ].join(' · ');
 
 String _province(int province) => province >= 1 && province <= turkishProvinces.length ? turkishProvinces[province - 1] : '';
@@ -38,18 +39,18 @@ Future<void> showLeagueRules(BuildContext context) => showModalBottomSheet<void>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Puanlar nasıl hesaplanır?', style: textTheme.titleLarge),
+                Text(eventsL10n.howPoints, style: textTheme.titleLarge),
                 const SizedBox(height: GwSpacing.xs),
                 Text(
-                  'Aynı ildeki aynı kategoriden gruplar her ay yarışır. Ayın biten organizasyonları sayılır.',
+                  eventsL10n.leagueIntro,
                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                 ),
-                rule(Icons.groups_outlined, 'Katılım: 1 puan', 'Gelen her kişi; bir organizasyonda en fazla 30.'),
-                rule(Icons.event_available_outlined, 'Organizasyon: 5 puan', 'Düzenleyen dışında en az 3 kişinin geldiği her organizasyon.'),
-                rule(Icons.waving_hand_outlined, 'Karşılama: 3 puan', 'İlk kez gelen birinin karşılanması.'),
-                rule(Icons.star_outline_rounded, 'Memnuniyet: 1 puan', '4 ya da 5 yıldızlı her değerlendirme.'),
+                rule(Icons.groups_outlined, eventsL10n.ruleAttendance, eventsL10n.ruleAttendanceHint),
+                rule(Icons.event_available_outlined, eventsL10n.ruleHeld, eventsL10n.ruleHeldHint),
+                rule(Icons.waving_hand_outlined, eventsL10n.ruleWelcome, eventsL10n.ruleWelcomeHint),
+                rule(Icons.star_outline_rounded, eventsL10n.ruleReview, eventsL10n.ruleReviewHint),
                 Text(
-                  'Gelmedi işaretlenenler sayılmaz. Sonuçlar ay bittikten 8 gün sonra kesinleşir; ilk üçe giren grupların üyelerine haber verilir.',
+                  eventsL10n.leagueRulesNote,
                   style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                 ),
               ],
@@ -97,9 +98,9 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gruplar Ligi'),
+        title: Text(eventsL10n.groupsLeague),
         actions: [
-          IconButton(tooltip: 'Puanlar nasıl hesaplanır?', icon: const Icon(Icons.help_outline), onPressed: () => showLeagueRules(context)),
+          IconButton(tooltip: eventsL10n.howPoints, icon: const Icon(Icons.help_outline), onPressed: () => showLeagueRules(context)),
         ],
       ),
       body: GwReadingColumn(
@@ -117,7 +118,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                     child: DropdownButtonFormField<String>(
                       initialValue: category,
                       isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Kategori'),
+                      decoration: InputDecoration(labelText: eventsL10n.category),
                       items: [for (final c in categories) DropdownMenuItem(value: c.slug, child: Text(c.name))],
                       onChanged: (v) => setState(() => _category = v),
                     ),
@@ -127,7 +128,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                     child: DropdownButtonFormField<int>(
                       initialValue: _province,
                       isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'İl'),
+                      decoration: InputDecoration(labelText: eventsL10n.province),
                       items: [
                         for (var i = 0; i < turkishProvinces.length; i++) DropdownMenuItem(value: i + 1, child: Text(turkishProvinces[i])),
                       ],
@@ -139,7 +140,7 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
                     child: DropdownButtonFormField<DateTime>(
                       initialValue: _months.contains(_month) ? _month : _thisMonth,
                       isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Ay'),
+                      decoration: InputDecoration(labelText: eventsL10n.month),
                       items: [for (final m in _months) DropdownMenuItem(value: m, child: Text(formatMonthYear(m)))],
                       onChanged: (v) => setState(() => _month = v ?? _month),
                     ),
@@ -187,16 +188,16 @@ class _Table extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: GwSpacing.sm),
           child: Text(
             table.finalized
-                ? '${formatMonthYear(table.month)} sezonu kapandı; sıralama kesin.'
-                : 'Sezon sürüyor. Puanlar organizasyonlar bittikçe güncellenir; sonuçlar ay bittikten 8 gün sonra kesinleşir.',
+                ? eventsL10n.seasonClosed(formatMonthYear(table.month))
+                : eventsL10n.seasonRunning,
             style: secondary,
           ),
         ),
         if (table.rows.isEmpty)
           GwEmptyState(
             icon: Icons.emoji_events_outlined,
-            message: '${_province(table.province)} ligine bu ay henüz puan alan grup yok.',
-            actionLabel: 'Puanlar nasıl hesaplanır?',
+            message: eventsL10n.leagueEmpty(_province(table.province)),
+            actionLabel: eventsL10n.howPoints,
             onAction: () => showLeagueRules(context),
           )
         else
@@ -224,7 +225,7 @@ class _Table extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: GwSpacing.sm),
-                          Text('${formatCount(r.points)} puan', style: textTheme.labelLarge),
+                          Text(eventsL10n.points(r.points), style: textTheme.labelLarge),
                         ],
                       ),
                     ),
@@ -248,10 +249,10 @@ class _Rank extends StatelessWidget {
   Widget build(BuildContext context) => rank <= 3
       ? Icon(
           Icons.emoji_events_rounded,
-          semanticLabel: '$rank.',
+          semanticLabel: eventsL10n.rank(rank),
           color: switch (rank) { 1 => GwColors.primary, 2 => GwColors.secondary, _ => GwColors.textSecondary },
         )
-      : Text('$rank.', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary));
+      : Text(eventsL10n.rank(rank), style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary));
 }
 
 /// The group page's league card: this month's place and the top-three finishes.
@@ -267,7 +268,7 @@ class GroupLeagueSection extends ConsumerWidget {
     final categories = ref.watch(leagueCategoriesProvider).value ?? const <LeagueCategory>[];
     final categoryName = categories.where((c) => c.slug == l.category).firstOrNull?.name ?? '';
     final textTheme = Theme.of(context).textTheme;
-    final league = '${_province(l.province)} · $categoryName ligi';
+    final league = eventsL10n.leagueName(_province(l.province), categoryName);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: GwSpacing.page, vertical: GwSpacing.sm),
@@ -288,9 +289,8 @@ class GroupLeagueSection extends ConsumerWidget {
             const SizedBox(height: GwSpacing.xs),
             Text(
               switch (l.rank) {
-                final rank? => '${formatMonthYear(l.month)}: ${formatCount(l.groups)} grup arasında $rank. sırada, '
-                    '${formatCount(l.points)} puan.',
-                null => 'Bu ay henüz puan yok. Biten organizasyonlar, gelenler ve karşılamalar puan getirir.',
+                final rank? => eventsL10n.leagueStanding(formatMonthYear(l.month), l.groups, rank, l.points),
+                null => eventsL10n.noPointsYet,
               },
               style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
             ),
