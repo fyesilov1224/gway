@@ -342,4 +342,8 @@ class SocialAppL10nEs extends SocialAppL10n {
   @override
   String get chessHint =>
       'Partidas rápidas, desafía a amigos y sube en la clasificación Elo.';
+
+  @override
+  String get gamesHint =>
+      'Ajedrez: partidas rápidas, torneos, encuentros por equipos';
 }

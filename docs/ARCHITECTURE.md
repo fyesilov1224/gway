@@ -1404,7 +1404,7 @@ Uygulama kapalı kaynak olduğu için GPL/AGPL bileşen (Lichess'in `chessground
 |---|---|---|
 | Sunucuda kural ve hamle doğrulaması | `Gera.Chess` (NuGet, Geras1mleo/Chess) | MIT |
 | Uygulamada yasal hamle hesabı (seçim, ipucu, ön hamle) | `chess` (pub.dev, chess.js'in Dart sürümü) | BSD-2 |
-| Taş seti | Chessnut, Alexis Luengas (LexLuengas/chessnut-pieces) | Apache 2.0 (`assets/pieces/LICENSE.txt`, uygulamanın lisanslar sayfasına kaydedilir) |
+| Taş setleri | Klasik: Cburnett (Wikimedia Commons, Colin M.L. Burnett); Kelt, Uzay, Fantastik: Maurizio Monge (maurimo/chess-art); Modern: Chessnut, Alexis Luengas; Sıcak: Vector Ranks, RhosGFX | BSD 3-madde (yazar GFDL/CC BY-SA/BSD/GPL arasında seçim sunar); MIT; Apache 2.0; CC0. Metinler `assets/pieces/licenses/`, uygulamanın lisanslar sayfasına kaydedilir |
 | Bayraklar | `country_flags` (flag-icons) | MIT |
 | Ülke adları (12 dil) | Unicode CLDR, `tool/games/countries.py` ile üretilir | Unicode lisansı |
 | Tahta, saat, sesler, madalyalar | GWAY'in kendi çizimi ve kendi ürettiği sesler | — |
@@ -1450,8 +1450,8 @@ Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'de
 - Süre bitince yeni eşleşme yapılmaz; süre içinde başlamış oyunlar bitince sayılır, son oyun da bitince sıralar (`final_rank`) yazılır ve ilk üç `chess_arena_medal` bildirimi alır. Madalyalar oyuncu sayfasında görünür (`chess_medals`).
 
 ### Uygulama
-- `games` paketi: Oyunlar merkezi (+ düğmesinden), Satranç ana sayfası (hızlı oyun ızgarası, davetler, puanlarım, son oyunlar, sıralama özeti), oyun ekranı (tahta, saatler, oyuncu kartları bayrak ve puanla, hamle listesi, beraberlik, terk, iptal, tahtayı çevir, rövanş, sonuç ve puan değişimi), sıralama (türe göre sekmeler, ilk üç podyum), oyuncu sayfası, ülke seçimi.
-- Tahta GWAY'in kendi çizimidir: sürükle-bırak ve dokun-dokun, son hamle ve şah vurgusu, yasal hamle noktaları, terfi seçimi, kenar koordinatları, hamle animasyonu, ses ve titreşim; renkler `design_system` tokenlarından (`GwChessColors`).
+- `games` paketi: Oyunlar ekranı (`/games`; + düğmesindeki "Oyunlar" kartı açar, her oyunun kartı vardır), Satranç ana sayfası (hızlı oyun ızgarası, davetler, puanlarım, son oyunlar, sıralama özeti), oyun ekranı (tahta, saatler, oyuncu kartları bayrak ve puanla, hamle listesi, beraberlik, terk, iptal, tahtayı çevir, rövanş, sonuç ve puan değişimi), sıralama (türe göre sekmeler, ilk üç podyum), oyuncu sayfası, ülke seçimi.
+- Tahta GWAY'in kendi çizimidir: sürükle-bırak ve dokun-dokun, son hamle ve şah vurgusu, yasal hamle noktaları, terfi seçimi, kenar koordinatları, hamle animasyonu, ses ve titreşim; renkler `design_system` tokenlarından (`GwBoardTheme`, `GwChessColors`). Kişi tahta temasını ve taş setini seçer (cihazda saklanır, `docs/DESIGN.md` Oyunlar).
 - Bildirim türü `chess_challenge` (davet); dokununca Satranç sayfası açılır.
 
 ### Yönetim paneli

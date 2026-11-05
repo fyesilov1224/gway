@@ -798,5 +798,163 @@
   "firstMoveTeam": "İlk hamle: 5 dk",
   "@firstMoveTeam": {
     "description": ""
+  },
+  "games": "Oyunlar",
+  "@games": {
+    "description": ""
+  },
+  "gamesIntro": "Topluluğunla oyna: hızlı oyunlar, turnuvalar ve gruplar arası maçlar.",
+  "@gamesIntro": {
+    "description": ""
+  },
+  "chessCardText": "Elo puanı, haftalık ve aylık turnuvalar, gruplar arası takım maçları ve madalyalar.",
+  "@chessCardText": {
+    "description": ""
+  },
+  "playChess": "Satranç oyna",
+  "@playChess": {
+    "description": ""
+  },
+  "blitzRating": "Blitz {rating}",
+  "@blitzRating": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "nextArena": "Sıradaki turnuva: {time}",
+  "@nextArena": {
+    "description": "",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "invitesWaiting": "{count} davet bekliyor",
+  "@invitesWaiting": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playOnline": "Çevrimiçi oyna",
+  "@playOnline": {
+    "description": ""
+  },
+  "findOpponent": "Rakip bul · {tc}",
+  "@findOpponent": {
+    "description": "",
+    "placeholders": {
+      "tc": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeFriendHint": "Süreyi ve rengi sen seç",
+  "@challengeFriendHint": {
+    "description": ""
+  },
+  "leaderboardHint": "Elo sıralaması ve madalyalar",
+  "@leaderboardHint": {
+    "description": ""
+  },
+  "openTeamMatches": "{count} açık maç",
+  "@openTeamMatches": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appearance": "Tahta ve taşlar",
+  "@appearance": {
+    "description": ""
+  },
+  "boardTheme": "Tahta",
+  "@boardTheme": {
+    "description": ""
+  },
+  "pieceSet": "Taşlar",
+  "@pieceSet": {
+    "description": ""
+  },
+  "boardWood": "Ahşap",
+  "@boardWood": {
+    "description": ""
+  },
+  "boardGreen": "Yeşil",
+  "@boardGreen": {
+    "description": ""
+  },
+  "boardBlue": "Mavi",
+  "@boardBlue": {
+    "description": ""
+  },
+  "boardSlate": "Gri",
+  "@boardSlate": {
+    "description": ""
+  },
+  "boardLilac": "GWAY moru",
+  "@boardLilac": {
+    "description": ""
+  },
+  "piecesClassic": "Klasik",
+  "@piecesClassic": {
+    "description": ""
+  },
+  "piecesCeltic": "Kelt",
+  "@piecesCeltic": {
+    "description": ""
+  },
+  "piecesSpatial": "Uzay",
+  "@piecesSpatial": {
+    "description": ""
+  },
+  "piecesFantasy": "Fantastik",
+  "@piecesFantasy": {
+    "description": ""
+  },
+  "piecesModern": "Modern",
+  "@piecesModern": {
+    "description": ""
+  },
+  "piecesWarm": "Sıcak",
+  "@piecesWarm": {
+    "description": ""
+  },
+  "firstPosition": "Başlangıç",
+  "@firstPosition": {
+    "description": ""
+  },
+  "previousMove": "Önceki hamle",
+  "@previousMove": {
+    "description": ""
+  },
+  "nextMove": "Sonraki hamle",
+  "@nextMove": {
+    "description": ""
+  },
+  "lastPosition": "Son konum",
+  "@lastPosition": {
+    "description": ""
+  },
+  "backToLive": "Canlıya dön",
+  "@backToLive": {
+    "description": ""
+  },
+  "pointsShort": "{points} puan",
+  "@pointsShort": {
+    "description": "",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
   }
 }

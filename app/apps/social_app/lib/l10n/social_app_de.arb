@@ -91,5 +91,6 @@
   "showGroupsHint": "Wenn aus, sehen nur die Mitglieder einer Gruppe, dass du dazugehörst; Admins anderer Gruppen nicht.",
   "language": "Sprache",
   "games": "Spiele",
-  "chessHint": "Schnelle Partien, Freunde herausfordern, in der Elo-Rangliste aufsteigen."
+  "chessHint": "Schnelle Partien, Freunde herausfordern, in der Elo-Rangliste aufsteigen.",
+  "gamesHint": "Schach: schnelle Partien, Turniere, Mannschaftskämpfe"
 }

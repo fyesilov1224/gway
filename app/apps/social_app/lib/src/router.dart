@@ -230,6 +230,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: ProfileRoutes.blocked, builder: (_, _) => const BlockedAccountsScreen()),
           GoRoute(path: ProfileRoutes.teammates, builder: (_, _) => const TeammatesScreen()),
           GoRoute(path: ProfileRoutes.teammateSettings, builder: (_, _) => const TeammateSettingsScreen()),
+          GoRoute(path: GamesRoutes.hub, builder: (_, _) => const GamesHubScreen()),
           GoRoute(path: ChessRoutes.home, builder: (_, _) => const ChessHomeScreen()),
           GoRoute(
             path: ChessRoutes.leaderboard,

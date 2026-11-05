@@ -26,7 +26,7 @@ class _GroupBadge extends StatelessWidget {
   Widget build(BuildContext context) => GwAvatar(name: group.name, shape: GwAvatarShape.group, imageUrl: group.logoUrl, size: size);
 }
 
-/// A team match in a list: both groups, then the score or the start.
+/// A team match in a list: each group on its own line with its points, then the status, start and format.
 class TeamMatchTile extends StatelessWidget {
   const TeamMatchTile({super.key, required this.match});
 
@@ -36,31 +36,44 @@ class TeamMatchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final m = match;
-    final center = m.status == TeamMatchStatus.finished
-        ? '${formatPoints(m.homePoints ?? 0)} – ${formatPoints(m.awayPoints ?? 0)}'
-        : m.status == TeamMatchStatus.live
-            ? gamesL10n.teamLive
-            : formatDateTime(m.startsAt);
+    final scored = m.status == TeamMatchStatus.finished;
+    final homeWon = scored && (m.homePoints ?? 0) > (m.awayPoints ?? 0);
+    final awayWon = scored && (m.awayPoints ?? 0) > (m.homePoints ?? 0);
+    Widget line(ChessGroup g, double? points, bool won) => Row(
+          children: [
+            _GroupBadge(group: g, size: GwAvatarSize.sm),
+            const SizedBox(width: GwSpacing.sm),
+            Expanded(
+              child: Text(
+                g.name,
+                style: textTheme.titleSmall?.copyWith(fontWeight: won ? FontWeight.w800 : FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (scored)
+              Text(formatPoints(points ?? 0), style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: won ? GwColors.primary : null)),
+          ],
+        );
     return GwCard(
       onTap: () => context.push(ChessRoutes.team(m.id)),
-      padding: const EdgeInsets.all(GwSpacing.sm),
-      child: Row(
+      padding: const EdgeInsets.all(GwSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _GroupBadge(group: m.home, size: GwAvatarSize.sm),
-          const SizedBox(width: GwSpacing.xs),
-          Expanded(child: Text(m.home.name, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs),
-            child: Column(
-              children: [
-                Text(center, style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: m.status == TeamMatchStatus.live ? GwColors.primary : null)),
-                Text('${m.boards} ${gamesL10n.boardsShort} · ${m.timeControl.label}', style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
-              ],
-            ),
+          line(m.home, m.homePoints, homeWon),
+          const SizedBox(height: GwSpacing.xs),
+          line(m.away, m.awayPoints, awayWon),
+          const SizedBox(height: GwSpacing.sm),
+          Wrap(
+            spacing: GwSpacing.xs,
+            runSpacing: GwSpacing.xxs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (m.status == TeamMatchStatus.live) const GwLiveBadge() else GwTag(label: m.status.label, tone: GwTone.mist),
+              Text('${formatDateTime(m.startsAt)} · ${gamesL10n.boardsCount(m.boards)} · ${m.timeControl.label}',
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+            ],
           ),
-          Expanded(child: Text(m.away.name, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis, textAlign: TextAlign.end)),
-          const SizedBox(width: GwSpacing.xs),
-          _GroupBadge(group: m.away, size: GwAvatarSize.sm),
         ],
       ),
     );
@@ -262,7 +275,7 @@ class _BoardRow extends StatelessWidget {
         height: GwSpacing.sm,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: white ? GwChessColors.lightSquare : GwColors.textPrimary,
+          color: white ? GwColors.background : GwColors.textPrimary,
           border: Border.all(color: GwColors.textSecondary),
         ),
       );
@@ -698,15 +711,19 @@ class _GroupStep extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomCenter,
           children: [
-            Container(
-              padding: const EdgeInsets.all(GwBorders.ringWidth),
-              decoration: BoxDecoration(borderRadius: GwRadius.lgAll, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
-              child: _GroupBadge(group: entry.group, size: entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg),
+            Crowned(
+              rank: entry.rank,
+              avatarSize: (entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg).dimension,
+              child: Container(
+                padding: const EdgeInsets.all(GwBorders.ringWidth),
+                decoration: BoxDecoration(borderRadius: GwRadius.lgAll, border: Border.all(color: medal.strong, width: GwBorders.ringWidth)),
+                child: _GroupBadge(group: entry.group, size: entry.rank == 1 ? GwAvatarSize.xl : GwAvatarSize.lg),
+              ),
             ),
-            Positioned(bottom: -GwSpacing.sm, child: RankBadge(rank: entry.rank, size: GwSpacing.lg)),
+            Positioned(bottom: -GwSpacing.xl, child: RankBadge(rank: entry.rank, size: GwSpacing.xl + GwSpacing.xxs)),
           ],
         ),
-        const SizedBox(height: GwSpacing.md),
+        const SizedBox(height: GwSpacing.xl + GwSpacing.sm),
         Text(entry.group.name, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
         Text(gamesL10n.record(entry.wins, entry.draws, entry.losses), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
         const SizedBox(height: GwSpacing.xs),

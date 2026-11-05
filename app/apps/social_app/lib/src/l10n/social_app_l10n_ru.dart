@@ -329,4 +329,7 @@ class SocialAppL10nRu extends SocialAppL10n {
 
   @override
   String get chessHint => 'Быстрые партии, вызовы друзьям и рейтинг Эло.';
+
+  @override
+  String get gamesHint => 'Шахматы: быстрые партии, турниры, командные матчи';
 }

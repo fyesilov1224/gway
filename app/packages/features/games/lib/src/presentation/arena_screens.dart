@@ -43,7 +43,100 @@ class _TickerState extends State<_Ticker> {
   Widget build(BuildContext context) => widget.builder(context);
 }
 
-/// An arena in a list: name, time control, when, and whether the reader joined.
+/// The color of an arena by kind: weekly lilac, monthly gold, extra ones sky.
+({Color soft, Color strong}) _arenaColors(ArenaKind kind) => switch (kind) {
+  ArenaKind.weekly => (soft: GwColors.primarySoft, strong: GwColors.primary),
+  ArenaKind.monthly => (soft: GwMedal.gold.soft, strong: GwMedal.gold.strong),
+  ArenaKind.custom => (soft: GwColors.secondarySoft, strong: GwColors.secondary),
+};
+
+/// An arena as an event card: a colored banner with the trophy and the time control, the name, when (or the
+/// countdown while live) and whether the reader joined.
+class ArenaEventCard extends StatelessWidget {
+  const ArenaEventCard({super.key, required this.arena, this.joined = false});
+
+  static const double width = GwLayout.storyCardWidth * 0.72;
+
+  /// The height in a horizontal row of cards (the card itself sizes to its content).
+  static const double height = GwSpacing.xxl * 3 + GwSpacing.lg;
+
+  final Arena arena;
+  final bool joined;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final a = arena;
+    final colors = _arenaColors(a.kind);
+    final live = a.status == ArenaStatus.live;
+    return GwCard(
+      onTap: () => context.push(ChessRoutes.arena(a.id)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: GwSpacing.xxl + GwSpacing.md,
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md),
+            decoration: BoxDecoration(
+              color: colors.soft,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(GwRadius.xl)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.emoji_events_rounded, color: colors.strong, size: GwSpacing.xl),
+                const SizedBox(width: GwSpacing.xs),
+                Text(
+                  a.timeControl.label,
+                  style: textTheme.titleLarge?.copyWith(color: colors.strong, fontWeight: FontWeight.w800),
+                ),
+                const Spacer(),
+                if (live) const GwLiveBadge(),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(GwSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  a.name,
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${a.timeControl.category.label} · ${gamesL10n.minutesLong(a.length.inMinutes)}',
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
+                ),
+                const SizedBox(height: GwSpacing.sm),
+                Row(
+                  children: [
+                    Icon(live ? Icons.timer_outlined : Icons.event_outlined, size: GwSpacing.md, color: GwColors.textSecondary),
+                    const SizedBox(width: GwSpacing.xxs),
+                    Expanded(
+                      child: live
+                          ? _Ticker(
+                              builder: (_) => Text(
+                                gamesL10n.arenaEndsIn(_countdown(a.endsAt.difference(DateTime.now()))),
+                                style: textTheme.labelLarge?.copyWith(color: colors.strong),
+                              ),
+                            )
+                          : Text(formatDateTime(a.startsAt), style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
+                    ),
+                    if (joined) const Icon(Icons.check_circle_rounded, color: GwColors.success, size: GwSpacing.lg),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A finished arena in a list, with its podium.
 class ArenaTile extends StatelessWidget {
   const ArenaTile({super.key, required this.arena, this.joined = false, this.podium = const []});
 
@@ -83,11 +176,14 @@ class ArenaTile extends StatelessWidget {
                     spacing: GwSpacing.xs,
                     children: [
                       for (final (i, p) in podium.indexed)
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          RankBadge(rank: i + 1, size: GwSpacing.md + GwSpacing.xxs),
-                          const SizedBox(width: GwSpacing.xxs),
-                          Text(p.displayName, style: textTheme.labelSmall),
-                        ]),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            RankBadge(rank: i + 1, size: GwSpacing.md + GwSpacing.xxs),
+                            const SizedBox(width: GwSpacing.xxs),
+                            Text(p.displayName, style: textTheme.labelSmall),
+                          ],
+                        ),
                     ],
                   ),
                 ],
@@ -96,7 +192,9 @@ class ArenaTile extends StatelessWidget {
           ),
           const SizedBox(width: GwSpacing.xs),
           if (live)
-            _Ticker(builder: (_) => Text(_countdown(a.endsAt.difference(DateTime.now())), style: textTheme.titleSmall?.copyWith(color: GwColors.primary)))
+            _Ticker(
+              builder: (_) => Text(_countdown(a.endsAt.difference(DateTime.now())), style: textTheme.titleSmall?.copyWith(color: GwColors.primary)),
+            )
           else if (a.status == ArenaStatus.scheduled)
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -122,35 +220,58 @@ class ArenasScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(gamesL10n.tournaments)),
       body: switch (lists) {
         AsyncData(value: final l) => RefreshIndicator(
-            onRefresh: () => ref.refresh(arenasProvider.future),
-            child: ListView(
-              padding: const EdgeInsets.all(GwSpacing.page),
-              children: [
-                Text(gamesL10n.arenaRules, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
-                if (l.live.isNotEmpty) ...[
-                  const SizedBox(height: GwSpacing.lg),
-                  GwSectionHeader(title: gamesL10n.arenaLiveNow),
-                  const SizedBox(height: GwSpacing.xs),
-                  for (final a in l.live)
-                    Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: ArenaTile(arena: a, joined: l.joined.contains(a.id))),
-                ],
+          onRefresh: () => ref.refresh(arenasProvider.future),
+          child: ListView(
+            padding: const EdgeInsets.all(GwSpacing.page),
+            children: [
+              Text(gamesL10n.arenaRules, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+              if (l.live.isNotEmpty) ...[
                 const SizedBox(height: GwSpacing.lg),
-                GwSectionHeader(title: gamesL10n.arenaUpcoming),
+                GwSectionHeader(title: gamesL10n.arenaLiveNow),
                 const SizedBox(height: GwSpacing.xs),
-                for (final a in l.upcoming)
-                  Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: ArenaTile(arena: a, joined: l.joined.contains(a.id))),
-                if (l.finished.isNotEmpty) ...[
-                  const SizedBox(height: GwSpacing.lg),
-                  GwSectionHeader(title: gamesL10n.arenaFinished),
-                  const SizedBox(height: GwSpacing.xs),
-                  for (final r in l.finished)
-                    Padding(padding: const EdgeInsets.only(bottom: GwSpacing.xs), child: ArenaTile(arena: r.arena, podium: r.podium)),
-                ],
+                for (final a in l.live)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: GwSpacing.sm),
+                    child: ArenaEventCard(arena: a, joined: l.joined.contains(a.id)),
+                  ),
               ],
-            ),
+              const SizedBox(height: GwSpacing.lg),
+              GwSectionHeader(title: gamesL10n.arenaUpcoming),
+              const SizedBox(height: GwSpacing.xs),
+              LayoutBuilder(
+                builder: (context, c) {
+                  final columns = c.maxWidth >= GwLayout.contentMaxWidth ? 3 : (c.maxWidth >= GwLayout.formMaxWidth ? 2 : 1);
+                  return Wrap(
+                    spacing: GwSpacing.sm,
+                    runSpacing: GwSpacing.sm,
+                    children: [
+                      for (final a in l.upcoming)
+                        SizedBox(
+                          width: (c.maxWidth - GwSpacing.sm * (columns - 1)) / columns,
+                          child: ArenaEventCard(arena: a, joined: l.joined.contains(a.id)),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              if (l.finished.isNotEmpty) ...[
+                const SizedBox(height: GwSpacing.lg),
+                GwSectionHeader(title: gamesL10n.arenaFinished),
+                const SizedBox(height: GwSpacing.xs),
+                for (final r in l.finished)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: GwSpacing.xs),
+                    child: ArenaTile(arena: r.arena, podium: r.podium),
+                  ),
+              ],
+            ],
           ),
+        ),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(arenasProvider)),
-        _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4)),
+        _ => const Padding(
+          padding: EdgeInsets.all(GwSpacing.page),
+          child: GwSkeleton(height: GwSpacing.xxl * 4),
+        ),
       },
     );
   }
@@ -206,7 +327,10 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
       body: switch (detail) {
         AsyncData(:final value) => _body(value, me),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(arenaProvider(widget.arenaId))),
-        _ => const Padding(padding: EdgeInsets.all(GwSpacing.page), child: GwSkeleton(height: GwSpacing.xxl * 4)),
+        _ => const Padding(
+          padding: EdgeInsets.all(GwSpacing.page),
+          child: GwSkeleton(height: GwSpacing.xxl * 4),
+        ),
       },
     );
   }
@@ -220,25 +344,38 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     final scheduled = a.status == ArenaStatus.scheduled;
 
     final List<Widget> actions = switch ((scheduled, live, d.joined)) {
-      (true, _, false) => [GwButton(label: gamesL10n.arenaRegister, icon: Icons.how_to_reg_outlined, expand: true, isLoading: _busy, onPressed: () => _run(() => repo.join(a.id)))],
+      (true, _, false) => [
+        GwButton(label: gamesL10n.arenaRegister, icon: Icons.how_to_reg_outlined, expand: true, isLoading: _busy, onPressed: () => _run(() => repo.join(a.id))),
+      ],
       (true, _, true) => [
-          GwFormMessage(gamesL10n.arenaRegistered, kind: GwFormMessageKind.info),
-          const SizedBox(height: GwSpacing.xs),
-          GwButton(label: gamesL10n.withdraw, variant: GwButtonVariant.text, onPressed: _busy ? null : () => _run(() => repo.leave(a.id))),
-        ],
+        GwFormMessage(gamesL10n.arenaRegistered, kind: GwFormMessageKind.info),
+        const SizedBox(height: GwSpacing.xs),
+        GwButton(label: gamesL10n.withdraw, variant: GwButtonVariant.text, onPressed: _busy ? null : () => _run(() => repo.leave(a.id))),
+      ],
       (_, true, _) when d.myGameId != null => [
-          GwButton(label: gamesL10n.backToGame, icon: Icons.play_arrow_rounded, expand: true, onPressed: () => context.push(ChessRoutes.game(d.myGameId!))),
-        ],
+        GwButton(label: gamesL10n.backToGame, icon: Icons.play_arrow_rounded, expand: true, onPressed: () => context.push(ChessRoutes.game(d.myGameId!))),
+      ],
       (_, true, _) when mine?.waiting ?? false => [
-          GwFormMessage(gamesL10n.arenaWaiting, kind: GwFormMessageKind.info),
-          const SizedBox(height: GwSpacing.xs),
-          GwButton(label: gamesL10n.arenaPause, icon: Icons.pause_rounded, variant: GwButtonVariant.secondary, expand: true,
-              isLoading: _busy, onPressed: () => _run(() => repo.pause(a.id))),
-        ],
+        GwFormMessage(gamesL10n.arenaWaiting, kind: GwFormMessageKind.info),
+        const SizedBox(height: GwSpacing.xs),
+        GwButton(
+          label: gamesL10n.arenaPause,
+          icon: Icons.pause_rounded,
+          variant: GwButtonVariant.secondary,
+          expand: true,
+          isLoading: _busy,
+          onPressed: () => _run(() => repo.pause(a.id)),
+        ),
+      ],
       (_, true, _) => [
-          GwButton(label: d.joined ? gamesL10n.arenaResume : gamesL10n.arenaJoin, icon: Icons.play_arrow_rounded, expand: true, isLoading: _busy,
-              onPressed: () => _run(() => repo.join(a.id))),
-        ],
+        GwButton(
+          label: d.joined ? gamesL10n.arenaResume : gamesL10n.arenaJoin,
+          icon: Icons.play_arrow_rounded,
+          expand: true,
+          isLoading: _busy,
+          onPressed: () => _run(() => repo.join(a.id)),
+        ),
+      ],
       _ => const <Widget>[],
     };
 
@@ -248,49 +385,88 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
         padding: const EdgeInsets.all(GwSpacing.page),
         children: [
           GwCard(
-            padding: const EdgeInsets.all(GwSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Wrap(
-                  spacing: GwSpacing.xs,
-                  runSpacing: GwSpacing.xs,
-                  children: [
-                    GwTag(label: '${a.timeControl.label} · ${a.timeControl.category.label}', icon: chessCategoryIcon(a.timeControl.category), tone: GwTone.sky),
-                    GwTag(label: gamesL10n.minutesLong(a.length.inMinutes), icon: Icons.timer_outlined, tone: GwTone.mist),
-                    GwTag(label: gamesL10n.playersCount(d.standings.length), icon: Icons.people_outline, tone: GwTone.mist),
-                  ],
-                ),
-                const SizedBox(height: GwSpacing.md),
-                _Ticker(
-                  builder: (_) => Text(
-                    switch (a.status) {
-                      ArenaStatus.scheduled => gamesL10n.arenaStartsIn(_countdown(a.startsAt.difference(DateTime.now()))),
-                      ArenaStatus.live => a.endsAt.isAfter(DateTime.now())
-                          ? gamesL10n.arenaEndsIn(_countdown(a.endsAt.difference(DateTime.now())))
-                          : gamesL10n.arenaLastGames,
-                      ArenaStatus.finished => gamesL10n.arenaFinishedAt(formatDateTime(a.endsAt)),
-                      ArenaStatus.canceled => gamesL10n.teamCanceled,
-                    },
-                    style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+                Container(
+                  padding: const EdgeInsets.all(GwSpacing.md),
+                  decoration: BoxDecoration(
+                    color: _arenaColors(a.kind).soft,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(GwRadius.xl)),
                   ),
-                ),
-                Text(formatDateTime(a.startsAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
-                if (mine != null && mine.games > 0) ...[
-                  const SizedBox(height: GwSpacing.md),
-                  Row(
+                  child: Row(
                     children: [
-                      RankBadge(rank: mine.rank),
+                      Icon(Icons.emoji_events_rounded, size: GwSpacing.xxl, color: _arenaColors(a.kind).strong),
                       const SizedBox(width: GwSpacing.sm),
-                      Expanded(child: Text(gamesL10n.myArenaScore(mine.points, mine.games), style: textTheme.titleSmall)),
-                      if (mine.onFire) Tooltip(message: gamesL10n.onFire, child: const Icon(Icons.local_fire_department_rounded, color: GwColors.error)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(a.name, style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                            Text(formatDateTime(a.startsAt), style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                          ],
+                        ),
+                      ),
+                      if (a.status == ArenaStatus.live) const GwLiveBadge(),
                     ],
                   ),
-                ],
-                if (actions.isNotEmpty) ...[const SizedBox(height: GwSpacing.md), ...actions],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(GwSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Wrap(
+                        spacing: GwSpacing.xs,
+                        runSpacing: GwSpacing.xs,
+                        children: [
+                          GwTag(
+                            label: '${a.timeControl.label} · ${a.timeControl.category.label}',
+                            icon: chessCategoryIcon(a.timeControl.category),
+                            tone: GwTone.sky,
+                          ),
+                          GwTag(label: gamesL10n.minutesLong(a.length.inMinutes), icon: Icons.timer_outlined, tone: GwTone.mist),
+                          GwTag(label: gamesL10n.playersCount(d.standings.length), icon: Icons.people_outline, tone: GwTone.mist),
+                        ],
+                      ),
+                      const SizedBox(height: GwSpacing.md),
+                      _Ticker(
+                        builder: (_) => Text(switch (a.status) {
+                          ArenaStatus.scheduled => gamesL10n.arenaStartsIn(_countdown(a.startsAt.difference(DateTime.now()))),
+                          ArenaStatus.live =>
+                            a.endsAt.isAfter(DateTime.now())
+                                ? gamesL10n.arenaEndsIn(_countdown(a.endsAt.difference(DateTime.now())))
+                                : gamesL10n.arenaLastGames,
+                          ArenaStatus.finished => gamesL10n.arenaFinishedAt(formatDateTime(a.endsAt)),
+                          ArenaStatus.canceled => gamesL10n.teamCanceled,
+                        }, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                      ),
+                      if (mine != null && mine.games > 0) ...[
+                        const SizedBox(height: GwSpacing.md),
+                        Row(
+                          children: [
+                            RankBadge(rank: mine.rank),
+                            const SizedBox(width: GwSpacing.sm),
+                            Expanded(child: Text(gamesL10n.myArenaScore(mine.points, mine.games), style: textTheme.titleSmall)),
+                            if (mine.onFire)
+                              Tooltip(
+                                message: gamesL10n.onFire,
+                                child: const Icon(Icons.local_fire_department_rounded, color: GwColors.error),
+                              ),
+                          ],
+                        ),
+                      ],
+                      if (actions.isNotEmpty) ...[const SizedBox(height: GwSpacing.md), ...actions],
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
+          if (a.status == ArenaStatus.finished && d.standings.isNotEmpty) ...[
+            const SizedBox(height: GwSpacing.md),
+            _ArenaPodium(standings: d.standings.take(3).toList()),
+          ],
           const SizedBox(height: GwSpacing.sm),
           Text(gamesL10n.arenaRules, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
           const SizedBox(height: GwSpacing.lg),
@@ -348,11 +524,74 @@ class _StandingRow extends StatelessWidget {
             if (s.onFire)
               Padding(
                 padding: const EdgeInsets.only(right: GwSpacing.xxs),
-                child: Tooltip(message: gamesL10n.onFire, child: const Icon(Icons.local_fire_department_rounded, color: GwColors.error, size: GwSpacing.lg)),
+                child: Tooltip(
+                  message: gamesL10n.onFire,
+                  child: const Icon(Icons.local_fire_department_rounded, color: GwColors.error, size: GwSpacing.lg),
+                ),
               ),
             Text('${s.points}', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The winners of a finished arena: second, first, third.
+class _ArenaPodium extends StatelessWidget {
+  const _ArenaPodium({required this.standings});
+
+  final List<ArenaStanding> standings;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    ArenaStanding? at(int i) => i < standings.length ? standings[i] : null;
+    Widget step(ArenaStanding? s, double lift) {
+      if (s == null) return SizedBox(height: lift);
+      final medal = GwMedal.forRank(s.rank) ?? GwMedal.bronze;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Crowned(
+            rank: s.rank,
+            avatarSize: GwAvatarSize.lg.dimension,
+            child: GwAvatar(name: s.player.displayName, shape: GwAvatarShape.user, imageUrl: s.player.avatarUrl, size: GwAvatarSize.lg),
+          ),
+          const SizedBox(height: GwSpacing.xxs),
+          Text(s.player.displayName, style: textTheme.titleSmall, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+          const SizedBox(height: GwSpacing.xs),
+          Container(
+            width: double.infinity,
+            height: lift,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: medal.soft, borderRadius: GwRadius.mdAll),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                RankBadge(rank: s.rank, size: GwSpacing.lg),
+                Text(
+                  gamesL10n.pointsShort(s.points),
+                  style: textTheme.labelLarge?.copyWith(color: medal.strong, fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return GwCard(
+      padding: const EdgeInsets.fromLTRB(GwSpacing.sm, GwSpacing.lg, GwSpacing.sm, GwSpacing.md),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(child: step(at(1), GwSpacing.xxl + GwSpacing.md)),
+          const SizedBox(width: GwSpacing.xs),
+          Expanded(child: step(at(0), GwSpacing.xxl * 2)),
+          const SizedBox(width: GwSpacing.xs),
+          Expanded(child: step(at(2), GwSpacing.xxl + GwSpacing.xs)),
+        ],
       ),
     );
   }

@@ -52,7 +52,7 @@ class ChessFlag extends StatelessWidget {
   }
 }
 
-/// Gold, silver and bronze for the top three; a plain rank number below.
+/// A gold, silver or bronze medal for the top three; a plain rank number below.
 class RankBadge extends StatelessWidget {
   const RankBadge({super.key, required this.rank, this.size = GwSpacing.xl});
 
@@ -76,16 +76,39 @@ class RankBadge extends StatelessWidget {
         GwMedal.silver => gamesL10n.medalSilver,
         GwMedal.bronze => gamesL10n.medalBronze,
       },
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: medal.soft,
-          border: Border.all(color: medal.strong, width: GwBorders.ringWidth),
-        ),
-        child: Text('$rank', style: textTheme.titleSmall?.copyWith(color: medal.strong, fontWeight: FontWeight.w800)),
+      child: GwMedalBadge(medal: medal, rank: rank, size: size),
+    );
+  }
+}
+
+/// An avatar wearing the crown of its place: gold, silver or bronze for the top three, nothing below.
+class Crowned extends StatelessWidget {
+  const Crowned({super.key, required this.rank, required this.avatarSize, required this.child});
+
+  final int rank;
+
+  /// The avatar's width; the crown is about half as wide and sits on its top edge.
+  final double avatarSize;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final medal = GwMedal.forRank(rank);
+    if (medal == null) return child;
+    final crown = avatarSize * 0.55;
+    return Padding(
+      // Room above the avatar for the crown.
+      padding: EdgeInsets.only(top: crown * GwCrown.aspect * 0.6),
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          child,
+          Positioned(
+            top: -crown * GwCrown.aspect * 0.6,
+            child: Transform.rotate(angle: rank == 1 ? 0 : (rank == 2 ? -0.18 : 0.18), child: GwCrown(medal: medal, size: crown)),
+          ),
+        ],
       ),
     );
   }

@@ -560,4 +560,114 @@ class GamesL10nAz extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'İlk gediş: 5 dəq';
+
+  @override
+  String get games => 'Oyunlar';
+
+  @override
+  String get gamesIntro =>
+      'İcmanla oyna: sürətli oyunlar, turnirlər və qruplararası matçlar.';
+
+  @override
+  String get chessCardText =>
+      'Elo reytinqi, həftəlik və aylıq turnirlər, qruplararası komanda matçları və medallar.';
+
+  @override
+  String get playChess => 'Şahmat oyna';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Blits $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Növbəti turnir: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    return '$count dəvət gözləyir';
+  }
+
+  @override
+  String get playOnline => 'Onlayn oyna';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Rəqib tap · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Vaxtı və rəngi sən seç';
+
+  @override
+  String get leaderboardHint => 'Elo sıralaması və medallar';
+
+  @override
+  String openTeamMatches(int count) {
+    return '$count açıq matç';
+  }
+
+  @override
+  String get appearance => 'Taxta və fiqurlar';
+
+  @override
+  String get boardTheme => 'Taxta';
+
+  @override
+  String get pieceSet => 'Fiqurlar';
+
+  @override
+  String get boardWood => 'Taxta';
+
+  @override
+  String get boardGreen => 'Yaşıl';
+
+  @override
+  String get boardBlue => 'Mavi';
+
+  @override
+  String get boardSlate => 'Boz';
+
+  @override
+  String get boardLilac => 'GWAY bənövşəyi';
+
+  @override
+  String get piecesClassic => 'Klassik';
+
+  @override
+  String get piecesCeltic => 'Kelt';
+
+  @override
+  String get piecesSpatial => 'Kosmos';
+
+  @override
+  String get piecesFantasy => 'Fantastik';
+
+  @override
+  String get piecesModern => 'Müasir';
+
+  @override
+  String get piecesWarm => 'İsti';
+
+  @override
+  String get firstPosition => 'Başlanğıc';
+
+  @override
+  String get previousMove => 'Əvvəlki gediş';
+
+  @override
+  String get nextMove => 'Növbəti gediş';
+
+  @override
+  String get lastPosition => 'Son vəziyyət';
+
+  @override
+  String get backToLive => 'Canlıya qayıt';
+
+  @override
+  String pointsShort(int points) {
+    return '$points xal';
+  }
 }

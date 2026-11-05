@@ -602,4 +602,130 @@ class GamesL10nRu extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'Первый ход: 5 мин';
+
+  @override
+  String get games => 'Игры';
+
+  @override
+  String get gamesIntro =>
+      'Играйте со своим сообществом: быстрые партии, турниры и матчи между группами.';
+
+  @override
+  String get chessCardText =>
+      'Рейтинг Эло, еженедельные и ежемесячные турниры, командные матчи между группами и медали.';
+
+  @override
+  String get playChess => 'Играть в шахматы';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Блиц $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Следующий турнир: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count приглашения ждут',
+      many: '$count приглашений ждут',
+      few: '$count приглашения ждут',
+      one: '$count приглашение ждёт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Играть онлайн';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Найти соперника · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Выберите время и цвет';
+
+  @override
+  String get leaderboardHint => 'Рейтинг Эло и медали';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count открытого матча',
+      many: '$count открытых матчей',
+      few: '$count открытых матча',
+      one: '$count открытый матч',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Доска и фигуры';
+
+  @override
+  String get boardTheme => 'Доска';
+
+  @override
+  String get pieceSet => 'Фигуры';
+
+  @override
+  String get boardWood => 'Дерево';
+
+  @override
+  String get boardGreen => 'Зелёная';
+
+  @override
+  String get boardBlue => 'Синяя';
+
+  @override
+  String get boardSlate => 'Серая';
+
+  @override
+  String get boardLilac => 'Сиреневая GWAY';
+
+  @override
+  String get piecesClassic => 'Классика';
+
+  @override
+  String get piecesCeltic => 'Кельтские';
+
+  @override
+  String get piecesSpatial => 'Космос';
+
+  @override
+  String get piecesFantasy => 'Фэнтези';
+
+  @override
+  String get piecesModern => 'Модерн';
+
+  @override
+  String get piecesWarm => 'Тёплые';
+
+  @override
+  String get firstPosition => 'Начало';
+
+  @override
+  String get previousMove => 'Предыдущий ход';
+
+  @override
+  String get nextMove => 'Следующий ход';
+
+  @override
+  String get lastPosition => 'Текущая позиция';
+
+  @override
+  String get backToLive => 'К текущей';
+
+  @override
+  String pointsShort(int points) {
+    return '$points очк.';
+  }
 }

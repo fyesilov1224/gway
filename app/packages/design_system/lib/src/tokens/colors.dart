@@ -59,34 +59,54 @@ abstract final class GwColors {
   );
 }
 
-/// The chess board (docs/DESIGN.md §1, Oyunlar): squares tinted from the brand purple, highlights from the brand
-/// blue and the error red. Pieces carry their own outline, so both colors read on both squares.
+/// Chess board overlays (docs/DESIGN.md §1, Oyunlar), the same on every board theme: the last move in a soft yellow,
+/// the selected piece in green, a king in check in red, move hints in translucent black.
 abstract final class GwChessColors {
-  static const lightSquare = Color(0xFFF1EDFB);
-  static const darkSquare = Color(0xFF9D8DDB);
-
-  /// Over a square: the last move's two squares, the selected piece, a king in check.
-  static const lastMove = Color(0x592F6FE0);
-  static const selected = Color(0x806E56CF);
-  static const check = Color(0xB3C4314B);
+  static const lastMove = Color(0x80F6F669);
+  static const selected = Color(0x8014551E);
+  static const check = Color(0xCCE53935);
 
   /// Dots on empty target squares, rings on captures.
-  static const hint = Color(0x401F2033);
+  static const hint = Color(0x33000000);
 
   /// A queued premove.
-  static const premove = Color(0x66EB6834);
+  static const premove = Color(0x803A6EA5);
+
+  /// The thin frame around the board.
+  static const frame = Color(0x26000000);
+}
+
+/// Board square colors the person can choose (docs/DESIGN.md §1, Oyunlar; user request 2026-11-05). Wood is the default:
+/// the colors chess players know; the GWAY lilac stays as an option.
+enum GwBoardTheme {
+  wood(Color(0xFFF0D9B5), Color(0xFFB58863)),
+  green(Color(0xFFEEEED2), Color(0xFF769656)),
+  blue(Color(0xFFDEE3E6), Color(0xFF8CA2AD)),
+  slate(Color(0xFFE6E6E6), Color(0xFF9B9B9B)),
+  lilac(Color(0xFFF1EDFB), Color(0xFF9D8DDB));
+
+  const GwBoardTheme(this.light, this.dark);
+
+  final Color light;
+  final Color dark;
 }
 
 /// Leaderboard medals for the top three (docs/DESIGN.md §1, Madalyalar): [strong] for the medal, [soft] behind it.
 enum GwMedal {
-  gold(Color(0xFFC9971C), Color(0xFFFFF4D6)),
-  silver(Color(0xFF8C96A6), Color(0xFFF0F2F6)),
-  bronze(Color(0xFFB06A35), Color(0xFFFBECE0));
+  gold(Color(0xFFC9971C), Color(0xFFFFF4D6), Color(0xFFFBE38A), Color(0xFF8F6508)),
+  silver(Color(0xFF8C96A6), Color(0xFFF0F2F6), Color(0xFFF2F5F9), Color(0xFF5C6575)),
+  bronze(Color(0xFFB06A35), Color(0xFFFBECE0), Color(0xFFEBB487), Color(0xFF6E3B17));
 
-  const GwMedal(this.strong, this.soft);
+  const GwMedal(this.strong, this.soft, this.shine, this.deep);
 
   final Color strong;
   final Color soft;
+
+  /// The light edge of the metal in the drawn medal and crown (`GwMedalBadge`, `GwCrown`).
+  final Color shine;
+
+  /// The shadowed edge and outline of the metal.
+  final Color deep;
 
   /// The medal for a 1-based rank; null below third.
   static GwMedal? forRank(int rank) => rank >= 1 && rank <= 3 ? values[rank - 1] : null;

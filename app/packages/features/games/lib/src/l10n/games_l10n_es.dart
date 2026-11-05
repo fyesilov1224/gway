@@ -595,4 +595,126 @@ class GamesL10nEs extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'Primera jugada: 5 min';
+
+  @override
+  String get games => 'Juegos';
+
+  @override
+  String get gamesIntro =>
+      'Juega con tu comunidad: partidas rápidas, torneos y encuentros entre grupos.';
+
+  @override
+  String get chessCardText =>
+      'Elo, torneos semanales y mensuales, encuentros por equipos entre grupos y medallas.';
+
+  @override
+  String get playChess => 'Jugar al ajedrez';
+
+  @override
+  String blitzRating(int rating) {
+    return 'Blitz $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'Próximo torneo: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invitaciones pendientes',
+      one: '1 invitación pendiente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playOnline => 'Jugar en línea';
+
+  @override
+  String findOpponent(String tc) {
+    return 'Buscar rival · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'Tú eliges tiempo y color';
+
+  @override
+  String get leaderboardHint => 'Clasificación Elo y medallas';
+
+  @override
+  String openTeamMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count encuentros abiertos',
+      one: '1 encuentro abierto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appearance => 'Tablero y piezas';
+
+  @override
+  String get boardTheme => 'Tablero';
+
+  @override
+  String get pieceSet => 'Piezas';
+
+  @override
+  String get boardWood => 'Madera';
+
+  @override
+  String get boardGreen => 'Verde';
+
+  @override
+  String get boardBlue => 'Azul';
+
+  @override
+  String get boardSlate => 'Gris';
+
+  @override
+  String get boardLilac => 'Lila GWAY';
+
+  @override
+  String get piecesClassic => 'Clásicas';
+
+  @override
+  String get piecesCeltic => 'Celtas';
+
+  @override
+  String get piecesSpatial => 'Espacial';
+
+  @override
+  String get piecesFantasy => 'Fantasía';
+
+  @override
+  String get piecesModern => 'Modernas';
+
+  @override
+  String get piecesWarm => 'Cálidas';
+
+  @override
+  String get firstPosition => 'Inicio';
+
+  @override
+  String get previousMove => 'Jugada anterior';
+
+  @override
+  String get nextMove => 'Jugada siguiente';
+
+  @override
+  String get lastPosition => 'Posición actual';
+
+  @override
+  String get backToLive => 'Volver al directo';
+
+  @override
+  String pointsShort(int points) {
+    return '$points pts';
+  }
 }

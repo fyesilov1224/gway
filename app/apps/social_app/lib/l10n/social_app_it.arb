@@ -91,5 +91,6 @@
   "showGroupsHint": "Se disattivato, solo i membri di un gruppo vedono che ne fai parte; gli amministratori di altri gruppi no.",
   "language": "Lingua",
   "games": "Giochi",
-  "chessHint": "Partite veloci, sfida gli amici e scala la classifica Elo."
+  "chessHint": "Partite veloci, sfida gli amici e scala la classifica Elo.",
+  "gamesHint": "Scacchi: partite veloci, tornei, incontri a squadre"
 }

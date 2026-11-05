@@ -91,5 +91,6 @@
   "showGroupsHint": "Si está desactivado, solo los miembros de un grupo ven que perteneces a él; los administradores de otros grupos no.",
   "language": "Idioma",
   "games": "Juegos",
-  "chessHint": "Partidas rápidas, desafía a amigos y sube en la clasificación Elo."
+  "chessHint": "Partidas rápidas, desafía a amigos y sube en la clasificación Elo.",
+  "gamesHint": "Ajedrez: partidas rápidas, torneos, encuentros por equipos"
 }

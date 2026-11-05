@@ -557,4 +557,114 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get firstMoveTeam => 'النقلة الأولى: 5 د';
+
+  @override
+  String get games => 'الألعاب';
+
+  @override
+  String get gamesIntro =>
+      'العب مع مجتمعك: مباريات سريعة وبطولات ومواجهات بين المجموعات.';
+
+  @override
+  String get chessCardText =>
+      'تصنيف Elo وبطولات أسبوعية وشهرية ومواجهات فرق بين المجموعات وميداليات.';
+
+  @override
+  String get playChess => 'العب الشطرنج';
+
+  @override
+  String blitzRating(int rating) {
+    return 'خاطف $rating';
+  }
+
+  @override
+  String nextArena(String time) {
+    return 'البطولة القادمة: $time';
+  }
+
+  @override
+  String invitesWaiting(int count) {
+    return '$count دعوة بانتظارك';
+  }
+
+  @override
+  String get playOnline => 'العب عبر الإنترنت';
+
+  @override
+  String findOpponent(String tc) {
+    return 'ابحث عن خصم · $tc';
+  }
+
+  @override
+  String get challengeFriendHint => 'اختر الوقت واللون';
+
+  @override
+  String get leaderboardHint => 'ترتيب Elo والميداليات';
+
+  @override
+  String openTeamMatches(int count) {
+    return '$count مواجهة مفتوحة';
+  }
+
+  @override
+  String get appearance => 'الرقعة والقطع';
+
+  @override
+  String get boardTheme => 'الرقعة';
+
+  @override
+  String get pieceSet => 'القطع';
+
+  @override
+  String get boardWood => 'خشب';
+
+  @override
+  String get boardGreen => 'أخضر';
+
+  @override
+  String get boardBlue => 'أزرق';
+
+  @override
+  String get boardSlate => 'رمادي';
+
+  @override
+  String get boardLilac => 'بنفسجي GWAY';
+
+  @override
+  String get piecesClassic => 'كلاسيكي';
+
+  @override
+  String get piecesCeltic => 'سلتي';
+
+  @override
+  String get piecesSpatial => 'فضائي';
+
+  @override
+  String get piecesFantasy => 'خيالي';
+
+  @override
+  String get piecesModern => 'عصري';
+
+  @override
+  String get piecesWarm => 'دافئ';
+
+  @override
+  String get firstPosition => 'البداية';
+
+  @override
+  String get previousMove => 'النقلة السابقة';
+
+  @override
+  String get nextMove => 'النقلة التالية';
+
+  @override
+  String get lastPosition => 'الوضع الحالي';
+
+  @override
+  String get backToLive => 'العودة إلى المباشر';
+
+  @override
+  String pointsShort(int points) {
+    return '$points نقطة';
+  }
 }

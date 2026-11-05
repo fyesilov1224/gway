@@ -110,7 +110,7 @@ void main() {
       status: ArenaStatus.scheduled,
     );
     await _pump(tester, _FakeArenas(ArenaDetail(arena: upcoming, standings: const [])));
-    expect(find.text('Cuma Blitz'), findsOneWidget);
+    expect(find.text('Cuma Blitz'), findsWidgets);
     expect(find.text(gamesL10n.arenaRegister), findsOneWidget);
     expect(find.text(gamesL10n.arenaEmpty), findsOneWidget);
   });

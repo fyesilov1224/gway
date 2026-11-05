@@ -336,4 +336,7 @@ class SocialAppL10nEn extends SocialAppL10n {
   @override
   String get chessHint =>
       'Quick games, challenge friends, climb the Elo leaderboard.';
+
+  @override
+  String get gamesHint => 'Chess: quick games, tournaments, team matches';
 }

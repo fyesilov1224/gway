@@ -1,8 +1,16 @@
 import '../domain/chess.dart';
 
+/// The games list (docs/ARCHITECTURE.md §3i): every game has its card there.
+abstract final class GamesRoutes {
+  static const hub = '/games';
+}
+
 abstract final class ChessRoutes {
   static const home = '/games/chess';
   static const leaderboard = '/games/chess/leaderboard';
+
+  /// The leaderboard on its groups tab.
+  static const leaderboardGroups = '/games/chess/leaderboard?c=groups';
   static const seekPath = '/games/chess/seek';
 
   static String game(String id) => '/games/chess/g/$id';

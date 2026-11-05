@@ -306,4 +306,8 @@ class SocialAppL10nAz extends SocialAppL10n {
   @override
   String get chessHint =>
       'Sürətli oyunlar, dostlarını dəvət et, Elo sıralamasında yüksəl.';
+
+  @override
+  String get gamesHint =>
+      'Şahmat: sürətli oyunlar, turnirlər, komanda matçları';
 }

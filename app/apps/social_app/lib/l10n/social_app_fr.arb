@@ -91,5 +91,6 @@
   "showGroupsHint": "Désactivé, seuls les membres d'un groupe voient que tu en fais partie ; les admins d'autres groupes ne le voient pas.",
   "language": "Langue",
   "games": "Jeux",
-  "chessHint": "Parties rapides, défis entre amis, grimpe au classement Elo."
+  "chessHint": "Parties rapides, défis entre amis, grimpe au classement Elo.",
+  "gamesHint": "Échecs : parties rapides, tournois, matchs par équipes"
 }
