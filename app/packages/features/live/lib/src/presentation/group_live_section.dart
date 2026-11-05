@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/live.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 
@@ -42,7 +43,7 @@ class GroupLiveSection extends ConsumerWidget {
           if (canStart && data.live == null) ...[
             const SizedBox(height: GwSpacing.sm),
             GwLiveButton(
-              label: 'Yayın başlat',
+              label: liveL10n.startLive,
               expand: true,
               onPressed: () => showStartLiveSheet(context, groupId: groupId, minutesLeft: data.minutesLeft),
             ),
@@ -82,12 +83,12 @@ class _LiveNowCard extends StatelessWidget {
                     const SizedBox(height: GwSpacing.xxs),
                     Text(broadcast.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.titleSmall),
                     if (host != null)
-                      Text('${host.displayName} sunuyor', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                      Text(liveL10n.hostedBy(host.displayName), style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                   ],
                 ),
               ),
               const SizedBox(width: GwSpacing.sm),
-              GwButton(label: 'Katıl', icon: Icons.headphones_rounded, onPressed: () => context.push(LiveRoutes.room(broadcast.id))),
+              GwButton(label: liveL10n.join, icon: Icons.headphones_rounded, onPressed: () => context.push(LiveRoutes.room(broadcast.id))),
             ],
           ),
         ),
@@ -150,22 +151,22 @@ class _ScheduledTileState extends ConsumerState<_ScheduledTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(b.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
-                Text('Yaklaşan · ${formatDateTime(b.scheduledAt!)}',
+                Text(liveL10n.upcomingAt(formatDateTime(b.scheduledAt!)),
                     style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
               ],
             ),
           ),
           if (widget.isHost) ...[
             TextButton(
-              onPressed: _busy ? null : () => _run((r) => r.cancel(b.id), done: 'Planlı yayın iptal edildi.'),
-              child: const Text('İptal'),
+              onPressed: _busy ? null : () => _run((r) => r.cancel(b.id), done: liveL10n.scheduledCanceled),
+              child: Text(liveL10n.cancel),
             ),
             if (b.canStartAt(DateTime.now()))
               TextButton(
                 onPressed: _busy
                     ? null
                     : () => _run((r) => r.startScheduled(b.id), onDone: () => context.push(LiveRoutes.room(b.id))),
-                child: const Text('Başlat'),
+                child: Text(liveL10n.start),
               ),
           ] else
             TextButton.icon(
@@ -173,11 +174,11 @@ class _ScheduledTileState extends ConsumerState<_ScheduledTile> {
                   ? null
                   : () => _run(
                         (r) => r.setReminder(b.id, on: !_reminded),
-                        done: _reminded ? 'Hatırlatma kaldırıldı.' : 'Yayın başlayınca haber vereceğiz.',
+                        done: _reminded ? liveL10n.reminderRemoved : liveL10n.reminderSet,
                         onDone: () => setState(() => _reminded = !_reminded),
                       ),
               icon: Icon(_reminded ? Icons.notifications_active : Icons.notifications_none),
-              label: Text(_reminded ? 'Hatırlatılacak' : 'Hatırlat'),
+              label: Text(_reminded ? liveL10n.reminding : liveL10n.remind),
             ),
         ],
       ),
@@ -236,7 +237,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     if (_later && _at.isBefore(DateTime.now().add(const Duration(minutes: 5)))) {
-      setState(() => _error = 'Planlı yayın en az 5 dakika sonraya olmalı.');
+      setState(() => _error = liveL10n.schedule5min);
       return;
     }
     setState(() {
@@ -252,7 +253,7 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
         ref.invalidate(groupLiveProvider(widget.groupId));
         Navigator.of(context).pop();
         if (_later) {
-          _snack(context, 'Yayın planlandı. Üyeler hatırlatma isteyebilir.');
+          _snack(context, liveL10n.scheduled);
         } else {
           unawaited(context.push(LiveRoutes.room(value)));
         }
@@ -278,23 +279,23 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Canlı yayın', style: textTheme.titleLarge),
+            Text(liveL10n.liveBroadcast, style: textTheme.titleLarge),
             const SizedBox(height: GwSpacing.xxs),
-            Text('Grup üyeleri sesli odaya katılır; sahneye aldıkların konuşur.',
+            Text(liveL10n.liveIntro,
                 style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
             const SizedBox(height: GwSpacing.md),
             TextFormField(
               controller: _title,
               maxLength: 80,
               textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(labelText: 'Başlık', hintText: 'Ör. Pazar yürüyüşü planı'),
-              validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
+              decoration: InputDecoration(labelText: liveL10n.title, hintText: liveL10n.titleExample),
+              validator: (v) => (v ?? '').trim().length < 3 ? liveL10n.titleMin3 : null,
             ),
             const SizedBox(height: GwSpacing.xs),
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Şimdi'), icon: Icon(Icons.podcasts)),
-                ButtonSegment(value: true, label: Text('Planla'), icon: Icon(Icons.event_outlined)),
+              segments: [
+                ButtonSegment(value: false, label: Text(liveL10n.now), icon: const Icon(Icons.podcasts)),
+                ButtonSegment(value: true, label: Text(liveL10n.scheduleIt), icon: const Icon(Icons.event_outlined)),
               ],
               selected: {_later},
               onSelectionChanged: (s) => setState(() => _later = s.first),
@@ -311,17 +312,17 @@ class _StartLiveSheetState extends ConsumerState<_StartLiveSheet> {
               const SizedBox(height: GwSpacing.sm),
               Text(
                 minutes > 0
-                    ? 'Bu ay kalan canlı yayın süren: ${formatCount(minutes)} dakika.'
-                    : 'Bu ayın canlı yayın süresi doldu. Daha fazlası için paketini yükseltebilirsin.',
+                    ? liveL10n.minutesLeft(minutes)
+                    : liveL10n.minutesUsedUp,
                 style: textTheme.bodyMedium?.copyWith(color: minutes > 0 ? GwColors.textSecondary : GwColors.error),
               ),
             ],
             if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
             const SizedBox(height: GwSpacing.md),
             if (_later)
-              GwButton(label: 'Planla', icon: Icons.event_available_outlined, isLoading: _busy, expand: true, onPressed: _submit)
+              GwButton(label: liveL10n.scheduleIt, icon: Icons.event_available_outlined, isLoading: _busy, expand: true, onPressed: _submit)
             else
-              GwLiveButton(label: 'Yayını başlat', expand: true, onPressed: _busy || noMinutes ? null : _submit),
+              GwLiveButton(label: liveL10n.startTheLive, expand: true, onPressed: _busy || noMinutes ? null : _submit),
           ],
         ),
       ),

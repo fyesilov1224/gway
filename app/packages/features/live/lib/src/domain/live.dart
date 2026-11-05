@@ -1,5 +1,7 @@
 import 'package:core/core.dart';
 
+import '../l10n.dart';
+
 enum LiveStatus {
   scheduled('scheduled'),
   live('live'),
@@ -15,14 +17,19 @@ enum LiveStatus {
 
 /// Who someone is in a room; kept in their LiveKit attributes by the server (docs/ARCHITECTURE.md §8).
 enum LiveRole {
-  host('host', 'Sunucu'),
-  speaker('speaker', 'Konuşmacı'),
-  listener('listener', 'Dinleyici');
+  host('host'),
+  speaker('speaker'),
+  listener('listener');
 
-  const LiveRole(this.code, this.label);
+  const LiveRole(this.code);
 
   final String code;
-  final String label;
+
+  String get label => switch (this) {
+        host => liveL10n.roleHost,
+        speaker => liveL10n.roleSpeaker,
+        listener => liveL10n.roleListener,
+      };
 
   bool get onStage => this != listener;
 

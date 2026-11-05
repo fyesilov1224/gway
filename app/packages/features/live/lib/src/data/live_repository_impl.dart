@@ -4,17 +4,19 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/live.dart';
+import '../l10n.dart';
 
 /// Trigger codes users can run into (docs/ARCHITECTURE.md §8).
-const _rules = {
-  'comment_rate_limited': 'Kısa sürede çok fazla yorum yazdın. Biraz bekleyip tekrar dene.',
-  'muted': 'Bu grupta susturulduğun için yayında yalnızca dinleyebilirsin.',
+// A getter, so the messages follow the app language.
+Map<String, String> get _rules => {
+  'comment_rate_limited': liveL10n.commentRate,
+  'muted': liveL10n.mutedListenOnly,
 };
 
 Failure _failure(Object error) => switch (error) {
       Failure() => error,
       PostgrestException(code: 'P0001', :final message) when _rules.containsKey(message) => RuleFailure('live.$message', _rules[message]!),
-      PostgrestException(code: '42501') => const RuleFailure('live.cannot_comment', 'Bu yayına şu anda yorum yazamazsın.'),
+      PostgrestException(code: '42501') => RuleFailure('live.cannot_comment', liveL10n.cannotComment),
       _ => failureFromSupabase(error),
     };
 

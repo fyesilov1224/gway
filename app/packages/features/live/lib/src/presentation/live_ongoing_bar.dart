@@ -2,6 +2,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n.dart';
 import 'live_session.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -58,7 +59,7 @@ class _Strip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
-    final title = ref.watch(liveBroadcastProvider(session.broadcastId)).value?.title ?? 'Canlı yayın';
+    final title = ref.watch(liveBroadcastProvider(session.broadcastId)).value?.title ?? liveL10n.liveBroadcast;
     final connecting = session.state == LiveSessionState.connecting;
     final me = session.me;
     final onStage = me != null && me.role.onStage;
@@ -73,7 +74,7 @@ class _Strip extends ConsumerWidget {
             Expanded(
               child: Semantics(
                 button: true,
-                label: 'Canlı yayındasın: $title. Yayına dönmek için dokun.',
+                label: liveL10n.youAreLive(title),
                 excludeSemantics: true,
                 child: InkWell(
                   onTap: onOpen,
@@ -92,7 +93,7 @@ class _Strip extends ConsumerWidget {
                               children: [
                                 Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelLarge),
                                 Text(
-                                  connecting ? 'Yayına bağlanılıyor…' : 'Yayındasın · dönmek için dokun',
+                                  connecting ? liveL10n.connecting : liveL10n.inBroadcast,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary),
@@ -113,10 +114,10 @@ class _Strip extends ConsumerWidget {
               Semantics(
                 button: true,
                 label: me.mutedByModerator
-                    ? 'Mikrofonunu yönetici kapattı'
+                    ? liveL10n.micMutedByMod
                     : me.micOn
-                        ? 'Mikrofonu kapat'
-                        : 'Mikrofonu aç',
+                        ? liveL10n.micOff
+                        : liveL10n.micOn,
                 excludeSemantics: true,
                 child: IconButton(
                   onPressed: me.mutedByModerator ? null : () => _mic(context, !me.micOn),

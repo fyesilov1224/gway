@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/live.dart';
+import '../l10n.dart';
 import 'live_session.dart';
 import 'providers.dart';
 
@@ -33,10 +34,10 @@ class LiveRoomScreen extends ConsumerWidget {
       AsyncData(:final value) when value.isLive => _Room(broadcast: value),
       AsyncData(:final value) => _Closed(
           message: value.status == LiveStatus.scheduled
-              ? 'Bu yayın ${formatDateTime(value.scheduledAt!)} tarihinde başlayacak.'
-              : 'Bu yayın sona erdi.',
+              ? liveL10n.startsOn(formatDateTime(value.scheduledAt!))
+              : liveL10n.ended,
         ),
-      AsyncError(error: NotFoundFailure()) => const _Closed(message: 'Bu yayın bulunamadı. Grubun üyesi olman gerekiyor olabilir.'),
+      AsyncError(error: NotFoundFailure()) => _Closed(message: liveL10n.notFound),
       AsyncError(:final error) => Scaffold(
           appBar: AppBar(),
           body: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(liveBroadcastProvider(broadcastId))),
@@ -58,7 +59,7 @@ class _Closed extends StatelessWidget {
         body: GwEmptyState(
           icon: icon,
           message: message,
-          actionLabel: 'Geri dön',
+          actionLabel: liveL10n.goBack,
           onAction: () => context.canPop() ? context.pop() : context.go('/'),
         ),
       );
@@ -111,7 +112,7 @@ class _RoomState extends ConsumerState<_Room> {
   void _onSession() {
     final role = _session.me?.role;
     if (role != null && _lastRole != null && role != _lastRole && mounted) {
-      _snack(context, role.onStage ? 'Sahneye alındın. Mikrofonunu açarak konuşabilirsin.' : 'Artık dinleyicisin.');
+      _snack(context, role.onStage ? liveL10n.onStageNow : liveL10n.nowListener);
     }
     _lastRole = role ?? _lastRole;
   }
@@ -153,11 +154,11 @@ class _RoomState extends ConsumerState<_Room> {
         context: context,
         builder: (context) => AlertDialog(
           shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-          title: const Text('Yayından çık'),
-          content: const Text('Yayını herkes için bitirebilirsin. Yalnızca ayrılırsan yayın 2 dakika sonra kendiliğinden biter.'),
+          title: Text(liveL10n.leaveBroadcast),
+          content: Text(liveL10n.leaveHostBody),
           actions: [
-            GwButton(label: 'Yalnızca ayrıl', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-            GwButton(label: 'Yayını bitir', onPressed: () => Navigator.of(context).pop(true)),
+            GwButton(label: liveL10n.justLeave, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+            GwButton(label: liveL10n.endBroadcast, onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
       );
@@ -190,11 +191,11 @@ class _RoomState extends ConsumerState<_Room> {
                 }, color: a == LiveAction.kick ? GwColors.error : null),
                 title: Text(
                   switch (a) {
-                    LiveAction.inviteToStage => 'Sahneye al',
-                    LiveAction.removeFromStage => 'Sahneden indir',
-                    LiveAction.mute => 'Mikrofonunu kapat',
-                    LiveAction.unmute => 'Mikrofonunu aç',
-                    LiveAction.kick => 'Yayından çıkar',
+                    LiveAction.inviteToStage => liveL10n.inviteToStage,
+                    LiveAction.removeFromStage => liveL10n.removeFromStage,
+                    LiveAction.mute => liveL10n.muteMic,
+                    LiveAction.unmute => liveL10n.unmuteMic,
+                    LiveAction.kick => liveL10n.kick,
                   },
                   style: a == LiveAction.kick ? const TextStyle(color: GwColors.error) : null,
                 ),
@@ -210,11 +211,11 @@ class _RoomState extends ConsumerState<_Room> {
         context: context,
         builder: (context) => AlertDialog(
           shape: const RoundedRectangleBorder(borderRadius: GwRadius.xlAll),
-          title: const Text('Yayından çıkar'),
-          content: Text('${seat.name} bu yayına bir daha giremez.'),
+          title: Text(liveL10n.kick),
+          content: Text(liveL10n.kickBody(seat.name)),
           actions: [
-            GwButton(label: 'Vazgeç', variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
-            GwButton(label: 'Çıkar', onPressed: () => Navigator.of(context).pop(true)),
+            GwButton(label: liveL10n.cancelAction, variant: GwButtonVariant.text, onPressed: () => Navigator.of(context).pop(false)),
+            GwButton(label: liveL10n.remove, onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
       );
@@ -236,7 +237,7 @@ class _RoomState extends ConsumerState<_Room> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              ListTile(title: Text('El kaldıranlar', style: Theme.of(context).textTheme.titleMedium)),
+              ListTile(title: Text(liveL10n.raisedHands, style: Theme.of(context).textTheme.titleMedium)),
               for (final s in hands)
                 ListTile(
                   leading: GwAvatar(name: s.name, imageUrl: s.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
@@ -246,7 +247,7 @@ class _RoomState extends ConsumerState<_Room> {
                       Navigator.of(context).pop();
                       unawaited(_result(_repo.inviteToStage(_id, s.id)));
                     },
-                    child: const Text('Sahneye al'),
+                    child: Text(liveL10n.inviteToStage),
                   ),
                 ),
             ],
@@ -271,7 +272,7 @@ class _RoomState extends ConsumerState<_Room> {
     return result is Ok;
   }
 
-  void _deleteComment(LiveComment c) => unawaited(_result(_repo.deleteComment(_id, c), done: 'Yorum silindi.'));
+  void _deleteComment(LiveComment c) => unawaited(_result(_repo.deleteComment(_id, c), done: liveL10n.commentDeleted));
 
   @override
   Widget build(BuildContext context) {
@@ -285,13 +286,13 @@ class _RoomState extends ConsumerState<_Room> {
       builder: (context, _) {
         switch (_session.state) {
           case LiveSessionState.ended:
-            return const _Closed(message: 'Yayın sona erdi. Katıldığın için teşekkürler.');
+            return _Closed(message: liveL10n.thanksForJoining);
           case LiveSessionState.kicked:
-            return const _Closed(message: 'Bu yayından çıkarıldın.', icon: Icons.block);
+            return _Closed(message: liveL10n.youWereKicked, icon: Icons.block);
           case LiveSessionState.failed:
             return Scaffold(
               appBar: AppBar(),
-              body: GwErrorState(message: _session.errorMessage ?? 'Yayına bağlanılamadı.', onRetry: _session.connect),
+              body: GwErrorState(message: _session.errorMessage ?? liveL10n.connectFailedShort, onRetry: _session.connect),
             );
           case LiveSessionState.connecting:
             return Scaffold(
@@ -300,7 +301,7 @@ class _RoomState extends ConsumerState<_Room> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const CircularProgressIndicator(),
                   const SizedBox(height: GwSpacing.md),
-                  Text('Yayına bağlanılıyor…', style: textTheme.bodyLarge),
+                  Text(liveL10n.connecting, style: textTheme.bodyLarge),
                 ]),
               ),
             );
@@ -327,13 +328,13 @@ class _RoomState extends ConsumerState<_Room> {
                   child: ListTile(
                     shape: const RoundedRectangleBorder(borderRadius: GwRadius.lgAll),
                     leading: const Text('✋', style: TextStyle(fontSize: GwSpacing.lg)),
-                    title: Text('${hands.length} kişi el kaldırdı', style: textTheme.labelLarge),
+                    title: Text(liveL10n.handsRaised(hands.length), style: textTheme.labelLarge),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => _showHands(hands),
                   ),
                 ),
               ),
-            Text('Sahnede', style: textTheme.titleSmall),
+            Text(liveL10n.onStage, style: textTheme.titleSmall),
             const SizedBox(height: GwSpacing.sm),
             Wrap(
               spacing: GwSpacing.md,
@@ -344,10 +345,10 @@ class _RoomState extends ConsumerState<_Room> {
               ],
             ),
             const SizedBox(height: GwSpacing.lg),
-            Text('Dinleyiciler · ${formatCount(listeners.length)}', style: textTheme.titleSmall),
+            Text(liveL10n.listeners(listeners.length), style: textTheme.titleSmall),
             const SizedBox(height: GwSpacing.sm),
             if (listeners.isEmpty)
-              Text('Henüz dinleyici yok.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
+              Text(liveL10n.noListeners, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
             else
               Wrap(
                 spacing: GwSpacing.sm,
@@ -361,7 +362,7 @@ class _RoomState extends ConsumerState<_Room> {
 
         return Scaffold(
           appBar: AppBar(
-            leading: IconButton(tooltip: 'Küçült, yayında kal', icon: const Icon(Icons.keyboard_arrow_down_rounded), onPressed: _close),
+            leading: IconButton(tooltip: liveL10n.minimize, icon: const Icon(Icons.keyboard_arrow_down_rounded), onPressed: _close),
             titleSpacing: 0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,14 +376,14 @@ class _RoomState extends ConsumerState<_Room> {
               const SizedBox(width: GwSpacing.xs),
               _Elapsed(since: b.startedAt ?? DateTime.now()),
               const SizedBox(width: GwSpacing.sm),
-              Icon(Icons.headphones_rounded, size: GwSpacing.md, color: GwColors.textSecondary, semanticLabel: '${seats.length} kişi'),
+              Icon(Icons.headphones_rounded, size: GwSpacing.md, color: GwColors.textSecondary, semanticLabel: liveL10n.peopleCount(seats.length)),
               const SizedBox(width: GwSpacing.xxs),
               Text(formatCount(seats.length), style: textTheme.labelMedium),
               if (manager)
                 PopupMenuButton<void>(
-                  tooltip: 'Yayın seçenekleri',
+                  tooltip: liveL10n.broadcastOptions,
                   itemBuilder: (_) => [
-                    PopupMenuItem(onTap: () => _result(_repo.end(_id)), child: const Text('Yayını herkes için bitir')),
+                    PopupMenuItem(onTap: () => _result(_repo.end(_id)), child: Text(liveL10n.endForAll)),
                   ],
                 )
               else
@@ -416,7 +417,7 @@ class _RoomState extends ConsumerState<_Room> {
               final error = await _session.setMicrophone(on);
               if (error != null && context.mounted) _snack(context, error);
             },
-            onHand: (raise) => _result(_repo.setHand(_id, raised: raise), done: raise ? 'Elini kaldırdın. Sunucu seni sahneye alabilir.' : null),
+            onHand: (raise) => _result(_repo.setHand(_id, raised: raise), done: raise ? liveL10n.handRaised : null),
             onLeaveStage: () => _result(_repo.removeFromStage(_id, me!.id)),
             onComments: wide ? null : () => _openComments(manager),
             onLeave: () => _leave(isHost: isHost),
@@ -456,11 +457,11 @@ class _SeatTile extends StatelessWidget {
     final width = size.dimension + GwSpacing.lg;
     final micOff = seat.role.onStage && (!seat.micOn || seat.mutedByModerator);
     final status = [
-      if (seat.isMe) 'Sen' else seat.name,
+      if (seat.isMe) liveL10n.you else seat.name,
       seat.role.label,
-      if (seat.speaking) 'konuşuyor',
-      if (micOff) 'mikrofon kapalı',
-      if (seat.handRaisedAt != null) 'el kaldırdı',
+      if (seat.speaking) liveL10n.speaking,
+      if (micOff) liveL10n.micOffState,
+      if (seat.handRaisedAt != null) liveL10n.handUp,
     ].join(', ');
 
     return Semantics(
@@ -510,7 +511,7 @@ class _SeatTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: GwSpacing.xxs),
-              Text(seat.isMe ? 'Sen' : seat.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
+              Text(seat.isMe ? liveL10n.you : seat.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: textTheme.labelMedium),
               if (seat.role != LiveRole.listener)
                 Text(seat.role.label, style: textTheme.labelSmall?.copyWith(color: seat.role == LiveRole.host ? GwColors.primary : GwColors.textSecondary)),
             ],
@@ -565,7 +566,7 @@ class _ControlBar extends StatelessWidget {
                     children: [
                       for (final e in LiveReactions.emojis)
                         IconButton(
-                          tooltip: 'Tepki gönder',
+                          tooltip: liveL10n.sendReaction,
                           onPressed: () => onReaction(e),
                           icon: Text(e, style: const TextStyle(fontSize: GwSpacing.lg)),
                         ),
@@ -574,27 +575,27 @@ class _ControlBar extends StatelessWidget {
                 ),
               Row(
                 children: [
-                  GwButton(label: 'Ayrıl', variant: GwButtonVariant.secondary, onPressed: onLeave),
+                  GwButton(label: liveL10n.leave, variant: GwButtonVariant.secondary, onPressed: onLeave),
                   const Spacer(),
                   if (onStage && me!.role == LiveRole.speaker)
-                    IconButton(tooltip: 'Sahneden in', icon: const Icon(Icons.voice_over_off_outlined), onPressed: onLeaveStage),
+                    IconButton(tooltip: liveL10n.leaveStage, icon: const Icon(Icons.voice_over_off_outlined), onPressed: onLeaveStage),
                   IconButton(
-                    tooltip: 'Tepkiler',
+                    tooltip: liveL10n.reactions,
                     isSelected: showEmojis,
                     icon: const Icon(Icons.add_reaction_outlined),
                     selectedIcon: const Icon(Icons.add_reaction),
                     onPressed: onToggleEmojis,
                   ),
                   if (onComments != null)
-                    IconButton(tooltip: 'Yorumlar', icon: const Icon(Icons.chat_bubble_outline_rounded), onPressed: onComments),
+                    IconButton(tooltip: liveL10n.comments, icon: const Icon(Icons.chat_bubble_outline_rounded), onPressed: onComments),
                   const SizedBox(width: GwSpacing.xs),
                   if (onStage)
                     IconButton.filled(
                       tooltip: me!.mutedByModerator
-                          ? 'Mikrofonunu yönetici kapattı'
+                          ? liveL10n.micMutedByMod
                           : me.micOn
-                              ? 'Mikrofonu kapat'
-                              : 'Mikrofonu aç',
+                              ? liveL10n.micOff
+                              : liveL10n.micOn,
                       style: IconButton.styleFrom(
                         backgroundColor: me.micOn ? GwColors.primary : GwColors.surfaceMuted,
                         foregroundColor: me.micOn ? GwColors.onPrimary : GwColors.textPrimary,
@@ -605,7 +606,7 @@ class _ControlBar extends StatelessWidget {
                     )
                   else
                     IconButton.filledTonal(
-                      tooltip: me?.handRaisedAt == null ? 'El kaldır' : 'Elini indir',
+                      tooltip: me?.handRaisedAt == null ? liveL10n.raiseHand : liveL10n.lowerHand,
                       style: IconButton.styleFrom(minimumSize: const Size.square(GwSpacing.buttonHeight)),
                       onPressed: me == null ? null : () => onHand(me.handRaisedAt == null),
                       icon: Text(me?.handRaisedAt == null ? '✋' : '👇', style: const TextStyle(fontSize: GwSpacing.lg)),
@@ -720,13 +721,13 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
             if (!mine)
               ListTile(
                 leading: const Icon(Icons.flag_outlined),
-                title: const Text('Şikayet et'),
+                title: Text(liveL10n.report),
                 onTap: () => Navigator.of(context).pop(false),
               ),
             if (mine || widget.manager)
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: GwColors.error),
-                title: const Text('Yorumu sil', style: TextStyle(color: GwColors.error)),
+                title: Text(liveL10n.deleteComment, style: const TextStyle(color: GwColors.error)),
                 onTap: () => Navigator.of(context).pop(true),
               ),
           ],
@@ -745,7 +746,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xs),
-          child: Row(children: [Text('Yorumlar', style: textTheme.titleSmall)]),
+          child: Row(children: [Text(liveL10n.comments, style: textTheme.titleSmall)]),
         ),
         Expanded(
           child: ValueListenableBuilder(
@@ -754,7 +755,7 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(GwSpacing.lg),
-                      child: Text('İlk yorumu sen yaz.', style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+                      child: Text(liveL10n.firstComment, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
                     ),
                   )
                 : ListView.builder(
@@ -802,10 +803,10 @@ class _CommentsPanelState extends ConsumerState<_CommentsPanel> {
                   maxLines: 3,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _send(),
-                  decoration: const InputDecoration(hintText: 'Yorum yaz…', counterText: ''),
+                  decoration: InputDecoration(hintText: liveL10n.writeComment, counterText: ''),
                 ),
               ),
-              IconButton(tooltip: 'Gönder', onPressed: _sending ? null : _send, icon: const Icon(Icons.send_rounded, color: GwColors.primary)),
+              IconButton(tooltip: liveL10n.send, onPressed: _sending ? null : _send, icon: const Icon(Icons.send_rounded, color: GwColors.primary)),
             ],
           ),
         ),
