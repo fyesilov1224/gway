@@ -665,4 +665,617 @@ class EventsL10nAr extends EventsL10n {
 
   @override
   String get mapUnavailable => 'الخريطة غير متاحة حاليًا.';
+
+  @override
+  String get pollClosedShort => 'مغلق';
+
+  @override
+  String closesAt(String date) {
+    return 'الإغلاق: $date';
+  }
+
+  @override
+  String get multipleAllowed => 'اختيار متعدد';
+
+  @override
+  String get anonymousVote => 'تصويت سري';
+
+  @override
+  String votersCount(int count) {
+    return 'المصوّتون: $count';
+  }
+
+  @override
+  String get pollOptions => 'خيارات الاستطلاع';
+
+  @override
+  String get pollClosedToast => 'تم إغلاق الاستطلاع.';
+
+  @override
+  String get pollDeleted => 'تم حذف الاستطلاع.';
+
+  @override
+  String get closePoll => 'إغلاق الاستطلاع';
+
+  @override
+  String get deletePoll => 'حذف الاستطلاع';
+
+  @override
+  String get vote => 'تصويت';
+
+  @override
+  String get voteSaved => 'تم حفظ صوتك.';
+
+  @override
+  String get voters => 'المصوّتون';
+
+  @override
+  String peopleCount(int count) {
+    return 'الأشخاص: $count';
+  }
+
+  @override
+  String get polls => 'الاستطلاعات';
+
+  @override
+  String get openPoll => 'إنشاء استطلاع';
+
+  @override
+  String get pollsEmpty => 'اطرح سؤالًا على الأعضاء، مثل: في أي يوم نلتقي؟';
+
+  @override
+  String get pollOpened => 'تم إنشاء الاستطلاع.';
+
+  @override
+  String get question => 'السؤال';
+
+  @override
+  String get questionExample => 'مثال: في أي يوم نلتقي؟';
+
+  @override
+  String get questionMin3 => 'يجب أن يتكوّن السؤال من 3 أحرف على الأقل.';
+
+  @override
+  String optionN(int n) {
+    return 'الخيار $n';
+  }
+
+  @override
+  String get removeOption => 'إزالة الخيار';
+
+  @override
+  String get optionRequired => 'اكتب الخيار أو أزِله.';
+
+  @override
+  String get addOption => 'إضافة خيار';
+
+  @override
+  String get allowMultiple => 'السماح باختيارات متعددة';
+
+  @override
+  String get anonymousHint => 'لا يرى أحد من صوّت لماذا.';
+
+  @override
+  String get noEndTime => 'بلا وقت انتهاء';
+
+  @override
+  String get add => 'إضافة';
+
+  @override
+  String get removeEndTime => 'إزالة وقت الانتهاء';
+
+  @override
+  String get startPoll => 'إنشاء الاستطلاع';
+
+  @override
+  String get cardFooter => 'gway · اعثر على مجتمعك';
+
+  @override
+  String myYear(int year) {
+    return 'عامي $year';
+  }
+
+  @override
+  String get statAttended => 'فعالية حضرتها';
+
+  @override
+  String get statHours => 'ساعة معًا';
+
+  @override
+  String get statOneGroup => 'مجموعة التقيتها';
+
+  @override
+  String get statGroups => 'مجموعات مختلفة';
+
+  @override
+  String get statProvinces => 'محافظات مختلفة';
+
+  @override
+  String get statOrganized => 'فعالية نظّمتها';
+
+  @override
+  String get statWelcomed => 'قادمًا جديدًا استقبلته';
+
+  @override
+  String get statMemories => 'ذكرى شاركتها';
+
+  @override
+  String get favorites => 'المفضّلة لديّ';
+
+  @override
+  String get topGroup => 'المجموعة التي قضيت معها أكثر وقت';
+
+  @override
+  String topGroupLine(String group, int count) {
+    return '$group · اللقاءات: $count';
+  }
+
+  @override
+  String get iWasThere => 'كنت هناك';
+
+  @override
+  String get firstWithGroup => 'أول فعالية لي مع هذه المجموعة.';
+
+  @override
+  String nthWithGroup(int n) {
+    return 'فعاليتي رقم $n مع هذه المجموعة.';
+  }
+
+  @override
+  String get shareFailed =>
+      'تعذّرت المشاركة على هذا الجهاز. التقط صورة للبطاقة وشاركها.';
+
+  @override
+  String get share => 'مشاركة';
+
+  @override
+  String yearSummaryTitle(int year) {
+    return 'ملخّص عامي $year';
+  }
+
+  @override
+  String get yearEmpty =>
+      'لم تحضر أي فعالية هذا العام بعد. سيظهر ملخّصك هنا بعد أول لقاء.';
+
+  @override
+  String yearShareText(int year) {
+    return 'عامي $year على GWAY';
+  }
+
+  @override
+  String mapSemantics(int count) {
+    return 'خريطة تركيا: $count محافظة مستكشفة';
+  }
+
+  @override
+  String get explorationMap => 'خريطة استكشافي';
+
+  @override
+  String get statExplored => 'محافظة استكشفتها';
+
+  @override
+  String get statMetAt => 'فعالية التقينا فيها';
+
+  @override
+  String get recentExplored => 'آخر استكشافاتي';
+
+  @override
+  String get explorationEmpty =>
+      'تُضاء هنا محافظات الفعاليات التي تحضرها. تتلوّن خريطتك بعد أول لقاء.';
+
+  @override
+  String get findOnMap => 'ابحث عن فعاليات على الخريطة';
+
+  @override
+  String explorationShareText(int count) {
+    return 'استكشفت $count محافظة على GWAY';
+  }
+
+  @override
+  String get exploredProvinces => 'المحافظات التي استكشفتها';
+
+  @override
+  String get explorationPrivacy =>
+      'أنت وحدك ترى ذلك. تُحتسب الفعاليات التي حضرتها ولم تُعلَّم فيها بـ«لم يحضر».';
+
+  @override
+  String get tonightVisible =>
+      'سيرى أعضاء مجموعاتك المشتركة أنك متفرّغ الليلة. يتوقّف تلقائيًا الساعة 4:00.';
+
+  @override
+  String get joinedTable => 'انضممت إلى الطاولة.';
+
+  @override
+  String get declinedInvite => 'رفضت الدعوة.';
+
+  @override
+  String get yourStatus => 'حالتك';
+
+  @override
+  String get visibleUntil4 => 'أنت ظاهر حتى الساعة 4:00';
+
+  @override
+  String get notVisible => 'لست ظاهرًا الآن';
+
+  @override
+  String get youreFree => 'أنت متفرّغ';
+
+  @override
+  String get tonightIntro =>
+      'إذا كنت متفرّغًا، دع أعضاء مجموعاتك يعرفون؛ يمكنكم إنشاء طاولة صغيرة معًا.';
+
+  @override
+  String get imFreeTonight => 'أنا متفرّغ الليلة';
+
+  @override
+  String get noLongerFree => 'لم تعد تظهر متفرّغًا.';
+
+  @override
+  String get turnOffStatus => 'إيقاف الحالة';
+
+  @override
+  String get leftTable => 'غادرت الطاولة.';
+
+  @override
+  String get smallTable => 'طاولة صغيرة';
+
+  @override
+  String get smallTableHint =>
+      'ادعُ بعض المتفرّغين؛ تُفتح محادثة الطاولة عند وصول ثلاثة أشخاص.';
+
+  @override
+  String get setUpTable => 'إنشاء طاولة صغيرة';
+
+  @override
+  String tableInvitesSent(int count) {
+    return 'أُرسلت الدعوات إلى $count أشخاص. تُفتح المحادثة عند وصول ثلاثة.';
+  }
+
+  @override
+  String needMorePeople(int min, int now) {
+    return 'تحتاج الطاولة الصغيرة إلى $min متفرّغين إضافيين على الأقل من مجموعاتك (الآن $now). عندما يعلن أحدهم أنه متفرّغ يمكنك إنشاؤها هنا.';
+  }
+
+  @override
+  String freeFromGroups(int count) {
+    return 'المتفرّغون الليلة من مجموعاتك: $count';
+  }
+
+  @override
+  String get chipCoffee => 'قهوة';
+
+  @override
+  String get chipWalk => 'مشي قصير';
+
+  @override
+  String get chipFood => 'طعام';
+
+  @override
+  String get chipCinema => 'سينما';
+
+  @override
+  String get tonightSheetHint =>
+      'لا يراه إلا أعضاء مجموعاتك المشتركة. تتوقّف حالتك تلقائيًا الساعة 4:00.';
+
+  @override
+  String get whatToDo => 'ماذا تحب أن تفعل؟ (اختياري)';
+
+  @override
+  String get whatToDoHint => 'مثل: قهوة، مشي قصير';
+
+  @override
+  String get imFree => 'أنا متفرّغ';
+
+  @override
+  String get yourTable => 'طاولتك';
+
+  @override
+  String joinedCount(int count) {
+    return 'انضم: $count';
+  }
+
+  @override
+  String waitingCount(int count) {
+    return 'بالانتظار: $count';
+  }
+
+  @override
+  String get settingUp => 'قيد الإعداد';
+
+  @override
+  String get chatOpen => 'المحادثة مفتوحة';
+
+  @override
+  String get tableChat => 'محادثة الطاولة';
+
+  @override
+  String chatOpensWhen(int count) {
+    return 'تُفتح المحادثة عند انضمام $count أشخاص آخرين. تختارون هناك المكان والوقت معًا.';
+  }
+
+  @override
+  String get leaveTable => 'مغادرة الطاولة';
+
+  @override
+  String tableInviteTitle(String name) {
+    return 'أنشأ $name طاولة صغيرة ويدعوك إليها.';
+  }
+
+  @override
+  String tableInviteStatus(int joined, int pending) {
+    return 'انضم $joined · بالانتظار $pending. تُفتح المحادثة عند وصول ثلاثة.';
+  }
+
+  @override
+  String get join => 'انضمام';
+
+  @override
+  String get notTonight => 'ليس الليلة';
+
+  @override
+  String get tonight => 'الليلة';
+
+  @override
+  String get freeTonight => 'المتفرّغون الليلة';
+
+  @override
+  String get sharedGroupsOnly => 'أعضاء مجموعاتك المشتركة فقط';
+
+  @override
+  String get nobodyFree => 'لا يوجد متفرّغ من مجموعاتك الآن.';
+
+  @override
+  String get howItWorks => 'كيف يعمل؟';
+
+  @override
+  String get howStep1 => 'قل «أنا متفرّغ الليلة»، واكتب ما تودّ فعله إن شئت.';
+
+  @override
+  String get howStep2 => 'يراك أعضاء مجموعاتك وترى أنت المتفرّغين.';
+
+  @override
+  String get howStep3 =>
+      'أنشئ طاولة صغيرة؛ تُفتح المحادثة عند وصول ثلاثة وتختارون هناك المكان والوقت.';
+
+  @override
+  String get upcoming => 'القادمة';
+
+  @override
+  String get calendar => 'التقويم';
+
+  @override
+  String get noUpcomingJoined => 'لا توجد فعاليات قادمة انضممت إليها.';
+
+  @override
+  String get showAll => 'عرض الكل';
+
+  @override
+  String get noUpcoming60 =>
+      'لا توجد فعاليات لمجموعاتك خلال الأيام الستين القادمة.';
+
+  @override
+  String get findGroup => 'ابحث عن مجموعة';
+
+  @override
+  String filterAll(int count) {
+    return 'الكل · $count';
+  }
+
+  @override
+  String filterMine(int count) {
+    return 'المنضمّ إليها · $count';
+  }
+
+  @override
+  String get tomorrow => 'غدًا';
+
+  @override
+  String get going => 'ستحضر';
+
+  @override
+  String get waitlisted => 'على قائمة الانتظار';
+
+  @override
+  String get awaitingApproval => 'بانتظار الموافقة';
+
+  @override
+  String get full => 'مكتمل';
+
+  @override
+  String goingOfCapacityShort(int count, int capacity) {
+    return 'المشاركون: $count/$capacity';
+  }
+
+  @override
+  String get startingSoon => 'يبدأ قريبًا';
+
+  @override
+  String get next6Hours => 'الساعات الست القادمة';
+
+  @override
+  String get wantWelcome => 'أرغب في أن يستقبلني أحد';
+
+  @override
+  String get wantWelcomeHint =>
+      'يستقبلك أحد متطوّعي المجموعة عند المدخل؛ فلن تذهب وحدك.';
+
+  @override
+  String get noteForGreeter => 'ملاحظة ليتعرّفوا إليك (اختياري)';
+
+  @override
+  String get noteForGreeterHint => 'مثال: أرتدي سترة حمراء ومعي حقيبة زرقاء';
+
+  @override
+  String get sendRequest => 'إرسال الطلب';
+
+  @override
+  String get welcomeRequestSent =>
+      'أُرسل طلبك إلى المستقبِلين. سنُعلمك عندما يتولّاه أحدهم.';
+
+  @override
+  String get editMeetingNote => 'تعديل ملاحظة اللقاء';
+
+  @override
+  String welcomePerson(String name) {
+    return 'استقبل $name';
+  }
+
+  @override
+  String describedAs(String note) {
+    return 'وصف نفسه هكذا: $note';
+  }
+
+  @override
+  String get whereMeet => 'أين ستلتقيان؟';
+
+  @override
+  String get whereMeetHint => 'مثال: أمام المقهى عند المدخل، 8:45';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get iWillWelcome => 'سأستقبله';
+
+  @override
+  String get noteUpdated => 'تم تحديث ملاحظة اللقاء.';
+
+  @override
+  String youWillWelcome(String name) {
+    return 'ستستقبل $name؛ اطّلع على ملاحظة اللقاء.';
+  }
+
+  @override
+  String get stopWelcoming => 'التوقّف عن الاستقبال';
+
+  @override
+  String stopWelcomingBody(String name) {
+    return 'سنبحث عن مستقبِل آخر لـ$name ونُعلمه.';
+  }
+
+  @override
+  String get release => 'توقّف';
+
+  @override
+  String get releasedWelcome => 'توقّفت عن الاستقبال؛ نبحث عن مستقبِل جديد.';
+
+  @override
+  String get firstTime => 'هل تأتي لأول مرة؟';
+
+  @override
+  String greetersAvailable(int count) {
+    return 'في هذه المجموعة $count مستقبِلين. دع أحدهم يستقبلك عند المدخل ويعرّفك بالمجموعة.';
+  }
+
+  @override
+  String get youWelcomed => 'من تستقبلهم';
+
+  @override
+  String meetingAt(String note) {
+    return 'اللقاء: $note';
+  }
+
+  @override
+  String get thankedYou => 'شكرك';
+
+  @override
+  String optionsFor(String name) {
+    return 'خيارات لـ$name';
+  }
+
+  @override
+  String waitingWelcome(int count) {
+    return 'بانتظار الاستقبال ($count)';
+  }
+
+  @override
+  String matchedCount(int count) {
+    return 'وُجد مستقبِل لـ: $count';
+  }
+
+  @override
+  String get firstTimer => 'أول مرة';
+
+  @override
+  String get max3Welcomes =>
+      'يمكنك استقبال 3 أشخاص كحدّ أقصى في الفعالية الواحدة.';
+
+  @override
+  String get greeterJoinHint =>
+      'أنت مستقبِل. انضم إلى الفعالية لاستقبال القادمين لأول مرة.';
+
+  @override
+  String get lookingGreeter => 'جارٍ البحث عن مستقبِل';
+
+  @override
+  String get lookingGreeterHint =>
+      'أبلغنا مستقبِلي المجموعة. سيصلك إشعار عندما يتولّى أحدهم الأمر.';
+
+  @override
+  String yourNote(String note) {
+    return 'ملاحظتك: $note';
+  }
+
+  @override
+  String get welcomeWithdrawn => 'تم سحب طلب الاستقبال.';
+
+  @override
+  String get withdrawRequest => 'سحب الطلب';
+
+  @override
+  String get greetedBy => 'استقبلك';
+
+  @override
+  String get willGreet => 'سيستقبلك';
+
+  @override
+  String get thank => 'اشكره';
+
+  @override
+  String thankReceived(String name) {
+    return 'وصل شكرك إلى $name.';
+  }
+
+  @override
+  String get thanked => 'شكرته.';
+
+  @override
+  String get cancelWelcome => 'إلغاء الاستقبال';
+
+  @override
+  String get nowGreeter =>
+      'أصبحت مستقبِلًا. سنُعلمك عندما يطلب قادم جديد استقباله.';
+
+  @override
+  String get noLongerGreeter => 'لم تعد مستقبِلًا.';
+
+  @override
+  String get welcomeSection => 'الترحيب';
+
+  @override
+  String greetersCount(int count) {
+    return 'المستقبِلون: $count';
+  }
+
+  @override
+  String get greeterIntro =>
+      'يمكن للقادمين لأول مرة طلب الاستقبال من صفحة الفعالية. إذا صرت مستقبِلًا سيصلك إشعار، فتستقبلهم عند المدخل وتعرّفهم بالمجموعة.';
+
+  @override
+  String greeterMemberHint(int count) {
+    return 'في هذه المجموعة $count مستقبِلين. في أول فعالية لك انقر «أرغب في أن يستقبلني أحد».';
+  }
+
+  @override
+  String greeterVisitorHint(int count) {
+    return 'في هذه المجموعة $count مستقبِلين: لن تذهب وحدك إلى أول فعالية، سيستقبلك أحدهم عند المدخل.';
+  }
+
+  @override
+  String get becomeGreeter => 'كن مستقبِلًا';
+
+  @override
+  String quoted(String text) {
+    return '«$text»';
+  }
 }

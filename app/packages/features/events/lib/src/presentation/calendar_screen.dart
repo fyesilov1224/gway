@@ -59,7 +59,7 @@ String calendarTitle(CalendarView view, DateTime focus) {
   }
 }
 
-/// eventsL10n.myCalendar (no [groupId]) or a group's calendar (docs/ARCHITECTURE.md §3d, Takvim).
+/// "Takvimim" (no [groupId]) or a group's calendar (docs/ARCHITECTURE.md §3d, Takvim).
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key, this.groupId});
 

@@ -756,4 +756,669 @@ class EventsL10nPt extends EventsL10n {
 
   @override
   String get mapUnavailable => 'O mapa não está disponível no momento.';
+
+  @override
+  String get pollClosedShort => 'Encerrada';
+
+  @override
+  String closesAt(String date) {
+    return 'Encerra: $date';
+  }
+
+  @override
+  String get multipleAllowed => 'Múltipla escolha';
+
+  @override
+  String get anonymousVote => 'Votação anônima';
+
+  @override
+  String votersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count votos',
+      one: '1 voto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pollOptions => 'Opções da enquete';
+
+  @override
+  String get pollClosedToast => 'Enquete encerrada.';
+
+  @override
+  String get pollDeleted => 'Enquete excluída.';
+
+  @override
+  String get closePoll => 'Encerrar enquete';
+
+  @override
+  String get deletePoll => 'Excluir enquete';
+
+  @override
+  String get vote => 'Votar';
+
+  @override
+  String get voteSaved => 'Seu voto foi registrado.';
+
+  @override
+  String get voters => 'Votantes';
+
+  @override
+  String peopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pessoas',
+      one: '1 pessoa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get polls => 'Enquetes';
+
+  @override
+  String get openPoll => 'Criar enquete';
+
+  @override
+  String get pollsEmpty =>
+      'Faça uma pergunta aos membros, por exemplo: que dia vamos nos encontrar?';
+
+  @override
+  String get pollOpened => 'Enquete criada.';
+
+  @override
+  String get question => 'Pergunta';
+
+  @override
+  String get questionExample => 'Ex.: Que dia vamos nos encontrar?';
+
+  @override
+  String get questionMin3 => 'A pergunta deve ter pelo menos 3 caracteres.';
+
+  @override
+  String optionN(int n) {
+    return 'Opção $n';
+  }
+
+  @override
+  String get removeOption => 'Remover opção';
+
+  @override
+  String get optionRequired => 'Preencha a opção ou remova.';
+
+  @override
+  String get addOption => 'Adicionar opção';
+
+  @override
+  String get allowMultiple => 'Permitir várias opções';
+
+  @override
+  String get anonymousHint => 'Ninguém vê quem votou em quê.';
+
+  @override
+  String get noEndTime => 'Sem horário de término';
+
+  @override
+  String get add => 'Adicionar';
+
+  @override
+  String get removeEndTime => 'Remover horário de término';
+
+  @override
+  String get startPoll => 'Criar a enquete';
+
+  @override
+  String get cardFooter => 'gway · encontre sua comunidade';
+
+  @override
+  String myYear(int year) {
+    return 'Meu $year';
+  }
+
+  @override
+  String get statAttended => 'eventos que participei';
+
+  @override
+  String get statHours => 'horas juntos';
+
+  @override
+  String get statOneGroup => 'grupo com quem me encontrei';
+
+  @override
+  String get statGroups => 'grupos diferentes';
+
+  @override
+  String get statProvinces => 'províncias diferentes';
+
+  @override
+  String get statOrganized => 'eventos organizados';
+
+  @override
+  String get statWelcomed => 'novatos recebidos';
+
+  @override
+  String get statMemories => 'lembranças compartilhadas';
+
+  @override
+  String get favorites => 'Meus favoritos';
+
+  @override
+  String get topGroup => 'O grupo com quem mais estive';
+
+  @override
+  String topGroupLine(String group, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count encontros',
+      one: '1 encontro',
+    );
+    return '$group · $_temp0';
+  }
+
+  @override
+  String get iWasThere => 'Eu estava lá';
+
+  @override
+  String get firstWithGroup => 'Meu primeiro evento com este grupo.';
+
+  @override
+  String nthWithGroup(int n) {
+    return 'Meu $nº evento com este grupo.';
+  }
+
+  @override
+  String get shareFailed =>
+      'Não foi possível compartilhar neste dispositivo. Tire um print do cartão e compartilhe.';
+
+  @override
+  String get share => 'Compartilhar';
+
+  @override
+  String yearSummaryTitle(int year) {
+    return 'Minha retrospectiva $year';
+  }
+
+  @override
+  String get yearEmpty =>
+      'Você ainda não participou de eventos este ano. Seu resumo aparece aqui depois do primeiro encontro.';
+
+  @override
+  String yearShareText(int year) {
+    return 'Meu $year no GWAY';
+  }
+
+  @override
+  String mapSemantics(int count) {
+    return 'Mapa da Turquia: $count províncias exploradas';
+  }
+
+  @override
+  String get explorationMap => 'Meu mapa de exploração';
+
+  @override
+  String get statExplored => 'províncias exploradas';
+
+  @override
+  String get statMetAt => 'eventos em que nos encontramos';
+
+  @override
+  String get recentExplored => 'Descobertas recentes';
+
+  @override
+  String get explorationEmpty =>
+      'As províncias dos seus eventos acendem aqui. Seu mapa ganha cor depois do primeiro encontro.';
+
+  @override
+  String get findOnMap => 'Encontrar eventos no mapa';
+
+  @override
+  String explorationShareText(int count) {
+    return 'Explorei $count províncias no GWAY';
+  }
+
+  @override
+  String get exploredProvinces => 'Províncias exploradas';
+
+  @override
+  String get explorationPrivacy =>
+      'Só você vê isso. Contam os eventos de que participou sem marcação \"não veio\".';
+
+  @override
+  String get tonightVisible =>
+      'Quem está nos seus grupos verá que você está livre hoje à noite. Desliga sozinho às 4h.';
+
+  @override
+  String get joinedTable => 'Você entrou na mesa.';
+
+  @override
+  String get declinedInvite => 'Você recusou o convite.';
+
+  @override
+  String get yourStatus => 'Seu status';
+
+  @override
+  String get visibleUntil4 => 'Você fica visível até as 4h';
+
+  @override
+  String get notVisible => 'Você não está visível agora';
+
+  @override
+  String get youreFree => 'Você está livre';
+
+  @override
+  String get tonightIntro =>
+      'Se estiver livre, avise seus grupos; vocês podem montar uma mesinha juntos.';
+
+  @override
+  String get imFreeTonight => 'Estou livre hoje à noite';
+
+  @override
+  String get noLongerFree => 'Você não aparece mais como livre.';
+
+  @override
+  String get turnOffStatus => 'Desativar status';
+
+  @override
+  String get leftTable => 'Você saiu da mesa.';
+
+  @override
+  String get smallTable => 'Mesinha';
+
+  @override
+  String get smallTableHint =>
+      'Chame algumas pessoas livres; o chat da mesa abre quando houver três.';
+
+  @override
+  String get setUpTable => 'Montar uma mesinha';
+
+  @override
+  String tableInvitesSent(int count) {
+    return 'Convites enviados para $count pessoas. O chat abre quando houver três.';
+  }
+
+  @override
+  String needMorePeople(int min, int now) {
+    return 'Para uma mesinha, são necessárias pelo menos mais $min pessoas livres dos seus grupos (agora $now). Quando alguém estiver livre, você pode montar aqui.';
+  }
+
+  @override
+  String freeFromGroups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pessoas dos seus grupos estão livres hoje à noite',
+      one: '1 pessoa dos seus grupos está livre hoje à noite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chipCoffee => 'Café';
+
+  @override
+  String get chipWalk => 'Caminhada curta';
+
+  @override
+  String get chipFood => 'Comida';
+
+  @override
+  String get chipCinema => 'Cinema';
+
+  @override
+  String get tonightSheetHint =>
+      'Só pessoas dos seus grupos veem. Seu status desliga sozinho às 4h.';
+
+  @override
+  String get whatToDo => 'O que você quer fazer? (opcional)';
+
+  @override
+  String get whatToDoHint => 'ex.: café, caminhada curta';
+
+  @override
+  String get imFree => 'Estou livre';
+
+  @override
+  String get yourTable => 'Sua mesa';
+
+  @override
+  String joinedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entraram',
+      one: '1 entrou',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String waitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aguardando',
+      one: '1 aguardando',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingUp => 'Montando';
+
+  @override
+  String get chatOpen => 'Chat aberto';
+
+  @override
+  String get tableChat => 'Chat da mesa';
+
+  @override
+  String chatOpensWhen(int count) {
+    return 'O chat abre quando mais $count pessoas entrarem. Lá vocês escolhem juntos o lugar e o horário.';
+  }
+
+  @override
+  String get leaveTable => 'Sair da mesa';
+
+  @override
+  String tableInviteTitle(String name) {
+    return '$name montou uma mesinha e está convidando você.';
+  }
+
+  @override
+  String tableInviteStatus(int joined, int pending) {
+    return '$joined entraram · $pending aguardando. O chat abre com três pessoas.';
+  }
+
+  @override
+  String get join => 'Entrar';
+
+  @override
+  String get notTonight => 'Hoje não';
+
+  @override
+  String get tonight => 'Hoje à noite';
+
+  @override
+  String get freeTonight => 'Livres hoje à noite';
+
+  @override
+  String get sharedGroupsOnly => 'Só pessoas dos seus grupos';
+
+  @override
+  String get nobodyFree => 'Ninguém dos seus grupos está livre agora.';
+
+  @override
+  String get howItWorks => 'Como funciona?';
+
+  @override
+  String get howStep1 =>
+      'Diga \"Estou livre hoje à noite\" e, se quiser, escreva o que quer fazer.';
+
+  @override
+  String get howStep2 =>
+      'Quem está nos seus grupos vê você, e você vê quem está livre.';
+
+  @override
+  String get howStep3 =>
+      'Monte uma mesinha; o chat abre com três pessoas e lá vocês escolhem lugar e horário.';
+
+  @override
+  String get upcoming => 'Próximos';
+
+  @override
+  String get calendar => 'Agenda';
+
+  @override
+  String get noUpcomingJoined => 'Você não participa de nenhum evento próximo.';
+
+  @override
+  String get showAll => 'Mostrar tudo';
+
+  @override
+  String get noUpcoming60 =>
+      'Seus grupos não têm eventos nos próximos 60 dias.';
+
+  @override
+  String get findGroup => 'Encontrar grupo';
+
+  @override
+  String filterAll(int count) {
+    return 'Todos · $count';
+  }
+
+  @override
+  String filterMine(int count) {
+    return 'Participo · $count';
+  }
+
+  @override
+  String get tomorrow => 'Amanhã';
+
+  @override
+  String get going => 'Você vai';
+
+  @override
+  String get waitlisted => 'Na lista de espera';
+
+  @override
+  String get awaitingApproval => 'Aguardando aprovação';
+
+  @override
+  String get full => 'Lotado';
+
+  @override
+  String goingOfCapacityShort(int count, int capacity) {
+    return '$count/$capacity participantes';
+  }
+
+  @override
+  String get startingSoon => 'Começa em breve';
+
+  @override
+  String get next6Hours => 'Próximas 6 horas';
+
+  @override
+  String get wantWelcome => 'Quero ser recebido';
+
+  @override
+  String get wantWelcomeHint =>
+      'Um membro voluntário do grupo recebe você na entrada; você não vai sozinho.';
+
+  @override
+  String get noteForGreeter => 'Uma nota para reconhecerem você (opcional)';
+
+  @override
+  String get noteForGreeterHint =>
+      'Ex.: Estou de jaqueta vermelha e mochila azul';
+
+  @override
+  String get sendRequest => 'Enviar pedido';
+
+  @override
+  String get welcomeRequestSent =>
+      'Seu pedido foi enviado aos recepcionistas. Avisaremos quando alguém aceitar.';
+
+  @override
+  String get editMeetingNote => 'Editar nota de encontro';
+
+  @override
+  String welcomePerson(String name) {
+    return 'Receber $name';
+  }
+
+  @override
+  String describedAs(String note) {
+    return 'Descreveu-se assim: $note';
+  }
+
+  @override
+  String get whereMeet => 'Onde vão se encontrar?';
+
+  @override
+  String get whereMeetHint => 'Ex.: Em frente ao café da entrada, 8h45';
+
+  @override
+  String get save => 'Salvar';
+
+  @override
+  String get iWillWelcome => 'Eu recebo';
+
+  @override
+  String get noteUpdated => 'Nota de encontro atualizada.';
+
+  @override
+  String youWillWelcome(String name) {
+    return 'Você vai receber $name; a pessoa viu a nota de encontro.';
+  }
+
+  @override
+  String get stopWelcoming => 'Deixar de receber';
+
+  @override
+  String stopWelcomingBody(String name) {
+    return 'Vamos procurar outro recepcionista para $name e avisar.';
+  }
+
+  @override
+  String get release => 'Deixar';
+
+  @override
+  String get releasedWelcome =>
+      'Você deixou de receber; estamos procurando outro recepcionista.';
+
+  @override
+  String get firstTime => 'É sua primeira vez?';
+
+  @override
+  String greetersAvailable(int count) {
+    return 'Este grupo tem $count recepcionistas. Um deles pode receber você na entrada e apresentar ao grupo.';
+  }
+
+  @override
+  String get youWelcomed => 'Pessoas que você recebe';
+
+  @override
+  String meetingAt(String note) {
+    return 'Encontro: $note';
+  }
+
+  @override
+  String get thankedYou => 'Agradeceu você';
+
+  @override
+  String optionsFor(String name) {
+    return 'Opções para $name';
+  }
+
+  @override
+  String waitingWelcome(int count) {
+    return 'Aguardando recepção ($count)';
+  }
+
+  @override
+  String matchedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pessoas têm recepcionista.',
+      one: '1 pessoa tem recepcionista.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get firstTimer => 'Primeira vez';
+
+  @override
+  String get max3Welcomes => 'Você pode receber até 3 pessoas por evento.';
+
+  @override
+  String get greeterJoinHint =>
+      'Você é recepcionista. Participe do evento para receber quem vem pela primeira vez.';
+
+  @override
+  String get lookingGreeter => 'Procurando recepcionista';
+
+  @override
+  String get lookingGreeterHint =>
+      'Avisamos os recepcionistas. Você receberá uma notificação quando alguém aceitar.';
+
+  @override
+  String yourNote(String note) {
+    return 'Sua nota: $note';
+  }
+
+  @override
+  String get welcomeWithdrawn => 'Seu pedido foi retirado.';
+
+  @override
+  String get withdrawRequest => 'Retirar pedido';
+
+  @override
+  String get greetedBy => 'Recebido por';
+
+  @override
+  String get willGreet => 'Vai receber você';
+
+  @override
+  String get thank => 'Agradecer';
+
+  @override
+  String thankReceived(String name) {
+    return '$name recebeu seu agradecimento.';
+  }
+
+  @override
+  String get thanked => 'Você agradeceu.';
+
+  @override
+  String get cancelWelcome => 'Cancelar recepção';
+
+  @override
+  String get nowGreeter =>
+      'Agora você é recepcionista. Avisaremos quando alguém novo pedir para ser recebido.';
+
+  @override
+  String get noLongerGreeter => 'Você não é mais recepcionista.';
+
+  @override
+  String get welcomeSection => 'Recepção';
+
+  @override
+  String greetersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recepcionistas',
+      one: '1 recepcionista',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get greeterIntro =>
+      'Quem vem pela primeira vez pode pedir recepção na página do evento. Se você for recepcionista, será avisado; recebe na entrada e apresenta ao grupo.';
+
+  @override
+  String greeterMemberHint(int count) {
+    return 'Este grupo tem $count recepcionistas. No seu primeiro evento, toque em \"Quero ser recebido\".';
+  }
+
+  @override
+  String greeterVisitorHint(int count) {
+    return 'Este grupo tem $count recepcionistas: você não vai sozinho ao primeiro evento, alguém recebe você na entrada.';
+  }
+
+  @override
+  String get becomeGreeter => 'Ser recepcionista';
+
+  @override
+  String quoted(String text) {
+    return '\"$text\"';
+  }
 }

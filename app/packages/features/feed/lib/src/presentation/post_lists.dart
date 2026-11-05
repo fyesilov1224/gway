@@ -164,7 +164,7 @@ class PagedPostGrid extends ConsumerWidget {
   }
 }
 
-/// The posts part of a profile or group page: a grid with feedL10n.showMore.
+/// The posts part of a profile or group page: a grid with "Daha fazla göster".
 class PostsSection extends ConsumerWidget {
   const PostsSection({super.key, required this.source, required this.emptyMessage, this.emptyAction});
 

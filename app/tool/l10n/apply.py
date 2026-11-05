@@ -29,7 +29,9 @@ skip = getattr(t, 'SKIP', set())
 def dart_literals(text):
     single = "'" + text.replace('\\', '\\\\').replace("'", "\\'").replace('$', '\\$') + "'"
     double = '"' + text.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$') + '"'
-    return [single, double]
+    # Double quotes only when the text itself has a single quote (prefer_single_quotes); otherwise a
+    # double-quoted match could sit inside another literal, like '"Bu akşam boşum" de'.
+    return [single, double] if "'" in text else [single]
 
 
 files = [p for p in lib.rglob('*.dart') if not (p.parent.name == 'l10n' and p.name != 'l10n.dart')]

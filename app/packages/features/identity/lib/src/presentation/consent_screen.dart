@@ -35,7 +35,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   bool _saving = false;
   String? _error;
 
-  /// Opens the text; its closing button (identityL10n.readAndAccept) both marks it read and ticks the box.
+  /// Opens the text; its closing button ("Okudum, onaylıyorum") both marks it read and ticks the box.
   Future<void> _open(LegalDocument doc) async {
     final accepted = await showLegalDocument(
       context,

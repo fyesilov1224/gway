@@ -204,7 +204,7 @@ class _GroupPin extends StatelessWidget {
   }
 }
 
-/// eventsL10n.map: groups at their province and upcoming events at their meeting point.
+/// "Harita": groups at their province and upcoming events at their meeting point.
 class DiscoverMapScreen extends ConsumerStatefulWidget {
   const DiscoverMapScreen({super.key, required this.onOpenGroup});
 
@@ -615,7 +615,7 @@ class EventMeetingMap extends StatelessWidget {
       );
 }
 
-/// eventsL10n.meetingPoint in the event form: picked on the map, optional.
+/// "Buluşma noktası" in the event form: picked on the map, optional.
 class MeetingPointField extends StatelessWidget {
   const MeetingPointField({super.key, required this.value, required this.onChanged});
 

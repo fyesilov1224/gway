@@ -1245,6 +1245,1050 @@ abstract class EventsL10n {
   /// In tr, this message translates to:
   /// **'Harita şu anda kullanılamıyor.'**
   String get mapUnavailable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapandı'**
+  String get pollClosedShort;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapanış: {date}'**
+  String closesAt(String date);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Birden fazla seçilebilir'**
+  String get multipleAllowed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizli oylama'**
+  String get anonymousVote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi oy verdi'**
+  String votersCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anket seçenekleri'**
+  String get pollOptions;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anket kapatıldı.'**
+  String get pollClosedToast;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anket silindi.'**
+  String get pollDeleted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anketi kapat'**
+  String get closePoll;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anketi sil'**
+  String get deletePoll;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oy ver'**
+  String get vote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyun kaydedildi.'**
+  String get voteSaved;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oy verenler'**
+  String get voters;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi'**
+  String peopleCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anketler'**
+  String get polls;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anket aç'**
+  String get openPoll;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelere bir soru sor; örneğin hangi gün buluşalım?'**
+  String get pollsEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anket açıldı.'**
+  String get pollOpened;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Soru'**
+  String get question;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Hangi gün buluşalım?'**
+  String get questionExample;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Soru en az 3 karakter olmalı.'**
+  String get questionMin3;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{n}. seçenek'**
+  String optionN(int n);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçeneği kaldır'**
+  String get removeOption;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçeneği yaz ya da kaldır.'**
+  String get optionRequired;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçenek ekle'**
+  String get addOption;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Birden fazla seçilebilsin'**
+  String get allowMultiple;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kimin neye oy verdiği gösterilmez.'**
+  String get anonymousHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş zamanı yok'**
+  String get noEndTime;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ekle'**
+  String get add;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş zamanını kaldır'**
+  String get removeEndTime;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Anketi aç'**
+  String get startPoll;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'gway · topluluğunu bul'**
+  String get cardFooter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{year} yılım'**
+  String myYear(int year);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'organizasyona katıldım'**
+  String get statAttended;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'saat birlikteydik'**
+  String get statHours;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'grupla buluştum'**
+  String get statOneGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'farklı grupla buluştum'**
+  String get statGroups;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'farklı ilde'**
+  String get statProvinces;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'organizasyon düzenledim'**
+  String get statOrganized;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'kişiyi ilk gelişinde karşıladım'**
+  String get statWelcomed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'anı paylaştım'**
+  String get statMemories;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En sevdiklerim'**
+  String get favorites;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En çok birlikte olduğum grup'**
+  String get topGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{group} · {count} buluşma'**
+  String topGroupLine(String group, int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ben de oradaydım'**
+  String get iWasThere;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grupla ilk organizasyonum.'**
+  String get firstWithGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grupla {n}. organizasyonum.'**
+  String nthWithGroup(int n);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu cihazda paylaşılamadı. Kartın ekran görüntüsünü alıp paylaşabilirsin.'**
+  String get shareFailed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaş'**
+  String get share;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{year} özetim'**
+  String yearSummaryTitle(int year);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.'**
+  String get yearEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{year} yılım GWAY\'de'**
+  String yearShareText(int year);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Türkiye haritası: {count} il keşfedildi'**
+  String mapSemantics(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Keşif haritam'**
+  String get explorationMap;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'ili keşfettim'**
+  String get statExplored;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'organizasyonda buluştum'**
+  String get statMetAt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Son keşiflerim'**
+  String get recentExplored;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın organizasyonların illeri burada açılır. İlk buluşmandan sonra haritan renklenir.'**
+  String get explorationEmpty;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Haritada organizasyon bul'**
+  String get findOnMap;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'GWAY\'de {count} ili keşfettim'**
+  String explorationShareText(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Keşfettiğin iller'**
+  String get exploredProvinces;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yalnızca sen görürsün. Katıldığın ve \"gelmedi\" işaretlenmediğin organizasyonlar sayılır.'**
+  String get explorationPrivacy;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu akşam boş olduğunu ortak gruplarındakiler görecek. 04:00\'te kendiliğinden kapanır.'**
+  String get tonightVisible;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Masaya katıldın.'**
+  String get joinedTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Daveti geri çevirdin.'**
+  String get declinedInvite;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Durumun'**
+  String get yourStatus;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'04:00\'e kadar görünürsün'**
+  String get visibleUntil4;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şu an görünmüyorsun'**
+  String get notVisible;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Boşsun'**
+  String get youreFree;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Boşsan ortak gruplarındakiler görsün; birlikte küçük bir masa kurabilirsiniz.'**
+  String get tonightIntro;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu akşam boşum'**
+  String get imFreeTonight;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Artık boş görünmüyorsun.'**
+  String get noLongerFree;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Durumu kapat'**
+  String get turnOffStatus;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Masadan ayrıldın.'**
+  String get leftTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Küçük masa'**
+  String get smallTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Boş olanlardan birkaç kişiyi çağır; üç kişi olunca masanın sohbeti açılır.'**
+  String get smallTableHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Küçük masa kur'**
+  String get setUpTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişiye davet gönderildi. Üç kişi olunca masanın sohbeti açılır.'**
+  String tableInvitesSent(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Küçük masa için ortak gruplarından en az {min} kişinin daha boş olması gerekiyor (şu an {now}). Biri boş olduğunu söyleyince burada masa kurabilirsin.'**
+  String needMorePeople(int min, int now);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ortak gruplarından {count} kişi bu akşam boş'**
+  String freeFromGroups(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kahve'**
+  String get chipCoffee;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kısa yürüyüş'**
+  String get chipWalk;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yemek'**
+  String get chipFood;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sinema'**
+  String get chipCinema;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yalnızca ortak gruplarındaki kişiler görür. Durumun 04:00\'te kendiliğinden kapanır.'**
+  String get tonightSheetHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ne yapmak istersin? (isteğe bağlı)'**
+  String get whatToDo;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'ör. kahve, kısa yürüyüş'**
+  String get whatToDoHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Boşum'**
+  String get imFree;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Masan'**
+  String get yourTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi katıldı'**
+  String joinedCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi bekleniyor'**
+  String waitingCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuruluyor'**
+  String get settingUp;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sohbet açık'**
+  String get chatOpen;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Masanın sohbeti'**
+  String get tableChat;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sohbet, {count} kişi daha katılınca açılır. Yeri ve saati orada birlikte seçersiniz.'**
+  String chatOpensWhen(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Masadan ayrıl'**
+  String get leaveTable;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} küçük bir masa kurdu ve seni de çağırıyor.'**
+  String tableInviteTitle(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{joined} kişi katıldı · {pending} kişi bekleniyor. Üç kişi olunca sohbet açılır.'**
+  String tableInviteStatus(int joined, int pending);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıl'**
+  String get join;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu akşam olmaz'**
+  String get notTonight;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu akşam'**
+  String get tonight;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu akşam boş olanlar'**
+  String get freeTonight;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yalnızca ortak gruplarındaki kişiler'**
+  String get sharedGroupsOnly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ortak gruplarından şu an boş olan yok.'**
+  String get nobodyFree;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Nasıl işler?'**
+  String get howItWorks;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'\"Bu akşam boşum\" de; istersen ne yapmak istediğini yaz.'**
+  String get howStep1;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ortak gruplarındakiler seni görür, sen de boş olanları görürsün.'**
+  String get howStep2;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Küçük masa kur; üç kişi olunca masanın sohbeti açılır, yeri ve saati orada seçersiniz.'**
+  String get howStep3;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yaklaşanlar'**
+  String get upcoming;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Takvim'**
+  String get calendar;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldığın yaklaşan bir organizasyon yok.'**
+  String get noUpcomingJoined;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü göster'**
+  String get showAll;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Önümüzdeki 60 günde gruplarının organizasyonu yok.'**
+  String get noUpcoming60;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grup bul'**
+  String get findGroup;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümü · {count}'**
+  String filterAll(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katıldıklarım · {count}'**
+  String filterMine(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yarın'**
+  String get tomorrow;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Katılıyorsun'**
+  String get going;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedek listede'**
+  String get waitlisted;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Onay bekliyor'**
+  String get awaitingApproval;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Dolu'**
+  String get full;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count}/{capacity} katılımcı'**
+  String goingOfCapacityShort(int count, int capacity);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yakında başlıyor'**
+  String get startingSoon;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Önümüzdeki 6 saat'**
+  String get next6Hours;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılanmak istiyorum'**
+  String get wantWelcome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubun gönüllü üyelerinden biri seni girişte karşılar; yalnız gitmezsin.'**
+  String get wantWelcomeHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seni tanımaları için bir not (isteğe bağlı)'**
+  String get noteForGreeter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Kırmızı montluyum, mavi çantam var'**
+  String get noteForGreeterHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İstek gönder'**
+  String get sendRequest;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İsteğin karşılayıcılara iletildi. Biri üstlenince haber vereceğiz.'**
+  String get welcomeRequestSent;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Buluşma notunu düzenle'**
+  String get editMeetingNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} kişisini karşıla'**
+  String welcomePerson(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kendini şöyle tarif etti: {note}'**
+  String describedAs(String note);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Nerede buluşacaksınız?'**
+  String get whereMeet;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör. Girişteki kafenin önü, 08:45'**
+  String get whereMeetHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydet'**
+  String get save;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılarım'**
+  String get iWillWelcome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Buluşma notu güncellendi.'**
+  String get noteUpdated;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} kişisini karşılayacaksın; buluşma notunu gördü.'**
+  String youWillWelcome(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılamayı bırak'**
+  String get stopWelcoming;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} için yeniden karşılayıcı aranacak ve kendisine haber verilecek.'**
+  String stopWelcomingBody(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bırak'**
+  String get release;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılamayı bıraktın; yeni bir karşılayıcı aranıyor.'**
+  String get releasedWelcome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk kez mi geliyorsun?'**
+  String get firstTime;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grupta {count} karşılayıcı var. Biri seni girişte karşılasın, grupla tanıştırsın.'**
+  String greetersAvailable(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşıladıkların'**
+  String get youWelcomed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Buluşma: {note}'**
+  String meetingAt(String note);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Sana teşekkür etti'**
+  String get thankedYou;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} için seçenekler'**
+  String optionsFor(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılanmayı bekleyenler ({count})'**
+  String waitingWelcome(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kişi bir karşılayıcıyla eşleşti.'**
+  String matchedCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk kez geliyor'**
+  String get firstTimer;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir organizasyonda en fazla 3 kişiyi karşılayabilirsin.'**
+  String get max3Welcomes;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılayıcısın. İlk kez gelenleri karşılamak için organizasyona katıl.'**
+  String get greeterJoinHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılayıcı aranıyor'**
+  String get lookingGreeter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Grubun karşılayıcılarına haber verdik. Biri üstlenince bildirim gelecek.'**
+  String get lookingGreeterHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Notun: {note}'**
+  String yourNote(String note);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılanma isteğin geri çekildi.'**
+  String get welcomeWithdrawn;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İsteği geri çek'**
+  String get withdrawRequest;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seni karşılayan'**
+  String get greetedBy;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seni karşılayacak'**
+  String get willGreet;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Teşekkür et'**
+  String get thank;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} teşekkürünü aldı.'**
+  String thankReceived(String name);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Teşekkür ettin.'**
+  String get thanked;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılanmaktan vazgeç'**
+  String get cancelWelcome;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Artık karşılayıcısın. İlk kez gelen biri karşılanmak istediğinde haber vereceğiz.'**
+  String get nowGreeter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılayıcılığı bıraktın.'**
+  String get noLongerGreeter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılama'**
+  String get welcomeSection;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} karşılayıcı'**
+  String greetersCount(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk kez gelenler organizasyon sayfasından karşılanmak isteyebilir. Karşılayıcı olursan haber alırsın; girişte karşılar, grupla tanıştırırsın.'**
+  String get greeterIntro;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grupta {count} karşılayıcı var. İlk organizasyonunda sayfadan \"Karşılanmak istiyorum\" diyebilirsin.'**
+  String greeterMemberHint(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grupta {count} karşılayıcı var: ilk organizasyonuna yalnız gitmezsin, biri seni girişte karşılar.'**
+  String greeterVisitorHint(int count);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılayıcı ol'**
+  String get becomeGreeter;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{text}\"'**
+  String quoted(String text);
 }
 
 class _EventsL10nDelegate extends LocalizationsDelegate<EventsL10n> {

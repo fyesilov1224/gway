@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/events.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 void _snack(BuildContext context, String message) =>
@@ -70,10 +71,10 @@ class _PollCardState extends ConsumerState<PollCard> {
     final textTheme = Theme.of(context).textTheme;
     final showResults = poll.voted || !poll.isOpen;
     final meta = [
-      if (!poll.isOpen) 'Kapandı' else if (poll.closesAt != null) 'Kapanış: ${formatDateTime(poll.closesAt!)}',
-      if (poll.allowsMultiple) 'Birden fazla seçilebilir',
-      if (poll.isAnonymous) 'Gizli oylama',
-      '${formatCount(poll.voters)} kişi oy verdi',
+      if (!poll.isOpen) eventsL10n.pollClosedShort else if (poll.closesAt != null) eventsL10n.closesAt(formatDateTime(poll.closesAt!)),
+      if (poll.allowsMultiple) eventsL10n.multipleAllowed,
+      if (poll.isAnonymous) eventsL10n.anonymousVote,
+      eventsL10n.votersCount(poll.voters),
     ].join(' · ');
     final pendingChange = poll.allowsMultiple && !setEquals(_picked, {for (final o in poll.options) if (o.mine) o.id});
 
@@ -98,14 +99,14 @@ class _PollCardState extends ConsumerState<PollCard> {
               Expanded(child: Text(poll.question, style: textTheme.titleSmall)),
               if (widget.canManage)
                 PopupMenuButton<String>(
-                  tooltip: 'Anket seçenekleri',
+                  tooltip: eventsL10n.pollOptions,
                   onSelected: (action) => switch (action) {
-                    'close' => _run((r) => r.closePoll(poll.id), done: 'Anket kapatıldı.'),
-                    _ => _run((r) => r.deletePoll(poll.id), done: 'Anket silindi.'),
+                    'close' => _run((r) => r.closePoll(poll.id), done: eventsL10n.pollClosedToast),
+                    _ => _run((r) => r.deletePoll(poll.id), done: eventsL10n.pollDeleted),
                   },
                   itemBuilder: (_) => [
-                    if (poll.isOpen) const PopupMenuItem(value: 'close', child: Text('Anketi kapat')),
-                    const PopupMenuItem(value: 'delete', child: Text('Anketi sil')),
+                    if (poll.isOpen) PopupMenuItem(value: 'close', child: Text(eventsL10n.closePoll)),
+                    PopupMenuItem(value: 'delete', child: Text(eventsL10n.deletePoll)),
                   ],
                 ),
             ],
@@ -131,9 +132,9 @@ class _PollCardState extends ConsumerState<PollCard> {
             Align(
               alignment: Alignment.centerRight,
               child: GwButton(
-                label: 'Oy ver',
+                label: eventsL10n.vote,
                 isLoading: _busy,
-                onPressed: () => _run((r) => r.vote(poll, _picked), done: 'Oyun kaydedildi.'),
+                onPressed: () => _run((r) => r.vote(poll, _picked), done: eventsL10n.voteSaved),
               ),
             ),
         ],
@@ -219,7 +220,7 @@ class _OptionRow extends StatelessWidget {
                       if (onShowVoters != null) ...[
                         const SizedBox(width: GwSpacing.xxs),
                         IconButton(
-                          tooltip: 'Oy verenler',
+                          tooltip: eventsL10n.voters,
                           visualDensity: VisualDensity.compact,
                           onPressed: onShowVoters,
                           icon: const Icon(Icons.people_outline, size: GwSpacing.md + GwSpacing.xxs),
@@ -250,7 +251,7 @@ class _Voters extends ConsumerWidget {
         AsyncData(:final value) => ListView(
             shrinkWrap: true,
             children: [
-              ListTile(title: Text(option.label, style: Theme.of(context).textTheme.titleMedium), subtitle: Text('${value.length} kişi')),
+              ListTile(title: Text(option.label, style: Theme.of(context).textTheme.titleMedium), subtitle: Text(eventsL10n.peopleCount(value.length))),
               for (final p in value)
                 ListTile(
                   leading: GwAvatar(name: p.displayName, imageUrl: p.avatarUrl, shape: GwAvatarShape.user, size: GwAvatarSize.sm),
@@ -271,11 +272,13 @@ class _Voters extends ConsumerWidget {
 
 /// A group's (or one event's) polls with an "Anket aç" action for managers.
 class PollsSection extends ConsumerWidget {
-  const PollsSection({super.key, required this.scope, required this.canManage, this.title = 'Anketler'});
+  const PollsSection({super.key, required this.scope, required this.canManage, this.title});
 
   final PollScope scope;
   final bool canManage;
-  final String title;
+
+  /// Defaults to the localized "Anketler".
+  final String? title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -289,18 +292,18 @@ class PollsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(title, style: textTheme.titleLarge)),
+              Expanded(child: Text(title ?? eventsL10n.polls, style: textTheme.titleLarge)),
               if (canManage)
                 TextButton.icon(
                   onPressed: () => showPollEditor(context, scope: scope),
                   icon: const Icon(Icons.add_chart_outlined, size: GwSpacing.md + GwSpacing.xxs),
-                  label: const Text('Anket aç'),
+                  label: Text(eventsL10n.openPoll),
                 ),
             ],
           ),
           const SizedBox(height: GwSpacing.xs),
           if (polls.isEmpty)
-            Text('Üyelere bir soru sor; örneğin hangi gün buluşalım?',
+            Text(eventsL10n.pollsEmpty,
                 style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary))
           else
             for (final p in polls) ...[PollCard(poll: p, scope: scope, canManage: canManage), const SizedBox(height: GwSpacing.sm)],
@@ -377,7 +380,7 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
       case Ok():
         ref.invalidate(pollsProvider(widget.scope));
         Navigator.of(context).pop();
-        _snack(context, 'Anket açıldı.');
+        _snack(context, eventsL10n.pollOpened);
       case Err(:final failure):
         setState(() {
           _busy = false;
@@ -396,13 +399,13 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Text('Anket aç', style: textTheme.titleLarge),
+            Text(eventsL10n.openPoll, style: textTheme.titleLarge),
             const SizedBox(height: GwSpacing.md),
             TextFormField(
               controller: _question,
               maxLength: 200,
-              decoration: const InputDecoration(labelText: 'Soru', hintText: 'Ör. Hangi gün buluşalım?'),
-              validator: (v) => (v ?? '').trim().length < 3 ? 'Soru en az 3 karakter olmalı.' : null,
+              decoration: InputDecoration(labelText: eventsL10n.question, hintText: eventsL10n.questionExample),
+              validator: (v) => (v ?? '').trim().length < 3 ? eventsL10n.questionMin3 : null,
             ),
             for (final (i, c) in _options.indexed)
               Padding(
@@ -411,17 +414,17 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
                   controller: c,
                   maxLength: 80,
                   decoration: InputDecoration(
-                    labelText: '${i + 1}. seçenek',
+                    labelText: eventsL10n.optionN(i + 1),
                     counterText: '',
                     suffixIcon: _options.length > 2
                         ? IconButton(
-                            tooltip: 'Seçeneği kaldır',
+                            tooltip: eventsL10n.removeOption,
                             icon: const Icon(Icons.close),
                             onPressed: () => setState(() => _options.removeAt(i).dispose()),
                           )
                         : null,
                   ),
-                  validator: (v) => (v ?? '').trim().isEmpty ? 'Seçeneği yaz ya da kaldır.' : null,
+                  validator: (v) => (v ?? '').trim().isEmpty ? eventsL10n.optionRequired : null,
                 ),
               ),
             if (_options.length < 10)
@@ -430,33 +433,33 @@ class _PollEditorState extends ConsumerState<_PollEditor> {
                 child: TextButton.icon(
                   onPressed: () => setState(() => _options.add(TextEditingController())),
                   icon: const Icon(Icons.add),
-                  label: const Text('Seçenek ekle'),
+                  label: Text(eventsL10n.addOption),
                 ),
               ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _multiple,
               onChanged: (v) => setState(() => _multiple = v),
-              title: const Text('Birden fazla seçilebilsin'),
+              title: Text(eventsL10n.allowMultiple),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _anonymous,
               onChanged: (v) => setState(() => _anonymous = v),
-              title: const Text('Gizli oylama'),
-              subtitle: const Text('Kimin neye oy verdiği gösterilmez.'),
+              title: Text(eventsL10n.anonymousVote),
+              subtitle: Text(eventsL10n.anonymousHint),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.schedule),
-              title: Text(_closesAt == null ? 'Bitiş zamanı yok' : 'Kapanış: ${formatDateTime(_closesAt!)}'),
+              title: Text(_closesAt == null ? eventsL10n.noEndTime : eventsL10n.closesAt(formatDateTime(_closesAt!))),
               trailing: _closesAt == null
-                  ? TextButton(onPressed: _pickClose, child: const Text('Ekle'))
-                  : IconButton(tooltip: 'Bitiş zamanını kaldır', icon: const Icon(Icons.close), onPressed: () => setState(() => _closesAt = null)),
+                  ? TextButton(onPressed: _pickClose, child: Text(eventsL10n.add))
+                  : IconButton(tooltip: eventsL10n.removeEndTime, icon: const Icon(Icons.close), onPressed: () => setState(() => _closesAt = null)),
             ),
             if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
             const SizedBox(height: GwSpacing.md),
-            GwButton(label: 'Anketi aç', icon: Icons.poll_outlined, isLoading: _busy, expand: true, onPressed: _submit),
+            GwButton(label: eventsL10n.startPoll, icon: Icons.poll_outlined, isLoading: _busy, expand: true, onPressed: _submit),
           ],
         ),
       ),

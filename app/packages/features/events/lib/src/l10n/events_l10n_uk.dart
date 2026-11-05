@@ -672,4 +672,618 @@ class EventsL10nUk extends EventsL10n {
 
   @override
   String get mapUnavailable => 'Мапа зараз недоступна.';
+
+  @override
+  String get pollClosedShort => 'Закрито';
+
+  @override
+  String closesAt(String date) {
+    return 'Закриття: $date';
+  }
+
+  @override
+  String get multipleAllowed => 'Кілька варіантів';
+
+  @override
+  String get anonymousVote => 'Анонімне голосування';
+
+  @override
+  String votersCount(int count) {
+    return 'Проголосували: $count';
+  }
+
+  @override
+  String get pollOptions => 'Дії з опитуванням';
+
+  @override
+  String get pollClosedToast => 'Опитування закрито.';
+
+  @override
+  String get pollDeleted => 'Опитування видалено.';
+
+  @override
+  String get closePoll => 'Закрити опитування';
+
+  @override
+  String get deletePoll => 'Видалити опитування';
+
+  @override
+  String get vote => 'Голосувати';
+
+  @override
+  String get voteSaved => 'Ваш голос враховано.';
+
+  @override
+  String get voters => 'Хто проголосував';
+
+  @override
+  String peopleCount(int count) {
+    return 'Людей: $count';
+  }
+
+  @override
+  String get polls => 'Опитування';
+
+  @override
+  String get openPoll => 'Створити опитування';
+
+  @override
+  String get pollsEmpty =>
+      'Поставте учасникам запитання, наприклад: у який день зустрінемося?';
+
+  @override
+  String get pollOpened => 'Опитування створено.';
+
+  @override
+  String get question => 'Запитання';
+
+  @override
+  String get questionExample => 'Напр.: у який день зустрінемося?';
+
+  @override
+  String get questionMin3 => 'Запитання — щонайменше 3 символи.';
+
+  @override
+  String optionN(int n) {
+    return 'Варіант $n';
+  }
+
+  @override
+  String get removeOption => 'Видалити варіант';
+
+  @override
+  String get optionRequired => 'Заповніть варіант або видаліть його.';
+
+  @override
+  String get addOption => 'Додати варіант';
+
+  @override
+  String get allowMultiple => 'Дозволити кілька варіантів';
+
+  @override
+  String get anonymousHint => 'Ніхто не бачить, хто за що голосував.';
+
+  @override
+  String get noEndTime => 'Без строку';
+
+  @override
+  String get add => 'Додати';
+
+  @override
+  String get removeEndTime => 'Прибрати строк';
+
+  @override
+  String get startPoll => 'Створити опитування';
+
+  @override
+  String get cardFooter => 'gway · знайди свою спільноту';
+
+  @override
+  String myYear(int year) {
+    return 'Мій $year';
+  }
+
+  @override
+  String get statAttended => 'подій відвідав(-ла)';
+
+  @override
+  String get statHours => 'годин разом';
+
+  @override
+  String get statOneGroup => 'група';
+
+  @override
+  String get statGroups => 'різних груп';
+
+  @override
+  String get statProvinces => 'різних провінцій';
+
+  @override
+  String get statOrganized => 'подій організував(-ла)';
+
+  @override
+  String get statWelcomed => 'новачків зустрів(-ла)';
+
+  @override
+  String get statMemories => 'спогадів';
+
+  @override
+  String get favorites => 'Улюблене';
+
+  @override
+  String get topGroup => 'Група, з якою я був(-ла) найчастіше';
+
+  @override
+  String topGroupLine(String group, int count) {
+    return '$group · зустрічей: $count';
+  }
+
+  @override
+  String get iWasThere => 'Я теж там був(-ла)';
+
+  @override
+  String get firstWithGroup => 'Моя перша подія з цією групою.';
+
+  @override
+  String nthWithGroup(int n) {
+    return 'Моя $n-та подія з цією групою.';
+  }
+
+  @override
+  String get shareFailed =>
+      'На цьому пристрої поділитися не вдалося. Зробіть знімок картки.';
+
+  @override
+  String get share => 'Поділитися';
+
+  @override
+  String yearSummaryTitle(int year) {
+    return 'Мої підсумки $year';
+  }
+
+  @override
+  String get yearEmpty =>
+      'Цього року ви ще не були на подіях. Підсумки з’являться після першої зустрічі.';
+
+  @override
+  String yearShareText(int year) {
+    return 'Мій $year у GWAY';
+  }
+
+  @override
+  String mapSemantics(int count) {
+    return 'Мапа Туреччини: відкрито провінцій — $count';
+  }
+
+  @override
+  String get explorationMap => 'Моя мапа відкриттів';
+
+  @override
+  String get statExplored => 'провінцій відкрито';
+
+  @override
+  String get statMetAt => 'подій';
+
+  @override
+  String get recentExplored => 'Нещодавні відкриття';
+
+  @override
+  String get explorationEmpty =>
+      'Тут позначаються провінції відвіданих подій. Мапа оживе після першої зустрічі.';
+
+  @override
+  String get findOnMap => 'Знайти події на мапі';
+
+  @override
+  String explorationShareText(int count) {
+    return 'Я відкрив(-ла) провінцій у GWAY: $count';
+  }
+
+  @override
+  String get exploredProvinces => 'Відкриті провінції';
+
+  @override
+  String get explorationPrivacy =>
+      'Це бачите лише ви. Враховуються події, де вас не позначили «не прийшов».';
+
+  @override
+  String get tonightVisible =>
+      'Учасники спільних груп побачать, що ви вільні сьогодні ввечері. Вимкнеться саме о 4:00.';
+
+  @override
+  String get joinedTable => 'Ви приєдналися до столика.';
+
+  @override
+  String get declinedInvite => 'Ви відхилили запрошення.';
+
+  @override
+  String get yourStatus => 'Ваш статус';
+
+  @override
+  String get visibleUntil4 => 'Вас видно до 4:00';
+
+  @override
+  String get notVisible => 'Зараз вас не видно';
+
+  @override
+  String get youreFree => 'Ви вільні';
+
+  @override
+  String get tonightIntro =>
+      'Якщо вільні, нехай це побачать учасники спільних груп — разом можна зібрати столик.';
+
+  @override
+  String get imFreeTonight => 'Я вільний(-на) сьогодні ввечері';
+
+  @override
+  String get noLongerFree => 'Вас більше не позначено як вільного(-у).';
+
+  @override
+  String get turnOffStatus => 'Вимкнути статус';
+
+  @override
+  String get leftTable => 'Ви залишили столик.';
+
+  @override
+  String get smallTable => 'Столик';
+
+  @override
+  String get smallTableHint =>
+      'Запросіть кількох вільних — чат столика відкриється, коли зберуться троє.';
+
+  @override
+  String get setUpTable => 'Зібрати столик';
+
+  @override
+  String tableInvitesSent(int count) {
+    return 'Запрошення надіслано ($count). Чат відкриється, коли зберуться троє.';
+  }
+
+  @override
+  String needMorePeople(int min, int now) {
+    return 'Для столика потрібно ще щонайменше $min вільних зі спільних груп (зараз $now). Коли хтось звільниться, зберіть столик тут.';
+  }
+
+  @override
+  String freeFromGroups(int count) {
+    return 'Вільні сьогодні з ваших груп: $count';
+  }
+
+  @override
+  String get chipCoffee => 'Кава';
+
+  @override
+  String get chipWalk => 'Прогулянка';
+
+  @override
+  String get chipFood => 'Їжа';
+
+  @override
+  String get chipCinema => 'Кіно';
+
+  @override
+  String get tonightSheetHint =>
+      'Бачать лише учасники спільних груп. Статус вимкнеться сам о 4:00.';
+
+  @override
+  String get whatToDo => 'Чим хочете зайнятися? (необов’язково)';
+
+  @override
+  String get whatToDoHint => 'наприклад, кава, прогулянка';
+
+  @override
+  String get imFree => 'Я вільний(-на)';
+
+  @override
+  String get yourTable => 'Ваш столик';
+
+  @override
+  String joinedCount(int count) {
+    return 'Приєдналися: $count';
+  }
+
+  @override
+  String waitingCount(int count) {
+    return 'Очікуємо: $count';
+  }
+
+  @override
+  String get settingUp => 'Збирається';
+
+  @override
+  String get chatOpen => 'Чат відкрито';
+
+  @override
+  String get tableChat => 'Чат столика';
+
+  @override
+  String chatOpensWhen(int count) {
+    return 'Чат відкриється, коли приєднаються ще $count. Місце й час оберете там разом.';
+  }
+
+  @override
+  String get leaveTable => 'Залишити столик';
+
+  @override
+  String tableInviteTitle(String name) {
+    return '$name збирає столик і запрошує вас.';
+  }
+
+  @override
+  String tableInviteStatus(int joined, int pending) {
+    return 'Приєдналися: $joined · очікуємо: $pending. Чат відкриється, коли зберуться троє.';
+  }
+
+  @override
+  String get join => 'Приєднатися';
+
+  @override
+  String get notTonight => 'Не сьогодні';
+
+  @override
+  String get tonight => 'Сьогодні ввечері';
+
+  @override
+  String get freeTonight => 'Вільні сьогодні ввечері';
+
+  @override
+  String get sharedGroupsOnly => 'Лише учасники спільних груп';
+
+  @override
+  String get nobodyFree => 'Зараз ніхто зі спільних груп не вільний.';
+
+  @override
+  String get howItWorks => 'Як це працює?';
+
+  @override
+  String get howStep1 =>
+      'Натисніть «Я вільний(-на) сьогодні» й, за бажання, напишіть, чим зайнятися.';
+
+  @override
+  String get howStep2 => 'Учасники спільних груп бачать вас, а ви — вільних.';
+
+  @override
+  String get howStep3 =>
+      'Зберіть столик: чат відкриється на трьох учасниках, там і оберете місце й час.';
+
+  @override
+  String get upcoming => 'Незабаром';
+
+  @override
+  String get calendar => 'Календар';
+
+  @override
+  String get noUpcomingJoined => 'Ви не берете участі в найближчих подіях.';
+
+  @override
+  String get showAll => 'Показати все';
+
+  @override
+  String get noUpcoming60 => 'Найближчі 60 днів у ваших груп немає подій.';
+
+  @override
+  String get findGroup => 'Знайти групу';
+
+  @override
+  String filterAll(int count) {
+    return 'Усі · $count';
+  }
+
+  @override
+  String filterMine(int count) {
+    return 'Мої · $count';
+  }
+
+  @override
+  String get tomorrow => 'Завтра';
+
+  @override
+  String get going => 'Ви йдете';
+
+  @override
+  String get waitlisted => 'У списку очікування';
+
+  @override
+  String get awaitingApproval => 'Очікує схвалення';
+
+  @override
+  String get full => 'Місць немає';
+
+  @override
+  String goingOfCapacityShort(int count, int capacity) {
+    return 'Учасників: $count/$capacity';
+  }
+
+  @override
+  String get startingSoon => 'Незабаром почнеться';
+
+  @override
+  String get next6Hours => 'Найближчі 6 годин';
+
+  @override
+  String get wantWelcome => 'Хочу, щоб мене зустріли';
+
+  @override
+  String get wantWelcomeHint =>
+      'Волонтер із групи зустріне вас біля входу — ви не прийдете сам(а).';
+
+  @override
+  String get noteForGreeter => 'Нотатка, щоб вас упізнали (необов’язково)';
+
+  @override
+  String get noteForGreeterHint => 'Наприклад: червона куртка, синій рюкзак';
+
+  @override
+  String get sendRequest => 'Надіслати запит';
+
+  @override
+  String get welcomeRequestSent =>
+      'Запит надіслано зустрічальникам. Повідомимо, коли хтось візьметься.';
+
+  @override
+  String get editMeetingNote => 'Змінити нотатку про зустріч';
+
+  @override
+  String welcomePerson(String name) {
+    return 'Зустріти $name';
+  }
+
+  @override
+  String describedAs(String note) {
+    return 'Як себе описав(-ла): $note';
+  }
+
+  @override
+  String get whereMeet => 'Де зустрінетеся?';
+
+  @override
+  String get whereMeetHint => 'Наприклад: біля кафе на вході, 8:45';
+
+  @override
+  String get save => 'Зберегти';
+
+  @override
+  String get iWillWelcome => 'Я зустріну';
+
+  @override
+  String get noteUpdated => 'Нотатку про зустріч оновлено.';
+
+  @override
+  String youWillWelcome(String name) {
+    return 'Ви зустрічаєте $name; нотатку про зустріч уже видно.';
+  }
+
+  @override
+  String get stopWelcoming => 'Відмовитися від зустрічі';
+
+  @override
+  String stopWelcomingBody(String name) {
+    return 'Для $name знайдуть іншого зустрічальника й повідомлять.';
+  }
+
+  @override
+  String get release => 'Відмовитися';
+
+  @override
+  String get releasedWelcome =>
+      'Ви відмовилися; шукаємо іншого зустрічальника.';
+
+  @override
+  String get firstTime => 'Ідете вперше?';
+
+  @override
+  String greetersAvailable(int count) {
+    return 'У групі зустрічальників: $count. Один із них зустріне вас біля входу й познайомить із групою.';
+  }
+
+  @override
+  String get youWelcomed => 'Ви зустрічаєте';
+
+  @override
+  String meetingAt(String note) {
+    return 'Зустріч: $note';
+  }
+
+  @override
+  String get thankedYou => 'Подякував(-ла) вам';
+
+  @override
+  String optionsFor(String name) {
+    return 'Дії для $name';
+  }
+
+  @override
+  String waitingWelcome(int count) {
+    return 'Чекають на зустріч ($count)';
+  }
+
+  @override
+  String matchedCount(int count) {
+    return 'Зустрічальника знайдено для: $count';
+  }
+
+  @override
+  String get firstTimer => 'Уперше';
+
+  @override
+  String get max3Welcomes => 'На одній події можна зустріти до 3 людей.';
+
+  @override
+  String get greeterJoinHint =>
+      'Ви зустрічальник. Запишіться на подію, щоб зустрічати новачків.';
+
+  @override
+  String get lookingGreeter => 'Шукаємо зустрічальника';
+
+  @override
+  String get lookingGreeterHint =>
+      'Ми повідомили зустрічальникам. Прийде сповіщення, коли хтось візьметься.';
+
+  @override
+  String yourNote(String note) {
+    return 'Ваша нотатка: $note';
+  }
+
+  @override
+  String get welcomeWithdrawn => 'Запит відкликано.';
+
+  @override
+  String get withdrawRequest => 'Відкликати запит';
+
+  @override
+  String get greetedBy => 'Вас зустрів(-ла)';
+
+  @override
+  String get willGreet => 'Вас зустріне';
+
+  @override
+  String get thank => 'Подякувати';
+
+  @override
+  String thankReceived(String name) {
+    return '$name отримав(-ла) вашу подяку.';
+  }
+
+  @override
+  String get thanked => 'Ви подякували.';
+
+  @override
+  String get cancelWelcome => 'Скасувати зустріч';
+
+  @override
+  String get nowGreeter =>
+      'Тепер ви зустрічальник. Повідомимо, коли новачок попросить його зустріти.';
+
+  @override
+  String get noLongerGreeter => 'Ви більше не зустрічальник.';
+
+  @override
+  String get welcomeSection => 'Зустріч новачків';
+
+  @override
+  String greetersCount(int count) {
+    return 'Зустрічальників: $count';
+  }
+
+  @override
+  String get greeterIntro =>
+      'Новачки можуть попросити зустріч на сторінці події. Ставши зустрічальником, ви отримаєте сповіщення, зустрінете біля входу й познайомите з групою.';
+
+  @override
+  String greeterMemberHint(int count) {
+    return 'У групі зустрічальників: $count. На першій події натисніть «Хочу, щоб мене зустріли».';
+  }
+
+  @override
+  String greeterVisitorHint(int count) {
+    return 'У групі зустрічальників: $count — на першу подію ви не підете самі, вас зустрінуть біля входу.';
+  }
+
+  @override
+  String get becomeGreeter => 'Стати зустрічальником';
+
+  @override
+  String quoted(String text) {
+    return '«$text»';
+  }
 }

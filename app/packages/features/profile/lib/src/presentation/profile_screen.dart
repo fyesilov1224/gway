@@ -38,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
 
   final List<ProfileSectionBuilder> sections;
 
-  /// Other features' buttons next to profileL10n.follow on someone else's profile (e.g. "Mesaj").
+  /// Other features' buttons next to "Takip et" on someone else's profile (e.g. "Mesaj").
   final List<ProfileSectionBuilder> visitorActions;
 
   /// Other features' shortcuts in the app bar of your own profile (e.g. "Kaydedilenler").
@@ -226,7 +226,7 @@ class _ProfileBody extends ConsumerWidget {
   }
 }
 
-/// profileL10n.editProfile on your own profile.
+/// "Profili düzenle" on your own profile.
 class _OwnActions extends StatelessWidget {
   const _OwnActions();
 

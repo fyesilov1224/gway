@@ -92,7 +92,7 @@ class _FollowList extends ConsumerWidget {
   }
 }
 
-/// On your own followers list: profileL10n.removeAction removes the follower without telling them.
+/// On your own followers list: "Çıkar" removes the follower without telling them.
 class _OwnFollowerRow extends ConsumerWidget {
   const _OwnFollowerRow({required this.person});
 

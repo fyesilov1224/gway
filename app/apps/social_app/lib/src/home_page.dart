@@ -13,8 +13,8 @@ import 'package:profile/profile.dart';
 
 import 'l10n.dart';
 
-/// socialAppL10n.tabToday: live broadcasts and what starts within hours come before the posts;
-/// socialAppL10n.tonight and socialAppL10n.upcoming open from the create button (docs/DESIGN.md §7, Bugün).
+/// "Bugün": live broadcasts and what starts within hours come before the posts;
+/// "Bu akşam" and "Yaklaşanlar" open from the create button (docs/DESIGN.md §7, Bugün).
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 

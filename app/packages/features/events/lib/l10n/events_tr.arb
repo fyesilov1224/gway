@@ -969,5 +969,898 @@
   "mapUnavailable": "Harita şu anda kullanılamıyor.",
   "@mapUnavailable": {
     "description": ""
+  },
+  "pollClosedShort": "Kapandı",
+  "@pollClosedShort": {
+    "description": ""
+  },
+  "closesAt": "Kapanış: {date}",
+  "@closesAt": {
+    "description": "",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "multipleAllowed": "Birden fazla seçilebilir",
+  "@multipleAllowed": {
+    "description": ""
+  },
+  "anonymousVote": "Gizli oylama",
+  "@anonymousVote": {
+    "description": ""
+  },
+  "votersCount": "{count} kişi oy verdi",
+  "@votersCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pollOptions": "Anket seçenekleri",
+  "@pollOptions": {
+    "description": ""
+  },
+  "pollClosedToast": "Anket kapatıldı.",
+  "@pollClosedToast": {
+    "description": ""
+  },
+  "pollDeleted": "Anket silindi.",
+  "@pollDeleted": {
+    "description": ""
+  },
+  "closePoll": "Anketi kapat",
+  "@closePoll": {
+    "description": ""
+  },
+  "deletePoll": "Anketi sil",
+  "@deletePoll": {
+    "description": ""
+  },
+  "vote": "Oy ver",
+  "@vote": {
+    "description": ""
+  },
+  "voteSaved": "Oyun kaydedildi.",
+  "@voteSaved": {
+    "description": ""
+  },
+  "voters": "Oy verenler",
+  "@voters": {
+    "description": ""
+  },
+  "peopleCount": "{count} kişi",
+  "@peopleCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "polls": "Anketler",
+  "@polls": {
+    "description": ""
+  },
+  "openPoll": "Anket aç",
+  "@openPoll": {
+    "description": ""
+  },
+  "pollsEmpty": "Üyelere bir soru sor; örneğin hangi gün buluşalım?",
+  "@pollsEmpty": {
+    "description": ""
+  },
+  "pollOpened": "Anket açıldı.",
+  "@pollOpened": {
+    "description": ""
+  },
+  "question": "Soru",
+  "@question": {
+    "description": ""
+  },
+  "questionExample": "Ör. Hangi gün buluşalım?",
+  "@questionExample": {
+    "description": ""
+  },
+  "questionMin3": "Soru en az 3 karakter olmalı.",
+  "@questionMin3": {
+    "description": ""
+  },
+  "optionN": "{n}. seçenek",
+  "@optionN": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "removeOption": "Seçeneği kaldır",
+  "@removeOption": {
+    "description": ""
+  },
+  "optionRequired": "Seçeneği yaz ya da kaldır.",
+  "@optionRequired": {
+    "description": ""
+  },
+  "addOption": "Seçenek ekle",
+  "@addOption": {
+    "description": ""
+  },
+  "allowMultiple": "Birden fazla seçilebilsin",
+  "@allowMultiple": {
+    "description": ""
+  },
+  "anonymousHint": "Kimin neye oy verdiği gösterilmez.",
+  "@anonymousHint": {
+    "description": ""
+  },
+  "noEndTime": "Bitiş zamanı yok",
+  "@noEndTime": {
+    "description": ""
+  },
+  "add": "Ekle",
+  "@add": {
+    "description": ""
+  },
+  "removeEndTime": "Bitiş zamanını kaldır",
+  "@removeEndTime": {
+    "description": ""
+  },
+  "startPoll": "Anketi aç",
+  "@startPoll": {
+    "description": ""
+  },
+  "cardFooter": "gway · topluluğunu bul",
+  "@cardFooter": {
+    "description": ""
+  },
+  "myYear": "{year} yılım",
+  "@myYear": {
+    "description": "",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "statAttended": "organizasyona katıldım",
+  "@statAttended": {
+    "description": ""
+  },
+  "statHours": "saat birlikteydik",
+  "@statHours": {
+    "description": ""
+  },
+  "statOneGroup": "grupla buluştum",
+  "@statOneGroup": {
+    "description": ""
+  },
+  "statGroups": "farklı grupla buluştum",
+  "@statGroups": {
+    "description": ""
+  },
+  "statProvinces": "farklı ilde",
+  "@statProvinces": {
+    "description": ""
+  },
+  "statOrganized": "organizasyon düzenledim",
+  "@statOrganized": {
+    "description": ""
+  },
+  "statWelcomed": "kişiyi ilk gelişinde karşıladım",
+  "@statWelcomed": {
+    "description": ""
+  },
+  "statMemories": "anı paylaştım",
+  "@statMemories": {
+    "description": ""
+  },
+  "favorites": "En sevdiklerim",
+  "@favorites": {
+    "description": ""
+  },
+  "topGroup": "En çok birlikte olduğum grup",
+  "@topGroup": {
+    "description": ""
+  },
+  "topGroupLine": "{group} · {count} buluşma",
+  "@topGroupLine": {
+    "description": "",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "iWasThere": "Ben de oradaydım",
+  "@iWasThere": {
+    "description": ""
+  },
+  "firstWithGroup": "Bu grupla ilk organizasyonum.",
+  "@firstWithGroup": {
+    "description": ""
+  },
+  "nthWithGroup": "Bu grupla {n}. organizasyonum.",
+  "@nthWithGroup": {
+    "description": "",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "shareFailed": "Bu cihazda paylaşılamadı. Kartın ekran görüntüsünü alıp paylaşabilirsin.",
+  "@shareFailed": {
+    "description": ""
+  },
+  "share": "Paylaş",
+  "@share": {
+    "description": ""
+  },
+  "yearSummaryTitle": "{year} özetim",
+  "@yearSummaryTitle": {
+    "description": "",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "yearEmpty": "Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.",
+  "@yearEmpty": {
+    "description": ""
+  },
+  "yearShareText": "{year} yılım GWAY'de",
+  "@yearShareText": {
+    "description": "",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "mapSemantics": "Türkiye haritası: {count} il keşfedildi",
+  "@mapSemantics": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "explorationMap": "Keşif haritam",
+  "@explorationMap": {
+    "description": ""
+  },
+  "statExplored": "ili keşfettim",
+  "@statExplored": {
+    "description": ""
+  },
+  "statMetAt": "organizasyonda buluştum",
+  "@statMetAt": {
+    "description": ""
+  },
+  "recentExplored": "Son keşiflerim",
+  "@recentExplored": {
+    "description": ""
+  },
+  "explorationEmpty": "Katıldığın organizasyonların illeri burada açılır. İlk buluşmandan sonra haritan renklenir.",
+  "@explorationEmpty": {
+    "description": ""
+  },
+  "findOnMap": "Haritada organizasyon bul",
+  "@findOnMap": {
+    "description": ""
+  },
+  "explorationShareText": "GWAY'de {count} ili keşfettim",
+  "@explorationShareText": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exploredProvinces": "Keşfettiğin iller",
+  "@exploredProvinces": {
+    "description": ""
+  },
+  "explorationPrivacy": "Yalnızca sen görürsün. Katıldığın ve \"gelmedi\" işaretlenmediğin organizasyonlar sayılır.",
+  "@explorationPrivacy": {
+    "description": ""
+  },
+  "tonightVisible": "Bu akşam boş olduğunu ortak gruplarındakiler görecek. 04:00'te kendiliğinden kapanır.",
+  "@tonightVisible": {
+    "description": ""
+  },
+  "joinedTable": "Masaya katıldın.",
+  "@joinedTable": {
+    "description": ""
+  },
+  "declinedInvite": "Daveti geri çevirdin.",
+  "@declinedInvite": {
+    "description": ""
+  },
+  "yourStatus": "Durumun",
+  "@yourStatus": {
+    "description": ""
+  },
+  "visibleUntil4": "04:00'e kadar görünürsün",
+  "@visibleUntil4": {
+    "description": ""
+  },
+  "notVisible": "Şu an görünmüyorsun",
+  "@notVisible": {
+    "description": ""
+  },
+  "youreFree": "Boşsun",
+  "@youreFree": {
+    "description": ""
+  },
+  "tonightIntro": "Boşsan ortak gruplarındakiler görsün; birlikte küçük bir masa kurabilirsiniz.",
+  "@tonightIntro": {
+    "description": ""
+  },
+  "imFreeTonight": "Bu akşam boşum",
+  "@imFreeTonight": {
+    "description": ""
+  },
+  "noLongerFree": "Artık boş görünmüyorsun.",
+  "@noLongerFree": {
+    "description": ""
+  },
+  "turnOffStatus": "Durumu kapat",
+  "@turnOffStatus": {
+    "description": ""
+  },
+  "leftTable": "Masadan ayrıldın.",
+  "@leftTable": {
+    "description": ""
+  },
+  "smallTable": "Küçük masa",
+  "@smallTable": {
+    "description": ""
+  },
+  "smallTableHint": "Boş olanlardan birkaç kişiyi çağır; üç kişi olunca masanın sohbeti açılır.",
+  "@smallTableHint": {
+    "description": ""
+  },
+  "setUpTable": "Küçük masa kur",
+  "@setUpTable": {
+    "description": ""
+  },
+  "tableInvitesSent": "{count} kişiye davet gönderildi. Üç kişi olunca masanın sohbeti açılır.",
+  "@tableInvitesSent": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needMorePeople": "Küçük masa için ortak gruplarından en az {min} kişinin daha boş olması gerekiyor (şu an {now}). Biri boş olduğunu söyleyince burada masa kurabilirsin.",
+  "@needMorePeople": {
+    "description": "",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "now": {
+        "type": "int"
+      }
+    }
+  },
+  "freeFromGroups": "Ortak gruplarından {count} kişi bu akşam boş",
+  "@freeFromGroups": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chipCoffee": "Kahve",
+  "@chipCoffee": {
+    "description": ""
+  },
+  "chipWalk": "Kısa yürüyüş",
+  "@chipWalk": {
+    "description": ""
+  },
+  "chipFood": "Yemek",
+  "@chipFood": {
+    "description": ""
+  },
+  "chipCinema": "Sinema",
+  "@chipCinema": {
+    "description": ""
+  },
+  "tonightSheetHint": "Yalnızca ortak gruplarındaki kişiler görür. Durumun 04:00'te kendiliğinden kapanır.",
+  "@tonightSheetHint": {
+    "description": ""
+  },
+  "whatToDo": "Ne yapmak istersin? (isteğe bağlı)",
+  "@whatToDo": {
+    "description": ""
+  },
+  "whatToDoHint": "ör. kahve, kısa yürüyüş",
+  "@whatToDoHint": {
+    "description": ""
+  },
+  "imFree": "Boşum",
+  "@imFree": {
+    "description": ""
+  },
+  "yourTable": "Masan",
+  "@yourTable": {
+    "description": ""
+  },
+  "joinedCount": "{count} kişi katıldı",
+  "@joinedCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waitingCount": "{count} kişi bekleniyor",
+  "@waitingCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingUp": "Kuruluyor",
+  "@settingUp": {
+    "description": ""
+  },
+  "chatOpen": "Sohbet açık",
+  "@chatOpen": {
+    "description": ""
+  },
+  "tableChat": "Masanın sohbeti",
+  "@tableChat": {
+    "description": ""
+  },
+  "chatOpensWhen": "Sohbet, {count} kişi daha katılınca açılır. Yeri ve saati orada birlikte seçersiniz.",
+  "@chatOpensWhen": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leaveTable": "Masadan ayrıl",
+  "@leaveTable": {
+    "description": ""
+  },
+  "tableInviteTitle": "{name} küçük bir masa kurdu ve seni de çağırıyor.",
+  "@tableInviteTitle": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tableInviteStatus": "{joined} kişi katıldı · {pending} kişi bekleniyor. Üç kişi olunca sohbet açılır.",
+  "@tableInviteStatus": {
+    "description": "",
+    "placeholders": {
+      "joined": {
+        "type": "int"
+      },
+      "pending": {
+        "type": "int"
+      }
+    }
+  },
+  "join": "Katıl",
+  "@join": {
+    "description": ""
+  },
+  "notTonight": "Bu akşam olmaz",
+  "@notTonight": {
+    "description": ""
+  },
+  "tonight": "Bu akşam",
+  "@tonight": {
+    "description": ""
+  },
+  "freeTonight": "Bu akşam boş olanlar",
+  "@freeTonight": {
+    "description": ""
+  },
+  "sharedGroupsOnly": "Yalnızca ortak gruplarındaki kişiler",
+  "@sharedGroupsOnly": {
+    "description": ""
+  },
+  "nobodyFree": "Ortak gruplarından şu an boş olan yok.",
+  "@nobodyFree": {
+    "description": ""
+  },
+  "howItWorks": "Nasıl işler?",
+  "@howItWorks": {
+    "description": ""
+  },
+  "howStep1": "\"Bu akşam boşum\" de; istersen ne yapmak istediğini yaz.",
+  "@howStep1": {
+    "description": ""
+  },
+  "howStep2": "Ortak gruplarındakiler seni görür, sen de boş olanları görürsün.",
+  "@howStep2": {
+    "description": ""
+  },
+  "howStep3": "Küçük masa kur; üç kişi olunca masanın sohbeti açılır, yeri ve saati orada seçersiniz.",
+  "@howStep3": {
+    "description": ""
+  },
+  "upcoming": "Yaklaşanlar",
+  "@upcoming": {
+    "description": ""
+  },
+  "calendar": "Takvim",
+  "@calendar": {
+    "description": ""
+  },
+  "noUpcomingJoined": "Katıldığın yaklaşan bir organizasyon yok.",
+  "@noUpcomingJoined": {
+    "description": ""
+  },
+  "showAll": "Tümünü göster",
+  "@showAll": {
+    "description": ""
+  },
+  "noUpcoming60": "Önümüzdeki 60 günde gruplarının organizasyonu yok.",
+  "@noUpcoming60": {
+    "description": ""
+  },
+  "findGroup": "Grup bul",
+  "@findGroup": {
+    "description": ""
+  },
+  "filterAll": "Tümü · {count}",
+  "@filterAll": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterMine": "Katıldıklarım · {count}",
+  "@filterMine": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tomorrow": "Yarın",
+  "@tomorrow": {
+    "description": ""
+  },
+  "going": "Katılıyorsun",
+  "@going": {
+    "description": ""
+  },
+  "waitlisted": "Yedek listede",
+  "@waitlisted": {
+    "description": ""
+  },
+  "awaitingApproval": "Onay bekliyor",
+  "@awaitingApproval": {
+    "description": ""
+  },
+  "full": "Dolu",
+  "@full": {
+    "description": ""
+  },
+  "goingOfCapacityShort": "{count}/{capacity} katılımcı",
+  "@goingOfCapacityShort": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "startingSoon": "Yakında başlıyor",
+  "@startingSoon": {
+    "description": ""
+  },
+  "next6Hours": "Önümüzdeki 6 saat",
+  "@next6Hours": {
+    "description": ""
+  },
+  "wantWelcome": "Karşılanmak istiyorum",
+  "@wantWelcome": {
+    "description": ""
+  },
+  "wantWelcomeHint": "Grubun gönüllü üyelerinden biri seni girişte karşılar; yalnız gitmezsin.",
+  "@wantWelcomeHint": {
+    "description": ""
+  },
+  "noteForGreeter": "Seni tanımaları için bir not (isteğe bağlı)",
+  "@noteForGreeter": {
+    "description": ""
+  },
+  "noteForGreeterHint": "Ör. Kırmızı montluyum, mavi çantam var",
+  "@noteForGreeterHint": {
+    "description": ""
+  },
+  "sendRequest": "İstek gönder",
+  "@sendRequest": {
+    "description": ""
+  },
+  "welcomeRequestSent": "İsteğin karşılayıcılara iletildi. Biri üstlenince haber vereceğiz.",
+  "@welcomeRequestSent": {
+    "description": ""
+  },
+  "editMeetingNote": "Buluşma notunu düzenle",
+  "@editMeetingNote": {
+    "description": ""
+  },
+  "welcomePerson": "{name} kişisini karşıla",
+  "@welcomePerson": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "describedAs": "Kendini şöyle tarif etti: {note}",
+  "@describedAs": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "whereMeet": "Nerede buluşacaksınız?",
+  "@whereMeet": {
+    "description": ""
+  },
+  "whereMeetHint": "Ör. Girişteki kafenin önü, 08:45",
+  "@whereMeetHint": {
+    "description": ""
+  },
+  "save": "Kaydet",
+  "@save": {
+    "description": ""
+  },
+  "iWillWelcome": "Karşılarım",
+  "@iWillWelcome": {
+    "description": ""
+  },
+  "noteUpdated": "Buluşma notu güncellendi.",
+  "@noteUpdated": {
+    "description": ""
+  },
+  "youWillWelcome": "{name} kişisini karşılayacaksın; buluşma notunu gördü.",
+  "@youWillWelcome": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stopWelcoming": "Karşılamayı bırak",
+  "@stopWelcoming": {
+    "description": ""
+  },
+  "stopWelcomingBody": "{name} için yeniden karşılayıcı aranacak ve kendisine haber verilecek.",
+  "@stopWelcomingBody": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "release": "Bırak",
+  "@release": {
+    "description": ""
+  },
+  "releasedWelcome": "Karşılamayı bıraktın; yeni bir karşılayıcı aranıyor.",
+  "@releasedWelcome": {
+    "description": ""
+  },
+  "firstTime": "İlk kez mi geliyorsun?",
+  "@firstTime": {
+    "description": ""
+  },
+  "greetersAvailable": "Bu grupta {count} karşılayıcı var. Biri seni girişte karşılasın, grupla tanıştırsın.",
+  "@greetersAvailable": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "youWelcomed": "Karşıladıkların",
+  "@youWelcomed": {
+    "description": ""
+  },
+  "meetingAt": "Buluşma: {note}",
+  "@meetingAt": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "thankedYou": "Sana teşekkür etti",
+  "@thankedYou": {
+    "description": ""
+  },
+  "optionsFor": "{name} için seçenekler",
+  "@optionsFor": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingWelcome": "Karşılanmayı bekleyenler ({count})",
+  "@waitingWelcome": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchedCount": "{count} kişi bir karşılayıcıyla eşleşti.",
+  "@matchedCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "firstTimer": "İlk kez geliyor",
+  "@firstTimer": {
+    "description": ""
+  },
+  "max3Welcomes": "Bir organizasyonda en fazla 3 kişiyi karşılayabilirsin.",
+  "@max3Welcomes": {
+    "description": ""
+  },
+  "greeterJoinHint": "Karşılayıcısın. İlk kez gelenleri karşılamak için organizasyona katıl.",
+  "@greeterJoinHint": {
+    "description": ""
+  },
+  "lookingGreeter": "Karşılayıcı aranıyor",
+  "@lookingGreeter": {
+    "description": ""
+  },
+  "lookingGreeterHint": "Grubun karşılayıcılarına haber verdik. Biri üstlenince bildirim gelecek.",
+  "@lookingGreeterHint": {
+    "description": ""
+  },
+  "yourNote": "Notun: {note}",
+  "@yourNote": {
+    "description": "",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeWithdrawn": "Karşılanma isteğin geri çekildi.",
+  "@welcomeWithdrawn": {
+    "description": ""
+  },
+  "withdrawRequest": "İsteği geri çek",
+  "@withdrawRequest": {
+    "description": ""
+  },
+  "greetedBy": "Seni karşılayan",
+  "@greetedBy": {
+    "description": ""
+  },
+  "willGreet": "Seni karşılayacak",
+  "@willGreet": {
+    "description": ""
+  },
+  "thank": "Teşekkür et",
+  "@thank": {
+    "description": ""
+  },
+  "thankReceived": "{name} teşekkürünü aldı.",
+  "@thankReceived": {
+    "description": "",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "thanked": "Teşekkür ettin.",
+  "@thanked": {
+    "description": ""
+  },
+  "cancelWelcome": "Karşılanmaktan vazgeç",
+  "@cancelWelcome": {
+    "description": ""
+  },
+  "nowGreeter": "Artık karşılayıcısın. İlk kez gelen biri karşılanmak istediğinde haber vereceğiz.",
+  "@nowGreeter": {
+    "description": ""
+  },
+  "noLongerGreeter": "Karşılayıcılığı bıraktın.",
+  "@noLongerGreeter": {
+    "description": ""
+  },
+  "welcomeSection": "Karşılama",
+  "@welcomeSection": {
+    "description": ""
+  },
+  "greetersCount": "{count} karşılayıcı",
+  "@greetersCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "greeterIntro": "İlk kez gelenler organizasyon sayfasından karşılanmak isteyebilir. Karşılayıcı olursan haber alırsın; girişte karşılar, grupla tanıştırırsın.",
+  "@greeterIntro": {
+    "description": ""
+  },
+  "greeterMemberHint": "Bu grupta {count} karşılayıcı var. İlk organizasyonunda sayfadan \"Karşılanmak istiyorum\" diyebilirsin.",
+  "@greeterMemberHint": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "greeterVisitorHint": "Bu grupta {count} karşılayıcı var: ilk organizasyonuna yalnız gitmezsin, biri seni girişte karşılar.",
+  "@greeterVisitorHint": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "becomeGreeter": "Karşılayıcı ol",
+  "@becomeGreeter": {
+    "description": ""
+  },
+  "quoted": "\"{text}\"",
+  "@quoted": {
+    "description": "",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
   }
 }

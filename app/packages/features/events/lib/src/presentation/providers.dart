@@ -167,7 +167,7 @@ final pollVotersProvider = FutureProvider.autoDispose.family<List<EventPerson>, 
   },
 );
 
-/// eventsL10n.metPeople: the people the signed-in person met at events.
+/// "Tanıştıklarım": the people the signed-in person met at events.
 final metPeopleProvider = FutureProvider.autoDispose<List<MetPerson>>(
   (ref) async {
     ref.cacheFor();

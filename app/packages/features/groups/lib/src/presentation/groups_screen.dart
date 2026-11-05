@@ -20,7 +20,7 @@ enum _Tab { discover, mine, packages }
 class GroupsScreen extends ConsumerStatefulWidget {
   const GroupsScreen({super.key, this.actions = const [], this.packages});
 
-  /// Extra app bar actions the app supplies (e.g. the map), before groupsL10n.createGroup.
+  /// Extra app bar actions the app supplies (e.g. the map), before "Grup oluştur".
   final List<Widget> actions;
 
   /// The package summary of an owned group (billing, supplied by the app).

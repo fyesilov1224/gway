@@ -145,7 +145,7 @@ class GroupListSkeleton extends StatelessWidget {
   }
 }
 
-/// groupsL10n.groups section of a profile page.
+/// "Gruplar" section of a profile page.
 class UserGroupsSection extends ConsumerWidget {
   const UserGroupsSection({super.key, required this.userId, required this.isOwn, this.groupsPublic = false});
 

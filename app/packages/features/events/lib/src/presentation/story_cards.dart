@@ -57,7 +57,7 @@ class _StoryFrame extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text('gway · topluluğunu bul', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+                  Text(eventsL10n.cardFooter, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
                 ],
               ),
             ),
@@ -101,24 +101,24 @@ class YearSummaryCard extends StatelessWidget {
     final s = summary;
     final textTheme = Theme.of(context).textTheme;
     return _StoryFrame(children: [
-      Text('${s.year} yılım', style: textTheme.headlineSmall),
+      Text(eventsL10n.myYear(s.year), style: textTheme.headlineSmall),
       const SizedBox(height: GwSpacing.md),
-      _Stat('${s.attended}', 'organizasyona katıldım'),
-      if (s.hours > 0) _Stat('${s.hours}', 'saat birlikteydik'),
-      if (s.groups > 0) _Stat('${s.groups}', s.groups == 1 ? 'grupla buluştum' : 'farklı grupla buluştum'),
-      if (s.provinces > 1) _Stat('${s.provinces}', 'farklı ilde'),
-      if (s.organized > 0) _Stat('${s.organized}', 'organizasyon düzenledim'),
-      if (s.welcomed > 0) _Stat('${s.welcomed}', 'kişiyi ilk gelişinde karşıladım'),
-      if (s.memories > 0) _Stat('${s.memories}', 'anı paylaştım'),
+      _Stat('${s.attended}', eventsL10n.statAttended),
+      if (s.hours > 0) _Stat('${s.hours}', eventsL10n.statHours),
+      if (s.groups > 0) _Stat('${s.groups}', s.groups == 1 ? eventsL10n.statOneGroup : eventsL10n.statGroups),
+      if (s.provinces > 1) _Stat('${s.provinces}', eventsL10n.statProvinces),
+      if (s.organized > 0) _Stat('${s.organized}', eventsL10n.statOrganized),
+      if (s.welcomed > 0) _Stat('${s.welcomed}', eventsL10n.statWelcomed),
+      if (s.memories > 0) _Stat('${s.memories}', eventsL10n.statMemories),
       if (s.categories.isNotEmpty) ...[
         const SizedBox(height: GwSpacing.xs),
-        Text('En sevdiklerim', style: textTheme.titleSmall),
+        Text(eventsL10n.favorites, style: textTheme.titleSmall),
         Text(s.categories.map((c) => c.$1).join(' · '), style: textTheme.bodyLarge),
       ],
       if (s.topGroup case final group?) ...[
         const SizedBox(height: GwSpacing.sm),
-        Text('En çok birlikte olduğum grup', style: textTheme.titleSmall),
-        Text('$group · ${s.topGroupCount} buluşma', style: textTheme.bodyLarge),
+        Text(eventsL10n.topGroup, style: textTheme.titleSmall),
+        Text(eventsL10n.topGroupLine(group, s.topGroupCount), style: textTheme.bodyLarge),
       ],
     ]);
   }
@@ -136,7 +136,7 @@ class WasThereCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final e = event;
     return _StoryFrame(children: [
-      Text('Ben de oradaydım', style: textTheme.labelLarge?.copyWith(color: GwColors.primary)),
+      Text(eventsL10n.iWasThere, style: textTheme.labelLarge?.copyWith(color: GwColors.primary)),
       const SizedBox(height: GwSpacing.xs),
       Text(e.title, style: textTheme.headlineSmall),
       const SizedBox(height: GwSpacing.sm),
@@ -155,7 +155,7 @@ class WasThereCard extends StatelessWidget {
       ]),
       const SizedBox(height: GwSpacing.md),
       Text(
-        countInGroup == 1 ? 'Bu grupla ilk organizasyonum.' : 'Bu grupla $countInGroup. organizasyonum.',
+        countInGroup == 1 ? eventsL10n.firstWithGroup : eventsL10n.nthWithGroup(countInGroup),
         style: textTheme.titleSmall?.copyWith(color: GwColors.primary),
       ),
     ]);
@@ -192,7 +192,7 @@ class _SharePreviewState extends ConsumerState<_SharePreview> {
     if (!shared) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Bu cihazda paylaşılamadı. Kartın ekran görüntüsünü alıp paylaşabilirsin.')));
+        ..showSnackBar(SnackBar(content: Text(eventsL10n.shareFailed)));
     }
   }
 
@@ -208,7 +208,7 @@ class _SharePreviewState extends ConsumerState<_SharePreview> {
             ),
           ),
           const SizedBox(height: GwSpacing.md),
-          GwButton(label: 'Paylaş', icon: Icons.ios_share, isLoading: _busy, onPressed: _share),
+          GwButton(label: eventsL10n.share, icon: Icons.ios_share, isLoading: _busy, onPressed: _share),
         ],
       );
 }
@@ -242,11 +242,11 @@ class YearSummaryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final y = year ?? DateTime.now().year;
     return Scaffold(
-      appBar: AppBar(title: Text('$y özetim')),
+      appBar: AppBar(title: Text(eventsL10n.yearSummaryTitle(y))),
       body: switch (ref.watch(yearSummaryProvider(y))) {
         AsyncData(:final value) when value == null || value.isEmpty => GwEmptyState(
             icon: Icons.auto_awesome_outlined,
-            message: 'Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.',
+            message: eventsL10n.yearEmpty,
             actionLabel: eventsL10n.goToCalendar,
             onAction: () => context.go(EventRoutes.calendar),
           ),
@@ -257,7 +257,7 @@ class YearSummaryScreen extends ConsumerWidget {
                 card: YearSummaryCard(summary: summary),
                 kind: 'year',
                 fileName: 'gway-$y-ozetim.png',
-                text: '$y yılım GWAY\'de',
+                text: eventsL10n.yearShareText(y),
               ),
               if (summary.firstEvent case final first?) ...[
                 const SizedBox(height: GwSpacing.lg),
@@ -294,7 +294,7 @@ class ExplorationMap extends StatelessWidget {
   Widget build(BuildContext context) => AspectRatio(
         aspectRatio: 2.2,
         child: Semantics(
-          label: 'Türkiye haritası: ${explored.length} il keşfedildi',
+          label: eventsL10n.mapSemantics(explored.length),
           child: IgnorePointer(
             child: FlutterMap(
               options: MapOptions(
@@ -342,15 +342,15 @@ class ExplorationCard extends StatelessWidget {
     final e = exploration;
     final textTheme = Theme.of(context).textTheme;
     return _StoryFrame(children: [
-      Text('Keşif haritam', style: textTheme.headlineSmall),
+      Text(eventsL10n.explorationMap, style: textTheme.headlineSmall),
       const SizedBox(height: GwSpacing.md),
       ExplorationMap(shapes: shapes, explored: e.provinceIds, points: [for (final p in e.points) p.point]),
       const SizedBox(height: GwSpacing.md),
-      _Stat('${e.provinces.length} / ${e.provinceTotal}', 'ili keşfettim'),
-      _Stat('${e.eventCount}', e.eventCount == 1 ? 'organizasyona katıldım' : 'organizasyonda buluştum'),
+      _Stat('${e.provinces.length} / ${e.provinceTotal}', eventsL10n.statExplored),
+      _Stat('${e.eventCount}', e.eventCount == 1 ? eventsL10n.statAttended : eventsL10n.statMetAt),
       if (e.provinces.isNotEmpty) ...[
         const SizedBox(height: GwSpacing.xs),
-        Text('Son keşiflerim', style: textTheme.titleSmall),
+        Text(eventsL10n.recentExplored, style: textTheme.titleSmall),
         Text(e.provinces.take(3).map((p) => p.name).join(' · '), style: textTheme.bodyLarge),
       ],
     ]);
@@ -368,7 +368,7 @@ class ExplorationScreen extends ConsumerWidget {
     final exploration = ref.watch(explorationProvider);
     final shapes = ref.watch(provinceShapesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Keşif haritam')),
+      appBar: AppBar(title: Text(eventsL10n.explorationMap)),
       body: switch ((exploration, shapes)) {
         (AsyncData(value: final e), AsyncData(value: final s)) when e.isEmpty => ListView(
             padding: const EdgeInsets.all(GwSpacing.page),
@@ -377,8 +377,8 @@ class ExplorationScreen extends ConsumerWidget {
               const SizedBox(height: GwSpacing.lg),
               GwEmptyState(
                 icon: Icons.travel_explore,
-                message: 'Katıldığın organizasyonların illeri burada açılır. İlk buluşmandan sonra haritan renklenir.',
-                actionLabel: 'Haritada organizasyon bul',
+                message: eventsL10n.explorationEmpty,
+                actionLabel: eventsL10n.findOnMap,
                 onAction: () => context.go(EventRoutes.map),
               ),
             ],
@@ -390,11 +390,11 @@ class ExplorationScreen extends ConsumerWidget {
                 card: ExplorationCard(exploration: e, shapes: s),
                 kind: 'map',
                 fileName: 'gway-kesif-haritam.png',
-                text: "GWAY'de ${e.provinces.length} ili keşfettim",
+                text: eventsL10n.explorationShareText(e.provinces.length),
               ),
               const SizedBox(height: GwSpacing.lg),
-              Text('Keşfettiğin iller', style: textTheme.titleMedium),
-              Text('Yalnızca sen görürsün. Katıldığın ve "gelmedi" işaretlenmediğin organizasyonlar sayılır.', style: secondary),
+              Text(eventsL10n.exploredProvinces, style: textTheme.titleMedium),
+              Text(eventsL10n.explorationPrivacy, style: secondary),
               const SizedBox(height: GwSpacing.xs),
               GwPanel(
                 padding: EdgeInsets.zero,

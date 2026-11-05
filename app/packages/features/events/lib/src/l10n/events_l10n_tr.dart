@@ -669,4 +669,620 @@ class EventsL10nTr extends EventsL10n {
 
   @override
   String get mapUnavailable => 'Harita şu anda kullanılamıyor.';
+
+  @override
+  String get pollClosedShort => 'Kapandı';
+
+  @override
+  String closesAt(String date) {
+    return 'Kapanış: $date';
+  }
+
+  @override
+  String get multipleAllowed => 'Birden fazla seçilebilir';
+
+  @override
+  String get anonymousVote => 'Gizli oylama';
+
+  @override
+  String votersCount(int count) {
+    return '$count kişi oy verdi';
+  }
+
+  @override
+  String get pollOptions => 'Anket seçenekleri';
+
+  @override
+  String get pollClosedToast => 'Anket kapatıldı.';
+
+  @override
+  String get pollDeleted => 'Anket silindi.';
+
+  @override
+  String get closePoll => 'Anketi kapat';
+
+  @override
+  String get deletePoll => 'Anketi sil';
+
+  @override
+  String get vote => 'Oy ver';
+
+  @override
+  String get voteSaved => 'Oyun kaydedildi.';
+
+  @override
+  String get voters => 'Oy verenler';
+
+  @override
+  String peopleCount(int count) {
+    return '$count kişi';
+  }
+
+  @override
+  String get polls => 'Anketler';
+
+  @override
+  String get openPoll => 'Anket aç';
+
+  @override
+  String get pollsEmpty => 'Üyelere bir soru sor; örneğin hangi gün buluşalım?';
+
+  @override
+  String get pollOpened => 'Anket açıldı.';
+
+  @override
+  String get question => 'Soru';
+
+  @override
+  String get questionExample => 'Ör. Hangi gün buluşalım?';
+
+  @override
+  String get questionMin3 => 'Soru en az 3 karakter olmalı.';
+
+  @override
+  String optionN(int n) {
+    return '$n. seçenek';
+  }
+
+  @override
+  String get removeOption => 'Seçeneği kaldır';
+
+  @override
+  String get optionRequired => 'Seçeneği yaz ya da kaldır.';
+
+  @override
+  String get addOption => 'Seçenek ekle';
+
+  @override
+  String get allowMultiple => 'Birden fazla seçilebilsin';
+
+  @override
+  String get anonymousHint => 'Kimin neye oy verdiği gösterilmez.';
+
+  @override
+  String get noEndTime => 'Bitiş zamanı yok';
+
+  @override
+  String get add => 'Ekle';
+
+  @override
+  String get removeEndTime => 'Bitiş zamanını kaldır';
+
+  @override
+  String get startPoll => 'Anketi aç';
+
+  @override
+  String get cardFooter => 'gway · topluluğunu bul';
+
+  @override
+  String myYear(int year) {
+    return '$year yılım';
+  }
+
+  @override
+  String get statAttended => 'organizasyona katıldım';
+
+  @override
+  String get statHours => 'saat birlikteydik';
+
+  @override
+  String get statOneGroup => 'grupla buluştum';
+
+  @override
+  String get statGroups => 'farklı grupla buluştum';
+
+  @override
+  String get statProvinces => 'farklı ilde';
+
+  @override
+  String get statOrganized => 'organizasyon düzenledim';
+
+  @override
+  String get statWelcomed => 'kişiyi ilk gelişinde karşıladım';
+
+  @override
+  String get statMemories => 'anı paylaştım';
+
+  @override
+  String get favorites => 'En sevdiklerim';
+
+  @override
+  String get topGroup => 'En çok birlikte olduğum grup';
+
+  @override
+  String topGroupLine(String group, int count) {
+    return '$group · $count buluşma';
+  }
+
+  @override
+  String get iWasThere => 'Ben de oradaydım';
+
+  @override
+  String get firstWithGroup => 'Bu grupla ilk organizasyonum.';
+
+  @override
+  String nthWithGroup(int n) {
+    return 'Bu grupla $n. organizasyonum.';
+  }
+
+  @override
+  String get shareFailed =>
+      'Bu cihazda paylaşılamadı. Kartın ekran görüntüsünü alıp paylaşabilirsin.';
+
+  @override
+  String get share => 'Paylaş';
+
+  @override
+  String yearSummaryTitle(int year) {
+    return '$year özetim';
+  }
+
+  @override
+  String get yearEmpty =>
+      'Bu yıl henüz bir organizasyona katılmadın. İlk buluşmandan sonra özetin burada oluşur.';
+
+  @override
+  String yearShareText(int year) {
+    return '$year yılım GWAY\'de';
+  }
+
+  @override
+  String mapSemantics(int count) {
+    return 'Türkiye haritası: $count il keşfedildi';
+  }
+
+  @override
+  String get explorationMap => 'Keşif haritam';
+
+  @override
+  String get statExplored => 'ili keşfettim';
+
+  @override
+  String get statMetAt => 'organizasyonda buluştum';
+
+  @override
+  String get recentExplored => 'Son keşiflerim';
+
+  @override
+  String get explorationEmpty =>
+      'Katıldığın organizasyonların illeri burada açılır. İlk buluşmandan sonra haritan renklenir.';
+
+  @override
+  String get findOnMap => 'Haritada organizasyon bul';
+
+  @override
+  String explorationShareText(int count) {
+    return 'GWAY\'de $count ili keşfettim';
+  }
+
+  @override
+  String get exploredProvinces => 'Keşfettiğin iller';
+
+  @override
+  String get explorationPrivacy =>
+      'Yalnızca sen görürsün. Katıldığın ve \"gelmedi\" işaretlenmediğin organizasyonlar sayılır.';
+
+  @override
+  String get tonightVisible =>
+      'Bu akşam boş olduğunu ortak gruplarındakiler görecek. 04:00\'te kendiliğinden kapanır.';
+
+  @override
+  String get joinedTable => 'Masaya katıldın.';
+
+  @override
+  String get declinedInvite => 'Daveti geri çevirdin.';
+
+  @override
+  String get yourStatus => 'Durumun';
+
+  @override
+  String get visibleUntil4 => '04:00\'e kadar görünürsün';
+
+  @override
+  String get notVisible => 'Şu an görünmüyorsun';
+
+  @override
+  String get youreFree => 'Boşsun';
+
+  @override
+  String get tonightIntro =>
+      'Boşsan ortak gruplarındakiler görsün; birlikte küçük bir masa kurabilirsiniz.';
+
+  @override
+  String get imFreeTonight => 'Bu akşam boşum';
+
+  @override
+  String get noLongerFree => 'Artık boş görünmüyorsun.';
+
+  @override
+  String get turnOffStatus => 'Durumu kapat';
+
+  @override
+  String get leftTable => 'Masadan ayrıldın.';
+
+  @override
+  String get smallTable => 'Küçük masa';
+
+  @override
+  String get smallTableHint =>
+      'Boş olanlardan birkaç kişiyi çağır; üç kişi olunca masanın sohbeti açılır.';
+
+  @override
+  String get setUpTable => 'Küçük masa kur';
+
+  @override
+  String tableInvitesSent(int count) {
+    return '$count kişiye davet gönderildi. Üç kişi olunca masanın sohbeti açılır.';
+  }
+
+  @override
+  String needMorePeople(int min, int now) {
+    return 'Küçük masa için ortak gruplarından en az $min kişinin daha boş olması gerekiyor (şu an $now). Biri boş olduğunu söyleyince burada masa kurabilirsin.';
+  }
+
+  @override
+  String freeFromGroups(int count) {
+    return 'Ortak gruplarından $count kişi bu akşam boş';
+  }
+
+  @override
+  String get chipCoffee => 'Kahve';
+
+  @override
+  String get chipWalk => 'Kısa yürüyüş';
+
+  @override
+  String get chipFood => 'Yemek';
+
+  @override
+  String get chipCinema => 'Sinema';
+
+  @override
+  String get tonightSheetHint =>
+      'Yalnızca ortak gruplarındaki kişiler görür. Durumun 04:00\'te kendiliğinden kapanır.';
+
+  @override
+  String get whatToDo => 'Ne yapmak istersin? (isteğe bağlı)';
+
+  @override
+  String get whatToDoHint => 'ör. kahve, kısa yürüyüş';
+
+  @override
+  String get imFree => 'Boşum';
+
+  @override
+  String get yourTable => 'Masan';
+
+  @override
+  String joinedCount(int count) {
+    return '$count kişi katıldı';
+  }
+
+  @override
+  String waitingCount(int count) {
+    return '$count kişi bekleniyor';
+  }
+
+  @override
+  String get settingUp => 'Kuruluyor';
+
+  @override
+  String get chatOpen => 'Sohbet açık';
+
+  @override
+  String get tableChat => 'Masanın sohbeti';
+
+  @override
+  String chatOpensWhen(int count) {
+    return 'Sohbet, $count kişi daha katılınca açılır. Yeri ve saati orada birlikte seçersiniz.';
+  }
+
+  @override
+  String get leaveTable => 'Masadan ayrıl';
+
+  @override
+  String tableInviteTitle(String name) {
+    return '$name küçük bir masa kurdu ve seni de çağırıyor.';
+  }
+
+  @override
+  String tableInviteStatus(int joined, int pending) {
+    return '$joined kişi katıldı · $pending kişi bekleniyor. Üç kişi olunca sohbet açılır.';
+  }
+
+  @override
+  String get join => 'Katıl';
+
+  @override
+  String get notTonight => 'Bu akşam olmaz';
+
+  @override
+  String get tonight => 'Bu akşam';
+
+  @override
+  String get freeTonight => 'Bu akşam boş olanlar';
+
+  @override
+  String get sharedGroupsOnly => 'Yalnızca ortak gruplarındaki kişiler';
+
+  @override
+  String get nobodyFree => 'Ortak gruplarından şu an boş olan yok.';
+
+  @override
+  String get howItWorks => 'Nasıl işler?';
+
+  @override
+  String get howStep1 =>
+      '\"Bu akşam boşum\" de; istersen ne yapmak istediğini yaz.';
+
+  @override
+  String get howStep2 =>
+      'Ortak gruplarındakiler seni görür, sen de boş olanları görürsün.';
+
+  @override
+  String get howStep3 =>
+      'Küçük masa kur; üç kişi olunca masanın sohbeti açılır, yeri ve saati orada seçersiniz.';
+
+  @override
+  String get upcoming => 'Yaklaşanlar';
+
+  @override
+  String get calendar => 'Takvim';
+
+  @override
+  String get noUpcomingJoined => 'Katıldığın yaklaşan bir organizasyon yok.';
+
+  @override
+  String get showAll => 'Tümünü göster';
+
+  @override
+  String get noUpcoming60 =>
+      'Önümüzdeki 60 günde gruplarının organizasyonu yok.';
+
+  @override
+  String get findGroup => 'Grup bul';
+
+  @override
+  String filterAll(int count) {
+    return 'Tümü · $count';
+  }
+
+  @override
+  String filterMine(int count) {
+    return 'Katıldıklarım · $count';
+  }
+
+  @override
+  String get tomorrow => 'Yarın';
+
+  @override
+  String get going => 'Katılıyorsun';
+
+  @override
+  String get waitlisted => 'Yedek listede';
+
+  @override
+  String get awaitingApproval => 'Onay bekliyor';
+
+  @override
+  String get full => 'Dolu';
+
+  @override
+  String goingOfCapacityShort(int count, int capacity) {
+    return '$count/$capacity katılımcı';
+  }
+
+  @override
+  String get startingSoon => 'Yakında başlıyor';
+
+  @override
+  String get next6Hours => 'Önümüzdeki 6 saat';
+
+  @override
+  String get wantWelcome => 'Karşılanmak istiyorum';
+
+  @override
+  String get wantWelcomeHint =>
+      'Grubun gönüllü üyelerinden biri seni girişte karşılar; yalnız gitmezsin.';
+
+  @override
+  String get noteForGreeter => 'Seni tanımaları için bir not (isteğe bağlı)';
+
+  @override
+  String get noteForGreeterHint => 'Ör. Kırmızı montluyum, mavi çantam var';
+
+  @override
+  String get sendRequest => 'İstek gönder';
+
+  @override
+  String get welcomeRequestSent =>
+      'İsteğin karşılayıcılara iletildi. Biri üstlenince haber vereceğiz.';
+
+  @override
+  String get editMeetingNote => 'Buluşma notunu düzenle';
+
+  @override
+  String welcomePerson(String name) {
+    return '$name kişisini karşıla';
+  }
+
+  @override
+  String describedAs(String note) {
+    return 'Kendini şöyle tarif etti: $note';
+  }
+
+  @override
+  String get whereMeet => 'Nerede buluşacaksınız?';
+
+  @override
+  String get whereMeetHint => 'Ör. Girişteki kafenin önü, 08:45';
+
+  @override
+  String get save => 'Kaydet';
+
+  @override
+  String get iWillWelcome => 'Karşılarım';
+
+  @override
+  String get noteUpdated => 'Buluşma notu güncellendi.';
+
+  @override
+  String youWillWelcome(String name) {
+    return '$name kişisini karşılayacaksın; buluşma notunu gördü.';
+  }
+
+  @override
+  String get stopWelcoming => 'Karşılamayı bırak';
+
+  @override
+  String stopWelcomingBody(String name) {
+    return '$name için yeniden karşılayıcı aranacak ve kendisine haber verilecek.';
+  }
+
+  @override
+  String get release => 'Bırak';
+
+  @override
+  String get releasedWelcome =>
+      'Karşılamayı bıraktın; yeni bir karşılayıcı aranıyor.';
+
+  @override
+  String get firstTime => 'İlk kez mi geliyorsun?';
+
+  @override
+  String greetersAvailable(int count) {
+    return 'Bu grupta $count karşılayıcı var. Biri seni girişte karşılasın, grupla tanıştırsın.';
+  }
+
+  @override
+  String get youWelcomed => 'Karşıladıkların';
+
+  @override
+  String meetingAt(String note) {
+    return 'Buluşma: $note';
+  }
+
+  @override
+  String get thankedYou => 'Sana teşekkür etti';
+
+  @override
+  String optionsFor(String name) {
+    return '$name için seçenekler';
+  }
+
+  @override
+  String waitingWelcome(int count) {
+    return 'Karşılanmayı bekleyenler ($count)';
+  }
+
+  @override
+  String matchedCount(int count) {
+    return '$count kişi bir karşılayıcıyla eşleşti.';
+  }
+
+  @override
+  String get firstTimer => 'İlk kez geliyor';
+
+  @override
+  String get max3Welcomes =>
+      'Bir organizasyonda en fazla 3 kişiyi karşılayabilirsin.';
+
+  @override
+  String get greeterJoinHint =>
+      'Karşılayıcısın. İlk kez gelenleri karşılamak için organizasyona katıl.';
+
+  @override
+  String get lookingGreeter => 'Karşılayıcı aranıyor';
+
+  @override
+  String get lookingGreeterHint =>
+      'Grubun karşılayıcılarına haber verdik. Biri üstlenince bildirim gelecek.';
+
+  @override
+  String yourNote(String note) {
+    return 'Notun: $note';
+  }
+
+  @override
+  String get welcomeWithdrawn => 'Karşılanma isteğin geri çekildi.';
+
+  @override
+  String get withdrawRequest => 'İsteği geri çek';
+
+  @override
+  String get greetedBy => 'Seni karşılayan';
+
+  @override
+  String get willGreet => 'Seni karşılayacak';
+
+  @override
+  String get thank => 'Teşekkür et';
+
+  @override
+  String thankReceived(String name) {
+    return '$name teşekkürünü aldı.';
+  }
+
+  @override
+  String get thanked => 'Teşekkür ettin.';
+
+  @override
+  String get cancelWelcome => 'Karşılanmaktan vazgeç';
+
+  @override
+  String get nowGreeter =>
+      'Artık karşılayıcısın. İlk kez gelen biri karşılanmak istediğinde haber vereceğiz.';
+
+  @override
+  String get noLongerGreeter => 'Karşılayıcılığı bıraktın.';
+
+  @override
+  String get welcomeSection => 'Karşılama';
+
+  @override
+  String greetersCount(int count) {
+    return '$count karşılayıcı';
+  }
+
+  @override
+  String get greeterIntro =>
+      'İlk kez gelenler organizasyon sayfasından karşılanmak isteyebilir. Karşılayıcı olursan haber alırsın; girişte karşılar, grupla tanıştırırsın.';
+
+  @override
+  String greeterMemberHint(int count) {
+    return 'Bu grupta $count karşılayıcı var. İlk organizasyonunda sayfadan \"Karşılanmak istiyorum\" diyebilirsin.';
+  }
+
+  @override
+  String greeterVisitorHint(int count) {
+    return 'Bu grupta $count karşılayıcı var: ilk organizasyonuna yalnız gitmezsin, biri seni girişte karşılar.';
+  }
+
+  @override
+  String get becomeGreeter => 'Karşılayıcı ol';
+
+  @override
+  String quoted(String text) {
+    return '\"$text\"';
+  }
 }

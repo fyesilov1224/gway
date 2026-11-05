@@ -1,4 +1,5 @@
 
+
 abstract final class EventRoutes {
   static String event(String id) => '/e/$id';
 
@@ -6,7 +7,7 @@ abstract final class EventRoutes {
 
   static String create(String groupId) => '/events/new?group=$groupId';
 
-  /// eventsL10n.myCalendar.
+  /// "Takvimim".
   static const calendar = '/calendar';
 
   /// The year in review; [year] defaults to this one.

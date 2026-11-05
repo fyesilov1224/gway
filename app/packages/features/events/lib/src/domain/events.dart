@@ -764,7 +764,7 @@ abstract interface class EventsRepository {
   /// Shakes hands with the owner of [code] (typed, or read from a QR code).
   Future<Result<HandshakeResult>> shake(String eventId, String code);
 
-  /// eventsL10n.metPeople, newest first.
+  /// "Tanıştıklarım", newest first.
   Future<Result<List<MetPerson>>> metPeople();
 
   /// The event page's welcome block (Supabase); null when the event is not visible.

@@ -374,7 +374,7 @@ void _openGroup(BuildContext context, String handle) => context.push(GroupRoutes
 
 void _openChat(BuildContext context, String conversationId) => context.push(MessagingRoutes.chat(conversationId));
 
-/// socialAppL10n.matching on your own profile (docs/ARCHITECTURE.md §3g).
+/// "Eşleşme" on your own profile (docs/ARCHITECTURE.md §3g).
 const _matchingButton = _MatchingButton();
 
 class _MatchingButton extends StatelessWidget {
@@ -385,7 +385,7 @@ class _MatchingButton extends StatelessWidget {
       tooltip: socialAppL10n.matching, icon: const Icon(Icons.favorite_border_rounded), onPressed: () => context.push(MatchingRoutes.home));
 }
 
-/// socialAppL10n.groupsLeague from the groups page.
+/// "Gruplar Ligi" from the groups page.
 const _leagueButton = _LeagueButton();
 
 class _LeagueButton extends StatelessWidget {
@@ -410,7 +410,7 @@ class _MapButton extends StatelessWidget {
       IconButton(tooltip: socialAppL10n.exploreOnMap, icon: const Icon(Icons.map_outlined), onPressed: () => context.push(EventRoutes.map));
 }
 
-/// socialAppL10n.yearSummary and socialAppL10n.explorationMap on your own profile (docs/ARCHITECTURE.md §3d), behind one button.
+/// "Yılın özeti" and "Keşif haritam" on your own profile (docs/ARCHITECTURE.md §3d), behind one button.
 const _yearButton = _YearButton();
 
 class _YearButton extends StatelessWidget {
@@ -461,7 +461,7 @@ class _YearButton extends StatelessWidget {
       );
 }
 
-/// socialAppL10n.findTeammates on your own profile.
+/// "Ekip arkadaşı bul" on your own profile.
 const _teammatesButton = _TeammatesButton();
 
 class _TeammatesButton extends StatelessWidget {
@@ -472,7 +472,7 @@ class _TeammatesButton extends StatelessWidget {
       tooltip: socialAppL10n.findTeammates, icon: const Icon(Icons.diversity_3_outlined), onPressed: () => context.push(ProfileRoutes.teammates));
 }
 
-/// Notifications with the unread count, on your own profile too (not only on socialAppL10n.tabToday).
+/// Notifications with the unread count, on your own profile too (not only on "Bugün").
 const _notificationsButton = _NotificationsButton();
 
 class _NotificationsButton extends StatelessWidget {
@@ -483,7 +483,7 @@ class _NotificationsButton extends StatelessWidget {
       tooltip: socialAppL10n.notifications, icon: const NotificationsIcon(), onPressed: () => context.go(NotificationRoutes.list));
 }
 
-/// socialAppL10n.saved on your own profile.
+/// "Kaydedilenler" on your own profile.
 const _savedButton = _SavedButton();
 
 class _SavedButton extends StatelessWidget {

@@ -382,7 +382,7 @@ class _Counter extends StatelessWidget {
   }
 }
 
-/// Two lines with feedL10n.more to expand.
+/// Two lines with "devamı" to expand.
 class _Caption extends StatefulWidget {
   const _Caption({required this.post, required this.onOpenOwner});
 

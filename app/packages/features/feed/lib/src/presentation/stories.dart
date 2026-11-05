@@ -681,7 +681,7 @@ class _HighlightCover extends StatelessWidget {
       );
 }
 
-/// Highlights on a profile; on your own, an feedL10n.addHighlight chip leads to the archive.
+/// Highlights on a profile; on your own, an "Öne çıkan ekle" chip leads to the archive.
 class HighlightsRow extends ConsumerWidget {
   const HighlightsRow({super.key, required this.userId, required this.isOwn});
 

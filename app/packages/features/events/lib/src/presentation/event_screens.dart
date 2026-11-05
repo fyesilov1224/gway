@@ -102,10 +102,10 @@ class _StatusBadge extends StatelessWidget {
     final e = event;
     if (e.isCanceled) return GwBadge(eventsL10n.canceled, tone: GwBadgeTone.danger);
     return switch (e.myStatus) {
-      AttendanceStatus.requested => const GwBadge('Onay bekliyor', tone: GwBadgeTone.warning),
-      AttendanceStatus.going => const GwBadge('Katılıyorsun', dot: true, tone: GwBadgeTone.primary),
+      AttendanceStatus.requested => GwBadge(eventsL10n.awaitingApproval, tone: GwBadgeTone.warning),
+      AttendanceStatus.going => GwBadge(eventsL10n.going, dot: true, tone: GwBadgeTone.primary),
       AttendanceStatus.waitlisted => GwBadge('Bekleme listesi · ${e.myPlace ?? '-'}. sıra', tone: GwBadgeTone.info),
-      null when e.isFull && !e.hasStarted(DateTime.now()) => const GwBadge('Dolu', tone: GwBadgeTone.neutral),
+      null when e.isFull && !e.hasStarted(DateTime.now()) => GwBadge(eventsL10n.full, tone: GwBadgeTone.neutral),
       null => const SizedBox.shrink(),
     };
   }
@@ -465,7 +465,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
           onPressed: () => _attend(d),
         ),
       (true, true, null) => GwButton(
-          label: e.isFull ? 'Bekleme listesine gir' : 'Katıl',
+          label: e.isFull ? 'Bekleme listesine gir' : eventsL10n.join,
           icon: e.isFull ? Icons.hourglass_empty_rounded : Icons.event_available_outlined,
           expand: true,
           isLoading: _busy,
@@ -473,7 +473,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         ),
       (true, true, _) => GwButton(
           label: switch (e.myStatus) {
-            AttendanceStatus.requested => 'İsteği geri çek',
+            AttendanceStatus.requested => eventsL10n.withdrawRequest,
             AttendanceStatus.going => 'Katılmaktan vazgeç',
             _ => 'Bekleme listesinden çık',
           },
@@ -492,7 +492,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
         title: Text(e.group.name),
         actions: [
           IconButton(
-            tooltip: 'Paylaş',
+            tooltip: eventsL10n.share,
             icon: const Icon(Icons.share_outlined),
             onPressed: () async {
               final shared = await shareLink(ref.read(shareLinksProvider).event(e.id), text: '${e.title} · GWAY\'de katıl:');
@@ -1266,7 +1266,7 @@ class _EditorState extends ConsumerState<_Editor> {
               if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
               const SizedBox(height: GwSpacing.md),
               GwButton(
-                label: editing ? 'Kaydet' : 'Organizasyonu oluştur',
+                label: editing ? eventsL10n.save : 'Organizasyonu oluştur',
                 icon: Icons.event_available_outlined,
                 isLoading: _busy,
                 expand: true,
@@ -1360,7 +1360,7 @@ class _ReviewBoxState extends ConsumerState<_ReviewBox> {
                 ),
               const Spacer(),
               GwButton(
-                label: 'Kaydet',
+                label: eventsL10n.save,
                 isLoading: _busy,
                 onPressed: _rating == 0
                     ? null

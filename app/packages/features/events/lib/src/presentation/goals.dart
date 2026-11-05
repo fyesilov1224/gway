@@ -117,7 +117,7 @@ class GroupGoalsSection extends ConsumerWidget {
   }
 }
 
-/// One goal: progress, teams, the task's eventsL10n.done, pending claims for managers and who completed it.
+/// One goal: progress, teams, the task's "Yaptım", pending claims for managers and who completed it.
 class GoalScreen extends ConsumerStatefulWidget {
   const GoalScreen({super.key, required this.goalId});
 
@@ -495,7 +495,7 @@ class _GoalEditorState extends ConsumerState<_GoalEditor> {
   }
 }
 
-/// eventsL10n.iDidTask with an optional note; owns its controller so closing never touches a disposed one.
+/// "Görevi yaptım" with an optional note; owns its controller so closing never touches a disposed one.
 class _ClaimDialog extends StatefulWidget {
   const _ClaimDialog();
 

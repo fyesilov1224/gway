@@ -672,4 +672,619 @@ class EventsL10nRu extends EventsL10n {
 
   @override
   String get mapUnavailable => 'Карта сейчас недоступна.';
+
+  @override
+  String get pollClosedShort => 'Закрыт';
+
+  @override
+  String closesAt(String date) {
+    return 'Закрытие: $date';
+  }
+
+  @override
+  String get multipleAllowed => 'Несколько вариантов';
+
+  @override
+  String get anonymousVote => 'Анонимное голосование';
+
+  @override
+  String votersCount(int count) {
+    return 'Проголосовали: $count';
+  }
+
+  @override
+  String get pollOptions => 'Действия с опросом';
+
+  @override
+  String get pollClosedToast => 'Опрос закрыт.';
+
+  @override
+  String get pollDeleted => 'Опрос удалён.';
+
+  @override
+  String get closePoll => 'Закрыть опрос';
+
+  @override
+  String get deletePoll => 'Удалить опрос';
+
+  @override
+  String get vote => 'Голосовать';
+
+  @override
+  String get voteSaved => 'Ваш голос учтён.';
+
+  @override
+  String get voters => 'Проголосовавшие';
+
+  @override
+  String peopleCount(int count) {
+    return 'Человек: $count';
+  }
+
+  @override
+  String get polls => 'Опросы';
+
+  @override
+  String get openPoll => 'Создать опрос';
+
+  @override
+  String get pollsEmpty =>
+      'Задайте участникам вопрос, например: в какой день встретимся?';
+
+  @override
+  String get pollOpened => 'Опрос создан.';
+
+  @override
+  String get question => 'Вопрос';
+
+  @override
+  String get questionExample => 'Например: в какой день встретимся?';
+
+  @override
+  String get questionMin3 => 'Вопрос — не менее 3 символов.';
+
+  @override
+  String optionN(int n) {
+    return 'Вариант $n';
+  }
+
+  @override
+  String get removeOption => 'Удалить вариант';
+
+  @override
+  String get optionRequired => 'Заполните вариант или удалите его.';
+
+  @override
+  String get addOption => 'Добавить вариант';
+
+  @override
+  String get allowMultiple => 'Разрешить несколько вариантов';
+
+  @override
+  String get anonymousHint => 'Никто не видит, кто за что голосовал.';
+
+  @override
+  String get noEndTime => 'Без срока';
+
+  @override
+  String get add => 'Добавить';
+
+  @override
+  String get removeEndTime => 'Убрать срок';
+
+  @override
+  String get startPoll => 'Создать опрос';
+
+  @override
+  String get cardFooter => 'gway · найди своё сообщество';
+
+  @override
+  String myYear(int year) {
+    return 'Мой $year';
+  }
+
+  @override
+  String get statAttended => 'мероприятий посетил(а)';
+
+  @override
+  String get statHours => 'часов вместе';
+
+  @override
+  String get statOneGroup => 'группа';
+
+  @override
+  String get statGroups => 'разных групп';
+
+  @override
+  String get statProvinces => 'разных провинций';
+
+  @override
+  String get statOrganized => 'мероприятий организовал(а)';
+
+  @override
+  String get statWelcomed => 'новичков встретил(а)';
+
+  @override
+  String get statMemories => 'воспоминаний';
+
+  @override
+  String get favorites => 'Любимое';
+
+  @override
+  String get topGroup => 'Группа, с которой я был(а) чаще всего';
+
+  @override
+  String topGroupLine(String group, int count) {
+    return '$group · встреч: $count';
+  }
+
+  @override
+  String get iWasThere => 'Я тоже там был(а)';
+
+  @override
+  String get firstWithGroup => 'Моё первое мероприятие с этой группой.';
+
+  @override
+  String nthWithGroup(int n) {
+    return 'Моё $n-е мероприятие с этой группой.';
+  }
+
+  @override
+  String get shareFailed =>
+      'На этом устройстве поделиться не получилось. Сделайте скриншот карточки.';
+
+  @override
+  String get share => 'Поделиться';
+
+  @override
+  String yearSummaryTitle(int year) {
+    return 'Мои итоги $year';
+  }
+
+  @override
+  String get yearEmpty =>
+      'В этом году вы ещё не были на мероприятиях. Итоги появятся после первой встречи.';
+
+  @override
+  String yearShareText(int year) {
+    return 'Мой $year в GWAY';
+  }
+
+  @override
+  String mapSemantics(int count) {
+    return 'Карта Турции: открыто провинций — $count';
+  }
+
+  @override
+  String get explorationMap => 'Моя карта открытий';
+
+  @override
+  String get statExplored => 'провинций открыто';
+
+  @override
+  String get statMetAt => 'мероприятий';
+
+  @override
+  String get recentExplored => 'Недавние открытия';
+
+  @override
+  String get explorationEmpty =>
+      'Здесь отмечаются провинции посещённых мероприятий. Карта оживёт после первой встречи.';
+
+  @override
+  String get findOnMap => 'Найти мероприятия на карте';
+
+  @override
+  String explorationShareText(int count) {
+    return 'Я открыл(а) провинций в GWAY: $count';
+  }
+
+  @override
+  String get exploredProvinces => 'Открытые провинции';
+
+  @override
+  String get explorationPrivacy =>
+      'Это видите только вы. Учитываются мероприятия, где вас не отметили «не пришёл».';
+
+  @override
+  String get tonightVisible =>
+      'Участники общих групп увидят, что вы свободны сегодня вечером. Отключится само в 4:00.';
+
+  @override
+  String get joinedTable => 'Вы присоединились к столику.';
+
+  @override
+  String get declinedInvite => 'Вы отклонили приглашение.';
+
+  @override
+  String get yourStatus => 'Ваш статус';
+
+  @override
+  String get visibleUntil4 => 'Вас видно до 4:00';
+
+  @override
+  String get notVisible => 'Сейчас вас не видно';
+
+  @override
+  String get youreFree => 'Вы свободны';
+
+  @override
+  String get tonightIntro =>
+      'Если свободны, пусть это увидят участники общих групп — вместе можно собрать столик.';
+
+  @override
+  String get imFreeTonight => 'Я свободен(-на) сегодня вечером';
+
+  @override
+  String get noLongerFree => 'Вы больше не отмечены как свободный(-ая).';
+
+  @override
+  String get turnOffStatus => 'Отключить статус';
+
+  @override
+  String get leftTable => 'Вы покинули столик.';
+
+  @override
+  String get smallTable => 'Столик';
+
+  @override
+  String get smallTableHint =>
+      'Пригласите нескольких свободных — чат столика откроется, когда соберутся трое.';
+
+  @override
+  String get setUpTable => 'Собрать столик';
+
+  @override
+  String tableInvitesSent(int count) {
+    return 'Приглашения отправлены ($count). Чат откроется, когда соберутся трое.';
+  }
+
+  @override
+  String needMorePeople(int min, int now) {
+    return 'Для столика нужно ещё минимум $min свободных из общих групп (сейчас $now). Когда кто-то освободится, соберите столик здесь.';
+  }
+
+  @override
+  String freeFromGroups(int count) {
+    return 'Свободны сегодня из ваших групп: $count';
+  }
+
+  @override
+  String get chipCoffee => 'Кофе';
+
+  @override
+  String get chipWalk => 'Прогулка';
+
+  @override
+  String get chipFood => 'Еда';
+
+  @override
+  String get chipCinema => 'Кино';
+
+  @override
+  String get tonightSheetHint =>
+      'Видят только участники общих групп. Статус отключится сам в 4:00.';
+
+  @override
+  String get whatToDo => 'Чем хотите заняться? (необязательно)';
+
+  @override
+  String get whatToDoHint => 'например, кофе, прогулка';
+
+  @override
+  String get imFree => 'Я свободен(-на)';
+
+  @override
+  String get yourTable => 'Ваш столик';
+
+  @override
+  String joinedCount(int count) {
+    return 'Присоединились: $count';
+  }
+
+  @override
+  String waitingCount(int count) {
+    return 'Ожидаем: $count';
+  }
+
+  @override
+  String get settingUp => 'Собирается';
+
+  @override
+  String get chatOpen => 'Чат открыт';
+
+  @override
+  String get tableChat => 'Чат столика';
+
+  @override
+  String chatOpensWhen(int count) {
+    return 'Чат откроется, когда присоединятся ещё $count. Место и время выберете там вместе.';
+  }
+
+  @override
+  String get leaveTable => 'Покинуть столик';
+
+  @override
+  String tableInviteTitle(String name) {
+    return '$name собирает столик и приглашает вас.';
+  }
+
+  @override
+  String tableInviteStatus(int joined, int pending) {
+    return 'Присоединились: $joined · ожидаем: $pending. Чат откроется, когда соберутся трое.';
+  }
+
+  @override
+  String get join => 'Присоединиться';
+
+  @override
+  String get notTonight => 'Не сегодня';
+
+  @override
+  String get tonight => 'Сегодня вечером';
+
+  @override
+  String get freeTonight => 'Свободны сегодня вечером';
+
+  @override
+  String get sharedGroupsOnly => 'Только участники общих групп';
+
+  @override
+  String get nobodyFree => 'Сейчас никто из общих групп не свободен.';
+
+  @override
+  String get howItWorks => 'Как это работает?';
+
+  @override
+  String get howStep1 =>
+      'Нажмите «Я свободен(-на) сегодня» и, если хотите, напишите, чем заняться.';
+
+  @override
+  String get howStep2 => 'Участники общих групп видят вас, а вы — свободных.';
+
+  @override
+  String get howStep3 =>
+      'Соберите столик: чат откроется на трёх участниках, там и выберете место и время.';
+
+  @override
+  String get upcoming => 'Скоро';
+
+  @override
+  String get calendar => 'Календарь';
+
+  @override
+  String get noUpcomingJoined => 'Вы не участвуете в ближайших мероприятиях.';
+
+  @override
+  String get showAll => 'Показать все';
+
+  @override
+  String get noUpcoming60 =>
+      'В ближайшие 60 дней у ваших групп нет мероприятий.';
+
+  @override
+  String get findGroup => 'Найти группу';
+
+  @override
+  String filterAll(int count) {
+    return 'Все · $count';
+  }
+
+  @override
+  String filterMine(int count) {
+    return 'Мои · $count';
+  }
+
+  @override
+  String get tomorrow => 'Завтра';
+
+  @override
+  String get going => 'Вы идёте';
+
+  @override
+  String get waitlisted => 'В листе ожидания';
+
+  @override
+  String get awaitingApproval => 'Ожидает одобрения';
+
+  @override
+  String get full => 'Мест нет';
+
+  @override
+  String goingOfCapacityShort(int count, int capacity) {
+    return 'Участников: $count/$capacity';
+  }
+
+  @override
+  String get startingSoon => 'Скоро начнётся';
+
+  @override
+  String get next6Hours => 'Ближайшие 6 часов';
+
+  @override
+  String get wantWelcome => 'Хочу, чтобы меня встретили';
+
+  @override
+  String get wantWelcomeHint =>
+      'Волонтёр из группы встретит вас у входа — вы не придёте один(одна).';
+
+  @override
+  String get noteForGreeter => 'Заметка, чтобы вас узнали (необязательно)';
+
+  @override
+  String get noteForGreeterHint => 'Например: красная куртка, синий рюкзак';
+
+  @override
+  String get sendRequest => 'Отправить запрос';
+
+  @override
+  String get welcomeRequestSent =>
+      'Запрос отправлен встречающим. Сообщим, когда кто-то возьмётся.';
+
+  @override
+  String get editMeetingNote => 'Изменить заметку о встрече';
+
+  @override
+  String welcomePerson(String name) {
+    return 'Встретить $name';
+  }
+
+  @override
+  String describedAs(String note) {
+    return 'Как себя описал(а): $note';
+  }
+
+  @override
+  String get whereMeet => 'Где встретитесь?';
+
+  @override
+  String get whereMeetHint => 'Например: у кафе на входе, 8:45';
+
+  @override
+  String get save => 'Сохранить';
+
+  @override
+  String get iWillWelcome => 'Я встречу';
+
+  @override
+  String get noteUpdated => 'Заметка о встрече обновлена.';
+
+  @override
+  String youWillWelcome(String name) {
+    return 'Вы встречаете $name; заметку о встрече уже видно.';
+  }
+
+  @override
+  String get stopWelcoming => 'Отказаться от встречи';
+
+  @override
+  String stopWelcomingBody(String name) {
+    return 'Для $name будет найден другой встречающий, и ему(ей) сообщат.';
+  }
+
+  @override
+  String get release => 'Отказаться';
+
+  @override
+  String get releasedWelcome => 'Вы отказались; ищем другого встречающего.';
+
+  @override
+  String get firstTime => 'Идёте впервые?';
+
+  @override
+  String greetersAvailable(int count) {
+    return 'В группе встречающих: $count. Один из них встретит вас у входа и познакомит с группой.';
+  }
+
+  @override
+  String get youWelcomed => 'Вы встречаете';
+
+  @override
+  String meetingAt(String note) {
+    return 'Встреча: $note';
+  }
+
+  @override
+  String get thankedYou => 'Поблагодарил(а) вас';
+
+  @override
+  String optionsFor(String name) {
+    return 'Действия для $name';
+  }
+
+  @override
+  String waitingWelcome(int count) {
+    return 'Ждут встречи ($count)';
+  }
+
+  @override
+  String matchedCount(int count) {
+    return 'Встречающий найден для: $count';
+  }
+
+  @override
+  String get firstTimer => 'Впервые';
+
+  @override
+  String get max3Welcomes =>
+      'На одном мероприятии можно встретить до 3 человек.';
+
+  @override
+  String get greeterJoinHint =>
+      'Вы встречающий. Запишитесь на мероприятие, чтобы встречать новичков.';
+
+  @override
+  String get lookingGreeter => 'Ищем встречающего';
+
+  @override
+  String get lookingGreeterHint =>
+      'Мы сообщили встречающим. Придёт уведомление, когда кто-то возьмётся.';
+
+  @override
+  String yourNote(String note) {
+    return 'Ваша заметка: $note';
+  }
+
+  @override
+  String get welcomeWithdrawn => 'Запрос отозван.';
+
+  @override
+  String get withdrawRequest => 'Отозвать запрос';
+
+  @override
+  String get greetedBy => 'Вас встретил(а)';
+
+  @override
+  String get willGreet => 'Вас встретит';
+
+  @override
+  String get thank => 'Поблагодарить';
+
+  @override
+  String thankReceived(String name) {
+    return '$name получил(а) вашу благодарность.';
+  }
+
+  @override
+  String get thanked => 'Вы поблагодарили.';
+
+  @override
+  String get cancelWelcome => 'Отменить встречу';
+
+  @override
+  String get nowGreeter =>
+      'Теперь вы встречающий. Сообщим, когда новичок попросит его встретить.';
+
+  @override
+  String get noLongerGreeter => 'Вы больше не встречающий.';
+
+  @override
+  String get welcomeSection => 'Встреча новичков';
+
+  @override
+  String greetersCount(int count) {
+    return 'Встречающих: $count';
+  }
+
+  @override
+  String get greeterIntro =>
+      'Новички могут попросить встречу на странице мероприятия. Став встречающим, вы получите уведомление, встретите у входа и познакомите с группой.';
+
+  @override
+  String greeterMemberHint(int count) {
+    return 'В группе встречающих: $count. На первом мероприятии нажмите «Хочу, чтобы меня встретили».';
+  }
+
+  @override
+  String greeterVisitorHint(int count) {
+    return 'В группе встречающих: $count — на первое мероприятие вы не пойдёте один(одна), вас встретят у входа.';
+  }
+
+  @override
+  String get becomeGreeter => 'Стать встречающим';
+
+  @override
+  String quoted(String text) {
+    return '«$text»';
+  }
 }

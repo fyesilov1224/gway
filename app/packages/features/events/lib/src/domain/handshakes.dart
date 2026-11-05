@@ -25,7 +25,7 @@ class HandshakeResult {
   final bool alreadyMet;
 }
 
-/// One line of eventsL10n.metPeople: the person, and where and when they met.
+/// One line of "Tanıştıklarım": the person, and where and when they met.
 class MetPerson {
   const MetPerson({
     required this.person,

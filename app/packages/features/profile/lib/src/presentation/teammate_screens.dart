@@ -180,7 +180,7 @@ class _Locked extends ConsumerWidget {
   }
 }
 
-/// Invites the user to turn profileL10n.lookingForTeam on, so others can find and ask them.
+/// Invites the user to turn "Ekip arıyorum" on, so others can find and ask them.
 class _LookingPrompt extends ConsumerWidget {
   const _LookingPrompt();
 
@@ -210,7 +210,7 @@ class _LookingPrompt extends ConsumerWidget {
   }
 }
 
-/// Private accounts never show in suggestions (docs/ARCHITECTURE.md §3c), so profileL10n.lookingForTeam alone is not enough.
+/// Private accounts never show in suggestions (docs/ARCHITECTURE.md §3c), so "Ekip arıyorum" alone is not enough.
 class _PrivateAccountNotice extends ConsumerStatefulWidget {
   const _PrivateAccountNotice({required this.looking, this.margin = EdgeInsets.zero});
 
@@ -497,7 +497,7 @@ class _Teammates extends ConsumerWidget {
   }
 }
 
-/// profileL10n.lookingForTeam, level, free times, province (matching only) and a short note.
+/// "Ekip arıyorum", level, free times, province (matching only) and a short note.
 class TeammateSettingsScreen extends ConsumerWidget {
   const TeammateSettingsScreen({super.key});
 
@@ -765,7 +765,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
   }
 }
 
-/// profileL10n.lookingForTeam: whether the person shows in suggestions.
+/// "Ekip arıyorum": whether the person shows in suggestions.
 class _VisibilityCard extends StatelessWidget {
   const _VisibilityCard({required this.looking, required this.onChanged});
 

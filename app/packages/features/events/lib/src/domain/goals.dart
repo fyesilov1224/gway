@@ -198,7 +198,7 @@ abstract interface class GoalsRepository {
 
   Future<Result<void>> deleteTeam(String goalId, String teamId);
 
-  /// The member's own eventsL10n.done (Supabase, RLS).
+  /// The member's own "Yaptım" (Supabase, RLS).
   Future<Result<void>> claim(String goalId, {String note = ''});
 
   Future<Result<void>> withdrawClaim(String goalId);

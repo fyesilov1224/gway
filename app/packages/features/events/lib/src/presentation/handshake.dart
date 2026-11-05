@@ -55,7 +55,7 @@ class HandshakeEntry extends StatelessWidget {
   }
 }
 
-/// eventsL10n.myCode shows a QR code that renews itself; eventsL10n.scan reads the other person's code or takes it typed.
+/// "Kodum" shows a QR code that renews itself; "Okut" reads the other person's code or takes it typed.
 class HandshakeScreen extends StatelessWidget {
   const HandshakeScreen({super.key, required this.eventId, this.eventTitle});
 
@@ -285,7 +285,7 @@ class _MetDialog extends StatelessWidget {
   }
 }
 
-/// eventsL10n.metPeople (`/met`): only the person sees who they met.
+/// "Tanıştıklarım" (`/met`): only the person sees who they met.
 class MetPeopleScreen extends ConsumerWidget {
   const MetPeopleScreen({super.key});
 

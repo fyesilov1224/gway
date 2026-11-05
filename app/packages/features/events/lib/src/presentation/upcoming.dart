@@ -37,10 +37,10 @@ class _UpcomingScreenState extends ConsumerState<UpcomingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yaklaşanlar'),
+        title: Text(eventsL10n.upcoming),
         actions: [
           IconButton(
-            tooltip: 'Takvim',
+            tooltip: eventsL10n.calendar,
             icon: const Icon(Icons.calendar_month_outlined),
             onPressed: () => context.go(EventRoutes.calendar),
           ),
@@ -63,14 +63,14 @@ class _UpcomingScreenState extends ConsumerState<UpcomingScreen> {
                       child: _mineOnly
                           ? GwEmptyState(
                               icon: Icons.event_available_outlined,
-                              message: 'Katıldığın yaklaşan bir organizasyon yok.',
-                              actionLabel: 'Tümünü göster',
+                              message: eventsL10n.noUpcomingJoined,
+                              actionLabel: eventsL10n.showAll,
                               onAction: () => setState(() => _mineOnly = false),
                             )
                           : GwEmptyState(
                               icon: Icons.event_available_outlined,
-                              message: 'Önümüzdeki 60 günde gruplarının organizasyonu yok.',
-                              actionLabel: 'Grup bul',
+                              message: eventsL10n.noUpcoming60,
+                              actionLabel: eventsL10n.findGroup,
                               onAction: widget.onFindGroups,
                             ),
                     )
@@ -113,8 +113,8 @@ class _Filters extends StatelessWidget {
           spacing: GwSpacing.xs,
           runSpacing: GwSpacing.xs,
           children: [
-            ChoiceChip(label: Text('Tümü · ${formatCount(all)}'), selected: !mineOnly, onSelected: (_) => onChanged(false)),
-            ChoiceChip(label: Text('Katıldıklarım · ${formatCount(mine)}'), selected: mineOnly, onSelected: (_) => onChanged(true)),
+            ChoiceChip(label: Text(eventsL10n.filterAll(all)), selected: !mineOnly, onSelected: (_) => onChanged(false)),
+            ChoiceChip(label: Text(eventsL10n.filterMine(mine)), selected: mineOnly, onSelected: (_) => onChanged(true)),
           ],
         ),
       );
@@ -134,7 +134,7 @@ class _DayGroup extends StatelessWidget {
     final date = formatDate(day);
     final label = switch (day.difference(DateUtils.dateOnly(today)).inDays) {
       0 => eventsL10n.today,
-      1 => 'Yarın',
+      1 => eventsL10n.tomorrow,
       _ => formatWeekday(day),
     };
     return Column(
@@ -180,10 +180,10 @@ class _UpcomingTile extends StatelessWidget {
     final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
     final tone = GwTone.of(event.group.id);
     final status = switch (event.myStatus) {
-      AttendanceStatus.going => const GwTag(label: 'Katılıyorsun', icon: Icons.check_rounded),
-      AttendanceStatus.waitlisted => const GwTag(label: 'Yedek listede', icon: Icons.hourglass_empty_rounded, tone: GwTone.mist),
-      AttendanceStatus.requested => const GwTag(label: 'Onay bekliyor', icon: Icons.schedule_rounded, tone: GwTone.mist),
-      null when event.isFull => const GwTag(label: 'Dolu', tone: GwTone.mist),
+      AttendanceStatus.going => GwTag(label: eventsL10n.going, icon: Icons.check_rounded),
+      AttendanceStatus.waitlisted => GwTag(label: eventsL10n.waitlisted, icon: Icons.hourglass_empty_rounded, tone: GwTone.mist),
+      AttendanceStatus.requested => GwTag(label: eventsL10n.awaitingApproval, icon: Icons.schedule_rounded, tone: GwTone.mist),
+      null when event.isFull => GwTag(label: eventsL10n.full, tone: GwTone.mist),
       null => null,
     };
     final capacity = event.capacity;
@@ -228,8 +228,8 @@ class _UpcomingTile extends StatelessWidget {
                       ?status,
                       Text(
                         capacity == null
-                            ? '${formatCount(event.goingCount)} katılımcı'
-                            : '${formatCount(event.goingCount)}/${formatCount(capacity)} katılımcı',
+                            ? eventsL10n.goingCount(event.goingCount)
+                            : eventsL10n.goingOfCapacityShort(event.goingCount, capacity),
                         style: secondary,
                       ),
                     ],
@@ -275,7 +275,7 @@ class StartingSoonSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const GwSectionHeader(title: 'Yakında başlıyor', subtitle: 'Önümüzdeki 6 saat'),
+        GwSectionHeader(title: eventsL10n.startingSoon, subtitle: eventsL10n.next6Hours),
         SizedBox(
           height: GwDateTile.size + GwSpacing.lg,
           child: ListView.separated(
@@ -321,7 +321,7 @@ class _EventCard extends StatelessWidget {
                 Text(
                   [
                     if (showTime) _time(event.startsAt.toLocal()),
-                    if (event.isMine) 'Katılıyorsun',
+                    if (event.isMine) eventsL10n.going,
                     event.group.name,
                   ].join(' · '),
                   maxLines: 1,
