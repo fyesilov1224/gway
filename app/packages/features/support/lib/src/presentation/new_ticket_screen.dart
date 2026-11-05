@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/support.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -66,7 +67,7 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
     switch (result) {
       case Ok(:final value):
         ref.invalidate(myTicketsProvider);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mesajın platform ekibine iletildi.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(supportL10n.sent)));
         context.pushReplacement(SupportRoutes.ticket(value));
       case Err(:final failure):
         setState(() {
@@ -83,7 +84,7 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
     const gap = SizedBox(height: GwSpacing.md);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Yeni mesaj')),
+      appBar: AppBar(title: Text(supportL10n.newMessage)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: GwSpacing.lg, horizontal: GwSpacing.page),
         child: Center(
@@ -94,7 +95,7 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Ne hakkında yazıyorsun?', style: textTheme.titleMedium),
+                  Text(supportL10n.aboutWhat, style: textTheme.titleMedium),
                   const SizedBox(height: GwSpacing.sm),
                   for (final kind in SupportKind.values) ...[
                     _KindCard(kind: kind, selected: _kind == kind, onTap: () => setState(() {
@@ -104,7 +105,7 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                     const SizedBox(height: GwSpacing.xs),
                   ],
                   if (_kindMissing)
-                    Text('Bir tür seç.', style: textTheme.bodySmall?.copyWith(color: GwColors.error)),
+                    Text(supportL10n.pickKind, style: textTheme.bodySmall?.copyWith(color: GwColors.error)),
                   gap,
                   GwPanel(
                     child: Column(
@@ -113,9 +114,9 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                         if (groups.isNotEmpty) ...[
                           DropdownButtonFormField<String?>(
                             initialValue: groups.any((g) => g.id == _groupId) ? _groupId : null,
-                            decoration: const InputDecoration(labelText: 'İlgili grup (isteğe bağlı)'),
+                            decoration: InputDecoration(labelText: supportL10n.relatedGroup),
                             items: [
-                              const DropdownMenuItem(child: Text('Grupla ilgili değil')),
+                              DropdownMenuItem(child: Text(supportL10n.noGroup)),
                               for (final g in groups) DropdownMenuItem(value: g.id, child: Text(g.name)),
                             ],
                             onChanged: (v) => setState(() => _groupId = v),
@@ -125,8 +126,8 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                         TextFormField(
                           controller: _subject,
                           maxLength: SupportRules.subjectMax,
-                          decoration: const InputDecoration(labelText: 'Konu', counterText: ''),
-                          validator: (v) => (v?.trim().length ?? 0) < SupportRules.subjectMin ? 'Kısa bir konu yaz.' : null,
+                          decoration: InputDecoration(labelText: supportL10n.subject, counterText: ''),
+                          validator: (v) => (v?.trim().length ?? 0) < SupportRules.subjectMin ? supportL10n.subjectRequired : null,
                         ),
                         gap,
                         TextFormField(
@@ -134,12 +135,12 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                           maxLength: SupportRules.bodyMax,
                           minLines: 5,
                           maxLines: 10,
-                          decoration: const InputDecoration(
-                            labelText: 'Açıklama',
-                            hintText: 'Ne oldu, ne bekliyordun? Ne kadar ayrıntı, o kadar hızlı yardım.',
+                          decoration: InputDecoration(
+                            labelText: supportL10n.description,
+                            hintText: supportL10n.descriptionHint,
                             alignLabelWithHint: true,
                           ),
-                          validator: (v) => (v?.trim().isEmpty ?? true) ? 'Ne olduğunu kısaca anlat.' : null,
+                          validator: (v) => (v?.trim().isEmpty ?? true) ? supportL10n.descriptionRequired : null,
                         ),
                         gap,
                         ImageAttachments(
@@ -149,7 +150,7 @@ class _NewTicketScreenState extends ConsumerState<NewTicketScreen> {
                         ),
                         if (_error != null) ...[gap, GwFormMessage(_error!)],
                         const SizedBox(height: GwSpacing.lg),
-                        GwButton(label: 'Gönder', icon: Icons.send_outlined, expand: true, isLoading: _sending, onPressed: _send),
+                        GwButton(label: supportL10n.send, icon: Icons.send_outlined, expand: true, isLoading: _sending, onPressed: _send),
                       ],
                     ),
                   ),

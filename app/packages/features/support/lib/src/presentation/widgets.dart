@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/support.dart';
+import '../l10n.dart';
 import 'providers.dart';
 
 /// Color and icon of a message kind: problem red, request yellow, suggestion green.
@@ -93,7 +94,7 @@ class ImageAttachments extends StatelessWidget {
                 top: 0,
                 right: 0,
                 child: IconButton.filledTonal(
-                  tooltip: 'Görseli kaldır',
+                  tooltip: supportL10n.removeImage,
                   visualDensity: VisualDensity.compact,
                   iconSize: GwSpacing.md,
                   icon: const Icon(Icons.close),
@@ -106,7 +107,7 @@ class ImageAttachments extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add_photo_alternate_outlined, size: _iconSize),
-            label: Text('Ekran görüntüsü (${images.length}/${SupportRules.maxImages})'),
+            label: Text(supportL10n.screenshots(images.length, SupportRules.maxImages)),
           ),
       ],
     );
@@ -126,7 +127,7 @@ class AttachmentThumbnail extends ConsumerWidget {
     if (url == null) return const GwSkeleton(width: size, height: size);
     return Semantics(
       button: true,
-      label: 'Ekran görüntüsünü büyüt',
+      label: supportL10n.enlargeScreenshot,
       child: InkWell(
         borderRadius: GwRadius.mdAll,
         onTap: () => showDialog<void>(

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/support.dart';
+import '../l10n.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'widgets.dart';
@@ -19,11 +20,11 @@ class SupportScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Destek ve geri bildirim')),
+      appBar: AppBar(title: Text(supportL10n.supportTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(SupportRoutes.create()),
         icon: const Icon(Icons.edit_outlined),
-        label: const Text('Yeni mesaj'),
+        label: Text(supportL10n.newMessage),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -36,8 +37,8 @@ class SupportScreen extends ConsumerWidget {
                     const SizedBox(height: GwSpacing.xxl),
                     GwEmptyState(
                       icon: Icons.support_agent_outlined,
-                      message: 'Bir sorun, talep ya da istek için platform ekibine yazabilirsin.',
-                      actionLabel: 'Yeni mesaj',
+                      message: supportL10n.emptyIntro,
+                      actionLabel: supportL10n.newMessage,
                       onAction: () => context.push(SupportRoutes.create()),
                     ),
                   ],
@@ -50,7 +51,7 @@ class SupportScreen extends ConsumerWidget {
                       ? Padding(
                           padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.md, GwSpacing.md, GwSpacing.xs),
                           child: Text(
-                            'Mesajların platform ekibine iletilir; yanıtları ve durumlarını buradan izleyebilirsin.',
+                            supportL10n.listIntro,
                             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
                           ),
                         )
@@ -115,7 +116,7 @@ class _TicketRow extends StatelessWidget {
                 SupportStatusBadge(ticket.status),
                 if (ticket.hasUnreadReply) ...[
                   const SizedBox(height: GwSpacing.xxs),
-                  const GwBadge('Yeni yanıt', tone: GwBadgeTone.primary),
+                  GwBadge(supportL10n.newReply, tone: GwBadgeTone.primary),
                 ],
               ],
             ),

@@ -1949,6 +1949,7 @@ Kullanıcı isteği: Ayarlar'dan dil seçilince düğmeler, menüler, bağlantı
 - **Sağdan sola (Arapça):** düzen `Directionality` ile döner; kenar boşlukları `EdgeInsetsDirectional`, hizalama `AlignmentDirectional` kullanır; yön belirten ikonlar aynalanır.
 - Uzun dillerde (Almanca) ve %130 yazı ölçeğinde düzen bozulmaz; testler en uzun dil ile de çalışır.
 - `CLAUDE.md` kural 9 buna göre değişti: yeni arayüz metni önce Türkçe ARB'ye, aynı değişiklikte 11 dile eklenir.
+- **Kullanma kılavuzu (§7b)** arayüz metni değil uzun içerik olduğu için ARB'de değil, dil başına bir Dart dosyasındadır: `support/lib/src/domain/guide/<dil>.dart`. Kılavuz geçerli dilin dosyasını okur. Bütün dillerde bölüm kimlikleri, konu sayıları ve adım/not sayıları aynıdır; bunu bir test denetler. Kılavuz değişince 12 dosya birlikte değişir. Arama her dilin aksanlı harflerini sadeleştirerek eşleştirir.
 
 ### Sunucu
 - `profiles.locale` (12 dilden biri, varsayılan `tr`).

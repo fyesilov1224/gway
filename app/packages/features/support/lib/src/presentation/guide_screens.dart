@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/guide.dart';
 import '../domain/guide_content.dart';
+import '../l10n.dart';
 import 'routes.dart';
 
 const _icons = <String, IconData>{
@@ -82,19 +83,19 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
     final hits = searching ? searchGuide(guideChapters, _query) : const <GuideHit>[];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Kullanma kılavuzu')),
+      appBar: AppBar(title: Text(supportL10n.guide)),
       body: _page([
         TextField(
           controller: _search,
           onChanged: (v) => setState(() => _query = v),
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: 'Kılavuzda ara: ör. davet bağlantısı, şifre',
+            hintText: supportL10n.guideSearchHint,
             prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
-                    tooltip: 'Aramayı temizle',
+                    tooltip: supportL10n.clearSearch,
                     icon: const Icon(Icons.close),
                     onPressed: () => setState(() {
                       _search.clear();
@@ -106,7 +107,7 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         const SizedBox(height: GwSpacing.md),
         if (!searching) ...[
           Text(
-            'GWAY\'in her bölümünü adım adım anlatır. Bir bölüm seç ya da yukarıdan ara.',
+            supportL10n.guideIntro,
             style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary),
           ),
           const SizedBox(height: GwSpacing.md),
@@ -117,12 +118,12 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         ] else if (hits.isEmpty)
           GwEmptyState(
             icon: Icons.search_off_rounded,
-            message: 'Aradığını bulamadık. Başka bir kelime dene ya da destek ekibine yaz.',
-            actionLabel: 'Destek ekibine yaz',
+            message: supportL10n.noHits,
+            actionLabel: supportL10n.writeSupport,
             onAction: () => context.push(SupportRoutes.create()),
           )
         else ...[
-          Text('${hits.length} konu bulundu', style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
+          Text(supportL10n.hitsFound(hits.length), style: textTheme.labelLarge?.copyWith(color: GwColors.textSecondary)),
           const SizedBox(height: GwSpacing.xs),
           GwCard(
             radius: GwRadius.lgAll,
@@ -158,7 +159,7 @@ class _ChapterCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Semantics(
       button: true,
-      label: '${chapter.title}. ${chapter.summary} ${chapter.topics.length} konu.',
+      label: supportL10n.chapterSemantics(chapter.title, chapter.summary, chapter.topics.length),
       excludeSemantics: true,
       child: GwCard(
         radius: GwRadius.lgAll,
@@ -179,7 +180,7 @@ class _ChapterCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: GwSpacing.xs),
-            Text('${chapter.topics.length} konu', style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
+            Text(supportL10n.topicCount(chapter.topics.length), style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
             const Icon(Icons.chevron_right, color: GwColors.textSecondary),
           ],
         ),
@@ -203,8 +204,8 @@ class GuideChapterScreen extends StatelessWidget {
         appBar: AppBar(),
         body: GwEmptyState(
           icon: Icons.menu_book_outlined,
-          message: 'Bu bölüm bulunamadı.',
-          actionLabel: 'Kılavuza dön',
+          message: supportL10n.chapterNotFound,
+          actionLabel: supportL10n.backToGuide,
           onAction: () => context.pushReplacement(SupportRoutes.guide),
         ),
       );
@@ -235,13 +236,13 @@ class GuideChapterScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Sorunun çözülmedi mi?', style: textTheme.titleSmall),
+              Text(supportL10n.notSolved, style: textTheme.titleSmall),
               const SizedBox(height: GwSpacing.xxs),
-              Text('Platform ekibine yaz; yanıtı Ayarlar → Destek ve geri bildirim\'de görürsün.',
+              Text(supportL10n.notSolvedHint,
                   style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
               const SizedBox(height: GwSpacing.sm),
               GwButton(
-                label: 'Destek ekibine yaz',
+                label: supportL10n.writeSupport,
                 icon: Icons.support_agent_outlined,
                 variant: GwButtonVariant.secondary,
                 onPressed: () => context.push(SupportRoutes.create()),
@@ -253,7 +254,7 @@ class GuideChapterScreen extends StatelessWidget {
           const SizedBox(height: GwSpacing.sm),
           ListTile(
             minTileHeight: GwSpacing.minTouchTarget + GwSpacing.sm,
-            title: Text('Sonraki bölüm', style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
+            title: Text(supportL10n.nextChapter, style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
             subtitle: Text(next.title, style: textTheme.titleSmall),
             trailing: const Icon(Icons.arrow_forward_rounded),
             onTap: () => context.pushReplacement(SupportRoutes.guideChapter(next.id)),

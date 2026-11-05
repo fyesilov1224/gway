@@ -1,0 +1,248 @@
+{
+  "@@locale": "tr",
+  "ruleTicketRate": "Bugün çok fazla mesaj açtın. Yarın tekrar deneyebilir ya da açık mesajlarına yazabilirsin.",
+  "@ruleTicketRate": {
+    "description": ""
+  },
+  "ruleReplyRate": "Kısa sürede çok fazla yanıt yazdın. Biraz bekleyip tekrar dene.",
+  "@ruleReplyRate": {
+    "description": ""
+  },
+  "ticketClosed": "Bu mesaj kapatıldı. Devam etmek için yeni bir mesaj aç.",
+  "@ticketClosed": {
+    "description": ""
+  },
+  "unsupportedImage": "Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.",
+  "@unsupportedImage": {
+    "description": ""
+  },
+  "kindProblem": "Sorun",
+  "@kindProblem": {
+    "description": ""
+  },
+  "kindProblemText": "Bir şey bozuk ya da çalışmıyor.",
+  "@kindProblemText": {
+    "description": ""
+  },
+  "kindRequest": "Talep",
+  "@kindRequest": {
+    "description": ""
+  },
+  "kindRequestText": "Hesabın, grubun ya da ödemen için bir işlem iste.",
+  "@kindRequestText": {
+    "description": ""
+  },
+  "kindSuggestion": "İstek",
+  "@kindSuggestion": {
+    "description": ""
+  },
+  "kindSuggestionText": "Yeni bir özellik ya da öneri paylaş.",
+  "@kindSuggestionText": {
+    "description": ""
+  },
+  "statusOpen": "Yeni",
+  "@statusOpen": {
+    "description": ""
+  },
+  "statusInProgress": "İnceleniyor",
+  "@statusInProgress": {
+    "description": ""
+  },
+  "statusResolved": "Çözüldü",
+  "@statusResolved": {
+    "description": ""
+  },
+  "statusClosed": "Kapatıldı",
+  "@statusClosed": {
+    "description": ""
+  },
+  "guide": "Kullanma kılavuzu",
+  "@guide": {
+    "description": ""
+  },
+  "guideSearchHint": "Kılavuzda ara: ör. davet bağlantısı, şifre",
+  "@guideSearchHint": {
+    "description": ""
+  },
+  "clearSearch": "Aramayı temizle",
+  "@clearSearch": {
+    "description": ""
+  },
+  "guideIntro": "GWAY'in her bölümünü adım adım anlatır. Bir bölüm seç ya da yukarıdan ara.",
+  "@guideIntro": {
+    "description": ""
+  },
+  "noHits": "Aradığını bulamadık. Başka bir kelime dene ya da destek ekibine yaz.",
+  "@noHits": {
+    "description": ""
+  },
+  "writeSupport": "Destek ekibine yaz",
+  "@writeSupport": {
+    "description": ""
+  },
+  "hitsFound": "{count} konu bulundu",
+  "@hitsFound": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterSemantics": "{title}. {summary} {count} konu.",
+  "@chapterSemantics": {
+    "description": "",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "summary": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicCount": "{count} konu",
+  "@topicCount": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterNotFound": "Bu bölüm bulunamadı.",
+  "@chapterNotFound": {
+    "description": ""
+  },
+  "backToGuide": "Kılavuza dön",
+  "@backToGuide": {
+    "description": ""
+  },
+  "notSolved": "Sorunun çözülmedi mi?",
+  "@notSolved": {
+    "description": ""
+  },
+  "notSolvedHint": "Platform ekibine yaz; yanıtı Ayarlar → Destek ve geri bildirim'de görürsün.",
+  "@notSolvedHint": {
+    "description": ""
+  },
+  "nextChapter": "Sonraki bölüm",
+  "@nextChapter": {
+    "description": ""
+  },
+  "sent": "Mesajın platform ekibine iletildi.",
+  "@sent": {
+    "description": ""
+  },
+  "newMessage": "Yeni mesaj",
+  "@newMessage": {
+    "description": ""
+  },
+  "aboutWhat": "Ne hakkında yazıyorsun?",
+  "@aboutWhat": {
+    "description": ""
+  },
+  "pickKind": "Bir tür seç.",
+  "@pickKind": {
+    "description": ""
+  },
+  "relatedGroup": "İlgili grup (isteğe bağlı)",
+  "@relatedGroup": {
+    "description": ""
+  },
+  "noGroup": "Grupla ilgili değil",
+  "@noGroup": {
+    "description": ""
+  },
+  "subject": "Konu",
+  "@subject": {
+    "description": ""
+  },
+  "subjectRequired": "Kısa bir konu yaz.",
+  "@subjectRequired": {
+    "description": ""
+  },
+  "description": "Açıklama",
+  "@description": {
+    "description": ""
+  },
+  "descriptionHint": "Ne oldu, ne bekliyordun? Ne kadar ayrıntı, o kadar hızlı yardım.",
+  "@descriptionHint": {
+    "description": ""
+  },
+  "descriptionRequired": "Ne olduğunu kısaca anlat.",
+  "@descriptionRequired": {
+    "description": ""
+  },
+  "send": "Gönder",
+  "@send": {
+    "description": ""
+  },
+  "supportTitle": "Destek ve geri bildirim",
+  "@supportTitle": {
+    "description": ""
+  },
+  "emptyIntro": "Bir sorun, talep ya da istek için platform ekibine yazabilirsin.",
+  "@emptyIntro": {
+    "description": ""
+  },
+  "listIntro": "Mesajların platform ekibine iletilir; yanıtları ve durumlarını buradan izleyebilirsin.",
+  "@listIntro": {
+    "description": ""
+  },
+  "newReply": "Yeni yanıt",
+  "@newReply": {
+    "description": ""
+  },
+  "message": "Mesaj",
+  "@message": {
+    "description": ""
+  },
+  "notFound": "Bu mesaj bulunamadı.",
+  "@notFound": {
+    "description": ""
+  },
+  "goBack": "Geri dön",
+  "@goBack": {
+    "description": ""
+  },
+  "team": "GWAY Ekibi",
+  "@team": {
+    "description": ""
+  },
+  "you": "Sen",
+  "@you": {
+    "description": ""
+  },
+  "addScreenshot": "Ekran görüntüsü ekle",
+  "@addScreenshot": {
+    "description": ""
+  },
+  "writeReply": "Yanıt yaz",
+  "@writeReply": {
+    "description": ""
+  },
+  "removeImage": "Görseli kaldır",
+  "@removeImage": {
+    "description": ""
+  },
+  "screenshots": "Ekran görüntüsü ({count}/{max})",
+  "@screenshots": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "enlargeScreenshot": "Ekran görüntüsünü büyüt",
+  "@enlargeScreenshot": {
+    "description": ""
+  }
+}

@@ -24,10 +24,10 @@ class GuideTopic {
 
 typedef GuideHit = ({GuideChapter chapter, int topic});
 
-/// Lower case without Turkish marks, so "kilavuz" finds "Kılavuz" and "sifre" finds "şifre".
+/// Lower case without accent marks, so "kilavuz" finds "Kılavuz", "sifre" finds "şifre" and "reseau" finds "réseau".
 String foldForSearch(String text) {
-  const from = 'çğıöşüâîû';
-  const to = 'cgiosuaiu';
+  const from = 'çğıöşüâîûəàáäãåèéêëìíïòóôõùúñßœæёй';
+  const to = 'cgiosuaiueaaaaaeeeeiiioooouunsoaеи';
   final lower = text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
   final out = StringBuffer();
   for (final ch in lower.split('')) {

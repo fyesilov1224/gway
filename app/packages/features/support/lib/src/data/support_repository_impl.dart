@@ -4,6 +4,7 @@ import 'package:core/core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/support.dart';
+import '../l10n.dart';
 
 /// The user's own tickets, written straight to Supabase under RLS (docs/ARCHITECTURE.md §7b).
 class SupportRepositoryImpl implements SupportRepository {
@@ -13,12 +14,12 @@ class SupportRepositoryImpl implements SupportRepository {
 
   static const _bucket = 'support-attachments';
 
-  /// Trigger codes users can run into, as Turkish messages.
-  static const _rules = {
-    'ticket_rate_limited': 'Bugün çok fazla mesaj açtın. Yarın tekrar deneyebilir ya da açık mesajlarına yazabilirsin.',
-    'reply_rate_limited': 'Kısa sürede çok fazla yanıt yazdın. Biraz bekleyip tekrar dene.',
-    'ticket_closed': 'Bu mesaj kapatıldı. Devam etmek için yeni bir mesaj aç.',
-  };
+  /// Trigger codes users can run into, in the app language.
+  static Map<String, String> get _rules => {
+        'ticket_rate_limited': supportL10n.ruleTicketRate,
+        'reply_rate_limited': supportL10n.ruleReplyRate,
+        'ticket_closed': supportL10n.ticketClosed,
+      };
 
   Future<Result<T>> _run<T>(Future<T> Function() action) async {
     try {
@@ -139,7 +140,7 @@ class SupportRepositoryImpl implements SupportRepository {
   /// `<uid>/<ticket>-<n>.<ext>`, the only layout the database accepts. A time-based n keeps names unique.
   Future<Result<List<String>>> _upload(String ticketId, List<ImageUpload> images) async {
     if (images.any((i) => i.contentType == null)) {
-      return const Err(RuleFailure('storage.unsupported_type', 'Bu dosya türü desteklenmiyor. JPEG, PNG veya WebP seç.'));
+      return Err(RuleFailure('storage.unsupported_type', supportL10n.unsupportedImage));
     }
     final stamp = DateTime.now().millisecondsSinceEpoch;
     return _run(() async {
