@@ -160,5 +160,10 @@
   "reasonMin3": "Le motif doit contenir au moins 3 caractères.",
   "yesterday": "Hier",
   "sendMessage": "Envoyer un message",
-  "groupChatMembersOnly": "Seuls les membres du groupe voient la discussion."
+  "groupChatMembersOnly": "Seuls les membres du groupe voient la discussion.",
+  "callVerifying": "Vérification du chiffrement…",
+  "callSecure": "Appel sécurisé",
+  "callSecureDetail": "Chiffré de bout en bout. Les codes de sécurité des deux téléphones correspondent, personne ne s’est interposé.",
+  "callCheckFailed": "Chiffrement non vérifié : les codes de sécurité des deux téléphones ne correspondent pas. Raccroche et rappelle.",
+  "showSecurityCode": "Afficher le code de sécurité"
 }

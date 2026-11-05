@@ -157,6 +157,7 @@ class _FakeNative implements NativeCalls {
   final log = <String>[];
   final choices = StreamController<NativeCallAction>.broadcast();
   List<String> answeredEarlier = const [];
+  Set<String> answeredHere = const {};
   bool lockScreenAllowed = true;
 
   @override
@@ -170,6 +171,9 @@ class _FakeNative implements NativeCalls {
 
   @override
   Future<List<String>> answeredBeforeStart() async => answeredEarlier;
+
+  @override
+  Future<bool> answered(String callId) async => answeredHere.contains(callId);
 
   @override
   Future<bool> canRingOnLockScreen() async => lockScreenAllowed;
@@ -186,12 +190,18 @@ typedef _Harness = ({
   _FakeKeepAlive keepAlive,
 });
 
-Future<_Harness> _pumpCall(WidgetTester tester, {CallJoin? join, bool answer = false}) async {
+Future<_Harness> _pumpCall(
+  WidgetTester tester, {
+  CallJoin? join,
+  bool answer = false,
+  _FakeNative? native,
+  CallScreens? screens,
+}) async {
   final harness = (
     calls: _FakeCalls(),
     session: _FakeSession(),
     ringer: _FakeRinger(),
-    native: _FakeNative(),
+    native: native ?? _FakeNative(),
     keepAlive: _FakeKeepAlive(),
   );
   await tester.pumpWidget(ProviderScope(
@@ -202,6 +212,7 @@ Future<_Harness> _pumpCall(WidgetTester tester, {CallJoin? join, bool answer = f
       callRingerProvider.overrideWithValue(harness.ringer),
       nativeCallsProvider.overrideWithValue(harness.native),
       callKeepAliveProvider.overrideWithValue(harness.keepAlive),
+      if (screens != null) callScreensProvider.overrideWithValue(screens),
     ],
     child: MaterialApp(theme: GwTheme.light(), home: CallScreen(callId: 'k1', join: join, answer: answer)),
   ));
@@ -286,7 +297,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('the encryption note waits for the key, then shows the safety code', (tester) async {
+  testWidgets('the phones check the keys themselves: green when they match, the code only on request', (tester) async {
     final h = await _pumpCall(tester, join: _join);
     await _emit(tester, h, _call(CallStatus.active, caller: 'me', callee: 'deniz', answeredAt: DateTime.now()));
     expect(find.text('Şifreli bağlantı kuruluyor…'), findsOneWidget);
@@ -296,8 +307,34 @@ void main() {
       ..safetyCode = '1234 5678 9012'
       ..notifyListeners();
     await tester.pump();
-    expect(find.text('Uçtan uca şifreli'), findsOneWidget);
+    expect(find.text('Şifreleme doğrulanıyor…'), findsOneWidget);
+    expect(find.text('1234 5678 9012'), findsNothing);
+
+    h.session
+      ..check = CallCheck.verified
+      ..notifyListeners();
+    await tester.pump();
+    expect(find.text('Güvenli görüşme'), findsOneWidget);
+    expect(find.text('1234 5678 9012'), findsNothing, reason: 'the code stays hidden');
+
+    await tester.ensureVisible(find.text('Güvenlik kodunu göster'));
+    await tester.tap(find.text('Güvenlik kodunu göster'));
+    await tester.pump();
     expect(find.text('1234 5678 9012'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('different keys on the two phones: a warning instead of the green note', (tester) async {
+    final h = await _pumpCall(tester, join: _join);
+    await _emit(tester, h, _call(CallStatus.active, caller: 'me', callee: 'deniz', answeredAt: DateTime.now()));
+    h.session
+      ..secure = true
+      ..safetyCode = '1234 5678 9012'
+      ..check = CallCheck.mismatch
+      ..notifyListeners();
+    await tester.pump();
+    expect(find.textContaining('Şifreleme doğrulanamadı'), findsOneWidget);
+    expect(find.text('Güvenli görüşme'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -321,10 +358,58 @@ void main() {
 
   test("a ringing push opens the phone's call screen and call_ended closes it", () async {
     final native = _FakeNative(supported: true);
-    await handleCallPush({'type': 'call_incoming', 'call_id': 'k1', 'title': 'deniz'}, calls: native);
-    await handleCallPush({'type': 'call_ended', 'call_id': 'k1'}, calls: native);
-    await handleCallPush({'type': 'message', 'conversation_id': 'c1'}, calls: native);
+    Future<bool> ringing(String _) async => true;
+    await handleCallPush({'type': 'call_incoming', 'call_id': 'k1', 'title': 'deniz'}, calls: native, stillRinging: ringing);
+    await handleCallPush({'type': 'call_ended', 'call_id': 'k1'}, calls: native, stillRinging: ringing);
+    await handleCallPush({'type': 'message', 'conversation_id': 'c1'}, calls: native, stillRinging: ringing);
     expect(native.log, ['ring k1 deniz', 'end k1']);
+  });
+
+  test('a ringing push that arrives after the call was answered or ended does not ring', () async {
+    final native = _FakeNative(supported: true);
+    await handleCallPush({'type': 'call_incoming', 'call_id': 'k1', 'title': 'deniz'},
+        calls: native, stillRinging: (_) async => false);
+    expect(native.log, isEmpty);
+  });
+
+  testWidgets("answered on the phone's call screen after the app's screen opened: answered once, not asked again",
+      (tester) async {
+    final screens = CallScreens();
+    expect(screens.claim('k1'), isTrue);
+    final h = await _pumpCall(tester, screens: screens);
+    await _emit(tester, h, _call(CallStatus.ringing));
+    expect(find.text('Cevapla'), findsOneWidget);
+
+    expect(screens.claim('k1', answer: true), isFalse, reason: 'no second screen');
+    await tester.pump();
+    await tester.pump();
+    expect(h.calls.actions, ['accept']);
+    expect(h.ringer.ringing, isFalse);
+
+    expect(screens.claim('k1', answer: true), isFalse);
+    await tester.pump();
+    expect(h.calls.actions, ['accept'], reason: 'answered once');
+    await tester.pumpWidget(const SizedBox());
+    expect(screens.claim('k1'), isTrue, reason: 'the closed screen let go of the call');
+  });
+
+  testWidgets("the phone's call screen was answered just before the app's screen opened: no second answer button",
+      (tester) async {
+    final native = _FakeNative(supported: true)..answeredHere = {'k1'};
+    final h = await _pumpCall(tester, native: native);
+    await _emit(tester, h, _call(CallStatus.ringing));
+    expect(h.calls.actions, ['accept']);
+    expect(native.log, ['end k1']);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  test('one screen per call: asks a moment apart open one screen', () {
+    final screens = CallScreens();
+    expect(screens.claim('k1'), isTrue);
+    expect(screens.claim('k1'), isFalse);
+    expect(screens.claim('k1', answer: true), isFalse);
+    expect(screens.attach('k1', () {}), isTrue, reason: 'the answer waits for the screen');
+    expect(screens.claim('k2'), isTrue);
   });
 
   Future<(_FakeCalls, _FakeNative, List<String>)> pumpBridge(WidgetTester tester, {List<String> earlier = const []}) async {

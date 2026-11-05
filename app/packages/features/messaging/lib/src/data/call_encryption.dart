@@ -6,13 +6,17 @@ import 'package:pointycastle/export.dart';
 
 /// The audio key of a call and the code both people can compare to know nobody is in between.
 class CallKeys {
-  const CallKeys({required this.audioKey, required this.safetyCode});
+  const CallKeys({required this.audioKey, required this.safetyCode, required this.confirmation});
 
   /// 32 random-looking bytes (base64) for LiveKit's frame encryption; never leaves the phone.
   final String audioKey;
 
   /// 12 digits in groups of four, the same on both phones when they talk to each other directly.
   final String safetyCode;
+
+  /// What this phone shows the other one to prove it holds the same audio key and safety code: an HMAC under the
+  /// audio key, so it gives nothing of the key away. Equal on both phones only when both derived the same keys.
+  final String confirmation;
 }
 
 /// End-to-end encryption of a voice call (docs/ARCHITECTURE.md §8c, Uçtan uca şifreleme): a fresh P-256 key pair for
@@ -54,8 +58,17 @@ class CallKeyAgreement {
     final key = Uint8List(32);
     (HKDFKeyDerivator(SHA256Digest())..init(HkdfParameters(_bytes32(secret), 32, salt, utf8.encode(_info))))
         .deriveKey(null, 0, key, 0);
-    return CallKeys(audioKey: base64.encode(key), safetyCode: _safetyCode(_public, peer, callId));
+    final safetyCode = _safetyCode(_public, peer, callId);
+    return CallKeys(audioKey: base64.encode(key), safetyCode: safetyCode, confirmation: _confirmation(key, safetyCode));
   }
+
+  static String _confirmation(Uint8List key, String safetyCode) {
+    final mac = HMac(SHA256Digest(), 64)..init(KeyParameter(key));
+    final tag = mac.process(Uint8List.fromList(utf8.encode('$_confirmInfo|$safetyCode')));
+    return base64Url.encode(tag.sublist(0, 16));
+  }
+
+  static const _confirmInfo = 'gway-call-confirm-v1';
 
   /// Both public keys in a fixed order, so both phones get the same digits.
   static String _safetyCode(Uint8List a, Uint8List b, String callId) {

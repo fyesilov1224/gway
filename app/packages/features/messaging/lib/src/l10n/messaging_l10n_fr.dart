@@ -575,4 +575,21 @@ class MessagingL10nFr extends MessagingL10n {
   @override
   String get groupChatMembersOnly =>
       'Seuls les membres du groupe voient la discussion.';
+
+  @override
+  String get callVerifying => 'Vérification du chiffrement…';
+
+  @override
+  String get callSecure => 'Appel sécurisé';
+
+  @override
+  String get callSecureDetail =>
+      'Chiffré de bout en bout. Les codes de sécurité des deux téléphones correspondent, personne ne s’est interposé.';
+
+  @override
+  String get callCheckFailed =>
+      'Chiffrement non vérifié : les codes de sécurité des deux téléphones ne correspondent pas. Raccroche et rappelle.';
+
+  @override
+  String get showSecurityCode => 'Afficher le code de sécurité';
 }

@@ -21,14 +21,9 @@ class SocialApp extends ConsumerWidget {
           if (context.mounted) rebuildAll(context);
         }));
     // The ringing push, the in-app listener and the phone's call screen can all ask; one call screen is enough.
-    // An answer from the phone's screen replaces a screen that is still ringing.
+    // An answer from the phone's screen goes to a screen that is already open or opening (docs/ARCHITECTURE.md §8c).
     void openCall(String id, {bool answer = false}) {
-      final here = router.routerDelegate.currentConfiguration.uri;
-      if (here.path != MessagingRoutes.call(id)) {
-        router.push(MessagingRoutes.call(id, answer: answer));
-      } else if (answer && here.queryParameters['answer'] != '1') {
-        router.pushReplacement(MessagingRoutes.call(id, answer: true));
-      }
+      if (ref.read(callScreensProvider).claim(id, answer: answer)) router.push(MessagingRoutes.call(id, answer: answer));
     }
 
     // Opening the room the user is already looking at does nothing; a room left in the background is reopened.

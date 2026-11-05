@@ -12,6 +12,7 @@ void main() {
     expect(onA.audioKey, onB.audioKey);
     expect(onA.safetyCode, onB.safetyCode);
     expect(onA.safetyCode, matches(RegExp(r'^\d{4} \d{4} \d{4}$')));
+    expect(onA.confirmation, onB.confirmation, reason: 'the phones confirm the match to each other');
   });
 
   test('someone in between gets different codes on the two phones', () {
@@ -25,6 +26,7 @@ void main() {
 
     expect(onA.safetyCode, isNot(onB.safetyCode));
     expect(onA.audioKey, isNot(onB.audioKey));
+    expect(onA.confirmation, isNot(onB.confirmation), reason: 'the phones see that the codes differ');
   });
 
   test('another call or a fresh key pair gives another key', () {

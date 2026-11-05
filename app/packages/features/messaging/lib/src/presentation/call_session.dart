@@ -9,6 +9,21 @@ import '../l10n.dart';
 
 enum CallConnection { idle, connecting, connected, failed }
 
+/// Whether the two phones checked that they hold the same keys (docs/ARCHITECTURE.md §8c, Güvenlik kodu).
+enum CallCheck {
+  /// The keys are being agreed or the other phone's confirmation has not come yet.
+  waiting,
+
+  /// Both phones derived the same audio key and safety code: nobody is in between.
+  verified,
+
+  /// The other phone sends no confirmation (an older app version); the code can still be compared by eye.
+  unconfirmed,
+
+  /// The other phone holds different keys: something is in between, or the connection is broken.
+  mismatch,
+}
+
 /// The audio side of a call: one LiveKit room with two people, microphone only, end-to-end encrypted
 /// (docs/ARCHITECTURE.md §8c, Uçtan uca şifreleme). Whether the call goes on is the call row's business; this only
 /// carries the sound.
@@ -16,12 +31,21 @@ class CallSession extends ChangeNotifier {
   /// The participant attribute carrying a phone's encryption public key.
   static const keyAttribute = 'gway_e2ee';
 
+  /// The participant attribute carrying a phone's key confirmation ([CallKeys.confirmation]).
+  static const confirmAttribute = 'gway_e2ee_ok';
+
+  /// How long a missing or different confirmation may be a moment's lag (the other phone reconnecting) before it
+  /// counts.
+  static const confirmWithin = Duration(seconds: 10);
+
   lk.Room? _room;
   lk.EventsListener<lk.RoomEvent>? _events;
   lk.BaseKeyProvider? _keys;
   CallKeyAgreement? _agreement;
   String? _callId;
   String? _peerKey;
+  String? _confirmation;
+  Timer? _checkTimer;
   bool _disposed = false;
 
   CallConnection connection = CallConnection.idle;
@@ -32,8 +56,11 @@ class CallSession extends ChangeNotifier {
   /// microphone stays off, so unencrypted sound is never sent.
   bool secure = false;
 
-  /// The digits both people may compare; null until [secure].
+  /// The digits both people may compare; null until [secure]. Shown only on request: the phones compare it
+  /// themselves ([check]).
   String? safetyCode;
+
+  CallCheck check = CallCheck.waiting;
 
   /// The other phone sent unencrypted sound (an old app version); it is not played.
   bool peerUnencrypted = false;
@@ -46,8 +73,10 @@ class CallSession extends ChangeNotifier {
     connection = CallConnection.connecting;
     secure = false;
     safetyCode = null;
+    check = CallCheck.waiting;
     peerUnencrypted = false;
     _peerKey = null;
+    _confirmation = null;
     _notify();
     try {
       final keys = await lk.BaseKeyProvider.create();
@@ -65,11 +94,14 @@ class CallSession extends ChangeNotifier {
       room.addListener(_notify);
       _events = room.createListener()
         ..on<lk.ParticipantConnectedEvent>((_) => _applyPeerKey())
-        ..on<lk.ParticipantAttributesChanged>((_) => _applyPeerKey())
+        ..on<lk.ParticipantAttributesChanged>((_) async {
+          await _applyPeerKey();
+          _checkConfirmation();
+        })
         ..on<lk.TrackSubscribedEvent>(_checkEncrypted);
       await room.connect(join.url, join.token);
       await room.startAudio();
-      _publishKey(room, agreement.publicKey);
+      _publish(room, keyAttribute, agreement.publicKey);
       connection = CallConnection.connected;
       await _applyPeerKey();
     } on Object catch (e) {
@@ -79,16 +111,17 @@ class CallSession extends ChangeNotifier {
     _notify();
   }
 
-  /// Writes this phone's public key into its room attributes. The server's acknowledgement is not waited for: LiveKit
-  /// 1.9.1 sent it without the request id, so the wait timed out although the key had arrived, and the call failed
-  /// with "Sese bağlanılamadı" (2026-11-04). One retry covers a request that really got lost.
-  void _publishKey(lk.Room room, String publicKey) {
-    Future<void> publish() async => room.localParticipant?.setAttributes({keyAttribute: publicKey});
+  /// Writes one of this phone's room attributes (the public key, the key confirmation); the other attributes stay.
+  /// The server's acknowledgement is not waited for: LiveKit 1.9.1 sent it without the request id, so the wait timed
+  /// out although the key had arrived, and the call failed with "Sese bağlanılamadı" (2026-11-04). One retry covers a
+  /// request that really got lost.
+  void _publish(lk.Room room, String attribute, String value) {
+    Future<void> publish() async => room.localParticipant?.setAttributes({attribute: value});
     unawaited(publish().catchError((Object e) async {
       if (_room != room) return;
-      if (room.localParticipant?.attributes[keyAttribute] == publicKey) return;
-      debugPrint('Call key not confirmed, sending again: $e');
-      await publish().catchError((Object e) => debugPrint('Call key not confirmed: $e'));
+      if (room.localParticipant?.attributes[attribute] == value) return;
+      debugPrint('Call attribute $attribute not confirmed, sending again: $e');
+      await publish().catchError((Object e) => debugPrint('Call attribute $attribute not confirmed: $e'));
     }));
   }
 
@@ -109,12 +142,48 @@ class CallSession extends ChangeNotifier {
       await keys.setSharedKey(derived.audioKey);
       secure = true;
       safetyCode = derived.safetyCode;
+      _confirmation = derived.confirmation;
+      check = CallCheck.waiting;
+      _checkTimer?.cancel();
+      _checkTimer = null;
+      _publish(room, confirmAttribute, derived.confirmation);
       await room.localParticipant?.setMicrophoneEnabled(micOn);
     } on Object catch (e) {
       debugPrint('Call encryption failed: $e');
       secure = false;
       safetyCode = null;
+      _confirmation = null;
     }
+    _checkConfirmation();
+    _notify();
+  }
+
+  /// Compares the other phone's key confirmation with this one's. Equal: verified at once. Missing or different: it
+  /// may still be on its way, so it counts only after [confirmWithin].
+  void _checkConfirmation({bool settle = false}) {
+    final mine = _confirmation;
+    final theirs = _room?.remoteParticipants.values.firstOrNull?.attributes[confirmAttribute];
+    final CallCheck next;
+    if (!secure || mine == null) {
+      next = CallCheck.waiting;
+    } else if (theirs == mine) {
+      next = CallCheck.verified;
+    } else if (settle) {
+      next = theirs == null ? CallCheck.unconfirmed : CallCheck.mismatch;
+    } else {
+      next = check == CallCheck.verified ? CallCheck.waiting : check;
+    }
+    if (next == CallCheck.verified || next == CallCheck.waiting && !secure) {
+      _checkTimer?.cancel();
+      _checkTimer = null;
+    } else if (!settle && _checkTimer == null && secure) {
+      _checkTimer = Timer(confirmWithin, () {
+        _checkTimer = null;
+        _checkConfirmation(settle: true);
+      });
+    }
+    if (next == check) return;
+    check = next;
     _notify();
   }
 
@@ -171,8 +240,12 @@ class CallSession extends ChangeNotifier {
     _agreement = null;
     _callId = null;
     _peerKey = null;
+    _confirmation = null;
+    _checkTimer?.cancel();
+    _checkTimer = null;
     secure = false;
     safetyCode = null;
+    check = CallCheck.waiting;
   }
 
   void _notify() {

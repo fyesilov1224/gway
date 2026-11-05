@@ -552,4 +552,21 @@ class MessagingL10nRu extends MessagingL10n {
 
   @override
   String get groupChatMembersOnly => 'Чат группы видят только её участники.';
+
+  @override
+  String get callVerifying => 'Проверка шифрования…';
+
+  @override
+  String get callSecure => 'Защищённый звонок';
+
+  @override
+  String get callSecureDetail =>
+      'Сквозное шифрование. Коды безопасности обоих телефонов совпали, посторонних нет.';
+
+  @override
+  String get callCheckFailed =>
+      'Шифрование не подтверждено: коды безопасности телефонов не совпадают. Завершите звонок и позвоните снова.';
+
+  @override
+  String get showSecurityCode => 'Показать код безопасности';
 }

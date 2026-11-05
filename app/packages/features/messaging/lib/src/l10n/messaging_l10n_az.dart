@@ -555,4 +555,21 @@ class MessagingL10nAz extends MessagingL10n {
   @override
   String get groupChatMembersOnly =>
       'Qrup söhbətini yalnız qrupun üzvləri görə bilər.';
+
+  @override
+  String get callVerifying => 'Şifrələmə yoxlanılır…';
+
+  @override
+  String get callSecure => 'Təhlükəsiz zəng';
+
+  @override
+  String get callSecureDetail =>
+      'Uçdan-uca şifrələnib. Hər iki telefonun təhlükəsizlik kodu uyğun gəldi, araya heç kim girmədi.';
+
+  @override
+  String get callCheckFailed =>
+      'Şifrələmə təsdiqlənmədi: telefonların təhlükəsizlik kodu uyğun gəlmir. Zəngi bitirib yenidən zəng et.';
+
+  @override
+  String get showSecurityCode => 'Təhlükəsizlik kodunu göstər';
 }

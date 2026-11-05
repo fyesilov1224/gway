@@ -568,4 +568,21 @@ class MessagingL10nEn extends MessagingL10n {
   @override
   String get groupChatMembersOnly =>
       'Only group members can see the group chat.';
+
+  @override
+  String get callVerifying => 'Verifying encryption…';
+
+  @override
+  String get callSecure => 'Secure call';
+
+  @override
+  String get callSecureDetail =>
+      'End-to-end encrypted. Both phones’ security codes match; nobody is in between.';
+
+  @override
+  String get callCheckFailed =>
+      'Encryption could not be verified: the two phones’ security codes don’t match. End the call and call again.';
+
+  @override
+  String get showSecurityCode => 'Show security code';
 }

@@ -160,5 +160,10 @@
   "reasonMin3": "The reason must be at least 3 characters.",
   "yesterday": "Yesterday",
   "sendMessage": "Message",
-  "groupChatMembersOnly": "Only group members can see the group chat."
+  "groupChatMembersOnly": "Only group members can see the group chat.",
+  "callVerifying": "Verifying encryption…",
+  "callSecure": "Secure call",
+  "callSecureDetail": "End-to-end encrypted. Both phones’ security codes match; nobody is in between.",
+  "callCheckFailed": "Encryption could not be verified: the two phones’ security codes don’t match. End the call and call again.",
+  "showSecurityCode": "Show security code"
 }

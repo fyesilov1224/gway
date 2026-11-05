@@ -160,5 +160,10 @@
   "reasonMin3": "Səbəb ən azı 3 simvol olmalıdır.",
   "yesterday": "Dünən",
   "sendMessage": "Mesaj göndər",
-  "groupChatMembersOnly": "Qrup söhbətini yalnız qrupun üzvləri görə bilər."
+  "groupChatMembersOnly": "Qrup söhbətini yalnız qrupun üzvləri görə bilər.",
+  "callVerifying": "Şifrələmə yoxlanılır…",
+  "callSecure": "Təhlükəsiz zəng",
+  "callSecureDetail": "Uçdan-uca şifrələnib. Hər iki telefonun təhlükəsizlik kodu uyğun gəldi, araya heç kim girmədi.",
+  "callCheckFailed": "Şifrələmə təsdiqlənmədi: telefonların təhlükəsizlik kodu uyğun gəlmir. Zəngi bitirib yenidən zəng et.",
+  "showSecurityCode": "Təhlükəsizlik kodunu göstər"
 }

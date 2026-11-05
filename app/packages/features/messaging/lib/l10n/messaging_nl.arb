@@ -160,5 +160,10 @@
   "reasonMin3": "De reden moet minstens 3 tekens hebben.",
   "yesterday": "Gisteren",
   "sendMessage": "Bericht sturen",
-  "groupChatMembersOnly": "Alleen groepsleden zien de groepschat."
+  "groupChatMembersOnly": "Alleen groepsleden zien de groepschat.",
+  "callVerifying": "Versleuteling wordt gecontroleerd…",
+  "callSecure": "Beveiligd gesprek",
+  "callSecureDetail": "End-to-end versleuteld. De beveiligingscodes van beide telefoons komen overeen; niemand zit ertussen.",
+  "callCheckFailed": "Versleuteling niet bevestigd: de beveiligingscodes van de telefoons komen niet overeen. Beëindig het gesprek en bel opnieuw.",
+  "showSecurityCode": "Beveiligingscode tonen"
 }

@@ -553,4 +553,21 @@ class MessagingL10nAr extends MessagingL10n {
 
   @override
   String get groupChatMembersOnly => 'لا يرى محادثة المجموعة إلا أعضاؤها.';
+
+  @override
+  String get callVerifying => 'جارٍ التحقق من التشفير…';
+
+  @override
+  String get callSecure => 'مكالمة آمنة';
+
+  @override
+  String get callSecureDetail =>
+      'مشفّرة من طرف إلى طرف. تطابق رمزا الأمان على الهاتفين، ولا أحد بينكما.';
+
+  @override
+  String get callCheckFailed =>
+      'تعذّر التحقق من التشفير: رمزا الأمان على الهاتفين غير متطابقين. أنهِ المكالمة واتصل مرة أخرى.';
+
+  @override
+  String get showSecurityCode => 'إظهار رمز الأمان';
 }

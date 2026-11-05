@@ -160,5 +160,10 @@
   "reasonMin3": "El motivo debe tener al menos 3 caracteres.",
   "yesterday": "Ayer",
   "sendMessage": "Enviar mensaje",
-  "groupChatMembersOnly": "Solo los miembros del grupo ven el chat."
+  "groupChatMembersOnly": "Solo los miembros del grupo ven el chat.",
+  "callVerifying": "Verificando el cifrado…",
+  "callSecure": "Llamada segura",
+  "callSecureDetail": "Cifrado de extremo a extremo. Los códigos de seguridad de ambos teléfonos coinciden; nadie se ha interpuesto.",
+  "callCheckFailed": "No se pudo verificar el cifrado: los códigos de seguridad no coinciden. Cuelga y vuelve a llamar.",
+  "showSecurityCode": "Mostrar código de seguridad"
 }

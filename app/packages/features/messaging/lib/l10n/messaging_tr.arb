@@ -728,5 +728,25 @@
   "groupChatMembersOnly": "Grup sohbetini yalnızca grubun üyeleri görebilir.",
   "@groupChatMembersOnly": {
     "description": ""
+  },
+  "callVerifying": "Şifreleme doğrulanıyor…",
+  "@callVerifying": {
+    "description": ""
+  },
+  "callSecure": "Güvenli görüşme",
+  "@callSecure": {
+    "description": ""
+  },
+  "callSecureDetail": "Uçtan uca şifreli. İki telefonun güvenlik kodu eşleşti, araya kimse girmedi.",
+  "@callSecureDetail": {
+    "description": ""
+  },
+  "callCheckFailed": "Şifreleme doğrulanamadı: iki telefonun güvenlik kodu eşleşmiyor. Aramayı bitirip yeniden ara.",
+  "@callCheckFailed": {
+    "description": ""
+  },
+  "showSecurityCode": "Güvenlik kodunu göster",
+  "@showSecurityCode": {
+    "description": ""
   }
 }

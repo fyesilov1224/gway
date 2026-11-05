@@ -160,5 +160,10 @@
   "reasonMin3": "Der Grund muss mindestens 3 Zeichen lang sein.",
   "yesterday": "Gestern",
   "sendMessage": "Nachricht senden",
-  "groupChatMembersOnly": "Nur Gruppenmitglieder sehen den Gruppenchat."
+  "groupChatMembersOnly": "Nur Gruppenmitglieder sehen den Gruppenchat.",
+  "callVerifying": "Verschlüsselung wird geprüft …",
+  "callSecure": "Sicheres Gespräch",
+  "callSecureDetail": "Ende-zu-Ende-verschlüsselt. Die Sicherheitscodes beider Telefone stimmen überein, niemand hört mit.",
+  "callCheckFailed": "Verschlüsselung nicht bestätigt: Die Sicherheitscodes der Telefone stimmen nicht überein. Beende das Gespräch und rufe erneut an.",
+  "showSecurityCode": "Sicherheitscode anzeigen"
 }

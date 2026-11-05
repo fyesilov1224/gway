@@ -32,6 +32,10 @@ abstract interface class NativeCalls {
   /// Calls answered on the phone's screen before the app was running (opening the app follows the answer).
   Future<List<String>> answeredBeforeStart();
 
+  /// Whether [callId] was answered on the phone's own screen. Asked before [end] closes that screen, so an answer
+  /// that reaches the app late is not asked for a second time.
+  Future<bool> answered(String callId);
+
   /// Android 14+: whether calls may take over the lock screen.
   Future<bool> canRingOnLockScreen();
 
@@ -104,6 +108,12 @@ class CallkitNativeCalls implements NativeCalls {
   }
 
   @override
+  Future<bool> answered(String callId) async {
+    if (!supported) return false;
+    return (await FlutterCallkitIncoming.activeCalls()).any((c) => c.id == callId && c.isAccepted);
+  }
+
+  @override
   Future<bool> canRingOnLockScreen() async => !supported || await FlutterCallkitIncoming.canUseFullScreenIntent();
 
   @override
@@ -113,15 +123,46 @@ class CallkitNativeCalls implements NativeCalls {
 }
 
 /// A push the app handles itself, also from the background isolate: the ringing call opens the phone's call screen,
-/// call_ended closes it (docs/ARCHITECTURE.md §8c, Akış).
+/// call_ended closes it (docs/ARCHITECTURE.md §8c, Akış). A ringing push can arrive late, after the call was answered
+/// or ended (Android may hold it back, and pushes do not keep their order): it rings only while the call still rings.
 @pragma('vm:entry-point')
-Future<void> handleCallPush(Map<String, dynamic> data, {NativeCalls calls = const CallkitNativeCalls()}) async {
+Future<void> handleCallPush(
+  Map<String, dynamic> data, {
+  NativeCalls calls = const CallkitNativeCalls(),
+  Future<bool> Function(String callId) stillRinging = _stillRinging,
+}) async {
   switch (data) {
     case {'type': 'call_incoming', 'call_id': final String callId, 'title': final String caller}:
+      if (!await stillRinging(callId)) return;
       await calls.ring(callId: callId, caller: caller);
     case {'type': 'call_ended', 'call_id': final String callId}:
       await calls.end(callId);
   }
+}
+
+/// The call row, read with the session saved on the phone. Without an answer (no network, signed out) the phone
+/// rings as before: a missed ring is worse than one that closes by itself after 30 seconds.
+Future<bool> _stillRinging(String callId) async {
+  try {
+    await _ensureSupabase();
+    final row = await Supabase.instance.client
+        .from('calls')
+        .select('status')
+        .eq('id', callId)
+        .maybeSingle()
+        .timeout(const Duration(seconds: 4));
+    return row == null || row['status'] == 'ringing';
+  } on Object catch (e) {
+    debugPrint('Call state unknown, ringing: $e');
+    return true;
+  }
+}
+
+/// The background isolate starts without Supabase; the app's own isolate already has it.
+Future<void> _ensureSupabase() async {
+  if (Supabase.instance.isInitialized) return;
+  final config = AppConfig.fromEnvironment();
+  await Supabase.initialize(url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
 }
 
 /// Declines on the phone's screen while the app is not running reach the server from a background isolate.
@@ -134,8 +175,8 @@ Future<void> registerNativeDeclineInBackground() async {
 @pragma('vm:entry-point')
 Future<void> _onBackgroundCallEvent(CallEvent event) async {
   if (event is! CallEventActionCallDecline) return;
+  await _ensureSupabase();
   final config = AppConfig.fromEnvironment();
-  await Supabase.initialize(url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
   final auth = Supabase.instance.client.auth;
   final api = ApiClient(baseUrl: Uri.parse(config.apiUrl), accessToken: () async => (await auth.getSession())?.accessToken);
   // Already over or answered elsewhere: nothing to do; the server marks it missed otherwise.

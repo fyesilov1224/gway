@@ -569,4 +569,21 @@ class MessagingL10nPt extends MessagingL10n {
 
   @override
   String get groupChatMembersOnly => 'Só membros do grupo veem o chat.';
+
+  @override
+  String get callVerifying => 'Verificando a criptografia…';
+
+  @override
+  String get callSecure => 'Chamada segura';
+
+  @override
+  String get callSecureDetail =>
+      'Criptografia de ponta a ponta. Os códigos de segurança dos dois telefones coincidem; ninguém está no meio.';
+
+  @override
+  String get callCheckFailed =>
+      'Não foi possível verificar a criptografia: os códigos de segurança não coincidem. Encerre e ligue de novo.';
+
+  @override
+  String get showSecurityCode => 'Mostrar código de segurança';
 }

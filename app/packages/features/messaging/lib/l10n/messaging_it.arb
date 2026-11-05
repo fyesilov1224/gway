@@ -160,5 +160,10 @@
   "reasonMin3": "Il motivo deve avere almeno 3 caratteri.",
   "yesterday": "Ieri",
   "sendMessage": "Invia messaggio",
-  "groupChatMembersOnly": "Solo i membri del gruppo vedono la chat."
+  "groupChatMembersOnly": "Solo i membri del gruppo vedono la chat.",
+  "callVerifying": "Verifica della crittografia…",
+  "callSecure": "Chiamata sicura",
+  "callSecureDetail": "Crittografia end-to-end. I codici di sicurezza dei due telefoni coincidono: nessuno si è intromesso.",
+  "callCheckFailed": "Impossibile verificare la crittografia: i codici di sicurezza non coincidono. Chiudi e richiama.",
+  "showSecurityCode": "Mostra codice di sicurezza"
 }

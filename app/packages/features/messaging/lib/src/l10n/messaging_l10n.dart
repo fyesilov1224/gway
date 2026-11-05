@@ -1083,6 +1083,36 @@ abstract class MessagingL10n {
   /// In tr, this message translates to:
   /// **'Grup sohbetini yalnızca grubun üyeleri görebilir.'**
   String get groupChatMembersOnly;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreleme doğrulanıyor…'**
+  String get callVerifying;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenli görüşme'**
+  String get callSecure;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Uçtan uca şifreli. İki telefonun güvenlik kodu eşleşti, araya kimse girmedi.'**
+  String get callSecureDetail;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreleme doğrulanamadı: iki telefonun güvenlik kodu eşleşmiyor. Aramayı bitirip yeniden ara.'**
+  String get callCheckFailed;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenlik kodunu göster'**
+  String get showSecurityCode;
 }
 
 class _MessagingL10nDelegate extends LocalizationsDelegate<MessagingL10n> {

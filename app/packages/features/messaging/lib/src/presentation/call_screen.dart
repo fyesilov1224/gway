@@ -9,6 +9,7 @@ import '../data/call_keep_alive.dart';
 import '../domain/calls.dart';
 import '../l10n.dart';
 import 'call_providers.dart';
+import 'call_screens.dart';
 import 'call_session.dart';
 
 /// A one-to-one voice call (docs/ARCHITECTURE.md §8c): ringing out, ringing in, talking, ended.
@@ -30,6 +31,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   late final CallSession _session = ref.read(callSessionFactoryProvider)();
   late final CallRinger _ringer = ref.read(callRingerProvider);
   late final CallKeepAlive _keepAlive = ref.read(callKeepAliveProvider);
+  late final CallScreens _screens = ref.read(callScreensProvider);
   bool _keptAlive = false;
   StreamSubscription<CallInfo?>? _subscription;
   Timer? _ticker;
@@ -39,6 +41,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   bool _busy = false;
   CallTone? _tone;
   bool _answered = false;
+
+  /// The person answered somewhere else first: on the phone's own call screen, before or after this screen opened.
+  late bool _answerWanted = widget.answer;
   String? _error;
 
   CallsRepository get _repo => ref.read(callsRepositoryProvider);
@@ -51,8 +56,8 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   void initState() {
     super.initState();
     _session.addListener(_rebuild);
-    // This screen rings and shows the call now; the phone's own screen or ongoing notice closes.
-    unawaited(ref.read(nativeCallsProvider).end(widget.callId).catchError((Object _) {}));
+    if (_screens.attach(widget.callId, _answerRequested)) _answerWanted = true;
+    unawaited(_takeOverFromPhone());
     if (widget.join case final join?) unawaited(_session.connect(join));
     _subscription = _repo.watch(widget.callId).listen(_onCall, onError: (Object _) {
       if (mounted) setState(() => _error = messagingL10n.callInfoFailed);
@@ -60,6 +65,24 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_call?.status == CallStatus.active) _rebuild();
     });
+  }
+
+  /// This screen rings and shows the call now; the phone's own screen or ongoing notice closes. An answer given there
+  /// first is kept, so the person is not asked to answer again.
+  Future<void> _takeOverFromPhone() async {
+    final native = ref.read(nativeCallsProvider);
+    try {
+      if (await native.answered(widget.callId)) _answerRequested();
+    } on Object catch (_) {
+      // Unknown: the screen asks as usual.
+    }
+    await native.end(widget.callId).catchError((Object _) {});
+  }
+
+  /// Answered on the phone's own call screen while this screen was already open or opening.
+  void _answerRequested() {
+    _answerWanted = true;
+    if (_call case final call?) _onCall(call);
   }
 
   void _rebuild() {
@@ -103,7 +126,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       });
       return;
     }
-    if (widget.answer && !_answered && call.status == CallStatus.ringing && call.calleeId == me) {
+    if (_answerWanted && !_answered && call.status == CallStatus.ringing && call.calleeId == me) {
       _answered = true;
       unawaited(_accept());
       return;
@@ -150,6 +173,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   Future<void> _rejoin() => _run(() => _repo.rejoin(widget.callId));
 
   Future<void> _accept() {
+    _answered = true;
     _setTone(null);
     return _run(() => _repo.accept(widget.callId));
   }
@@ -165,6 +189,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
 
   @override
   void dispose() {
+    _screens.detach(widget.callId, _answerRequested);
     unawaited(_subscription?.cancel());
     _ticker?.cancel();
     _closer?.cancel();
@@ -315,27 +340,82 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 }
 
-/// Whether the sound is end-to-end encrypted, and the code both people can compare (docs/ARCHITECTURE.md §8c).
-class _EncryptionNote extends StatelessWidget {
+/// Whether the sound is end-to-end encrypted and the two phones checked each other's keys (docs/ARCHITECTURE.md §8c,
+/// Güvenlik kodu). The phones compare the safety code themselves; the code stays hidden unless asked for.
+class _EncryptionNote extends StatefulWidget {
   const _EncryptionNote({required this.session});
 
   final CallSession session;
 
   @override
+  State<_EncryptionNote> createState() => _EncryptionNoteState();
+}
+
+class _EncryptionNoteState extends State<_EncryptionNote> {
+  bool _showCode = false;
+
+  @override
   Widget build(BuildContext context) {
+    final session = widget.session;
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodySmall?.copyWith(color: GwColors.textSecondary);
-    if (session.peerUnencrypted) {
-      return GwFormMessage(messagingL10n.peerUnencrypted);
-    }
+    if (session.peerUnencrypted) return GwFormMessage(messagingL10n.peerUnencrypted);
     final code = session.safetyCode;
     if (!session.secure || code == null) {
       return Text(messagingL10n.encrypting, style: secondary, textAlign: TextAlign.center);
     }
-    return Semantics(
-      label: messagingL10n.e2eeCode(code),
-      excludeSemantics: true,
-      child: Column(
+    return switch (session.check) {
+      CallCheck.waiting => Text(messagingL10n.callVerifying, style: secondary, textAlign: TextAlign.center),
+      CallCheck.mismatch => GwFormMessage(messagingL10n.callCheckFailed),
+      CallCheck.verified => _verified(textTheme, code),
+      CallCheck.unconfirmed => _unconfirmed(textTheme, code),
+    };
+  }
+
+  /// Green: both phones hold the same keys.
+  Widget _verified(TextTheme textTheme, String code) => Semantics(
+        container: true,
+        label: messagingL10n.callSecure,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: GwColors.successSoft,
+            borderRadius: GwRadius.lgAll,
+            border: Border.all(color: GwColors.success.withValues(alpha: 0.24)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.verified_user, size: GwSpacing.lg, color: GwColors.success),
+                    const SizedBox(width: GwSpacing.xs),
+                    Flexible(
+                      child: Text(
+                        messagingL10n.callSecure,
+                        style: textTheme.titleSmall?.copyWith(color: GwColors.success, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: GwSpacing.xxs),
+                Text(
+                  messagingL10n.callSecureDetail,
+                  style: textTheme.bodySmall?.copyWith(color: GwColors.textPrimary),
+                  textAlign: TextAlign.center,
+                ),
+                _codeToggle(textTheme, code),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  /// The other phone cannot confirm (an older version): encrypted, and the code can be compared by eye.
+  Widget _unconfirmed(TextTheme textTheme, String code) => Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -345,11 +425,33 @@ class _EncryptionNote extends StatelessWidget {
               Text(messagingL10n.e2ee, style: textTheme.labelLarge?.copyWith(color: GwColors.success)),
             ],
           ),
-          const SizedBox(height: GwSpacing.xxs),
-          Text(code, style: textTheme.titleMedium, textAlign: TextAlign.center),
-          Text(messagingL10n.codeMatchHint,
-              style: secondary, textAlign: TextAlign.center),
+          _codeToggle(textTheme, code),
         ],
+      );
+
+  Widget _codeToggle(TextTheme textTheme, String code) {
+    if (!_showCode) {
+      return TextButton(
+        onPressed: () => setState(() => _showCode = true),
+        child: Text(messagingL10n.showSecurityCode),
+      );
+    }
+    return Semantics(
+      label: messagingL10n.e2eeCode(code),
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: GwSpacing.xs),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(code, style: textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(
+              messagingL10n.codeMatchHint,
+              style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

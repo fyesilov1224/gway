@@ -569,4 +569,21 @@ class MessagingL10nNl extends MessagingL10n {
 
   @override
   String get groupChatMembersOnly => 'Alleen groepsleden zien de groepschat.';
+
+  @override
+  String get callVerifying => 'Versleuteling wordt gecontroleerd…';
+
+  @override
+  String get callSecure => 'Beveiligd gesprek';
+
+  @override
+  String get callSecureDetail =>
+      'End-to-end versleuteld. De beveiligingscodes van beide telefoons komen overeen; niemand zit ertussen.';
+
+  @override
+  String get callCheckFailed =>
+      'Versleuteling niet bevestigd: de beveiligingscodes van de telefoons komen niet overeen. Beëindig het gesprek en bel opnieuw.';
+
+  @override
+  String get showSecurityCode => 'Beveiligingscode tonen';
 }
