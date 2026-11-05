@@ -208,15 +208,7 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
         builder: (context) => DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.85,
-          builder: (context, controller) => ListView(
-            controller: controller,
-            padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xl),
-            children: [
-              Text(widget.terms.title, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: GwSpacing.md),
-              Text(widget.terms.body, style: Theme.of(context).textTheme.bodyLarge),
-            ],
-          ),
+          builder: (context, controller) => _TermsText(terms: widget.terms, controller: controller),
         ),
       );
 
@@ -331,7 +323,7 @@ class _CheckoutFormState extends ConsumerState<CheckoutForm> {
                   TextSpan(children: [
                     TextSpan(text: billingL10n.termsBefore, style: textTheme.bodyMedium),
                     TextSpan(
-                      text: widget.terms.title,
+                      text: widget.terms.displayTitle,
                       style: textTheme.bodyMedium?.copyWith(color: GwColors.secondary, fontWeight: FontWeight.w600),
                       recognizer: _termsLink,
                     ),
@@ -440,4 +432,49 @@ class PaymentAssurance extends StatelessWidget {
           ),
         ],
       );
+}
+
+/// The agreement in the app language when translated, with the note that the Turkish text is binding and a switch
+/// to the original (docs/ARCHITECTURE.md §11).
+class _TermsText extends StatefulWidget {
+  const _TermsText({required this.terms, required this.controller});
+
+  final SalesTerms terms;
+  final ScrollController controller;
+
+  @override
+  State<_TermsText> createState() => _TermsTextState();
+}
+
+class _TermsTextState extends State<_TermsText> {
+  bool _original = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final terms = widget.terms;
+    final translated = terms.translatedBody != null && !_original;
+    final direction = !translated && currentAppLanguage.isRtl ? TextDirection.ltr : null;
+    return ListView(
+      controller: widget.controller,
+      padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.xl),
+      children: [
+        Text(translated ? terms.displayTitle : terms.title, textDirection: direction, style: textTheme.titleLarge),
+        if (terms.translatedBody != null) ...[
+          const SizedBox(height: GwSpacing.sm),
+          GwFormMessage(billingL10n.termsTranslationNote, kind: GwFormMessageKind.info),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: GwButton(
+              label: _original ? billingL10n.showTranslation : billingL10n.showOriginal,
+              variant: GwButtonVariant.text,
+              onPressed: () => setState(() => _original = !_original),
+            ),
+          ),
+        ],
+        const SizedBox(height: GwSpacing.md),
+        Text(translated ? terms.translatedBody! : terms.body, textDirection: direction, style: textTheme.bodyLarge),
+      ],
+    );
+  }
 }

@@ -101,5 +101,8 @@
   "limitLive": "{count} dəq canlı yayım / ay",
   "planName": "{plan} paket",
   "planUntil": "{plan} paketi · {date} tarixinədək",
-  "creditDays": "{days} gün"
+  "creditDays": "{days} gün",
+  "termsTranslationNote": "Bu tərcümə məlumat xarakterlidir. Bağlayıcı olan və təsdiqlədiyin müqavilə türkcə orijinaldır.",
+  "showOriginal": "Türkcə orijinalı göstər",
+  "showTranslation": "Tərcüməni göstər"
 }

@@ -41,6 +41,7 @@ final offerProvider = FutureProvider.autoDispose.family<Offer, String>(
 final salesTermsProvider = FutureProvider.autoDispose<SalesTerms>(
   (ref) async {
     ref.cacheFor();
+    ref.watch(appLanguageProvider); // the translation follows the language
     return (await ref.watch(billingRepositoryProvider).salesTerms()).getOrThrow();
   },
 );

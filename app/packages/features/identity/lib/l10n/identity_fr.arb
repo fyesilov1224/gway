@@ -171,5 +171,8 @@
   "language": "Langue",
   "chooseLanguage": "Choisir la langue",
   "languageNote": "Les menus, boutons, notifications et contrats s'affichent dans cette langue. Les publications, commentaires et messages restent dans leur langue d'origine.",
-  "or": "ou"
+  "or": "ou",
+  "legalTranslationNote": "Cette traduction est fournie à titre d'information. Le texte qui fait foi, et que tu acceptes, est l'original turc.",
+  "legalShowOriginal": "Afficher l'original turc",
+  "legalShowTranslation": "Afficher la traduction"
 }

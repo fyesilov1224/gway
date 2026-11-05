@@ -11,6 +11,38 @@ const legalKindLabels = {
 
 String legalKindLabel(String kind) => legalKindLabels[kind] ?? kind;
 
+/// The languages a legal text can be translated into, with their Turkish names (docs/ARCHITECTURE.md §11).
+const legalTranslationLanguages = {
+  'en': 'İngilizce',
+  'de': 'Almanca',
+  'fr': 'Fransızca',
+  'nl': 'Felemenkçe',
+  'es': 'İspanyolca',
+  'pt': 'Portekizce',
+  'it': 'İtalyanca',
+  'ru': 'Rusça',
+  'ar': 'Arapça',
+  'az': 'Azerice',
+  'uk': 'Ukraynaca',
+};
+
+/// An informational translation of a version; the Turkish text stays binding.
+class LegalTranslation {
+  const LegalTranslation({required this.language, required this.title, required this.body, required this.updatedAt});
+
+  factory LegalTranslation.fromJson(Map<String, Object?> j) => LegalTranslation(
+        language: j['language']! as String,
+        title: j['title']! as String,
+        body: j['body']! as String,
+        updatedAt: DateTime.parse(j['updatedAt']! as String),
+      );
+
+  final String language;
+  final String title;
+  final String body;
+  final DateTime updatedAt;
+}
+
 /// One version of a legal text (docs/ARCHITECTURE.md §8b).
 class LegalVersion {
   const LegalVersion({
@@ -107,4 +139,11 @@ abstract interface class AdminLegalRepository {
   Future<Result<void>> update(String kind, int version, {required String title, required String body, required DateTime publishedAt});
 
   Future<Result<void>> remove(String kind, int version);
+
+  Future<Result<List<LegalTranslation>>> translations(String kind, int version);
+
+  /// Adds or corrects a translation; allowed even after people consented to the Turkish version.
+  Future<Result<void>> saveTranslation(String kind, int version, String language, {required String title, required String body});
+
+  Future<Result<void>> removeTranslation(String kind, int version, String language);
 }

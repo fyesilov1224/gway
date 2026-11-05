@@ -171,5 +171,8 @@
   "language": "Dil",
   "chooseLanguage": "Dil seç",
   "languageNote": "Menyular, düymələr, bildirişlər və müqavilələr bu dildə göstərilir. Paylaşımlar, şərhlər və mesajlar yazıldıqları dildə qalır.",
-  "or": "və ya"
+  "or": "və ya",
+  "legalTranslationNote": "Bu tərcümə məlumat xarakterlidir. Bağlayıcı olan və təsdiqlədiyin mətn türkcə orijinaldır.",
+  "legalShowOriginal": "Türkcə orijinalı göstər",
+  "legalShowTranslation": "Tərcüməni göstər"
 }

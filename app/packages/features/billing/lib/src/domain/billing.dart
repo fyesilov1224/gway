@@ -179,11 +179,19 @@ class Offer {
 
 /// Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi, accepted at checkout.
 class SalesTerms {
-  const SalesTerms({required this.version, required this.title, required this.body});
+  const SalesTerms({required this.version, required this.title, required this.body, this.translatedTitle, this.translatedBody});
 
   final int version;
+
+  /// The Turkish text: binding, and the version the buyer accepts.
   final String title;
   final String body;
+
+  /// In the app language when there is a translation (informational; docs/ARCHITECTURE.md §11).
+  final String? translatedTitle;
+  final String? translatedBody;
+
+  String get displayTitle => translatedTitle ?? title;
 }
 
 class BillingDetails {

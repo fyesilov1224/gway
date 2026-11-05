@@ -101,5 +101,8 @@
   "limitLive": "Эфир: {count} мин / мес.",
   "planName": "Тариф «{plan}»",
   "planUntil": "Тариф «{plan}» · до {date}",
-  "creditDays": "{days} дн."
+  "creditDays": "{days} дн.",
+  "termsTranslationNote": "Перевод носит информационный характер. Юридическую силу имеет турецкий оригинал договора — именно его вы принимаете.",
+  "showOriginal": "Показать турецкий оригинал",
+  "showTranslation": "Показать перевод"
 }

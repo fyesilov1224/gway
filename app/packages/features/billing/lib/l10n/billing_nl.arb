@@ -101,5 +101,8 @@
   "limitLive": "{count} liveminuten / maand",
   "planName": "Pakket {plan}",
   "planUntil": "Pakket {plan} · tot {date}",
-  "creditDays": "{days} dagen"
+  "creditDays": "{days} dagen",
+  "termsTranslationNote": "Deze vertaling is ter informatie. Bindend, en waarmee je akkoord gaat, is de Turkse originele overeenkomst.",
+  "showOriginal": "Turks origineel tonen",
+  "showTranslation": "Vertaling tonen"
 }

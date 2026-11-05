@@ -383,4 +383,14 @@ class BillingL10nRu extends BillingL10n {
   String creditDays(String days) {
     return '$days дн.';
   }
+
+  @override
+  String get termsTranslationNote =>
+      'Перевод носит информационный характер. Юридическую силу имеет турецкий оригинал договора — именно его вы принимаете.';
+
+  @override
+  String get showOriginal => 'Показать турецкий оригинал';
+
+  @override
+  String get showTranslation => 'Показать перевод';
 }

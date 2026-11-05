@@ -171,5 +171,8 @@
   "language": "Lingua",
   "chooseLanguage": "Scegli la lingua",
   "languageNote": "Menu, pulsanti, notifiche e accordi vengono mostrati in questa lingua. Post, commenti e messaggi restano nella lingua in cui sono stati scritti.",
-  "or": "oppure"
+  "or": "oppure",
+  "legalTranslationNote": "Questa traduzione è informativa. Il testo vincolante, e quello che accetti, è l'originale in turco.",
+  "legalShowOriginal": "Mostra l'originale in turco",
+  "legalShowTranslation": "Mostra la traduzione"
 }

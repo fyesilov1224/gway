@@ -729,6 +729,24 @@ abstract class BillingL10n {
   /// In tr, this message translates to:
   /// **'{days} gün'**
   String creditDays(String days);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu çeviri bilgi amaçlıdır. Bağlayıcı olan ve onayladığın sözleşme Türkçe asıldır.'**
+  String get termsTranslationNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Türkçe aslını göster'**
+  String get showOriginal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Çeviriyi göster'**
+  String get showTranslation;
 }
 
 class _BillingL10nDelegate extends LocalizationsDelegate<BillingL10n> {

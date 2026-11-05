@@ -474,6 +474,20 @@ class ApiAdminLegalRepository implements AdminLegalRepository {
 
   @override
   Future<Result<void>> remove(String kind, int version) => _api.delete('/admin/legal/$kind/$version', decode: (_) {});
+
+  @override
+  Future<Result<List<LegalTranslation>>> translations(String kind, int version) => _api.get(
+        '/admin/legal/$kind/$version/translations',
+        decode: (json) => [for (final t in (json! as List).cast<Map<String, Object?>>()) LegalTranslation.fromJson(t)],
+      );
+
+  @override
+  Future<Result<void>> saveTranslation(String kind, int version, String language, {required String title, required String body}) =>
+      _api.put('/admin/legal/$kind/$version/translations/$language', body: {'title': title, 'body': body}, decode: (_) {});
+
+  @override
+  Future<Result<void>> removeTranslation(String kind, int version, String language) =>
+      _api.delete('/admin/legal/$kind/$version/translations/$language', decode: (_) {});
 }
 
 class ApiAdminSecurityRepository implements AdminSecurityRepository {

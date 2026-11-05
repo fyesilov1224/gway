@@ -171,5 +171,8 @@
   "language": "Language",
   "chooseLanguage": "Choose language",
   "languageNote": "Menus, buttons, notifications and agreements are shown in this language. Posts, comments and messages stay in the language they were written in.",
-  "or": "or"
+  "or": "or",
+  "legalTranslationNote": "This translation is for information. The binding text, and the one you accept, is the Turkish original.",
+  "legalShowOriginal": "Show the Turkish original",
+  "legalShowTranslation": "Show the translation"
 }

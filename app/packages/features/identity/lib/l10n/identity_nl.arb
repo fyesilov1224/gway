@@ -171,5 +171,8 @@
   "language": "Taal",
   "chooseLanguage": "Taal kiezen",
   "languageNote": "Menu’s, knoppen, meldingen en overeenkomsten worden in deze taal getoond. Berichten, reacties en chats blijven in de taal waarin ze zijn geschreven.",
-  "or": "of"
+  "or": "of",
+  "legalTranslationNote": "Deze vertaling is ter informatie. Bindend, en waarmee je akkoord gaat, is het Turkse origineel.",
+  "legalShowOriginal": "Turks origineel tonen",
+  "legalShowTranslation": "Vertaling tonen"
 }

@@ -612,4 +612,14 @@ class IdentityL10nNl extends IdentityL10n {
 
   @override
   String get or => 'of';
+
+  @override
+  String get legalTranslationNote =>
+      'Deze vertaling is ter informatie. Bindend, en waarmee je akkoord gaat, is het Turkse origineel.';
+
+  @override
+  String get legalShowOriginal => 'Turks origineel tonen';
+
+  @override
+  String get legalShowTranslation => 'Vertaling tonen';
 }

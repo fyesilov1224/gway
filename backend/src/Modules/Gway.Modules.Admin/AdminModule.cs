@@ -113,6 +113,19 @@ public static class AdminModule
                 string kind, int version, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
             (await admin.DeleteAsync(user.GetUserId(), kind, version, ct)).ToHttpResult());
 
+        // Informational translations (docs/ARCHITECTURE.md §11, Hukuki metin çevirileri).
+        legal.MapGet("/{kind}/{version:int}/translations", async (string kind, int version, AdminLegal admin, CancellationToken ct) =>
+            (await admin.TranslationsAsync(kind, version, ct)).ToHttpResult());
+
+        legal.MapPut("/{kind}/{version:int}/translations/{language}", async (
+                string kind, int version, string language, LegalTranslationRequest body, ClaimsPrincipal user, AdminLegal admin,
+                CancellationToken ct) =>
+            (await admin.SaveTranslationAsync(user.GetUserId(), kind, version, language, body, ct)).ToHttpResult());
+
+        legal.MapDelete("/{kind}/{version:int}/translations/{language}", async (
+                string kind, int version, string language, ClaimsPrincipal user, AdminLegal admin, CancellationToken ct) =>
+            (await admin.DeleteTranslationAsync(user.GetUserId(), kind, version, language, ct)).ToHttpResult());
+
         // Security verification (docs/ARCHITECTURE.md §3h): the switch is admin only, reviews admin and moderator.
         var security = app.MapGroup("/admin/security");
 

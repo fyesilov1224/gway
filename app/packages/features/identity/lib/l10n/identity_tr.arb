@@ -767,5 +767,17 @@
   "or": "veya",
   "@or": {
     "description": ""
+  },
+  "legalTranslationNote": "Bu çeviri bilgi amaçlıdır. Bağlayıcı olan ve onayladığın metin Türkçe asıldır.",
+  "@legalTranslationNote": {
+    "description": ""
+  },
+  "legalShowOriginal": "Türkçe aslını göster",
+  "@legalShowOriginal": {
+    "description": ""
+  },
+  "legalShowTranslation": "Çeviriyi göster",
+  "@legalShowTranslation": {
+    "description": ""
   }
 }

@@ -112,4 +112,35 @@ public sealed class LegalTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
         Assert.False(future.IsCurrent, "a future version is not yet current");
         Assert.True(sales.Versions.Single(x => x.Version == vPast).IsCurrent, "the newest published version is current");
     }
+
+    [Fact]
+    public async Task Translations_can_be_added_corrected_after_consent_and_removed_by_an_admin()
+    {
+        var (admin, support) = (await _db.CreateUserAsync(Unique("s_")), await _db.CreateUserAsync(Unique("s_")));
+        await _db.MakeStaffAsync(admin, "admin");
+        await _db.MakeStaffAsync(support, "support");
+        var client = factory.ClientFor(admin);
+        var v = await (await client.PostAsJsonAsync(Path("/admin/legal/distance_sales"),
+            new LegalVersionRequest("Mesafeli Satış Sözleşmesi", new string('x', 50), null), Ct)).Content.ReadFromJsonAsync<int>(Ct);
+        var path = Path($"/admin/legal/distance_sales/{v}/translations/en");
+
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await factory.ClientFor(support).PutAsJsonAsync(path, new LegalTranslationRequest("Distance Sales Agreement", new string('e', 40)), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await client.PutAsJsonAsync(path, new LegalTranslationRequest("Distance Sales Agreement", new string('e', 40)), Ct)).StatusCode);
+        // People consent to the Turkish version; the translation can still be corrected.
+        await _db.ExecuteAsync("insert into public.consents (user_id, kind, version) values (@u, 'distance_sales', @v)", ("u", support), ("v", v));
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await client.PutAsJsonAsync(path, new LegalTranslationRequest("Distance Sales Contract", new string('f', 40)), Ct)).StatusCode);
+        var list = await client.GetFromJsonAsync<List<AdminLegalTranslation>>(Path($"/admin/legal/distance_sales/{v}/translations"), Ct);
+        var only = Assert.Single(list!);
+        Assert.Equal(("en", "Distance Sales Contract"), (only.Language, only.Title));
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync(Path($"/admin/legal/distance_sales/{v}/translations/tr"),
+            new LegalTranslationRequest("Türkçe", new string('t', 40)), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync(path, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync(path, Ct)).StatusCode);
+        Assert.Equal(3L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action like 'legal.translation_%' and actor_id = @id", ("id", admin)));
+    }
 }

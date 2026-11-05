@@ -1149,6 +1149,24 @@ abstract class IdentityL10n {
   /// In tr, this message translates to:
   /// **'veya'**
   String get or;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu çeviri bilgi amaçlıdır. Bağlayıcı olan ve onayladığın metin Türkçe asıldır.'**
+  String get legalTranslationNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Türkçe aslını göster'**
+  String get legalShowOriginal;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Çeviriyi göster'**
+  String get legalShowTranslation;
 }
 
 class _IdentityL10nDelegate extends LocalizationsDelegate<IdentityL10n> {

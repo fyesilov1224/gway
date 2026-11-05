@@ -609,4 +609,14 @@ class IdentityL10nRu extends IdentityL10n {
 
   @override
   String get or => 'или';
+
+  @override
+  String get legalTranslationNote =>
+      'Перевод носит информационный характер. Юридическую силу имеет турецкий оригинал — именно его вы принимаете.';
+
+  @override
+  String get legalShowOriginal => 'Показать турецкий оригинал';
+
+  @override
+  String get legalShowTranslation => 'Показать перевод';
 }

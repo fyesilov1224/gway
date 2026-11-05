@@ -605,4 +605,14 @@ class IdentityL10nEn extends IdentityL10n {
 
   @override
   String get or => 'or';
+
+  @override
+  String get legalTranslationNote =>
+      'This translation is for information. The binding text, and the one you accept, is the Turkish original.';
+
+  @override
+  String get legalShowOriginal => 'Show the Turkish original';
+
+  @override
+  String get legalShowTranslation => 'Show the translation';
 }

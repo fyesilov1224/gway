@@ -101,5 +101,8 @@
   "limitLive": "{count} live minutes / month",
   "planName": "{plan} plan",
   "planUntil": "{plan} plan · until {date}",
-  "creditDays": "{days} days"
+  "creditDays": "{days} days",
+  "termsTranslationNote": "This translation is for information. The binding agreement, and the one you accept, is the Turkish original.",
+  "showOriginal": "Show the Turkish original",
+  "showTranslation": "Show the translation"
 }

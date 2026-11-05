@@ -101,5 +101,8 @@
   "limitLive": "{count} min di diretta / mese",
   "planName": "Piano {plan}",
   "planUntil": "Piano {plan} · fino al {date}",
-  "creditDays": "{days} giorni"
+  "creditDays": "{days} giorni",
+  "termsTranslationNote": "Questa traduzione è informativa. Il contratto vincolante, e quello che accetti, è l'originale in turco.",
+  "showOriginal": "Mostra l'originale in turco",
+  "showTranslation": "Mostra la traduzione"
 }

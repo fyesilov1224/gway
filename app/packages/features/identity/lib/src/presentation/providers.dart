@@ -62,10 +62,10 @@ final pendingConsentsProvider = FutureProvider<List<LegalDocument>>((ref) async 
   return (await ref.watch(consentRepositoryProvider).pending()).getOrThrow();
 });
 
-final latestLegalDocumentsProvider = FutureProvider<List<LegalDocument>>(
-  (ref) async =>
-      (await ref.watch(consentRepositoryProvider).latest()).getOrThrow(),
-);
+final latestLegalDocumentsProvider = FutureProvider<List<LegalDocument>>((ref) async {
+  ref.watch(appLanguageProvider); // the translation follows the language
+  return (await ref.watch(consentRepositoryProvider).latest()).getOrThrow();
+});
 
 /// Account lifecycle state of the signed-in user. Null when signed out.
 ///

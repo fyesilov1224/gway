@@ -594,4 +594,14 @@ class IdentityL10nTr extends IdentityL10n {
 
   @override
   String get or => 'veya';
+
+  @override
+  String get legalTranslationNote =>
+      'Bu çeviri bilgi amaçlıdır. Bağlayıcı olan ve onayladığın metin Türkçe asıldır.';
+
+  @override
+  String get legalShowOriginal => 'Türkçe aslını göster';
+
+  @override
+  String get legalShowTranslation => 'Çeviriyi göster';
 }

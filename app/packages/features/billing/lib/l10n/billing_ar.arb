@@ -101,5 +101,8 @@
   "limitLive": "البث المباشر: {count} دقيقة / شهر",
   "planName": "باقة {plan}",
   "planUntil": "باقة {plan} · حتى {date}",
-  "creditDays": "{days} يوم"
+  "creditDays": "{days} يوم",
+  "termsTranslationNote": "هذه الترجمة للعلم فقط. العقد الملزم، والذي توافق عليه، هو الأصل التركي.",
+  "showOriginal": "عرض الأصل التركي",
+  "showTranslation": "عرض الترجمة"
 }

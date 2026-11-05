@@ -390,4 +390,14 @@ class BillingL10nDe extends BillingL10n {
   String creditDays(String days) {
     return '$days Tage';
   }
+
+  @override
+  String get termsTranslationNote =>
+      'Diese Übersetzung dient nur zur Information. Verbindlich ist der türkische Originalvertrag; ihm stimmst du zu.';
+
+  @override
+  String get showOriginal => 'Türkisches Original anzeigen';
+
+  @override
+  String get showTranslation => 'Übersetzung anzeigen';
 }

@@ -81,7 +81,23 @@ class BillingRepositoryImpl implements BillingRepository {
             .order('version', ascending: false)
             .limit(1)
             .single();
-        return SalesTerms(version: r['version'] as int, title: r['title'] as String, body: r['body'] as String);
+        final version = r['version'] as int;
+        final translation = currentAppLanguage == AppLanguage.tr
+            ? null
+            : await _client
+                .from('legal_document_translations')
+                .select('title, body')
+                .eq('kind', 'distance_sales')
+                .eq('version', version)
+                .eq('language', currentAppLanguage.code)
+                .maybeSingle();
+        return SalesTerms(
+          version: version,
+          title: r['title'] as String,
+          body: r['body'] as String,
+          translatedTitle: translation?['title'] as String?,
+          translatedBody: translation?['body'] as String?,
+        );
       });
 
   @override

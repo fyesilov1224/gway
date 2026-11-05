@@ -600,4 +600,14 @@ class IdentityL10nAr extends IdentityL10n {
 
   @override
   String get or => 'أو';
+
+  @override
+  String get legalTranslationNote =>
+      'هذه الترجمة للعلم فقط. النص الملزم، والذي توافق عليه، هو الأصل التركي.';
+
+  @override
+  String get legalShowOriginal => 'عرض الأصل التركي';
+
+  @override
+  String get legalShowTranslation => 'عرض الترجمة';
 }

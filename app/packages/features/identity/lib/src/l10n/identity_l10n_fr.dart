@@ -619,4 +619,14 @@ class IdentityL10nFr extends IdentityL10n {
 
   @override
   String get or => 'ou';
+
+  @override
+  String get legalTranslationNote =>
+      'Cette traduction est fournie à titre d\'information. Le texte qui fait foi, et que tu acceptes, est l\'original turc.';
+
+  @override
+  String get legalShowOriginal => 'Afficher l\'original turc';
+
+  @override
+  String get legalShowTranslation => 'Afficher la traduction';
 }

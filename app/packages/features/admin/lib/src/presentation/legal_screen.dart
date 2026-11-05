@@ -360,6 +360,10 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
                         'Metinler hukuki bağlayıcılığı olan belgelerdir; yayınlamadan önce hukuk danışmanının onayından geçmelidir.',
                         style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
                       ),
+                      if (!_creating) ...[
+                        const SizedBox(height: GwSpacing.xl),
+                        _Translations(kind: widget.kind, version: widget.version!),
+                      ],
                     ],
                   ),
                 ),
@@ -367,6 +371,187 @@ class _LegalEditorScreenState extends ConsumerState<LegalEditorScreen> {
             ),
           ),
       },
+    );
+  }
+}
+
+/// Bir sürümün bilgi amaçlı çevirileri (docs/ARCHITECTURE.md §11): bağlayıcı olan Türkçe metindir; çeviri onaydan
+/// sonra da düzeltilebilir.
+class _Translations extends ConsumerWidget {
+  const _Translations({required this.kind, required this.version});
+
+  final String kind;
+  final int version;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final key = (kind: kind, version: version);
+    final translations = ref.watch(legalTranslationsProvider(key));
+    final textTheme = Theme.of(context).textTheme;
+
+    Future<void> open(String language, LegalTranslation? existing) async {
+      await Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => LegalTranslationEditorScreen(kind: kind, version: version, language: language, existing: existing),
+      ));
+      ref.invalidate(legalTranslationsProvider(key));
+    }
+
+    return GwPanel(
+      title: 'Çeviriler',
+      subtitle: 'Uygulama metni kişinin dilinde gösterir ve "Bağlayıcı metin Türkçedir" notunu ekler. Onay her zaman Türkçe '
+          'sürüme verilir. Çeviriler bu sürüm onaylandıktan sonra da düzeltilebilir.',
+      padding: EdgeInsets.zero,
+      child: switch (translations) {
+        AsyncData(:final value) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, MapEntry(key: code, value: name)) in legalTranslationLanguages.entries.indexed) ...[
+                if (i > 0) const Divider(height: 1),
+                () {
+                  final existing = value.where((t) => t.language == code).firstOrNull;
+                  return ListTile(
+                    title: Text(name),
+                    subtitle: Text(existing == null ? 'Çeviri yok' : 'Güncelleme: ${formatDateTime(existing.updatedAt)}',
+                        style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                    leading: existing == null
+                        ? const GwBadge('Yok', tone: GwBadgeTone.neutral)
+                        : const GwBadge('Var', tone: GwBadgeTone.success, dot: true),
+                    trailing: GwButton(
+                      label: existing == null ? 'Ekle' : 'Düzenle',
+                      variant: GwButtonVariant.text,
+                      onPressed: () => open(code, existing),
+                    ),
+                    onTap: () => open(code, existing),
+                  );
+                }(),
+              ],
+            ],
+          ),
+        AsyncError(:final error) => Padding(
+            padding: const EdgeInsets.all(GwSpacing.lg),
+            child: GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(legalTranslationsProvider(key))),
+          ),
+        _ => const Padding(padding: EdgeInsets.all(GwSpacing.lg), child: GwSkeleton(height: GwSpacing.xxl * 3)),
+      },
+    );
+  }
+}
+
+/// Bir sürümün tek bir dildeki çevirisini yazar ya da düzeltir.
+class LegalTranslationEditorScreen extends ConsumerStatefulWidget {
+  const LegalTranslationEditorScreen({super.key, required this.kind, required this.version, required this.language, this.existing});
+
+  final String kind;
+  final int version;
+  final String language;
+  final LegalTranslation? existing;
+
+  @override
+  ConsumerState<LegalTranslationEditorScreen> createState() => _LegalTranslationEditorScreenState();
+}
+
+class _LegalTranslationEditorScreenState extends ConsumerState<LegalTranslationEditorScreen> {
+  late final _title = TextEditingController(text: widget.existing?.title);
+  late final _body = TextEditingController(text: widget.existing?.body);
+  final _form = GlobalKey<FormState>();
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _body.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run(Future<Result<void>> Function(AdminLegalRepository repo) action, String done) async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    final result = await action(ref.read(adminLegalRepositoryProvider));
+    if (!mounted) return;
+    switch (result) {
+      case Ok():
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
+      case Err(:final failure):
+        setState(() {
+          _saving = false;
+          _error = failure.userMessage;
+        });
+    }
+  }
+
+  void _save() {
+    if (!_form.currentState!.validate()) return;
+    _run((repo) => repo.saveTranslation(widget.kind, widget.version, widget.language, title: _title.text.trim(), body: _body.text.trim()),
+        'Çeviri kaydedildi.');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final language = legalTranslationLanguages[widget.language] ?? widget.language;
+    return Scaffold(
+      backgroundColor: GwColors.surface,
+      appBar: AppBar(
+        title: Text('${legalKindLabel(widget.kind)} · v${widget.version} · $language'),
+        actions: [
+          if (widget.existing != null)
+            IconButton(
+              tooltip: 'Çeviriyi sil',
+              icon: const Icon(Icons.delete_outline, color: GwColors.error),
+              onPressed: _saving
+                  ? null
+                  : () => _run((repo) => repo.removeTranslation(widget.kind, widget.version, widget.language), 'Çeviri silindi.'),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(right: GwSpacing.md),
+            child: GwButton(label: 'Kaydet', icon: Icons.check, isLoading: _saving, onPressed: _save),
+          ),
+        ],
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(GwSpacing.lg),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: GwLayout.contentMaxWidth),
+            child: Form(
+              key: _form,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const DetailBanner(
+                    tone: GwBadgeTone.info,
+                    icon: Icons.translate,
+                    title: 'Bilgi amaçlı çeviri',
+                    body: 'Bağlayıcı olan Türkçe metindir; kişi her zaman Türkçe sürümü onaylar. Çeviriyi yayından önce o dili '
+                        'anadili olarak konuşan birine kontrol ettir.',
+                  ),
+                  const SizedBox(height: GwSpacing.md),
+                  TextFormField(
+                    controller: _title,
+                    maxLength: 200,
+                    textDirection: widget.language == 'ar' ? TextDirection.rtl : null,
+                    decoration: const InputDecoration(labelText: 'Başlık', border: OutlineInputBorder()),
+                    validator: (v) => (v ?? '').trim().length < 3 ? 'Başlık en az 3 karakter olmalı.' : null,
+                  ),
+                  const SizedBox(height: GwSpacing.md),
+                  TextFormField(
+                    controller: _body,
+                    minLines: 14,
+                    maxLines: null,
+                    textDirection: widget.language == 'ar' ? TextDirection.rtl : null,
+                    decoration: const InputDecoration(labelText: 'Metin', alignLabelWithHint: true, border: OutlineInputBorder()),
+                    validator: (v) => (v ?? '').trim().length < 20 ? 'Metin en az 20 karakter olmalı.' : null,
+                  ),
+                  if (_error != null) ...[const SizedBox(height: GwSpacing.sm), GwFormMessage(_error!)],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

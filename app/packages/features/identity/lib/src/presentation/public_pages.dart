@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/legal.dart';
 import '../l10n.dart';
 import 'account_screens.dart';
+import 'legal_documents_screen.dart';
 import 'providers.dart';
 
 /// A legal text anyone can open without signing in: the store listing links here (docs/ARCHITECTURE.md §10).
@@ -21,16 +22,7 @@ class PublicLegalScreen extends ConsumerWidget {
     return _PublicPage(
       child: switch (docs) {
         AsyncData(:final value) => switch (value.where((d) => d.kind == kind).firstOrNull) {
-            final doc? => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(doc.title, style: textTheme.headlineMedium),
-                  const SizedBox(height: GwSpacing.xxs),
-                  Text(identityL10n.versionLabel(doc.version), style: textTheme.labelMedium?.copyWith(color: GwColors.textSecondary)),
-                  const SizedBox(height: GwSpacing.lg),
-                  SelectableText(doc.body, style: textTheme.bodyLarge),
-                ],
-              ),
+            final doc? => LegalText(document: doc, titleStyle: textTheme.headlineMedium),
             null => GwEmptyState(
                 icon: Icons.description_outlined,
                 message: identityL10n.documentNotPublished,

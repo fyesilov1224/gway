@@ -269,6 +269,10 @@ final legalKindsProvider = FutureProvider.autoDispose<List<LegalKind>>(
 );
 
 /// One version's full body.
+final legalTranslationsProvider = FutureProvider.autoDispose.family<List<LegalTranslation>, ({String kind, int version})>(
+  (ref, key) async => (await ref.watch(adminLegalRepositoryProvider).translations(key.kind, key.version)).getOrThrow(),
+);
+
 final legalDocumentProvider = FutureProvider.autoDispose.family<LegalDocument, ({String kind, int version})>(
   (ref, key) async {
     ref.cacheFor();

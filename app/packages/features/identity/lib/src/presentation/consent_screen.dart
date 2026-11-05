@@ -149,7 +149,7 @@ class _ConsentTile extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(document.title, style: Theme.of(context).textTheme.titleMedium),
+                  child: Text(document.displayTitle, style: Theme.of(context).textTheme.titleMedium),
                 ),
                 GwButton(
                   label: identityL10n.readText,
