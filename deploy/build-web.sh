@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the web app and the admin panel for production into deploy/www (docs/DEPLOY.md).
-# Usage: deploy/build-web.sh <domain> <supabase-url> <supabase-publishable-key>
+# Usage: [TURNSTILE_SITE_KEY=...] deploy/build-web.sh <domain> <supabase-url> <supabase-publishable-key>
 set -euo pipefail
 domain="$1"; supabase_url="$2"; supabase_key="$3"
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -10,7 +10,9 @@ if LC_ALL=C grep -q '[^ -~]' <<<"$here"; then
   echo "Build from an ASCII path (e.g. subst G: <repo>), not $here" >&2; exit 1
 fi
 defines=(--dart-define=SUPABASE_URL="$supabase_url" --dart-define=SUPABASE_PUBLISHABLE_KEY="$supabase_key"
-         --dart-define=API_URL="https://api.$domain" --dart-define=SHARE_URL="https://app.$domain")
+         --dart-define=API_URL="https://api.$domain" --dart-define=SHARE_URL="https://app.$domain"
+         # Cloudflare Turnstile site key (docs/ARCHITECTURE.md §3k); unset: no bot check on the sign-in forms.
+         --dart-define=TURNSTILE_SITE_KEY="${TURNSTILE_SITE_KEY:-}")
 
 for app in social_app:app admin_panel:panel; do
   src="${app%%:*}"; out="${app##*:}"
