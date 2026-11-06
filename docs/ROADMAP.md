@@ -403,8 +403,10 @@ Bot hesaplar web adresine, mobil uygulamaya ve yönetim paneline giremesin; sald
 - [x] Yerel Supabase'de CAPTCHA (Cloudflare deneme anahtarı); jetonsuz istek reddedilir, uygulamayla giriş denendi
 - [x] Caddy: Cloudflare IP aralıklarından gelen istekte gerçek istemci IP'si (`CF-Connecting-IP`), `API_CLOUDFLARE_ONLY` ile Cloudflare dışından gelen API isteğine 403
 - [x] Web ve panel için güvenlik başlıkları (`_headers`); panel arama motorlarına kapalı (`robots.txt`, `X-Robots-Tag`)
-- [ ] Cloudflare: Turnstile anahtarı, `api` kaydının vekile alınması, hız sınırı kuralı, Access ile panelin gizlenmesi (kullanıcının hesabında)
-- [ ] Turnstile'lı web, panel ve mobil yayın; ardından Supabase'de CAPTCHA'nın açılması
+- [x] Cloudflare (2026-11-06): Turnstile anahtarı (yönetilen mod, app ve panel), `api` vekilde ve sunucuda `API_CLOUDFLARE_ONLY=true` (doğrudan IP 403), en düşük TLS 1.2, her zaman HTTPS, API hız sınırı (IP başına 10 sn'de 150 istek, 10 sn engel), saldırı yolları kuralı (`.env`, `.git`, `wp-`, `.php`, phpMyAdmin, `cgi-bin`, `.aws`, `/vendor/` → 403)
+- [ ] Cloudflare Access ile panelin gizlenmesi: Zero Trust ücretsiz planı kartla etkinleştirme onayı bekliyor
+- [x] Turnstile'lı web ve panel yayında, mobil 1.0.0+28 kapalı testte (2026-11-06)
+- [ ] Supabase'de CAPTCHA'nın açılması (gizli anahtar `.env.cloud`'da; kullanıcı panelden girer)
 - [ ] Mağaza inceleme demo hesabı (kullanıcı açar, panelde muaf işaretlenir)
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
