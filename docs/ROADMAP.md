@@ -394,7 +394,7 @@ Platform ekibi her sesli görüşme talebini ve yetkisini, talebin hangi grubun 
 - [x] C#: `GET /admin/calls/permissions` (durum, arama, sayfa, özet), `GET /admin/calls/permissions/{userId}` (geçmiş), `PUT /admin/calls/permissions/{userId}`, `POST /admin/calls/permissions` (kullanıcı adıyla); audit `actor_kind = staff`, kapatmada süren görüşme biter
 - [x] Panel: "Sesli görüşme" menü öğesi (`/calls`); durum kartları, en uzun bekleyen talep, son 24 saat toplamları; arama ve durum süzgeci; grup (askıda etiketi), not, bekleme süresi, kararı veren ve gerekçe; Aç / Reddet / Kapat / Yeniden aç / Kişiye aç; ayrıntı ve geçmiş penceresi; kullanıcı sayfasında Sesli görüşme kartı
 - [x] pgTAP (`70_admin_call_permissions`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-06)
-- [ ] Bulut: `0088` migration'ı, API ve panel yayını
+- [x] Bulut: `0088` migration'ı, API, web ve panel yayını (2026-11-06)
 
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
