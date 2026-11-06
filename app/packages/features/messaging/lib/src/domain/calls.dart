@@ -197,6 +197,10 @@ abstract interface class CallsRepository {
   /// The call as it changes (Realtime); ends when the call is gone.
   Stream<CallInfo?> watch(String callId);
 
+  /// The call as it is now, read once; null when it is gone. Realtime can drop while the app sits in the background,
+  /// so the call screen also reads the row itself (docs/ARCHITECTURE.md §8c, Cevapla her durumda açılır).
+  Future<Result<CallInfo?>> fetch(String callId);
+
   /// Calls ringing for the signed-in person right now.
   Stream<List<CallInfo>> incoming();
 

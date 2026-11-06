@@ -73,6 +73,12 @@ class CallsRepositoryImpl implements CallsRepository {
       .map((rows) => rows.isEmpty ? null : _call(rows.first));
 
   @override
+  Future<Result<CallInfo?>> fetch(String callId) => _run(() async {
+        final row = await _client.from('calls').select().eq('id', callId).maybeSingle();
+        return row == null ? null : _call(row);
+      });
+
+  @override
   Stream<List<CallInfo>> incoming() => _client
       .from('calls')
       .stream(primaryKey: ['id'])

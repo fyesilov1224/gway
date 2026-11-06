@@ -70,6 +70,17 @@ class _FakeCalls implements CallsRepository {
   @override
   Stream<CallInfo?> watch(String callId) => rows.stream;
 
+  /// What a fresh read of the row returns; null until a test sets it (as if the read failed).
+  CallInfo? current;
+  var fetches = 0;
+
+  @override
+  Future<Result<CallInfo?>> fetch(String callId) async {
+    fetches++;
+    final row = current;
+    return row == null ? const Err(NetworkFailure()) : Ok(row);
+  }
+
   @override
   Stream<List<CallInfo>> incoming() => ringing.stream;
 
@@ -104,6 +115,10 @@ class _FakeCalls implements CallsRepository {
 class _FakeSession extends CallSession {
   final joins = <CallJoin>[];
   var left = 0;
+  var peerIn = false;
+
+  @override
+  bool get peerJoined => peerIn;
 
   @override
   Future<void> connect(CallJoin join) async {
@@ -455,6 +470,67 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pump();
     expect(opened, ['in-app k1']);
+  });
+
+  testWidgets('Realtime silent: the answered call shows as answered for the callee, without ringing again',
+      (tester) async {
+    final h = await _pumpCall(tester);
+    await _emit(tester, h, _call(CallStatus.ringing));
+    expect(h.ringer.ringing, isTrue);
+
+    h.calls.current = _call(CallStatus.active, answeredAt: DateTime.now());
+    await tester.tap(find.text('Cevapla'));
+    await tester.pump();
+    await tester.pump();
+    expect(h.calls.actions, ['accept']);
+    expect(find.text('00:00'), findsOneWidget, reason: 'read right after answering, not waiting for Realtime');
+    expect(find.text('Cevapla'), findsNothing);
+    expect(h.ringer.ringing, isFalse);
+
+    await _emit(tester, h, _call(CallStatus.ringing));
+    expect(find.text('Cevapla'), findsNothing, reason: 'a late ringing row does not undo the answer');
+    expect(h.ringer.ringing, isFalse);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('answered but the server has not caught up: no answer buttons, no ring', (tester) async {
+    final h = await _pumpCall(tester);
+    await _emit(tester, h, _call(CallStatus.ringing));
+    await tester.tap(find.text('Cevapla'));
+    await tester.pump();
+    await _emit(tester, h, _call(CallStatus.ringing));
+    expect(find.text('Cevapla'), findsNothing);
+    expect(find.text('Bağlanıyor…'), findsOneWidget);
+    expect(h.ringer.ringing, isFalse);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Realtime silent: the caller sees the answer from the regular read', (tester) async {
+    final h = await _pumpCall(tester, join: _join);
+    await _emit(tester, h, _call(CallStatus.ringing, caller: 'me', callee: 'deniz'));
+    expect(find.text('Aranıyor…'), findsOneWidget);
+
+    h.calls.current = _call(CallStatus.active, caller: 'me', callee: 'deniz', answeredAt: DateTime.now());
+    await tester.pump(CallScreen.pollEvery);
+    await tester.pump();
+    expect(find.text('Aranıyor…'), findsNothing);
+    expect(h.ringer.playing, isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('the other person enters the audio room: the ringback stops and the row is read at once', (tester) async {
+    final h = await _pumpCall(tester, join: _join);
+    await _emit(tester, h, _call(CallStatus.ringing, caller: 'me', callee: 'deniz'));
+    expect(h.ringer.playing, CallTone.outgoing);
+    final before = h.calls.fetches;
+
+    h.session
+      ..peerIn = true
+      ..notifyListeners();
+    await tester.pump();
+    expect(h.ringer.playing, isNull);
+    expect(h.calls.fetches, greaterThan(before));
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('back on a call this phone is not in: a fresh token joins it', (tester) async {

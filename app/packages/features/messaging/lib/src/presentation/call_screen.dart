@@ -23,6 +23,10 @@ class CallScreen extends ConsumerStatefulWidget {
   /// Answered on the phone's own call screen: answer as soon as the call is seen ringing.
   final bool answer;
 
+  /// How often the row is read besides Realtime while the call is open (docs/ARCHITECTURE.md §8c, Cevapla her durumda
+  /// açılır).
+  static const pollEvery = Duration(seconds: 3);
+
   @override
   ConsumerState<CallScreen> createState() => _CallScreenState();
 }
@@ -35,7 +39,12 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   bool _keptAlive = false;
   StreamSubscription<CallInfo?>? _subscription;
   Timer? _ticker;
+  Timer? _poller;
   Timer? _closer;
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(onResume: () => unawaited(_refresh()));
+  bool _refreshing = false;
+  bool _peerWasJoined = false;
+  CallConnection _lastConnection = CallConnection.idle;
   CallInfo? _call;
   bool _loaded = false;
   bool _busy = false;
@@ -65,7 +74,32 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_call?.status == CallStatus.active) _rebuild();
     });
+    _lifecycle;
+    unawaited(_refresh());
+    _poller = Timer.periodic(CallScreen.pollEvery, (_) {
+      if (!_loaded || _open) unawaited(_refresh());
+    });
   }
+
+  /// Reads the row itself: Realtime can drop (the app sat in the background and its token expired), and then an
+  /// answered call stayed "Aranıyor…" for the caller and kept ringing for the callee (until 2026-11-06). A failed read
+  /// changes nothing; the next one tries again.
+  Future<void> _refresh() async {
+    if (_refreshing) return;
+    _refreshing = true;
+    final result = await _repo.fetch(widget.callId);
+    _refreshing = false;
+    if (!mounted) return;
+    if (result case Ok(:final value)) _onCall(value);
+  }
+
+  /// Ringing, then talking, then over: a call never goes back, so an older row (a late Realtime event, a read that
+  /// was on its way) does not undo a newer one.
+  static int _stage(CallStatus status) => switch (status) {
+        CallStatus.ringing => 0,
+        CallStatus.active => 1,
+        _ => 2,
+      };
 
   /// This screen rings and shows the call now; the phone's own screen or ongoing notice closes. An answer given there
   /// first is kept, so the person is not asked to answer again.
@@ -87,7 +121,29 @@ class _CallScreenState extends ConsumerState<CallScreen> {
 
   void _rebuild() {
     _syncKeepAlive();
+    _watchSession();
     if (mounted) setState(() {});
+  }
+
+  /// The other person entering the audio room means they answered; the audio dropping may mean the call ended.
+  /// Either way the row is read at once instead of waiting for Realtime, and the caller's ringback stops.
+  void _watchSession() {
+    final joined = _session.peerJoined;
+    final connection = _session.connection;
+    final changed = joined && !_peerWasJoined || connection == CallConnection.failed && _lastConnection != connection;
+    _peerWasJoined = joined;
+    _lastConnection = connection;
+    if (!changed) return;
+    if (_call case final call?) _setTone(_toneFor(call));
+    unawaited(_refresh());
+  }
+
+  CallTone? _toneFor(CallInfo call) {
+    final me = _me;
+    if (call.status != CallStatus.ringing) return null;
+    if (call.calleeId == me) return _answered ? null : CallTone.incoming;
+    if (call.callerId == me) return _session.peerJoined ? null : CallTone.outgoing;
+    return null;
   }
 
   /// While the audio is connected the call goes on in the background too (docs/ARCHITECTURE.md §8c, Arka planda
@@ -112,6 +168,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
 
   void _onCall(CallInfo? call) {
     if (!mounted) return;
+    final current = _call;
+    if (call != null && current != null && _stage(call.status) < _stage(current.status)) return;
+    if (call == null && current != null && !current.status.isOpen) return;
     setState(() {
       _call = call;
       _loaded = true;
@@ -131,11 +190,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       unawaited(_accept());
       return;
     }
-    _setTone(switch (call.status) {
-      CallStatus.ringing when call.calleeId == me => CallTone.incoming,
-      CallStatus.ringing when call.callerId == me => CallTone.outgoing,
-      _ => null,
-    });
+    _setTone(_toneFor(call));
     // Back on a call this device is not connected to: the caller while ringing, either person while talking.
     final mayJoin = call.callerId == me || call.status == CallStatus.active;
     if (mayJoin && _session.connection == CallConnection.idle && !_busy) unawaited(_rejoin());
@@ -168,14 +223,22 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       case Err(:final failure):
         setState(() => _error = failure.userMessage);
     }
+    // What the server did shows at once, not when Realtime gets round to it.
+    await _refresh();
   }
 
   Future<void> _rejoin() => _run(() => _repo.rejoin(widget.callId));
 
-  Future<void> _accept() {
+  /// Once answered the ring stays off and the answer buttons stay away while the server catches up. A failed answer
+  /// (no network) may be tried again.
+  Future<void> _accept() async {
     _answered = true;
     _setTone(null);
-    return _run(() => _repo.accept(widget.callId));
+    await _run(() async {
+      final result = await _repo.accept(widget.callId);
+      if (result is Err && mounted) setState(() => _answered = false);
+      return result;
+    });
   }
 
   Future<void> _decline() => _run(() async => (await _repo.decline(widget.callId)).map((_) => null));
@@ -192,7 +255,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     _screens.detach(widget.callId, _answerRequested);
     unawaited(_subscription?.cancel());
     _ticker?.cancel();
+    _poller?.cancel();
     _closer?.cancel();
+    _lifecycle.dispose();
     if (_tone != null) unawaited(_ringer.stop().catchError((Object _) {}));
     if (_keptAlive) unawaited(_keepAlive.stop().catchError((Object _) {}));
     _session
@@ -288,6 +353,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 
   String _statusText(CallInfo call, String me) => switch (call.status) {
+        CallStatus.ringing when call.calleeId == me && _answered => messagingL10n.connecting,
         CallStatus.ringing when call.calleeId == me => messagingL10n.incoming,
         CallStatus.ringing => messagingL10n.calling,
         CallStatus.active when _session.connection != CallConnection.connected => messagingL10n.connecting,
@@ -305,7 +371,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     if (!call.status.isOpen) {
       return GwButton(label: messagingL10n.close, variant: GwButtonVariant.secondary, onPressed: () => Navigator.of(context).maybePop());
     }
-    if (incoming && call.status == CallStatus.ringing) {
+    if (incoming && call.status == CallStatus.ringing && !_answered) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

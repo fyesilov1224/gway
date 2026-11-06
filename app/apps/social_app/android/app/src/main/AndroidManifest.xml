@@ -36,10 +36,13 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="gway_general" />
+        <!-- singleTask (docs/ARCHITECTURE.md §8c, Cevapla her durumda açılır): Cevapla on the phone's call screen
+             starts the app from the plugin's own task; singleTop opened a second copy there and the call stayed in the
+             hidden one. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

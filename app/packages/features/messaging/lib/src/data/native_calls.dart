@@ -4,7 +4,7 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' show Color;
-import 'package:flutter/services.dart' show MethodChannel;
+import 'package:flutter/services.dart' show MethodCall, MethodChannel;
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -48,6 +48,14 @@ abstract interface class NativeCalls {
 /// unanswered one as a decline; it is not the person's decline. Before 2026-11-05 it reached the server: opening the
 /// app while a call rang declined it, and the Answer that followed did nothing.
 final _closedHere = <String>{};
+
+/// Cevapla read off the intent that brought the app to the front (the messaging plugin, docs/ARCHITECTURE.md §8c,
+/// Cevapla her durumda açılır). Listened to in the app's own isolate only.
+final StreamController<String> _answeredByLaunch = StreamController<String>.broadcast(onListen: () {
+  CallkitNativeCalls._phone.setMethodCallHandler((MethodCall call) async {
+    if (call.method == 'answered' && call.arguments is String) _answeredByLaunch.add(call.arguments as String);
+  });
+});
 
 class CallkitNativeCalls implements NativeCalls {
   const CallkitNativeCalls();
@@ -110,28 +118,65 @@ class CallkitNativeCalls implements NativeCalls {
     }
   }
 
+  /// The ring and the screen are silenced first, also when the plugin has no record of the call (its receiver failed):
+  /// before 2026-11-06 such a ring went on after the call was answered. Then the record is closed.
   @override
   Future<void> end(String callId) async {
     if (!supported) return;
     _closedHere.add(callId);
+    try {
+      await FlutterCallkitIncoming.hideCallkitIncoming(CallKitParams(id: callId));
+    } on Object catch (e) {
+      debugPrint('Call screen not hidden: $e');
+    }
     await FlutterCallkitIncoming.endCall(callId);
   }
 
+  /// The plugin's answer and decline events, and Cevapla read off the intent that opened the app: the plugin's answer
+  /// can get lost on the way; the same answer twice reaches one call screen (CallScreens).
   @override
   Stream<NativeCallAction> get actions {
     if (!supported) return const Stream.empty();
-    return FlutterCallkitIncoming.onEvent.expand((event) => switch (event) {
-          CallEventActionCallAccept(:final callKitParams) => [(callId: callKitParams.id, choice: NativeCallChoice.answer)],
-          CallEventActionCallDecline(:final callKitParams) when !_closedHere.contains(callKitParams.id) =>
-            [(callId: callKitParams.id, choice: NativeCallChoice.decline)],
-          _ => const <NativeCallAction>[],
-        });
+    final controller = StreamController<NativeCallAction>();
+    final subscriptions = <StreamSubscription<Object?>>[];
+    controller
+      ..onListen = () {
+        subscriptions
+          ..add(FlutterCallkitIncoming.onEvent.listen((event) {
+            switch (event) {
+              case CallEventActionCallAccept(:final callKitParams):
+                controller.add((callId: callKitParams.id, choice: NativeCallChoice.answer));
+              case CallEventActionCallDecline(:final callKitParams) when !_closedHere.contains(callKitParams.id):
+                controller.add((callId: callKitParams.id, choice: NativeCallChoice.decline));
+              default:
+                break;
+            }
+          }))
+          ..add(_answeredByLaunch.stream.listen((id) => controller.add((callId: id, choice: NativeCallChoice.answer))));
+      }
+      ..onCancel = () async {
+        for (final s in subscriptions) {
+          await s.cancel();
+        }
+      };
+    return controller.stream;
   }
 
   @override
   Future<List<String>> answeredBeforeStart() async {
     if (!supported) return const [];
-    return [for (final c in await FlutterCallkitIncoming.activeCalls()) if (c.isAccepted) c.id];
+    final launched = await _takeAnsweredByLaunch();
+    final recorded = [for (final c in await FlutterCallkitIncoming.activeCalls()) if (c.isAccepted) c.id];
+    return {...launched, ...recorded}.toList();
+  }
+
+  static Future<List<String>> _takeAnsweredByLaunch() async {
+    try {
+      return [...?await _phone.invokeListMethod<String>('takeAnswered')];
+    } on Object catch (e) {
+      debugPrint('Answered calls unknown: $e');
+      return const [];
+    }
   }
 
   @override

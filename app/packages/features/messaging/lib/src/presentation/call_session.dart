@@ -98,7 +98,14 @@ class CallSession extends ChangeNotifier {
           await _applyPeerKey();
           _checkConfirmation();
         })
-        ..on<lk.TrackSubscribedEvent>(_checkEncrypted);
+        ..on<lk.TrackSubscribedEvent>(_checkEncrypted)
+        // The room is gone (the call ended and the server closed it) or the connection could not be won back. The call
+        // screen reads the row at once; an open call offers to reconnect.
+        ..on<lk.RoomDisconnectedEvent>((_) {
+          if (_room != room) return;
+          connection = CallConnection.failed;
+          _notify();
+        });
       await room.connect(join.url, join.token);
       await room.startAudio();
       _publish(room, keyAttribute, agreement.publicKey);
@@ -223,10 +230,12 @@ class CallSession extends ChangeNotifier {
   Future<void> leave() async {
     final room = _room;
     _forgetKeys();
-    if (room == null) return;
-    room.removeListener(_notify);
-    await room.disconnect();
-    await room.dispose();
+    if (room != null) {
+      room.removeListener(_notify);
+      await room.disconnect();
+      await room.dispose();
+    }
+    if (connection == CallConnection.idle) return;
     connection = CallConnection.idle;
     _notify();
   }
