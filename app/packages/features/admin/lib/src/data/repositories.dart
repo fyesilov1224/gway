@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
+import '../domain/admin_calls.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_games.dart';
@@ -33,6 +34,41 @@ class SupabaseStaffRepository implements StaffRepository {
       return Err(failureFromSupabase(e));
     }
   }
+}
+
+/// Voice call permissions (docs/ARCHITECTURE.md §8c, Admin).
+class ApiAdminCallsRepository implements AdminCallsRepository {
+  ApiAdminCallsRepository(this._api);
+
+  final ApiClient _api;
+
+  static Map<String, Object?> _map(Object? json) => (json! as Map).cast<String, Object?>();
+
+  @override
+  Future<Result<AdminCallPermissionsPage>> permissions(AdminCallQuery query) => _api.get(
+        '/admin/calls/permissions',
+        query: {
+          'status': query.status?.code ?? 'all',
+          if (query.query.trim().isNotEmpty) 'q': query.query.trim(),
+          'page': '${query.page}',
+        },
+        decode: (json) => AdminCallPermissionsPage.fromJson(_map(json)),
+      );
+
+  @override
+  Future<Result<AdminCallUserDetail>> user(String userId) =>
+      _api.get('/admin/calls/permissions/$userId', decode: (json) => AdminCallUserDetail.fromJson(_map(json)));
+
+  @override
+  Future<Result<void>> setPermission(String userId, {required bool active, String? reason}) => _api.put(
+        '/admin/calls/permissions/$userId',
+        body: {'active': active, 'reason': ?reason},
+        decode: (_) {},
+      );
+
+  @override
+  Future<Result<void>> grant(String username) =>
+      _api.post('/admin/calls/permissions', body: {'username': username}, decode: (_) {});
 }
 
 class ApiAdminUsersRepository implements AdminUsersRepository {

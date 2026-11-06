@@ -28,6 +28,9 @@ abstract final class AdminRoutes {
 
   static const matching = '/matching';
 
+  /// Voice call permissions (docs/ARCHITECTURE.md §8c, Admin).
+  static const calls = '/calls';
+
   /// Chess and the games to come (docs/ARCHITECTURE.md §3i).
   static const games = '/games';
 

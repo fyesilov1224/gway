@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using Gway.Modules.Groups;
+using Gway.Modules.Admin;
 using Gway.Modules.Live;
+using Gway.Modules.Live.Contracts;
 using Gway.Modules.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -231,5 +233,130 @@ public sealed class CallTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         // The caller cannot answer their own call.
         Assert.Equal(HttpStatusCode.Conflict, (await factory.ClientFor(a).PostAsync(Path($"/calls/{call.CallId}/accept"), null, Ct)).StatusCode);
         Assert.Equal("ringing", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
+    }
+
+    // Admin panel: Sesli görüşme (docs/ARCHITECTURE.md §8c, Admin) --------------------------------------------------
+
+    private async Task<string> UsernameAsync(Guid user) =>
+        (await _db.ScalarAsync<string>("select username from public.profiles where id = @u", ("u", user)))!;
+
+    private async Task<CallPermissionRow?> PanelRowAsync(Guid staff, Guid user, string status = "all")
+    {
+        var page = await factory.ClientFor(staff).GetFromJsonAsync<CallPermissionsPage>(
+            Path($"/admin/calls/permissions?status={status}&q={Uri.EscapeDataString(await UsernameAsync(user))}"), Ct);
+        return page!.Items.SingleOrDefault(i => i.UserId == user);
+    }
+
+    private Task<HttpResponseMessage> PanelSetAsync(Guid staff, Guid user, bool active, string? reason = null) =>
+        factory.ClientFor(staff).PutAsJsonAsync(Path($"/admin/calls/permissions/{user}"), new CallPermissionRequest(active, reason), Ct);
+
+    [Fact]
+    public async Task The_platform_team_sees_every_request_with_its_group_and_opens_declines_and_closes_them()
+    {
+        var (a, b, chat) = await MatchedPairAsync();
+        var group = await GroupAsync();
+        await AskAsync(group, a, "İşim için lazım");
+        var (admin, support, moderator) = (await _db.CreateUserAsync(Unique("sa_")), await _db.CreateUserAsync(Unique("ss_")),
+            await _db.CreateUserAsync(Unique("sm_")));
+        await _db.MakeStaffAsync(admin, "admin");
+        await _db.MakeStaffAsync(support, "support");
+        await _db.MakeStaffAsync(moderator, "moderator");
+
+        // Waiting in the group's queue: the panel shows the group, the note and the counts; the moderator may look.
+        var waiting = await PanelRowAsync(moderator, a, "requested");
+        Assert.NotNull(waiting);
+        Assert.Equal("requested", waiting.Status);
+        Assert.Equal(group.Group, waiting.Group?.Id);
+        Assert.Equal("İşim için lazım", waiting.Note);
+        Assert.Null(waiting.DecidedBy);
+        var page = await factory.ClientFor(admin).GetFromJsonAsync<CallPermissionsPage>(Path("/admin/calls/permissions"), Ct);
+        Assert.True(page!.Summary.Requested >= 1);
+        Assert.NotNull(page.Summary.OldestRequestAt);
+        Assert.Equal(HttpStatusCode.Forbidden, (await factory.ClientFor(a).GetAsync(Path("/admin/calls/permissions"), Ct)).StatusCode);
+
+        // Only admin and support decide; nobody decides their own.
+        Assert.Equal(HttpStatusCode.Forbidden, (await PanelSetAsync(moderator, a, true)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await PanelSetAsync(admin, admin, true)).StatusCode);
+
+        // Support opens it: the platform's permission, not the group's; the person hears about it; the audit names staff.
+        (await PanelSetAsync(support, a, true)).EnsureSuccessStatusCode();
+        var opened = await PanelRowAsync(admin, a, "active");
+        Assert.Equal("active", opened!.Status);
+        Assert.Null(opened.Group);
+        Assert.Equal("platform", opened.DecidedBy?.Kind);
+        Assert.Equal(support, opened.DecidedBy?.Id);
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'call_permission.granted' and target_id = @u and actor_kind = 'staff' and actor_id = @s",
+            ("u", a.ToString()), ("s", support)));
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.notifications where recipient_id = @u and type = 'call_permission_granted'", ("u", a)));
+        Assert.Equal(HttpStatusCode.Conflict, (await PanelSetAsync(admin, a, true)).StatusCode);
+
+        // Leaving the group does not close a permission the platform opened.
+        (await factory.ClientFor(a).DeleteAsync(Path($"/groups/{group.Group}/membership"), Ct)).EnsureSuccessStatusCode();
+        Assert.Equal("active", await _db.ScalarAsync<string>("select status from public.call_permissions where user_id = @u", ("u", a)));
+
+        // Directly for someone who never asked, by username.
+        var granted = await factory.ClientFor(admin).PostAsJsonAsync(Path("/admin/calls/permissions"),
+            new GrantCallPermissionRequest("@" + await UsernameAsync(b)), Ct);
+        granted.EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.NotFound, (await factory.ClientFor(admin).PostAsJsonAsync(Path("/admin/calls/permissions"),
+            new GrantCallPermissionRequest("yok_boyle_biri_xyz"), Ct)).StatusCode);
+
+        // Both may call now; closing needs a reason and ends the call at once.
+        var call = (await (await factory.ClientFor(a).PostAsync(Path($"/conversations/{chat}/calls"), null, Ct)).Content.ReadFromJsonAsync<CallJoin>(Ct))!;
+        Assert.Equal(HttpStatusCode.BadRequest, (await PanelSetAsync(admin, a, false)).StatusCode);
+        (await PanelSetAsync(admin, a, false, "Kötüye kullanım şikayeti")).EnsureSuccessStatusCode();
+        Assert.NotEqual("ringing", await _db.ScalarAsync<string>("select status from public.calls where id = @id", ("id", call.CallId)));
+        var closed = await PanelRowAsync(admin, a, "revoked");
+        Assert.Equal("Kötüye kullanım şikayeti", closed!.Reason);
+        Assert.Equal(HttpStatusCode.Conflict, (await PanelSetAsync(admin, a, false, "Yine kapat")).StatusCode);
+
+        // The history: who did what, newest first.
+        var detail = await factory.ClientFor(moderator).GetFromJsonAsync<CallUserDetail>(Path($"/admin/calls/permissions/{a}"), Ct);
+        Assert.Equal(["call_permission.revoked", "call_permission.granted"], detail!.History.Select(h => h.Action).ToArray());
+        Assert.All(detail.History, h => Assert.Equal("staff", h.ActorKind));
+        Assert.Equal("Kötüye kullanım şikayeti", detail.History[0].Reason);
+
+        // And open again.
+        (await PanelSetAsync(admin, a, true)).EnsureSuccessStatusCode();
+        Assert.Equal("active", (await PanelRowAsync(admin, a))!.Status);
+    }
+
+    [Fact]
+    public async Task The_panel_declines_a_groups_waiting_request_and_tells_group_decisions_from_its_own()
+    {
+        var (c, d, _) = await MatchedPairAsync();
+        var group = await GroupAsync();
+        var admin = await _db.CreateUserAsync(Unique("sa_"));
+        await _db.MakeStaffAsync(admin, "admin");
+
+        // The group's owner opened d's request: the panel says so.
+        await GrantAsync(group, d);
+        var byGroup = await PanelRowAsync(admin, d);
+        Assert.Equal("group_owner", byGroup!.DecidedBy?.Kind);
+        Assert.Equal(group.Owner, byGroup.DecidedBy?.Id);
+        Assert.Equal(group.Group, byGroup.Group?.Id);
+
+        // The platform declines c's waiting request: it stays the group's request, the person may ask again after 7 days.
+        await AskAsync(group, c);
+        Assert.Equal(HttpStatusCode.BadRequest, (await PanelSetAsync(admin, c, false, "x")).StatusCode);
+        (await PanelSetAsync(admin, c, false, "Profil bilgileri eksik")).EnsureSuccessStatusCode();
+        var declined = await PanelRowAsync(admin, c, "declined");
+        Assert.Equal(group.Group, declined!.Group?.Id);
+        Assert.Equal("platform", declined.DecidedBy?.Kind);
+        Assert.Equal(1L, await _db.ScalarAsync<long>(
+            "select count(*) from public.audit_log where action = 'call_permission.declined' and target_id = @u and group_id = @g and actor_kind = 'staff'",
+            ("u", c.ToString()), ("g", group.Group)));
+        var again = await Assert.ThrowsAsync<Npgsql.PostgresException>(() => _db.ExecuteAsync(
+            "select set_config('request.jwt.claims', json_build_object('sub', @u::text)::text, true); select public.request_call_permission(@g, null)",
+            ("u", c), ("g", group.Group)));
+        Assert.Equal("call_permission_cooldown", again.MessageText);
+
+        // Searching by the group's name finds its people.
+        var name = (await _db.ScalarAsync<string>("select name from public.groups where id = @g", ("g", group.Group)))!;
+        var found = await factory.ClientFor(admin).GetFromJsonAsync<CallPermissionsPage>(
+            Path($"/admin/calls/permissions?status=all&q={Uri.EscapeDataString(name)}"), Ct);
+        Assert.Contains(found!.Items, i => i.UserId == d);
     }
 }

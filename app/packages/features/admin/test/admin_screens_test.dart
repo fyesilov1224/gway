@@ -546,8 +546,116 @@ AdminReferral _referral({AdminReferralStatus status = AdminReferralStatus.pendin
 
 var _referralRow = _referral();
 
+/// Voice call permissions: one request waiting in a group's queue, one opened by a group, one by the platform.
+class _FakeCalls implements AdminCallsRepository {
+  final decisions = <(String, bool, String?)>[];
+  final grants = <String>[];
+  final queries = <AdminCallQuery>[];
+  String? grantError;
+
+  static final _waiting = AdminCallPermission(
+    userId: 'u1',
+    username: 'ayse',
+    displayName: 'Ayşe Yılmaz',
+    status: AdminCallPermissionStatus.requested,
+    note: 'Eşleştiğim kişiyle konuşmak istiyorum',
+    requestedAt: DateTime.now().subtract(const Duration(days: 3, hours: 2)),
+    group: const AdminCallGroup(id: 'g1', handle: 'doga.yuruyus', name: 'Doğa Yürüyüşü', status: 'active'),
+  );
+
+  static final _byGroup = AdminCallPermission(
+    userId: 'u2',
+    username: 'mert',
+    displayName: 'Mert Kaya',
+    status: AdminCallPermissionStatus.active,
+    requestedAt: DateTime(2026, 11, 1, 9),
+    decidedAt: DateTime(2026, 11, 1, 12),
+    group: const AdminCallGroup(id: 'g2', handle: 'kosu', name: 'Koşu Kulübü', status: 'suspended'),
+    decidedBy: const AdminCallDecider(kind: AdminCallDeciderKind.groupOwner, id: 'o1', username: 'zeynep', displayName: 'Zeynep Ak'),
+  );
+
+  static final _byPlatform = AdminCallPermission(
+    userId: 'u3',
+    username: 'can',
+    displayName: 'Can Demir',
+    status: AdminCallPermissionStatus.revoked,
+    decidedAt: DateTime(2026, 11, 4, 18),
+    reason: 'Kötüye kullanım şikayeti',
+    decidedBy: const AdminCallDecider(kind: AdminCallDeciderKind.platform, id: 's1', username: 'ekip', displayName: 'Ekip Üyesi'),
+  );
+
+  static const _summary = AdminCallSummary(
+    requested: 1, active: 7, declined: 2, revoked: 1, calls24h: 12, minutes24h: 85, oldestRequestAt: null,
+  );
+
+  @override
+  Future<Result<AdminCallPermissionsPage>> permissions(AdminCallQuery query) async {
+    queries.add(query);
+    final items = [
+      for (final p in [_waiting, _byGroup, _byPlatform])
+        if (query.status == null || p.status == query.status) p,
+    ];
+    return Ok(AdminCallPermissionsPage(
+      items: items,
+      total: items.length,
+      page: 1,
+      pageSize: 50,
+      summary: AdminCallSummary(
+        requested: _summary.requested,
+        active: _summary.active,
+        declined: _summary.declined,
+        revoked: _summary.revoked,
+        calls24h: _summary.calls24h,
+        minutes24h: _summary.minutes24h,
+        oldestRequestAt: _waiting.requestedAt,
+      ),
+    ));
+  }
+
+  @override
+  Future<Result<AdminCallUserDetail>> user(String userId) async => Ok(AdminCallUserDetail(
+        userId: userId,
+        username: userId == 'u3' ? 'can' : 'ayse',
+        displayName: userId == 'u3' ? 'Can Demir' : 'Ayşe Yılmaz',
+        permission: userId == 'u3' ? _byPlatform : (userId == 'u1' ? _waiting : null),
+        history: userId == 'u3'
+            ? [
+                AdminCallEvent(
+                  at: DateTime(2026, 11, 4, 18),
+                  action: 'call_permission.revoked',
+                  byStaff: true,
+                  actorDisplayName: 'Ekip Üyesi',
+                  reason: 'Kötüye kullanım şikayeti',
+                ),
+                AdminCallEvent(
+                  at: DateTime(2026, 11, 2, 10),
+                  action: 'call_permission.granted',
+                  byStaff: false,
+                  actorDisplayName: 'Zeynep Ak',
+                  groupName: 'Koşu Kulübü',
+                ),
+              ]
+            : const [],
+      ));
+
+  @override
+  Future<Result<void>> setPermission(String userId, {required bool active, String? reason}) async {
+    decisions.add((userId, active, reason));
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> grant(String username) async {
+    grants.add(username);
+    return grantError == null ? const Ok(null) : Err(RuleFailure('call.user_not_found', grantError!));
+  }
+}
+
+final _calls = _FakeCalls();
+
 Widget _app(Widget child, {StaffRole role = StaffRole.admin}) => ProviderScope(
       overrides: [
+        adminCallsRepositoryProvider.overrideWithValue(_calls),
         adminBillingRepositoryProvider.overrideWithValue(_billing),
         adminSupportRepositoryProvider.overrideWithValue(_support),
         adminContentRepositoryProvider.overrideWithValue(_content),
@@ -1376,5 +1484,111 @@ void main() {
     await tester.tap(find.text('Ankara · Yürüyüş'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(GwButton, 'Ligden çıkar'), findsNothing);
+  });
+
+  testWidgets('voice calls: the queue shows the group, how long it waits and who decided; support opens and declines',
+      (tester) async {
+    _calls.decisions.clear();
+    await _pumpAt(tester, const Size(1440, 1000), const AdminCallsScreen(), role: StaffRole.support);
+    expect(find.text('Ayşe Yılmaz'), findsOneWidget);
+    expect(find.text('Doğa Yürüyüşü'), findsOneWidget, reason: 'the group whose queue it waits in');
+    expect(find.text('“Eşleştiğim kişiyle konuşmak istiyorum”'), findsOneWidget);
+    expect(find.text('3 gündür bekliyor'), findsOneWidget);
+    expect(find.text('3 gün'), findsOneWidget, reason: 'the oldest request card');
+    expect(find.text('85'), findsOneWidget);
+    expect(find.text('Mert Kaya'), findsNothing, reason: 'the waiting list opens first');
+
+    await tester.tap(find.widgetWithText(GwButton, 'Aç'));
+    await tester.pumpAndSettle();
+    expect(_calls.decisions.single, ('u1', true, null));
+    expect(find.text('Sesli görüşme açıldı.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(GwButton, 'Reddet'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'x');
+    await tester.tap(find.widgetWithText(GwButton, 'Reddet').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Gerekçe en az 3 karakter olmalı.'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Profil bilgileri eksik');
+    await tester.tap(find.widgetWithText(GwButton, 'Reddet').last);
+    await tester.pumpAndSettle();
+    expect(_calls.decisions.last, ('u1', false, 'Profil bilgileri eksik'));
+  });
+
+  testWidgets('voice calls: every state at once, the group or the platform as the decider, close and reopen', (tester) async {
+    _calls.decisions.clear();
+    await _pumpAt(tester, const Size(1440, 1000), const AdminCallsScreen());
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Tümü'));
+    await tester.pumpAndSettle();
+    expect(_calls.queries.last.status, isNull);
+    expect(find.text('Mert Kaya'), findsOneWidget);
+    expect(find.text('Askıda'), findsOneWidget, reason: 'the group is suspended');
+    expect(find.textContaining('Grup sahibi · Zeynep Ak'), findsOneWidget);
+    expect(find.text('Platform ekibi'), findsOneWidget, reason: 'a permission on no group');
+    expect(find.textContaining('Platform ekibi · Ekip Üyesi'), findsOneWidget);
+    expect(find.text('Gerekçe: Kötüye kullanım şikayeti'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(GwButton, 'Kapat'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('süren görüşmesi hemen biter'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Gerekçe'), 'Taciz şikayeti');
+    await tester.tap(find.widgetWithText(GwButton, 'Kapat').last);
+    await tester.pumpAndSettle();
+    expect(_calls.decisions.last, ('u2', false, 'Taciz şikayeti'));
+
+    await tester.tap(find.widgetWithText(GwButton, 'Yeniden aç'));
+    await tester.pumpAndSettle();
+    expect(_calls.decisions.last, ('u3', true, null));
+  });
+
+  testWidgets('voice calls: a row opens the history of decisions', (tester) async {
+    await _pumpAt(tester, const Size(1440, 1000), const AdminCallsScreen());
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Kapatılan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Ayrıntı ve geçmiş'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sesli görüşme yetkisi'), findsOneWidget);
+    expect(find.text('Kapatıldı'), findsOneWidget);
+    expect(find.text('Açıldı'), findsOneWidget);
+    expect(find.text('Grup: Koşu Kulübü'), findsOneWidget);
+    expect(find.textContaining('Grup yöneticisi · Zeynep Ak'), findsOneWidget);
+  });
+
+  testWidgets('voice calls: open for someone who never asked, by username', (tester) async {
+    _calls
+      ..grants.clear()
+      ..grantError = 'Bu kullanıcı adıyla kimse yok.';
+    await _pumpAt(tester, const Size(1440, 1000), const AdminCallsScreen());
+    await tester.tap(find.widgetWithText(GwButton, 'Kişiye aç'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextFormField, 'Kullanıcı adı'), 'yok');
+    await tester.tap(find.widgetWithText(GwButton, 'Aç').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Bu kullanıcı adıyla kimse yok.'), findsOneWidget, reason: 'the dialog stays with the reason');
+
+    _calls.grantError = null;
+    await tester.enterText(find.widgetWithText(TextFormField, 'Kullanıcı adı'), 'deniz');
+    await tester.tap(find.widgetWithText(GwButton, 'Aç').last);
+    await tester.pumpAndSettle();
+    expect(_calls.grants, ['yok', 'deniz']);
+    expect(find.text('Sesli görüşme açıldı.'), findsOneWidget);
+  });
+
+  testWidgets('voice calls: moderators see everything but decide nothing', (tester) async {
+    await _pumpAt(tester, const Size(1440, 1000), const AdminCallsScreen(), role: StaffRole.moderator);
+    expect(find.text('Ayşe Yılmaz'), findsOneWidget);
+    expect(find.widgetWithText(GwButton, 'Aç'), findsNothing);
+    expect(find.widgetWithText(GwButton, 'Kişiye aç'), findsNothing);
+    expect(find.byTooltip('Ayrıntı ve geçmiş'), findsOneWidget);
+  });
+
+  testWidgets('voice calls lay out on a phone and at 130% text', (tester) async {
+    await _pumpAt(tester, const Size(390, 844), const AdminCallsScreen());
+    expect(tester.takeException(), isNull);
+    expect(find.text('Doğa Yürüyüşü'), findsOneWidget);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

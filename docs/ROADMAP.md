@@ -387,6 +387,15 @@ Sesli görüşme yetkisini platform ekibi yerine grup yöneticileri verir; grup 
 - [x] pgTAP (`58_voice_calls` güncellendi, `59_group_bans_and_call_grants`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-03)
 - [ ] Bulut: `0074` migration'ı, API, web, panel ve mobil sürüm
 
+## Faz 15.13 — Yönetim paneli: Sesli görüşme sekmesi (kullanıcı isteği, 2026-11-06; `docs/ARCHITECTURE.md` §8c, Admin)
+
+Platform ekibi her sesli görüşme talebini ve yetkisini, talebin hangi grubun bekleme alanında olduğunu ve kararı kimin verdiğini görür; gruplarla birlikte açar, reddeder, kapatır.
+- [x] Migration 0088: `call_permissions_guard` admin ve destek rolüne açma (talep etmemiş birine de), bekleyeni reddetme, açığı kapatma izni verir; okuma politikası değişmez (panel backend üzerinden okur)
+- [x] C#: `GET /admin/calls/permissions` (durum, arama, sayfa, özet), `GET /admin/calls/permissions/{userId}` (geçmiş), `PUT /admin/calls/permissions/{userId}`, `POST /admin/calls/permissions` (kullanıcı adıyla); audit `actor_kind = staff`, kapatmada süren görüşme biter
+- [x] Panel: "Sesli görüşme" menü öğesi (`/calls`); durum kartları, en uzun bekleyen talep, son 24 saat toplamları; arama ve durum süzgeci; grup (askıda etiketi), not, bekleme süresi, kararı veren ve gerekçe; Aç / Reddet / Kapat / Yeniden aç / Kişiye aç; ayrıntı ve geçmiş penceresi; kullanıcı sayfasında Sesli görüşme kartı
+- [x] pgTAP (`70_admin_call_permissions`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-06)
+- [ ] Bulut: `0088` migration'ı, API ve panel yayını
+
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
 İnsanları uygulamaya çekecek, gerçek hayatta bir araya getiren özellikler. Sırayla, her biri mobil, web ve yönetim paneliyle birlikte yapılır. Ücretli servis gerektiren kısım onaysız açılmaz.

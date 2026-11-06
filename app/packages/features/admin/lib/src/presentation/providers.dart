@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories.dart';
 import '../domain/admin_analytics.dart';
 import '../domain/admin_billing.dart';
+import '../domain/admin_calls.dart';
 import '../domain/admin_content.dart';
 import '../domain/admin_events.dart';
 import '../domain/admin_games.dart';
@@ -20,6 +21,20 @@ import 'live_refresh.dart';
 
 final staffRepositoryProvider = Provider<StaffRepository>(
   (ref) => SupabaseStaffRepository(ref.watch(supabaseClientProvider)),
+);
+
+final adminCallsRepositoryProvider = Provider<AdminCallsRepository>(
+  (ref) => ApiAdminCallsRepository(ref.watch(apiClientProvider)),
+);
+
+/// Always fresh: decisions are made on this list (docs/ARCHITECTURE.md §8c, Admin).
+final callPermissionsProvider = FutureProvider.autoDispose.family<AdminCallPermissionsPage, AdminCallQuery>(
+  (ref, query) async => (await ref.watch(adminCallsRepositoryProvider).permissions(query)).getOrThrow(),
+);
+
+/// A person's permission and its history.
+final callUserProvider = FutureProvider.autoDispose.family<AdminCallUserDetail, String>(
+  (ref, userId) async => (await ref.watch(adminCallsRepositoryProvider).user(userId)).getOrThrow(),
 );
 
 final adminUsersRepositoryProvider = Provider<AdminUsersRepository>(

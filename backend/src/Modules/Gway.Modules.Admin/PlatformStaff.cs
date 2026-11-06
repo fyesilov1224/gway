@@ -15,6 +15,9 @@ internal static class StaffRoles
     public static readonly string[] CanSuspend = [Admin, Moderator];
     public static readonly string[] AdminOnly = [Admin];
     public static readonly string[] Billing = [Admin, Support];
+
+    /// <summary>Who opens, declines and closes voice call permissions (docs/ARCHITECTURE.md §8c, Admin).</summary>
+    public static readonly string[] CallPermissions = [Admin, Support];
 }
 
 /// <summary>Reads <c>public.platform_staff</c>, owned by this module.</summary>

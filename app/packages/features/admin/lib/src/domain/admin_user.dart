@@ -21,6 +21,9 @@ enum StaffRole {
   /// Revenue, plan edits and cancellations.
   bool get canManageBilling => this == admin;
 
+  /// Opening, declining and closing voice call permissions (docs/ARCHITECTURE.md §8c, Admin); moderators only view.
+  bool get canManageCalls => this == admin || this == support;
+
   static StaffRole? tryParse(Object? code) {
     for (final r in values) {
       if (r.code == code) return r;

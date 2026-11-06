@@ -1984,7 +1984,7 @@ Emoji tepkileri (❤️ 👏 😂 🔥 😮 🙌) LiveKit veri mesajıdır (`rea
 
 ## 8c. Birebir sesli görüşme (Faz 15.11, kullanıcı kararları 2026-11-01; ekip arkadaşları 2026-11-02)
 
-Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi üyesi olduğu bir gruptan **görüşme yetkisi** ister, o grubun sahibi ya da Yöneticisi açar ya da kapatır (kullanıcı kararı 2026-11-03; önce platform yöneticisi panelden açıyordu, panel bölümü kaldırıldı). Görüşmeler Live modülündedir (LiveKit altyapısı orada).
+Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme yapar. Özellik herkese açık değildir: kişi üyesi olduğu bir gruptan **görüşme yetkisi** ister, o grubun sahibi ya da Yöneticisi açar ya da kapatır (kullanıcı kararı 2026-11-03). Platform ekibi de yönetim panelindeki **Sesli görüşme** sekmesinden her talebi ve yetkiyi görür, açar, reddeder ya da kapatır (kullanıcı kararı 2026-11-06; 2026-11-03'te kaldırılan panel bölümü geri geldi, gruptan karar yetkisi alınmadı). Görüşmeler Live modülündedir (LiveKit altyapısı orada).
 
 ### Kurallar (hepsi sunucuda ve SQL'de, `private.call_blocker(caller, callee)`)
 - **İki tarafın da yetkisi açık** olmalı (`call_permissions.status = 'active'`). Yetkisi olmayan kişi aranamaz; uygulamada arama düğmesi yerine nedeni görünür.
@@ -2030,17 +2030,23 @@ Eşleşen iki kişi ya da iki ekip arkadaşı özel sohbetten sesli görüşme y
 ### Bildirimler
 `call_incoming` (yalnızca push; uygulamanın listesinde görünmez, RLS), `call_ended` (yalnızca push, telefonun arama ekranını kapatır; listede görünmez, 0073), `call_missed` ("seni aradı, açamadın"; listede görünür, dokununca sohbet açılır), `call_permission_granted`, `call_permission_declined`, `call_permission_revoked` (yetki açıldı, reddedildi ya da kapatıldı; listede görünür, dokununca ayarlardaki Sesli görüşme bölümü açılır). Push'a dokununca gelen arama ekranı ya da sohbet açılır.
 
-### Admin
-Panelde sesli görüşme bölümü yoktur (kullanıcı kararı 2026-11-03): yetkiyi grup yöneticileri verir; platform ekibi talepleri ve yetkileri açıp kapatmaz, görüşmeleri görmez. Kötüye kullanımda hesabı askıya almak (§3a) görüşmeyi de kapatır. Yetki kararları `audit_log`'da grubun kaydı olarak görünür.
+### Admin: Sesli görüşme sekmesi (kullanıcı kararı 2026-11-06)
+Panelde `/calls` sekmesi ("Sesli görüşme"). **Görür:** bütün platform ekibi (admin, moderatör, destek). **Karar verir:** admin ve destek (Faz 15.11'deki dağılım). Görüşmelerin kendisi burada da görünmez: kimin kimi aradığı yoktur, yalnızca son 24 saatin toplam görüşme sayısı ve dakikası (§3f).
+- **Özet kartları:** bekleyen talep, açık yetki, reddedilen, kapatılan; en uzun bekleyen talebin süresi; son 24 saatte görüşme ve dakika.
+- **Liste:** durum sekmeleri (Bekleyen, Açık, Reddedilen, Kapatılan, Tümü), ad / @kullanıcı adı / grup adıyla arama, sayfa başına 50 kişi, en yeni önce (bekleyenlerde en eski önce: sırası gelen üstte). Her satırda kişi, durum, **talebin gittiği grup** (grubun panel sayfasına bağlantı; grup askıdaysa "askıda" etiketi) ya da "Platform ekibi", kişinin notu, talep tarihi ve ne kadar süredir beklediği, karar tarihi, kararı veren (ad ve kim olduğu: grup sahibi, grup yöneticisi, platform ekibi, "gruptan ayrıldı" gibi kendiliğinden kapanma) ve gerekçe.
+- **Eylemler:** bekleyen talep için **Aç** ve **Reddet**; açık yetki için **Kapat**; reddedilen ya da kapatılan için **Yeniden aç**. Reddetme ve kapatmada gerekçe zorunludur (3–500), kişi gerekçeyi görür. Ayrıca **Kişiye aç**: hiç talep etmemiş birine kullanıcı adıyla doğrudan açılır.
+- **Ayrıntı:** satıra dokununca kişinin yetki geçmişi açılır (`audit_log`'daki `call_permission.*` kayıtları: tarih, işlem, yapan, grup, gerekçe).
+- **Kullanıcı sayfası:** "Sesli görüşme" kartı durumu, grubu ve aynı eylemleri gösterir.
+- **Kurallar:** platformun açtığı yetki gruba bağlı değildir (`group_id` boşalır; kişi gruptan ayrılsa da sürer, kartta "Platform ekibi"). Reddetme ve kapatma satırın grubunu korur. Rütbe kuralı platform ekibine uygulanmaz (grup içi kural). Platformun reddettiği ya da kapattığı kişi de 7 gün sonra yeniden talep eder. Kapatılan kişinin süren görüşmesi hemen biter, kişiye bildirim gider. Veritabanında ikinci katman: `call_permissions_guard` tetikleyicisi admin ve destek rolündeki platform ekibine de izin verir (0088). Kötüye kullanımda hesabı askıya almak (§3a) görüşmeyi de kapatır.
 
 ### Veri ve erişim
 | Tablo | Okuma | Yazma |
 |---|---|---|
-| `call_permissions` | Kişinin kendisi; talebin gittiği grubun sahibi ve `calls.manage` yetkilileri | Talep: `public.request_call_permission(target_group, request_note)` (kendi satırı, yalnızca `requested`, üyesi olduğu aktif grup); karar: backend |
+| `call_permissions` | Kişinin kendisi; talebin gittiği grubun sahibi ve `calls.manage` yetkilileri | Talep: `public.request_call_permission(target_group, request_note)` (kendi satırı, yalnızca `requested`, üyesi olduğu aktif grup); karar: backend (grup yöneticisi ya da platform ekibi, panel okuması da backend üzerinden) |
 | `calls` | Yalnızca iki taraf (platform ekibi göremez) | Backend |
 
 ### Audit log
-`call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe; `group_id` dolu, işlemi yapan grup yöneticisi). Gruptan ayrılınca kendiliğinden kapanma audit'e yazılmaz (üyelik kaydı vardır). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
+`call_permission.granted`, `call_permission.declined`, `call_permission.revoked` (gerekçe; grup yöneticisinin kararında `actor_kind = user` ve `group_id` dolu; platform ekibinin kararında `actor_kind = staff`, varsa talebin grubu `group_id`'de). Gruptan ayrılınca kendiliğinden kapanma audit'e yazılmaz (üyelik kaydı vardır). Görüşmelerin kendisi audit'e yazılmaz (`calls` tablosu kayıttır).
 
 ### C# uç noktaları
 | Uç nokta | Açıklama |
@@ -2049,6 +2055,10 @@ Panelde sesli görüşme bölümü yoktur (kullanıcı kararı 2026-11-03): yetk
 | `POST /conversations/{id}/calls` | Arama başlatma: görüşme kimliği, LiveKit adresi ve token |
 | `POST /calls/{id}/accept`, `POST /calls/{id}/decline`, `POST /calls/{id}/end` | Yanıtlama, reddetme, bitirme |
 | `PUT /groups/{id}/call-permissions/{userId}` | `{ active, reason? }`: açma ya da kapatma/reddetme (gerekçe 3–500). Sahip ya da `calls.manage`; kapatma ve reddetmede rütbe |
+| `GET /admin/calls/permissions?status=&q=&page=` | Panel listesi ve özet (bütün platform ekibi); `status`: `requested` (varsayılan), `active`, `declined`, `revoked`, `all` |
+| `GET /admin/calls/permissions/{userId}` | Kişinin yetkisi ve geçmişi (bütün platform ekibi) |
+| `PUT /admin/calls/permissions/{userId}` | `{ active, reason? }`: açma, reddetme ya da kapatma (admin, destek) |
+| `POST /admin/calls/permissions` | `{ username }`: talep etmemiş birine doğrudan açma (admin, destek) |
 
 
 ## 8b. Yönetim paneli: analiz ve denetim (Faz 15.7)
