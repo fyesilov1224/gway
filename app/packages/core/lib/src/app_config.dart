@@ -11,6 +11,7 @@ class AppConfig {
     required this.supabasePublishableKey,
     required this.apiUrl,
     String shareUrl = '',
+    this.turnstileSiteKey = '',
   }) : shareUrl = shareUrl == '' ? apiUrl : shareUrl;
 
   factory AppConfig.fromEnvironment() {
@@ -19,6 +20,7 @@ class AppConfig {
       supabasePublishableKey: String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
       apiUrl: String.fromEnvironment('API_URL'),
       shareUrl: String.fromEnvironment('SHARE_URL'),
+      turnstileSiteKey: String.fromEnvironment('TURNSTILE_SITE_KEY'),
     );
     final missing = [
       if (config.supabaseUrl.isEmpty) 'SUPABASE_URL',
@@ -41,4 +43,8 @@ class AppConfig {
   /// Where share links point (`<shareUrl>/s/...`): the web app's address in production, where the proxy hands
   /// `/s/*` to the API; the API itself otherwise (docs/ARCHITECTURE.md §3b, Paylaşım sayfaları).
   final String shareUrl;
+
+  /// Cloudflare Turnstile's site key for the bot check on sign-up, sign-in and password reset (docs/ARCHITECTURE.md
+  /// §3k). Empty: no check is shown and no token is sent (a local Supabase without CAPTCHA).
+  final String turnstileSiteKey;
 }

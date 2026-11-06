@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../domain/auth.dart';
 import '../l10n.dart';
 import 'auth_layout.dart';
+import 'human_check.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'validators.dart';
@@ -31,6 +32,27 @@ mixin _Submitting<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       };
     });
     return result is Ok;
+  }
+
+  /// The form's bot check (docs/ARCHITECTURE.md §3k); place [HumanCheck] with it above the send button.
+  final human = HumanCheckController();
+
+  /// [submit] with the bot check's token. Not sent before the check is done; each attempt spends the token.
+  Future<bool> submitChecked(Future<Result<void>> Function(String? captchaToken) action) async {
+    if (!human.ready) {
+      setState(() => error = identityL10n.humanCheckWaiting);
+      return false;
+    }
+    final token = human.token;
+    final ok = await submit(() => action(token));
+    human.spend();
+    return ok;
+  }
+
+  @override
+  void dispose() {
+    human.dispose();
+    super.dispose();
   }
 }
 
@@ -131,8 +153,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
 
   Future<void> _signIn() async {
     if (!_form.currentState!.validate()) return;
-    await submit(
-      () => ref.read(authRepositoryProvider).signIn(email: _email.text, password: _password.text),
+    await submitChecked(
+      (token) => ref.read(authRepositoryProvider).signIn(email: _email.text, password: _password.text, captchaToken: token),
     );
   }
 
@@ -174,6 +196,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with _Submitting {
             onPressed: loading ? null : () => context.push(IdentityRoutes.forgotPassword),
           ),
         ),
+        HumanCheck(controller: human),
         if (error != null) ...[GwFormMessage(error!), _gap],
         GwButton(label: identityL10n.signIn, onPressed: _signIn, isLoading: loading, expand: true),
         if (widget.allowSocial && social.isNotEmpty) ...[
@@ -236,8 +259,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
 
   Future<void> _signUp() async {
     if (!_form.currentState!.validate()) return;
-    final ok = await submit(
-      () => ref.read(authRepositoryProvider).signUp(email: _email.text, password: _password.text),
+    final ok = await submitChecked(
+      (token) => ref.read(authRepositoryProvider).signUp(email: _email.text, password: _password.text, captchaToken: token),
     );
     if (ok && mounted) {
       context.go(
@@ -280,6 +303,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with _Submitting {
           ),
         ),
         _gap,
+        HumanCheck(controller: human),
         if (error != null) ...[GwFormMessage(error!), _gap],
         GwButton(label: identityL10n.signUp, onPressed: _signUp, isLoading: loading, expand: true),
         const SizedBox(height: GwSpacing.lg),
@@ -308,7 +332,9 @@ class _CheckEmailScreenState extends ConsumerState<CheckEmailScreen> with _Submi
   bool _resent = false;
 
   Future<void> _resend() async {
-    final ok = await submit(() => ref.read(authRepositoryProvider).resendVerification(widget.email));
+    final ok = await submitChecked(
+      (token) => ref.read(authRepositoryProvider).resendVerification(widget.email, captchaToken: token),
+    );
     if (ok && mounted) setState(() => _resent = true);
   }
 
@@ -322,6 +348,7 @@ class _CheckEmailScreenState extends ConsumerState<CheckEmailScreen> with _Submi
           GwFormMessage(identityL10n.linkResent, kind: GwFormMessageKind.info),
           _gap,
         ],
+        HumanCheck(controller: human),
         if (error != null) ...[GwFormMessage(error!), _gap],
         GwButton(label: identityL10n.backToSignIn, onPressed: () => context.go(IdentityRoutes.signIn), expand: true),
         const SizedBox(height: GwSpacing.sm),
@@ -359,7 +386,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> wit
 
   Future<void> _send() async {
     if (!_form.currentState!.validate()) return;
-    final ok = await submit(() => ref.read(authRepositoryProvider).sendPasswordReset(_email.text));
+    final ok = await submitChecked(
+      (token) => ref.read(authRepositoryProvider).sendPasswordReset(_email.text, captchaToken: token),
+    );
     if (ok && mounted) setState(() => _sent = true);
   }
 
@@ -371,6 +400,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> wit
       children: [
         Form(key: _form, child: _EmailField(controller: _email)),
         _gap,
+        HumanCheck(controller: human),
         if (_sent) ...[
           GwFormMessage(
             identityL10n.resetLinkSent,

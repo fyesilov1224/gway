@@ -779,5 +779,13 @@
   "legalShowTranslation": "Çeviriyi göster",
   "@legalShowTranslation": {
     "description": ""
+  },
+  "authCaptchaFailed": "Robot olmadığını doğrulayamadık. Kutudaki doğrulamayı tamamlayıp tekrar dene.",
+  "humanCheckWaiting": "Önce robot olmadığını doğrula: kutudaki doğrulamanın bitmesini bekle.",
+  "@authCaptchaFailed": {
+    "description": "Supabase rejected the Cloudflare Turnstile token (docs/ARCHITECTURE.md §3k)."
+  },
+  "@humanCheckWaiting": {
+    "description": "Submit pressed before the Turnstile check produced a token."
   }
 }

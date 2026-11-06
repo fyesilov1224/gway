@@ -174,5 +174,7 @@
   "or": "ou",
   "legalTranslationNote": "Esta tradução é informativa. O texto vinculante, e o que você aceita, é o original em turco.",
   "legalShowOriginal": "Ver o original em turco",
-  "legalShowTranslation": "Ver a tradução"
+  "legalShowTranslation": "Ver a tradução",
+  "authCaptchaFailed": "Não conseguimos verificar que você não é um robô. Conclua a verificação na caixa e tente novamente.",
+  "humanCheckWaiting": "Primeiro confirme que você não é um robô: aguarde a verificação na caixa terminar."
 }

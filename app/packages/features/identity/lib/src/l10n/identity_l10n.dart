@@ -1167,6 +1167,18 @@ abstract class IdentityL10n {
   /// In tr, this message translates to:
   /// **'Çeviriyi göster'**
   String get legalShowTranslation;
+
+  /// Supabase rejected the Cloudflare Turnstile token (docs/ARCHITECTURE.md §3k).
+  ///
+  /// In tr, this message translates to:
+  /// **'Robot olmadığını doğrulayamadık. Kutudaki doğrulamayı tamamlayıp tekrar dene.'**
+  String get authCaptchaFailed;
+
+  /// Submit pressed before the Turnstile check produced a token.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önce robot olmadığını doğrula: kutudaki doğrulamanın bitmesini bekle.'**
+  String get humanCheckWaiting;
 }
 
 class _IdentityL10nDelegate extends LocalizationsDelegate<IdentityL10n> {

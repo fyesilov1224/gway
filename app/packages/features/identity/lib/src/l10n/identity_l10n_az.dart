@@ -609,4 +609,12 @@ class IdentityL10nAz extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Tərcüməni göstər';
+
+  @override
+  String get authCaptchaFailed =>
+      'Robot olmadığını təsdiqləyə bilmədik. Qutudakı yoxlamanı tamamla və yenidən cəhd et.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Əvvəlcə robot olmadığını təsdiqlə: qutudakı yoxlamanın bitməsini gözlə.';
 }

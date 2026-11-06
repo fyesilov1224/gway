@@ -604,4 +604,12 @@ class IdentityL10nTr extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Çeviriyi göster';
+
+  @override
+  String get authCaptchaFailed =>
+      'Robot olmadığını doğrulayamadık. Kutudaki doğrulamayı tamamlayıp tekrar dene.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Önce robot olmadığını doğrula: kutudaki doğrulamanın bitmesini bekle.';
 }

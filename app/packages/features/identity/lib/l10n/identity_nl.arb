@@ -174,5 +174,7 @@
   "or": "of",
   "legalTranslationNote": "Deze vertaling is ter informatie. Bindend, en waarmee je akkoord gaat, is het Turkse origineel.",
   "legalShowOriginal": "Turks origineel tonen",
-  "legalShowTranslation": "Vertaling tonen"
+  "legalShowTranslation": "Vertaling tonen",
+  "authCaptchaFailed": "We konden niet bevestigen dat je geen robot bent. Rond de controle in het vak af en probeer het opnieuw.",
+  "humanCheckWaiting": "Bevestig eerst dat je geen robot bent: wacht tot de controle in het vak klaar is."
 }

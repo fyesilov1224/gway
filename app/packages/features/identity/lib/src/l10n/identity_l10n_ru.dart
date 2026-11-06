@@ -619,4 +619,12 @@ class IdentityL10nRu extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Показать перевод';
+
+  @override
+  String get authCaptchaFailed =>
+      'Не удалось подтвердить, что вы не робот. Пройдите проверку в рамке и попробуйте снова.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Сначала подтвердите, что вы не робот: дождитесь окончания проверки в рамке.';
 }

@@ -626,4 +626,12 @@ class IdentityL10nDe extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Übersetzung anzeigen';
+
+  @override
+  String get authCaptchaFailed =>
+      'Wir konnten nicht bestätigen, dass du kein Roboter bist. Schließe die Prüfung im Feld ab und versuche es erneut.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Bestätige zuerst, dass du kein Roboter bist: Warte, bis die Prüfung im Feld fertig ist.';
 }

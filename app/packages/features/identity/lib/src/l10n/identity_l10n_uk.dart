@@ -621,4 +621,12 @@ class IdentityL10nUk extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Показати переклад';
+
+  @override
+  String get authCaptchaFailed =>
+      'Не вдалося підтвердити, що ви не робот. Пройдіть перевірку в рамці й спробуйте ще раз.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Спершу підтвердіть, що ви не робот: дочекайтеся завершення перевірки в рамці.';
 }

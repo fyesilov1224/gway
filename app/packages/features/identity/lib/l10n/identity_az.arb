@@ -174,5 +174,7 @@
   "or": "və ya",
   "legalTranslationNote": "Bu tərcümə məlumat xarakterlidir. Bağlayıcı olan və təsdiqlədiyin mətn türkcə orijinaldır.",
   "legalShowOriginal": "Türkcə orijinalı göstər",
-  "legalShowTranslation": "Tərcüməni göstər"
+  "legalShowTranslation": "Tərcüməni göstər",
+  "authCaptchaFailed": "Robot olmadığını təsdiqləyə bilmədik. Qutudakı yoxlamanı tamamla və yenidən cəhd et.",
+  "humanCheckWaiting": "Əvvəlcə robot olmadığını təsdiqlə: qutudakı yoxlamanın bitməsini gözlə."
 }

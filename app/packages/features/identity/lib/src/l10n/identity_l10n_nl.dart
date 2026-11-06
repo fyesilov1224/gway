@@ -622,4 +622,12 @@ class IdentityL10nNl extends IdentityL10n {
 
   @override
   String get legalShowTranslation => 'Vertaling tonen';
+
+  @override
+  String get authCaptchaFailed =>
+      'We konden niet bevestigen dat je geen robot bent. Rond de controle in het vak af en probeer het opnieuw.';
+
+  @override
+  String get humanCheckWaiting =>
+      'Bevestig eerst dat je geen robot bent: wacht tot de controle in het vak klaar is.';
 }

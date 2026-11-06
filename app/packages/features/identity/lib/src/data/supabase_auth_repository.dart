@@ -22,15 +22,16 @@ class SupabaseAuthRepository implements AuthRepository {
   GoTrueClient get _auth => _client.auth;
 
   @override
-  Future<Result<void>> signIn({required String email, required String password}) =>
-      _run(() => _auth.signInWithPassword(email: email.trim(), password: password));
+  Future<Result<void>> signIn({required String email, required String password, String? captchaToken}) =>
+      _run(() => _auth.signInWithPassword(email: email.trim(), password: password, captchaToken: captchaToken));
 
   @override
-  Future<Result<void>> signUp({required String email, required String password}) =>
+  Future<Result<void>> signUp({required String email, required String password, String? captchaToken}) =>
       _run(
         () => _auth.signUp(
           email: email.trim(),
           password: password,
+          captchaToken: captchaToken,
           emailRedirectTo: redirectUrl,
           // The confirmation e-mail is written in this language (supabase/templates).
           data: {'locale': currentAppLanguage.code},
@@ -38,10 +39,11 @@ class SupabaseAuthRepository implements AuthRepository {
       );
 
   @override
-  Future<Result<void>> resendVerification(String email) => _run(
+  Future<Result<void>> resendVerification(String email, {String? captchaToken}) => _run(
         () => _auth.resend(
           type: OtpType.signup,
           email: email.trim(),
+          captchaToken: captchaToken,
           emailRedirectTo: redirectUrl,
         ),
       );
@@ -75,8 +77,8 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Result<void>> sendPasswordReset(String email) => _run(
-        () => _auth.resetPasswordForEmail(email.trim(), redirectTo: redirectUrl),
+  Future<Result<void>> sendPasswordReset(String email, {String? captchaToken}) => _run(
+        () => _auth.resetPasswordForEmail(email.trim(), redirectTo: redirectUrl, captchaToken: captchaToken),
       );
 
   @override
@@ -122,6 +124,7 @@ Failure failureFromAuth(Object error) {
     'user_banned' => rule(identityL10n.authUserBanned),
     'over_email_send_rate_limit' || 'over_request_rate_limit' =>
       const RateLimitedFailure(),
+    'captcha_failed' => rule(identityL10n.authCaptchaFailed),
     'provider_disabled' || 'email_provider_disabled' =>
       rule(identityL10n.authProviderDisabled),
     _ => failureFromSupabase(error),

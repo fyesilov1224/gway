@@ -396,6 +396,17 @@ Platform ekibi her sesli görüşme talebini ve yetkisini, talebin hangi grubun 
 - [x] pgTAP (`70_admin_call_permissions`), C# ve Flutter testleri; `flutter analyze` ve `dotnet build` temiz (2026-11-06)
 - [x] Bulut: `0088` migration'ı, API, web ve panel yayını (2026-11-06)
 
+## Faz 15.14 — Bot ve saldırı koruması (kullanıcı isteği, 2026-11-06; `docs/ARCHITECTURE.md` §3k)
+
+Bot hesaplar web adresine, mobil uygulamaya ve yönetim paneline giremesin; saldırılara karşı güçlü önlemler.
+- [x] Uygulama: kayıt, e-postayla giriş, şifre sıfırlama ve doğrulama e-postasını yeniden göndermede Cloudflare Turnstile (`cloudflare_turnstile`, web ve mobil), jeton Supabase'e gider; "robot doğrulaması" hatası 12 dilde
+- [x] Yerel Supabase'de CAPTCHA (Cloudflare deneme anahtarı); jetonsuz istek reddedilir, uygulamayla giriş denendi
+- [x] Caddy: Cloudflare IP aralıklarından gelen istekte gerçek istemci IP'si (`CF-Connecting-IP`), `API_CLOUDFLARE_ONLY` ile Cloudflare dışından gelen API isteğine 403
+- [x] Web ve panel için güvenlik başlıkları (`_headers`); panel arama motorlarına kapalı (`robots.txt`, `X-Robots-Tag`)
+- [ ] Cloudflare: Turnstile anahtarı, `api` kaydının vekile alınması, hız sınırı kuralı, Access ile panelin gizlenmesi (kullanıcının hesabında)
+- [ ] Turnstile'lı web, panel ve mobil yayın; ardından Supabase'de CAPTCHA'nın açılması
+- [ ] Mağaza inceleme demo hesabı (kullanıcı açar, panelde muaf işaretlenir)
+
 ## Faz 18 — Topluluk Büyümesi (kullanıcı isteği, onaylandı 2026-10-28)
 
 İnsanları uygulamaya çekecek, gerçek hayatta bir araya getiren özellikler. Sırayla, her biri mobil, web ve yönetim paneliyle birlikte yapılır. Ücretli servis gerektiren kısım onaysız açılmaz.

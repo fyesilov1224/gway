@@ -211,11 +211,13 @@ token_verifications = 30
 # Number of Web3 logins that can be made in a 5 minute interval per IP address.
 web3 = 30
 
-# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# Bot check on sign-up, sign-in, password reset and resend (docs/ARCHITECTURE.md §3k). Locally Cloudflare's test
+# secret, which passes every token; run the app with --dart-define=TURNSTILE_SITE_KEY=1x00000000000000000000AA.
+# The cloud project holds the real secret (dashboard: Authentication → Attack Protection), never this file.
+[auth.captcha]
+enabled = true
+provider = "turnstile"
+secret = "1x0000000000000000000000000000000AA"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.

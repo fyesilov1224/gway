@@ -1,6 +1,12 @@
 # Automatic https (Let's Encrypt) for every subdomain of {$DOMAIN} (docs/DEPLOY.md).
 {
 	email {$ACME_EMAIL}
+	# api is behind Cloudflare's proxy (docs/ARCHITECTURE.md §3k): only a request from Cloudflare may name the client
+	# IP, in CF-Connecting-IP; from anywhere else the connection's own address counts.
+	servers {
+		trusted_proxies static {$CLOUDFLARE_IPS}
+		client_ip_headers CF-Connecting-IP
+	}
 }
 
 # The social web app (Flutter web build in www/app). Also serves the public pages Google Play links to:
@@ -39,7 +45,17 @@ panel.{$DOMAIN} {
 # The C# API.
 api.{$DOMAIN} {
 	encode zstd gzip
-	reverse_proxy api:8080
+	# With API_CLOUDFLARE_ONLY=true (once the DNS record is proxied) a request that skips Cloudflare and comes straight
+	# to the server's IP is refused.
+	@direct {
+		not remote_ip {$CLOUDFLARE_IPS}
+		expression {env.API_CLOUDFLARE_ONLY} == "true"
+	}
+	respond @direct "Forbidden" 403
+	reverse_proxy api:8080 {
+		# The API trusts this (ReverseProxy__KnownNetworks): the real client for rate limits and the payment country.
+		header_up X-Forwarded-For {client_ip}
+	}
 }
 
 # LiveKit signalling (WebSocket); media goes to the server's ports 7881/tcp and 7882/udp.

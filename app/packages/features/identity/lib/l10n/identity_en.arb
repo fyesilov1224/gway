@@ -174,5 +174,7 @@
   "or": "or",
   "legalTranslationNote": "This translation is for information. The binding text, and the one you accept, is the Turkish original.",
   "legalShowOriginal": "Show the Turkish original",
-  "legalShowTranslation": "Show the translation"
+  "legalShowTranslation": "Show the translation",
+  "authCaptchaFailed": "We couldn't verify you're not a robot. Complete the check in the box and try again.",
+  "humanCheckWaiting": "First confirm you're not a robot: wait for the check in the box to finish."
 }

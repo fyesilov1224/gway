@@ -174,5 +174,7 @@
   "or": "oder",
   "legalTranslationNote": "Diese Übersetzung dient nur zur Information. Verbindlich ist das türkische Original; ihm stimmst du zu.",
   "legalShowOriginal": "Türkisches Original anzeigen",
-  "legalShowTranslation": "Übersetzung anzeigen"
+  "legalShowTranslation": "Übersetzung anzeigen",
+  "authCaptchaFailed": "Wir konnten nicht bestätigen, dass du kein Roboter bist. Schließe die Prüfung im Feld ab und versuche es erneut.",
+  "humanCheckWaiting": "Bestätige zuerst, dass du kein Roboter bist: Warte, bis die Prüfung im Feld fertig ist."
 }

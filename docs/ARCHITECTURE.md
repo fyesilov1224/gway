@@ -1563,6 +1563,33 @@ Oyunlar sayfasında Zihin Düellosu bölümü: bugünkü ve toplam maç, süren 
 ### Tablolar (sahip: games)
 `mind_ratings`, `mind_matches`, `mind_questions`, `mind_answers`, `mind_seeks`, `mind_challenges` (0085). Maçlar ve puanlar giriş yapmış herkese açıktır (oyuncuların hesabı görünürse); maç satırında her sorunun puanı (`a_points`, `b_points`) Realtime ile yayınlanır, cevaplar değil. `mind_questions` ve `mind_answers`'ı istemci okuyamaz; bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Bütün yazma C#'tadır.
 
+## 3k. Bot ve saldırı koruması (Faz 15.14, kullanıcı kararları 2026-11-06)
+
+Kullanıcı isteği: bot hesaplar uygulamaya, web adresine ve yönetim paneline giremesin; saldırılara karşı güçlü önlemler. Katmanlar dışarıdan içeriye:
+
+### 1. Cloudflare önünde (ağ)
+- `app.gwayapp.com` ve `panel.gwayapp.com` Cloudflare Pages'tadır. **`api.gwayapp.com` de Cloudflare vekilinin arkasına alınır** (turuncu bulut): sunucunun IP'si gizlenir, büyük saldırılar (DDoS) Cloudflare'de durur. `livekit.gwayapp.com` dışarıda kalır (ses UDP ve doğrudan bağlantı ister).
+- **Sunucuya yalnızca Cloudflare'den gelinir:** Caddy, `api` adresine Cloudflare IP aralıkları dışından gelen isteği 403 ile reddeder; sunucunun IP'sini bilen biri Cloudflare'i atlayamaz. Caddy istemcinin gerçek IP'sini yalnızca Cloudflare'den gelen istekte `CF-Connecting-IP` başlığından alır ve API'ye `X-Forwarded-For` olarak iletir (hız sınırı ve ödeme ülkesi gerçek IP'yle çalışır; başlığı başka biri uyduramaz).
+- **Cloudflare kuralları:** API'nin giriş ve hassas yollarına IP başına hız sınırı (ücretsiz planın kural hakkı), güvenlik düzeyi yüksek. **Bot Fight Mode açılmaz:** tarayıcı olmayan istemcileri (mobil uygulamanın API çağrılarını) da sorguya çeker ve uygulamayı bozar; botlar Turnstile ile durdurulur.
+- **Yönetim paneli Cloudflare Access ile gizlenir:** `panel.gwayapp.com` açılmadan önce Cloudflare, izin listesindeki e-postaya tek kullanımlık kod gönderir; listede olmayan panelin giriş ekranını bile göremez. Liste platform ekibidir (kullanıcı Cloudflare Zero Trust'ta yönetir). Panelin API çağrıları `api` adresine gider ve ayrıca platform ekibi yetkisi ister (§8b).
+
+### 2. Bot doğrulaması (Cloudflare Turnstile, kullanıcı kararı 2026-11-06)
+- **Kayıt, e-postayla giriş, şifre sıfırlama ve doğrulama e-postasını yeniden gönderme** Turnstile doğrulamasını geçmeden yapılamaz. Kural **Supabase Auth'ta sunucu tarafında** zorunludur (Attack Protection → CAPTCHA, sağlayıcı Turnstile, gizli anahtar yalnızca Supabase'de): uygulamayı atlayıp doğrudan Supabase'e istek atan bot da geçemez.
+- Uygulama (web, panel, Android, iOS) aynı giriş ekranlarını kullanır; formun altında Turnstile kutusu (yönetilen mod) durur. İnsanların çoğu hiçbir şey yapmadan geçer ("Başarılı" işareti), Cloudflare şüphelendiğinde tek tık ister. Gönder düğmesi doğrulama tamamlanınca çalışır; her denemeden sonra yeni doğrulama alınır (Turnstile jetonu tek kullanımlıktır, 5 dakika geçerlidir).
+- Mobilde kutu bir web görünümünde çalışır (`cloudflare_turnstile`, `baseUrl` `https://app.gwayapp.com`); web'de sayfaya doğrudan eklenir. Site anahtarı derlemede verilir (`--dart-define=TURNSTILE_SITE_KEY=…`); verilmezse kutu görünmez ve jeton gönderilmez (yerel Supabase'de CAPTCHA kapalıysa çalışır).
+- Google / Apple ile giriş sağlayıcının kendi sayfasından geçer; Turnstile sorulmaz (sağlayıcı hesabı zaten bot engelidir).
+- Hata: doğrulama geçmezse "Robot olmadığını doğrulayamadık. Kutudaki doğrulamayı tamamlayıp tekrar dene." (`auth.captcha_failed`).
+- **Yayın sırası:** önce Turnstile'lı web, panel ve mobil sürüm yayınlanır, sonra Supabase'de CAPTCHA açılır. Açıldığı an eski uygulama sürümleri yeni giriş ve kayıt yapamaz (açık oturumlar sürer).
+- Yerelde Cloudflare'in her zaman geçen deneme anahtarları kullanılır: site `1x00000000000000000000AA`, gizli `1x0000000000000000000000000000000AA` (`supabase/config.toml` `[auth.captcha]`).
+
+### 3. Mağaza incelemesi
+- Google Play inceleme ekibi için bir **demo hesap** açılır ve panelde "Mağaza inceleme hesabı" olarak işaretlenir (§3h, güvenlik doğrulamasından muaf). Kullanıcı adı ve şifre Play Console → Uygulama erişimi'ne yazılır. İnceleyiciler kendi hesaplarıyla da girebilir; Turnstile insanları durdurmaz.
+
+### 4. Var olan katmanlar
+- Supabase Auth: e-posta onayı, güçlü şifre (en az 8, büyük-küçük harf ve rakam), IP başına giriş/kayıt sınırı. Askıdaki ve banlı hesaba token hook yalnızca kilitli ekranı açar (§3a, §3h).
+- API: kullanıcı ya da IP başına dakikada 120 istek, hassas işlemler 10 dakikada 10; RLS varsayılan reddet; service role yalnızca C#'ta.
+- Güvenlik doğrulaması (§3h; telefon, konum, ikinci adım) panelden açılabilir; SMS için Twilio anahtarı gerekir (ücretli, kullanıcı onayıyla).
+
 ## 4. Flutter
 
 ### Klasörler

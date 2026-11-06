@@ -27,9 +27,12 @@ class _FakeAuth implements AuthRepository {
   int signInCalls = 0;
   Result<void> signInResult = const Ok(null);
 
+  final captchaTokens = <String?>[];
+
   @override
-  Future<Result<void>> signIn({required String email, required String password}) async {
+  Future<Result<void>> signIn({required String email, required String password, String? captchaToken}) async {
     signInCalls++;
+    captchaTokens.add(captchaToken);
     return signInResult;
   }
 
@@ -54,7 +57,12 @@ const _docs = [
 
 Widget _app(Widget child, List<dynamic> overrides) => ProviderScope(
       // The screens are written in Turkish; the test device speaks English.
-      overrides: [deviceLocalesProvider.overrideWithValue(const [Locale('tr')]), ...overrides.cast()],
+      // No Turnstile key: the bot check shows nothing (it runs in a web view the test cannot load).
+      overrides: [
+        deviceLocalesProvider.overrideWithValue(const [Locale('tr')]),
+        humanCheckSiteKeyProvider.overrideWithValue(''),
+        ...overrides.cast(),
+      ],
       child: MaterialApp(theme: GwTheme.light(), home: child),
     );
 
@@ -88,6 +96,23 @@ void main() {
         failureFromAuth(const AuthException('x', code: 'over_email_send_rate_limit')),
         const RateLimitedFailure(),
       );
+    });
+
+    test('a failed bot check says so, not a raw error', () {
+      final f = failureFromAuth(const AuthException('captcha protection: request disallowed', code: 'captcha_failed'));
+      expect(f.userMessage, 'Robot olmadığını doğrulayamadık. Kutudaki doğrulamayı tamamlayıp tekrar dene.');
+    });
+
+    test('the bot check is ready when off or with a token; each attempt spends the token', () {
+      final check = HumanCheckController();
+      expect(check.ready, isTrue, reason: 'off: nothing to wait for');
+      check.report(enabled: true);
+      expect(check.ready, isFalse);
+      check.report(enabled: true, token: 't1');
+      expect((check.ready, check.token), (true, 't1'));
+      check.spend();
+      expect((check.ready, check.token), (false, null), reason: 'a token works once');
+      check.dispose();
     });
 
     test('unknown errors never show the raw server message', () {
@@ -215,6 +240,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(auth.signInCalls, 1);
+    expect(auth.captchaTokens, [null], reason: 'no Turnstile key: no token is sent');
     expect(find.text('E-posta adresi veya şifre hatalı.'), findsOneWidget);
   });
 

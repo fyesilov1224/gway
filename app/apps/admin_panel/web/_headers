@@ -1,0 +1,8 @@
+# Cloudflare Pages response headers (docs/ARCHITECTURE.md §3k). The panel is never framed, indexed or cached by others.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Permissions-Policy: microphone=(), camera=(), geolocation=(self), payment=(), usb=(), serial=(), bluetooth=()
