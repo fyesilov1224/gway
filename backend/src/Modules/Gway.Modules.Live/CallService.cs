@@ -26,8 +26,9 @@ public sealed record GroupCallPermissionRequest(bool Active, string? Reason);
 public static class CallEndpoints
 {
     /// <summary>One-to-one voice calls between matched people (docs/ARCHITECTURE.md §8c).</summary>
-    public static IEndpointRouteBuilder MapCallEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapCallEndpoints(this IEndpointRouteBuilder root)
     {
+        var app = root.MapGroup("").AddEndpointFilter<CallRequestLog>();
         app.MapGet("/conversations/{id:guid}/calls/eligibility", async (Guid id, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
             TypedResults.Ok(await calls.EligibilityAsync(user.GetUserId(), id, ct)));
 
@@ -50,8 +51,38 @@ public static class CallEndpoints
                 Guid id, Guid userId, GroupCallPermissionRequest body, ClaimsPrincipal user, CallService calls, CancellationToken ct) =>
             (await calls.SetPermissionAsync(user.GetUserId(), id, userId, body.Active, body.Reason, ct)).ToHttpResult());
 
-        return app;
+        return root;
     }
+}
+
+/// <summary>
+/// One line a call request: which step, its outcome and how long it took (docs/ARCHITECTURE.md §8c, Cevapla her durumda
+/// açılır). Before 2026-11-06 nothing showed whether an answer reached the server. Never who called whom: no user id,
+/// no conversation id; only the call's id, which the platform team cannot match to anyone (§3f).
+/// </summary>
+internal sealed partial class CallRequestLog(ILogger<CallRequestLog> log) : IEndpointFilter
+{
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    {
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var result = await next(context);
+        var http = context.HttpContext;
+        var route = (http.GetEndpoint() as RouteEndpoint)?.RoutePattern.RawText ?? "";
+        // /calls/{id}/accept → accept; POST /conversations/{id}/calls → start; eligibility and permissions are not logged.
+        string? step = route.StartsWith("/calls/", StringComparison.Ordinal) ? route[(route.LastIndexOf('/') + 1)..]
+            : route == "/conversations/{id:guid}/calls" ? "start"
+            : null;
+        if (step is null) return result;
+        var callId = step == "start"
+            ? (result as IValueHttpResult)?.Value is CallJoin join ? join.CallId.ToString() : "-"
+            : http.Request.RouteValues["id"]?.ToString() ?? "-";
+        var status = (result as IStatusCodeHttpResult)?.StatusCode ?? http.Response.StatusCode;
+        LogCallRequest(log, step, callId, status, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+        return result;
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Call {Step} {CallId}: {Status} in {Elapsed:0} ms")]
+    private static partial void LogCallRequest(ILogger logger, string step, string callId, int status, double elapsed);
 }
 
 /// <summary>

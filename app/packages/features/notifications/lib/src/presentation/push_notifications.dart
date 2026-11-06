@@ -54,6 +54,9 @@ class _PushNotificationsState extends ConsumerState<PushNotifications> {
   Timer? _quiet;
 
   void _onArrival(Map<String, Object?> data) {
+    // A call ringing while the app is in front: its screen opens from the push too, not only from Realtime, which
+    // misses a call while its channel is reconnecting (docs/ARCHITECTURE.md §8c, Cevapla her durumda açılır).
+    if (data case {'type': 'call_incoming', 'call_id': final String callId}) widget.openCall(callId);
     if (!PushNotifications.rings(data, isConversationOpen: widget.isConversationOpen)) return;
     if (_quiet?.isActive ?? false) return;
     _quiet = Timer(PushNotifications.soundGap, () {});

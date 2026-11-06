@@ -321,6 +321,33 @@ void main() {
     expect(rings({'type': 'live_started', 'live_id': 'b1'}), isFalse, reason: 'the live alert plays its own sound');
     expect(rings({'type': 'live_scheduled', 'live_id': 'b1'}), isFalse);
   });
+  testWidgets('a call ringing while the app is in front opens its screen from the push, without a sound', (tester) async {
+    final push = _FakePush();
+    final calls = <String>[];
+    var sounds = 0;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        sessionRoleProvider.overrideWith((ref) => null),
+        pushMessagingProvider.overrideWithValue(push),
+        notificationSoundProvider.overrideWithValue(() async => sounds++),
+      ],
+      child: PushNotifications(
+        openLive: (_) {},
+        openCall: calls.add,
+        openConversation: (_) {},
+        openNotifications: () {},
+        isConversationOpen: (_) => false,
+        child: const SizedBox(),
+      ),
+    ));
+    push.arrived
+      ..add({'type': 'call_incoming', 'call_id': 'k1', 'title': 'deniz'})
+      ..add({'type': 'call_ended', 'call_id': 'k1'});
+    await tester.pump();
+    expect(calls, ['k1']);
+    expect(sounds, 0);
+  });
+
   testWidgets('pushes arriving together ring once', (tester) async {
     final push = _FakePush();
     var sounds = 0;

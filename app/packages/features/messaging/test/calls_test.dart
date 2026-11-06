@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:messaging/messaging.dart';
+import 'package:messaging/src/data/calls_repository_impl.dart' show reopening;
 
 const _join = CallJoin(callId: 'k1', url: 'wss://livekit.test', token: 't');
 
@@ -416,6 +417,34 @@ void main() {
     expect(h.calls.actions, ['accept']);
     expect(native.log, ['end k1']);
     await tester.pumpWidget(const SizedBox());
+  });
+
+  test('a call stream that Supabase closes (the token expired) or fails is opened again', () async {
+    var opened = 0;
+    final sources = <StreamController<int>>[];
+    final got = <int>[];
+    final sub = reopening(() {
+      opened++;
+      final c = StreamController<int>();
+      sources.add(c);
+      return c.stream;
+    }, after: const Duration(milliseconds: 10)).listen(got.add);
+    await Future<void>.delayed(Duration.zero);
+    sources.last.add(1);
+    await sources.last.close();
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(opened, 2, reason: 'opened again after it ended');
+    sources.last
+      ..add(2)
+      ..addError(Exception('channel error'));
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(opened, 3, reason: 'opened again after an error');
+    sources.last.add(3);
+    await Future<void>.delayed(Duration.zero);
+    expect(got, [1, 2, 3]);
+    await sub.cancel();
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(opened, 3, reason: 'nobody listens: nothing opens');
   });
 
   test('one screen per call: asks a moment apart open one screen', () {

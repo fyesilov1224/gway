@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:core/core.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/calls.dart';
@@ -14,6 +15,41 @@ Future<Result<T>> _run<T>(Future<T> Function() action) async {
   } on Object catch (e) {
     return Err(failureFromSupabase(e));
   }
+}
+
+/// How long a closed or failed Realtime stream waits before it is opened again.
+const reopenAfter = Duration(seconds: 2);
+
+/// Supabase ends a stream for good when its channel closes, and the channel closes as soon as the access token
+/// expires without a refresh (the app sat in the background; measured 2026-11-06). Until then a call screen stopped
+/// changing and calls ringing while the app was in front were never seen again until the app restarted. The stream is
+/// opened again, with a fresh read of the rows, for as long as someone listens (docs/ARCHITECTURE.md §8c).
+@visibleForTesting
+Stream<T> reopening<T>(Stream<T> Function() open, {Duration after = reopenAfter}) {
+  StreamSubscription<T>? current;
+  Timer? retry;
+  var cancelled = false;
+  late final StreamController<T> controller;
+  void start() {
+    if (cancelled) return;
+    void again() {
+      unawaited(current?.cancel());
+      current = null;
+      if (!cancelled) retry = Timer(after, start);
+    }
+
+    current = open().listen(controller.add, onError: (Object _) => again(), onDone: again, cancelOnError: true);
+  }
+
+  controller = StreamController<T>(
+    onListen: start,
+    onCancel: () async {
+      cancelled = true;
+      retry?.cancel();
+      await current?.cancel();
+    },
+  );
+  return controller.stream;
 }
 
 /// Calls go through the C# API; the call row and the permission are read under RLS (docs/ARCHITECTURE.md §8c).
@@ -66,11 +102,11 @@ class CallsRepositoryImpl implements CallsRepository {
   Future<Result<void>> end(String callId) => _api.post('/calls/$callId/end', decode: (_) {});
 
   @override
-  Stream<CallInfo?> watch(String callId) => _client
+  Stream<CallInfo?> watch(String callId) => reopening(() => _client
       .from('calls')
       .stream(primaryKey: ['id'])
       .eq('id', callId)
-      .map((rows) => rows.isEmpty ? null : _call(rows.first));
+      .map((rows) => rows.isEmpty ? null : _call(rows.first)));
 
   @override
   Future<Result<CallInfo?>> fetch(String callId) => _run(() async {
@@ -79,11 +115,16 @@ class CallsRepositoryImpl implements CallsRepository {
       });
 
   @override
-  Stream<List<CallInfo>> incoming() => _client
-      .from('calls')
-      .stream(primaryKey: ['id'])
-      .eq('callee_id', _me)
-      .map((rows) => [for (final r in rows) if (r['status'] == 'ringing') _call(r)]);
+  Stream<List<CallInfo>> incoming() {
+    final me = _me;
+    return reopening(() => _client
+        .from('calls')
+        .stream(primaryKey: ['id'])
+        .eq('callee_id', me)
+        // A call inserted while the stream starts arrives in its first read and again as a Realtime insert.
+        .map((rows) => {for (final r in rows) if (r['status'] == 'ringing') r['id'] as String: _call(r)}.values.toList()));
+  }
+
 
   @override
   Future<Result<CallPeer>> peer(String userId) => _run(() async {
