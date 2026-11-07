@@ -856,11 +856,6 @@ class GamesL10nUk extends GamesL10n {
   String get mindNoMatchesTheirs => 'Дуелей поки немає. Викличте першим.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Зіграйте рейтингових дуелей цієї довжини: $count, щоб потрапити до таблиці.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Викликати на дуель';
 
   @override
@@ -893,7 +888,7 @@ class GamesL10nUk extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Торкніться цілі, щойно вона з’явиться. Зарано або повз — мінус бали.';
+      'Швидко натисни вогні, що засвітилися, у тому ж порядку. Хибний вогонь завершує спробу.';
 
   @override
   String get mindScoringHint =>
@@ -947,15 +942,6 @@ class GamesL10nUk extends GamesL10n {
   String get mindUndo => 'Скасувати';
 
   @override
-  String get mindReflexTarget => 'Ціль';
-
-  @override
-  String get mindReflexWait => 'Чекайте…';
-
-  @override
-  String get mindReflexTap => 'Тисніть!';
-
-  @override
   String mindRight(int points) {
     return 'Правильно · +$points';
   }
@@ -971,11 +957,6 @@ class GamesL10nUk extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Неправильно · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Зарано · −$points';
   }
 
   @override
@@ -1158,4 +1139,29 @@ class GamesL10nUk extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Рейтинг рахується за системою Glicko-2. «?» означає, що рейтинг ще попередній.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Рівень $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Стеж за вогнями';
+
+  @override
+  String get mindLightsRepeat => 'Натисни по порядку';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Вогонь $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Правильно';
+
+  @override
+  String get mindStatAverage => 'За питання';
+
+  @override
+  String get mindStatRating => 'Рейтинг';
 }

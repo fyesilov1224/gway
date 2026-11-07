@@ -842,11 +842,6 @@ class GamesL10nNl extends GamesL10n {
   String get mindNoMatchesTheirs => 'Nog geen duels. Daag als eerste uit.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Speel $count duels met rating van deze lengte om op de ranglijst te komen.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Uitdagen voor een duel';
 
   @override
@@ -879,7 +874,7 @@ class GamesL10nNl extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Tik het doel aan zodra het verschijnt. Te vroeg of mis kost punten.';
+      'Tik de lampjes die oplichtten snel in dezelfde volgorde aan. Een verkeerd lampje beëindigt de poging.';
 
   @override
   String get mindScoringHint =>
@@ -933,15 +928,6 @@ class GamesL10nNl extends GamesL10n {
   String get mindUndo => 'Ongedaan maken';
 
   @override
-  String get mindReflexTarget => 'Doel';
-
-  @override
-  String get mindReflexWait => 'Wacht…';
-
-  @override
-  String get mindReflexTap => 'Tik nu!';
-
-  @override
   String mindRight(int points) {
     return 'Goed · +$points';
   }
@@ -957,11 +943,6 @@ class GamesL10nNl extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Fout · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Te vroeg · −$points';
   }
 
   @override
@@ -1144,4 +1125,29 @@ class GamesL10nNl extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Ratings volgen het Glicko-2-systeem. \"?\" betekent dat de rating nog voorlopig is.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Niveau $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Kijk naar de lampjes';
+
+  @override
+  String get mindLightsRepeat => 'Tik ze in volgorde';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Lampje $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Goed';
+
+  @override
+  String get mindStatAverage => 'Per vraag';
+
+  @override
+  String get mindStatRating => 'Rating';
 }

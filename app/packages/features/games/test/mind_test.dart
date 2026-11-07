@@ -49,9 +49,10 @@ final _question = MindQuestion(
 );
 
 class _FakeMind implements MindRepository {
-  _FakeMind({this.board = const []});
+  _FakeMind({this.board = const [], MindQuestion? question}) : question = question ?? _question;
 
   final List<LeaderboardEntry> board;
+  final MindQuestion question;
   final answers = <Map<String, Object?>>[];
 
   @override
@@ -64,7 +65,7 @@ class _FakeMind implements MindRepository {
   Future<Result<MindNext>> next(String id) async => Ok((
         match: MindMatch.fromRow(_row(a: [for (final _ in answers) 160])),
         serverNow: DateTime.now().toUtc(),
-        question: answers.isEmpty ? _question : null,
+        question: answers.isEmpty ? question : null,
       ));
 
   @override
@@ -179,6 +180,54 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 11));
+  });
+
+  testWidgets('the light sequence lights up, turns red and takes the taps in order', (tester) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(600, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final mind = _FakeMind(
+      question: MindQuestion(
+        index: 0,
+        kind: MindKind.reflex,
+        level: 1,
+        payload: const {'grid': 4, 'sequence': [5, 12, 0], 'colors': ['green', 'yellow', 'orange'], 'flashMs': 666, 'showMs': 2000},
+        limitMs: 7100,
+        servedAt: DateTime.now().toUtc(),
+      ),
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        currentUserIdProvider.overrideWithValue('me'),
+        mindRepositoryProvider.overrideWithValue(mind),
+        chessRepositoryProvider.overrideWithValue(_NoProfiles()),
+      ],
+      child: MaterialApp(theme: GwTheme.light(), home: const MindMatchScreen(matchId: 'm1')),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text(gamesL10n.mindLightsWatch), findsOneWidget);
+    // While the lights play, taps do nothing.
+    await tester.tap(find.bySemanticsLabel(gamesL10n.mindLightLabel(6)));
+    expect(mind.answers, isEmpty);
+
+    // The view runs on the wall clock: wait for the lights to finish.
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 2600)));
+    await tester.pump();
+    expect(find.text(gamesL10n.mindLightsRepeat), findsOneWidget);
+    for (final cell in [5, 12, 0]) {
+      await tester.tap(find.bySemanticsLabel(gamesL10n.mindLightLabel(cell + 1)));
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(mind.answers, [
+      {'picks': [5, 12, 0]},
+    ]);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 8));
+    semantics.dispose();
   });
 
   testWidgets('each length has its leaderboard with medals and crowns on the podium', (tester) async {

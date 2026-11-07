@@ -1077,15 +1077,6 @@
   "@mindNoMatchesTheirs": {
     "description": ""
   },
-  "mindLeaderboardEmpty": "Sıralamaya girmek için bu soru sayısında {count} puanlı düello oyna.",
-  "@mindLeaderboardEmpty": {
-    "description": "",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "mindChallengeTitle": "Düelloya davet et",
   "@mindChallengeTitle": {
     "description": ""
@@ -1122,7 +1113,7 @@
   "@mindKindMemoryHint": {
     "description": ""
   },
-  "mindKindReflexHint": "Hedef belirince ona ilk sen dokun. Erken ya da yanlış dokunuş puan kaybettirir.",
+  "mindKindReflexHint": "Yanan yuvarlaklara aynı sırayla, hızla dokun. Yanlış yuvarlak denemeyi bitirir.",
   "@mindKindReflexHint": {
     "description": ""
   },
@@ -1217,18 +1208,6 @@
   "@mindUndo": {
     "description": ""
   },
-  "mindReflexTarget": "Hedef",
-  "@mindReflexTarget": {
-    "description": ""
-  },
-  "mindReflexWait": "Bekle…",
-  "@mindReflexWait": {
-    "description": ""
-  },
-  "mindReflexTap": "Şimdi dokun!",
-  "@mindReflexTap": {
-    "description": ""
-  },
   "mindRight": "Doğru · +{points}",
   "@mindRight": {
     "description": "",
@@ -1253,15 +1232,6 @@
   },
   "mindWrongPenalty": "Yanlış · −{points}",
   "@mindWrongPenalty": {
-    "description": "",
-    "placeholders": {
-      "points": {
-        "type": "int"
-      }
-    }
-  },
-  "mindTooEarly": "Erken dokundun · −{points}",
-  "@mindTooEarly": {
     "description": "",
     "placeholders": {
       "points": {
@@ -1492,6 +1462,44 @@
   },
   "ratingSystemNote": "Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.",
   "@ratingSystemNote": {
+    "description": ""
+  },
+  "mindLevel": "Seviye {level}",
+  "@mindLevel": {
+    "description": "",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "mindLightsWatch": "Işıkları izle",
+  "@mindLightsWatch": {
+    "description": ""
+  },
+  "mindLightsRepeat": "Aynı sırayla dokun",
+  "@mindLightsRepeat": {
+    "description": ""
+  },
+  "mindLightLabel": "Yuvarlak {number}",
+  "@mindLightLabel": {
+    "description": "",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "mindStatCorrect": "Doğru",
+  "@mindStatCorrect": {
+    "description": ""
+  },
+  "mindStatAverage": "Soru başına",
+  "@mindStatAverage": {
+    "description": ""
+  },
+  "mindStatRating": "Puan",
+  "@mindStatRating": {
     "description": ""
   }
 }

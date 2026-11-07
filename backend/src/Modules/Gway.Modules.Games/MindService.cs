@@ -17,7 +17,7 @@ public sealed record MindChallengeRequest(Guid OpponentId, int Length, bool Rate
 
 public sealed record MindMatchStarted(Guid MatchId);
 
-/// <param name="Answer">By kind: <c>{"choice": 2}</c>, <c>{"picks": [4, 0, 7]}</c>, <c>{"cell": 5, "reactionMs": 412}</c> (cell −1: no tap).</param>
+/// <param name="Answer">By kind: <c>{"choice": 2}</c> (math, attention), <c>{"picks": [4, 0, 7]}</c> (memory: options; reflex: cells in order).</param>
 /// <param name="ElapsedMs">The app's own measure from showing the question to the answer.</param>
 public sealed record MindAnswerRequest(int Index, JsonElement Answer, int? ElapsedMs);
 
@@ -563,30 +563,39 @@ internal sealed class MindService(NpgsqlDataSource db) : IMindAdministration
 
         await ActingTransaction.ExecuteAsync(conn, tx,
             "insert into public.mind_ratings (user_id, length) values (@a, @l), (@b, @l) on conflict do nothing", ct, ("a", a), ("b", b), ("l", match.Length));
-        async Task<(int Rating, int Games)> Read(Guid user)
+        // Glicko-2 like chess (docs/ARCHITECTURE.md §3j, Puan): each side aged by its idle days, then one rating period.
+        async Task<(ChessRules.Glicko Rating, int Stored)> Read(Guid user)
         {
-            await using var cmd = new NpgsqlCommand("select rating, games from public.mind_ratings where user_id = @u and length = @l for update", conn, tx);
+            await using var cmd = new NpgsqlCommand(
+                """
+                select rating, deviation, volatility, coalesce(extract(epoch from now() - rated_at) / 86400, 0)::float8
+                from public.mind_ratings where user_id = @u and length = @l for update
+                """, conn, tx);
             cmd.Parameters.AddWithValue("u", user);
             cmd.Parameters.AddWithValue("l", match.Length);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             await r.ReadAsync(ct);
-            return (r.GetInt32(0), r.GetInt32(1));
+            var stored = r.GetInt32(0);
+            return (ChessRules.Idle(new ChessRules.Glicko(stored, r.GetFloat(1), r.GetFloat(2)), r.GetDouble(3)), stored);
         }
         var ra = await Read(a);
         var rb = await Read(b);
         var score = result switch { "a" => 1.0, "b" => 0.0, _ => 0.5 };
-        var (da, dbDelta) = ChessRules.EloDeltas(ra.Rating, ra.Games, rb.Rating, rb.Games, score);
+        var na = ChessRules.Glicko2(ra.Rating, rb.Rating, score);
+        var nb = ChessRules.Glicko2(rb.Rating, ra.Rating, 1 - score);
+        var da = (int)Math.Round(na.Rating, MidpointRounding.AwayFromZero) - ra.Stored;
+        var dbDelta = (int)Math.Round(nb.Rating, MidpointRounding.AwayFromZero) - rb.Stored;
         const string Update =
             """
             update public.mind_ratings
-            set rating = rating + @d, peak = greatest(peak, rating + @d), games = games + 1,
-                wins = wins + @win, draws = draws + @draw, losses = losses + @loss, updated_at = now()
+            set rating = rating + @d, peak = greatest(peak, rating + @d), deviation = @rd, volatility = @vol, rated_at = now(),
+                games = games + 1, wins = wins + @win, draws = draws + @draw, losses = losses + @loss, updated_at = now()
             where user_id = @u and length = @l
             """;
-        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", da), ("win", score == 1 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0),
-            ("loss", score == 0 ? 1 : 0), ("u", a), ("l", match.Length));
-        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", dbDelta), ("win", score == 0 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0),
-            ("loss", score == 1 ? 1 : 0), ("u", b), ("l", match.Length));
+        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", da), ("rd", (float)na.Deviation), ("vol", (float)na.Volatility),
+            ("win", score == 1 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0), ("loss", score == 0 ? 1 : 0), ("u", a), ("l", match.Length));
+        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", dbDelta), ("rd", (float)nb.Deviation), ("vol", (float)nb.Volatility),
+            ("win", score == 0 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0), ("loss", score == 1 ? 1 : 0), ("u", b), ("l", match.Length));
         await ActingTransaction.ExecuteAsync(conn, tx,
             "update public.mind_matches set a_delta = @da, b_delta = @db where id = @id", ct, ("da", da), ("db", dbDelta), ("id", match.Id));
     }

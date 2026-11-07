@@ -10,7 +10,7 @@ internal sealed record MindQuestion(int Index, string Kind, int Level, JsonObjec
 internal readonly record struct MindScore(int Points, bool Correct);
 
 /// <summary>
-/// Zihin Düellosu questions (docs/ARCHITECTURE.md §3j, Sorular): math, attention (Stroop), memory and reflex ("Hedefe dokun").
+/// Zihin Düellosu questions (docs/ARCHITECTURE.md §3j, Sorular): math, attention (Stroop), memory and reflex ("Işık sırası").
 /// The server generates them, never sends a solution before the answer, and scores with its own clock. No database here.
 /// </summary>
 internal static class MindQuestions
@@ -36,6 +36,13 @@ internal static class MindQuestions
     public const int MinReactionMs = 120;
 
     public const int ReflexPenalty = -50;
+
+    /// <summary>Light sequence: the 4×4 field and the colors the lights take in turn.</summary>
+    public const int ReflexGrid = 4;
+    public static readonly string[] LightColors = ["green", "yellow", "orange"];
+
+    /// <summary>All the lights of a sequence come and go within this.</summary>
+    public const int ReflexShowMs = 2000;
 
     private const string Characters = "ABCDEFGHJKLMNPRSTUVYZ0123456789OQI";
 
@@ -89,14 +96,24 @@ internal static class MindQuestions
         return [divisor * random.Next(2, 13), '÷', divisor];
     }
 
+    /// <summary>A product or exact quotient with bigger numbers (level 3 and up).</summary>
+    private static List<object> HardTerm(Random random)
+    {
+        if (random.Next(2) == 0) return [random.Next(6, 20), '×', random.Next(3, 10)];
+        var divisor = random.Next(3, 13);
+        return [divisor * random.Next(4, 16), '÷', divisor];
+    }
+
     private static List<object> Expression(int level, Random random)
     {
         List<List<object>> terms = level switch
         {
-            1 => [Term(false, random, 2, 30), Term(false, random, 2, 30)],
-            2 => random.Next(2) == 0 ? [Term(true, random, 0, 0)] : [Term(false, random, 10, 99), Term(false, random, 10, 99)],
-            3 => [Term(false, random, 2, 50), Term(true, random, 0, 0)],
-            _ => [Term(false, random, 2, 50), Term(true, random, 0, 0), Term(false, random, 2, 30)],
+            1 => [Term(false, random, 12, 99), Term(false, random, 12, 99)],
+            2 => [Term(false, random, 10, 99), Term(true, random, 0, 0)],
+            3 => random.Next(2) == 0
+                ? [Term(false, random, 20, 150), HardTerm(random)]
+                : [HardTerm(random), Term(true, random, 0, 0)],
+            _ => [Term(false, random, 20, 150), HardTerm(random), Term(true, random, 0, 0)],
         };
         random.Shuffle(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(terms));
         var tokens = new List<object>(terms[0]);
@@ -117,17 +134,24 @@ internal static class MindQuestions
         var answer = Evaluate(tokens);
         var naive = LeftToRight(tokens);
         var choices = new List<int> { answer };
-        if (naive != answer) choices.Add(naive);
-        while (choices.Count < 4)
+        if (naive != answer && naive >= 0) choices.Add(naive);
+        // Look-alikes: off by one or two, by ten, and from the higher levels only a small step away.
+        int[] steps = level >= 3 ? [1, 2, 10, 3] : [1, 2, 10, 5, 4];
+        var guard = 0;
+        while (choices.Count < 4 && guard++ < 50)
         {
-            var near = answer + (random.Next(2) == 0 ? -1 : 1) * random.Next(1, 11);
-            if (!choices.Contains(near)) choices.Add(near);
+            var near = answer + (random.Next(2) == 0 ? -1 : 1) * steps[random.Next(steps.Length)];
+            if (near >= 0 && !choices.Contains(near)) choices.Add(near);
+        }
+        for (var k = answer + 1; choices.Count < 4; k++)
+        {
+            if (!choices.Contains(k)) choices.Add(k);
         }
         random.Shuffle(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(choices));
         var expression = string.Join(' ', tokens.Select(t => t.ToString()));
         return new MindQuestion(index, Math, level,
             new JsonObject { ["expression"] = expression, ["choices"] = new JsonArray([.. choices.Select(c => (JsonNode)c)]) },
-            new JsonObject { ["choice"] = choices.IndexOf(answer) }, (8 + 3 * level) * 1000);
+            new JsonObject { ["choice"] = choices.IndexOf(answer) }, (6 + 2 * level) * 1000);
     }
 
     /// <summary>× and ÷ before + and −.</summary>
@@ -192,7 +216,7 @@ internal static class MindQuestions
         {
             if (!figures.Contains(f)) figures.Add(f);
         }
-        if (level >= 3)
+        if (level >= 2)
         {
             // Every wrong choice is one detail away from the right one.
             Add((color, Other(Patterns, pattern, random), shape));
@@ -211,14 +235,14 @@ internal static class MindQuestions
                 ["color"] = color, ["pattern"] = pattern, ["shape"] = shape, ["ink"] = ink,
                 ["choices"] = new JsonArray([.. figures.Select(f => (JsonNode)Figure(f.Color, f.Pattern, f.Shape))]),
             },
-            new JsonObject { ["choice"] = figures.IndexOf((color, pattern, shape)) }, (9 - level) * 1000);
+            new JsonObject { ["choice"] = figures.IndexOf((color, pattern, shape)) }, (8 - level) * 1000);
     }
 
     // -----------------------------------------------------------------------
-    // Memory: colored characters, shown then hidden; pick them back in order.
+    // Memory: colored characters, shown then hidden; pick them back in order and in their colors.
     // -----------------------------------------------------------------------
 
-    public static int ShowMs(int items) => 1000 + 600 * items;
+    public static int ShowMs(int items) => 900 + 500 * items;
 
     private static MindQuestion MemoryQuestion(int index, int level, Random random)
     {
@@ -227,16 +251,25 @@ internal static class MindQuestions
         random.Shuffle(chars);
         var items = chars.Take(count).Select(c => (Char: c, Color: Colors[random.Next(Colors.Length)])).ToList();
 
-        var options = new List<(char Char, string Color)>(items);
-        var wanted = count + 2 + level;
-        var guard = 0;
-        while (options.Count < wanted && guard++ < 200)
+        // Each character comes in three colors: the shown one and two others, so the color has to be remembered too.
+        var options = new List<(char Char, string Color)>();
+        foreach (var item in items)
         {
-            var source = items[random.Next(items.Count)];
-            (char, string) decoy = random.Next(2) == 0 || !Similar.TryGetValue(source.Char, out var look)
-                ? (source.Char, Other(Colors, source.Color, random))
-                : (look[random.Next(look.Length)], source.Color);
-            if (!options.Contains(decoy)) options.Add(decoy);
+            var colors = Colors.Where(c => c != item.Color).ToArray();
+            random.Shuffle(colors);
+            options.Add(item);
+            options.Add((item.Char, colors[0]));
+            options.Add((item.Char, colors[1]));
+        }
+        // From level 3 look-alike characters (O and 0, 8 and B) join in the shown colors.
+        if (level >= 3)
+        {
+            foreach (var item in items.Where(i => Similar.ContainsKey(i.Char)).Take(level - 1))
+            {
+                var look = Similar[item.Char];
+                var decoy = (look[random.Next(look.Length)], item.Color);
+                if (!options.Contains(decoy) && !items.Any(i => i.Char == decoy.Item1)) options.Add(decoy);
+            }
         }
         random.Shuffle(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(options));
         static JsonObject Item((char Char, string Color) i) => new() { ["char"] = i.Char.ToString(), ["color"] = i.Color };
@@ -249,38 +282,35 @@ internal static class MindQuestions
                 ["showMs"] = show,
             },
             new JsonObject { ["picks"] = new JsonArray([.. items.Select(i => (JsonNode)options.IndexOf(i))]) },
-            show + 4000 + 2000 * count);
+            show + 4000 + 1800 * count);
     }
 
     // -----------------------------------------------------------------------
-    // Reflex: the target shows up among look-alikes for a moment.
+    // Reflex ("Işık sırası"): 16 red lights; some light up in turn (green, yellow, orange) within two seconds,
+    // then all are red again and the same lights are tapped back in order, fast.
     // -----------------------------------------------------------------------
 
-    public static int VisibleMs(int level) => 1500 - 200 * (level - 1);
+    /// <summary>How many lights the sequence has: 3 at level 1 up to 6 at level 4.</summary>
+    public static int SequenceLength(int level) => 2 + level;
 
     private static MindQuestion ReflexQuestion(int index, int level, Random random)
     {
-        var grid = level >= 3 ? 4 : 3;
-        var shape = Shapes[random.Next(Shapes.Length)];
-        var color = Colors[random.Next(Colors.Length)];
-        // Look-alikes share the shape or the color, never both.
-        var decoys = Enumerable.Range(0, grid * grid).Select(_ => random.Next(2) == 0
-            ? new JsonObject { ["shape"] = shape, ["color"] = Other(Colors, color, random) }
-            : new JsonObject { ["shape"] = Other(Shapes, shape, random), ["color"] = color }).ToList();
-        var delay = random.Next(1500, 4001);
-        var visible = VisibleMs(level);
-        var cell = random.Next(grid * grid);
+        var cells = Enumerable.Range(0, ReflexGrid * ReflexGrid).ToArray();
+        random.Shuffle(cells);
+        var sequence = cells.Take(SequenceLength(level)).ToArray();
+        var colors = sequence.Select((_, i) => LightColors[i % LightColors.Length]).ToArray();
+        var flash = ReflexShowMs / sequence.Length;
         return new MindQuestion(index, Reflex, level,
             new JsonObject
             {
-                ["target"] = new JsonObject { ["shape"] = shape, ["color"] = color },
-                ["grid"] = grid,
-                ["decoys"] = new JsonArray([.. decoys.Select(d => (JsonNode)d)]),
-                ["delayMs"] = delay,
-                ["visibleMs"] = visible,
-                ["cell"] = cell,
+                ["grid"] = ReflexGrid,
+                ["sequence"] = new JsonArray([.. sequence.Select(c => (JsonNode)c)]),
+                ["colors"] = new JsonArray([.. colors.Select(c => (JsonNode)c)]),
+                ["flashMs"] = flash,
+                ["showMs"] = ReflexShowMs,
             },
-            new JsonObject { ["cell"] = cell }, delay + visible + 1000);
+            new JsonObject { ["picks"] = new JsonArray([.. sequence.Select(c => (JsonNode)c)]) },
+            ReflexShowMs + 1500 + 1200 * sequence.Length);
     }
 
     // -----------------------------------------------------------------------
@@ -313,6 +343,7 @@ internal static class MindQuestions
                 return right ? new MindScore(100 + SpeedBonus(used, limitMs), true) : new MindScore(0, false);
             }
             case Memory:
+            case Reflex when solution.ContainsKey("picks"):
             {
                 var expected = solution["picks"]!.AsArray().Select(n => (int)n!).ToArray();
                 var picks = answer.ValueKind == JsonValueKind.Object && answer.TryGetProperty("picks", out var p) && p.ValueKind == JsonValueKind.Array
@@ -328,6 +359,7 @@ internal static class MindQuestions
             }
             default:
             {
+                // "Hedefe dokun" (before 2026-11-07): only matches that were running at the update still have it.
                 var cell = IntOf(answer, "cell") ?? -1;
                 if (cell < 0) return new MindScore(0, false);
                 var reaction = IntOf(answer, "reactionMs") ?? -1;

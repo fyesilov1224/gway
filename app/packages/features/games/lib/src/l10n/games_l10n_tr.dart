@@ -791,11 +791,6 @@ class GamesL10nTr extends GamesL10n {
       'Henüz düellosu yok. İlk düellosuna sen davet et.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Sıralamaya girmek için bu soru sayısında $count puanlı düello oyna.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Düelloya davet et';
 
   @override
@@ -828,7 +823,7 @@ class GamesL10nTr extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Hedef belirince ona ilk sen dokun. Erken ya da yanlış dokunuş puan kaybettirir.';
+      'Yanan yuvarlaklara aynı sırayla, hızla dokun. Yanlış yuvarlak denemeyi bitirir.';
 
   @override
   String get mindScoringHint =>
@@ -882,15 +877,6 @@ class GamesL10nTr extends GamesL10n {
   String get mindUndo => 'Geri al';
 
   @override
-  String get mindReflexTarget => 'Hedef';
-
-  @override
-  String get mindReflexWait => 'Bekle…';
-
-  @override
-  String get mindReflexTap => 'Şimdi dokun!';
-
-  @override
   String mindRight(int points) {
     return 'Doğru · +$points';
   }
@@ -906,11 +892,6 @@ class GamesL10nTr extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Yanlış · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Erken dokundun · −$points';
   }
 
   @override
@@ -1085,4 +1066,29 @@ class GamesL10nTr extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Seviye $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Işıkları izle';
+
+  @override
+  String get mindLightsRepeat => 'Aynı sırayla dokun';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Yuvarlak $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Doğru';
+
+  @override
+  String get mindStatAverage => 'Soru başına';
+
+  @override
+  String get mindStatRating => 'Puan';
 }

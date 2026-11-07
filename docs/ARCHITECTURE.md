@@ -1494,9 +1494,9 @@ Kullanıcı isteği: Oyunlar bölümüne satrançtaki her özelliğe sahip ikinc
 
 ### Kararlar
 - **Karışık sorular:** her maçta dört türden sorular sırayla karışık gelir (her dört soruluk blokta her tür bir kez, blok içi sıra rastgele). Zorluk maç ilerledikçe artar: soru `i` için seviye `1 + ⌊4 · i / soru sayısı⌋` (1–4).
-- **Elo soru sayısına göre ayrıdır:** 5, 10, 20, 50 sorunun her birinin kendi puanı ve sıralaması vardır.
+- **Puan soru sayısına göre ayrıdır:** 5, 10, 20, 50 sorunun her birinin kendi puanı ve sıralaması vardır. 2026-11-07'den beri Glicko-2 (satrançla aynı, aşağıda Puan).
 - **Canlı, aynı anda:** iki kişi aynı soruları aynı anda, kendi hızında çözer; rakibin puanı ve hangi soruda olduğu canlı görünür. Puan doğruluk ve hızdan gelir; maçı toplam puanı yüksek olan kazanır, eşitlik beraberliktir.
-- **Refleks "Hedefe dokun":** hedef şekil gösterilir; ızgarada benzer şekiller arasında hedef kısa bir süre belirir; en hızlı doğru dokunuş puan alır, erken ya da yanlış dokunuş puan kaybettirir.
+- **Refleks "Işık sırası"** (kullanıcı isteği 2026-11-07, eski "Hedefe dokun"un yerine): 4×4, 16 kırmızı yuvarlak; 2 saniye içinde rastgele yuvarlaklar sırayla yeşil, sarı, turuncu yanıp söner (zorluğa göre 3–6 ışık); sonra hepsi yine kırmızıdır ve kişi aynı yuvarlaklara aynı sırayla hızla dokunur. Yanlış yuvarlak denemeyi bitirir.
 - **Bayrak ve uzaklaştırma satrançla ortaktır:** `chess_players` oyunların oyuncu kartıdır (ülke, platform uzaklaştırması); satrançtan uzaklaştırılan kişi Zihin Düellosu da oynayamaz. Panelde "oyunlardan uzaklaştırma" olarak görünür.
 
 ### Açık kaynak
@@ -1506,15 +1506,15 @@ Soru üreticisi, şekiller ve ekranlar GWAY'in kendi kodu ve çizimidir (Flutter
 Maç açılırken C# (`MindQuestions`) bütün soruları üretir ve `mind_questions`'a yazar; bu tabloyu istemci hiç okuyamaz (RLS açık, politika yok). Soru, kişi bir önceki soruyu yanıtlayınca API'den tek tek gelir (`POST .../next`); doğru cevap yalnız yanıttan sonra döner. Metinler uygulamada çevrilir: sunucu yalnız yapı gönderir (sayılar, renk/desen/şekil kodları).
 | Tür | Soru | Seviye | Süre |
 |---|---|---|---|
-| **Matematik** | Dört işlemli ifade (`49 + 9 × 2`), işlem önceliğiyle; sonuç tam sayı, bölmeler kalansız. 4 seçenek: doğru sonuç, soldan sağa hesaplanmış yanlış sonuç (farklıysa) ve yakın sayılar | 1: iki sayı, toplama/çıkarma; 2: çarpma ya da iki basamaklı; 3: üç sayı, iki işlem; 4: dört sayı, üç işlem | 8 + 3 × seviye sn |
-| **Dikkat (Stroop)** | "kırmızı çizgili yuvarlak" yazısı başka bir renkle (ör. mavi) yazılır; doğru seçenek yazının anlattığı şekildir. 4 seçenek: doğru, mürekkep rengindeki aynı şekil (tuzak) ve bir özelliği değişmiş şekiller. Renkler: kırmızı, mavi, yeşil, sarı, mor, turuncu; desen: düz, çizgili, noktalı; şekil: yuvarlak, kare, üçgen, yıldız | Seviye arttıkça seçenekler birbirine benzer (yalnız tek özellik farkı) | 9 − seviye sn |
-| **Hafıza** | 3 + seviye öğe (harf ya da rakam, her biri renkli) `1000 + 600 × öğe` ms gösterilir, sonra "?" olur; kişi doğru öğeleri **doğru renkleriyle ve sırayla** seçer. Seçenekler: öğeler + benzer çeldiriciler (aynı karakter başka renk, benzer karakter aynı renk: O/0/Q, 1/I/7, 5/S, 8/B, 2/Z, 6/G, E/F, M/N, P/R) | 4–7 öğe, seviyeyle çeldirici artar | gösterim + 4000 + 2000 × öğe ms |
-| **Refleks** | Hedef (şekil + renk) gösterilir; ızgarada benzer şekiller durur; 1,5–4 sn sonra hedef bir hücrede `1500 − 200 × (seviye − 1)` ms görünür | 1: 3×3, 2: 3×3, 3–4: 4×4 ızgara | bekleme + görünme + 1 sn |
+| **Matematik** | Dört işlemli ifade (`49 + 9 × 2`), işlem önceliğiyle; sonuç tam sayı ve sıfır ya da üstü, bölmeler kalansız. 4 seçenek: doğru sonuç, soldan sağa hesaplanmış yanlış sonuç (farklıysa) ve yakın sayılar (±1, ±2, ±10; üst seviyelerde ±3) | 1: iki iki basamaklı sayı (12–99), toplama/çıkarma; 2: sayı ± çarpım ya da bölüm; 3: büyük sayı (20–150) ± büyük çarpım/bölüm (6–19 × 3–9) ya da iki işlem terimi; 4: sayı, büyük çarpım/bölüm ve bir çarpım/bölüm | `6 + 2 × seviye` sn |
+| **Dikkat (Stroop)** | "kırmızı çizgili yuvarlak" yazısı başka bir renkle (ör. mavi) yazılır; doğru seçenek yazının anlattığı şekildir. 4 seçenek: doğru, mürekkep rengindeki aynı şekil (tuzak) ve bir özelliği değişmiş şekiller | 1: rastgele çeldiriciler; 2–4: her yanlış seçenek doğrudan tek özellikle ayrılır | `8 − seviye` sn |
+| **Hafıza** | 3 + seviye öğe (harf ya da rakam, her biri renkli) `900 + 500 × öğe` ms gösterilir, sonra "?" olur; kişi doğru öğeleri **doğru renkleriyle ve sırayla** seçer. Seçenekler: her gösterilen karakter **üç farklı renkte** (biri doğru) ve 3. seviyeden sonra benzer görünen karakterler (O/0, 8/B) gösterilen renkte | 1–4: 4–7 öğe | gösterim + 4 sn + öğe başına 1,8 sn |
+| **Refleks (Işık sırası)** | 4×4 yuvarlak; `2 + seviye` farklı yuvarlak 2 sn içinde sırayla yanar (renkler sırayla yeşil, sarı, turuncu); sonra hepsi kırmızı, kişi aynı sırayla dokunur | 1: 3, 2: 4, 3: 5, 4: 6 ışık | 2 sn + 1,5 sn + ışık başına 1,2 sn |
 
 ### Puan
 - Matematik ve dikkat: doğru `100 + ⌊100 × (1 − süre / sınır)⌋`, yanlış ya da süre dolması 0.
 - Hafıza: hepsi doğruysa `100 +` hız payı (cevap aşamasının süresine göre); değilse doğru konum başına `⌊60 × doğru / öğe⌋`.
-- Refleks: doğru dokunuş `100 + ⌊100 × (1 − tepki / görünme süresi)⌋`; erken dokunuş (hedeften önce ya da 120 ms'den kısa tepki) veya yanlış hücre **−50**; dokunmamak 0.
+- Refleks (Işık sırası): hafıza gibi puanlanır: sıranın hepsi doğruysa `100 +` hız payı (ışıklar söndükten sonraki süreye göre); değilse doğru yer başına `⌊60 × doğru / ışık⌋`. Güncelleme anında süren maçlardaki eski "Hedefe dokun" soruları eski kuralla puanlanır.
 - **Süre ölçümü:** uygulama kendi ölçtüğü süreyi gönderir; sunucu bunu kendi ölçtüğü sürenin (soru verildiğinden beri) en çok 2 sn altına kadar kabul eder, üstünü kendi süresine indirir. Refleks tepkisi, sunucu süresi `bekleme + tepki − 300 ms`'den kısaysa erken sayılır. Sınırdan 2 sn sonra gelen yanıt süre dolmuş sayılır (0).
 
 ### Maç
@@ -1526,8 +1526,8 @@ Maç açılırken C# (`MindQuestions`) bütün soruları üretir ve `mind_questi
 - **Terk:** maç boyunca; rakip kazanır. İki taraf da ilk sorusunu almadan terk iptaldir.
 - Bitiş: iki taraf da son soruyu yanıtlayınca (`completed`), bitiş sınırında (`time`), terkle (`resign`) ya da iptalle (`aborted`). Sonuç ve Elo aynı işlemde yazılır. Bitişi ve ilk soru penceresini `GamesMonitor` saniyede bir yakalar.
 
-### Elo
-Elo (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100; satranç 2026-11-07'de Glicko-2'ye geçti, düello Elo'da kaldı). Kişi sıralaması: o soru sayısında en az 5 puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte maç sayısına göre; ilk üç altın, gümüş ve bronz madalya ve taç (`mind_leaderboard`, `mind_ranks`).
+### Puan: Glicko-2 (2026-11-07)
+Satrançla aynı Glicko-2 (`ChessRules.Glicko2`, §3i Puan): puan, RD ve oynaklık; uzun arada RD büyür; RD 110'dan büyükse puan geçicidir (`1500?`). Mevcut puanlar korunur, RD maç sayısından hesaplanır (migration 0090). Seviye seçimi yoktur (başlangıç 1200). Kişi sıralaması: o soru sayısında en az bir puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; geçici puanı olmayanlar sıra numarası alır (puana, eşitlikte maç sayısına göre; ilk üç madalya ve taç), geçici puanlılar ayrı başlıkta; her satırda son 30 günün değişimi (`mind_leaderboard`, `mind_ranks`). Maç bitince uygulama sıralamayı yeniler. Grup Elo'su (K = 32) değişmez.
 
 ### Grupların düellosu ve grup sıralaması (21b)
 - Satrançtaki takım maçının aynısıdır ve aynı tablolarla, aynı kodla çalışır: takım maçı tablolarına oyun alanı eklenir (`chess_team_matches.game`: `chess` ya da `mind`), Zihin Düellosu maçında süre yerine soru sayısı (`length`) seçilir. Davet, kabul/red, diziliş (2–10 sıra), yetki (`games.team_match`), iki grup arasında oyun başına tek açık maç, grup başına en çok 5 açık maç, başlangıçta kendiliğinden başlama ve iptal kuralları aynıdır.
@@ -1547,7 +1547,7 @@ Elo (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100; sat
 
 ### Uygulama
 - Oyunlar ekranında "Zihin Düellosu" kartı. Ana sayfa: soru sayısı seçimi ve puanım, "Rakip bul", "Arkadaşını davet et", davetler, süren maç şeridi, son maçlar, sıralama özeti, dört türün kısa tanıtımı.
-- Maç ekranı: üstte iki oyuncu (avatar, bayrak, Elo), canlı puanlar ve soru noktaları (her soru yeşil/kırmızı/gri); soru alanında süre çubuğu; yanıttan sonra kısa doğru/yanlış gösterimi; bitirince rakip beklenir; sonuçta puanlar, Elo değişimi ve rövanş.
+- Maç ekranı (2026-11-07 yenilendi): üstte skor tablosu (iki oyuncu avatar, bayrak ve puanla; ortada canlı skor, önde olan mor; "Soru 3/10"), altında her soru için ince çizgi (yeşil doğru, amber kısmen, kırmızı yanlış, gri gelecek); soru kartında tür etiketi, seviye noktaları ve saniyeli geri sayım halkası (son çeyrekte kırmızı); soru bir panelde, seçenekler altında; geri sayımda dört tür; sonuçta kazanan altın halkalı avatarlar, skor, doğru sayısı, soru başına puan ve puan değişimi.
 - Sıralama (5/10/20/50 sekmeleri, podyum), oyuncu sayfası (soru sayısına göre puanlar ve sıralar, son maçlar), bayrak seçimi satrançla ortak.
 - Şekiller ve renkler `design_system` tokenlarından (`GwMindColor`); şekiller `CustomPainter` ile çizilir. Renk dışında desen (düz, çizgili, noktalı) ve şekil de ayırt edici olduğu için ekran okuyucu her şekli sözle okur (`describeFigure`).
 - Dikkat sorusundaki yazı uygulamanın dilinde kurulur: renk ve desen sözcükleri şeklin dilbilgisel cinsiyetine uyar (Almanca, Fransızca, İspanyolca, Portekizce, İtalyanca, Felemenkçe, Rusça, Ukraynaca, Arapça; `tool/l10n/tables/games_mind.py`).
@@ -1569,7 +1569,7 @@ Oyunlar sayfasında Zihin Düellosu bölümü: bugünkü ve toplam maç, süren 
 | `GET /admin/games/mind`, `POST /admin/games/mind/{id}/abort` | Sayılar, süren maçlar, iptal (`reason`). Rol: `admin`, `moderator` |
 
 ### Tablolar (sahip: games)
-`mind_ratings`, `mind_matches`, `mind_questions`, `mind_answers`, `mind_seeks`, `mind_challenges` (0085). Maçlar ve puanlar giriş yapmış herkese açıktır (oyuncuların hesabı görünürse); maç satırında her sorunun puanı (`a_points`, `b_points`) Realtime ile yayınlanır, cevaplar değil. `mind_questions` ve `mind_answers`'ı istemci okuyamaz; bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Bütün yazma C#'tadır.
+`mind_ratings`, `mind_matches`, `mind_questions`, `mind_answers`, `mind_seeks`, `mind_challenges` (0085). Maçlar ve puanlar giriş yapmış herkese açıktır (oyuncuların hesabı görünürse); maç satırında her sorunun puanı (`a_points`, `b_points`) Realtime ile yayınlanır, cevaplar değil. `mind_questions` ve `mind_answers`'ı istemci okuyamaz; bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Bütün yazma C#'tadır. 0090: `mind_ratings.deviation`, `volatility`, `rated_at` (Glicko-2); sıralama fonksiyonları `provisional` ve `trend` döner.
 
 ## 3k. Bot ve saldırı koruması (Faz 15.14, kullanıcı kararları 2026-11-06)
 

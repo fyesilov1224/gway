@@ -50,7 +50,6 @@ class _Board extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final entries = ref.watch(leaderboardProvider(category));
     final me = ref.watch(currentUserIdProvider);
-    final textTheme = Theme.of(context).textTheme;
     return switch (entries) {
       AsyncData(:final value) when value.isEmpty => Center(
           child: GwEmptyState(
@@ -60,52 +59,11 @@ class _Board extends ConsumerWidget {
             onAction: () => context.push(ChessRoutes.seek(TimeControl.catalog.firstWhere((t) => t.category == category))),
           ),
         ),
-      AsyncData(:final value) => RefreshIndicator(
+      AsyncData(:final value) => LeaderboardList(
+          entries: value,
+          me: me,
+          playerPath: ChessRoutes.player,
           onRefresh: () => ref.refresh(leaderboardProvider(category).future),
-          child: Builder(builder: (context) {
-            final ranked = value.where((e) => !e.provisional).toList();
-            final settling = value.where((e) => e.provisional).toList();
-            final mine = value.where((e) => e.player.userId == me).firstOrNull;
-            return ListView(
-              padding: const EdgeInsets.all(GwSpacing.page),
-              children: [
-                if (mine != null) ...[_MyPlace(entry: mine), const SizedBox(height: GwSpacing.md)],
-                if (ranked.isNotEmpty) ...[
-                  LeaderboardPodium(entries: ranked.take(3).toList(), playerPath: ChessRoutes.player),
-                  const SizedBox(height: GwSpacing.md),
-                ],
-                if (ranked.length > 3)
-                  GwCard(
-                    child: Column(
-                      children: [
-                        const _TableHeader(),
-                        for (final e in ranked.skip(3)) ...[
-                          const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                          LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
-                        ],
-                      ],
-                    ),
-                  ),
-                if (settling.isNotEmpty) ...[
-                  const SizedBox(height: GwSpacing.lg),
-                  GwSectionHeader(title: gamesL10n.provisionalPlayers, subtitle: gamesL10n.provisionalPlayersHint),
-                  const SizedBox(height: GwSpacing.xs),
-                  GwCard(
-                    child: Column(
-                      children: [
-                        for (final (i, e) in settling.indexed) ...[
-                          if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                          LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: GwSpacing.md),
-                Text(gamesL10n.ratingSystemNote, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
-              ],
-            );
-          }),
         ),
       AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(leaderboardProvider(category))),
       _ => ListView(
@@ -116,6 +74,73 @@ class _Board extends ConsumerWidget {
           ],
         ),
     };
+  }
+}
+
+/// A board's list, the same for every game: the reader's own place, the top three ranked on a podium, the table with
+/// column names, and the provisional ratings apart (docs/DESIGN.md, Sıralama).
+class LeaderboardList extends StatelessWidget {
+  const LeaderboardList({super.key, required this.entries, required this.me, required this.playerPath, required this.onRefresh});
+
+  final List<LeaderboardEntry> entries;
+  final String? me;
+  final String Function(String userId) playerPath;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final ranked = entries.where((e) => !e.provisional).toList();
+    final settling = entries.where((e) => e.provisional).toList();
+    final mine = entries.where((e) => e.player.userId == me).firstOrNull;
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.all(GwSpacing.page),
+        children: [
+          if (mine != null) ...[_MyPlace(entry: mine), const SizedBox(height: GwSpacing.md)],
+          if (ranked.isNotEmpty) ...[
+            LeaderboardPodium(entries: ranked.take(3).toList(), playerPath: playerPath),
+            const SizedBox(height: GwSpacing.md),
+          ] else ...[
+            GwCard(
+              padding: const EdgeInsets.all(GwSpacing.md),
+              child: Text(gamesL10n.leaderboardSettling, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            ),
+            const SizedBox(height: GwSpacing.md),
+          ],
+          if (ranked.length > 3)
+            GwCard(
+              child: Column(
+                children: [
+                  const _TableHeader(),
+                  for (final e in ranked.skip(3)) ...[
+                    const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
+                    LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: playerPath),
+                  ],
+                ],
+              ),
+            ),
+          if (settling.isNotEmpty) ...[
+            const SizedBox(height: GwSpacing.lg),
+            GwSectionHeader(title: gamesL10n.provisionalPlayers, subtitle: gamesL10n.provisionalPlayersHint),
+            const SizedBox(height: GwSpacing.xs),
+            GwCard(
+              child: Column(
+                children: [
+                  for (final (i, e) in settling.indexed) ...[
+                    if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
+                    LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: playerPath),
+                  ],
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: GwSpacing.md),
+          Text(gamesL10n.ratingSystemNote, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
+        ],
+      ),
+    );
   }
 }
 

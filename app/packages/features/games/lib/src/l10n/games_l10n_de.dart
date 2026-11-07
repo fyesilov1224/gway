@@ -845,11 +845,6 @@ class GamesL10nDe extends GamesL10n {
       'Noch keine Duelle. Fordere als Erste:r heraus.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Spiele $count gewertete Duelle dieser Länge, um in die Rangliste zu kommen.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Zum Duell herausfordern';
 
   @override
@@ -882,7 +877,7 @@ class GamesL10nDe extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Tippe das Ziel an, sobald es erscheint. Zu früh oder daneben kostet Punkte.';
+      'Tippe die Lichter, die aufleuchteten, schnell in derselben Reihenfolge. Ein falsches Licht beendet den Versuch.';
 
   @override
   String get mindScoringHint =>
@@ -936,15 +931,6 @@ class GamesL10nDe extends GamesL10n {
   String get mindUndo => 'Rückgängig';
 
   @override
-  String get mindReflexTarget => 'Ziel';
-
-  @override
-  String get mindReflexWait => 'Warte…';
-
-  @override
-  String get mindReflexTap => 'Jetzt tippen!';
-
-  @override
   String mindRight(int points) {
     return 'Richtig · +$points';
   }
@@ -960,11 +946,6 @@ class GamesL10nDe extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Falsch · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Zu früh · −$points';
   }
 
   @override
@@ -1147,4 +1128,29 @@ class GamesL10nDe extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Wertungen nach dem Glicko-2-System. „?“ bedeutet: Die Wertung ist noch vorläufig.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Lichter beobachten';
+
+  @override
+  String get mindLightsRepeat => 'In derselben Reihenfolge tippen';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Licht $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Richtig';
+
+  @override
+  String get mindStatAverage => 'Pro Frage';
+
+  @override
+  String get mindStatRating => 'Wertung';
 }

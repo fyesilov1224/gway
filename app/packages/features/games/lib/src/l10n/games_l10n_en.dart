@@ -843,11 +843,6 @@ class GamesL10nEn extends GamesL10n {
       'No duels yet. Be the first to challenge them.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Play $count rated duels at this length to enter the leaderboard.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Challenge to a duel';
 
   @override
@@ -880,7 +875,7 @@ class GamesL10nEn extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Tap the target the moment it shows. Early or wrong taps cost points.';
+      'Tap the lights that came on, in the same order, fast. A wrong light ends the try.';
 
   @override
   String get mindScoringHint =>
@@ -934,15 +929,6 @@ class GamesL10nEn extends GamesL10n {
   String get mindUndo => 'Undo';
 
   @override
-  String get mindReflexTarget => 'Target';
-
-  @override
-  String get mindReflexWait => 'Wait…';
-
-  @override
-  String get mindReflexTap => 'Tap now!';
-
-  @override
   String mindRight(int points) {
     return 'Right · +$points';
   }
@@ -958,11 +944,6 @@ class GamesL10nEn extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Wrong · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Too early · −$points';
   }
 
   @override
@@ -1144,4 +1125,29 @@ class GamesL10nEn extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Ratings use the Glicko-2 system. \"?\" means the rating has not settled yet.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Watch the lights';
+
+  @override
+  String get mindLightsRepeat => 'Tap them in order';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Light $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Correct';
+
+  @override
+  String get mindStatAverage => 'Per question';
+
+  @override
+  String get mindStatRating => 'Rating';
 }

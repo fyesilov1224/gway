@@ -791,11 +791,6 @@ class GamesL10nAz extends GamesL10n {
   String get mindNoMatchesTheirs => 'Hələ dueli yoxdur. İlk sən dəvət et.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Sıralamaya düşmək üçün bu sual sayında $count reytinqli duel oyna.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Duelə dəvət et';
 
   @override
@@ -828,7 +823,7 @@ class GamesL10nAz extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Hədəf görünən kimi ona toxun. Erkən və ya səhv toxunuş xal itirir.';
+      'Yanan dairələrə eyni ardıcıllıqla, sürətlə toxun. Səhv dairə cəhdi bitirir.';
 
   @override
   String get mindScoringHint =>
@@ -882,15 +877,6 @@ class GamesL10nAz extends GamesL10n {
   String get mindUndo => 'Geri al';
 
   @override
-  String get mindReflexTarget => 'Hədəf';
-
-  @override
-  String get mindReflexWait => 'Gözlə…';
-
-  @override
-  String get mindReflexTap => 'İndi toxun!';
-
-  @override
   String mindRight(int points) {
     return 'Doğru · +$points';
   }
@@ -906,11 +892,6 @@ class GamesL10nAz extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Səhv · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Erkən toxundun · −$points';
   }
 
   @override
@@ -1085,4 +1066,29 @@ class GamesL10nAz extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Reytinqlər Glicko-2 sistemi ilə hesablanır. \"?\" reytinqin hələ oturmadığını göstərir.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Səviyyə $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'İşıqlara bax';
+
+  @override
+  String get mindLightsRepeat => 'Eyni ardıcıllıqla toxun';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Dairə $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Düzgün';
+
+  @override
+  String get mindStatAverage => 'Sual başına';
+
+  @override
+  String get mindStatRating => 'Reytinq';
 }

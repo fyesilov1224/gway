@@ -75,15 +75,28 @@ public sealed class MindQuestionsTests
                         Assert.Equal(3 + q.Level, items.Count);
                         var picks = q.Solution["picks"]!.AsArray().Select(n => (int)n!).ToList();
                         Assert.Equal(items.Select(i => i!.ToJsonString()), picks.Select(p => options[p]));
+                        // Every shown character is offered in three different colors.
+                        foreach (var item in items)
+                        {
+                            var colors = q.Payload["options"]!.AsArray().Where(o => o!["char"]!.ToString() == item!["char"]!.ToString())
+                                .Select(o => o!["color"]!.ToString()).ToList();
+                            Assert.Equal(3, colors.Distinct().Count());
+                            Assert.Contains(item!["color"]!.ToString(), colors);
+                        }
                         break;
                     }
                     default:
                     {
-                        var grid = (int)q.Payload["grid"]!;
-                        Assert.Equal(grid * grid, q.Payload["decoys"]!.AsArray().Count);
-                        var target = q.Payload["target"]!.ToJsonString();
-                        Assert.DoesNotContain(q.Payload["decoys"]!.AsArray(), d => d!.ToJsonString() == target);
-                        Assert.InRange((int)q.Solution["cell"]!, 0, grid * grid - 1);
+                        // Light sequence: 16 lights, 2 + level of them in turn, each once, colored green, yellow, orange.
+                        Assert.Equal(4, (int)q.Payload["grid"]!);
+                        var sequence = q.Payload["sequence"]!.AsArray().Select(n => (int)n!).ToList();
+                        Assert.Equal(2 + q.Level, sequence.Count);
+                        Assert.Equal(sequence.Count, sequence.Distinct().Count());
+                        Assert.All(sequence, c => Assert.InRange(c, 0, 15));
+                        Assert.Equal(sequence, q.Solution["picks"]!.AsArray().Select(n => (int)n!));
+                        var colors = q.Payload["colors"]!.AsArray().Select(c => c!.ToString()).ToList();
+                        Assert.Equal(["green", "yellow", "orange"], colors.Take(3));
+                        Assert.Equal(MindQuestions.ReflexShowMs, (int)q.Payload["showMs"]!);
                         break;
                     }
                 }
@@ -115,7 +128,19 @@ public sealed class MindQuestionsTests
     }
 
     [Fact]
-    public void A_reflex_tap_too_early_or_on_the_wrong_cell_loses_points()
+    public void The_light_sequence_scores_like_memory()
+    {
+        var payload = new JsonObject { ["showMs"] = 2_000 };
+        var solution = new JsonObject { ["picks"] = new JsonArray(5, 12, 0) };
+        // Right and quick: full marks plus most of the speed bonus (time counts after the lights).
+        Assert.Equal(new MindScore(180, true), MindQuestions.Score("reflex", payload, solution, 7_100, Answer(new { picks = new[] { 5, 12, 0 } }), 3_000, 3_100));
+        // Two lights right in their places, one wrong: part of the points.
+        Assert.Equal(new MindScore(40, false), MindQuestions.Score("reflex", payload, solution, 7_100, Answer(new { picks = new[] { 5, 12, 9 } }), 3_000, 3_100));
+        Assert.Equal(new MindScore(0, false), MindQuestions.Score("reflex", payload, solution, 7_100, Answer(new { picks = Array.Empty<int>() }), 7_000, 7_100));
+    }
+
+    [Fact]
+    public void A_match_running_at_the_update_still_scores_the_old_target_tap()
     {
         var payload = new JsonObject { ["delayMs"] = 2_000, ["visibleMs"] = 1_000 };
         var solution = new JsonObject { ["cell"] = 4 };
@@ -170,16 +195,9 @@ public sealed class MindTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         var kind = (await _db.ScalarAsync<string>("select kind from public.mind_questions where match_id = @m and idx = @i", ("m", match), ("i", index)))!;
         var solution = JsonNode.Parse((await _db.ScalarAsync<string>(
             "select solution::text from public.mind_questions where match_id = @m and idx = @i", ("m", match), ("i", index)))!)!;
-        if (kind == MindQuestions.Reflex)
-        {
-            // As if the target appeared and was tapped half a second later.
-            var delay = await _db.ScalarAsync<int>("select (payload->>'delayMs')::int from public.mind_questions where match_id = @m and idx = @i",
-                ("m", match), ("i", index));
-            await _db.ExecuteAsync("update public.mind_answers set served_at = now() - @ms * interval '1 millisecond' where match_id = @m and idx = @i",
-                ("ms", delay + 600), ("m", match), ("i", index));
-            return new { cell = (int)solution["cell"]!, reactionMs = 500 };
-        }
-        return kind == MindQuestions.Memory ? new { picks = solution["picks"]!.AsArray().Select(n => (int)n!).ToArray() } : new { choice = (int)solution["choice"]! };
+        return kind is MindQuestions.Memory or MindQuestions.Reflex
+            ? new { picks = solution["picks"]!.AsArray().Select(n => (int)n!).ToArray() }
+            : new { choice = (int)solution["choice"]! };
     }
 
     private Task<HttpResponseMessage> AnswerAsync(Guid user, Guid match, int index, object answer, int elapsed = 1_000) =>
@@ -217,8 +235,9 @@ public sealed class MindTests(ApiFactory factory) : IClassFixture<ApiFactory>, I
         Assert.Equal("a", await _db.ScalarAsync<string>("select result from public.mind_matches where id = @id", ("id", match)));
         Assert.Equal("completed", await _db.ScalarAsync<string>("select termination from public.mind_matches where id = @id", ("id", match)));
         Assert.Equal(5, await _db.ScalarAsync<int>("select cardinality(b_points) from public.mind_matches where id = @id", ("id", match)));
-        Assert.Equal(1220, await _db.ScalarAsync<int>("select rating from public.mind_ratings where user_id = @a and length = 5", ("a", a)));
-        Assert.Equal(1180, await _db.ScalarAsync<int>("select rating from public.mind_ratings where user_id = @b and length = 5", ("b", b)));
+        // Glicko-2: two new players (1200, RD 350) move fast.
+        Assert.Equal(1362, await _db.ScalarAsync<int>("select rating from public.mind_ratings where user_id = @a and length = 5", ("a", a)));
+        Assert.Equal(1038, await _db.ScalarAsync<int>("select rating from public.mind_ratings where user_id = @b and length = 5", ("b", b)));
         Assert.Equal(0, await _db.ScalarAsync<long>("select count(*) from public.mind_ratings where user_id = @a and length <> 5", ("a", a)));
     }
 

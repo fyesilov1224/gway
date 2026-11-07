@@ -64,6 +64,7 @@ class MindRepositoryImpl implements MindRepository {
                 wins: r['wins'] as int,
                 draws: r['draws'] as int,
                 losses: r['losses'] as int,
+                deviation: (r['deviation'] as num).toDouble(),
               ),
           },
           ranks: {for (final r in ranks.cast<Map<String, dynamic>>()) (r['length'] as num).toInt(): (r['rank'] as num?)?.toInt()},
@@ -82,7 +83,7 @@ class MindRepositoryImpl implements MindRepository {
         return [
           for (final r in rows.cast<Map<String, dynamic>>())
             LeaderboardEntry(
-              rank: (r['rank'] as num).toInt(),
+              rank: (r['rank'] as num?)?.toInt() ?? 0,
               player: ChessPlayer(
                 userId: r['user_id'] as String,
                 username: r['username'] as String,
@@ -95,6 +96,8 @@ class MindRepositoryImpl implements MindRepository {
               wins: r['wins'] as int,
               draws: r['draws'] as int,
               losses: r['losses'] as int,
+              provisional: r['provisional'] as bool,
+              trend: r['trend'] as int,
             ),
         ];
       });

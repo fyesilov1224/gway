@@ -844,11 +844,6 @@ class GamesL10nPt extends GamesL10n {
       'Nenhum duelo ainda. Seja o primeiro a desafiar.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Jogue $count duelos ranqueados desse tamanho para entrar no ranking.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Desafiar para um duelo';
 
   @override
@@ -881,7 +876,7 @@ class GamesL10nPt extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Toque o alvo assim que aparecer. Tocar antes ou errar tira pontos.';
+      'Toque rápido nas luzes que acenderam, na mesma ordem. Uma luz errada encerra a tentativa.';
 
   @override
   String get mindScoringHint =>
@@ -935,15 +930,6 @@ class GamesL10nPt extends GamesL10n {
   String get mindUndo => 'Desfazer';
 
   @override
-  String get mindReflexTarget => 'Alvo';
-
-  @override
-  String get mindReflexWait => 'Espere…';
-
-  @override
-  String get mindReflexTap => 'Toque agora!';
-
-  @override
   String mindRight(int points) {
     return 'Certo · +$points';
   }
@@ -959,11 +945,6 @@ class GamesL10nPt extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Errado · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Cedo demais · −$points';
   }
 
   @override
@@ -1146,4 +1127,29 @@ class GamesL10nPt extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'As pontuações usam o sistema Glicko-2. \"?\" indica que ainda é provisória.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Nível $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Observe as luzes';
+
+  @override
+  String get mindLightsRepeat => 'Toque na mesma ordem';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Luz $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Acertos';
+
+  @override
+  String get mindStatAverage => 'Por pergunta';
+
+  @override
+  String get mindStatRating => 'Pontuação';
 }

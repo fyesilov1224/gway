@@ -10,7 +10,6 @@ const mindLengths = [5, 10, 20, 50];
 const mindDefaultLength = 10;
 
 /// Matches needed at a length to appear on its leaderboard.
-const mindRankedAfter = 5;
 
 enum MindKind {
   math('math'),
@@ -280,23 +279,20 @@ class MindQuestion {
 
   int get showMs => (payload['showMs'] as num?)?.toInt() ?? 0;
 
-  // Reflex
-  MindFigure get target => MindFigure.fromJson((payload['target'] as Map).cast<String, dynamic>());
+  // Reflex ("Işık sırası"): the lights that come on in turn, with their colors.
+  int get grid => (payload['grid'] as num?)?.toInt() ?? 4;
 
-  int get grid => (payload['grid'] as num?)?.toInt() ?? 3;
+  List<int> get sequence => [for (final n in (payload['sequence'] as List? ?? const [])) if (n is num) n.toInt()];
 
-  List<MindFigure> get decoys => [for (final d in (payload['decoys'] as List? ?? const [])) MindFigure.fromJson((d as Map).cast<String, dynamic>())];
+  List<String> get lightColors => [for (final c in (payload['colors'] as List? ?? const [])) '$c'];
 
-  int get delayMs => (payload['delayMs'] as num?)?.toInt() ?? 0;
-
-  int get visibleMs => (payload['visibleMs'] as num?)?.toInt() ?? 0;
-
-  int get targetCell => (payload['cell'] as num?)?.toInt() ?? 0;
+  /// How long each light stays on; all of them fit in [showMs].
+  int get flashMs => (payload['flashMs'] as num?)?.toInt() ?? 0;
 }
 
 typedef MindNext = ({MindMatch match, DateTime serverNow, MindQuestion? question});
 
-/// How an answer scored, with the solution: `choice`, `picks` or `cell`.
+/// How an answer scored, with the solution: `choice` or `picks`.
 class MindAnswered {
   const MindAnswered({required this.points, required this.correct, required this.solution, required this.match, required this.serverNow});
 
@@ -309,8 +305,6 @@ class MindAnswered {
   int? get choice => (solution['choice'] as num?)?.toInt();
 
   List<int> get picks => [for (final n in (solution['picks'] as List? ?? const [])) (n as num).toInt()];
-
-  int? get cell => (solution['cell'] as num?)?.toInt();
 }
 
 class MindRating {
@@ -322,6 +316,7 @@ class MindRating {
     this.wins = 0,
     this.draws = 0,
     this.losses = 0,
+    this.deviation = ChessRating.startDeviation,
   });
 
   final int length;
@@ -332,7 +327,10 @@ class MindRating {
   final int draws;
   final int losses;
 
-  bool get ranked => games >= mindRankedAfter;
+  /// Glicko-2 like chess (docs/ARCHITECTURE.md §3j, Puan).
+  final double deviation;
+
+  bool get provisional => deviation > ChessRating.provisionalDeviation;
 }
 
 /// A player page: the person, their rating at each length and their places on the leaderboards.

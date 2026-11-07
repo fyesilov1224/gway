@@ -347,12 +347,18 @@ class _TopThree extends ConsumerWidget {
             padding: const EdgeInsets.all(GwSpacing.md),
             child: GwEmptyState(
               icon: Icons.emoji_events_outlined,
-              message: gamesL10n.mindLeaderboardEmpty(mindRankedAfter),
+              message: gamesL10n.leaderboardNoGames,
               actionLabel: gamesL10n.mindFindOpponent,
               onAction: () => context.push(MindRoutes.seek(length)),
             ),
           ),
-        AsyncData(:final value) => LeaderboardPodium(entries: value.take(3).toList(), playerPath: MindRoutes.player),
+        AsyncData(:final value) when value.every((e) => e.provisional) => GwCard(
+            padding: const EdgeInsets.all(GwSpacing.md),
+            child: Text(gamesL10n.leaderboardSettling,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+          ),
+        AsyncData(:final value) =>
+          LeaderboardPodium(entries: value.where((e) => !e.provisional).take(3).toList(), playerPath: MindRoutes.player),
         AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(mindLeaderboardProvider(length))),
         _ => const GwSkeleton(height: GwSpacing.xxl * 3),
       };
@@ -619,33 +625,16 @@ class _Board extends ConsumerWidget {
       AsyncData(:final value) when value.isEmpty => Center(
           child: GwEmptyState(
             icon: Icons.emoji_events_outlined,
-            message: gamesL10n.mindLeaderboardEmpty(mindRankedAfter),
+            message: gamesL10n.leaderboardNoGames,
             actionLabel: gamesL10n.mindFindOpponent,
             onAction: () => context.push(MindRoutes.seek(length)),
           ),
         ),
-      AsyncData(:final value) => RefreshIndicator(
+      AsyncData(:final value) => LeaderboardList(
+          entries: value,
+          me: me,
+          playerPath: MindRoutes.player,
           onRefresh: () => ref.refresh(mindLeaderboardProvider(length).future),
-          child: ListView(
-            padding: const EdgeInsets.all(GwSpacing.page),
-            children: [
-              LeaderboardPodium(entries: value.take(3).toList(), playerPath: MindRoutes.player),
-              if (value.length > 3) ...[
-                const SizedBox(height: GwSpacing.md),
-                GwCard(
-                  child: Column(
-                    children: [
-                      for (final (i, e) in value.indexed)
-                        if (i >= 3) ...[
-                          if (i > 3) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                          LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: MindRoutes.player),
-                        ],
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
         ),
       AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(mindLeaderboardProvider(length))),
       _ => ListView(
@@ -768,7 +757,10 @@ class _LengthTile extends StatelessWidget {
         children: [
           Text(gamesL10n.mindQuestions(rating.length), style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
           const SizedBox(height: GwSpacing.xxs),
-          Text(rating.games == 0 ? '–' : '${rating.rating}', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            rating.games == 0 ? '–' : ratingLabel(rating.rating, provisional: rating.provisional),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()]),
+          ),
           const SizedBox(height: GwSpacing.xxs),
           if (r != null && r <= 3)
             RankBadge(rank: r, size: GwSpacing.lg)
@@ -965,7 +957,25 @@ class MindSampleStrip extends StatelessWidget {
             ],
           )),
           gap,
-          cell(const MindFigureView(figure: MindFigure(color: 'green', shape: MindShape.star), size: GwSpacing.xxl)),
+          // The light sequence: a 3×3 corner of red lights, two of them lit.
+          cell(Padding(
+            padding: const EdgeInsets.all(GwSpacing.xs),
+            child: GridView.count(
+              crossAxisCount: 3,
+              mainAxisSpacing: GwSpacing.xxs,
+              crossAxisSpacing: GwSpacing.xxs,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                for (var i = 0; i < 9; i++)
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: switch (i) { 1 => GwMindColor.green.color, 6 => GwMindColor.yellow.color, _ => GwMindColor.red.color },
+                    ),
+                  ),
+              ],
+            ),
+          )),
         ],
       ),
     );

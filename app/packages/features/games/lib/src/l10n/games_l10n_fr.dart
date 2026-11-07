@@ -846,11 +846,6 @@ class GamesL10nFr extends GamesL10n {
       'Aucun duel pour le moment. Sois le premier à le défier.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Joue $count duels classés de cette longueur pour entrer au classement.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Défier en duel';
 
   @override
@@ -883,7 +878,7 @@ class GamesL10nFr extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Touche la cible dès qu\'elle apparaît. Trop tôt ou à côté coûte des points.';
+      'Touche vite les lumières allumées, dans le même ordre. Une mauvaise lumière met fin à l’essai.';
 
   @override
   String get mindScoringHint =>
@@ -938,15 +933,6 @@ class GamesL10nFr extends GamesL10n {
   String get mindUndo => 'Annuler';
 
   @override
-  String get mindReflexTarget => 'Cible';
-
-  @override
-  String get mindReflexWait => 'Attends…';
-
-  @override
-  String get mindReflexTap => 'Touche maintenant !';
-
-  @override
   String mindRight(int points) {
     return 'Juste · +$points';
   }
@@ -962,11 +948,6 @@ class GamesL10nFr extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Faux · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Trop tôt · −$points';
   }
 
   @override
@@ -1151,4 +1132,29 @@ class GamesL10nFr extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Les classements utilisent le système Glicko-2. « ? » indique un classement encore provisoire.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Niveau $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Observe les lumières';
+
+  @override
+  String get mindLightsRepeat => 'Touche-les dans l’ordre';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Lumière $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Justes';
+
+  @override
+  String get mindStatAverage => 'Par question';
+
+  @override
+  String get mindStatRating => 'Classement';
 }

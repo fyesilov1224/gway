@@ -857,11 +857,6 @@ class GamesL10nRu extends GamesL10n {
   String get mindNoMatchesTheirs => 'Дуэлей пока нет. Вызовите первым.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'Сыграйте рейтинговых дуэлей этой длины: $count, чтобы попасть в таблицу.';
-  }
-
-  @override
   String get mindChallengeTitle => 'Вызвать на дуэль';
 
   @override
@@ -894,7 +889,7 @@ class GamesL10nRu extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'Нажмите на цель, как только она появится. Раньше времени или мимо — минус очки.';
+      'Быстро нажми загоревшиеся огни в том же порядке. Неверный огонь завершает попытку.';
 
   @override
   String get mindScoringHint =>
@@ -948,15 +943,6 @@ class GamesL10nRu extends GamesL10n {
   String get mindUndo => 'Отменить';
 
   @override
-  String get mindReflexTarget => 'Цель';
-
-  @override
-  String get mindReflexWait => 'Ждите…';
-
-  @override
-  String get mindReflexTap => 'Жмите!';
-
-  @override
   String mindRight(int points) {
     return 'Верно · +$points';
   }
@@ -972,11 +958,6 @@ class GamesL10nRu extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'Неверно · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'Слишком рано · −$points';
   }
 
   @override
@@ -1159,4 +1140,29 @@ class GamesL10nRu extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'Рейтинг считается по системе Glicko-2. «?» означает, что рейтинг ещё предварительный.';
+
+  @override
+  String mindLevel(int level) {
+    return 'Уровень $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'Следи за огнями';
+
+  @override
+  String get mindLightsRepeat => 'Нажми по порядку';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'Огонь $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'Верно';
+
+  @override
+  String get mindStatAverage => 'За вопрос';
+
+  @override
+  String get mindStatRating => 'Рейтинг';
 }

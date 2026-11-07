@@ -1416,12 +1416,6 @@ abstract class GamesL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'Sıralamaya girmek için bu soru sayısında {count} puanlı düello oyna.'**
-  String mindLeaderboardEmpty(int count);
-
-  ///
-  ///
-  /// In tr, this message translates to:
   /// **'Düelloya davet et'**
   String get mindChallengeTitle;
 
@@ -1476,7 +1470,7 @@ abstract class GamesL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'Hedef belirince ona ilk sen dokun. Erken ya da yanlış dokunuş puan kaybettirir.'**
+  /// **'Yanan yuvarlaklara aynı sırayla, hızla dokun. Yanlış yuvarlak denemeyi bitirir.'**
   String get mindKindReflexHint;
 
   ///
@@ -1566,24 +1560,6 @@ abstract class GamesL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'Hedef'**
-  String get mindReflexTarget;
-
-  ///
-  ///
-  /// In tr, this message translates to:
-  /// **'Bekle…'**
-  String get mindReflexWait;
-
-  ///
-  ///
-  /// In tr, this message translates to:
-  /// **'Şimdi dokun!'**
-  String get mindReflexTap;
-
-  ///
-  ///
-  /// In tr, this message translates to:
   /// **'Doğru · +{points}'**
   String mindRight(int points);
 
@@ -1604,12 +1580,6 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Yanlış · −{points}'**
   String mindWrongPenalty(int points);
-
-  ///
-  ///
-  /// In tr, this message translates to:
-  /// **'Erken dokundun · −{points}'**
-  String mindTooEarly(int points);
 
   ///
   ///
@@ -1910,6 +1880,48 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.'**
   String get ratingSystemNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviye {level}'**
+  String mindLevel(int level);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Işıkları izle'**
+  String get mindLightsWatch;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Aynı sırayla dokun'**
+  String get mindLightsRepeat;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yuvarlak {number}'**
+  String mindLightLabel(int number);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğru'**
+  String get mindStatCorrect;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Soru başına'**
+  String get mindStatAverage;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan'**
+  String get mindStatRating;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

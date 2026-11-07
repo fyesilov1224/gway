@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(31);
 
 -- a and b dueled; c is an outsider; d is a suspended account; e is suspended from games only.
 insert into auth.users (id, email, aud, role)
@@ -28,10 +28,15 @@ insert into public.mind_answers (match_id, user_id, idx) values ('00000000-0000-
 insert into public.mind_seeks (user_id, length, rating) values (pg_temp.u('a'), 10, 1200);
 insert into public.mind_challenges (id, challenger_id, opponent_id, length, rated)
 values ('00000000-0000-0000-0000-00000000d1c1', pg_temp.u('a'), pg_temp.u('b'), 20, true);
-insert into public.mind_ratings (user_id, length, rating, games, wins)
-select pg_temp.u(s), 10, r, 6, 3
+insert into public.mind_ratings (user_id, length, rating, games, wins, deviation)
+select pg_temp.u(s), 10, r, 6, 3, 80
 from (values ('a', 1500), ('b', 1300), ('c', 1700), ('d', 1900), ('e', 2000)) v (s, r);
-insert into public.mind_ratings (user_id, length, rating, games) values (pg_temp.u('b'), 50, 1600, 4);
+-- b's 50-question rating is still provisional (RD above 110).
+insert into public.mind_ratings (user_id, length, rating, games, deviation) values (pg_temp.u('b'), 50, 1600, 4, 200);
+insert into public.mind_matches (id, a_id, b_id, length, rated, source, status, result, termination, a_rating, b_rating,
+                                 a_delta, b_delta, starts_at, deadline_at, ended_at)
+values ('00000000-0000-0000-0000-00000000d193', pg_temp.u('a'), pg_temp.u('b'), 10, true, 'seek', 'finished', 'a', 'completed',
+        1490, 1310, 10, -10, now() - interval '5 minutes', now() - interval '3 minutes', now() - interval '3 minutes');
 insert into public.chess_players (user_id, country, suspended_until, suspension_reason)
 values (pg_temp.u('e'), null, 'infinity', 'Hile'), (pg_temp.u('c'), 'NL', null, null);
 
@@ -63,13 +68,19 @@ select throws_ok(
     values ('00000000-0000-0000-0000-00000000d1ec', '00000000-0000-0000-0000-00000000d1eb', 5, true)$$,
   '42501', null, 'challenges go through the API');
 
--- The leaderboard: 5+ matches, not suspended from games, account visible.
+-- The leaderboard: a rated duel, not suspended from games, account visible; established ratings ranked.
 select results_eq(
   $$select username, rank from public.mind_leaderboard(10)$$,
   $$values ('mind_user_c', 1::bigint), ('mind_user_a', 2::bigint), ('mind_user_b', 3::bigint)$$,
   'ranked by rating; the hidden account and the suspended player are left out');
 select is((select country from public.mind_leaderboard(10) where username = 'mind_user_c'), 'NL', 'the games flag comes along');
-select is_empty($$select * from public.mind_leaderboard(50)$$, 'fewer than five rated matches is not ranked yet');
+select results_eq($$select username, rank, provisional from public.mind_leaderboard(50)$$,
+  $$values ('mind_user_b', null::bigint, true)$$, 'a provisional rating is listed without a rank');
+select is((select trend from public.mind_leaderboard(10) where username = 'mind_user_a'), 10, 'trend: rating change in 30 days');
+select is((select trend from public.mind_leaderboard(10) where username = 'mind_user_b'), -10, 'and a fall for the loser');
+select is((select trend from public.mind_leaderboard(10) where username = 'mind_user_c'), 0, 'no duels, no trend');
+select is((select provisional from public.mind_leaderboard(10) where username = 'mind_user_c'), false, 'RD 80 is established');
+select throws_ok($$update public.mind_ratings set deviation = 40$$, '42501', null, 'clients cannot change the deviation');
 select results_eq($$select length, rank from public.mind_ranks() order by length$$,
   $$values (5, null::bigint), (10, 1::bigint), (20, null::bigint), (50, null::bigint)$$, 'my place at each length');
 select results_eq($$select rank from public.mind_ranks('00000000-0000-0000-0000-00000000d1eb') where length = 10$$,
@@ -82,7 +93,7 @@ set local role authenticated;
 select throws_ok('select * from public.mind_questions', '42501', null, 'a player cannot read the questions');
 select throws_ok('select * from public.mind_answers', '42501', null, 'nor the answers');
 select is((select count(*)::int from public.mind_seeks), 1, 'a person sees their own seek');
-select is((select count(*)::int from public.mind_matches where pg_temp.u('a') in (a_id, b_id)), 2,
+select is((select count(*)::int from public.mind_matches where pg_temp.u('a') in (a_id, b_id)), 3,
   'a player sees their own matches, also against a hidden account');
 reset role;
 select pg_temp.act(pg_temp.u('b'));

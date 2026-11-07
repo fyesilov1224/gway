@@ -794,11 +794,6 @@ class GamesL10nAr extends GamesL10n {
   String get mindNoMatchesTheirs => 'لا مبارزات بعد. كن أول من يتحداه.';
 
   @override
-  String mindLeaderboardEmpty(int count) {
-    return 'العب $count مبارزات مصنفة بهذا الطول لدخول الترتيب.';
-  }
-
-  @override
   String get mindChallengeTitle => 'تحدَّ في مبارزة';
 
   @override
@@ -829,7 +824,7 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get mindKindReflexHint =>
-      'المس الهدف فور ظهوره. اللمس المبكر أو الخاطئ يُفقدك نقاطًا.';
+      'المس الأضواء التي أضاءت بالترتيب نفسه وبسرعة. الضوء الخطأ ينهي المحاولة.';
 
   @override
   String get mindScoringHint =>
@@ -883,15 +878,6 @@ class GamesL10nAr extends GamesL10n {
   String get mindUndo => 'تراجع';
 
   @override
-  String get mindReflexTarget => 'الهدف';
-
-  @override
-  String get mindReflexWait => 'انتظر…';
-
-  @override
-  String get mindReflexTap => 'المس الآن!';
-
-  @override
   String mindRight(int points) {
     return 'صحيح · +$points';
   }
@@ -907,11 +893,6 @@ class GamesL10nAr extends GamesL10n {
   @override
   String mindWrongPenalty(int points) {
     return 'خطأ · −$points';
-  }
-
-  @override
-  String mindTooEarly(int points) {
-    return 'مبكر جدًا · −$points';
   }
 
   @override
@@ -1090,4 +1071,29 @@ class GamesL10nAr extends GamesL10n {
   @override
   String get ratingSystemNote =>
       'تُحسب التصنيفات بنظام Glicko-2. علامة \"?\" تعني أن التصنيف لم يستقر بعد.';
+
+  @override
+  String mindLevel(int level) {
+    return 'المستوى $level';
+  }
+
+  @override
+  String get mindLightsWatch => 'راقب الأضواء';
+
+  @override
+  String get mindLightsRepeat => 'المسها بالترتيب';
+
+  @override
+  String mindLightLabel(int number) {
+    return 'الضوء $number';
+  }
+
+  @override
+  String get mindStatCorrect => 'صحيح';
+
+  @override
+  String get mindStatAverage => 'لكل سؤال';
+
+  @override
+  String get mindStatRating => 'التصنيف';
 }

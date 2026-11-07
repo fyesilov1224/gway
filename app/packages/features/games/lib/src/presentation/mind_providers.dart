@@ -181,7 +181,10 @@ class MindMatchController extends AsyncNotifier<MindMatchState> {
 
   void _invalidateLists() {
     final me = _me;
-    ref.invalidate(mindActiveProvider);
+    ref
+      ..invalidate(mindActiveProvider)
+      // The result moved ratings: the leaderboard shows it at once.
+      ..invalidate(mindLeaderboardProvider);
     if (me != null) {
       ref.invalidate(mindRecentProvider(me));
       ref.invalidate(mindProfileProvider(me));
