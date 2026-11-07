@@ -10,6 +10,8 @@ import 'chess_board.dart';
 
 /// The piece sets on offer, each with a license that allows a closed-source app (docs/ARCHITECTURE.md §3i, lisanslar).
 enum PieceStyle {
+  pro('pro'),
+  paper('papercut'),
   classic('classic'),
   celtic('celtic'),
   spatial('spatial'),
@@ -23,6 +25,8 @@ enum PieceStyle {
   final String folder;
 
   String get label => switch (this) {
+        pro => gamesL10n.piecesPro,
+        paper => gamesL10n.piecesPaper,
         classic => gamesL10n.piecesClassic,
         celtic => gamesL10n.piecesCeltic,
         spatial => gamesL10n.piecesSpatial,
@@ -53,7 +57,7 @@ class ChessAppearanceNotifier extends Notifier<ChessAppearance> {
   ChessAppearance build() {
     final prefs = ref.watch(languagePreferencesProvider);
     final board = GwBoardTheme.values.where((t) => t.name == prefs?.getString(_boardKey)).firstOrNull ?? GwBoardTheme.wood;
-    final pieces = PieceStyle.values.where((p) => p.name == prefs?.getString(_piecesKey)).firstOrNull ?? PieceStyle.classic;
+    final pieces = PieceStyle.values.where((p) => p.name == prefs?.getString(_piecesKey)).firstOrNull ?? PieceStyle.pro;
     return (board: board, pieces: pieces);
   }
 

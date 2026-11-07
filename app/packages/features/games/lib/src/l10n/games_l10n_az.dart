@@ -243,11 +243,6 @@ class GamesL10nAz extends GamesL10n {
   String get leaderboard => 'Sıralama';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Sıralamaya düşmək üçün bu növdə $count reytinqli oyun oyna.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}Q · ${draws}H · ${losses}M';
   }
@@ -991,4 +986,103 @@ class GamesL10nAz extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Yaxınlaşan turnir yoxdur.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Kağız';
+
+  @override
+  String get levelTitle => 'Şahmat səviyyəni seç';
+
+  @override
+  String get levelBody =>
+      'Reytinqin seçdiyin səviyyədən başlayır və ilk oyunlarda real gücünə tez uyğunlaşır.';
+
+  @override
+  String get levelPrompt => 'İlk reytinqli oyundan əvvəl bir dəfə seçilir.';
+
+  @override
+  String get levelNew => 'Yeni başlayan';
+
+  @override
+  String get levelNewHint => 'Fiqurların necə gediş etdiyini öyrənirəm.';
+
+  @override
+  String get levelBeginner => 'Başlanğıc';
+
+  @override
+  String get levelBeginnerHint => 'Qaydaları bilirəm, arabir oynayıram.';
+
+  @override
+  String get levelIntermediate => 'Orta';
+
+  @override
+  String get levelIntermediateHint =>
+      'Müntəzəm oynayıram, əsas taktikaları bilirəm.';
+
+  @override
+  String get levelAdvanced => 'İrəli';
+
+  @override
+  String get levelAdvancedHint => 'Debüt və endşpil biliyim yaxşıdır.';
+
+  @override
+  String get levelMaster => 'Usta';
+
+  @override
+  String get levelMasterHint => 'Turnirlərdə oynayıram.';
+
+  @override
+  String get levelNote => 'Reytinqli oyundan sonra səviyyə dəyişdirilə bilməz.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Səviyyən yadda saxlanıldı: $rating reytinqlə başlayırsan.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'Bu növdə hələ reytinqli oyun yoxdur. İlk oyunu sən oyna.';
+
+  @override
+  String get leaderboardSettling =>
+      'Reytinqlər ilk oyunlarda oturur; ilk yerlər tezliklə burada görünəcək.';
+
+  @override
+  String get provisionalPlayers => 'Reytinqi oturan oyunçular';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Müvəqqəti reytinq (?); bir neçə oyundan sonra sıralamaya düşür.';
+
+  @override
+  String get provisionalShort => 'Müvəqqəti';
+
+  @override
+  String get yourPlace => 'Sənin yerin';
+
+  @override
+  String get columnPlayer => 'Oyunçu';
+
+  @override
+  String get column30Days => '30 gün';
+
+  @override
+  String get columnRating => 'Reytinq';
+
+  @override
+  String winRate(int percent) {
+    return '%$percent xal';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Ən yüksək $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Reytinqlər Glicko-2 sistemi ilə hesablanır. \"?\" reytinqin hələ oturmadığını göstərir.';
 }

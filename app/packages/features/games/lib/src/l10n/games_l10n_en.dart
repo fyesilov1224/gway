@@ -258,11 +258,6 @@ class GamesL10nEn extends GamesL10n {
   String get leaderboard => 'Leaderboard';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Play $count rated games in this category to join the leaderboard.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}W · ${draws}D · ${losses}L';
   }
@@ -1049,4 +1044,104 @@ class GamesL10nEn extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'No upcoming tournaments.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Paper';
+
+  @override
+  String get levelTitle => 'Choose your chess level';
+
+  @override
+  String get levelBody =>
+      'Your rating starts at the level you choose and settles quickly to your real strength in your first games.';
+
+  @override
+  String get levelPrompt => 'Chosen once, before your first rated game.';
+
+  @override
+  String get levelNew => 'New to chess';
+
+  @override
+  String get levelNewHint => 'I am learning how the pieces move.';
+
+  @override
+  String get levelBeginner => 'Beginner';
+
+  @override
+  String get levelBeginnerHint => 'I know the rules and play now and then.';
+
+  @override
+  String get levelIntermediate => 'Intermediate';
+
+  @override
+  String get levelIntermediateHint =>
+      'I play regularly and know basic tactics.';
+
+  @override
+  String get levelAdvanced => 'Advanced';
+
+  @override
+  String get levelAdvancedHint => 'I know my openings and endgames well.';
+
+  @override
+  String get levelMaster => 'Expert';
+
+  @override
+  String get levelMasterHint => 'I play in tournaments.';
+
+  @override
+  String get levelNote =>
+      'Once you have played a rated game, the level can no longer be changed.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Level saved: you start at $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'No rated games in this category yet. Play the first one.';
+
+  @override
+  String get leaderboardSettling =>
+      'Ratings are settling in the first games; the top places will show here soon.';
+
+  @override
+  String get provisionalPlayers => 'Ratings still settling';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Provisional rating (?); joins the ranking after a few games.';
+
+  @override
+  String get provisionalShort => 'Provisional';
+
+  @override
+  String get yourPlace => 'Your place';
+
+  @override
+  String get columnPlayer => 'Player';
+
+  @override
+  String get column30Days => '30 days';
+
+  @override
+  String get columnRating => 'Rating';
+
+  @override
+  String winRate(int percent) {
+    return '$percent% score';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Peak $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Ratings use the Glicko-2 system. \"?\" means the rating has not settled yet.';
 }

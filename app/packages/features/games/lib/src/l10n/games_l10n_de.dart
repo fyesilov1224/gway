@@ -258,11 +258,6 @@ class GamesL10nDe extends GamesL10n {
   String get leaderboard => 'Rangliste';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Spiele $count gewertete Partien in dieser Kategorie, um in die Rangliste zu kommen.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}S · ${draws}R · ${losses}N';
   }
@@ -1051,4 +1046,105 @@ class GamesL10nDe extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Keine anstehenden Turniere.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Papier';
+
+  @override
+  String get levelTitle => 'Wähle deine Schachstärke';
+
+  @override
+  String get levelBody =>
+      'Deine Wertung beginnt bei der gewählten Stufe und passt sich in den ersten Partien schnell deiner echten Stärke an.';
+
+  @override
+  String get levelPrompt =>
+      'Wird einmal vor deiner ersten gewerteten Partie gewählt.';
+
+  @override
+  String get levelNew => 'Neu im Schach';
+
+  @override
+  String get levelNewHint => 'Ich lerne, wie die Figuren ziehen.';
+
+  @override
+  String get levelBeginner => 'Anfänger';
+
+  @override
+  String get levelBeginnerHint => 'Ich kenne die Regeln und spiele ab und zu.';
+
+  @override
+  String get levelIntermediate => 'Fortgeschritten';
+
+  @override
+  String get levelIntermediateHint =>
+      'Ich spiele regelmäßig und kenne Grundtaktiken.';
+
+  @override
+  String get levelAdvanced => 'Erfahren';
+
+  @override
+  String get levelAdvancedHint => 'Ich kenne Eröffnungen und Endspiele gut.';
+
+  @override
+  String get levelMaster => 'Experte';
+
+  @override
+  String get levelMasterHint => 'Ich spiele Turniere.';
+
+  @override
+  String get levelNote =>
+      'Nach einer gewerteten Partie kann die Stufe nicht mehr geändert werden.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Stufe gespeichert: Du beginnst mit $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'In dieser Kategorie gibt es noch keine gewerteten Partien. Spiel die erste.';
+
+  @override
+  String get leaderboardSettling =>
+      'Die Wertungen pendeln sich in den ersten Partien ein; die Spitze erscheint bald hier.';
+
+  @override
+  String get provisionalPlayers => 'Wertung pendelt sich ein';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Vorläufige Wertung (?); nach einigen Partien in der Rangliste.';
+
+  @override
+  String get provisionalShort => 'Vorläufig';
+
+  @override
+  String get yourPlace => 'Dein Platz';
+
+  @override
+  String get columnPlayer => 'Spieler';
+
+  @override
+  String get column30Days => '30 Tage';
+
+  @override
+  String get columnRating => 'Wertung';
+
+  @override
+  String winRate(int percent) {
+    return '$percent % Punkte';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Höchste $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Wertungen nach dem Glicko-2-System. „?“ bedeutet: Die Wertung ist noch vorläufig.';
 }

@@ -258,11 +258,6 @@ class GamesL10nIt extends GamesL10n {
   String get leaderboard => 'Classifica';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Gioca $count partite classificate in questa categoria per entrare in classifica.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}V · ${draws}P · ${losses}S';
   }
@@ -1051,4 +1046,105 @@ class GamesL10nIt extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Nessun torneo in arrivo.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Carta';
+
+  @override
+  String get levelTitle => 'Scegli il tuo livello di scacchi';
+
+  @override
+  String get levelBody =>
+      'Il tuo punteggio parte dal livello scelto e si adatta presto alla tua vera forza nelle prime partite.';
+
+  @override
+  String get levelPrompt =>
+      'Si sceglie una volta, prima della prima partita valutata.';
+
+  @override
+  String get levelNew => 'Nuovo agli scacchi';
+
+  @override
+  String get levelNewHint => 'Sto imparando come si muovono i pezzi.';
+
+  @override
+  String get levelBeginner => 'Principiante';
+
+  @override
+  String get levelBeginnerHint => 'Conosco le regole e gioco ogni tanto.';
+
+  @override
+  String get levelIntermediate => 'Intermedio';
+
+  @override
+  String get levelIntermediateHint =>
+      'Gioco spesso e conosco la tattica di base.';
+
+  @override
+  String get levelAdvanced => 'Avanzato';
+
+  @override
+  String get levelAdvancedHint => 'Conosco bene aperture e finali.';
+
+  @override
+  String get levelMaster => 'Esperto';
+
+  @override
+  String get levelMasterHint => 'Gioco nei tornei.';
+
+  @override
+  String get levelNote =>
+      'Dopo una partita valutata il livello non si può più cambiare.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Livello salvato: parti da $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'Nessuna partita valutata in questa categoria. Gioca la prima.';
+
+  @override
+  String get leaderboardSettling =>
+      'I punteggi si assestano nelle prime partite; presto qui i primi posti.';
+
+  @override
+  String get provisionalPlayers => 'Punteggi in assestamento';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Punteggio provvisorio (?); entra in classifica dopo qualche partita.';
+
+  @override
+  String get provisionalShort => 'Provvisorio';
+
+  @override
+  String get yourPlace => 'La tua posizione';
+
+  @override
+  String get columnPlayer => 'Giocatore';
+
+  @override
+  String get column30Days => '30 giorni';
+
+  @override
+  String get columnRating => 'Punteggio';
+
+  @override
+  String winRate(int percent) {
+    return '$percent% di punti';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Max $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'I punteggi usano il sistema Glicko-2. \"?\" indica un punteggio ancora provvisorio.';
 }

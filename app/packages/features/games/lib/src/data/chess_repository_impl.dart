@@ -63,6 +63,7 @@ class ChessRepositoryImpl implements ChessRepository {
                 wins: r['wins'] as int,
                 draws: r['draws'] as int,
                 losses: r['losses'] as int,
+                deviation: (r['deviation'] as num).toDouble(),
               ),
           },
           ranks: {for (final r in ranks.cast<Map<String, dynamic>>()) ChessCategory.parse(r['category']): (r['rank'] as num?)?.toInt()},
@@ -80,13 +81,16 @@ class ChessRepositoryImpl implements ChessRepository {
       });
 
   @override
+  Future<Result<void>> setLevel(int rating) => _api.post('/games/chess/level', body: {'rating': rating}, decode: (_) {});
+
+  @override
   Future<Result<List<LeaderboardEntry>>> leaderboard(ChessCategory category, {int offset = 0, int pageSize = 50}) => _run(() async {
         final rows = await _client.rpc<List<dynamic>>('chess_leaderboard',
             params: {'target_category': category.code, 'page_size': pageSize, 'page_offset': offset});
         return [
           for (final r in rows.cast<Map<String, dynamic>>())
             LeaderboardEntry(
-              rank: (r['rank'] as num).toInt(),
+              rank: (r['rank'] as num?)?.toInt() ?? 0,
               player: ChessPlayer(
                 userId: r['user_id'] as String,
                 username: r['username'] as String,
@@ -99,6 +103,8 @@ class ChessRepositoryImpl implements ChessRepository {
               wins: r['wins'] as int,
               draws: r['draws'] as int,
               losses: r['losses'] as int,
+              provisional: r['provisional'] as bool,
+              trend: r['trend'] as int,
             ),
         ];
       });

@@ -50,8 +50,10 @@ class _FakeChess implements ChessRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-LeaderboardEntry _entry(int rank, String name, int rating, {String? country}) => LeaderboardEntry(
+LeaderboardEntry _entry(int rank, String name, int rating, {String? country, bool provisional = false, int? trend}) => LeaderboardEntry(
       rank: rank,
+      provisional: provisional,
+      trend: trend,
       player: ChessPlayer(userId: 'u$rank', username: name.toLowerCase(), displayName: name, country: country),
       rating: rating,
       games: 20,
@@ -170,11 +172,16 @@ void main() {
 
   testWidgets('the leaderboard puts the top three on a podium with medals', (tester) async {
     final semantics = tester.ensureSemantics();
+    // Tall enough for the whole board, the provisional list included.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final repo = _FakeChess([
       _entry(1, 'Deniz', 2105, country: 'TR'),
       _entry(2, 'Lena', 2010, country: 'DE'),
       _entry(3, 'Hugo', 1990, country: 'FR'),
-      _entry(4, 'Ayşe', 1800),
+      _entry(4, 'Ayşe', 1800, trend: 24),
+      _entry(0, 'Yeni', 1650, provisional: true),
     ]);
     final router = GoRouter(routes: [GoRoute(path: '/', builder: (_, _) => const ChessLeaderboardScreen())]);
     await tester.pumpWidget(ProviderScope(
@@ -191,7 +198,15 @@ void main() {
     expect(find.bySemanticsLabel(RegExp(gamesL10n.medalBronze)), findsOneWidget);
     expect(find.text('2105'), findsOneWidget);
     expect(find.text('Ayşe'), findsOneWidget);
-    expect(find.text(gamesL10n.record(10, 4, 6)), findsOneWidget);
+    // A table row: record and score percentage, the month's change, the rating.
+    expect(find.text('${gamesL10n.record(10, 4, 6)} · ${gamesL10n.winRate(60)}'), findsNWidgets(2));
+    expect(find.text('+24'), findsNWidgets(2));
+    // The reader (u4) sees their own place on top.
+    expect(find.text(gamesL10n.yourPlace), findsOneWidget);
+    expect(find.text('#4'), findsOneWidget);
+    // A provisional rating is listed apart, with "?" and without a place.
+    expect(find.text(gamesL10n.provisionalPlayers), findsOneWidget);
+    expect(find.text('1650?'), findsOneWidget);
     semantics.dispose();
   });
 }

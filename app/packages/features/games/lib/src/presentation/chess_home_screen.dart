@@ -109,6 +109,29 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
 
     final main = <Widget>[
       if (active != null) ...[_ResumeBanner(game: active), const SizedBox(height: GwSpacing.md)],
+      if (needsChessLevel(profile.value)) ...[
+        GwCard(
+          onTap: () => showLevelPicker(context, ref),
+          padding: const EdgeInsets.all(GwSpacing.md),
+          child: Row(
+            children: [
+              const Icon(Icons.speed_rounded, color: GwColors.primary),
+              const SizedBox(width: GwSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(gamesL10n.levelTitle, style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(gamesL10n.levelPrompt, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
+            ],
+          ),
+        ),
+        const SizedBox(height: GwSpacing.md),
+      ],
       _PlayPanel(selected: _tc, onSelect: (tc) => setState(() => _tc = tc)),
       const SizedBox(height: GwSpacing.md),
       LayoutBuilder(
@@ -187,14 +210,14 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
       ),
       const SizedBox(height: GwSpacing.xs),
       switch (top) {
-        AsyncData(:final value) when value.isEmpty => Text(
-            gamesL10n.leaderboardEmpty(ChessRating.rankedAfter),
+        AsyncData(:final value) when value.every((e) => e.provisional) => Text(
+            gamesL10n.leaderboardSettling,
             style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
           ),
         AsyncData(:final value) => GwCard(
             child: Column(
               children: [
-                for (final (i, e) in value.take(5).indexed) ...[
+                for (final (i, e) in value.where((e) => !e.provisional).take(5).indexed) ...[
                   if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
                   InkWell(
                     onTap: () => context.push(ChessRoutes.player(e.player.userId)),
@@ -205,6 +228,7 @@ class _ChessHomeScreenState extends ConsumerState<ChessHomeScreen> {
                           RankBadge(rank: e.rank, size: GwSpacing.lg + GwSpacing.xxs),
                           const SizedBox(width: GwSpacing.sm),
                           Expanded(child: ChessPlayerLine(player: e.player, size: GwAvatarSize.sm)),
+                          if (e.trend case final t? when t != 0) ...[RatingDelta(t), const SizedBox(width: GwSpacing.xs)],
                           Text('${e.rating}', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                         ],
                       ),
@@ -343,7 +367,9 @@ class _PlayPanel extends ConsumerWidget {
             label: gamesL10n.findOpponent(selected.label),
             icon: Icons.play_arrow_rounded,
             expand: true,
-            onPressed: () => context.push(ChessRoutes.seek(selected)),
+            onPressed: () async {
+              if (await ensureChessLevel(context, ref) && context.mounted) unawaited(context.push(ChessRoutes.seek(selected)));
+            },
           ),
         ],
       ),
@@ -525,6 +551,12 @@ class _ChallengeCardState extends ConsumerState<_ChallengeCard> {
     ref.invalidate(challengesProvider);
   }
 
+  /// A rated invitation asks for the starting level first, once.
+  Future<void> _accept(ChessChallenge c) async {
+    if (c.rated && !await ensureChessLevel(context, ref)) return;
+    if (mounted) await _run(() => ref.read(chessRepositoryProvider).accept(c.id), open: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = widget.challenge;
@@ -549,7 +581,7 @@ class _ChallengeCardState extends ConsumerState<_ChallengeCard> {
                 ? [
                     TextButton(onPressed: _busy ? null : () => _run(() => repo.decline(c.id)), child: Text(gamesL10n.decline)),
                     const SizedBox(width: GwSpacing.xs),
-                    FilledButton(onPressed: _busy ? null : () => _run(() => repo.accept(c.id), open: true), child: Text(gamesL10n.accept)),
+                    FilledButton(onPressed: _busy ? null : () => _accept(c), child: Text(gamesL10n.accept)),
                   ]
                 : [TextButton(onPressed: _busy ? null : () => _run(() => repo.cancelChallenge(c.id)), child: Text(gamesL10n.withdraw))],
           ),

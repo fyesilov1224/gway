@@ -323,15 +323,6 @@
   "@leaderboard": {
     "description": ""
   },
-  "leaderboardEmpty": "Sıralamaya girmek için bu türde {count} puanlı oyun oyna.",
-  "@leaderboardEmpty": {
-    "description": "",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "record": "{wins}G · {draws}B · {losses}M",
   "@record": {
     "description": "",
@@ -1370,6 +1361,137 @@
   },
   "mindNoTournaments": "Yaklaşan turnuva yok.",
   "@mindNoTournaments": {
+    "description": ""
+  },
+  "piecesPro": "Pro",
+  "@piecesPro": {
+    "description": ""
+  },
+  "piecesPaper": "Kâğıt",
+  "@piecesPaper": {
+    "description": ""
+  },
+  "levelTitle": "Satranç seviyeni seç",
+  "@levelTitle": {
+    "description": ""
+  },
+  "levelBody": "Puanın seçtiğin seviyeden başlar ve ilk oyunlarında gerçek seviyene hızla oturur.",
+  "@levelBody": {
+    "description": ""
+  },
+  "levelPrompt": "İlk puanlı oyunundan önce bir kez seçilir.",
+  "@levelPrompt": {
+    "description": ""
+  },
+  "levelNew": "Yeni başlayan",
+  "@levelNew": {
+    "description": ""
+  },
+  "levelNewHint": "Taşların nasıl oynadığını öğreniyorum.",
+  "@levelNewHint": {
+    "description": ""
+  },
+  "levelBeginner": "Başlangıç",
+  "@levelBeginner": {
+    "description": ""
+  },
+  "levelBeginnerHint": "Kuralları biliyorum, ara sıra oynarım.",
+  "@levelBeginnerHint": {
+    "description": ""
+  },
+  "levelIntermediate": "Orta",
+  "@levelIntermediate": {
+    "description": ""
+  },
+  "levelIntermediateHint": "Düzenli oynarım, temel taktikleri bilirim.",
+  "@levelIntermediateHint": {
+    "description": ""
+  },
+  "levelAdvanced": "İleri",
+  "@levelAdvanced": {
+    "description": ""
+  },
+  "levelAdvancedHint": "Açılış ve oyun sonu bilgim iyi.",
+  "@levelAdvancedHint": {
+    "description": ""
+  },
+  "levelMaster": "Usta",
+  "@levelMaster": {
+    "description": ""
+  },
+  "levelMasterHint": "Turnuvalarda oynarım.",
+  "@levelMasterHint": {
+    "description": ""
+  },
+  "levelNote": "Puanlı oyun oynadıktan sonra seviye değiştirilemez.",
+  "@levelNote": {
+    "description": ""
+  },
+  "levelSaved": "Seviyen kaydedildi: {rating} puanla başlıyorsun.",
+  "@levelSaved": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "leaderboardNoGames": "Bu türde henüz puanlı oyun yok. İlk oyunu sen oyna.",
+  "@leaderboardNoGames": {
+    "description": ""
+  },
+  "leaderboardSettling": "Puanlar ilk oyunlarda oturuyor; ilk sıralar yakında burada.",
+  "@leaderboardSettling": {
+    "description": ""
+  },
+  "provisionalPlayers": "Puanı oturan oyuncular",
+  "@provisionalPlayers": {
+    "description": ""
+  },
+  "provisionalPlayersHint": "Puan geçici (?); birkaç oyun sonra sıralamaya girer.",
+  "@provisionalPlayersHint": {
+    "description": ""
+  },
+  "provisionalShort": "Geçici puan",
+  "@provisionalShort": {
+    "description": ""
+  },
+  "yourPlace": "Senin sıran",
+  "@yourPlace": {
+    "description": ""
+  },
+  "columnPlayer": "Oyuncu",
+  "@columnPlayer": {
+    "description": ""
+  },
+  "column30Days": "30 gün",
+  "@column30Days": {
+    "description": ""
+  },
+  "columnRating": "Puan",
+  "@columnRating": {
+    "description": ""
+  },
+  "winRate": "%{percent} skor",
+  "@winRate": {
+    "description": "",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "peakRating": "En yüksek {rating}",
+  "@peakRating": {
+    "description": "",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingSystemNote": "Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.",
+  "@ratingSystemNote": {
     "description": ""
   }
 }

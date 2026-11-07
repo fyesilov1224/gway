@@ -32,6 +32,103 @@ Future<void> showCountryPicker(BuildContext context, WidgetRef ref, {String? cur
   ));
 }
 
+/// Whether the person still has to pick a starting level: no rating row in any category yet.
+bool needsChessLevel(ChessProfile? profile) => profile != null && profile.ratings.isEmpty;
+
+/// Before the first rated game: asks once for the starting level (docs/ARCHITECTURE.md §3i, Puan). True when the
+/// person may go on (a level is set, or none was needed); false when they closed the sheet.
+Future<bool> ensureChessLevel(BuildContext context, WidgetRef ref) async {
+  final me = ref.read(currentUserIdProvider);
+  if (me == null) return false;
+  final profile = await ref.read(chessProfileProvider(me).future).then<ChessProfile?>((p) => p, onError: (_) => null);
+  if (!needsChessLevel(profile) || !context.mounted) return true;
+  return showLevelPicker(context, ref);
+}
+
+/// The five starting levels; saves the choice and refreshes the person's card. True when saved.
+Future<bool> showLevelPicker(BuildContext context, WidgetRef ref) async {
+  final rating = await showModalBottomSheet<int>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (_) => const _LevelPicker(),
+  );
+  if (rating == null || !context.mounted) return false;
+  final result = await ref.read(chessRepositoryProvider).setLevel(rating);
+  if (!context.mounted) return false;
+  final me = ref.read(currentUserIdProvider);
+  if (me != null) ref.invalidate(chessProfileProvider(me));
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(switch (result) {
+      Ok() => gamesL10n.levelSaved(rating),
+      Err(:final failure) => failure.userMessage,
+    }),
+  ));
+  return result is Ok;
+}
+
+class _LevelPicker extends StatelessWidget {
+  const _LevelPicker();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final levels = [
+      (400, Icons.child_care_rounded, gamesL10n.levelNew, gamesL10n.levelNewHint),
+      (800, Icons.school_outlined, gamesL10n.levelBeginner, gamesL10n.levelBeginnerHint),
+      (1200, Icons.trending_up_rounded, gamesL10n.levelIntermediate, gamesL10n.levelIntermediateHint),
+      (1600, Icons.workspace_premium_outlined, gamesL10n.levelAdvanced, gamesL10n.levelAdvancedHint),
+      (2000, Icons.military_tech_outlined, gamesL10n.levelMaster, gamesL10n.levelMasterHint),
+    ];
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(GwSpacing.lg, 0, GwSpacing.lg, GwSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(gamesL10n.levelTitle, style: textTheme.titleLarge),
+            const SizedBox(height: GwSpacing.xxs),
+            Text(gamesL10n.levelBody, style: textTheme.bodyMedium?.copyWith(color: GwColors.textSecondary)),
+            const SizedBox(height: GwSpacing.md),
+            for (final (rating, icon, title, hint) in levels)
+              Padding(
+                padding: const EdgeInsets.only(bottom: GwSpacing.xs),
+                child: GwCard(
+                  radius: GwRadius.lgAll,
+                  onTap: () => Navigator.of(context).pop(rating),
+                  padding: const EdgeInsets.all(GwSpacing.sm),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(GwSpacing.xs),
+                        decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.mdAll),
+                        child: Icon(icon, color: GwColors.primary),
+                      ),
+                      const SizedBox(width: GwSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(title, style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                            Text(hint, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: GwSpacing.sm),
+                      Text('$rating', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()])),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: GwSpacing.xs),
+            Text(gamesL10n.levelNote, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CountryPicker extends StatefulWidget {
   const _CountryPicker({this.current});
 
@@ -158,6 +255,8 @@ class _ChallengeSheetState extends ConsumerState<_ChallengeSheet> {
   Future<void> _send() async {
     final opponent = _opponent;
     if (opponent == null) return;
+    if (_rated && !await ensureChessLevel(context, ref)) return;
+    if (!mounted) return;
     setState(() {
       _sending = true;
       _error = null;

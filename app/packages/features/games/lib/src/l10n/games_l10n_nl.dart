@@ -256,11 +256,6 @@ class GamesL10nNl extends GamesL10n {
   String get leaderboard => 'Ranglijst';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Speel $count ratingpartijen in deze categorie om in de ranglijst te komen.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}W · ${draws}R · ${losses}V';
   }
@@ -1048,4 +1043,105 @@ class GamesL10nNl extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Geen komende toernooien.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Papier';
+
+  @override
+  String get levelTitle => 'Kies je schaakniveau';
+
+  @override
+  String get levelBody =>
+      'Je rating begint bij het gekozen niveau en past zich in je eerste partijen snel aan je echte sterkte aan.';
+
+  @override
+  String get levelPrompt =>
+      'Eén keer kiezen, vóór je eerste gewaardeerde partij.';
+
+  @override
+  String get levelNew => 'Nieuw met schaken';
+
+  @override
+  String get levelNewHint => 'Ik leer hoe de stukken bewegen.';
+
+  @override
+  String get levelBeginner => 'Beginner';
+
+  @override
+  String get levelBeginnerHint => 'Ik ken de regels en speel af en toe.';
+
+  @override
+  String get levelIntermediate => 'Gemiddeld';
+
+  @override
+  String get levelIntermediateHint =>
+      'Ik speel geregeld en ken de basistactiek.';
+
+  @override
+  String get levelAdvanced => 'Gevorderd';
+
+  @override
+  String get levelAdvancedHint => 'Ik ken openingen en eindspelen goed.';
+
+  @override
+  String get levelMaster => 'Expert';
+
+  @override
+  String get levelMasterHint => 'Ik speel toernooien.';
+
+  @override
+  String get levelNote =>
+      'Na een gewaardeerde partij kan het niveau niet meer worden gewijzigd.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Niveau opgeslagen: je begint met $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'Nog geen gewaardeerde partijen in deze categorie. Speel de eerste.';
+
+  @override
+  String get leaderboardSettling =>
+      'Ratings komen in de eerste partijen tot rust; de top verschijnt hier binnenkort.';
+
+  @override
+  String get provisionalPlayers => 'Ratings nog voorlopig';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Voorlopige rating (?); komt na enkele partijen in de ranglijst.';
+
+  @override
+  String get provisionalShort => 'Voorlopig';
+
+  @override
+  String get yourPlace => 'Jouw plaats';
+
+  @override
+  String get columnPlayer => 'Speler';
+
+  @override
+  String get column30Days => '30 dagen';
+
+  @override
+  String get columnRating => 'Rating';
+
+  @override
+  String winRate(int percent) {
+    return '$percent% score';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Hoogste $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Ratings volgen het Glicko-2-systeem. \"?\" betekent dat de rating nog voorlopig is.';
 }

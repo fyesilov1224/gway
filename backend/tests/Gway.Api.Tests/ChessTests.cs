@@ -44,6 +44,61 @@ public sealed class ChessRulesTests
     public void Ratings_never_go_under_one_hundred() =>
         Assert.Equal(-10, ChessRules.EloDeltas(110, 0, 110, 0, 0).White);
 
+    private static readonly ChessRules.Glicko NewPlayer = new(1500, ChessRules.StartDeviation, ChessRules.StartVolatility);
+
+    [Fact]
+    public void Glicko2_moves_a_new_rating_fast_and_an_established_one_slowly()
+    {
+        // Reference values computed independently from Glickman's Glicko-2 steps (tau 0.75).
+        var win = ChessRules.Glicko2(NewPlayer, NewPlayer, 1);
+        Assert.Equal(1662.3, win.Rating, 1);
+        Assert.Equal(290.3, win.Deviation, 1);
+        Assert.Equal(0.06, win.Volatility, 3);
+        var draw = ChessRules.Glicko2(NewPlayer, NewPlayer, 0.5);
+        Assert.Equal(1500, draw.Rating, 6);
+
+        var steady = new ChessRules.Glicko(1500, 60, 0.06);
+        Assert.Equal(1510.2, ChessRules.Glicko2(steady, steady, 1).Rating, 1);
+    }
+
+    [Fact]
+    public void Glicko2_pays_more_for_an_upset()
+    {
+        var low = new ChessRules.Glicko(1200, 80, 0.06);
+        var high = new ChessRules.Glicko(1600, 80, 0.06);
+        Assert.Equal(1232.2, ChessRules.Glicko2(low, high, 1).Rating, 1);
+        Assert.Equal(1603.5, ChessRules.Glicko2(high, low, 1).Rating, 1);
+    }
+
+    [Fact]
+    public void Glicko2_rating_is_provisional_until_the_deviation_settles()
+    {
+        var player = NewPlayer;
+        var opponent = new ChessRules.Glicko(1500, 80, 0.06);
+        var games = 0;
+        while (player.Deviation > ChessRules.ProvisionalDeviation)
+        {
+            player = ChessRules.Glicko2(player, opponent, 0.5);
+            games++;
+        }
+        Assert.Equal(10, games);
+        Assert.True(player.Deviation >= ChessRules.MinDeviation);
+    }
+
+    [Fact]
+    public void Idle_days_widen_the_deviation_up_to_the_start()
+    {
+        var settled = new ChessRules.Glicko(1800, 60, 0.06);
+        Assert.Equal(60, ChessRules.Idle(settled, 0).Deviation);
+        var year = ChessRules.Idle(settled, 365).Deviation;
+        Assert.True(year > 60 && year < ChessRules.StartDeviation);
+        Assert.Equal(ChessRules.StartDeviation, ChessRules.Idle(settled, 100_000).Deviation);
+    }
+
+    [Fact]
+    public void Glicko2_never_goes_under_one_hundred() =>
+        Assert.Equal(ChessRules.MinRating, ChessRules.Glicko2(new ChessRules.Glicko(110, 350, 0.06), new ChessRules.Glicko(110, 350, 0.06), 0).Rating);
+
     [Fact]
     public void Moves_are_validated_and_checkmate_ends_the_game()
     {
@@ -125,6 +180,25 @@ public sealed class ChessTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
         factory.ClientFor(user).PostAsJsonAsync(Path($"/games/chess/{game}/moves"), new MoveRequest(uci, ply), Ct);
 
     [Fact]
+    public async Task The_starting_level_is_chosen_once_before_any_rated_game()
+    {
+        var (a, b) = await PlayersAsync();
+        var client = factory.ClientFor(a);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync(Path("/games/chess/level"), new LevelRequest(1300), Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync(Path("/games/chess/level"), new LevelRequest(1600), Ct)).StatusCode);
+        Assert.Equal(3, await _db.ScalarAsync<long>("select count(*) from public.chess_ratings where user_id = @a and rating = 1600 and games = 0", ("a", a)));
+        // Changing it before the first game is fine.
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync(Path("/games/chess/level"), new LevelRequest(800), Ct)).StatusCode);
+
+        var game = await StartAsync(a, b);
+        Assert.Equal(800, await _db.ScalarAsync<int>("select white_rating from public.chess_games where id = @g", ("g", game)));
+        (await MoveAsync(a, game, "e2e4", 0)).EnsureSuccessStatusCode();
+        (await MoveAsync(b, game, "e7e5", 1)).EnsureSuccessStatusCode();
+        (await factory.ClientFor(a).PostAsync(Path($"/games/chess/{game}/resign"), null, Ct)).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await client.PostAsJsonAsync(Path("/games/chess/level"), new LevelRequest(2000), Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task A_challenge_becomes_a_game_and_checkmate_moves_both_ratings()
     {
         var (a, b) = await PlayersAsync();
@@ -142,9 +216,12 @@ public sealed class ChessTests(ApiFactory factory) : IClassFixture<ApiFactory>, 
         Assert.Equal("white", last.GetProperty("result").GetString());
         Assert.Equal("checkmate", last.GetProperty("termination").GetString());
         Assert.Equal("Qxf7#", last.GetProperty("san")[6].GetString());
-        Assert.Equal(20, last.GetProperty("white_delta").GetInt32());
-        Assert.Equal(-20, last.GetProperty("black_delta").GetInt32());
-        Assert.Equal(1220, await _db.ScalarAsync<int>("select rating from public.chess_ratings where user_id = @a and category = 'blitz'", ("a", a)));
+        // Glicko-2: two new players (1200, RD 350) move fast.
+        Assert.Equal(162, last.GetProperty("white_delta").GetInt32());
+        Assert.Equal(-162, last.GetProperty("black_delta").GetInt32());
+        Assert.Equal(1362, await _db.ScalarAsync<int>("select rating from public.chess_ratings where user_id = @a and category = 'blitz'", ("a", a)));
+        Assert.True(await _db.ScalarAsync<float>("select deviation from public.chess_ratings where user_id = @a and category = 'blitz'", ("a", a)) < 300);
+        Assert.True(await _db.ScalarAsync<bool>("select rated_at is not null from public.chess_ratings where user_id = @b and category = 'blitz'", ("b", b)));
         Assert.Equal(1, await _db.ScalarAsync<int>("select losses from public.chess_ratings where user_id = @b and category = 'blitz'", ("b", b)));
 
         // Over is over.

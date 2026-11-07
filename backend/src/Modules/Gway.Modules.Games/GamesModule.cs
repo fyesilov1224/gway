@@ -31,6 +31,8 @@ public static class GamesModule
     {
         var chess = app.MapGroup("/games/chess");
 
+        chess.MapPost("/level", async (LevelRequest body, ClaimsPrincipal user, ChessService s, CancellationToken ct) =>
+            (await s.SetLevelAsync(user.GetUserId(), body, ct)).ToHttpResult());
         chess.MapPost("/seeks", async (SeekRequest body, ClaimsPrincipal user, ChessService s, CancellationToken ct) =>
             (await s.SeekAsync(user.GetUserId(), body, ct)).ToHttpResult());
         chess.MapPost("/seeks/heartbeat", async (ClaimsPrincipal user, ChessService s, CancellationToken ct) =>

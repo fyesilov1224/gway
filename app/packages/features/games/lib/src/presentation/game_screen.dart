@@ -148,17 +148,19 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
           ),
         ],
       ),
-      body: switch ((async, pieces)) {
-        (AsyncData(value: final s), AsyncData(value: final set)) => _body(s, set, me),
-        (AsyncError(), _) || (_, AsyncError()) => GwErrorState(
-            message: userMessageOf(async.error ?? pieces.error),
-            onRetry: () {
-              ref.invalidate(gameControllerProvider(widget.gameId));
-              ref.invalidate(currentPieceSetProvider);
-            },
-          ),
-        _ => const _GameSkeleton(),
-      },
+      body: ChessTable(
+        child: switch ((async, pieces)) {
+          (AsyncData(value: final s), AsyncData(value: final set)) => _body(s, set, me),
+          (AsyncError(), _) || (_, AsyncError()) => GwErrorState(
+              message: userMessageOf(async.error ?? pieces.error),
+              onRetry: () {
+                ref.invalidate(gameControllerProvider(widget.gameId));
+                ref.invalidate(currentPieceSetProvider);
+              },
+            ),
+          _ => const _GameSkeleton(),
+        },
+      ),
     );
   }
 
@@ -228,7 +230,7 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
       const SizedBox(height: GwSpacing.xs),
       side(bottom),
       const SizedBox(height: GwSpacing.xs),
-      navigator,
+      if (wide) GwCard(radius: GwRadius.lgAll, padding: EdgeInsets.zero, child: navigator),
     ];
     if (wide) {
       return Center(
@@ -266,10 +268,20 @@ class _ChessGameScreenState extends ConsumerState<ChessGameScreen> {
         padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs, vertical: GwSpacing.xs),
         children: [
           ...column,
-          const SizedBox(height: GwSpacing.xs),
-          _MoveList(san: game.san, vertical: false, current: viewPly ?? game.ply, onTap: (p) => setState(() => _viewPly = p)),
-          const SizedBox(height: GwSpacing.sm),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: GwSpacing.xs), child: controls),
+          // On the wooden table the moves and buttons sit on one white card.
+          GwCard(
+            radius: GwRadius.lgAll,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, GwSpacing.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                navigator,
+                _MoveList(san: game.san, vertical: false, current: viewPly ?? game.ply, onTap: (p) => setState(() => _viewPly = p)),
+                const SizedBox(height: GwSpacing.sm),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: GwSpacing.sm), child: controls),
+              ],
+            ),
+          ),
         ],
       ),
     );

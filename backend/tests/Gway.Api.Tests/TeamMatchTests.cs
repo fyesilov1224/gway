@@ -104,7 +104,7 @@ public sealed class TeamMatchTests(ApiFactory factory) : IClassFixture<ApiFactor
         Assert.Equal(1184, await _db.ScalarAsync<int>("select rating from public.chess_group_ratings where group_id = @g", ("g", b.Group)));
         Assert.Equal(1, await _db.ScalarAsync<int>("select losses from public.chess_group_ratings where group_id = @g", ("g", b.Group)));
         // The board game was a rated game for both players too.
-        Assert.Equal(1220, await _db.ScalarAsync<int>("select rating from public.chess_ratings where user_id = @u and category = 'blitz'", ("u", a.Captain)));
+        Assert.Equal(1362, await _db.ScalarAsync<int>("select rating from public.chess_ratings where user_id = @u and category = 'blitz'", ("u", a.Captain)));
     }
 
     [Fact]

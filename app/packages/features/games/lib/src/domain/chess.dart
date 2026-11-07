@@ -289,12 +289,17 @@ class ChessRating {
     this.wins = 0,
     this.draws = 0,
     this.losses = 0,
+    this.deviation = startDeviation,
   });
 
   static const startRating = 1200;
 
-  /// Rated games needed to appear on the leaderboard.
-  static const rankedAfter = 5;
+  /// Glicko-2 (docs/ARCHITECTURE.md §3i, Puan): a new rating's deviation, and the line above which it is provisional.
+  static const startDeviation = 350.0;
+  static const provisionalDeviation = 110.0;
+
+  /// The starting levels a person picks once before the first rated game.
+  static const startLevels = [400, 800, 1200, 1600, 2000];
 
   final ChessCategory category;
   final int rating;
@@ -303,8 +308,10 @@ class ChessRating {
   final int wins;
   final int draws;
   final int losses;
+  final double deviation;
 
-  bool get ranked => games >= rankedAfter;
+  /// Still settling: shown as "1500?" and listed apart on the leaderboard.
+  bool get provisional => deviation > provisionalDeviation;
 }
 
 class LeaderboardEntry {
@@ -316,8 +323,11 @@ class LeaderboardEntry {
     required this.wins,
     required this.draws,
     required this.losses,
+    this.provisional = false,
+    this.trend,
   });
 
+  /// The place; 0 for a provisional rating, which is listed without one.
   final int rank;
   final ChessPlayer player;
   final int rating;
@@ -325,6 +335,10 @@ class LeaderboardEntry {
   final int wins;
   final int draws;
   final int losses;
+  final bool provisional;
+
+  /// The rating change over the last 30 days, where the board has one.
+  final int? trend;
 }
 
 /// A player page: the person, their ratings in each category and their places on the leaderboards.
@@ -398,6 +412,9 @@ abstract interface class ChessRepository {
   Future<Result<ChessProfile>> profile(String userId);
 
   Future<Result<void>> setCountry(String code);
+
+  /// The starting level, once, before the first rated game (one of [ChessRating.startLevels]).
+  Future<Result<void>> setLevel(int rating);
 
   Future<Result<List<LeaderboardEntry>>> leaderboard(ChessCategory category, {int offset = 0, int pageSize = 50});
 

@@ -8,6 +8,7 @@ using Npgsql;
 namespace Gway.Modules.Games;
 
 public sealed record SeekRequest(int BaseSeconds, int IncrementSeconds, bool Rated = true);
+public sealed record LevelRequest(int Rating);
 
 /// <summary>Null <see cref="GameId"/>: still waiting.</summary>
 public sealed record SeekResult(Guid? GameId);
@@ -55,10 +56,38 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
     private static readonly Error TeamNoAbort = Error.RuleViolation("games.team_no_abort", "Takım maçındaki oyun iptal edilemez; terk edebilirsin.");
     private static readonly Error ArenaNoAbort = Error.RuleViolation("games.arena_no_abort", "Turnuva oyunu iptal edilemez; terk edebilirsin.");
 
+    private static readonly Error LevelInvalid = Error.Validation("games.level_invalid", "Bu seviye seçeneği yok.");
+    private static readonly Error LevelLocked = Error.RuleViolation("games.level_locked", "Puanlı oyunun olduğu için seviye artık seçilemez.");
+
     private const int MaxOpenChallenges = 5;
 
     private static Error RuleError(string code) =>
         Error.RuleViolation($"games.{code}", "Bu işlem şu anda yapılamıyor. Sayfayı yenileyip tekrar dene.");
+
+    // -----------------------------------------------------------------------
+    // Starting level (docs/ARCHITECTURE.md §3i, Puan)
+    // -----------------------------------------------------------------------
+
+    /// <summary>Sets the person's starting rating in every category, once, before any rated game.</summary>
+    public Task<Result> SetLevelAsync(Guid actor, LevelRequest request, CancellationToken ct)
+    {
+        if (!ChessRules.StartLevels.Contains(request.Rating)) return Task.FromResult(Result.Failure(LevelInvalid));
+        return ActingTransaction.RunAsync(db, actor, async (conn, tx) =>
+        {
+            var played = (long?)await ActingTransaction.ScalarAsync(conn, tx,
+                "select count(*) from public.chess_ratings where user_id = @me and games > 0", ct, ("me", actor));
+            if (played > 0) return Result.Failure(LevelLocked);
+            await ActingTransaction.ExecuteAsync(conn, tx,
+                """
+                insert into public.chess_ratings (user_id, category, rating, peak, deviation, volatility)
+                select @me, c, @r, @r, @rd, @vol from unnest(array['bullet', 'blitz', 'rapid']) as c
+                on conflict (user_id, category) do update set rating = excluded.rating, peak = excluded.peak,
+                  deviation = excluded.deviation, volatility = excluded.volatility, updated_at = now()
+                """, ct, ("me", actor), ("r", request.Rating), ("rd", (float)ChessRules.StartDeviation),
+                ("vol", (float)ChessRules.StartVolatility));
+            return Result.Success();
+        }, RuleError, ct);
+    }
 
     // -----------------------------------------------------------------------
     // Quick game
@@ -564,32 +593,42 @@ internal sealed class ChessService(NpgsqlDataSource db) : IGamesAdministration
             """
             insert into public.chess_ratings (user_id, category) values (@w, @c), (@b, @c) on conflict do nothing
             """, ct, ("w", white), ("b", black), ("c", game.Category));
-        async Task<(int Rating, int Games)> Read(Guid user)
+        // Glicko-2 (docs/ARCHITECTURE.md §3i, Puan): each side aged by its idle days, then one rating period.
+        async Task<(ChessRules.Glicko Rating, int Stored)> Read(Guid user)
         {
             await using var cmd = new NpgsqlCommand(
-                "select rating, games from public.chess_ratings where user_id = @u and category = @c for update", conn, tx);
+                """
+                select rating, deviation, volatility,
+                       coalesce(extract(epoch from now() - rated_at) / 86400, 0)::float8
+                from public.chess_ratings where user_id = @u and category = @c for update
+                """, conn, tx);
             cmd.Parameters.AddWithValue("u", user);
             cmd.Parameters.AddWithValue("c", game.Category);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             await r.ReadAsync(ct);
-            return (r.GetInt32(0), r.GetInt32(1));
+            var stored = r.GetInt32(0);
+            var rating = new ChessRules.Glicko(stored, r.GetFloat(1), r.GetFloat(2));
+            return (ChessRules.Idle(rating, r.GetDouble(3)), stored);
         }
         var w = await Read(white);
         var b = await Read(black);
         var score = result switch { ChessRules.White => 1.0, ChessRules.Black => 0.0, _ => 0.5 };
-        var (dw, db) = ChessRules.EloDeltas(w.Rating, w.Games, b.Rating, b.Games, score);
+        var nw = ChessRules.Glicko2(w.Rating, b.Rating, score);
+        var nb = ChessRules.Glicko2(b.Rating, w.Rating, 1 - score);
+        var dw = (int)Math.Round(nw.Rating, MidpointRounding.AwayFromZero) - w.Stored;
+        var db = (int)Math.Round(nb.Rating, MidpointRounding.AwayFromZero) - b.Stored;
 
         const string Update =
             """
             update public.chess_ratings
-            set rating = rating + @d, peak = greatest(peak, rating + @d), games = games + 1,
-                wins = wins + @win, draws = draws + @draw, losses = losses + @loss, updated_at = now()
+            set rating = rating + @d, peak = greatest(peak, rating + @d), deviation = @rd, volatility = @vol, rated_at = now(),
+                games = games + 1, wins = wins + @win, draws = draws + @draw, losses = losses + @loss, updated_at = now()
             where user_id = @u and category = @c
             """;
-        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", dw), ("win", score == 1 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0),
-            ("loss", score == 0 ? 1 : 0), ("u", white), ("c", game.Category));
-        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", db), ("win", score == 0 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0),
-            ("loss", score == 1 ? 1 : 0), ("u", black), ("c", game.Category));
+        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", dw), ("rd", (float)nw.Deviation), ("vol", (float)nw.Volatility),
+            ("win", score == 1 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0), ("loss", score == 0 ? 1 : 0), ("u", white), ("c", game.Category));
+        await ActingTransaction.ExecuteAsync(conn, tx, Update, ct, ("d", db), ("rd", (float)nb.Deviation), ("vol", (float)nb.Volatility),
+            ("win", score == 0 ? 1 : 0), ("draw", score == 0.5 ? 1 : 0), ("loss", score == 1 ? 1 : 0), ("u", black), ("c", game.Category));
         await ActingTransaction.ExecuteAsync(conn, tx,
             "update public.chess_games set white_delta = @dw, black_delta = @db where id = @id", ct, ("dw", dw), ("db", db), ("id", game.Id));
     }

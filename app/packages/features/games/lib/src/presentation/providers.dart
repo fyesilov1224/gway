@@ -45,25 +45,51 @@ final leaderboardProvider = FutureProvider.autoDispose.family<List<LeaderboardEn
   return (await ref.watch(chessRepositoryProvider).leaderboard(category, pageSize: 100)).getOrThrow();
 });
 
-/// The chess sounds (GWAY's own, assets/sounds): one player each so a capture can follow a move at once.
+/// The chess sounds (GWAY's own wooden knocks, assets/sounds): one loaded player each so a capture can follow a move
+/// at once. Media players, not the low-latency pool, which stays silent on some Android phones; mixed over other
+/// audio and quiet with the iPhone's silent switch.
 class ChessSounds {
-  final _players = <String, AudioPlayer>{};
+  static final _context = AudioContext(
+    android: const AudioContextAndroid(
+      usageType: AndroidUsageType.game,
+      contentType: AndroidContentType.sonification,
+      audioFocus: AndroidAudioFocus.none,
+    ),
+    iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
+  );
+
+  final _players = <String, Future<AudioPlayer>>{};
+
+  Future<AudioPlayer> _load(String name) async {
+    final player = AudioPlayer()..audioCache = AudioCache(prefix: 'packages/games/assets/sounds/');
+    await player.setAudioContext(_context);
+    await player.setReleaseMode(ReleaseMode.stop);
+    await player.setSource(AssetSource('$name.wav'));
+    return player;
+  }
 
   Future<void> play(String name) async {
-    final player = _players[name] ??= AudioPlayer()..audioCache = AudioCache(prefix: 'packages/games/assets/sounds/');
     try {
+      final player = await (_players[name] ??= _load(name));
       await player.stop();
-      await player.play(AssetSource('$name.wav'), mode: PlayerMode.lowLatency);
+      await player.resume();
     } on Object {
-      // A device without audio simply plays nothing.
+      // A device without audio simply plays nothing; the next call loads again.
+      unawaited(_players.remove(name)?.then((p) => p.dispose(), onError: (_) {}));
     }
   }
 
-  void forSan(String san) => unawaited(play(san.contains('x') ? 'capture' : 'move'));
+  /// The sound for a move in SAN: castling, a capture or a plain move.
+  void forSan(String san) =>
+      unawaited(play(san.startsWith('O-O') ? 'castle' : (san.contains('x') ? 'capture' : 'move')));
 
   Future<void> dispose() async {
     for (final p in _players.values) {
-      await p.dispose();
+      try {
+        await (await p).dispose();
+      } on Object {
+        // Never loaded.
+      }
     }
   }
 }
@@ -170,6 +196,11 @@ class GameController extends AsyncNotifier<GameState> {
     if (before.isActive && !incoming.isActive) {
       unawaited(_sounds.play('notify'));
       next = next.copyWith(premove: () => null);
+      // The result moved ratings: the leaderboard, the player cards and the recent games show it at once.
+      ref
+        ..invalidate(leaderboardProvider)
+        ..invalidate(chessProfileProvider)
+        ..invalidate(recentGamesProvider);
     }
     state = AsyncData(next);
     _playPremove();

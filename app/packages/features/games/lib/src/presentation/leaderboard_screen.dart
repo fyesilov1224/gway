@@ -50,35 +50,62 @@ class _Board extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final entries = ref.watch(leaderboardProvider(category));
     final me = ref.watch(currentUserIdProvider);
+    final textTheme = Theme.of(context).textTheme;
     return switch (entries) {
       AsyncData(:final value) when value.isEmpty => Center(
           child: GwEmptyState(
             icon: Icons.emoji_events_outlined,
-            message: gamesL10n.leaderboardEmpty(ChessRating.rankedAfter),
+            message: gamesL10n.leaderboardNoGames,
             actionLabel: gamesL10n.playNow,
             onAction: () => context.push(ChessRoutes.seek(TimeControl.catalog.firstWhere((t) => t.category == category))),
           ),
         ),
       AsyncData(:final value) => RefreshIndicator(
           onRefresh: () => ref.refresh(leaderboardProvider(category).future),
-          child: ListView(
-            padding: const EdgeInsets.all(GwSpacing.page),
-            children: [
-              LeaderboardPodium(entries: value.take(3).toList(), playerPath: ChessRoutes.player),
-              const SizedBox(height: GwSpacing.md),
-              GwCard(
-                child: Column(
-                  children: [
-                    for (final (i, e) in value.indexed)
-                      if (i >= 3) ...[
-                        if (i > 3) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
-                        LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
+          child: Builder(builder: (context) {
+            final ranked = value.where((e) => !e.provisional).toList();
+            final settling = value.where((e) => e.provisional).toList();
+            final mine = value.where((e) => e.player.userId == me).firstOrNull;
+            return ListView(
+              padding: const EdgeInsets.all(GwSpacing.page),
+              children: [
+                if (mine != null) ...[_MyPlace(entry: mine), const SizedBox(height: GwSpacing.md)],
+                if (ranked.isNotEmpty) ...[
+                  LeaderboardPodium(entries: ranked.take(3).toList(), playerPath: ChessRoutes.player),
+                  const SizedBox(height: GwSpacing.md),
+                ],
+                if (ranked.length > 3)
+                  GwCard(
+                    child: Column(
+                      children: [
+                        const _TableHeader(),
+                        for (final e in ranked.skip(3)) ...[
+                          const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
+                          LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
+                        ],
                       ],
-                  ],
-                ),
-              ),
-            ],
-          ),
+                    ),
+                  ),
+                if (settling.isNotEmpty) ...[
+                  const SizedBox(height: GwSpacing.lg),
+                  GwSectionHeader(title: gamesL10n.provisionalPlayers, subtitle: gamesL10n.provisionalPlayersHint),
+                  const SizedBox(height: GwSpacing.xs),
+                  GwCard(
+                    child: Column(
+                      children: [
+                        for (final (i, e) in settling.indexed) ...[
+                          if (i > 0) const Divider(height: 1, indent: GwSpacing.md, endIndent: GwSpacing.md),
+                          LeaderboardRow(entry: e, isMe: e.player.userId == me, playerPath: ChessRoutes.player),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: GwSpacing.md),
+                Text(gamesL10n.ratingSystemNote, style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary), textAlign: TextAlign.center),
+              ],
+            );
+          }),
         ),
       AsyncError(:final error) => GwErrorState(message: userMessageOf(error), onRetry: () => ref.invalidate(leaderboardProvider(category))),
       _ => ListView(
@@ -89,6 +116,59 @@ class _Board extends ConsumerWidget {
           ],
         ),
     };
+  }
+}
+
+/// The reader's own line on top: place (or "provisional"), rating and the month's change.
+class _MyPlace extends StatelessWidget {
+  const _MyPlace({required this.entry});
+
+  final LeaderboardEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
+      decoration: const BoxDecoration(color: GwColors.primarySoft, borderRadius: GwRadius.lgAll),
+      child: Row(
+        children: [
+          Text(gamesL10n.yourPlace, style: textTheme.labelLarge?.copyWith(color: GwColors.primary)),
+          const SizedBox(width: GwSpacing.sm),
+          Expanded(
+            child: Text(
+              entry.provisional ? gamesL10n.provisionalShort : '#${entry.rank}',
+              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ),
+          if (entry.trend case final t? when t != 0) ...[RatingDelta(t), const SizedBox(width: GwSpacing.sm)],
+          Text(ratingLabel(entry.rating, provisional: entry.provisional),
+              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()])),
+        ],
+      ),
+    );
+  }
+}
+
+/// Column names over the table: place, player, the month's change, rating.
+class _TableHeader extends StatelessWidget {
+  const _TableHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.labelSmall?.copyWith(color: GwColors.textSecondary, fontWeight: FontWeight.w700);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GwSpacing.md, GwSpacing.sm, GwSpacing.md, GwSpacing.xs),
+      child: Row(
+        children: [
+          SizedBox(width: GwSpacing.xl + GwSpacing.sm, child: Text('#', style: style)),
+          Expanded(child: Text(gamesL10n.columnPlayer, style: style)),
+          Text(gamesL10n.column30Days, style: style),
+          const SizedBox(width: GwSpacing.md),
+          SizedBox(width: GwSpacing.xxl, child: Text(gamesL10n.columnRating, style: style, textAlign: TextAlign.end)),
+        ],
+      ),
+    );
   }
 }
 
@@ -202,15 +282,32 @@ class LeaderboardRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: GwSpacing.md, vertical: GwSpacing.sm),
           child: Row(
             children: [
-              RankBadge(rank: entry.rank),
+              if (entry.provisional)
+                SizedBox(
+                  width: GwSpacing.xl,
+                  child: Icon(Icons.hourglass_bottom_rounded, size: GwSpacing.md, color: GwColors.textSecondary, semanticLabel: gamesL10n.provisionalShort),
+                )
+              else
+                RankBadge(rank: entry.rank),
               const SizedBox(width: GwSpacing.sm),
               Expanded(
                 child: ChessPlayerLine(
                   player: entry.player,
-                  subtitle: gamesL10n.record(entry.wins, entry.draws, entry.losses),
+                  subtitle: '${gamesL10n.record(entry.wins, entry.draws, entry.losses)} · ${gamesL10n.winRate(_winRate(entry))}',
                 ),
               ),
-              Text('${entry.rating}', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              if (entry.trend case final t?) ...[
+                SizedBox(width: GwSpacing.xl + GwSpacing.xs, child: Align(alignment: Alignment.centerRight, child: RatingDelta(t))),
+                const SizedBox(width: GwSpacing.md),
+              ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: GwSpacing.xxl),
+                child: Text(
+                  ratingLabel(entry.rating, provisional: entry.provisional),
+                  textAlign: TextAlign.end,
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()]),
+                ),
+              ),
             ],
           ),
         ),
@@ -218,3 +315,6 @@ class LeaderboardRow extends StatelessWidget {
     );
   }
 }
+
+/// Score percentage: wins and half the draws over the games.
+int _winRate(LeaderboardEntry e) => e.games == 0 ? 0 : ((e.wins + e.draws / 2) * 100 / e.games).round();

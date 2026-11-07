@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(33);
+select plan(38);
 
 -- a and b played a game; c is an outsider; d is a suspended account; e is suspended from chess only.
 insert into auth.users (id, email, aud, role)
@@ -29,10 +29,16 @@ insert into public.chess_seeks (user_id, category, base_seconds, increment_secon
 values (pg_temp.u('a'), 'blitz', 300, 0, true, 1200);
 insert into public.chess_challenges (id, challenger_id, opponent_id, category, base_seconds, increment_seconds, rated)
 values ('00000000-0000-0000-0000-0000000c4ec1', pg_temp.u('a'), pg_temp.u('b'), 'rapid', 600, 0, true);
-insert into public.chess_ratings (user_id, category, rating, games, wins)
-select pg_temp.u(s), 'blitz', r, 6, 3
+insert into public.chess_ratings (user_id, category, rating, games, wins, deviation)
+select pg_temp.u(s), 'blitz', r, 6, 3, 80
 from (values ('a', 1500), ('b', 1300), ('c', 1700), ('d', 1900), ('e', 2000)) v (s, r);
-insert into public.chess_ratings (user_id, category, rating, games) values (pg_temp.u('b'), 'rapid', 1600, 4);
+-- b's rapid rating is still provisional (RD above 110); a only chose a level (no game yet).
+insert into public.chess_ratings (user_id, category, rating, games, deviation) values (pg_temp.u('b'), 'rapid', 1600, 4, 180);
+insert into public.chess_ratings (user_id, category, rating, games) values (pg_temp.u('a'), 'rapid', 2000, 0);
+insert into public.chess_games (id, white_id, black_id, category, base_seconds, increment_seconds, rated, source, status,
+                                result, termination, ended_at, white_ms, black_ms, white_rating, black_rating, white_delta, black_delta)
+values ('00000000-0000-0000-0000-0000000c4e93', pg_temp.u('a'), pg_temp.u('b'), 'blitz', 180, 2, true, 'seek', 'finished',
+        'white', 'resign', now(), 180000, 180000, 1488, 1312, 12, -12);
 insert into public.chess_players (user_id, suspended_until, suspension_reason)
 values (pg_temp.u('e'), 'infinity', 'Motor kullanımı');
 
@@ -87,13 +93,19 @@ select throws_ok($$select suspension_reason from public.chess_players$$, '42501'
 select throws_ok($$insert into public.chess_players (user_id, country) values ('00000000-0000-0000-0000-0000000c4e0c', 'tr')$$,
   '23514', null, 'the country is a two-letter upper-case code');
 
--- The leaderboard: 5+ games, not suspended from chess, account visible.
+-- The leaderboard: a rated game, not suspended from chess, account visible; established ratings ranked.
 select results_eq(
   $$select username, rank from public.chess_leaderboard('blitz')$$,
   $$values ('chess_user_c', 1::bigint), ('chess_user_a', 2::bigint), ('chess_user_b', 3::bigint)$$,
   'ranked by rating; the hidden account and the suspended player are left out');
 select is((select country from public.chess_leaderboard('blitz') where username = 'chess_user_c'), 'DE', 'the flag comes along');
-select is_empty($$select * from public.chess_leaderboard('rapid')$$, 'fewer than five rated games is not ranked yet');
+select results_eq($$select username, rank, provisional from public.chess_leaderboard('rapid')$$,
+  $$values ('chess_user_b', null::bigint, true)$$, 'a provisional rating is listed without a rank; a level alone is not listed');
+select is((select provisional from public.chess_leaderboard('blitz') where username = 'chess_user_a'), false, 'RD 80 is established');
+select is((select trend from public.chess_leaderboard('blitz') where username = 'chess_user_a'), 12, 'trend: rating change in 30 days');
+select is((select trend from public.chess_leaderboard('blitz') where username = 'chess_user_b'), -12, 'and a fall for the loser');
+select is((select trend from public.chess_leaderboard('blitz') where username = 'chess_user_c'), 0, 'no games, no trend');
+select throws_ok($$update public.chess_ratings set deviation = 40$$, '42501', null, 'clients cannot change the deviation');
 select results_eq($$select category, rank from public.chess_ranks() order by category$$,
   $$values ('blitz', 1::bigint), ('bullet', null::bigint), ('rapid', null::bigint)$$, 'my place in each category');
 select results_eq($$select rank from public.chess_ranks('00000000-0000-0000-0000-0000000c4e0b') where category = 'blitz'$$,
@@ -109,7 +121,7 @@ reset role;
 select pg_temp.act(pg_temp.u('a'));
 set local role authenticated;
 select is((select count(*)::int from public.chess_seeks), 1, 'a person sees their own seek');
-select is((select count(*)::int from public.chess_games where pg_temp.u('a') in (white_id, black_id)), 2,
+select is((select count(*)::int from public.chess_games where pg_temp.u('a') in (white_id, black_id)), 3,
   'a player sees their own games, also against a hidden account');
 reset role;
 

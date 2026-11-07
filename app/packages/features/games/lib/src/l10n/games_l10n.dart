@@ -570,12 +570,6 @@ abstract class GamesL10n {
   ///
   ///
   /// In tr, this message translates to:
-  /// **'Sıralamaya girmek için bu türde {count} puanlı oyun oyna.'**
-  String leaderboardEmpty(int count);
-
-  ///
-  ///
-  /// In tr, this message translates to:
   /// **'{wins}G · {draws}B · {losses}M'**
   String record(int wins, int draws, int losses);
 
@@ -1742,6 +1736,180 @@ abstract class GamesL10n {
   /// In tr, this message translates to:
   /// **'Yaklaşan turnuva yok.'**
   String get mindNoTournaments;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro'**
+  String get piecesPro;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kâğıt'**
+  String get piecesPaper;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Satranç seviyeni seç'**
+  String get levelTitle;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanın seçtiğin seviyeden başlar ve ilk oyunlarında gerçek seviyene hızla oturur.'**
+  String get levelBody;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk puanlı oyunundan önce bir kez seçilir.'**
+  String get levelPrompt;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni başlayan'**
+  String get levelNew;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Taşların nasıl oynadığını öğreniyorum.'**
+  String get levelNewHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç'**
+  String get levelBeginner;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuralları biliyorum, ara sıra oynarım.'**
+  String get levelBeginnerHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Orta'**
+  String get levelIntermediate;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenli oynarım, temel taktikleri bilirim.'**
+  String get levelIntermediateHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'İleri'**
+  String get levelAdvanced;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Açılış ve oyun sonu bilgim iyi.'**
+  String get levelAdvancedHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Usta'**
+  String get levelMaster;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Turnuvalarda oynarım.'**
+  String get levelMasterHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanlı oyun oynadıktan sonra seviye değiştirilemez.'**
+  String get levelNote;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviyen kaydedildi: {rating} puanla başlıyorsun.'**
+  String levelSaved(int rating);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu türde henüz puanlı oyun yok. İlk oyunu sen oyna.'**
+  String get leaderboardNoGames;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanlar ilk oyunlarda oturuyor; ilk sıralar yakında burada.'**
+  String get leaderboardSettling;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanı oturan oyuncular'**
+  String get provisionalPlayers;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan geçici (?); birkaç oyun sonra sıralamaya girer.'**
+  String get provisionalPlayersHint;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçici puan'**
+  String get provisionalShort;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Senin sıran'**
+  String get yourPlace;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Oyuncu'**
+  String get columnPlayer;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'30 gün'**
+  String get column30Days;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan'**
+  String get columnRating;
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'%{percent} skor'**
+  String winRate(int percent);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'En yüksek {rating}'**
+  String peakRating(int rating);
+
+  ///
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.'**
+  String get ratingSystemNote;
 }
 
 class _GamesL10nDelegate extends LocalizationsDelegate<GamesL10n> {

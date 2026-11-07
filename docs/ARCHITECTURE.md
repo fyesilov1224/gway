@@ -1404,10 +1404,10 @@ Uygulama kapalı kaynak olduğu için GPL/AGPL bileşen (Lichess'in `chessground
 |---|---|---|
 | Sunucuda kural ve hamle doğrulaması | `Gera.Chess` (NuGet, Geras1mleo/Chess) | MIT |
 | Uygulamada yasal hamle hesabı (seçim, ipucu, ön hamle) | `chess` (pub.dev, chess.js'in Dart sürümü) | BSD-2 |
-| Taş setleri | Klasik: Cburnett (Wikimedia Commons, Colin M.L. Burnett); Kelt, Uzay, Fantastik: Maurizio Monge (maurimo/chess-art); Modern: Chessnut, Alexis Luengas; Sıcak: Vector Ranks, RhosGFX | BSD 3-madde (yazar GFDL/CC BY-SA/BSD/GPL arasında seçim sunar); MIT; Apache 2.0; CC0. Metinler `assets/pieces/licenses/`, uygulamanın lisanslar sayfasına kaydedilir |
+| Taş setleri | Pro (varsayılan): Cburnett çizimleri, GWAY'in gölgeli fildişi ve abanoz renklendirmesiyle; Kâğıt: Papercut, Nikolay Anzarov; Klasik: Cburnett (Wikimedia Commons, Colin M.L. Burnett); Kelt, Uzay, Fantastik: Maurizio Monge (maurimo/chess-art); Modern: Chessnut, Alexis Luengas; Sıcak: Vector Ranks, RhosGFX | BSD 3-madde (yazar GFDL/CC BY-SA/BSD/GPL arasında seçim sunar; Pro değiştirilmiş çizimdir); CC BY 4.0 (Papercut, atıfla); MIT; Apache 2.0; CC0. Ticari kullanımı yasaklayan (NC) setler (Maestro, Cardinal, Staunty, California vb.) kullanılmaz; chess.com'un taşları telifli olduğu için kullanılmaz. Metinler `assets/pieces/licenses/`, uygulamanın lisanslar sayfasına kaydedilir |
 | Bayraklar | `country_flags` (flag-icons) | MIT |
 | Ülke adları (12 dil) | Unicode CLDR, `tool/games/countries.py` ile üretilir | Unicode lisansı |
-| Tahta, saat, sesler, madalyalar | GWAY'in kendi çizimi ve kendi ürettiği sesler | — |
+| Tahta, saat, sesler, madalyalar, ahşap masa dokusu | GWAY'in kendi çizimi, kendi ürettiği ahşap tık sesleri (hamle, alma, rok; modal sentez) ve kendi ürettiği ahşap doku (`assets/textures/wood.jpg`) | — |
 Tahta ve arayüz GWAY tasarım sistemiyle çizilir; başka bir sitenin görünümü kopyalanmaz.
 
 ### Süre türleri
@@ -1428,9 +1428,14 @@ Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'de
 - **Davet (meydan okuma):** bir kişiye süre, puanlı/puansız ve renk (rastgele, beyaz, siyah) seçilerek gönderilir. Kişide `chess_challenge` bildirimi (push) çıkar; 10 dakika içinde kabul ya da red. Kişi başına en çok 5 açık giden davet. Engel ilişkisi olan iki kişi birbirini davet edemez, eşleşmez.
 - Satrançtan uzaklaştırılmış kişi (`chess_players.suspended_until`) oynayamaz, sıralamada görünmez.
 
-### Elo
-- Başlangıç 1200; beklenen skor `1 / (1 + 10^((Rb − Ra) / 400))`; K = 40 (ilk 30 puanlı oyun), 20 (2400 altı), 10 (2400 ve üstü). En düşük 100. Puan değişimi oyun satırına yazılır (`white_delta`, `black_delta`), sonuçla aynı işlemde.
-- Kişi sıralaması: türde en az 5 puanlı oyunu olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte oyun sayısına göre. 1, 2, 3 altın, gümüş, bronz madalya.
+### Puan: Glicko-2 (kullanıcı kararı 2026-11-07, chess.com ve lichess gibi)
+- Kişi puanı **Glicko-2** ile hesaplanır (Glickman): puan (`rating`), güvenilirlik aralığı (`deviation`, RD) ve oynaklık (`volatility`). Her puanlı oyun tek rakipli bir derecelendirme dönemidir: iki oyuncunun da yeni puanı, RD'si ve oynaklığı oyunun sonucuyla aynı işlemde yazılır (`ChessRules.Glicko2`), puan değişimi oyun satırına (`white_delta`, `black_delta`). Sabitler: τ = 0,75; RD en çok 350, en az 45; oynaklık başlangıcı 0,06; en düşük puan 100.
+- **Uzun ara:** oyundan önce RD, son puanlı oyundan bu yana geçen gün sayısıyla büyür (`φ* = √(φ² + σ² · gün)`, en çok 350): uzun süre oynamayanın puanı yeniden hızlı oturur.
+- **Geçici puan:** RD 110'dan büyükse puan geçicidir; uygulamada puanın yanında `?` görünür (ör. `1500?`).
+- **Başlangıç seviyesi:** kişi ilk puanlı oyunundan önce seviyesini bir kez seçer (`POST /games/chess/level`): Yeni başlayan 400, Başlangıç 800, Orta 1200, İleri 1600, Usta 2000; üç türde de bu puanla ve RD 350 ile başlar. Puanlı oyunu olan kişi seviye seçemez (`games.level_locked`). Seçmeden puanlı oynayan kişi 1200 ile başlar.
+- Mevcut puanlar korunur; geçişte RD oyun sayısından hesaplanır (`350 × 0,8^oyun`, en az 60), oynaklık 0,06 (migration 0089).
+- **Sıralama:** türde en az bir puanlı oyunu olan, uzaklaştırılmamış ve hesabı görünür kişiler. Geçici puanı olmayanlar sıra numarası alır (puana, eşitlikte oyun sayısına göre; 1, 2, 3 altın, gümüş, bronz madalya); geçici puanlı oyuncular sıra numarasız, ayrı başlık altında listelenir. Her satırda son 30 günün puan değişimi (`trend`) görünür. Oyun bitince uygulama sıralamayı, puanları ve son oyunları yeniler.
+- Takım maçının grup Elo'su ve Zihin Düellosu Elo'su değişmez (Elo, `ChessRules.EloDeltas`).
 
 ### Takım maçı ve grup Elo'su (20b)
 - Grup sahibi ya da Yönetici (`games.team_match` yetkisi; sahipte her zaman var, Yönetici rolüne verildi) başka bir grubu davet eder: tahta sayısı (2–10), süre (Blitz ya da Rapid; Bullet yok), başlangıç (en az 15 dakika, en çok 30 gün sonra). Karşı grubun yetkilileri (`chess_team_invite` bildirimi) kabul eder veya reddeder; davet eden kişiye `chess_team_accepted` / `chess_team_declined` gider. Başlangıca kadar yanıtlanmayan davet kendiliğinden iptal olur.
@@ -1451,6 +1456,8 @@ Tahmini süre = taban + 40 × artış (saniye). 180'den kısa **Bullet**, 480'de
 
 ### Uygulama
 - `games` paketi: Oyunlar ekranı (`/games`; + düğmesindeki "Oyunlar" kartı açar, her oyunun kartı vardır), Satranç ana sayfası (hızlı oyun ızgarası, davetler, puanlarım, son oyunlar, sıralama özeti), oyun ekranı (tahta, saatler, oyuncu kartları bayrak ve puanla, hamle listesi, beraberlik, terk, iptal, tahtayı çevir, rövanş, sonuç ve puan değişimi), sıralama (türe göre sekmeler, ilk üç podyum), oyuncu sayfası, ülke seçimi.
+- Oyun ekranı ahşap masa dokusu üzerindedir; oyuncu kartları, hamleler ve düğmeler beyaz kartlardadır.
+- Sesler: hamle, alma ve rok için ayrı ahşap tık; oyun başı ve sonu bildirimi. Sesler yüklü medya oynatıcılarıyla çalınır (düşük gecikme havuzu bazı Android telefonlarda ses vermez), diğer seslerin üstüne karışır, iPhone'da sessiz anahtarına uyar.
 - Tahta GWAY'in kendi çizimidir: sürükle-bırak ve dokun-dokun, son hamle ve şah vurgusu, yasal hamle noktaları, terfi seçimi, kenar koordinatları, hamle animasyonu, ses ve titreşim; renkler `design_system` tokenlarından (`GwBoardTheme`, `GwChessColors`). Kişi tahta temasını ve taş setini seçer (cihazda saklanır, `docs/DESIGN.md` Oyunlar).
 - Bildirim türü `chess_challenge` (davet); dokununca Satranç sayfası açılır.
 
@@ -1460,6 +1467,7 @@ Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekl
 ### API
 | Uç | İş |
 |---|---|
+| `POST /games/chess/level` | `rating` (400, 800, 1200, 1600, 2000): başlangıç seviyesi; puanlı oyunu olan kişiye `games.level_locked` |
 | `POST /games/chess/seeks` | `baseSeconds`, `incrementSeconds`, `rated`: eşleşirse oyun, yoksa bekleme kaydı |
 | `POST /games/chess/seeks/heartbeat`, `DELETE /games/chess/seeks` | Beklemeyi tazeler / bırakır |
 | `POST /games/chess/challenges` | `opponentId`, süre, `rated`, `color` |
@@ -1478,7 +1486,7 @@ Oyunlar sayfası: bugünkü ve toplam oyun sayısı, şu an süren oyunlar, bekl
 | `GET /admin/games/chess/team-matches`, `POST /admin/games/chess/team-matches/{id}/cancel` | Açık maçlar; başlamamış maçı gerekçeyle iptal (`games.team_match_canceled`). Rol: `admin`, `moderator` |
 
 ### Tablolar (sahip: games)
-`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#); `chess_tournaments`, `chess_tournament_players` (0084; giriş yapmış herkes okur, yazma yalnız C#). Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
+`chess_players`, `chess_ratings`, `chess_games`, `chess_seeks`, `chess_challenges` (0082); `chess_group_ratings`, `chess_team_matches`, `chess_team_lineups`, `chess_team_boards` (0083; iki grup da görünürse giriş yapmış herkes okur, yazma yalnız C#); `chess_tournaments`, `chess_tournament_players` (0084; giriş yapmış herkes okur, yazma yalnız C#). 0089: `chess_ratings.deviation`, `volatility`, `rated_at` (Glicko-2); sıralama fonksiyonları `provisional` ve `trend` döner. Okuma: oyunlar, puanlar ve oyuncular giriş yapmış herkese açıktır (oyuncunun hesabı görünürse); bekleme kaydını yalnız sahibi, daveti iki tarafı görür. Kişi yalnız kendi `chess_players.country` alanını yazar (uygulama upsert gönderdiği için `user_id` sütununa da güncelleme izni vardır; RLS satırı kişinin kendisine bağlar); geri kalan her yazma C#'tadır. Migration `0082`.
 
 ## 3j. Oyunlar: Zihin Düellosu (Faz 21, kullanıcı kararları 2026-11-05)
 
@@ -1519,7 +1527,7 @@ Maç açılırken C# (`MindQuestions`) bütün soruları üretir ve `mind_questi
 - Bitiş: iki taraf da son soruyu yanıtlayınca (`completed`), bitiş sınırında (`time`), terkle (`resign`) ya da iptalle (`aborted`). Sonuç ve Elo aynı işlemde yazılır. Bitişi ve ilk soru penceresini `GamesMonitor` saniyede bir yakalar.
 
 ### Elo
-Satrançla aynı hesap (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100). Kişi sıralaması: o soru sayısında en az 5 puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte maç sayısına göre; ilk üç altın, gümüş ve bronz madalya ve taç (`mind_leaderboard`, `mind_ranks`).
+Elo (`ChessRules.EloDeltas`: başlangıç 1200, K 40/20/10, en düşük 100; satranç 2026-11-07'de Glicko-2'ye geçti, düello Elo'da kaldı). Kişi sıralaması: o soru sayısında en az 5 puanlı maçı olan, uzaklaştırılmamış ve hesabı görünür kişiler; puana, eşitlikte maç sayısına göre; ilk üç altın, gümüş ve bronz madalya ve taç (`mind_leaderboard`, `mind_ranks`).
 
 ### Grupların düellosu ve grup sıralaması (21b)
 - Satrançtaki takım maçının aynısıdır ve aynı tablolarla, aynı kodla çalışır: takım maçı tablolarına oyun alanı eklenir (`chess_team_matches.game`: `chess` ya da `mind`), Zihin Düellosu maçında süre yerine soru sayısı (`length`) seçilir. Davet, kabul/red, diziliş (2–10 sıra), yetki (`games.team_match`), iki grup arasında oyun başına tek açık maç, grup başına en çok 5 açık maç, başlangıçta kendiliğinden başlama ve iptal kuralları aynıdır.

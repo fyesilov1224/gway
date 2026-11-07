@@ -242,11 +242,6 @@ class GamesL10nTr extends GamesL10n {
   String get leaderboard => 'Sıralama';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Sıralamaya girmek için bu türde $count puanlı oyun oyna.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '${wins}G · ${draws}B · ${losses}M';
   }
@@ -991,4 +986,103 @@ class GamesL10nTr extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Yaklaşan turnuva yok.';
+
+  @override
+  String get piecesPro => 'Pro';
+
+  @override
+  String get piecesPaper => 'Kâğıt';
+
+  @override
+  String get levelTitle => 'Satranç seviyeni seç';
+
+  @override
+  String get levelBody =>
+      'Puanın seçtiğin seviyeden başlar ve ilk oyunlarında gerçek seviyene hızla oturur.';
+
+  @override
+  String get levelPrompt => 'İlk puanlı oyunundan önce bir kez seçilir.';
+
+  @override
+  String get levelNew => 'Yeni başlayan';
+
+  @override
+  String get levelNewHint => 'Taşların nasıl oynadığını öğreniyorum.';
+
+  @override
+  String get levelBeginner => 'Başlangıç';
+
+  @override
+  String get levelBeginnerHint => 'Kuralları biliyorum, ara sıra oynarım.';
+
+  @override
+  String get levelIntermediate => 'Orta';
+
+  @override
+  String get levelIntermediateHint =>
+      'Düzenli oynarım, temel taktikleri bilirim.';
+
+  @override
+  String get levelAdvanced => 'İleri';
+
+  @override
+  String get levelAdvancedHint => 'Açılış ve oyun sonu bilgim iyi.';
+
+  @override
+  String get levelMaster => 'Usta';
+
+  @override
+  String get levelMasterHint => 'Turnuvalarda oynarım.';
+
+  @override
+  String get levelNote => 'Puanlı oyun oynadıktan sonra seviye değiştirilemez.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Seviyen kaydedildi: $rating puanla başlıyorsun.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'Bu türde henüz puanlı oyun yok. İlk oyunu sen oyna.';
+
+  @override
+  String get leaderboardSettling =>
+      'Puanlar ilk oyunlarda oturuyor; ilk sıralar yakında burada.';
+
+  @override
+  String get provisionalPlayers => 'Puanı oturan oyuncular';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Puan geçici (?); birkaç oyun sonra sıralamaya girer.';
+
+  @override
+  String get provisionalShort => 'Geçici puan';
+
+  @override
+  String get yourPlace => 'Senin sıran';
+
+  @override
+  String get columnPlayer => 'Oyuncu';
+
+  @override
+  String get column30Days => '30 gün';
+
+  @override
+  String get columnRating => 'Puan';
+
+  @override
+  String winRate(int percent) {
+    return '%$percent skor';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'En yüksek $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Puanlar Glicko-2 sistemiyle hesaplanır. \"?\" işareti puanın henüz oturmadığını gösterir.';
 }

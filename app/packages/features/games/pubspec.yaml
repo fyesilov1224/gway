@@ -30,6 +30,8 @@ dev_dependencies:
 flutter:
   generate: true
   assets:
+    - assets/pieces/pro/
+    - assets/pieces/papercut/
     - assets/pieces/classic/
     - assets/pieces/celtic/
     - assets/pieces/spatial/
@@ -38,3 +40,4 @@ flutter:
     - assets/pieces/rhosgfx/
     - assets/pieces/licenses/
     - assets/sounds/
+    - assets/textures/

@@ -260,11 +260,6 @@ class GamesL10nUk extends GamesL10n {
   String get leaderboard => 'Рейтинг';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'Зіграйте $count рейтингових партій у цій категорії, щоб потрапити до рейтингу.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '$winsВ · $drawsН · $lossesП';
   }
@@ -1064,4 +1059,103 @@ class GamesL10nUk extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'Найближчих турнірів немає.';
+
+  @override
+  String get piecesPro => 'Про';
+
+  @override
+  String get piecesPaper => 'Папір';
+
+  @override
+  String get levelTitle => 'Обери свій рівень';
+
+  @override
+  String get levelBody =>
+      'Рейтинг почнеться з обраного рівня й за перші партії швидко наблизиться до твоєї справжньої сили.';
+
+  @override
+  String get levelPrompt =>
+      'Обирається один раз, до першої рейтингової партії.';
+
+  @override
+  String get levelNew => 'Новачок';
+
+  @override
+  String get levelNewHint => 'Вчуся, як ходять фігури.';
+
+  @override
+  String get levelBeginner => 'Початківець';
+
+  @override
+  String get levelBeginnerHint => 'Знаю правила й іноді граю.';
+
+  @override
+  String get levelIntermediate => 'Середній';
+
+  @override
+  String get levelIntermediateHint => 'Граю регулярно й знаю базову тактику.';
+
+  @override
+  String get levelAdvanced => 'Просунутий';
+
+  @override
+  String get levelAdvancedHint => 'Добре знаю дебюти й ендшпілі.';
+
+  @override
+  String get levelMaster => 'Експерт';
+
+  @override
+  String get levelMasterHint => 'Граю в турнірах.';
+
+  @override
+  String get levelNote => 'Після рейтингової партії рівень змінити не можна.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'Рівень збережено: ти починаєш з $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'У цій категорії ще немає рейтингових партій. Зіграй першу.';
+
+  @override
+  String get leaderboardSettling =>
+      'Рейтинги встановлюються в перших партіях; лідери скоро з’являться тут.';
+
+  @override
+  String get provisionalPlayers => 'Рейтинг встановлюється';
+
+  @override
+  String get provisionalPlayersHint =>
+      'Попередній рейтинг (?); потрапить до таблиці за кілька партій.';
+
+  @override
+  String get provisionalShort => 'Попередній';
+
+  @override
+  String get yourPlace => 'Твоє місце';
+
+  @override
+  String get columnPlayer => 'Гравець';
+
+  @override
+  String get column30Days => '30 днів';
+
+  @override
+  String get columnRating => 'Рейтинг';
+
+  @override
+  String winRate(int percent) {
+    return '$percent% очок';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'Макс. $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'Рейтинг рахується за системою Glicko-2. «?» означає, що рейтинг ще попередній.';
 }

@@ -144,4 +144,96 @@ internal static partial class ChessRules
         var black = (int)Math.Round(KFactor(blackRating, blackGames) * ((1 - whiteScore) - (1 - expected)), MidpointRounding.AwayFromZero);
         return (Math.Max(MinRating, whiteRating + white) - whiteRating, Math.Max(MinRating, blackRating + black) - blackRating);
     }
+
+    // -----------------------------------------------------------------------
+    // Glicko-2 (docs/ARCHITECTURE.md §3i, Puan): the person's chess rating since 2026-11-07
+    // -----------------------------------------------------------------------
+
+    public const double StartDeviation = 350;
+    public const double MinDeviation = 45;
+    public const double StartVolatility = 0.06;
+
+    /// <summary>Above this deviation a rating is provisional: shown with "?" and listed apart on the leaderboard.</summary>
+    public const double ProvisionalDeviation = 110;
+
+    /// <summary>The starting levels a person picks once before the first rated game.</summary>
+    public static readonly int[] StartLevels = [400, 800, 1200, 1600, 2000];
+
+    private const double Tau = 0.75;
+    private const double Scale = 173.7178;
+
+    /// <summary>A Glicko-2 rating: the rating, its deviation (RD) and volatility.</summary>
+    public readonly record struct Glicko(double Rating, double Deviation, double Volatility);
+
+    /// <summary>
+    /// The deviation after <paramref name="idleDays"/> without a rated game: it grows with the volatility,
+    /// so a rating left alone becomes uncertain again and settles quickly when the person comes back.
+    /// </summary>
+    public static Glicko Idle(Glicko player, double idleDays)
+    {
+        if (idleDays <= 0) return player;
+        var phi = player.Deviation / Scale;
+        var grown = Math.Sqrt(phi * phi + player.Volatility * player.Volatility * idleDays) * Scale;
+        return player with { Deviation = Math.Min(StartDeviation, grown) };
+    }
+
+    /// <summary>
+    /// One game as a Glicko-2 rating period with a single opponent (Glickman, "Example of the Glicko-2 system").
+    /// <paramref name="score"/> is 1, 0.5 or 0 for <paramref name="player"/>. Both inputs are already aged with <see cref="Idle"/>.
+    /// </summary>
+    public static Glicko Glicko2(Glicko player, Glicko opponent, double score)
+    {
+        var mu = (player.Rating - 1500) / Scale;
+        var phi = player.Deviation / Scale;
+        var sigma = player.Volatility;
+        var muJ = (opponent.Rating - 1500) / Scale;
+        var phiJ = opponent.Deviation / Scale;
+
+        var g = 1 / Math.Sqrt(1 + 3 * phiJ * phiJ / (Math.PI * Math.PI));
+        var e = 1 / (1 + Math.Exp(-g * (mu - muJ)));
+        var v = 1 / (g * g * e * (1 - e));
+        var delta = v * g * (score - e);
+
+        // New volatility: the Illinois algorithm from step 5 of the paper.
+        var a = Math.Log(sigma * sigma);
+        double F(double x)
+        {
+            var ex = Math.Exp(x);
+            var d = phi * phi + v + ex;
+            return ex * (delta * delta - phi * phi - v - ex) / (2 * d * d) - (x - a) / (Tau * Tau);
+        }
+        var lower = a;
+        double upper;
+        if (delta * delta > phi * phi + v) upper = Math.Log(delta * delta - phi * phi - v);
+        else
+        {
+            var k = 1;
+            while (F(a - k * Tau) < 0) k++;
+            upper = a - k * Tau;
+        }
+        var fLower = F(lower);
+        var fUpper = F(upper);
+        for (var i = 0; i < 100 && Math.Abs(upper - lower) > 1e-6; i++)
+        {
+            var c = lower + (lower - upper) * fLower / (fUpper - fLower);
+            var fC = F(c);
+            if (fC * fUpper <= 0)
+            {
+                lower = upper;
+                fLower = fUpper;
+            }
+            else fLower /= 2;
+            upper = c;
+            fUpper = fC;
+        }
+        var newSigma = Math.Exp(lower / 2);
+
+        var phiStar = Math.Sqrt(phi * phi + newSigma * newSigma);
+        var newPhi = 1 / Math.Sqrt(1 / (phiStar * phiStar) + 1 / v);
+        var newMu = mu + newPhi * newPhi * g * (score - e);
+        return new Glicko(
+            Math.Max(MinRating, newMu * Scale + 1500),
+            Math.Clamp(newPhi * Scale, MinDeviation, StartDeviation),
+            newSigma);
+    }
 }

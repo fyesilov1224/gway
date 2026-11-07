@@ -200,3 +200,21 @@ String resultFor(ChessGame game, ChessColor color) => switch (game.scoreFor(colo
       0.5 => gamesL10n.draw,
       _ => game.status == GameStatus.aborted ? gamesL10n.endAborted : gamesL10n.inProgress,
     };
+
+/// The wooden table under a game (assets/textures/wood.jpg, GWAY's own drawing in the wood board's tones).
+class ChessTable extends StatelessWidget {
+  const ChessTable({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(image: AssetImage('assets/textures/wood.jpg', package: 'games'), fit: BoxFit.cover),
+        ),
+        child: child,
+      );
+}
+
+/// "1500", or "1500?" while a Glicko-2 rating is still provisional (docs/ARCHITECTURE.md §3i, Puan).
+String ratingLabel(int rating, {bool provisional = false}) => provisional ? '$rating?' : '$rating';

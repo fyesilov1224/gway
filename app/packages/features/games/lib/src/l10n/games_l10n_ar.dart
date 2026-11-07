@@ -242,11 +242,6 @@ class GamesL10nAr extends GamesL10n {
   String get leaderboard => 'الترتيب';
 
   @override
-  String leaderboardEmpty(int count) {
-    return 'العب $count مباريات مصنّفة في هذه الفئة لتدخل الترتيب.';
-  }
-
-  @override
   String record(int wins, int draws, int losses) {
     return '$wins فوز · $draws تعادل · $losses خسارة';
   }
@@ -997,4 +992,102 @@ class GamesL10nAr extends GamesL10n {
 
   @override
   String get mindNoTournaments => 'لا بطولات قادمة.';
+
+  @override
+  String get piecesPro => 'احترافي';
+
+  @override
+  String get piecesPaper => 'ورقي';
+
+  @override
+  String get levelTitle => 'اختر مستواك في الشطرنج';
+
+  @override
+  String get levelBody =>
+      'يبدأ تصنيفك من المستوى الذي تختاره ويستقر سريعًا عند مستواك الحقيقي في مبارياتك الأولى.';
+
+  @override
+  String get levelPrompt => 'يُختار مرة واحدة قبل أول مباراة مصنّفة.';
+
+  @override
+  String get levelNew => 'جديد على الشطرنج';
+
+  @override
+  String get levelNewHint => 'أتعلّم كيف تتحرك القطع.';
+
+  @override
+  String get levelBeginner => 'مبتدئ';
+
+  @override
+  String get levelBeginnerHint => 'أعرف القواعد وألعب أحيانًا.';
+
+  @override
+  String get levelIntermediate => 'متوسط';
+
+  @override
+  String get levelIntermediateHint => 'ألعب بانتظام وأعرف التكتيكات الأساسية.';
+
+  @override
+  String get levelAdvanced => 'متقدّم';
+
+  @override
+  String get levelAdvancedHint => 'أعرف الافتتاحيات والنهايات جيدًا.';
+
+  @override
+  String get levelMaster => 'خبير';
+
+  @override
+  String get levelMasterHint => 'ألعب في البطولات.';
+
+  @override
+  String get levelNote => 'بعد لعب مباراة مصنّفة لا يمكن تغيير المستوى.';
+
+  @override
+  String levelSaved(int rating) {
+    return 'تم حفظ المستوى: تبدأ بتصنيف $rating.';
+  }
+
+  @override
+  String get leaderboardNoGames =>
+      'لا توجد مباريات مصنّفة في هذه الفئة بعد. العب أول مباراة.';
+
+  @override
+  String get leaderboardSettling =>
+      'تستقر التصنيفات في المباريات الأولى؛ ستظهر المراكز الأولى هنا قريبًا.';
+
+  @override
+  String get provisionalPlayers => 'تصنيفات قيد الاستقرار';
+
+  @override
+  String get provisionalPlayersHint =>
+      'تصنيف مؤقت (?)؛ يدخل الترتيب بعد بضع مباريات.';
+
+  @override
+  String get provisionalShort => 'مؤقت';
+
+  @override
+  String get yourPlace => 'مركزك';
+
+  @override
+  String get columnPlayer => 'اللاعب';
+
+  @override
+  String get column30Days => '30 يومًا';
+
+  @override
+  String get columnRating => 'التصنيف';
+
+  @override
+  String winRate(int percent) {
+    return 'نسبة النقاط $percent%';
+  }
+
+  @override
+  String peakRating(int rating) {
+    return 'الأعلى $rating';
+  }
+
+  @override
+  String get ratingSystemNote =>
+      'تُحسب التصنيفات بنظام Glicko-2. علامة \"?\" تعني أن التصنيف لم يستقر بعد.';
 }

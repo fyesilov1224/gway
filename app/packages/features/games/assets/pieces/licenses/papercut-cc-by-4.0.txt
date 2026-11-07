@@ -1,0 +1,6 @@
+Chess pieces "Papercut" by Nikolay Anzarov (https://nikoichu.itch.io/), as published in the lichess repository
+(https://github.com/lichess-org/lila/tree/master/public/piece/papercut).
+
+Licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+GWAY uses the drawings unchanged.

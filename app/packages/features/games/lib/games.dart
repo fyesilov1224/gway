@@ -27,6 +27,8 @@ void registerGamesLicenses() {
   LicenseRegistry.addLicense(() async* {
     Future<String> read(String file) => rootBundle.loadString('packages/games/assets/pieces/licenses/$file');
     yield LicenseEntryWithLineBreaks(['Cburnett chess pieces (Colin M.L. Burnett)'], await read('cburnett-bsd-3-clause.txt'));
+    yield LicenseEntryWithLineBreaks(['GWAY Pro chess pieces (after Colin M.L. Burnett)'], await read('pro-bsd-3-clause.txt'));
+    yield LicenseEntryWithLineBreaks(['Papercut chess pieces (Nikolay Anzarov)'], await read('papercut-cc-by-4.0.txt'));
     yield LicenseEntryWithLineBreaks(['Celtic, Fantasy and Spatial chess pieces (Maurizio Monge)'], await read('monge-mit.txt'));
     yield LicenseEntryWithLineBreaks(
         ['Chessnut chess pieces (Alexis Luengas)'], 'Copyright 2015 Alexis Luengas\n\n${await read('chessnut-apache-2.0.txt')}');

@@ -129,7 +129,7 @@ class ChessIdentityCard extends ConsumerWidget {
             children: [
               for (final (i, c) in ChessCategory.values.indexed) ...[
                 if (i > 0) const SizedBox(width: GwSpacing.xs),
-                Expanded(child: _RatingTile(rating: profile.ratingOf(c), rank: profile.ranks[c])),
+                Expanded(child: _RatingTile(rating: profile.ratingOf(c), known: profile.ratings.containsKey(c), rank: profile.ranks[c])),
               ],
             ],
           ),
@@ -177,9 +177,12 @@ class MedalsRow extends ConsumerWidget {
 }
 
 class _RatingTile extends StatelessWidget {
-  const _RatingTile({required this.rating, required this.rank});
+  const _RatingTile({required this.rating, required this.known, required this.rank});
 
   final ChessRating rating;
+
+  /// A rating row exists: played, or a starting level chosen.
+  final bool known;
   final int? rank;
 
   @override
@@ -203,11 +206,20 @@ class _RatingTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: GwSpacing.xxs),
-            Text(rating.games == 0 ? '—' : '${rating.rating}', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              known ? ratingLabel(rating.rating, provisional: rating.provisional) : '—',
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()]),
+            ),
             Text(
               rating.games == 0 ? gamesL10n.notPlayed : gamesL10n.gamesCount(rating.games),
               style: textTheme.bodySmall?.copyWith(color: GwColors.textSecondary),
             ),
+            if (rating.games > 0) ...[
+              const SizedBox(height: GwSpacing.xs),
+              _RecordBar(rating: rating),
+              const SizedBox(height: GwSpacing.xxs),
+              Text(gamesL10n.peakRating(rating.peak), style: textTheme.labelSmall?.copyWith(color: GwColors.textSecondary)),
+            ],
             if (rank case final r?) ...[
               const SizedBox(height: GwSpacing.xxs),
               Row(
@@ -286,6 +298,34 @@ class _ResultDot extends StatelessWidget {
       height: GwSpacing.lg,
       decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
       child: Icon(icon, size: GwSpacing.md, color: color),
+    );
+  }
+}
+
+/// Wins, draws and losses as one thin bar (green, grey, red), with the counts for screen readers.
+class _RecordBar extends StatelessWidget {
+  const _RecordBar({required this.rating});
+
+  final ChessRating rating;
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = [(rating.wins, GwColors.success), (rating.draws, GwColors.textSecondary), (rating.losses, GwColors.error)];
+    return Semantics(
+      label: gamesL10n.record(rating.wins, rating.draws, rating.losses),
+      excludeSemantics: true,
+      child: ClipRRect(
+        borderRadius: GwRadius.smAll,
+        child: SizedBox(
+          height: GwSpacing.xxs,
+          child: Row(
+            children: [
+              for (final (count, color) in parts)
+                if (count > 0) Expanded(flex: count, child: ColoredBox(color: color)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,0 +1,3 @@
+GWAY "Pro" chess pieces: the Cburnett drawings by Colin M.L. Burnett (see cburnett-bsd-3-clause.txt), recolored by
+GWAY with shaded ivory and ebony fills, a softer outline and a ground shadow. Used and modified under the BSD 3-clause
+license; the original copyright notice and conditions in cburnett-bsd-3-clause.txt apply.
